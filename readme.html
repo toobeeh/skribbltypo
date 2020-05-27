@@ -1,91 +1,16 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>------- Skribbl Typo Addon -------</title>
+    <title>Skribbl-Typo</title>
 </head>
 <body>
 
-    <h2 id="skribbl-typo-addon">------- Skribbl Typo Addon -------</h2>
-<p>(Tipp: Zum Testen von Funktionen auf das Fragezeichen auf der Skribbl-Seite klicken!)</p>
-<h3 id="funktionen">Funktionen:</h3>
-<ul>
-<li><h4 id="kommandoeingabe">Kommandoeingabe</h4>
-<p>Um die verschiedenen Funktionen zu aktivieren, kannst du im Chat Kommandos eingeben.<br />
-Dazu gibst du einfach den Befehl und am Ende &quot;--&quot; ein, zum Beispiel &quot;help--&quot;.<br />
-Enter musst du nicht dr�cken.<br />
-Fast alle Funktionen k�nnen aber auch �ber das Popup eingestellt werden</p>
-</li>
-<li><h4 id="zurck-button">Zur�ck-Button</h4>
-<p>Wenn du zum Beispiel falsch gef�llt hast, kannst du deine Aktionen auf der Leinwand mit dem Zur�ck-Button in der Werkzeugleiste r�ckg�ngig machen.<br />
-Dabei wird das ganze Bild neu gezeichnet, was etwa zwischen 1 und 5 Sekunden dauern kann. Die Funktion ist also eher f�r ... &quot;Notf�lle&quot;.</p>
-<h5 id="aktivieren-enable-back">Aktivieren: &quot;enable back--&quot;</h5>
-<p>Deaktivieren: &quot;disable back--&quot;</p>
-</li>
-<li><h4 id="zufallsfarbe">Zufallsfarbe</h4>
-<p>Wenn du auf den W�rfel neben der Farbpalette klickst, wird in einem festgelegten Intervall zwischen 10 und 500 Millisekunden die Farbe des Pinsels zuf�llig ge�ndert.<br />
-Dadurch entstehen bunte Striche - f�r normale Farben einfach wieder eine Farbe ausw�hlen.<br />
-(Den Hintergrund schnell zu ver�ndern sieht zwar lustig aus, aber kann nerven!)</p>
-<h5 id="aktivieren-enable-random">Aktivieren: &quot;enable random--&quot;</h5>
-<p>Deaktivieren: &quot;disable random--&quot;<br />
-Intervall festlegen: &quot;set random 100--&quot;</p>
-</li>
-<li><h4 id="imageagent">ImageAgent</h4>
-<p>Wenn du an der Reihe zu zeichnen bist und ein Wort gew�hlt hast, erscheinen �ber dem Chat neue Buttons.<br />
-Indem du auf &quot;Logo&quot;, &quot;Karte&quot; oder &quot;Flagge&quot; klickst, wird eine Internet-Suche nach dem Wort und dem Thema durchgef�hrt.<br />
-Das erste Bild aus den Suchergebnissen wird dann direkt in Skribbl als kleine Vorlage unter den Buttons angezeigt.<br />
-Wenn du auf das Bild klickst, wird das n�chste Bild aus den Suchergebnissen angezeigt.</p>
-<p>Mit &quot;Begriff&quot; wird nur nach dem Begriff gesucht (zB &quot;Italien&quot; statt &quot;Italien Karte&quot;).<br />
-Durch &quot;Eingabe&quot; �ffnet sich ein Eingabefeld, in dem du einen eigenen Suchbegriff eingeben kannst (zB &quot;Europakarte&quot;).<br />
-Mit Enter wird die Suche durchgef�hrt.</p>
-<p>Die Buttons und das Bild werden automatisch entfernt, wenn du mit Zeichnen fertig bist.</p>
-<h5 id="aktivieren-enable-agent">Aktivieren: &quot;enable agent--&quot;</h5>
-<p>Deaktivieren: &quot;disable agent--&quot;</p>
-</li>
-<li><h4 id="nachrichten-markierungen">Nachrichten-Markierungen</h4>
-<p>Deine Nachrichten im Chat k�nnen farbig hervorgehoben werden.</p>
-<h5 id="aktivieren-enable-markup">Aktivieren: &quot;enable markup--&quot;</h5>
-<p>Deaktivieren: &quot;disable markup--&quot;<br />
-Farbe �ndern: &quot;set markup #ffffff--&quot;</p>
-<p>'#ffffff' steht f�r den Hex-Code der Farbe. Dieser muss aus 6 Stellen bestehen.<br />
-Du kannst auch andere Personen farbig hervorheben. 'name' steht f�r den Namen des Spielers.</p>
-<h5 id="namen-hinzufgen-add-vip-name">Namen hinzuf�gen: &quot;add vip name--&quot;</h5>
-<p>Namen l�schen: &quot;rem vip name--&quot;<br />
-Namen anzeigen: &quot;show vip--&quot;<br />
-Alle Namen l�schen: &quot;clear vip--&quot;</p>
-</li>
-<li><h4 id="tablet-druckempfindlichkeit">Tablet-Druckempfindlichkeit</h4>
-<p>Eingabestifte, die Druckempfindlich sind, k�nnen die Pinselst�rke je nach Druck setzen.<br />
-Dazu muss dein Stift / Tablet Windows Ink aktiviert haben.<br />
-Du kannst du Empfindlichkeit von 1 (niedrig) bis 100 (sehr hoch) verstellen.<br />
-F�r genauere Einstellungen verwende deinen Tablet-Driver.</p>
-<h5 id="aktivieren-enable-ink">Aktivieren: &quot;enable ink--&quot;</h5>
-<p>Deaktivieren: &quot;disable ink--&quot;<br />
-Empfindlichkeit: &quot;set sens 3--&quot;</p>
-<p>Au�erdem kannst du mit den Tasten a und s die Pinselst�rke verstellen (7 Stufen). Mit q und w sind die Spr�nge gr��er.</p>
-</li>
-<li><h4 id="eingabe-berprfung">Eingabe-�berpr�fung</h4>
-<p>Du kannst �berpr�fen lassen, ob deine Eingabe im Textfeld zu der L�nge des gesuchten Wortes und den bekannten Buchstaben passen.</p>
-<h5 id="berprfung-aktivieren-enable-charbar">�berpr�fung aktivieren: &quot;enable charbar--&quot;</h5>
-<p>�berpr�fung deaktivieren: &quot;disable charbar--&quot;</p>
-<p>In dem Feld unter dem Eingabefeld wird mit der Zahl signalisiert, wie viele Buchstaben noch fehlen / zu viel sind<br />
-Die Farbe zeigt an, ob die Eingabe zu den bekannten Buchstaben passt oder schon zu lange ist.</p>
-</li>
-<li><h4 id="heiligenschein">Heiligenschein</h4>
-<p>Nutzloses Feature. Hol dir einen Ego-Boost.</p>
-<h5 id="heiligenschein-aktivieren-enable-holy">Heiligenschein aktivieren: &quot;enable holy--&quot;</h5>
-<p>Heiligenschein deaktivieren: &quot;disable holy--&quot;</p>
-</li>
-<li><h4 id="navigationsbuttons">Navigationsbuttons</h4>
-<p>Verlasse oder �berspringe die aktuelle Lobby durch Klicken auf die Buttons oben rechts.</p>
-</li>
-<li><h4 id="eingabe-leeren">Eingabe leeren</h4>
-<p>Durch Dr�cken von &quot;++&quot; im Eingabefenster wird deine aktuelle Eingabe geleert.<br />
-Du kannst die Kombination (Token) auch �ndern, zB zu &quot;#&quot;.<br />
-ACHTUNG: Wenn das Token ein Buchstabe aus &quot;set token&quot; ist, bist du verloren. F�r immer.</p>
-<h5 id="token-ndern-set-token">Token �ndern: &quot;set token #--&quot;</h5>
-<p>Mit ESCAPE wird au�erdem die aktuelle Zeichnung gel�scht.</p>
-</li>
-</ul>
+    <h1 id="skribbl-typo">Skribbl-Typo</h1>
+<p>An extension which adds some extra features to skribbl.io.<br />
+Stable versions are submitted to the <a href="https://chrome.google.com/webstore/detail/bpcilmjlpebjklinlbdjhfkkgmmfghfj">Chrome Store</a>.</p>
+<p>When I started coding the extension, I were just trying to add some shortcuts for myself and by the time, the code became quite a mess.<br />
+Tough the most bits should be cleaned and reworked, there might still be some bad-practise-parts or german words in it.</p>
+<p>If you recognize any bugs or got suggestions how to improve the code, let me know!</p>
 
 
 </body>
