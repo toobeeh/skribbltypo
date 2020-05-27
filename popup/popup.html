@@ -1,0 +1,69 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="popup.css">
+    <script src="/jmin.js"></script>
+    <style id="sliderThumbColorStyle"></style>
+</head>
+<body>
+    <div class="flexcol">
+        <h1>Dashboard</h1>
+        <hr class="skribbl" />
+
+        <div id="mainSettings">
+            <div class="flexcol">
+                <button type="button" class="skribbl" id="imageagent">ImageAgent</button>
+                <button type="button" class="skribbl" id="tablet">Tablet</button>
+                <button type="button" class="skribbl" id="markup">Markup</button>
+                <button type="button" class="skribbl" id="holy">Holy</button>
+                <button type="button" class="skribbl" id="charbar">CharBar</button>
+            </div>
+            <br />
+        </div>
+
+        <div id="advancedPeek" class="peekUp skribbl"></div>
+
+        <div id="advancedSettings">
+            <br />
+            <div class="flexcol">
+                <button type="button" class="skribbl" id="backbutton">Back-Button</button>
+                <button type="button" class="skribbl" id="randomToggle">Random Color</button>
+
+                <div class="label">Random interval </div>
+                <div class="sliderBox" id="randomSlider">
+                    <span class="sliderBar"><span class="sliderFill"></span></span>
+                    <input type="range" class="slider" min="10" max="500" />
+                </div>
+
+                <div class="label">Markup color  </div>
+                <div class="sliderBox" id="markupSlider">
+                    <span class="sliderBar"><span class="sliderFill"></span></span>
+                    <input type="range" class="slider" min="0" max="357" />
+                </div>
+
+                <div class="label">Tablet sensitivity  </div>
+                <div class="sliderBox" id="sensSlider">
+                    <span class="sliderBar"><span class="sliderFill"></span></span>
+                    <input type="range" class="slider" min="0" max="100" />
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <hr class="skribbl" />
+
+        <div id="footer" class="flexcol">
+            <button type="button" class="active" id="help">How-To</button>
+            <div id="dc" class="flexrow">
+                <img src="/res/dc.gif" height="20" />
+                <div id="credits" style="margin-left:1em;">
+                    tobeh#7437
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
