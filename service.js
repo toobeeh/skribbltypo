@@ -515,6 +515,16 @@ function setAgentSource(searchCriteria, exclusive = 0) {
     // Not working after few requests due to bot detection or smth:     https://yandex.com/images/search?text=hello%20kitty
     // Working but a bit weird results:                                 https://www.mojeek.com/search?fmt=images&imgpr=bing&q=
 
+    //let xhr = new XMLHttpRequest();
+    //xhr.open("GET", "https://www.google.com/search?safe=off&tbm=isch&sclient=img&q=" + search, true);
+    //xhr.onreadystatechange = () => {
+    //    if (xhr.readyState == 4) {
+    //        console.log(xhr.responseText);
+    //    }
+    //}
+    //xhr.send();
+
+
     $.getJSON('https://api.allorigins.win/get?url=' +
         encodeURIComponent('https://www.mojeek.com/search?fmt=images&imgpr=bing&q=' + search), function (data) {
             let html = data.contents;

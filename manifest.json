@@ -19,7 +19,8 @@
     "res/*"
   ],
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "https://www.google.com/*"
   ],
   "content_scripts": [
     {
