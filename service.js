@@ -255,35 +255,35 @@ var is_hint_error = false;
     flag.setAttribute("value", "Flag");
     flag.setAttribute("class", "btn btn-info");
     flag.setAttribute("style", "margin:0.5em; padding:0.2em");
-    $(flag).click(function () { setAgentSource("flag"); });
+    flag.addEventListener("click", () => { setAgentSource("flag"); });
 
     let logo = document.createElement("input");
     logo.setAttribute("type", "button");
     logo.setAttribute("value", "Logo");
     logo.setAttribute("class", "btn btn-info");
     logo.setAttribute("style", "margin:0.5em; padding:0.2em");
-    $(logo).click(function () { setAgentSource("logo"); });
+    logo.addEventListener("click", () => { setAgentSource("logo"); });
 
     let map = document.createElement("input");
     map.setAttribute("type", "button");
     map.setAttribute("value", "Map");
     map.setAttribute("class", "btn btn-info");
     map.setAttribute("style", "margin:0.5em; padding:0.2em");
-    $(map).click(function () { setAgentSource("map"); });
+    map.addEventListener("click", () => { setAgentSource("map"); });
 
     let random = document.createElement("input");
     random.setAttribute("type", "button");
     random.setAttribute("value", "Word");
     random.setAttribute("class", "btn btn-info");
     random.setAttribute("style", "margin:0.5em; padding:0.2em");
-    $(random).click(function () { setAgentSource(""); });
+    random.addEventListener("click", () => { setAgentSource(""); });
 
     let text = document.createElement("input");
     text.setAttribute("type", "button");
     text.setAttribute("value", "Custom");
     text.setAttribute("class", "btn btn-warning");
     text.setAttribute("style", "margin:0.5em; padding:0.2em");
-    $(text).click(function () { $("#searchAgentInput").toggle(); });
+    text.addEventListener("click", () => { searchAgentInput.style.display == "none" ? searchAgentInput.style.display = "" : text.style.display = "none"; });
 
     let searchAgentInput = document.createElement("input");
     searchAgentInput.setAttribute("type", "text");
@@ -291,9 +291,9 @@ var is_hint_error = false;
     searchAgentInput.setAttribute("id", "searchAgentInput");
     searchAgentInput.setAttribute("style", "margin-bottom:0.3em; display:none");
     searchAgentInput.setAttribute("placeholder", "Input term and search with 'enter'!");
-    $(searchAgentInput).keypress(function (event) {
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if (keycode == '13') setAgentSource($(searchAgentInput).val(), 1);
+    searchAgentInput.addEventListener("keyup", (event) => {
+        let keycode = (event.keyCode ? event.keyCode : event.which);
+        if (keycode == '13') setAgentSource(searchAgentInput.value, 1);
         event.stopPropagation();
     });
 
