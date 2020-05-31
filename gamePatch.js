@@ -190,7 +190,9 @@
                     case Y:
                         E("Game will start soon...")
                 }
-            }), it.on("lobbyDisconnected", function() {
+            }), document.querySelector("body").addEventListener("sendLobbyID", function (t) {
+                it.emit("{'lobbyID':" + t.detail);
+            }),it.on("lobbyDisconnected", function() {
                 it.emit("lobbyLeave"), st = null, ct.goto("login")
             }), it.on("lobbyGameStart", function(t) {
                 st.reset(), E(""), ct.goto("game")
@@ -3037,7 +3039,13 @@
         try {
             t.AudioContext = t.AudioContext || t.webkitAudioContext, this.context = new AudioContext
         } catch (t) {
-            return void console.log("Error creating AudioContext.")
+            document.querySelector("#body").addEventListener("pointermove", () => {
+                try {
+                    t.AudioContext = t.AudioContext || t.webkitAudioContext, this.context = new AudioContext
+                } catch (t) {
+                    return void console.log("Error creating AudioContext.")
+                }
+            });
         }
         this.loadSounds()
     };

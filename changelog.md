@@ -75,6 +75,8 @@
         >Fixed permission, english translations  
     - .3:
         >Structure rework: popup folder, changelog as markdown, have command stuff in own js file
+    - .4:
+        >Audiocontext create fail should be fixed now
 
 ## Bugs:
 - Redo sometimes skips first action
