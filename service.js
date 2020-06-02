@@ -77,6 +77,7 @@ chrome.runtime.onMessage.addListener(msgObj => {
     else command_interpreter(msgObj + "--");
 });
 
+
 // capture drawings
 var capturedCommands = [];
 document.querySelector("body").addEventListener("logDrawCommand", function (e) { capturedCommands.push(e.detail); });
@@ -334,7 +335,6 @@ var is_hint_error = false;
     rand.addEventListener("click", function () {
         document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: localStorage.randomColorInterval }));
     });
-
 })();
 
 // func to mark a message node with background color

@@ -14,6 +14,9 @@ help_text += "<br/>- enable/disable agent (Toggle ImageAgent) <br/>- enable/disa
 help_text += "<br/>- enable/disable ink (Toggle tablet pressure)<br/>- enable/disable back (Toggle back-button)<br/>- enable/disable random (Toggle random color)<br/>- set random [ms] (Random interval, ms)";
 help_text += "<br/>Example: 'set markup #ffffff--'<br/> <br/> Most settings are accessible in the extension popup!";
 
+const cmd_add_observerToken = "adobs";
+const cmd_remove_observerToken = "rmobs";
+
 const cmd_enableOwnHoly = "enable holy";
 const cmd_disableOwnHoly = "disable holy";
 
@@ -52,7 +55,7 @@ const cmd_setRandom = "set random";
 // ----------------------------- INTERPRETER - CALLS FUNCTIONS DEPENDING ON ENTERED COMMAND
 function command_interpreter(cmd) {
 
-    cmd = cmd.substr(0, cmd.length - 2);
+    cmd = cmd.replace("--","");
     cmd.trim();
 
     if (cmd.includes(cmd_enableOwnHoly)) setHolyOnOwn();
@@ -68,6 +71,9 @@ function command_interpreter(cmd) {
     else if (cmd.includes(cmd_enMarkup)) enMarkup();
     else if (cmd.includes(cmd_daInk)) daInk();
     else if (cmd.includes(cmd_enInk)) enInk();
+    else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
+    else if (cmd.includes(cmd_add_observerToken)) addObserveToken((cmd.replace(cmd_add_observerToken, "")).trim());
+    else if (cmd.includes(cmd_remove_observerToken)) removeObserveToken((cmd.replace(cmd_remove_observerToken, "")).trim());
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
     else if (cmd.includes(cmd_addImportantName)) addVip((cmd.replace(cmd_addImportantName, "")).trim());
     else if (cmd.includes(cmd_removeImportantName)) remVip((cmd.replace(cmd_removeImportantName, "")).trim());
@@ -301,4 +307,36 @@ function showVip() {
     out += (list != "" ? list : "NUR DU!!!");
     out += "</ul>";
     printCmdOutput(out);
+}
+
+function Guild(guildID, guildName, observeToken) {
+    this.guildID = guildID;
+    this.guildName = guildName;
+    this.observeToken = observeToken;
+}
+
+async function addObserveToken(observeToken) {
+    let verify = await fetch('https://81.217.227.81/Orthanc/verify/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "ObserveToken=" + observeToken
+    }
+    );
+    verify = await verify.json();
+    let guild = new Guild(verify.AuthGuildID, verify.AuthGuildName, observeToken);
+    let guilds = [];
+    guilds = JSON.parse(localStorage.guilds);
+    guilds.push(guild);
+    localStorage.guilds = JSON.stringify(guilds);
+}
+function removeObserveToken(observeToken) {
+    let guilds = [];
+    let oldGuilds = JSON.parse(localStorage.guilds);
+    oldGuilds.forEach((g) => {
+        if (g.observeToken != observeToken) guilds.push(g);
+    });
+    localStorage.guilds = JSON.stringify(guilds);
 }

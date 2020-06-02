@@ -3019,7 +3019,7 @@
             }, o.send()
         },
         V = function() {
-            this.context = null, this.sounds = new Map, this.mute = !1, "true" === o.getItem("audioMute") && this.setMute(!0), document.querySelector("body").addEventListener("pointermove", this.load.bind(this), !1)
+            this.context = null, this.sounds = new Map, this.mute = !1, "true" === o.getItem("audioMute") && this.setMute(!0), t.addEventListener("load", this.load.bind(this), !1)
         };
     V.prototype.setMute = function(t) {
         this.mute = t, this.mute ? n("#audio").css("background-image", "url(res/audio_off.gif") : n("#audio").css("background-image", "url(res/audio.gif"), o.setItem("audioMute", this.mute.toString())

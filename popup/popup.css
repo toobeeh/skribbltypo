@@ -4,7 +4,11 @@ body {
     color: white;
     letter-spacing: 0.05em;
     margin: 0;
-    width: 180px;
+    width: 300px;
+}
+
+::-webkit-scrollbar {
+    display: none;
 }
 
 #mainSettings {
@@ -20,7 +24,7 @@ body {
     image-rendering: pixelated;
 }
 
-button,
+button, input[type='text'],
 #dc {
     transition: background 0.15s;
     margin: 1em;
@@ -44,6 +48,7 @@ button,
 }
 
 button:focus,
+input[type='text']:focus,
 button:active {
     border: none;
     outline: 0;
@@ -77,6 +82,10 @@ hr {
     display: flex;
     flex-direction: row;
     align-items: center;
+}
+
+.flexrowMenu > * {
+    flex-basis:100%;
 }
 
 #advancedPeek {

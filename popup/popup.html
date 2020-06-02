@@ -13,11 +13,24 @@
 
         <div id="mainSettings">
             <div class="flexcol">
-                <button type="button" class="skribbl" id="imageagent">ImageAgent</button>
-                <button type="button" class="skribbl" id="tablet">Tablet</button>
-                <button type="button" class="skribbl" id="markup">Markup</button>
-                <button type="button" class="skribbl" id="holy">Holy</button>
-                <button type="button" class="skribbl" id="charbar">CharBar</button>
+                <div class="flexrow flexrowMenu">
+                    <button type="button" class="skribbl" id="imageagent">ImageAgent</button>
+                    <button type="button" class="skribbl" id="tablet">Tablet</button>
+                </div>
+                <div class="flexrow flexrowMenu">
+                    <button type="button" class="skribbl" id="markup">Markup</button>
+                    <button type="button" class="skribbl" id="holy">Holy</button>
+                </div>
+                <div class="flexrow flexrowMenu">
+                    <button type="button" class="skribbl" id="backbutton">Back-Button</button>
+                    <button type="button" class="skribbl" id="charbar">CharBar</button>
+                </div>
+                <div class="flexrow flexrowMenu">
+                    <button type="button" class="skribbl" id="randomToggle">Random Color</button>
+                </div>
+                <div class="flexrow flexrowMenu">
+                    <button type="button" class="skribbl" id="palantirToggle">Discord Bot Status</button>
+                </div>
             </div>
             <br />
         </div>
@@ -27,9 +40,6 @@
         <div id="advancedSettings">
             <br />
             <div class="flexcol">
-                <button type="button" class="skribbl" id="backbutton">Back-Button</button>
-                <button type="button" class="skribbl" id="randomToggle">Random Color</button>
-
                 <div class="label">Random interval </div>
                 <div class="sliderBox" id="randomSlider">
                     <span class="sliderBar"><span class="sliderFill"></span></span>
@@ -47,6 +57,15 @@
                     <span class="sliderBar"><span class="sliderFill"></span></span>
                     <input type="range" class="slider" min="0" max="100" />
                 </div>
+                <hr class="skribbl" />
+                <div class="label">Discord Server</div>
+                <div class="flexrow flexrowMenu">
+                    <input type="text" autocomplete="off" style="width:5em" id="observeToken" placeholder="12345678" />
+                    <button type="button" class="active" id="verifyToken">Verify</button>
+                </div>
+                <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap" id="authGuilds">
+
+                </div>
             </div>
         </div>
 
@@ -54,13 +73,15 @@
         <hr class="skribbl" />
 
         <div id="footer" class="flexcol">
-            <button type="button" class="active" id="help">How-To</button>
-            <div id="dc" class="flexrow">
-                <img src="/res/dc.gif" height="20" />
-                <div id="credits" style="margin-left:1em;">
-                    tobeh#7437
+            <div class="flexrow flexrowMenu ">
+                <button type="button" class="active" id="help">How-To</button>
+                <div id="dc" class="flexrow">
+                    <img src="/res/dc.gif" height="20" />
+                    <div id="credits" style="margin-left:1em;">
+                        tobeh#7437
+                    </div>
                 </div>
-            </div>
+            </div> 
         </div>
 
     </div>

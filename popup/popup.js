@@ -25,6 +25,10 @@ chrome.runtime.onMessage.addListener(
         let randomSlider = document.querySelector("#randomSlider input[type='range']");
         randomSlider.value = settings.randomColorInterval;
         randomSlider.dispatchEvent(new Event('input'));
+
+        JSON.parse(settings.guilds).forEach((g) => {
+            addAuthGuild(g.guildID, g.guildName);
+        });
     }
 );
 
@@ -52,6 +56,7 @@ setTimeout(function () { if (!settings && skribbl) document.querySelector("h1").
 // set button events
 document.querySelectorAll("button").forEach(function (bt) {
     if (bt.id == "help") bt.onclick = function () { window.location.href = "readme.html"; };
+    else if (bt.id == "verifyToken") bt.onclick = verifyTokenInput;
     else bt.onclick = toggleActive;
 });
 
@@ -133,8 +138,8 @@ document.querySelector("#advancedPeek").onclick = function () {
     let cred = document.querySelector("#credits");
     let dc = document.querySelector("#dc img");
     let cont = cred.innerHTML;
-    dc.onmouseover = function () { cred.innerHTML = "call me ;)"; };
-    dc.onmouseout = function () { cred.innerHTML = cont; };
+    //dc.onmouseover = function () { cred.innerHTML = "call me ;)"; };
+    //dc.onmouseout = function () { cred.innerHTML = cont; };
 })();
 
 // request setting string
@@ -160,6 +165,44 @@ function toggleActive() {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg);
     });
+}
+
+async function verifyTokenInput() {
+    let token;
+    token = document.querySelector("#observeToken").value;
+    token = parseInt(token);
+    if (token == NaN || token < 0 || token > 99999999) {
+        document.querySelector("#observeToken").style.color = "#f04747";
+        return;
+    }
+
+    let verify = await (await fetch('https://81.217.227.81/Orthanc/verify/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "ObserveToken=" + token
+    }
+    )).json();
+    if (!verify.Valid) {
+        document.querySelector("#observeToken").style.color = "#f04747";
+        return;
+    }
+    addAuthGuild(verify.AuthGuildID, verify.AuthGuildName);
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, "adobs " + token);
+    });
+
+}
+
+function addAuthGuild(guildID, guildName) {
+    let container = document.querySelector("#authGuilds");
+    let guild = document.createElement("div");
+    guild.className = "label";
+    guild.textContent = guildName;
+    guild.id = guildID;
+    container.appendChild(guild);
 }
 
 // convert color code .. thx @stackoverflow
