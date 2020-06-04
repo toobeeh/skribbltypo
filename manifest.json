@@ -29,6 +29,7 @@
       ],
       "js": [
         "jmin.js",
+        "report.js",
         "commands.js",
         "service.js"
       ]

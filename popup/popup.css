@@ -4,7 +4,8 @@ body {
     color: white;
     letter-spacing: 0.05em;
     margin: 0;
-    width: 300px;
+    width: 250px;
+    font-size:0.7em;
 }
 
 ::-webkit-scrollbar {
@@ -15,7 +16,7 @@ body {
     overflow: hidden;
 }
 
-#advancedSettings {
+#advancedSettings, #palantirSettings {
     overflow: hidden;
     display: none;
 }
@@ -26,6 +27,7 @@ body {
 
 button, input[type='text'],
 #dc {
+    font-size:inherit;
     transition: background 0.15s;
     margin: 1em;
     margin-top: 0.5em;
@@ -64,6 +66,14 @@ h1 {
     border-radius: 0.5em;
 }
 
+.back {
+    padding: .8em;
+    background: #424549;
+    border-radius: .3em;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
 hr {
     border: none;
     height: 0.2em;
@@ -88,7 +98,7 @@ hr {
     flex-basis:100%;
 }
 
-#advancedPeek {
+#advancedPeek, #palantirPeek {
     width: 0;
     height: 0;
     margin-left: calc(50% - 2em);
@@ -98,7 +108,7 @@ hr {
     transition: ease-in-out 0.2s;
 }
 
-    #advancedPeek:hover {
+    #advancedPeek:hover, #palantirPeek:hover {
         border-left: 2.3em solid transparent;
         border-right: 2.3em solid transparent;
         margin-left: calc(50% - 2.3em);

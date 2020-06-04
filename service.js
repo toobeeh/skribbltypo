@@ -77,7 +77,6 @@ chrome.runtime.onMessage.addListener(msgObj => {
     else command_interpreter(msgObj + "--");
 });
 
-
 // capture drawings
 var capturedCommands = [];
 document.querySelector("body").addEventListener("logDrawCommand", function (e) { capturedCommands.push(e.detail); });
@@ -94,14 +93,20 @@ function pushCaptured() { capturedCommands.length > 0 ? (capturedActions.push(ca
 document.querySelector("#canvasGame").addEventListener("pointerup", pushCaptured);
 document.querySelector("#canvasGame").addEventListener("pointerout", pushCaptured);
 
+
+// report lobby after 5 secs in lobby
+var report = false;
+setTimeout(() => { report = true; reportLobby(); },5000);
+
 // Observer for player and word mutations
 var bigbrother = new MutationObserver(function (mutations) {
     update();
     checkPlayers();
     updateImageAgent();
+    if ((document.querySelector("#screenLobby").style.display != "null" || document.querySelector("#screenGame").style.display != "null")) { reportLobby(); }// alert("report");
 });
 bigbrother.observe(document.querySelector("#currentWord"), { attributes: false, childList: true });
-bigbrother.observe(document.querySelector("#containerGamePlayers"), { attributes: false, childList: true });
+bigbrother.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: false, childList: true });
 
 // Observer for chat mutations
 var chatObserver = new MutationObserver(function (mutations) {
@@ -119,9 +124,9 @@ var refresh = true;
 var refreshCycle = 5;
 
 // event for pressure drawing
-document.querySelector("#canvasGame").onpointermove = function (event) {
+document.querySelector("#canvasGame").addEventListener("pointermove", (event) => {
 
-    if (!refresh || localStorage.ink || event.pointerType != "pen") return;
+    if (!refresh || !localStorage.ink || event.pointerType != "pen") return;
     refresh = false;
 
     let size = 4;
@@ -129,19 +134,19 @@ document.querySelector("#canvasGame").onpointermove = function (event) {
     setBrushsize(size);
 
     setTimeout(function () { refresh = true; }, refreshCycle);
-}
+});
 
 // event if pen was released
-document.querySelector("#canvasGame").onpointerup = function (event) {
+document.querySelector("#canvasGame").addEventListener("pointerup", (event) => {
     if (localStorage.ink && event.pointerType == "pen") setBrushsize(1);
-}
+});
 
 // defaults for word check
 var is_length_error = false;
 var is_hint_error = false;
 
 // func for UI setup 
-(function (event) {
+(function () {
 
     // get DOM elements
     let input = document.querySelector("#inputChat");
@@ -152,9 +157,9 @@ var is_hint_error = false;
     let msg_cont = document.querySelector("#boxMessages");
     let div_buttons = document.querySelector(".gameHeaderButtons");
 
-    // add listener to querstionmark
+    // add listener to questionmark
     document.querySelector(".iconQuestionmark").onclick = function () { testMode(); };
-    document.querySelector('button[type="submit"]').click = function () { localStorage.practise = false; };
+    document.querySelector('button[type="submit"]').onclick = function () { localStorage.practise = false; };
 
     // Add event listener to keyup
     input.addEventListener("keyup", function () { keyup(); });

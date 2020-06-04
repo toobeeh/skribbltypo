@@ -1,6 +1,8 @@
 // add listener to get settings string from skribbl-context
 var settings = null;
 var skribbl = true;
+var member = null;
+
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         settings = JSON.parse(request.get);
@@ -26,9 +28,20 @@ chrome.runtime.onMessage.addListener(
         randomSlider.value = settings.randomColorInterval;
         randomSlider.dispatchEvent(new Event('input'));
 
-        JSON.parse(settings.guilds).forEach((g) => {
-            addAuthGuild(g.guildID, g.guildName);
-        });
+        if (settings.member) {
+
+            document.querySelector("#login").style.display = "none";
+            document.querySelector("#server").style.display = "";
+            member = JSON.parse(settings.member);
+            document.querySelector("#loginName").textContent = member.UserName;
+
+            document.querySelector("#authGuilds").innerHTML = "";
+            member.Guilds.forEach((g) => {
+                addAuthGuild(g.GuildID, g.GuildName);
+            });
+        }
+
+        
     }
 );
 
@@ -57,6 +70,7 @@ setTimeout(function () { if (!settings && skribbl) document.querySelector("h1").
 document.querySelectorAll("button").forEach(function (bt) {
     if (bt.id == "help") bt.onclick = function () { window.location.href = "readme.html"; };
     else if (bt.id == "verifyToken") bt.onclick = verifyTokenInput;
+    else if (bt.id == "loginSubmit") bt.onclick = verifyLoginInput;
     else bt.onclick = toggleActive;
 });
 
@@ -65,13 +79,33 @@ document.querySelector("#advancedPeek").onclick = function () {
     if (this.className != "peekDown") {
         this.className = "peekDown";
         $("#mainSettings").slideToggle(200);
+        $("#palantirPeek").slideToggle(200);
         $("#advancedSettings").slideToggle(200);
         $("h1").text("Advanced");
     }
     else {
         this.className = "peekUp";
         $("#mainSettings").slideToggle(200);
+        $("#palantirPeek").slideToggle(200);
         $("#advancedSettings").slideToggle(200);
+        $("h1").text("Dashboard");
+    }
+};
+
+// set palantir peek event
+document.querySelector("#palantirPeek").onclick = function () {
+    if (this.className != "peekUp") {
+        this.className = "peekUp";
+        $("#mainSettings").slideToggle(200);
+        $("#advancedPeek").slideToggle(200);
+        $("#palantirSettings").slideToggle(200);
+        $("h1").text("Discord Lobbies");
+    }
+    else {
+        this.className = "peekDown";
+        $("#mainSettings").slideToggle(200);
+        $("#advancedPeek").slideToggle(200);
+        $("#palantirSettings").slideToggle(200);
         $("h1").text("Dashboard");
     }
 };
@@ -138,8 +172,8 @@ document.querySelector("#advancedPeek").onclick = function () {
     let cred = document.querySelector("#credits");
     let dc = document.querySelector("#dc img");
     let cont = cred.innerHTML;
-    //dc.onmouseover = function () { cred.innerHTML = "call me ;)"; };
-    //dc.onmouseout = function () { cred.innerHTML = cont; };
+    dc.onmouseover = function () { cred.innerHTML = "call me maybe ;)"; };
+    dc.onmouseout = function () { cred.innerHTML = cont; };
 })();
 
 // request setting string
@@ -176,22 +210,63 @@ async function verifyTokenInput() {
         return;
     }
 
-    let verify = await (await fetch('https://81.217.227.81/Orthanc/verify/', {
+    let memberResponse = await (await fetch('https://www.tobeh.host/Orthanc/verify/', {
         method: 'POST',
         headers: {
             'Accept': '*/*',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         },
-        body: "ObserveToken=" + token
+        body: "observeToken=" + token + "&member=" + JSON.stringify(member)
     }
     )).json();
-    if (!verify.Valid) {
+    if (!memberResponse.Valid) {
         document.querySelector("#observeToken").style.color = "#f04747";
         return;
     }
-    addAuthGuild(verify.AuthGuildID, verify.AuthGuildName);
+
+    member = memberResponse.Member;
+
+    document.querySelector("#authGuilds").innerHTML = "";
+    member.Guilds.forEach((g) => {
+        addAuthGuild(g.GuldID, g.GuildName);
+    });
+
+    //chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+    //    chrome.tabs.sendMessage(tabs[0].id, "memberlogin " + JSON.stringify(member));
+    //});
+
+}
+
+async function verifyLoginInput() {
+    let login;
+    login = document.querySelector("#loginEnter").value;
+    login = parseInt(login);
+    if (login == NaN || login < 0 || login > 99999999) {
+        document.querySelector("#loginEnter").style.color = "#f04747";
+        return;
+    }
+
+    let loginResponse = await (await fetch('https://www.tobeh.host/Orthanc/login/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "login=" + login
+    }
+    )).json();
+    if (!loginResponse.Valid) {
+        document.querySelector("#loginEnter").style.color = "#f04747";
+        return;
+    }
+
+    document.querySelector("#login").style.display = "none";
+    document.querySelector("#server").style.display = "";
+    member = loginResponse.Member;
+    document.querySelector("#loginName").textContent = member.UserName;
+
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, "adobs " + token);
+        chrome.tabs.sendMessage(tabs[0].id, "memberlogin " + loginResponse.Member.UserLogin);
     });
 
 }

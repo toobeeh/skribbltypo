@@ -151,7 +151,7 @@
         }), it.on("connect", function() {
             it.on("disconnect", function() {
                 it.close(), it = null, st = null, ct.goto("login"), n("#modalDisconnect").modal()
-            }), it.emit("userData", e), it.on("kicked", function() {
+            }), it.emit("userData", e), document.querySelector("body").dispatchEvent(new CustomEvent("loginData", { detail: e })), it.on("kicked", function() {
                 n("#modalKicked").modal()
             }), it.on("drawCommands", function(t) {
                 for (var e = 0; e < t.length; e++) I(t[e])

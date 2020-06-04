@@ -72,8 +72,9 @@ function command_interpreter(cmd) {
     else if (cmd.includes(cmd_daInk)) daInk();
     else if (cmd.includes(cmd_enInk)) enInk();
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
-    else if (cmd.includes(cmd_add_observerToken)) addObserveToken((cmd.replace(cmd_add_observerToken, "")).trim());
-    else if (cmd.includes(cmd_remove_observerToken)) removeObserveToken((cmd.replace(cmd_remove_observerToken, "")).trim());
+    //else if (cmd.includes(cmd_add_observerToken)) addObserveToken((cmd.replace(cmd_add_observerToken, "")).trim());
+    //else if (cmd.includes(cmd_remove_observerToken)) removeObserveToken((cmd.replace(cmd_remove_observerToken, "")).trim());
+    else if (cmd.includes("memberlogin")) login(cmd.replace("memberlogin", "").trim());
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
     else if (cmd.includes(cmd_addImportantName)) addVip((cmd.replace(cmd_addImportantName, "")).trim());
     else if (cmd.includes(cmd_removeImportantName)) remVip((cmd.replace(cmd_removeImportantName, "")).trim());
@@ -86,7 +87,7 @@ function command_interpreter(cmd) {
     else if (cmd.includes(cmd_daRandom)) toggleRandomColor();
     else if (cmd.includes(cmd_setRandom)) setRandomInterval((cmd.replace(cmd_setRandom, "")).trim());
     else if (cmd.includes(cmd_deleteToken)) setToken((cmd.replace(cmd_deleteToken, "")).trim());
-    else if (cmd.includes(cmd_randomColor)) document.querySelector("body").dispatchEvent(new Event("setRandomColor"));
+    //else if (cmd.includes(cmd_randomColor)) document.querySelector("body").dispatchEvent(new Event("setRandomColor"));
 
     else printCmdOutput("Error");
 }
@@ -309,34 +310,32 @@ function showVip() {
     printCmdOutput(out);
 }
 
-function Guild(guildID, guildName, observeToken) {
-    this.guildID = guildID;
-    this.guildName = guildName;
-    this.observeToken = observeToken;
-}
+//async function addObserveToken(observeToken) {
+//    let verify = await fetch('https://www.tobeh.host/Orthanc/verify/', {
+//        method: 'POST',
+//        headers: {
+//            'Accept': '*/*',
+//            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+//        },
+//        body: "observeToken=" + observeToken
+//    }
+//    );
+//    verify = await verify.json();
+//    let guild = new Guild(verify.AuthGuildID, verify.AuthGuildName, observeToken);
+//    let guilds = [];
+//    guilds = JSON.parse(localStorage.guilds);
+//    guilds.push(guild);
+//    localStorage.guilds = JSON.stringify(guilds);
+//}
+//function removeObserveToken(observeToken) {
+//    let guilds = [];
+//    let oldGuilds = JSON.parse(localStorage.guilds);
+//    oldGuilds.forEach((g) => {
+//        if (g.ObserveToken != observeToken) guilds.push(g);
+//    });
+//    localStorage.guilds = JSON.stringify(guilds);
+//}
 
-async function addObserveToken(observeToken) {
-    let verify = await fetch('https://81.217.227.81/Orthanc/verify/', {
-        method: 'POST',
-        headers: {
-            'Accept': '*/*',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-        },
-        body: "ObserveToken=" + observeToken
-    }
-    );
-    verify = await verify.json();
-    let guild = new Guild(verify.AuthGuildID, verify.AuthGuildName, observeToken);
-    let guilds = [];
-    guilds = JSON.parse(localStorage.guilds);
-    guilds.push(guild);
-    localStorage.guilds = JSON.stringify(guilds);
-}
-function removeObserveToken(observeToken) {
-    let guilds = [];
-    let oldGuilds = JSON.parse(localStorage.guilds);
-    oldGuilds.forEach((g) => {
-        if (g.observeToken != observeToken) guilds.push(g);
-    });
-    localStorage.guilds = JSON.stringify(guilds);
+function login(login) {
+    localStorage.login = login;
 }
