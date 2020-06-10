@@ -2,6 +2,7 @@
 var settings = null;
 var skribbl = true;
 var member = null;
+var tabid;
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
@@ -14,7 +15,10 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "charbar" && settings.charBar == "true") bt.className = "active";
             if (bt.id == "backbutton" && settings.displayBack == "true") bt.className = "active";
             if (bt.id == "randomToggle" && settings.randomColorButton == "true") bt.className = "active";
+            if (bt.id == "palantirToggle" && settings.userAllow == "true") bt.className = "active";
         });
+
+        tabid = sender.tab.id;
 
         let sensSlider = document.querySelector("#sensSlider input[type='range']");
         sensSlider.value = settings.sens;
@@ -28,7 +32,7 @@ chrome.runtime.onMessage.addListener(
         randomSlider.value = settings.randomColorInterval;
         randomSlider.dispatchEvent(new Event('input'));
 
-        if (settings.member) {
+        if (settings.member != "") {
 
             document.querySelector("#login").style.display = "none";
             document.querySelector("#server").style.display = "";
@@ -195,6 +199,7 @@ function toggleActive() {
     if (this.id == "charbar") msg += "charbar";
     if (this.id == "backbutton") msg += "back";
     if (this.id == "randomToggle") msg += "random";
+    if (this.id == "palantirToggle") msg += "palantir";
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg);
@@ -203,7 +208,7 @@ function toggleActive() {
 
 async function verifyTokenInput() {
     let token;
-    token = document.querySelector("#observeToken").value;
+    token = document.querySelector("#observeToken").value.trim();
     token = parseInt(token);
     if (token == NaN || token < 0 || token > 99999999) {
         document.querySelector("#observeToken").style.color = "#f04747";

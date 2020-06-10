@@ -4,6 +4,18 @@
  * 
  * That whole code piled up during about one year, still working to make it less ugly and to eliminate the worst of the bad-practise-parts
  * Also, there are still some german parts hiding... :))))
+ * 
+ * 
+ * BUG NOTES
+ *  undo doesnt stop if next player draws
+ *  keydown changes tools wen other persons draw
+ *  mysterious drawing over next persons' canvas sometimes
+ *  still that audio thing
+ *  
+ *  TODO
+ *   send waiting status
+ *   fix bugs
+ * 
  */
 
 /*
@@ -40,11 +52,14 @@
 
 */
 'use strict';
-const version = "16.4.1";
+const version = "17.0.1";
 const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
 const command_token = "--";
 
 // Set default settings
+if (!localStorage.member) localStorage.member = "";
+if (!localStorage.userAllow) localStorage.userAllow = "false";
+if (!localStorage.login) localStorage.login = "";
 if (!localStorage.ownHoly) localStorage.ownHoly = "false";
 if (!localStorage.ink) localStorage.ink = "true";
 if (!localStorage.sens) localStorage.sens = 50;
@@ -57,15 +72,19 @@ if (!localStorage.markupColor) localStorage.markupColor = "#ffd6cc";
 if (!localStorage.randomColorInterval) localStorage.randomColorInterval = 50;
 if (!localStorage.randomColorButton) localStorage.randomColorButton = false;
 if (!localStorage.displayBack) localStorage.displayBack = false;
+// defaults for word check
+var is_length_error = false;
+var is_hint_error = false;
 
 // Activate game container for betatesting purposes
 if (version.includes("beta")) testMode();
 
-// enter lobby if last lobby was skipped
-if (sessionStorage.skippedLobby == "true") {
-    document.querySelector("button[type='submit'].btn-success").click();
-    sessionStorage.skippedLobby = "false";
-}
+
+
+// _____________________________________________________________
+//
+//                Communication with Popup
+// _____________________________________________________________
 
 // communication with popup.js
 chrome.runtime.onMessage.addListener(msgObj => {
@@ -76,6 +95,12 @@ chrome.runtime.onMessage.addListener(msgObj => {
     }
     else command_interpreter(msgObj + "--");
 });
+
+
+// _____________________________________________________________
+//
+//               Init backbutton stuff and pressure
+// _____________________________________________________________
 
 // capture drawings
 var capturedCommands = [];
@@ -93,30 +118,30 @@ function pushCaptured() { capturedCommands.length > 0 ? (capturedActions.push(ca
 document.querySelector("#canvasGame").addEventListener("pointerup", pushCaptured);
 document.querySelector("#canvasGame").addEventListener("pointerout", pushCaptured);
 
+// func to restore drawing based on saved commands
+function restoreDrawing(limit = 0) {
+    let actions = capturedActions.slice(0, -limit);
+    let redo = [];
 
-// report lobby after 5 secs in lobby
-var report = false;
-setTimeout(() => { report = true; reportLobby(); },5000);
+    // put all commands from each action in one command-array. the last actions (limit) are passed.
+    for (let action = 0, lenA = capturedActions.length - limit; action < lenA; action++)
+        for (let cmd = 0, lenC = capturedActions[action].length; cmd < lenC; cmd++)
+            capturedActions[action][cmd].length > 0 && redo.push(capturedActions[action][cmd]);
 
-// Observer for player and word mutations
-var bigbrother = new MutationObserver(function (mutations) {
-    update();
-    checkPlayers();
-    updateImageAgent();
-    if ((document.querySelector("#screenLobby").style.display != "null" || document.querySelector("#screenGame").style.display != "null")) { reportLobby(); }// alert("report");
-});
-bigbrother.observe(document.querySelector("#currentWord"), { attributes: false, childList: true });
-bigbrother.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: false, childList: true });
+    // search for the last clear to avoid unnecessary drawing
+    let lastClear = redo.length - 1;
+    while (lastClear > 0 && redo[lastClear][0] != 3) { lastClear--; }
 
-// Observer for chat mutations
-var chatObserver = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
-        mutation.addedNodes.forEach(function (node) {
-            markMessage(node);
-        })
-    });
-});
-chatObserver.observe(document.getElementById("boxMessages"), { attributes: false, childList: true });
+    let captured = lastClear > 0 ? lastClear + 1 : 0;
+    let maxcaptured = redo.length;
+
+    let body = document.querySelector("body");
+    document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
+    let t = setInterval(function () {
+        captured >= maxcaptured ? (clearInterval(t), capturedActions = [], capturedCommands = [], capturedActions = actions) :
+            body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] })); captured++;
+    }, 3);
+}
 
 //init pressure sensibility for windows ink and tablets - k depends on steps
 const kLevel = 1 / 36;
@@ -125,7 +150,6 @@ var refreshCycle = 5;
 
 // event for pressure drawing
 document.querySelector("#canvasGame").addEventListener("pointermove", (event) => {
-
     if (!refresh || !localStorage.ink || event.pointerType != "pen") return;
     refresh = false;
 
@@ -141,9 +165,167 @@ document.querySelector("#canvasGame").addEventListener("pointerup", (event) => {
     if (localStorage.ink && event.pointerType == "pen") setBrushsize(1);
 });
 
-// defaults for word check
-var is_length_error = false;
-var is_hint_error = false;
+// func to set the brushsize (event to game.js)
+function setBrushsize(newsize) {
+    let event = new CustomEvent("setBrushSize", {
+        detail: newsize
+    });
+    document.querySelector("body").dispatchEvent(event);
+}
+
+
+
+// _____________________________________________________________
+//
+//            Init report to orthanc and palantir (->report.js)
+// _____________________________________________________________
+
+// report lobby after 5 secs in lobby (event on submit button)
+
+// Set status as playing after 5 secs, before as searching
+let startBtns = document.querySelectorAll("button[type='submit']")
+
+startBtns[0].addEventListener("click", () => {
+    Report.searching = true;
+    Report.waiting = false;
+    Report.playing = false;
+    setTimeout(() => {
+        Report.playing = true;
+        Report.searching = false;
+        Report.waiting = false;
+        Report.trigger();
+    }, 4000);
+});
+startBtns[1].addEventListener("click", () => {
+    Report.searching = false;
+    Report.waiting = false;
+    Report.playing = true;
+    Report.trigger();
+});
+
+
+// get user name from game.js -> prevents modification from DOM
+document.querySelector("body").addEventListener("loginData", function (d) {
+    Report.loginName = d.detail.name;
+});
+
+var reportTrigger = new MutationObserver(() => {
+    Report.trigger();
+});
+reportTrigger.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: true, childList: true, subtree: true })
+
+
+// if lobbies are already loaded (Orthanc fast af?!?!)
+if (loaded) setTimeout(startSearch, 1000);
+
+// when async lobbies loaded
+document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
+    // lobby search function
+    document.querySelectorAll(".lobbySearchButton").forEach(b => {
+        b.addEventListener("click", () => {
+
+            let link = b.getAttribute("link");
+            let key = b.getAttribute("lobbykey");
+            let id = b.getAttribute("lobbyid");
+
+            if (link) {
+                sessionStorage.skippedLobby = "true";
+                window.location.href = link;
+                return;
+            }
+
+            sessionStorage.targetLobby = id;
+            sessionStorage.targetKey = key;
+            sessionStorage.lobbySearch = "true";
+            //document.querySelector("button[type='submit'].btn-success").click();
+            Report.searching = true;
+            Report.waiting = false;
+            Report.playing = false;
+            setTimeout(() => {
+                Report.playing = true;
+                Report.searching = false;
+                Report.waiting = false;
+                Report.trigger();
+            }, 4000);
+            reloadLobbies();
+            document.querySelector("#popupSearch").parentElement.style.display = "block";
+        });
+    });
+
+    if (sessionStorage.lobbySearch == "true") setTimeout(startSearch, 1000);
+});
+
+function startSearch() {
+    if (sessionStorage.lobbySearch == "true") {
+        let lobbyid = document.querySelector("#lobbyID" + sessionStorage.targetLobby);
+        if (!lobbyid) { sessionStorage.lobbySearch = "false"; alert("The lobby doesn't exist anymore :("); }
+        else if (parseInt(lobbyid.getAttribute('lobbyPlayerCount')) >= 8) {
+            //lobbyid.
+        }
+        else document.querySelector("button[type='submit'].btn-success").click();
+    }
+}
+
+// check lobby as soon as connected
+document.querySelector("body").addEventListener("lobbyConnected", function (e) {
+    if (sessionStorage.lobbySearch == "true") {
+        let key = sessionStorage.targetKey;
+        if (Report.generateLobbyKey != key) setTimeout(() => { window.location.reload(); }, 200);
+        else sessionStorage.lobbySearch = "false";
+    }
+});
+
+// refresh lobbies all 5 secs 
+setInterval(async () => {
+    await reloadLobbies();
+}, 5000)
+
+async function reloadLobbies() {
+    if (document.querySelector("#screenLogin").style.display == "none") return;
+    for (let node of document.querySelectorAll(".loginPanelContent > h3, .loginPanelContent > .updateInfo")) { node.remove(); }
+    await initLobbyTab();
+}
+
+
+
+
+// _____________________________________________________________
+//
+//                Observer for general functions
+// _____________________________________________________________
+
+// Observer for player and word mutations
+var bigbrother = new MutationObserver(function (mutations) {
+    update();
+    checkPlayers();
+    updateImageAgent();
+});
+bigbrother.observe(document.querySelector("#currentWord"), { attributes: false, childList: true });
+bigbrother.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: false, childList: true });
+
+// Observer for chat mutations
+var chatObserver = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+            markMessage(node);
+        })
+    });
+});
+chatObserver.observe(document.getElementById("boxMessages"), { attributes: false, childList: true });
+
+// enter lobby if last lobby was skipped 
+if (sessionStorage.skippedLobby == "true") {
+    document.querySelector("button[type='submit'].btn-success").click();
+    sessionStorage.skippedLobby = "false";
+}
+
+
+
+// _____________________________________________________________
+//
+//               UI setup stuff (add buttons, events, etc)
+// _____________________________________________________________
+
 
 // func for UI setup 
 (function () {
@@ -159,7 +341,9 @@ var is_hint_error = false;
 
     // add listener to questionmark
     document.querySelector(".iconQuestionmark").onclick = function () { testMode(); };
-    document.querySelector('button[type="submit"]').onclick = function () { localStorage.practise = false; };
+    document.querySelector('button[type="submit"]').onclick = function () {
+        localStorage.practise = false;
+    };
 
     // Add event listener to keyup
     input.addEventListener("keyup", function () { keyup(); });
@@ -348,33 +532,15 @@ function markMessage(newNode) {
 
     let sender = newNode.innerHTML.slice(newNode.innerHTML.indexOf("<b>"), newNode.innerHTML.indexOf("</b>")).slice(3, -2);
     if (sender == document.querySelector("input[placeholder='Enter your name']").value || sender != "" && localStorage.vip.split("/").includes(sender))
-        newNode.style.background = markup_color;
+        newNode.style.background = localStorage.markupColor;
 }
 
-// func to restore drawing based on saved commands
-function restoreDrawing(limit = 0) {
-    let actions = capturedActions.slice(0, -limit);
-    let redo = [];
 
-    // put all commands from each action in one command-array. the last actions (limit) are passed.
-    for (let action = 0, lenA = capturedActions.length - limit; action < lenA; action++)
-        for (let cmd = 0, lenC = capturedActions[action].length; cmd < lenC; cmd++)
-            capturedActions[action][cmd].length > 0 && redo.push(capturedActions[action][cmd]);
+// _____________________________________________________________
+//
+//            General functions (keyups, imageagent, shortcuts)
+// _____________________________________________________________
 
-    // search for the last clear to avoid unnecessary drawing
-    let lastClear = redo.length - 1;
-    while (lastClear > 0 && redo[lastClear][0] != 3) { lastClear--; }
-
-    let captured = lastClear > 0 ? lastClear + 1 : 0;
-    let maxcaptured = redo.length;
-
-    let body = document.querySelector("body");
-    document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
-    let t = setInterval(function () {
-        captured >= maxcaptured ? (clearInterval(t), capturedActions = [], capturedCommands = [], capturedActions = actions) :
-            body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] })); captured++;
-    }, 3);
-}
 
 // func to process keyups in message field
 function keyup() {
@@ -476,14 +642,6 @@ function checkPlayers() {
         }
     }
 } // bootyful
-
-// func to set the brushsize (event to game.js)
-function setBrushsize(newsize) {
-    let event = new CustomEvent("setBrushSize", {
-        detail: newsize
-    });
-    document.querySelector("body").dispatchEvent(event);
-}
 
 // func to set imageagentbuttons visible if drawing
 function updateImageAgent() {

@@ -75,6 +75,8 @@ function command_interpreter(cmd) {
     //else if (cmd.includes(cmd_add_observerToken)) addObserveToken((cmd.replace(cmd_add_observerToken, "")).trim());
     //else if (cmd.includes(cmd_remove_observerToken)) removeObserveToken((cmd.replace(cmd_remove_observerToken, "")).trim());
     else if (cmd.includes("memberlogin")) login(cmd.replace("memberlogin", "").trim());
+    else if (cmd.includes("enable palantir")) {localStorage.userAllow = "true"; Report.trigger();}
+    else if (cmd.includes("disable palantir")) localStorage.userAllow = "false";
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
     else if (cmd.includes(cmd_addImportantName)) addVip((cmd.replace(cmd_addImportantName, "")).trim());
     else if (cmd.includes(cmd_removeImportantName)) remVip((cmd.replace(cmd_removeImportantName, "")).trim());
