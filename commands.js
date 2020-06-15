@@ -103,15 +103,15 @@ function printCmdOutput(cmd) {
     p.style.background = "rgb(247, 210, 140)";
 
     let b = document.createElement("b");
-    b.innerHTML = "Befehl:   " + cmd;
+    b.innerHTML = "Command:   " + cmd;
     b.style.display = "block";
 
     let s = document.createElement("span");
 
     // Set Message Content
     if (cmd.includes("Error")) s.innerHTML = "Error by executing the command";
-    else if (cmd == cmd_disableOwnHoly) s.innerHTML = "Holy special was activated";
-    else if (cmd == cmd_enableOwnHoly) s.innerHTML = "Holy special was removed";
+    else if (cmd == cmd_disableOwnHoly) s.innerHTML = "Holy special was removed";
+    else if (cmd == cmd_enableOwnHoly) s.innerHTML = "Holy special was activated";
     else if (cmd == cmd_setMarkup) s.innerHTML = "New markup-color: '" + markup_color + "'";
     else if (cmd == cmd_resetMarkup) s.innerHTML = "Markup-color was reset";
     else if (cmd == cmd_help) s.innerHTML = help_text;

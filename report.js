@@ -62,6 +62,7 @@ var Report = new function ReportObj () {
 		}
 		);
 		let response = await state.text();
+		console.log("Resp: " + response);
 		return JSON.parse(response);
 	}
 
@@ -135,10 +136,12 @@ var Report = new function ReportObj () {
 	this.reportLobby = async function() {
 		if (self.guildLobbies.length < 1) await self.initLobby();
 		else {
-
-			for(let g of self.guildLobbies){
-				if (self.prevLobbyKey != self.generateLobbyKey(g.Private)) {
-					let l = await self.updateLobbyID(g.Key, g.ID).Lobby;
+			
+			for (let g of self.guildLobbies) {
+				let actKey = self.generateLobbyKey(g.Private);
+				if (self.prevLobbyKey != actKey) {
+					let response = await self.updateLobbyID(actKey, g.ID);
+					let l = response.Lobby;
 					if (l == undefined) return;
 					self.prevLobbyKey = l.Key
 					self.lobbyID = l.ID;
@@ -166,7 +169,7 @@ var Report = new function ReportObj () {
 			);
 			state = await state.text();
 			console.log(state);
-			console.log("Sent report to guild " + g.GuildName);
+			//console.log("Sent report to guild " + g.GuildName);
 			self.reports++;
 		}
 
@@ -197,7 +200,7 @@ var Report = new function ReportObj () {
 
 	// func which gets called if the current state should be reported
 	this.trigger = async function () {
-		if (localStorage.member == "" || document.querySelector("#screenLobby").style.display == "none" && document.querySelector("#screenGame").style.display == "none") {
+		if (localStorage.member == "" || document.querySelector("#popupSearch").parentElement.style.display == "none" && document.querySelector("#screenLobby").style.display == "none" && document.querySelector("#screenGame").style.display == "none") {
 			clearTimeout(self.nextReport);
 			return;
 		}
@@ -206,7 +209,8 @@ var Report = new function ReportObj () {
 			await self.reportPlayerStatus("searching",null,null );
 		}
 		else if (self.waiting) {
-
+			await self.reportPlayerStatus("waiting", null, null);
+			setTimeout(() => self.trigger(), 3000);
 		}
 		else if (self.playing) {
 			await self.reportLobby();

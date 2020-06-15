@@ -8,12 +8,13 @@
  * 
  * BUG NOTES
  *  undo doesnt stop if next player draws
- *  keydown changes tools wen other persons draw
+ *  undo skips actions
+ *  ----keydown changes tools when other players draw
  *  mysterious drawing over next persons' canvas sometimes
  *  still that audio thing
+ *  ----holy not working
  *  
  *  TODO
- *   send waiting status
  *   fix bugs
  * 
  */
@@ -52,9 +53,12 @@
 
 */
 'use strict';
-const version = "17.0.1";
+const version = "17.0.2";
 const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
 const command_token = "--";
+
+// stop patcher observing
+patcher.disconnect();
 
 // Set default settings
 if (!localStorage.member) localStorage.member = "";
@@ -212,7 +216,7 @@ document.querySelector("body").addEventListener("loginData", function (d) {
 var reportTrigger = new MutationObserver(() => {
     Report.trigger();
 });
-reportTrigger.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: true, childList: true, subtree: true })
+reportTrigger.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: true, childList: true})
 
 
 // if lobbies are already loaded (Orthanc fast af?!?!)
@@ -258,7 +262,11 @@ document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
 function startSearch() {
     if (sessionStorage.lobbySearch == "true") {
         let lobbyid = document.querySelector("#lobbyID" + sessionStorage.targetLobby);
-        if (!lobbyid) { sessionStorage.lobbySearch = "false"; alert("The lobby doesn't exist anymore :("); }
+        if (!lobbyid) {
+            sessionStorage.lobbySearch = "false"; alert("The lobby doesn't exist anymore :(");
+            document.querySelector("#popupSearch").innerText = "";
+            document.querySelector("#popupSearch").style.display = "none";
+        }
         else if (parseInt(lobbyid.getAttribute('lobbyPlayerCount')) >= 8) {
             //lobbyid.
         }
@@ -282,7 +290,7 @@ setInterval(async () => {
 
 async function reloadLobbies() {
     if (document.querySelector("#screenLogin").style.display == "none") return;
-    for (let node of document.querySelectorAll(".loginPanelContent > h3, .loginPanelContent > .updateInfo")) { node.remove(); }
+    //for (let node of document.querySelectorAll(".loginPanelContent > h3, .loginPanelContent > .updateInfo")) { node.remove(); }
     await initLobbyTab();
 }
 
@@ -505,12 +513,17 @@ if (sessionStorage.skippedLobby == "true") {
 
     // add back btn
     let backBtn = document.createElement("div");
+    let clearContainer = document.querySelector(".containerClearCanvas");
     backBtn.classList.add("tool");
     backBtn.id = "restore";
     backBtn.style.display = localStorage.displayBack ? "" : "none";
     backBtn.innerHTML = "<img class='toolIcon' src='" + chrome.extension.getURL("/res/back.gif") + "'>";
     backBtn.onclick = function () { restoreDrawing(1); };
-    document.querySelector(".containerTools").appendChild(backBtn);
+    clearContainer.style.marginLeft = "8px";
+    clearContainer.firstChild.classList.add("tool");
+    clearContainer.firstChild.style.opacity = "1";
+    clearContainer.classList.add("containerTools");
+    clearContainer.appendChild(backBtn);
     toggleBackbutton(localStorage.displayBack == "true", true);
 
     // add random color image
@@ -603,7 +616,7 @@ function update() {
 // mutation observer callback
 function checkPlayers() {
 
-    let players = document.querySelector(".name");
+    let players = document.querySelectorAll(".name");
     let i;
 
     for (i = 0; i < players.length; i++) {

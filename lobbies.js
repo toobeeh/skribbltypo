@@ -131,9 +131,9 @@ async function loadLobbies(observeToken, guildID, container, guildName) {
 
     response.Lobbies.forEach((l) => {
         let lobbyButton = document.createElement("div");
+        let idData = l.ID.split(":");
         lobbyButton.classList = "btn btn-success";
         lobbyButton.style = "margin:0.2em";
-        let idData = l.ID.split(":");
         lobbyButton.classList.add("lobbySearchButton");
         lobbyButton.setAttribute("lobbyKey", l.Key);
         lobbyButton.setAttribute("link", l.Link);
@@ -143,7 +143,10 @@ async function loadLobbies(observeToken, guildID, container, guildName) {
         lobbyButton.id = "lobbyID" + idData[1];
 
         if (idData[1] == sessionStorage.targetLobby && sessionStorage.lobbySearch == "true") {
-            if (l.Players.length >= 8) lobbyButton.textContent += " [waiting...]";
+            if (l.Players.length >= 8) {
+                lobbyButton.textContent += " [waiting...]";
+                document.querySelector("#popupSearch").innerText = "Waiting for free slot";
+            }
             //lobbyButton.textContent += " Escape -> Cancel";
             lobbyButton.classList.remove("btn-success");
             lobbyButton.classList.add("btn-warning");

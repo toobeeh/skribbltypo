@@ -3401,7 +3401,9 @@
     }), n(function() {
         n('[data-toggle="tooltip"]').tooltip()
     });
-    var st = null,
+    var inputLog = [],
+        logPos=0,
+        st = null,
         it = null,
         at = new V,
         ct = new nt,
@@ -3486,6 +3488,8 @@
     }), n("#formChat").submit(function(t) {
         var e = n("#inputChat"),
             o = e.val();
+        inputLog.push(e.val());
+        logPos=inputLog.length;
         return o && (it ? it.emit("chat", o) : st.chatAddMsg(st.players.get(st.myID), o, "#000"), e.val("")), !1
     }), n("#buttonOpenLobbyCreation").on("click", function() {
         n("#modalCreateLobby").modal("show")
@@ -3504,7 +3508,7 @@
     }), n(e).on("mousemove", function(t) {
         localStorage.getItem('practise') == "true" && T(t.clientX, t.clientY, !1) || st && st.checkDrawing() && T(t.clientX, t.clientY, !1)
     }), n(e).keydown(function(t) {
-        if (localStorage.getItem('practise') ||  st && st.checkDrawing() && t !== r && t.key !== r) switch (t.key.toUpperCase()) {
+        if (localStorage.getItem('practise')=="true" ||  st && st.checkDrawing() && t !== r && t.key !== r) switch (t.key.toUpperCase()) {
             case "B":
                 ut.brush.setTool("pen");
                 break;
@@ -3563,8 +3567,15 @@
         ut.brush.setThickness(event.detail);
     }), n("body").on("performDrawCommand", function (event) {
         I(event.detail);
-    }), n("#inputChat").on("keyup", function () {
-        // placeholder for testing
+    }), n("#inputChat").on("keyup", function (e) {
+        if (e.key == "ArrowUp") {
+            if (logPos <= 0 ) return;
+            n("#inputChat").val(inputLog[--logPos]);
+        }
+        if (e.key == "ArrowDown") {
+            if (logPos > inputLog.length-1) return;
+            n("#inputChat").val(inputLog[++logPos]);
+        }
     }), n("body").on("setRandomColor", function (e) {
         clearInterval(setColorInterval);
         if(e.detail != "false") setColorInterval = setInterval(function () {

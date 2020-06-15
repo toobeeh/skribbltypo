@@ -77,6 +77,14 @@
         >Structure rework: popup folder, changelog as markdown, have command stuff in own js file
     - .4:
         >Audiocontext create fail should be fixed now
+        
+- 17.0:
+    >Build of Palantir implementation! Lobbies are now sent to verified discord servers.  
+    >Means: popup tweaks, js rework and additions and so on to fit requirements.  
+    >Also new: Arrow keys to switch between previous chat submissions.
+    >Fixes: tool changes during chatting, undo button position improved
+    - .1: 
+    > Stable testing release
 
 ## Bugs:
 - Redo sometimes skips first action
