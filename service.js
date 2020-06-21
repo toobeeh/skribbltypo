@@ -20,7 +20,7 @@
  */
 
 /*
-    Different versions of the holy gif (yeah DEFINITELY should stop hosting it on giphy)
+    Different versions of the holy gif (still hosted on giphy :/)
     - Mit Kontur                                            https://media.giphy.com/media/RJKTLStD0Lc6IaFw5C/giphy.gif
     - Zweifarbig                                            https://media.giphy.com/media/UvVlujHiawde07lhXC/giphy.gif
     - Dreifarbig, dünkler                                   https://media.giphy.com/media/KCvmNt16OGOaQj3tUl/giphy.gif
@@ -53,7 +53,7 @@
 
 */
 'use strict';
-const version = "17.0.2";
+const version = "17.0.4";
 const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
 const command_token = "--";
 
@@ -124,6 +124,8 @@ document.querySelector("#canvasGame").addEventListener("pointerout", pushCapture
 
 // func to restore drawing based on saved commands
 function restoreDrawing(limit = 0) {
+    document.querySelector("#restore").style.pointerEvents = "none";
+    document.querySelector("#canvasGame").style.pointerEvents = "none";
     let actions = capturedActions.slice(0, -limit);
     let redo = [];
 
@@ -142,8 +144,14 @@ function restoreDrawing(limit = 0) {
     let body = document.querySelector("body");
     document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
     let t = setInterval(function () {
-        captured >= maxcaptured ? (clearInterval(t), capturedActions = [], capturedCommands = [], capturedActions = actions) :
-            body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] })); captured++;
+        captured >= maxcaptured ? (
+            clearInterval(t),
+            capturedActions = [],
+            capturedCommands = [],
+            capturedActions = actions,
+            document.querySelector("#restore").style.pointerEvents = "",
+            document.querySelector("#canvasGame").style.pointerEvents = ""
+            ) : body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] })); captured++;
     }, 3);
 }
 
@@ -231,6 +239,8 @@ document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
             let link = b.getAttribute("link");
             let key = b.getAttribute("lobbykey");
             let id = b.getAttribute("lobbyid");
+            let language = b.getAttribute("lobbylang");
+            localStorage.lang = language;
 
             if (link) {
                 sessionStorage.skippedLobby = "true";
@@ -263,9 +273,14 @@ function startSearch() {
     if (sessionStorage.lobbySearch == "true") {
         let lobbyid = document.querySelector("#lobbyID" + sessionStorage.targetLobby);
         if (!lobbyid) {
-            sessionStorage.lobbySearch = "false"; alert("The lobby doesn't exist anymore :(");
+            sessionStorage.lobbySearch = "false";
+            alert("The lobby doesn't exist anymore :(");
             document.querySelector("#popupSearch").innerText = "";
             document.querySelector("#popupSearch").style.display = "none";
+            Report.playing = false;
+            Report.searching = false;
+            Report.waiting = false;
+            Report.trigger();
         }
         else if (parseInt(lobbyid.getAttribute('lobbyPlayerCount')) >= 8) {
             //lobbyid.
@@ -274,12 +289,38 @@ function startSearch() {
     }
 }
 
-// check lobby as soon as connected
+// check lobby as soon as connected and perform search checks
 document.querySelector("body").addEventListener("lobbyConnected", function (e) {
     if (sessionStorage.lobbySearch == "true") {
         let key = sessionStorage.targetKey;
-        if (Report.generateLobbyKey != key) setTimeout(() => { window.location.reload(); }, 200);
-        else sessionStorage.lobbySearch = "false";
+        if (Report.generateLobbyKey(false) != key) setTimeout(() => { window.location.reload(); }, 200);
+        else {
+            sessionStorage.lobbySearch = "false";
+            document.querySelector("#popupSearch").parentElement.style.display = "none";
+        }
+    }
+    else if (JSON.parse(sessionStorage.searchPlayers).length > 0) {
+        let found = false;
+        let players = JSON.parse(sessionStorage.searchPlayers);
+        e.detail.forEach(p => { if (players.includes(p.name)) found = true; });
+        if (found) {
+            sessionStorage.searchPlayers = "[]";
+            document.querySelector("#popupSearch").parentElement.style.display = "none";
+        }
+        else {
+            sessionStorage.skippedLobby = "true";
+            setTimeout(() => { window.location.reload(); }, 400);
+        }
+    }
+    else if (sessionStorage.skipDeadLobbies == "true") {
+        if (document.querySelectorAll("#containerGamePlayers > .player").length <= 1) {
+            sessionStorage.skippedLobby = "true";
+            setTimeout(() => { window.location.reload(); }, 400);
+        }
+        else {
+            sessionStorage.skipDeadLobbies = "false";
+            document.querySelector("#popupSearch").parentElement.style.display = "none";
+        }
     }
 });
 
@@ -323,7 +364,7 @@ chatObserver.observe(document.getElementById("boxMessages"), { attributes: false
 
 // enter lobby if last lobby was skipped 
 if (sessionStorage.skippedLobby == "true") {
-    document.querySelector("button[type='submit'].btn-success").click();
+    setTimeout(() => { document.querySelector("button[type='submit'].btn-success").click(); }, 400);
     sessionStorage.skippedLobby = "false";
 }
 
@@ -340,12 +381,11 @@ if (sessionStorage.skippedLobby == "true") {
 
     // get DOM elements
     let input = document.querySelector("#inputChat");
-    let current = document.querySelector("#currentWord");
     let box = document.querySelector("#boxChatInput");
     let panel_header = document.querySelector(".loginPanelTitle");
     let chat_cont = document.querySelector("#boxChat");
     let msg_cont = document.querySelector("#boxMessages");
-    let div_buttons = document.querySelector(".gameHeaderButtons");
+    let gameHeader = document.querySelector(".gameHeaderButtons");
 
     // add listener to questionmark
     document.querySelector(".iconQuestionmark").onclick = function () { testMode(); };
@@ -364,38 +404,29 @@ if (sessionStorage.skippedLobby == "true") {
     bt_next.setAttribute("type", "button");
     bt_next.setAttribute("value", "Next Lobby");
     bt_next.onclick = function () {
-        sessionStorage.skippedLobby = true;
-        location.reload();
+        sessionStorage.skipDeadLobbies = "true";
+        sessionStorage.skippedLobby = "true";
+        window.location.reload();
     }
-    bt_next.setAttribute("style", "height: 20px; padding:0px; padding-left: 5px; padding-right:5px;");
+    //bt_next.setAttribute("style", "height: 20px; padding:0px; padding-left: 5px; padding-right:5px;");
     bt_next.setAttribute("class", "btn btn-info btn-block");
+    bt_next.style.margin = "0 0.5em";
 
     // Create exit button
     let bt_exit = document.createElement("input");
     bt_exit.setAttribute("type", "button");
     bt_exit.setAttribute("value", "Exit Lobby");
     bt_exit.onclick = function () { location.reload(); };
-    bt_exit.setAttribute("style", "height:20px; padding: 0px; padding-left: 5px; padding-right:5px;");
-    bt_exit.setAttribute("class", "btn btn-block btn-warning");
+    //bt_exit.setAttribute("style", "height:20px; padding: 0px; padding-left: 5px; padding-right:5px;");
+    bt_exit.setAttribute("class", "btn btn-warning btn-block");
+    bt_exit.style.margin = "0 0.5em";
 
     // create table container for buttons
-    var table_controls = document.createElement("table");
-    let td_next = document.createElement("td");
-    let td_exit = td_next;
-    let tr_0 = document.createElement("tr");
-    let tr_1 = tr_0;
-
-    td_next.appendChild(bt_next);
-    tr_1.appendChild(td_next);
-
-    td_exit.appendChild(bt_exit);
-    tr_0.appendChild(td_exit);
-
-    table_controls.setAttribute("style", "margin-top: 2px; margin-right:10px; margin-left: 10px");
-    table_controls.appendChild(tr_0);
-    table_controls.appendChild(tr_1);
-
-    div_buttons.appendChild(table_controls);
+    let lobbyControls = document.createElement("div");
+    lobbyControls.style = "display:flex; font-size:15; float: right; justify-content:center; align-items:center;";
+    lobbyControls.appendChild(bt_exit);
+    lobbyControls.appendChild(bt_next);
+    gameHeader.appendChild(lobbyControls);
 
     // Add version status
     let status_box = document.createElement("button");
@@ -403,7 +434,7 @@ if (sessionStorage.skippedLobby == "true") {
     status_box.setAttribute("style", "font-size:15px; position:absolute; right:20px");
     status_box.setAttribute("class", "updateInfo");
     status_box.onclick = function () { alert("Click the extension icon to open the dashboard!"); };
-    panel_header.appendChild(status_box);
+    //panel_header.appendChild(status_box);
 
     // Add wordcount under input
     let table = document.createElement("TABLE");
@@ -509,7 +540,7 @@ if (sessionStorage.skippedLobby == "true") {
     agentButtons.style.display = "none";
 
     // show help
-    printCmdOutput(cmd_help);
+    //printCmdOutput(cmd_help);
 
     // add back btn
     let backBtn = document.createElement("div");
@@ -537,6 +568,28 @@ if (sessionStorage.skippedLobby == "true") {
     rand.addEventListener("click", function () {
         document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: localStorage.randomColorInterval }));
     });
+
+
+    // add DL button
+    let header = document.querySelector(".gameHeader");
+    let download = document.createElement("img");
+    download.src = "https://media.giphy.com/media/RLKYVelNK5bP3yc8LJ/giphy.gif";
+    download.style.cursor = "pointer";
+    download.addEventListener("click", () => {
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer;
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        try {
+            drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
+        }
+        catch{ drawer = "";}
+        d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
+        d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+        d.dispatchEvent(e);
+    });
+    header.insertBefore(download, header.firstChild);
+
 })();
 
 // func to mark a message node with background color

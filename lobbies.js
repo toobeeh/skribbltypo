@@ -116,7 +116,7 @@ async function loadLobbies(observeToken, guildID, container, guildName) {
             'Accept': '*/*',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         },
-        body: "observeToken=" + observeToken + "&member=" + localStorage.member
+        body: "observeToken=" + observeToken + "&member=" + encodeURIComponent(localStorage.member)
     });
     let response = await state.text();
     console.log(response);
@@ -135,7 +135,8 @@ async function loadLobbies(observeToken, guildID, container, guildName) {
         lobbyButton.classList = "btn btn-success";
         lobbyButton.style = "margin:0.2em";
         lobbyButton.classList.add("lobbySearchButton");
-        lobbyButton.setAttribute("lobbyKey", l.Key);
+        lobbyButton.setAttribute("lobbykey", l.Key);
+        lobbyButton.setAttribute("lobbylang", l.Language);
         lobbyButton.setAttribute("link", l.Link);
         lobbyButton.setAttribute("lobbyid", idData[1]);
         lobbyButton.setAttribute('lobbyPlayerCount', l.Players.length);
@@ -146,6 +147,10 @@ async function loadLobbies(observeToken, guildID, container, guildName) {
             if (l.Players.length >= 8) {
                 lobbyButton.textContent += " [waiting...]";
                 document.querySelector("#popupSearch").innerText = "Waiting for free slot";
+                Report.playing = false;
+                Report.searching = false;
+                Report.waiting = true;
+                Report.trigger();
             }
             //lobbyButton.textContent += " Escape -> Cancel";
             lobbyButton.classList.remove("btn-success");

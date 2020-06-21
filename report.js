@@ -39,7 +39,8 @@ var Report = new function ReportObj () {
 
 	let self = this;
 	this.hits = 0;
-	this.reports =0;
+	this.reports = 0;
+	this.sessionID = sessionStorage.sessionID ? sessionStorage.sessionID : sessionStorage.sessionID = Math.floor(Math.random() * 100000000);
 	this.loginName;
 	this.guildLobbies = [];
 	this.nextReport;
@@ -58,7 +59,7 @@ var Report = new function ReportObj () {
 				'Accept': '*/*',
 				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
-			body: "member=" + localStorage.member + "&lobbyKey=" + key + (id != "" ? "&lobbyID="+id : "")
+			body: "member=" + encodeURIComponent(localStorage.member) + "&lobbyKey=" + key + (id != "" ? "&lobbyID="+id : "")
 		}
 		);
 		let response = await state.text();
@@ -164,7 +165,7 @@ var Report = new function ReportObj () {
 					'Accept': '*/*',
 					'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 				},
-				body: "lobbyReport=" + JSON.stringify(g) + "&member=" + localStorage.member
+				body: "lobbyReport=" + encodeURIComponent(JSON.stringify(g)) + "&member=" + encodeURIComponent(localStorage.member)
 			}
 			);
 			state = await state.text();
@@ -180,7 +181,7 @@ var Report = new function ReportObj () {
 
 		let playerStatus = new self.PlayerStatus();
 		playerStatus.PlayerMember = JSON.parse(localStorage.member);
-		if(status == "searching") playerStatus.PlayerMember.UserName = self.loginName;
+		if (status == "searching") playerStatus.PlayerMember.UserName = self.loginName;
 		playerStatus.Status = status;
 		playerStatus.LobbyID = lobbyID;
 		playerStatus.LobbyPlayerID = lobbyPlayerID;
@@ -191,9 +192,8 @@ var Report = new function ReportObj () {
 				'Accept': '*/*',
 				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
-			body: "playerStatus=" + JSON.stringify(playerStatus) 
-		}
-		);
+			body: "playerStatus=" + JSON.stringify(playerStatus)  + "&session=" + self.sessionID
+		});
 		state = await state.text();
 		;
 	}
@@ -209,7 +209,7 @@ var Report = new function ReportObj () {
 			await self.reportPlayerStatus("searching",null,null );
 		}
 		else if (self.waiting) {
-			await self.reportPlayerStatus("waiting", null, null);
+			await self.reportPlayerStatus("waiting", document.querySelector("#inputName").value, null);
 			setTimeout(() => self.trigger(), 3000);
 		}
 		else if (self.playing) {

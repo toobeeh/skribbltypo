@@ -72,7 +72,10 @@ setTimeout(function () { if (!settings && skribbl) document.querySelector("h1").
 
 // set button events
 document.querySelectorAll("button").forEach(function (bt) {
-    if (bt.id == "help") bt.onclick = function () { window.location.href = "readme.html"; };
+    if (bt.id == "help") bt.onclick = function () {
+        chrome.tabs.create({
+            url: "https://www.tobeh.host/Orthanc" });
+    }//window.location.href = "https://www.tobeh.host/Orthanc"; };
     else if (bt.id == "verifyToken") bt.onclick = verifyTokenInput;
     else if (bt.id == "loginSubmit") bt.onclick = verifyLoginInput;
     else bt.onclick = toggleActive;
@@ -221,7 +224,7 @@ async function verifyTokenInput() {
             'Accept': '*/*',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         },
-        body: "observeToken=" + token + "&member=" + JSON.stringify(member)
+        body: "observeToken=" + token + "&member=" + encodeURIComponent(JSON.stringify(member))
     }
     )).json();
     if (!memberResponse.Valid) {
@@ -236,9 +239,10 @@ async function verifyTokenInput() {
         addAuthGuild(g.GuldID, g.GuildName);
     });
 
-    //chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-    //    chrome.tabs.sendMessage(tabs[0].id, "memberlogin " + JSON.stringify(member));
-    //});
+    // reload skribbl
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
+    });
 
 }
 

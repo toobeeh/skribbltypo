@@ -153,6 +153,7 @@ hr {
     outline: none;
     background-color: transparent;
     z-index: 2;
+    cursor:pointer;
 }
 
 .sliderBox {
