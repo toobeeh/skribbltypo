@@ -14,8 +14,6 @@
  *  still that audio thing
  *  ----holy not working
  *  
- *  TODO
- *   fix bugs
  * 
  */
 
@@ -52,8 +50,19 @@
         Vector  y: 0-600
 
 */
+
+/*
+ * Todo:
+ * fix conflict with image poster (container freespace) 
+ * ----fix lobby id check -> as soon as lobby connected
+ * fix lobby search not triggering sometimes on first lobby
+ * lobby buttons take several clicks sometimes
+ * 
+ */
+
+
 'use strict';
-const version = "17.0.4";
+const version = "17.0.5";
 const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
 const command_token = "--";
 
@@ -290,10 +299,22 @@ function startSearch() {
 }
 
 // check lobby as soon as connected and perform search checks
-document.querySelector("body").addEventListener("lobbyConnected", function (e) {
+document.querySelector("body").addEventListener("lobbyConnected", async function (e) {
     if (sessionStorage.lobbySearch == "true") {
         let key = sessionStorage.targetKey;
-        if (Report.generateLobbyKey(false) != key) setTimeout(() => { window.location.reload(); }, 200);
+        let id = sessionStorage.targetLobby;
+        let state = await fetch('https://www.tobeh.host/Orthanc/idprovider/', {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: "lobbyID=" + id
+        }
+        );
+        let idResponse = await state.json();
+        let thisKey = Report.generateLobbyKey(false);
+        if (idResponse.Lobby && idResponse.Lobby.Key != thisKey) setTimeout(() => { window.location.reload(); }, 200);
         else {
             sessionStorage.lobbySearch = "false";
             document.querySelector("#popupSearch").parentElement.style.display = "none";
@@ -468,8 +489,8 @@ if (sessionStorage.skippedLobby == "true") {
     chat_cont.insertBefore(style_cont_msg, msg_cont);
     box.appendChild(table);
 
-    // clear ads for space
-    document.querySelector("#containerFreespace").innerHTML = "";
+    // clear ads for space 
+    //document.querySelector("#containerFreespace").innerHTML = ""; -> conflicts with image poster
 
     // Add imageagent
     let div_imageAgent = document.createElement("img");
