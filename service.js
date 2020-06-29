@@ -57,6 +57,7 @@
  * ----fix lobby id check -> as soon as lobby connected
  * fix lobby search not triggering sometimes on first lobby
  * lobby buttons take several clicks sometimes
+ * ---- fix lobby status when search is still active (slow connection)
  * 
  */
 
@@ -175,7 +176,7 @@ document.querySelector("#canvasGame").addEventListener("pointermove", (event) =>
     refresh = false;
 
     let size = 4;
-    while (size * kLevel * (101 - localStorage.sens) / 100 < event.pressure) size += 0.2;
+    while (size * kLevel * (100/(101-localStorage.sens)) < event.pressure) size += 0.2;
     setBrushsize(size);
 
     setTimeout(function () { refresh = true; }, refreshCycle);
@@ -211,10 +212,12 @@ startBtns[0].addEventListener("click", () => {
     Report.waiting = false;
     Report.playing = false;
     setTimeout(() => {
-        Report.playing = true;
-        Report.searching = false;
-        Report.waiting = false;
-        Report.trigger();
+        if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+            Report.playing = true;
+            Report.searching = false;
+            Report.waiting = false;
+            Report.trigger();
+        }
     }, 4000);
 });
 startBtns[1].addEventListener("click", () => {
@@ -265,10 +268,12 @@ document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
             Report.waiting = false;
             Report.playing = false;
             setTimeout(() => {
-                Report.playing = true;
-                Report.searching = false;
-                Report.waiting = false;
-                Report.trigger();
+                if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+                    Report.playing = true;
+                    Report.searching = false;
+                    Report.waiting = false;
+                    Report.trigger();
+                }
             }, 4000);
             reloadLobbies();
             document.querySelector("#popupSearch").parentElement.style.display = "block";
