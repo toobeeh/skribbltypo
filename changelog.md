@@ -89,7 +89,7 @@
     > keydown changes tools when other players draw
     > undo button position improved
     > fixed audio context start event
+    > huge undo performance improvement for other clients. thx to some anonymous :D
+    > fix conflict with imageposter
 
-## Bugs:
-- Redo sometimes skips first action
 

@@ -44,12 +44,12 @@
 
 /*
  * Todo and bugs:
- * fix conflict with image poster (container freespace) 
+ * ----fix conflict with image poster (container freespace) 
  * ----fix lobby id check -> as soon as lobby connected
  * fix lobby search not triggering sometimes on first lobby
  * lobby buttons take several clicks sometimes
  * ---- fix lobby status when search is still active (slow connection)
- * *  undo doesnt stop if next player draws
+ *  undo doesnt stop if next player draws
  *  undo skips actions
  *  ----keydown changes tools when other players draw
  *  mysterious drawing over next persons' canvas sometimes
@@ -155,8 +155,8 @@ function restoreDrawing(limit = 0) {
             clearInterval(t),
             capturedActions = [],
             capturedCommands = [],
-            capturedActions = actions,
             document.querySelector("#restore").style.pointerEvents = "",
+            capturedActions = actions,
             document.querySelector("#canvasGame").style.pointerEvents = ""
             ) : body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] })); captured++;
     }, 3);
@@ -495,11 +495,7 @@ if (sessionStorage.skippedLobby == "true") {
     //document.querySelector("#containerFreespace").innerHTML = ""; -> conflicts with image poster
 
     // Add imageagent
-    let div_imageAgent = document.createElement("img");
-    div_imageAgent.setAttribute("id", "imageAgent");
-    div_imageAgent.setAttribute("style", "max-width:100%; max-height:30vh !important");
-    document.querySelector("#containerFreespace").insertBefore(div_imageAgent, document.querySelector("#containerFreespace").firstChild);
-    div_imageAgent.parentNode.style = "display:flex;flex-direction:column;align-items:center;";
+   
 
 
     let flag = document.createElement("input");
@@ -535,7 +531,7 @@ if (sessionStorage.skippedLobby == "true") {
     text.setAttribute("value", "Custom");
     text.setAttribute("class", "btn btn-warning");
     text.setAttribute("style", "margin:0.5em; padding:0.2em");
-    text.addEventListener("click", () => { searchAgentInput.style.display == "none" ? searchAgentInput.style.display = "" : text.style.display = "none"; });
+    text.addEventListener("click", () => { searchAgentInput.style.display == "none" ? searchAgentInput.style.display = "" : searchAgentInput.style.display = "none"; });
 
     let searchAgentInput = document.createElement("input");
     searchAgentInput.setAttribute("type", "text");
@@ -559,7 +555,18 @@ if (sessionStorage.skippedLobby == "true") {
     agentButtons.appendChild(text);
     agentButtons.appendChild(searchAgentInput);
 
-    document.querySelector("#containerFreespace").insertBefore(agentButtons, document.querySelector("#containerFreespace").firstChild);
+    let containerAgent = document.createElement("div");
+    containerAgent.id = "containerAgent";
+    containerAgent.appendChild(agentButtons);
+    containerAgent.style = "display:flex;flex-direction:column;align-items:center;";
+
+    let div_imageAgent = document.createElement("img");
+    div_imageAgent.setAttribute("id", "imageAgent");
+    div_imageAgent.setAttribute("style", "max-width:100%; max-height:30vh !important");
+
+    containerAgent.appendChild(div_imageAgent);
+
+    document.querySelector("#containerSidebar").insertBefore(containerAgent, document.querySelector("#containerSidebar").firstChild);
     agentButtons.style.display = "none";
 
     // show help
@@ -742,13 +749,13 @@ function updateImageAgent() {
 
     if (word.innerHTML.includes("_") || word.innerHTML == "" || localStorage.imageAgent == "false") {
         div.style.display = "none";
-        document.querySelector("#containerFreespace").setAttribute("class", "");
+        document.querySelector("#containerAgent").setAttribute("class", "");
         document.querySelector("#imageAgent").setAttribute("src", "");
         scrollMessages();
         return;
     }
     div.style.display = "block";
-    document.querySelector("#containerFreespace").setAttribute("class", "updateInfo collapse in");
+    document.querySelector("#containerAgent").setAttribute("class", "updateInfo collapse in");
     scrollMessages();
 }
 

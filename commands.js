@@ -312,32 +312,6 @@ function showVip() {
     printCmdOutput(out);
 }
 
-//async function addObserveToken(observeToken) {
-//    let verify = await fetch('https://www.tobeh.host/Orthanc/verify/', {
-//        method: 'POST',
-//        headers: {
-//            'Accept': '*/*',
-//            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-//        },
-//        body: "observeToken=" + observeToken
-//    }
-//    );
-//    verify = await verify.json();
-//    let guild = new Guild(verify.AuthGuildID, verify.AuthGuildName, observeToken);
-//    let guilds = [];
-//    guilds = JSON.parse(localStorage.guilds);
-//    guilds.push(guild);
-//    localStorage.guilds = JSON.stringify(guilds);
-//}
-//function removeObserveToken(observeToken) {
-//    let guilds = [];
-//    let oldGuilds = JSON.parse(localStorage.guilds);
-//    oldGuilds.forEach((g) => {
-//        if (g.ObserveToken != observeToken) guilds.push(g);
-//    });
-//    localStorage.guilds = JSON.stringify(guilds);
-//}
-
 function login(login) {
     localStorage.login = login;
 }
