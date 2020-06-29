@@ -82,9 +82,13 @@
     >Build of Palantir implementation! Lobbies are now sent to verified discord servers.  
     >Means: popup tweaks, js rework and additions and so on to fit requirements.  
     >Also new: Arrow keys to switch between previous chat submissions.
-    >Fixes: tool changes during chatting, undo button position improved
-    - .1: 
-    > Stable testing release
+    - .0.x: 
+    > Various bugfixes:
+    > fix lobby id check -> as soon as lobby connected
+    > fix lobby status when search is still active (slow connection)
+    > keydown changes tools when other players draw
+    > undo button position improved
+    > fixed audio context start event
 
 ## Bugs:
 - Redo sometimes skips first action

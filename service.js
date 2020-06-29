@@ -60,7 +60,7 @@
 
 
 'use strict';
-const version = "17.0.6";
+const version = "17.0.7";
 const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
 const command_token = "--";
 
