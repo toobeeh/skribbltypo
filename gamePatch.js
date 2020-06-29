@@ -3020,7 +3020,7 @@
             }, o.send()
         },
         V = function() {
-            this.context = null, this.sounds = new Map, this.mute = !1, "true" === o.getItem("audioMute") && this.setMute(!0), t.addEventListener("load", this.load.bind(this), !1)
+            this.context = null, this.sounds = new Map, this.mute = !1, "true" === o.getItem("audioMute") && this.setMute(!0), t.addEventListener("click", this.load.bind(this), !1)
         };
     V.prototype.setMute = function(t) {
         this.mute = t, this.mute ? n("#audio").css("background-image", "url(res/audio_off.gif") : n("#audio").css("background-image", "url(res/audio.gif"), o.setItem("audioMute", this.mute.toString())
@@ -3036,9 +3036,11 @@
                 n.buffer = e.buffer, n.connect(this.context.destination), n.start(0)
             }
         }
-    }, V.prototype.load = function() {
+        }, V.prototype.load = function () {
+        if (this.context) return;
         try {
-            t.AudioContext = t.AudioContext || t.webkitAudioContext, this.context = new AudioContext
+            t.AudioContext = t.AudioContext || t.webkitAudioContext, this.context = new AudioContext;
+            t.removeEventListener("click", V.bind);
         } catch (t) {
             return void console.log("Error creating AudioContext.")
         }

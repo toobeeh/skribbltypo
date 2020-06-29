@@ -6,15 +6,6 @@
  * Also, there are still some german parts hiding... :))))
  * 
  * 
- * BUG NOTES
- *  undo doesnt stop if next player draws
- *  undo skips actions
- *  ----keydown changes tools when other players draw
- *  mysterious drawing over next persons' canvas sometimes
- *  still that audio thing
- *  ----holy not working
- *  
- * 
  */
 
 /*
@@ -52,12 +43,18 @@
 */
 
 /*
- * Todo:
+ * Todo and bugs:
  * fix conflict with image poster (container freespace) 
  * ----fix lobby id check -> as soon as lobby connected
  * fix lobby search not triggering sometimes on first lobby
  * lobby buttons take several clicks sometimes
  * ---- fix lobby status when search is still active (slow connection)
+ * *  undo doesnt stop if next player draws
+ *  undo skips actions
+ *  ----keydown changes tools when other players draw
+ *  mysterious drawing over next persons' canvas sometimes
+ *  ----still that audio thing
+ *  ----holy not working
  * 
  */
 
