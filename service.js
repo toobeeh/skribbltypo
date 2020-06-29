@@ -62,7 +62,7 @@
 
 
 'use strict';
-const version = "17.0.5";
+const version = "17.0.6";
 const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
 const command_token = "--";
 
@@ -171,7 +171,7 @@ var refreshCycle = 5;
 
 // event for pressure drawing
 document.querySelector("#canvasGame").addEventListener("pointermove", (event) => {
-    if (!refresh || !localStorage.ink || event.pointerType != "pen") return;
+    if (!refresh || localStorage.ink != "true" || event.pointerType != "pen") return;
     refresh = false;
 
     let size = 4;
@@ -183,7 +183,7 @@ document.querySelector("#canvasGame").addEventListener("pointermove", (event) =>
 
 // event if pen was released
 document.querySelector("#canvasGame").addEventListener("pointerup", (event) => {
-    if (localStorage.ink && event.pointerType == "pen") setBrushsize(1);
+    if (localStorage.ink == "true" && event.pointerType == "pen") setBrushsize(1);
 });
 
 // func to set the brushsize (event to game.js)
