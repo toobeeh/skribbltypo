@@ -174,7 +174,7 @@ var Report = new function ReportObj () {
 			self.reports++;
 		}
 
-		if (localStorage.userAllow) self.nextReport = setTimeout(self.trigger, 2500);
+		if (localStorage.userAllow) self.nextReport = setTimeout(self.trigger, 2);
 	}
 
 	this.reportPlayerStatus = async function (status, lobbyID, lobbyPlayerID) {
@@ -182,6 +182,7 @@ var Report = new function ReportObj () {
 		let playerStatus = new self.PlayerStatus();
 		playerStatus.PlayerMember = JSON.parse(localStorage.member);
 		if (status == "searching") playerStatus.PlayerMember.UserName = self.loginName;
+		if (status == "waiting" && sessionStorage.lastLoginName && sessionStorage.lastLoginName != "") playerStatus.PlayerMember.UserName = sessionStorage.lastLoginName;
 		playerStatus.Status = status;
 		playerStatus.LobbyID = lobbyID;
 		playerStatus.LobbyPlayerID = lobbyPlayerID;

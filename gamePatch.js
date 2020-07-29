@@ -333,7 +333,7 @@
     }
 
     function I(t) {
-        localStorage.getItem('practise') == "true" || st.drawingID == st.myID ? (ut.drawCommands.push(t), ut.performDrawCommand(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }))) : ut.addDrawCommandReceived(t);
+        localStorage.getItem('practise') == "true" || st.drawingID == st.myID ? (ut.drawCommands.push(t), ut.performDrawCommand(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }))) : (ut.addDrawCommandReceived(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t })));
     }
 
     function L(t) {

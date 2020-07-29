@@ -56,6 +56,12 @@
  *  ----still that audio thing
  *  ----holy not working
  * 
+ * Feature requests:
+ * ----implement gif saving
+ * maybe bigger color palette
+ * tab style popup
+ * 
+ * 
  */
 
 
@@ -83,6 +89,9 @@ if (!localStorage.markupColor) localStorage.markupColor = "#ffd6cc";
 if (!localStorage.randomColorInterval) localStorage.randomColorInterval = 50;
 if (!localStorage.randomColorButton) localStorage.randomColorButton = false;
 if (!localStorage.displayBack) localStorage.displayBack = false;
+if (!sessionStorage.lobbySearch) sessionStorage.lobbySearch = "false";
+if (!sessionStorage.searchPlayers) sessionStorage.searchPlayers = "[]";
+if (!sessionStorage.skipDeadLobbies) sessionStorage.skipDeadLobbies = "false";
 // defaults for word check
 var is_length_error = false;
 var is_hint_error = false;
@@ -112,6 +121,7 @@ chrome.runtime.onMessage.addListener(msgObj => {
 //
 //               Init backbutton stuff and pressure
 // _____________________________________________________________
+
 
 // capture drawings
 var capturedCommands = [];
@@ -162,6 +172,29 @@ function restoreDrawing(limit = 0) {
     }, 3);
 }
 
+// generate a gif of stored draw commands
+async function drawCommandsToGif(filename = "download") {
+    let workerJS = "";
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/b64.js"))).text();
+    //workerJS += await (await fetch(chrome.runtime.getURL("gifCap/jmin.js"))).text();
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/GIFEncoder.js"))).text();
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/LZWEncoder.js"))).text();
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/NeuQuant.js"))).text();
+    workerJS +=  await (await fetch(chrome.runtime.getURL("gifCap/skribblCanvas.js"))).text();
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
+    let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
+    renderWorker.postMessage({ 'filename': filename, 'capturedActions': capturedActions });
+
+    renderWorker.addEventListener('message', function (e) {
+		let templink = document.createElement("a");
+		templink.download=filename;
+        templink.href = e.data;
+		templink.click();
+    }, false);
+
+    printCmdOutput("render");
+}
+
 //init pressure sensibility for windows ink and tablets - k depends on steps
 const kLevel = 1 / 36;
 var refresh = true;
@@ -205,17 +238,11 @@ function setBrushsize(newsize) {
 let startBtns = document.querySelectorAll("button[type='submit']")
 
 startBtns[0].addEventListener("click", () => {
+    // report status as searching      
     Report.searching = true;
     Report.waiting = false;
     Report.playing = false;
-    setTimeout(() => {
-        if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
-            Report.playing = true;
-            Report.searching = false;
-            Report.waiting = false;
-            Report.trigger();
-        }
-    }, 4000);
+    Report.trigger();
 });
 startBtns[1].addEventListener("click", () => {
     Report.searching = false;
@@ -228,6 +255,7 @@ startBtns[1].addEventListener("click", () => {
 // get user name from game.js -> prevents modification from DOM
 document.querySelector("body").addEventListener("loginData", function (d) {
     Report.loginName = d.detail.name;
+    sessionStorage.lastLoginName = Report.loginName;
 });
 
 var reportTrigger = new MutationObserver(() => {
@@ -265,7 +293,7 @@ document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
             Report.waiting = false;
             Report.playing = false;
             setTimeout(() => {
-                if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+                if (sessionStorage.skipDeadLobbies == "false" && (sessionStorage.searchPlayers == undefined || JSON.parse(sessionStorage.searchPlayers).length <= 0) && (sessionStorage.lobbySearch == undefined || sessionStorage.lobbySearch == "false")) {
                     Report.playing = true;
                     Report.searching = false;
                     Report.waiting = false;
@@ -302,6 +330,17 @@ function startSearch() {
 
 // check lobby as soon as connected and perform search checks
 document.querySelector("body").addEventListener("lobbyConnected", async function (e) {
+    // report as paying after timeout
+    setTimeout(() => {
+        if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+            Report.playing = true;
+            Report.searching = false;
+            Report.waiting = false;
+            Report.trigger();
+        }
+    }, 4000);
+
+    // if searching for a lobby id
     if (sessionStorage.lobbySearch == "true") {
         let key = sessionStorage.targetKey;
         let id = sessionStorage.targetLobby;
@@ -322,7 +361,8 @@ document.querySelector("body").addEventListener("lobbyConnected", async function
             document.querySelector("#popupSearch").parentElement.style.display = "none";
         }
     }
-    else if (JSON.parse(sessionStorage.searchPlayers).length > 0) {
+    //if searching for a player
+    else if (sessionStorage.searchPlayers != undefined && JSON.parse(sessionStorage.searchPlayers).length > 0) {
         let found = false;
         let players = JSON.parse(sessionStorage.searchPlayers);
         e.detail.forEach(p => { if (players.includes(p.name)) found = true; });
@@ -335,6 +375,7 @@ document.querySelector("body").addEventListener("lobbyConnected", async function
             setTimeout(() => { window.location.reload(); }, 400);
         }
     }
+    // if dead lobbies are skipped
     else if (sessionStorage.skipDeadLobbies == "true") {
         if (document.querySelectorAll("#containerGamePlayers > .player").length <= 1) {
             sessionStorage.skippedLobby = "true";
@@ -357,8 +398,6 @@ async function reloadLobbies() {
     //for (let node of document.querySelectorAll(".loginPanelContent > h3, .loginPanelContent > .updateInfo")) { node.remove(); }
     await initLobbyTab();
 }
-
-
 
 
 // _____________________________________________________________
@@ -605,6 +644,7 @@ if (sessionStorage.skippedLobby == "true") {
     let download = document.createElement("img");
     download.src = "https://media.giphy.com/media/RLKYVelNK5bP3yc8LJ/giphy.gif";
     download.style.cursor = "pointer";
+    download.id = "downloadImage";
     download.addEventListener("click", () => {
         let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer;
         e.initMouseEvent("click", true, true, window,
@@ -619,6 +659,26 @@ if (sessionStorage.skippedLobby == "true") {
         d.dispatchEvent(e);
     });
     header.insertBefore(download, header.firstChild);
+
+    // add DL button for gif
+    let downloadGif = document.createElement("img");
+    downloadGif.src = chrome.runtime.getURL("res/gif.gif");
+    downloadGif.style.cursor = "pointer";
+    downloadGif.id = "downloadGif";
+    downloadGif.addEventListener("click", () => {
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer;
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        try {
+            drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
+        }
+        catch{ drawer = ""; }
+        d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
+        d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+        drawCommandsToGif(d.download);
+    });
+    header.insertBefore(downloadGif, header.firstChild);
 
 })();
 

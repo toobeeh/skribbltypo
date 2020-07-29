@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "Collection of useful tools & graphics tablet support for skribbl.io ",
-  "version": "17.0.7",
+  "version": "17.1.1",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
@@ -16,7 +16,8 @@
   "web_accessible_resources": [
     "gamePatch.js",
     "jmin.js",
-    "res/*"
+    "res/*",
+    "gifCap/*"
   ],
   "permissions": [
     "activeTab"
@@ -30,6 +31,11 @@
       "js": [
         "jmin.js",
         "commands.js",
+        "gifCap/LZWEncoder.js",
+        "gifCap/NeuQuant.js",
+        "gifCap/GIFEncoder.js",
+        "gifCap/skribblCanvas.js",
+        "gifCap/b64.js",
         "service.js"
       ]
     },

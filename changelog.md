@@ -84,12 +84,17 @@
     >Also new: Arrow keys to switch between previous chat submissions.
     - .0.x: 
     > Various bugfixes:
-    > fix lobby id check -> as soon as lobby connected
-    > fix lobby status when search is still active (slow connection)
-    > keydown changes tools when other players draw
-    > undo button position improved
-    > fixed audio context start event
-    > huge undo performance improvement for other clients. thx to some anonymous :D
-    > fix conflict with imageposter
+    > fix lobby id check -> as soon as lobby connected   
+    > fix lobby status when search is still active (slow connection)  
+    > keydown changes tools when other players draw  
+    > undo button position improved  
+    > fixed audio context start event  
+    > huge undo performance improvement for other clients. thx to some anonymous :D  
+    > fix conflict with imageposter  
+    > fix player name when waiting  
+    
+    - .1:
+    > Add animated drawing download  
+    > Fix lobby report not sent on public  
 
 

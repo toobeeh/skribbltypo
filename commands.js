@@ -119,6 +119,7 @@ function printCmdOutput(cmd) {
     else if (cmd == cmd_daAgent || cmd == cmd_enAgent) s.innerHTML = "ImageAgent toggled";
     else if (cmd == cmd_daMarkup || cmd == cmd_enMarkup) s.innerHTML = "Markup toggled";
     else if (cmd == cmd_daInk || cmd == cmd_setSensitivity || cmd == cmd_enInk) s.innerHTML = "Sensitivity was set";
+    else if (cmd == "render") s.innerHTML = "Gif is rendering in background and will be downloaded. Takes up to 30s.";
 
     p.appendChild(b);
     p.appendChild(s);
