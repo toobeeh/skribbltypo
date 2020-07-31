@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "Collection of useful tools & graphics tablet support for skribbl.io ",
-  "version": "17.1.1",
+  "version": "17.2.1",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
@@ -20,7 +20,9 @@
     "gifCap/*"
   ],
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "*://www.tobeh.host/*",
+    "webRequest"
   ],
   "content_scripts": [
     {

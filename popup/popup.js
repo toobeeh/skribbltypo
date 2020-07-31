@@ -81,41 +81,58 @@ document.querySelectorAll("button").forEach(function (bt) {
     else bt.onclick = toggleActive;
 });
 
-// set advanced peek event
-document.querySelector("#advancedPeek").onclick = function () {
-    if (this.className != "peekDown") {
-        this.className = "peekDown";
-        $("#mainSettings").slideToggle(200);
-        $("#palantirPeek").slideToggle(200);
-        $("#advancedSettings").slideToggle(200);
-        $("h1").text("Advanced");
-    }
-    else {
-        this.className = "peekUp";
-        $("#mainSettings").slideToggle(200);
-        $("#palantirPeek").slideToggle(200);
-        $("#advancedSettings").slideToggle(200);
-        $("h1").text("Dashboard");
-    }
-};
+//// set advanced peek event
+//document.querySelector("#advancedPeek").onclick = function () {
+//    if (this.className != "peekDown") {
+//        this.className = "peekDown";
+//        $("#mainSettings").slideToggle(200);
+//        $("#palantirPeek").slideToggle(200);
+//        $("#advancedSettings").slideToggle(200);
+//        $("h1").text("Advanced");
+//    }
+//    else {
+//        this.className = "peekUp";
+//        $("#mainSettings").slideToggle(200);
+//        $("#palantirPeek").slideToggle(200);
+//        $("#advancedSettings").slideToggle(200);
+//        $("h1").text("Dashboard");
+//    }
+//};
 
-// set palantir peek event
-document.querySelector("#palantirPeek").onclick = function () {
-    if (this.className != "peekUp") {
-        this.className = "peekUp";
-        $("#mainSettings").slideToggle(200);
-        $("#advancedPeek").slideToggle(200);
-        $("#palantirSettings").slideToggle(200);
-        $("h1").text("Discord Lobbies");
-    }
-    else {
-        this.className = "peekDown";
-        $("#mainSettings").slideToggle(200);
-        $("#advancedPeek").slideToggle(200);
-        $("#palantirSettings").slideToggle(200);
-        $("h1").text("Dashboard");
-    }
-};
+//// set palantir peek event
+//document.querySelector("#palantirPeek").onclick = function () {
+//    if (this.className != "peekUp") {
+//        this.className = "peekUp";
+//        $("#mainSettings").slideToggle(200);
+//        $("#advancedPeek").slideToggle(200);
+//        $("#palantirSettings").slideToggle(200);
+//        $("h1").text("Discord Lobbies");
+//    }
+//    else {
+//        this.className = "peekDown";
+//        $("#mainSettings").slideToggle(200);
+//        $("#advancedPeek").slideToggle(200);
+//        $("#palantirSettings").slideToggle(200);
+//        $("h1").text("Dashboard");
+//    }
+//};
+
+
+// set tab click events
+document.querySelectorAll(".tabSelection .tabTitle").forEach((t) => t.addEventListener("click", setActiveTab));
+
+function setActiveTab(event) {
+    let activeTab = document.querySelector(".tabActive");
+    activeTab.classList.toggle("tabActive");
+    this.classList.toggle("tabActive");
+    if (activeTab.id == "tabDashboard") $("#mainSettings").slideToggle(200);
+    if (activeTab.id == "tabAdvanced") $("#advancedSettings").slideToggle(200);
+    if (activeTab.id == "tabDiscord") $("#palantirSettings").slideToggle(200);
+
+    if (this.id == "tabDashboard") $("#mainSettings").slideToggle(200);
+    if (this.id == "tabAdvanced") $("#advancedSettings").slideToggle(200);
+    if (this.id == "tabDiscord") $("#palantirSettings").slideToggle(200);
+}
 
 // initialize sliders
 (function () {

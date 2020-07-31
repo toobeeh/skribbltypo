@@ -17,7 +17,7 @@ var Report = new function ReportObj () {
 		this.LobbyPlayerID = LobbyPlayerID;
 	}
 	// Lobby object
-	this.Lobby = function(ID, Round, GuildID, Private, Link, Host, ObserveToken, Players, Kicked, Language, Key) {
+	this.Lobby = function(ID, Round, GuildID, Private, Link, Host, ObserveToken, Players, Kicked, Language, Key, Description) {
 		this.ID = ID;
 		this.Round = Round;
 		this.GuildID = GuildID;
@@ -29,6 +29,7 @@ var Report = new function ReportObj () {
 		this.Kicked = Kicked;
 		this.Language = Language;
 		this.Key = Key;
+		this.Description = Description;
 	}
 	// Guild object
 	this.Guild = function(GuildID, GuildName, ObserveToken) {
@@ -51,15 +52,16 @@ var Report = new function ReportObj () {
 	this.playing = false;
 	this.prevLobbyKey = "";
 	this.lobbyID = "";
+	this.descriptionSet = false;
 
-	this.updateLobbyID = async function (key, id = "") {
+	this.updateLobbyID = async function (key, id = "", desc = "") {
 		let state = await fetch('https://www.tobeh.host/Orthanc/idprovider/', {
 			method: 'POST',
 			headers: {
 				'Accept': '*/*',
 				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
-			body: "member=" + encodeURIComponent(localStorage.member) + "&lobbyKey=" + key + (id != "" ? "&lobbyID="+id : "")
+			body: "member=" + encodeURIComponent(localStorage.member) + "&lobbyKey=" + key + (id != "" ? "&lobbyID=" + id : "") + (desc != "" ? "&description=" + desc : "")
 		}
 		);
 		let response = await state.text();
@@ -109,8 +111,9 @@ var Report = new function ReportObj () {
 			lobby.Link = lobby.Host == "sketchful.io" ? window.location.href : lobby.Private ? document.querySelector("#invite").value : "";
 			lobby.Key = self.generateLobbyKey(lobby.Private);
 			self.prevLobbyKey = lobby.Key;
-			let resp = await self.updateLobbyID(lobby.Key);
+			let resp = await self.updateLobbyID(lobby.Key, "", lobby.Private ? document.querySelector("#lobbyDesc").value.trim() : "");
 			lobby.ID = resp.Lobby.ID;
+			lobby.Description = resp.Lobby.Description;
 			self.lobbyID = lobby.ID;
 			lobby.Language = lobby.Private ? document.querySelector("#lobbySetLanguage").value : document.querySelector("#loginLanguage").value;
 			self.guildLobbies.push(lobby);
@@ -127,7 +130,7 @@ var Report = new function ReportObj () {
 		for (let i = 0, m = name.length; i < m; i++) { namenum += name.charCodeAt(i).toString(); }
 		namenum = namenum.substr(0, 5);
 
-		let lang = private ? "0000" : document.querySelector("#loginLanguage").value;
+		let lang = private ? document.querySelector("#invite").value : document.querySelector("#loginLanguage").value;
 		let langnum = "";
 		for (let i = 0, m = lang.length; i < m; i++) { langnum += lang.charCodeAt(i).toString(); }
 
@@ -140,10 +143,11 @@ var Report = new function ReportObj () {
 			
 			for (let g of self.guildLobbies) {
 				let actKey = self.generateLobbyKey(g.Private);
-				if (self.prevLobbyKey != actKey) {
-					let response = await self.updateLobbyID(actKey, g.ID);
+				if (self.prevLobbyKey != actKey || g.Private && !self.descriptionSet && document.querySelector("#screenLobby").style.display == "none") {
+					let response = await self.updateLobbyID(actKey, g.ID, g.Private ? document.querySelector("#lobbyDesc").value.trim() : "");
 					let l = response.Lobby;
 					if (l == undefined) return;
+					if (l.Description != "") self.descriptionSet = true;
 					self.prevLobbyKey = l.Key
 					self.lobbyID = l.ID;
 					g.Key = l.Key;
@@ -174,7 +178,7 @@ var Report = new function ReportObj () {
 			self.reports++;
 		}
 
-		if (localStorage.userAllow) self.nextReport = setTimeout(self.trigger, 2);
+		if (localStorage.userAllow) self.nextReport = setTimeout(self.trigger, 4000);
 	}
 
 	this.reportPlayerStatus = async function (status, lobbyID, lobbyPlayerID) {

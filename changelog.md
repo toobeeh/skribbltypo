@@ -96,5 +96,10 @@
     - .1:
     > Add animated drawing download  
     > Fix lobby report not sent on public  
+    > 
+    - .2:
+    > Improved animated gif, thiccccc progress bar  
+    > Added lobby description
+    > Popup is now tabby (thx mihedas) 
 
 

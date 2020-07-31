@@ -1,5 +1,5 @@
 /*
- * Contentscript which tweaks skribbl and basically controls whats added to the ui and how that stuff works.
+ * Contentscript which tweaks skribbl and basically controls what was added to the ui and how that stuff works.
  * Dispatches events to the body dom element tocommunicate with patched gamejs
  * 
  * That whole code piled up during about one year, still working to make it less ugly and to eliminate the worst of the bad-practise-parts
@@ -59,14 +59,15 @@
  * Feature requests:
  * ----implement gif saving
  * maybe bigger color palette
- * tab style popup
- * 
+ * ----lobby description
+ * ----tab style popup
+ * ff port :(
  * 
  */
 
 
 'use strict';
-const version = "17.0.7";
+const version = "17.2.1";
 const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
 const command_token = "--";
 
@@ -92,6 +93,7 @@ if (!localStorage.displayBack) localStorage.displayBack = false;
 if (!sessionStorage.lobbySearch) sessionStorage.lobbySearch = "false";
 if (!sessionStorage.searchPlayers) sessionStorage.searchPlayers = "[]";
 if (!sessionStorage.skipDeadLobbies) sessionStorage.skipDeadLobbies = "false";
+if ("permission" in Notification && Notification.permission === "default" && confirm("Do you want to receive notifications when a lobby was found?")) Notification.requestPermission(); 
 // defaults for word check
 var is_length_error = false;
 var is_hint_error = false;
@@ -131,7 +133,8 @@ document.querySelector("body").addEventListener("logDrawCommand", function (e) {
 document.querySelector("body").addEventListener("logCanvasClear", function (e) { capturedCommands = []; capturedActions.push([[3]]); });
 
 // clear captured actions if drawer finished
-document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedCommands = []; capturedActions = []; });
+// actually not necessary and blocks saving the gif while showing the scoreboard
+//document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedCommands = []; capturedActions = []; });
 
 // put commands in array (each index is one action aka mouseup on canvas)
 var capturedActions = []
@@ -185,14 +188,39 @@ async function drawCommandsToGif(filename = "download") {
     let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
     renderWorker.postMessage({ 'filename': filename, 'capturedActions': capturedActions });
 
+    // T H I C C progress bar 
+    let progressBar = document.createElement("p");
+    progressBar.style.color = "rgb(0, 0, 0)";
+    progressBar.style.background = "rgb(247, 210, 140)";
+    progressBar.innerText = String.fromCodePoint("0x2B1C").repeat(10) + " 0%";
+
     renderWorker.addEventListener('message', function (e) {
-		let templink = document.createElement("a");
-		templink.download=filename;
-        templink.href = e.data;
-		templink.click();
+        if (e.data.download) {
+            progressBar.innerText = String.fromCodePoint("0x1F7E9").repeat(10) + " Done!";
+            let templink = document.createElement("a");
+            templink.download = filename;
+            templink.href = e.data.download;
+            templink.click();
+        }
+        else if (e.data.progress) {
+            let prog = Math.floor(e.data.progress * 10);
+            let miss = 10-prog;
+            let bar = "";
+            while (prog > 0) {
+                bar += String.fromCodePoint("0x1F7E9"); prog--;
+            }
+            while (miss > 0) {
+                bar += String.fromCodePoint("0x2B1C"); miss--;
+            }
+            progressBar.innerText = bar;
+            let percent = Math.round(e.data.progress * 100)
+            progressBar.innerText += " " + percent + "%";
+        }
+		
     }, false);
 
     printCmdOutput("render");
+    document.getElementById("boxMessages").appendChild(progressBar);
 }
 
 //init pressure sensibility for windows ink and tablets - k depends on steps
@@ -288,23 +316,23 @@ document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
             sessionStorage.targetLobby = id;
             sessionStorage.targetKey = key;
             sessionStorage.lobbySearch = "true";
+            // MOVED TO LOBBY CONNECT
             //document.querySelector("button[type='submit'].btn-success").click();
-            Report.searching = true;
-            Report.waiting = false;
-            Report.playing = false;
-            setTimeout(() => {
-                if (sessionStorage.skipDeadLobbies == "false" && (sessionStorage.searchPlayers == undefined || JSON.parse(sessionStorage.searchPlayers).length <= 0) && (sessionStorage.lobbySearch == undefined || sessionStorage.lobbySearch == "false")) {
-                    Report.playing = true;
-                    Report.searching = false;
-                    Report.waiting = false;
-                    Report.trigger();
-                }
-            }, 4000);
+            //Report.searching = true;
+            //Report.waiting = false;
+            //Report.playing = false;
+            //setTimeout(() => {
+            //    if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+            //        Report.playing = true;
+            //        Report.searching = false;
+            //        Report.waiting = false;
+            //        Report.trigger();
+            //    }
+            //}, 4000);
             reloadLobbies();
             document.querySelector("#popupSearch").parentElement.style.display = "block";
         });
     });
-
     if (sessionStorage.lobbySearch == "true") setTimeout(startSearch, 1000);
 });
 
@@ -359,6 +387,9 @@ document.querySelector("body").addEventListener("lobbyConnected", async function
         else {
             sessionStorage.lobbySearch = "false";
             document.querySelector("#popupSearch").parentElement.style.display = "none";
+            if (Notification.permission !== "blocked" && document.hidden) {
+                let n = new Notification("Lobby found!", { body: "Yee! Check out skribbl", icon: "/res/crown.gif" });
+            }
         }
     }
     //if searching for a player
@@ -369,6 +400,9 @@ document.querySelector("body").addEventListener("lobbyConnected", async function
         if (found) {
             sessionStorage.searchPlayers = "[]";
             document.querySelector("#popupSearch").parentElement.style.display = "none";
+            if (Notification.permission !== "blocked" && document.hidden) {
+                let n = new Notification("Player found!", { body: "Yee! Check out skribbl", icon: "/res/crown.gif"});
+            }
         }
         else {
             sessionStorage.skippedLobby = "true";
@@ -384,6 +418,9 @@ document.querySelector("body").addEventListener("lobbyConnected", async function
         else {
             sessionStorage.skipDeadLobbies = "false";
             document.querySelector("#popupSearch").parentElement.style.display = "none";
+            if (Notification.permission !== "blocked" && document.hidden) {
+                let n = new Notification("Lobby found!", { body: "Yee! Check out skribbl", icon: "/res/crown.gif" });
+            }
         }
     }
 });
@@ -679,6 +716,10 @@ if (sessionStorage.skippedLobby == "true") {
         drawCommandsToGif(d.download);
     });
     header.insertBefore(downloadGif, header.firstChild);
+
+    // add Description form 
+    let containerForms = document.querySelector(".containerSettings");
+    containerForms.innerHTML += "<div class='form-group'><label for='lobbyDesc'>Lobby Description</label><textarea class='form-control' placeholder='Lobby description to show in the Discord bot' id='lobbyDesc'></textarea></div>";
 
 })();
 

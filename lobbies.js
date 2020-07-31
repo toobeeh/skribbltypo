@@ -19,7 +19,7 @@ async function getLoginPlayer() {
         },
         body: "login=" + localStorage.login
     }
-    )).text();
+    )).text();   
     if (loginResponse.includes("false")) alert(loginResponse + "\n" + localStorage.login);
     loginResponse = JSON.parse(loginResponse);
     if (!loginResponse.Valid) {

@@ -1,6 +1,10 @@
 
 let capturedActions;
 let filename;
+let resolution;
+let hits = 0;
+let msg = {};
+const frames = 30;
 
 self.addEventListener('message', function (e) {
     let data = e.data;
@@ -8,6 +12,11 @@ self.addEventListener('message', function (e) {
     filename = data.filename;
     console.log(capturedActions);
     console.log(filename);
+    capturedActions.forEach((a) => hits += a.length);
+    console.log(hits);
+    //calc resolution for 2s duration and 0.5 ms delay between frames ()
+    resolution = Math.round(hits / frames);
+    console.log(resolution);
     capture();
 }, false);
 
@@ -27,14 +36,19 @@ async function capture() {
         let lastClear = capturedActions.length-1;
         while (capturedActions[lastClear][0] != 3 && lastClear > 0) lastClear--;
 
+        let commandHits = 0;
+
         // perform commands on canvas and take frames 
         for (let action = lastClear, actionsLength = capturedActions.length; action < actionsLength; action++) {
             for (let command = 0, length = capturedActions[action].length; command < length; command++) {
                 if (capturedActions[action][command]) {
                     canvasPainter.performDrawCommand(capturedActions[action][command]);
+                    commandHits++;
                     //console.log(command);
-                    if (command % 50 == 0) {
+                    if (commandHits % resolution == 0) {
                         encoder.addFrame(canvasContext);
+                        msg.progress = commandHits / hits;
+                        self.postMessage(msg);
                     }
                 }
             }
@@ -45,6 +59,7 @@ async function capture() {
         encoder.addFrame(canvasContext);
 
         encoder.finish();
-        self.postMessage(encoder.download(filename + ".gif"));
+        msg.download = encoder.download(filename + ".gif");
+        self.postMessage(msg);
     }, 1000);
 }

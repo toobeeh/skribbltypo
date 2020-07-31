@@ -3307,7 +3307,7 @@
             e.id === t.ownerID ? r.show() : r.hide()
         });
         var e = this.ownerID != this.myID;
-        n("#lobbySetRounds").prop("disabled", e), n("#lobbySetDrawTime").prop("disabled", e), n("#lobbySetCustomWords").prop("disabled", e), n("#lobbyCustomWordsExclusive").prop("disabled", e), n("#lobbySetLanguage").prop("disabled", e), n("#buttonLobbyPlay").prop("disabled", e)
+        n("#lobbySetRounds").prop("disabled", e),n("#lobbyDesc").prop("disabled", e), n("#lobbySetDrawTime").prop("disabled", e), n("#lobbySetCustomWords").prop("disabled", e), n("#lobbyCustomWordsExclusive").prop("disabled", e), n("#lobbySetLanguage").prop("disabled", e), n("#buttonLobbyPlay").prop("disabled", e)
     }, tt.prototype.containerLobbyPlayerClear = function() {
         this.containerLobby.empty()
     }, tt.prototype.containerLobbyUpdateRounds = function() {
