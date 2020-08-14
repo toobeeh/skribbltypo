@@ -48,17 +48,19 @@
  * ----fix lobby id check -> as soon as lobby connected
  * fix lobby search not triggering sometimes on first lobby
  * lobby buttons take several clicks sometimes
- * ---- fix lobby status when search is still active (slow connection)
+ *  ----fix lobby status when search is still active (slow connection)
  *  undo doesnt stop if next player draws
  *  undo skips actions
  *  ----keydown changes tools when other players draw
- *  mysterious drawing over next persons' canvas sometimes
+ *  ----mysterious drawing over next persons' canvas sometimes
  *  ----still that audio thing
  *  ----holy not working
+ *  ----lobby search stops if lobby is tempoarly down
+ *  ----private lobby settings not set
  * 
  * Feature requests:
  * ----implement gif saving
- * maybe bigger color palette
+ * ----maybe bigger color palette
  * ----lobby description
  * ----tab style popup
  * ff port :(
@@ -67,7 +69,7 @@
 
 
 'use strict';
-const version = "17.2.1";
+const version = "17.4.1";
 const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
 const command_token = "--";
 
@@ -76,7 +78,7 @@ patcher.disconnect();
 
 // Set default settings
 if (!localStorage.member) localStorage.member = "";
-if (!localStorage.userAllow) localStorage.userAllow = "false";
+if (!localStorage.userAllow) localStorage.userAllow = "true";
 if (!localStorage.login) localStorage.login = "";
 if (!localStorage.ownHoly) localStorage.ownHoly = "false";
 if (!localStorage.ink) localStorage.ink = "true";
@@ -93,6 +95,8 @@ if (!localStorage.displayBack) localStorage.displayBack = false;
 if (!sessionStorage.lobbySearch) sessionStorage.lobbySearch = "false";
 if (!sessionStorage.searchPlayers) sessionStorage.searchPlayers = "[]";
 if (!sessionStorage.skipDeadLobbies) sessionStorage.skipDeadLobbies = "false";
+if (!localStorage.palette) localStorage.palette = "originalPalette";
+if (!localStorage.customPalettes) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
 if ("permission" in Notification && Notification.permission === "default" && confirm("Do you want to receive notifications when a lobby was found?")) Notification.requestPermission(); 
 // defaults for word check
 var is_length_error = false;
@@ -101,6 +105,8 @@ var is_hint_error = false;
 // Activate game container for betatesting purposes
 if (version.includes("beta")) testMode();
 
+// var to store copied drawing
+let drawCommandsCopy = [];
 
 
 // _____________________________________________________________
@@ -134,7 +140,7 @@ document.querySelector("body").addEventListener("logCanvasClear", function (e) {
 
 // clear captured actions if drawer finished
 // actually not necessary and blocks saving the gif while showing the scoreboard
-//document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedCommands = []; capturedActions = []; });
+document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedCommands = []; capturedActions = []; });
 
 // put commands in array (each index is one action aka mouseup on canvas)
 var capturedActions = []
@@ -142,17 +148,22 @@ function pushCaptured() { capturedCommands.length > 0 ? (capturedActions.push(ca
 document.querySelector("#canvasGame").addEventListener("pointerup", pushCaptured);
 document.querySelector("#canvasGame").addEventListener("pointerout", pushCaptured);
 
+// function to request captured actions and with unpushed commands
+function getCapturedActions(){
+    return capturedCommands.length > 0 ? capturedActions.concat([[...capturedCommands]]) : capturedActions;
+}
+
 // func to restore drawing based on saved commands
 function restoreDrawing(limit = 0) {
     document.querySelector("#restore").style.pointerEvents = "none";
     document.querySelector("#canvasGame").style.pointerEvents = "none";
-    let actions = capturedActions.slice(0, -limit);
+    let actions = getCapturedActions().slice(0, -limit);
     let redo = [];
 
     // put all commands from each action in one command-array. the last actions (limit) are passed.
-    for (let action = 0, lenA = capturedActions.length - limit; action < lenA; action++)
-        for (let cmd = 0, lenC = capturedActions[action].length; cmd < lenC; cmd++)
-            capturedActions[action][cmd].length > 0 && redo.push(capturedActions[action][cmd]);
+    for (let action = 0, lenA = actions.length - limit; action < lenA; action++)
+        for (let cmd = 0, lenC = actions[action].length; cmd < lenC; cmd++)
+            actions[action][cmd].length > 0 && redo.push(actions[action][cmd]);
 
     // search for the last clear to avoid unnecessary drawing
     let lastClear = redo.length - 1;
@@ -172,7 +183,25 @@ function restoreDrawing(limit = 0) {
             capturedActions = actions,
             document.querySelector("#canvasGame").style.pointerEvents = ""
             ) : body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] })); captured++;
-    }, 3);
+    }, 5);
+}
+
+// function to draw selected draw commands separated in actions
+function drawOnCanvas(drawActions) {
+    document.querySelector("#restore").style.pointerEvents = "none";
+    document.querySelector("#canvasGame").style.pointerEvents = "none";
+    if(document.querySelector("#clearCanvasBeforePaste").checked) document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
+    let body = document.querySelector("body");
+    let commands = [];
+    let command = 0;
+    drawActions.forEach(a => a.forEach(c => commands.push(c)));
+    let i = setInterval(() => {
+        command >= commands.length ?(
+            clearInterval(i),
+            document.querySelector("#restore").style.pointerEvents = "",
+            document.querySelector("#canvasGame").style.pointerEvents = ""
+        ) : body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: commands[command] })); command++;
+    }, 5);
 }
 
 // generate a gif of stored draw commands
@@ -186,7 +215,7 @@ async function drawCommandsToGif(filename = "download") {
     workerJS +=  await (await fetch(chrome.runtime.getURL("gifCap/skribblCanvas.js"))).text();
     workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
     let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
-    renderWorker.postMessage({ 'filename': filename, 'capturedActions': capturedActions });
+    renderWorker.postMessage({ 'filename': filename, 'capturedActions': getCapturedActions() });
 
     // T H I C C progress bar 
     let progressBar = document.createElement("p");
@@ -336,10 +365,17 @@ document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
     if (sessionStorage.lobbySearch == "true") setTimeout(startSearch, 1000);
 });
 
+
+let lobbyDeadHits = 0;
 function startSearch() {
     if (sessionStorage.lobbySearch == "true") {
         let lobbyid = document.querySelector("#lobbyID" + sessionStorage.targetLobby);
         if (!lobbyid) {
+            lobbyDeadHits++;
+            if (lobbyDeadHits < 5) {
+                setTimeout(startSearch, 3000);
+                return;
+            }
             sessionStorage.lobbySearch = "false";
             alert("The lobby doesn't exist anymore :(");
             document.querySelector("#popupSearch").innerText = "";
@@ -477,6 +513,8 @@ if (sessionStorage.skippedLobby == "true") {
 
 // func for UI setup 
 (function () {
+    // idk why but it has to!
+    document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
 
     // get DOM elements
     let input = document.querySelector("#inputChat");
@@ -571,9 +609,6 @@ if (sessionStorage.skippedLobby == "true") {
     //document.querySelector("#containerFreespace").innerHTML = ""; -> conflicts with image poster
 
     // Add imageagent
-   
-
-
     let flag = document.createElement("input");
     flag.setAttribute("type", "button");
     flag.setAttribute("value", "Flag");
@@ -690,7 +725,7 @@ if (sessionStorage.skippedLobby == "true") {
         try {
             drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
         }
-        catch{ drawer = "";}
+        catch{ drawer = ""; }
         d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
         d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
         d.dispatchEvent(e);
@@ -719,9 +754,230 @@ if (sessionStorage.skippedLobby == "true") {
 
     // add Description form 
     let containerForms = document.querySelector(".containerSettings");
-    containerForms.innerHTML += "<div class='form-group'><label for='lobbyDesc'>Lobby Description</label><textarea class='form-control' placeholder='Lobby description to show in the Discord bot' id='lobbyDesc'></textarea></div>";
+    let containerGroup = document.createElement("div");
+    containerGroup.classList.add("form-group");
+    let lobbyDescLabel = document.createElement("label");
+    lobbyDescLabel.for = "lobybDesc";
+    lobbyDescLabel.innerText = "Lobby Description";
+    let textareaDesc = document.createElement("textarea");
+    textareaDesc.classList.add("form-control");
+    textareaDesc.placeholder = "Lobby description to show up in the palantir bot";
+    textareaDesc.id = "lobbyDesc";
+
+    containerForms.appendChild(containerGroup);
+    containerGroup.appendChild(lobbyDescLabel);
+    containerGroup.appendChild(textareaDesc);
+
+    // add drawing copy button
+    let optionsButton = document.createElement("button");
+    document.querySelector("#containerPlayerlist div.tooltip-wrapper").appendChild(optionsButton);
+    document.querySelector("#containerPlayerlist div.tooltip-wrapper").setAttribute("data-original-title", "");
+    optionsButton.classList = "btn btn-info btn-block";
+    optionsButton.id = "saveDrawingOptions";
+    optionsButton.innerText = "Image tools";
+    optionsButton.addEventListener("click", () => {
+        if (!localStorage.imageTools) {
+            alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
+            localStorage.imageTools = "READ IT";
+        };
+        document.querySelector("#saveDrawingPopup").style.display = "block";
+        document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+        optionsPopup.children[0].focus();
+        //document.querySelector("#saveDrawingPopupPaste").style.display = document.querySelector(".containerToolbar").style.display;
+        document.querySelector("#saveDrawingPopupPasteSaved").style.display = document.querySelector(".containerToolbar").style.display;
+        //if (drawCommandsCopy.length <= 0) document.querySelector("#saveDrawingPopupPaste").style.display = "none";
+    });
+
+    let optionsPopup = document.createElement("div");
+    document.querySelector("#containerPlayerlist").appendChild(optionsPopup);
+    optionsPopup.style.position = "absolute";
+    optionsPopup.style.background = "white";
+    //optionsPopup.style.top = "";
+    optionsPopup.style.overflow = "hidden";
+    optionsPopup.style.zIndex = "5";
+    optionsPopup.style.width = "90%";
+    optionsPopup.style.padding = "1em;";
+    optionsPopup.style.borderRadius = ".5em";
+    optionsPopup.style.marginLeft = "5%";
+    optionsPopup.style.boxShadow = "1px 1px 9px -2px black";
+    optionsPopup.style.display = "none";
+    optionsPopup.style.minHeight = "15%";
+    optionsPopup.style.padding = "1em";
+    optionsPopup.id = "saveDrawingPopup";
+    optionsPopup.tabIndex = "-1";
+
+    //let popupCopyCommands = document.createElement("button");
+    //optionsPopup.appendChild(popupCopyCommands);
+    //popupCopyCommands.classList = "btn btn-info btn-block";
+    //popupCopyCommands.innerText = "Copy current";
+    //popupCopyCommands.addEventListener("click", () => {
+    //    let clear = capturedActions.length-1;
+    //    while (capturedActions[clear][0] != 3) clear--;
+    //    drawCommandsCopy = [...capturedActions.slice(clear)];
+    //    document.querySelector("#saveDrawingPopupPaste").style.display = document.querySelector(".containerToolbar").style.display;
+    //});
+
+
+    //let popupPasteCommands = document.createElement("button");
+    //optionsPopup.appendChild(popupPasteCommands);
+    //popupPasteCommands.id = "saveDrawingPopupPaste";
+    //popupPasteCommands.classList = "btn btn-info btn-block";
+    //popupPasteCommands.innerText = "Paste copied";
+    //popupPasteCommands.addEventListener("click", () => {
+    //    drawOnCanvas(drawCommandsCopy);
+    //    capturedActions = [...drawCommandsCopy];
+    //}
+    //);
+
+    let popupTempSaveCommands = document.createElement("button");
+    optionsPopup.appendChild(popupTempSaveCommands);
+    popupTempSaveCommands.classList = "btn btn-info btn-block";
+    popupTempSaveCommands.innerText = "Save current";
+    popupTempSaveCommands.addEventListener("click", () => {
+        let originalActions = getCapturedActions();
+        let clear = originalActions.length - 1;
+        while (originalActions[clear][0] != 3) clear--;
+        let popupCustomSaved = document.createElement("button");
+        optionsPopup.appendChild(popupCustomSaved);
+        popupCustomSaved.classList = "btn btn-success btn-block";
+        let actions = [...originalActions.slice(clear)];
+        let drawer;
+        try {
+            drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
+        }
+        catch{ drawer = "coolDrawing"; }
+        popupCustomSaved.innerText = prompt("How would you like to name the drawing?", drawer);
+        popupCustomSaved.addEventListener("click", () => {
+            drawOnCanvas(actions);
+            capturedActions = [...actions];
+        });
+        document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+    });
+
+    let popupSaveCommands = document.createElement("button");
+    optionsPopup.appendChild(popupSaveCommands);
+    popupSaveCommands.classList = "btn btn-warning btn-block";
+    popupSaveCommands.innerText = "Download current";
+    popupSaveCommands.addEventListener("click", () => {
+        let originalActions = getCapturedActions();
+        let clear = originalActions.length - 1;
+        while (originalActions[clear][0] != 3) clear--;
+        if (originalActions.length < 1 || originalActions[0][0] == 3 && originalActions.length == 1) { alert("Error capturing drawing data :("); return;}
+        let content = JSON.stringify([...originalActions.slice(clear)]);
+        let dl = document.createElement('a');
+        dl.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        dl.setAttribute('download', prompt("What name should the drawing be saved under?", "niceDrawing" ) + ".skd");
+        dl.style.display = 'none';
+        document.body.appendChild(dl);
+        dl.click();
+        document.body.removeChild(dl);
+        let popupCustomSaved = document.createElement("button");
+        optionsPopup.appendChild(popupCustomSaved);
+        popupCustomSaved.classList = "btn btn-success btn-block";
+        let actions = [...originalActions.slice(clear)];
+        popupCustomSaved.innerText = dl.getAttribute("download");
+        popupCustomSaved.addEventListener("click", () => {
+            drawOnCanvas(actions);
+            capturedActions = [...actions];
+        });
+    });
+
+    let popupPasteSavedCommands = document.createElement("button");
+    optionsPopup.appendChild(popupPasteSavedCommands);
+    popupPasteSavedCommands.id = "saveDrawingPopupPasteSaved";
+    popupPasteSavedCommands.classList = "btn btn-warning btn-block";
+    popupPasteSavedCommands.innerText = "Load file";
+    popupPasteSavedCommands.addEventListener("click", () => {
+        let fileInput = document.createElement('input');
+        let actions;
+        fileInput.type = 'file';
+        fileInput.accept = ".skd";
+        fileInput.onchange = e => {
+            let file = e.target.files[0];
+            let reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = readerEvent => {
+                actions = readerEvent.target.result;
+                let popupCustomSaved = document.createElement("button");
+                optionsPopup.appendChild(popupCustomSaved);
+                popupCustomSaved.classList = "btn btn-success btn-block";
+                popupCustomSaved.innerText = file.name;
+                popupCustomSaved.addEventListener("click", () => {
+                    drawOnCanvas(JSON.parse(actions));
+                    capturedActions = JSON.parse(actions);
+                });
+                document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+            }
+        }
+        fileInput.click();
+    });
+
+    let checkbox = document.createElement("input");
+    let checkboxWrap = document.createElement("div");
+    let checkboxLabel = document.createElement("label");
+    checkbox.type = "checkbox";
+    checkbox.id = "clearCanvasBeforePaste";
+    checkboxLabel.innerText = "Clear canvas before paste";
+    checkboxLabel.insertBefore(checkbox,checkboxLabel.firstChild);
+    checkboxWrap.appendChild(checkboxLabel);
+    checkboxWrap.classList.add("checkbox");
+    optionsPopup.appendChild(checkboxWrap);
+
+
+    Array.from(optionsPopup.children).concat(optionsPopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!optionsPopup.contains(document.activeElement)) optionsPopup.style.display = "none" }, 20); }));
+
+    // add sketchful colors
+    document.querySelector(".containerColorbox").id = "originalPalette";
+    document.querySelector("#buttonClearCanvas").style.height = "48px";
+    let palettes = JSON.parse(localStorage.customPalettes);
+    //let sketchfulPalette = '{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}'
+    //sketchfulPalette = JSON.parse(sketchfulPalette);
+    palettes.forEach(p => addColorPalette(p));
 
 })();
+
+function addColorPalette(paletteJson) {
+    let containerColorbox = document.createElement("div");
+    containerColorbox.classList.add("containerColorbox");
+
+    let columns = [];
+    paletteJson.colors.forEach(c => {
+        let index = paletteJson.colors.indexOf(c);
+        if (!columns[Math.floor(index / paletteJson.rowCount)]) columns.push([]);
+        columns[Math.floor(index / paletteJson.rowCount)].push(c);
+    });
+
+    let paletteContainer = document.createElement("div");
+    paletteContainer.id = paletteJson.name;
+
+    if (localStorage.palette == paletteJson.name) document.querySelector(".containerColorbox").style.display = "none";
+    else paletteContainer.style.display = "none";
+
+    paletteContainer.classList.add("containerColorbox");
+    paletteContainer.classList.add("customPalette");
+    paletteContainer.setAttribute("data-toggle", "tooltip");
+    paletteContainer.setAttribute("data-placement", "top");
+    paletteContainer.setAttribute("title", "");
+    paletteContainer.setAttribute("data-original-title", "Select a color");
+
+    columns.forEach(c => {
+        let colorColumn = document.createElement("div");
+        colorColumn.classList.add("containerColorColumn");
+        c.forEach(i => {
+            let colorItem = document.createElement("div");
+            colorItem.classList.add("colorItem");
+            colorItem.setAttribute("data-color", i.index);
+            colorItem.style.background = i.color;
+            colorItem.addEventListener("click", () => document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: i.index })));
+            colorColumn.appendChild(colorItem);
+        });
+        paletteContainer.appendChild(colorColumn);
+    });
+    let tools = document.querySelector(".containerTools");
+    tools.parentElement.insertBefore(paletteContainer, tools);
+    return paletteContainer;
+}
+
 
 // func to mark a message node with background color
 function markMessage(newNode) {
@@ -925,8 +1181,10 @@ function testMode() {
     document.querySelector(".containerToolbar").style.display = "";
 
     document.getElementById("screenGame").style.display = "block";
+    document.getElementById("screenLogin").style.display = "none";
+    document.querySelector(".header").style.display = "none";
     setTimeout(function () {
-        document.querySelector("#currentWord").innerHTML = "example";
+        document.querySelector("#currentWord").innerHTML = "Practise";
         $("body, html").animate({
             scrollTop: $(document).height()
         }, 400);

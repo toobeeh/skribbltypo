@@ -227,6 +227,7 @@
             }), it.on("lobbyPlayerDrawing", function(t) {
                 var e = st.players.get(t);
                 st.setPlayerDrawing(e.id), st.chatAddMsg(null, e.name + " is drawing now!", O);
+                document.querySelector("body").dispatchEvent(new Event("drawingFinished"));
                 var n = st.drawingID == st.myID;
                 ut.setDrawing(n), n ? (f(), y()) : (p(), d()), at.playSound("roundStart"), D(st.timeMax), U()
             }), it.on("lobbyOwnerChanged", function(t) {
@@ -270,7 +271,6 @@
                         n ? at.playSound("roundEndFailure") : at.playSound("roundEndSuccess")
                     }
                 }), st.setPlayerDrawing(-1), ut.setDrawing(!1), st.playersResetGuessedWord();
-                document.querySelector("body").dispatchEvent(new Event("drawingFinished"));
             }), it.on("lobbyPlayerRateDrawing", function(t) {
                 var e = st.players.get(t[0]),
                     n = st.players.get(t[1]),
@@ -3057,7 +3057,7 @@
         var e = this;
         setInterval(function() {
             e.drawCommandsReceived.length > 0 && e.performDrawCommand(e.drawCommandsReceived.shift())
-        }, 3), this.clear()
+        }, 1), this.clear()
     };
     Z.prototype.updateMousePosition = function(t, e, n) {
         var o = this.canvas[0].getBoundingClientRect(),
@@ -3455,7 +3455,7 @@
             var r = 0;
             setInterval(o, 1e3);
             n(this).mousemove(e), n(this).keypress(e), n(this).on("mousedown", e), n(this).on("touchmove", e)
-        }), setInterval(l, 3), n("#rateDrawing .thumbsUp").on("click", function() {
+        }), setInterval(l, 1), n("#rateDrawing .thumbsUp").on("click", function() {
             it && it.emit("rateDrawing", 1), f()
         }), n("#rateDrawing .thumbsDown").on("click", function() {
             it && it.emit("rateDrawing", 0), f()
@@ -3586,5 +3586,8 @@
         if(e.detail != "false") setColorInterval = setInterval(function () {
             ut.brush.setColor(Math.round(Math.random() * 20 + 1));
         }, e.detail);
+    }), n("body").on("setColor", function (e) {
+        ut.brush.setColor(Number(e.detail))
     })
+        
 }(window, document, jQuery, localStorage);

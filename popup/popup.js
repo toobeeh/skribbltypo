@@ -45,9 +45,46 @@ chrome.runtime.onMessage.addListener(
             });
         }
 
-        
+        if (settings.palette == "originalPalette") document.querySelector("#originalPalette").classList.add("active");
+        if (settings.customPalettes && settings.customPalettes.length > 0) {
+            JSON.parse(settings.customPalettes).forEach(p => {
+                let bt = document.createElement("button");
+                if (p.name == settings.palette) bt.classList.add("active");
+                bt.innerText = p.name;
+                bt.id = p.name;
+                bt.onclick = togglePalette;
+                let contextm = false;
+                bt.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    if (contextm == true) {
+                        chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+                            chrome.tabs.sendMessage(tabs[0].id, "rmpal " + bt.id);
+                        });
+                        bt.remove();
+                    }
+                    else {
+                        contextm = true;
+                        bt.innerText = "Rightclick to delete";
+                        setTimeout(() => { contextm = false; bt.innerText = bt.id; }, 2000);
+                    }
+                }
+                document.querySelector("#palettes").appendChild(bt);
+            });
+        }
     }
 );
+
+function togglePalette(e) {
+    if (!localStorage.paletteInfo) {
+        alert("WARNING:\nOnly players with the same installed palette can see the colors!\nUse this ONLY for private games and if all players aggreed & added the palette!\nIf you want to know how to create custom palettes, contact tobeh#7437.")
+        localStorage.paletteInfo = true;
+    }
+    [...document.querySelector("#palettes").children].forEach(c => c.classList.remove("active"));
+    e.target.classList.add("active");
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, "palette " + this.id);
+    });
+}
 
 // func to check if skribbl is opened and adjust content
 chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
@@ -78,8 +115,34 @@ document.querySelectorAll("button").forEach(function (bt) {
     }//window.location.href = "https://www.tobeh.host/Orthanc"; };
     else if (bt.id == "verifyToken") bt.onclick = verifyTokenInput;
     else if (bt.id == "loginSubmit") bt.onclick = verifyLoginInput;
+    else if (bt.id == "originalPalette") bt.onclick = togglePalette;
+    else if (bt.id == "enterJSON") bt.onclick = verifyJSON;
     else bt.onclick = toggleActive;
 });
+
+// func to check palette json
+function verifyJSON() {
+    let json = document.querySelector("#paletteJSON").value;
+    let obj;
+    try {
+        obj = JSON.parse(json);
+    }
+    catch(e){ alert("Invalid palette JSON!"); return; }
+
+    if (!obj.name || !obj.rowCount || !obj.colors || obj.colors.length < 1) { alert("Invalid palette JSON!") }
+    obj.name = obj.name.replace(" ", "").trim();
+
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, "addpal " + JSON.stringify(obj) );
+    });
+    document.querySelector("#paletteJSON").value = "";
+
+    let bt = document.createElement("button");
+    bt.innerText = obj.name;
+    bt.id = obj.name;
+    bt.onclick = togglePalette;
+    document.querySelector("#palettes").appendChild(bt);
+}
 
 //// set advanced peek event
 //document.querySelector("#advancedPeek").onclick = function () {

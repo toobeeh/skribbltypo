@@ -52,6 +52,10 @@ const cmd_enRandom = "enable random";
 const cmd_daRandom = "disable random";
 const cmd_setRandom = "set random";
 
+const cmd_setPalette = "palette";
+const cmd_addPalette = "addpal";
+const cmd_removePalette = "rmpal";
+
 // ----------------------------- INTERPRETER - CALLS FUNCTIONS DEPENDING ON ENTERED COMMAND
 function command_interpreter(cmd) {
 
@@ -89,6 +93,9 @@ function command_interpreter(cmd) {
     else if (cmd.includes(cmd_daRandom)) toggleRandomColor();
     else if (cmd.includes(cmd_setRandom)) setRandomInterval((cmd.replace(cmd_setRandom, "")).trim());
     else if (cmd.includes(cmd_deleteToken)) setToken((cmd.replace(cmd_deleteToken, "")).trim());
+    else if (cmd.includes(cmd_addPalette)) addPalette(cmd.replace(cmd_addPalette, "").trim());
+    else if (cmd.includes(cmd_setPalette)) setPalette(cmd.replace(cmd_setPalette, "").trim());
+    else if (cmd.includes(cmd_removePalette)) removePalette(cmd.replace(cmd_removePalette, "").trim());
     //else if (cmd.includes(cmd_randomColor)) document.querySelector("body").dispatchEvent(new Event("setRandomColor"));
 
     else printCmdOutput("Error");
@@ -130,6 +137,36 @@ function printCmdOutput(cmd) {
 }
 
 // ----------------------------- FUNCTIONS - TO HANDLE COMMAND FUNCTIONALITY
+
+// func to set active palette
+function setPalette(p) {
+    if (!document.querySelector("#" + p)) return;
+    [...document.querySelectorAll(".containerColorbox")].forEach(c => c.style.display = "none");
+    document.querySelector("#" + p).style.display = "";
+    localStorage.palette = p;
+}
+
+// func to add palette
+function addPalette(p) {
+    let palettes = JSON.parse(localStorage.customPalettes);
+    let newPalette = JSON.parse(p);
+    palettes.push(newPalette);
+    localStorage.customPalettes = JSON.stringify(palettes);
+    addColorPalette(p);
+}
+
+// func to remove palette
+function removePalette(p) {
+    let palettes = JSON.parse(localStorage.customPalettes);
+    palettes = palettes.filter(f => { return f.name != p; });
+    document.querySelector("#" + p).remove();
+    if (p == localStorage.palette) {
+        setPalette("standardPalette");
+    }
+    localStorage.customPalettes = JSON.stringify(palettes);
+}
+
+
 // func to update charbar visibility
 function viewCharBar() {
     let _height;

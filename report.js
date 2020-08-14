@@ -130,17 +130,17 @@ var Report = new function ReportObj () {
 		for (let i = 0, m = name.length; i < m; i++) { namenum += name.charCodeAt(i).toString(); }
 		namenum = namenum.substr(0, 5);
 
-		let lang = private ? document.querySelector("#invite").value : document.querySelector("#loginLanguage").value;
+		let lang = document.querySelector("#loginLanguage").value;
 		let langnum = "";
 		for (let i = 0, m = lang.length; i < m; i++) { langnum += lang.charCodeAt(i).toString(); }
 
-		return playernum + "-" + namenum + "-" + langnum;
+		if (!private) return playernum + "-" + namenum + "-" + langnum;
+		else return document.querySelector("#invite").value;
 	}
 
 	this.reportLobby = async function() {
 		if (self.guildLobbies.length < 1) await self.initLobby();
 		else {
-			
 			for (let g of self.guildLobbies) {
 				let actKey = self.generateLobbyKey(g.Private);
 				if (self.prevLobbyKey != actKey || g.Private && !self.descriptionSet && document.querySelector("#screenLobby").style.display == "none") {
@@ -178,7 +178,7 @@ var Report = new function ReportObj () {
 			self.reports++;
 		}
 
-		if (localStorage.userAllow) self.nextReport = setTimeout(self.trigger, 4000);
+		if (localStorage.userAllow == "true") self.nextReport = setTimeout(self.trigger, 4000);
 	}
 
 	this.reportPlayerStatus = async function (status, lobbyID, lobbyPlayerID) {

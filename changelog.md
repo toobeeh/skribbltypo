@@ -99,7 +99,11 @@
     > 
     - .2:
     > Improved animated gif, thiccccc progress bar  
-    > Added lobby description
+    > Added lobby description  
     > Popup is now tabby (thx mihedas) 
+    - .4:
+    > (Hopefully) fixed temp dead lobby search stop  
+    > Added custom color palettes!  
+    > [1] Fixed private lobby settings bug  
 
 
