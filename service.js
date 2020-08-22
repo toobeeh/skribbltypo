@@ -300,12 +300,34 @@ startBtns[0].addEventListener("click", () => {
     Report.waiting = false;
     Report.playing = false;
     Report.trigger();
+
+    // report as paying after timeout
+    setTimeout(() => {
+        if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+            Report.playing = true;
+            Report.searching = false;
+            Report.waiting = false;
+            Report.trigger();
+        }
+    }, 4000);
+
 });
 startBtns[1].addEventListener("click", () => {
     Report.searching = false;
     Report.waiting = false;
     Report.playing = true;
     Report.trigger();
+
+    // report as paying after timeout
+    setTimeout(() => {
+        if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+            Report.playing = true;
+            Report.searching = false;
+            Report.waiting = false;
+            Report.trigger();
+        }
+    }, 4000);
+
 });
 
 
@@ -345,19 +367,19 @@ document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
             sessionStorage.targetLobby = id;
             sessionStorage.targetKey = key;
             sessionStorage.lobbySearch = "true";
-            // MOVED TO LOBBY CONNECT
-            //document.querySelector("button[type='submit'].btn-success").click();
-            //Report.searching = true;
-            //Report.waiting = false;
-            //Report.playing = false;
-            //setTimeout(() => {
-            //    if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
-            //        Report.playing = true;
-            //        Report.searching = false;
-            //        Report.waiting = false;
-            //        Report.trigger();
-            //    }
-            //}, 4000);
+            
+            document.querySelector("button[type='submit'].btn-success").click();
+            Report.searching = true;
+            Report.waiting = false;
+            Report.playing = false;
+            setTimeout(() => {
+                if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+                    Report.playing = true;
+                    Report.searching = false;
+                    Report.waiting = false;
+                    Report.trigger();
+                }
+            }, 4000);
             reloadLobbies();
             document.querySelector("#popupSearch").parentElement.style.display = "block";
         });
@@ -393,17 +415,7 @@ function startSearch() {
 }
 
 // check lobby as soon as connected and perform search checks
-document.querySelector("body").addEventListener("lobbyConnected", async function (e) {
-    // report as paying after timeout
-    setTimeout(() => {
-        if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
-            Report.playing = true;
-            Report.searching = false;
-            Report.waiting = false;
-            Report.trigger();
-        }
-    }, 4000);
-
+document.querySelector("body").addEventListener("lobbyConnected", async (e) => {
     // if searching for a lobby id
     if (sessionStorage.lobbySearch == "true") {
         let key = sessionStorage.targetKey;

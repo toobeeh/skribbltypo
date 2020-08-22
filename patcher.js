@@ -70,7 +70,7 @@ var patcher = new MutationObserver(function (mutations) {
                     //containerForm.append(icon);
                     containerForm.append(inputName);
                     containerForm.append(inputSubmit);
-                    container.insertBefore(containerForm, container.lastChild);
+                    container.appendChild(containerForm);
                     containerForm.previousElementSibling.style.borderRadius = "0";
                     
                 }

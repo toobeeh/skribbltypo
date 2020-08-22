@@ -142,7 +142,7 @@ async function loadLobbies(observeToken, guildID, container, guildName) {
         lobbyButton.setAttribute('lobbyPlayerCount', l.Players.length);
         lobbyButton.textContent = response.Verify.AuthGuildName + " #" + idData[0] + (l.Private ? " [Private]" : "");
         lobbyButton.id = "lobbyID" + idData[1];
-
+        
         if (idData[1] == sessionStorage.targetLobby && sessionStorage.lobbySearch == "true") {
             if (l.Players.length >= 8) {
                 lobbyButton.textContent += " [waiting...]";

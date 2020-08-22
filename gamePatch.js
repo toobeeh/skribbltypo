@@ -178,7 +178,7 @@
             }), it.on("lobbyConnected", function(t) {
                 if (ut.clear(), E(""), st = new tt(t), st.inGame) {
                     for (var e = 0; e < t.drawCommands.length; e++) I(t.drawCommands[e]);
-                    document.querySelector("body").dispatchEvent(new CustomEvent("lobbyConnected", { detail: t.players }));
+                    setTimeout(()=>document.querySelector("body").dispatchEvent(new CustomEvent("lobbyConnected", { detail: t.players },500)));
                     ct.goto("game"), st.drawingID >= 0 && D(st.time)
                 } else ct.goto("lobby")
             }), it.on("lobbyLobby", function() {
