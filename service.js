@@ -1,24 +1,10 @@
 /*
  * Contentscript which tweaks skribbl and basically controls what was added to the ui and how that stuff works.
- * Dispatches events to the body dom element tocommunicate with patched gamejs
+ * Dispatches events to the body dom element to communicate with patched gamejs
  * 
- * That whole code piled up during about one year, still working to make it less ugly and to eliminate the worst of the bad-practise-parts
- * Also, there are still some german parts hiding... :))))
- * 
- * 
+ * There are some VERY old parts, don't kill me for those.
+ * A complete rework to make it a bit less messy is on my todo.
  */
-
-/*
-    Different versions of the holy gif (still hosted on giphy :/)
-    - Mit Kontur                                            https://media.giphy.com/media/RJKTLStD0Lc6IaFw5C/giphy.gif
-    - Zweifarbig                                            https://media.giphy.com/media/UvVlujHiawde07lhXC/giphy.gif
-    - Dreifarbig, dünkler                                   https://media.giphy.com/media/KCvmNt16OGOaQj3tUl/giphy.gif
-    - Verbessert oben, nicht so dunkel                      https://media.giphy.com/media/Idflcn5mfJ5rrS83hs/giphy.gif
-    - Beste Version                                         https://media.giphy.com/media/f4283S48LIV14CJfuf/giphy.gif
-    - Kleiner zweifarbig                                    https://media.giphy.com/media/JUSvACNKQtVX7FDwRY/giphy.gif
-    - Kleiner mit Leuchten                                  https://media.giphy.com/media/VbJZngoMF3A4x9trJM/giphy.gif
-    - -#- dickere Leuchten                                  https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif
-*/
 
 /*
     Report message format:
@@ -39,7 +25,6 @@
         Color   c: 0-22 (Column-wise skribbl colors, left to right)
         Vector  x: 0-800
         Vector  y: 0-600
-
 */
 
 /*
@@ -49,28 +34,30 @@
  * fix lobby search not triggering sometimes on first lobby
  * lobby buttons take several clicks sometimes
  *  ----fix lobby status when search is still active (slow connection)
- *  undo doesnt stop if next player draws
- *  undo skips actions
+ * fix lobby search not triggering sometimes on first lobby
+ * lobby buttons take several clicks sometimes
  *  ----keydown changes tools when other players draw
  *  ----mysterious drawing over next persons' canvas sometimes
  *  ----still that audio thing
  *  ----holy not working
  *  ----lobby search stops if lobby is tempoarly down
  *  ----private lobby settings not set
+ *  gif progress bar is not consisten
+ *  gif drawing speed could be tweaked
  * 
  * Feature requests:
  * ----implement gif saving
  * ----maybe bigger color palette
  * ----lobby description
  * ----tab style popup
+ * ----ustom sprites
  * ff port :(
  * 
  */
 
 
 'use strict';
-const version = "17.4.1";
-const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
+const version = "18.2.1";
 const command_token = "--";
 
 // stop patcher observing
@@ -292,7 +279,7 @@ function setBrushsize(newsize) {
 // report lobby after 5 secs in lobby (event on submit button)
 
 // Set status as playing after 5 secs, before as searching
-let startBtns = document.querySelectorAll("button[type='submit']")
+let startBtns = document.querySelectorAll("button[type='submit']");
 
 startBtns[0].addEventListener("click", () => {
     // report status as searching      
@@ -318,7 +305,7 @@ startBtns[1].addEventListener("click", () => {
     Report.playing = true;
     Report.trigger();
 
-    // report as paying after timeout
+    // report as playing after timeout
     setTimeout(() => {
         if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
             Report.playing = true;
@@ -333,7 +320,7 @@ startBtns[1].addEventListener("click", () => {
 
 // get user name from game.js -> prevents modification from DOM
 document.querySelector("body").addEventListener("loginData", function (d) {
-    Report.loginName = d.detail.name;
+    Report.loginName = d.detail.name.trim();
     sessionStorage.lastLoginName = Report.loginName;
 });
 
@@ -491,9 +478,8 @@ async function reloadLobbies() {
 // _____________________________________________________________
 
 // Observer for player and word mutations
-var bigbrother = new MutationObserver(function (mutations) {
+var bigbrother = new MutationObserver(()=> {
     update();
-    checkPlayers();
     updateImageAgent();
 });
 bigbrother.observe(document.querySelector("#currentWord"), { attributes: false, childList: true });
@@ -515,7 +501,53 @@ if (sessionStorage.skippedLobby == "true") {
     sessionStorage.skippedLobby = "false";
 }
 
-
+let showNextDropTimeout = null;
+// check drops interval
+setInterval(async () => {
+    if (Report.guildLobbies.length <= 0){
+        document.querySelector("#claimDrop").style.display = "none";
+        return;
+    }
+    let state = await fetch('https://www.tobeh.host/Orthanc/drop/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "login=" + JSON.parse(localStorage.member).UserLogin
+    }
+    );
+    state = await state.json();
+    if (state.DropID) {
+        let dropTime = state.ValidFrom;
+        let timediff = Date.parse(dropTime + " UTC") - Date.now();
+        if (timediff < 0) return;
+        clearTimeout(showNextDropTimeout);
+        showNextDropTimeout = setTimeout(() => {
+            let drop = document.querySelector("#claimDrop")
+            drop.setAttribute("dropID", state.DropID);
+            drop.style.display = "block";
+            drop.style.left = Math.round(8 + Math.random() * 784) + "px";
+            let dropClaimedCheck = setInterval(async() => {
+                if (drop.style.display == "none") { clearInterval(dropClaimedCheck); return;}
+                let state = await fetch('https://www.tobeh.host/Orthanc/drop/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: "login=" + JSON.parse(localStorage.member).UserLogin
+                }
+                );
+                state = await state.json();
+                if (!state.DropID) {
+                    drop.dispatchEvent(new Event("click"));
+                }
+            }, 200);
+            setTimeout(async () => { drop.style.display = "none"; clearInterval(dropClaimedCheck);}, 5000);
+        },timediff);
+    }
+},10000);
 
 // _____________________________________________________________
 //
@@ -946,6 +978,43 @@ if (sessionStorage.skippedLobby == "true") {
     //sketchfulPalette = JSON.parse(sketchfulPalette);
     palettes.forEach(p => addColorPalette(p));
 
+    // add drop button
+    let dropContainer = document.createElement("div");
+    dropContainer.id = "claimDrop";
+    dropContainer.style.width = "48px";
+    dropContainer.style.height = "48px";
+    dropContainer.style.left = "8px";
+    dropContainer.style.bottom = "8px";
+    dropContainer.style.position = "absolute";
+    dropContainer.style.backgroundSize = "contain";
+    dropContainer.style.cursor = "pointer";
+    dropContainer.style.display = "none";
+    dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
+    dropContainer.addEventListener("click", async () => {
+        if (dropContainer.style.display == "none") return;
+        dropContainer.style.display = "none";
+        let dropID = dropContainer.getAttribute("dropID");
+        let state = await fetch('https://www.tobeh.host/Orthanc/drop/claim/', {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: "login=" + JSON.parse(localStorage.member).UserLogin + "&dropID=" + dropID + "&lobbyKey=" + Report.guildLobbies[0].Key + "&lobbyPlayerID=" + Report.loginName
+        }
+        );
+        state = await state.json();
+        if (state.Caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
+        else {
+            let winner = "";
+            if (state.CaughtLobbyKey == Report.guildLobbies[0].Key) winner = state.CaughtLobbyPlayerID;
+            else winner = "Someone in another lobby"
+            printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
+        }
+    })
+    document.querySelector("#containerCanvas").appendChild(dropContainer);
+
+
 })();
 
 function addColorPalette(paletteJson) {
@@ -1065,49 +1134,6 @@ function update() {
     info.innerHTML = diff;
 }
 
-// mutation observer callback
-function checkPlayers() {
-
-    let players = document.querySelectorAll(".name");
-    let i;
-
-    for (i = 0; i < players.length; i++) {
-        if (players[i].innerHTML.includes("(You)") || players[i].innerHTML.includes("Ƭ")) // hehehe Ƭobeh is always premium
-        {
-            let playerNode = players[i].parentNode.parentNode;
-            let pNar = playerNode.children;
-            let special;
-
-            let k;
-            for (k = 0; k < pNar.length; k++) {
-
-                if (pNar[k].className == "avatar") {
-
-                    let aNar = pNar[k].children;
-
-                    let j;
-                    for (j = 0; j < pNar.length; j++) {
-
-                        if (aNar[j].className == "special") {
-                            special = aNar[j];
-
-                            if (localStorage.ownHoly == "true") {
-                                special.setAttribute("style", "background-image: url(" + link_to_holy + ");");
-                                players[i].parentElement.parentElement.style.height = "60px";
-                            }
-
-                            if (localStorage.ownHoly == "false") {
-                                special.setAttribute("style", "display:none;");
-                                players[i].parentElement.parentElement.style.height = "50px";
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-} // bootyful
-
 // func to set imageagentbuttons visible if drawing
 function updateImageAgent() {
     let word = document.getElementById("currentWord");
@@ -1151,8 +1177,7 @@ function setAgentSource(searchCriteria, exclusive = 0) {
     //    }
     //}
     //xhr.send();
-
-
+    // change to fetch
     $.getJSON('https://api.allorigins.win/get?url=' +
         encodeURIComponent('https://www.mojeek.com/search?fmt=images&imgpr=bing&q=' + search), function (data) {
             let html = data.contents;

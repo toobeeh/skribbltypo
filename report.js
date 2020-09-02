@@ -185,7 +185,15 @@ var Report = new function ReportObj () {
 
 		let playerStatus = new self.PlayerStatus();
 		playerStatus.PlayerMember = JSON.parse(localStorage.member);
-		if (status == "searching") playerStatus.PlayerMember.UserName = self.loginName;
+		if (status == "searching") {
+			playerStatus.PlayerMember.UserName = self.loginName;
+			// if service.js failed to set status
+			setTimeout(() => {
+				Report.playing = true;
+				Report.searching = false;
+				Report.trigger()
+			}, 10000);
+		}
 		if (status == "waiting" && sessionStorage.lastLoginName && sessionStorage.lastLoginName != "") playerStatus.PlayerMember.UserName = sessionStorage.lastLoginName;
 		playerStatus.Status = status;
 		playerStatus.LobbyID = lobbyID;
@@ -200,7 +208,6 @@ var Report = new function ReportObj () {
 			body: "playerStatus=" + JSON.stringify(playerStatus)  + "&session=" + self.sessionID
 		});
 		state = await state.text();
-		;
 	}
 
 	// func which gets called if the current state should be reported

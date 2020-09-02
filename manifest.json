@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "Collection of useful tools & graphics tablet support for skribbl.io ",
-  "version": "17.4.1",
+  "version": "18.2.2",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
@@ -38,7 +38,8 @@
         "gifCap/GIFEncoder.js",
         "gifCap/skribblCanvas.js",
         "gifCap/b64.js",
-        "service.js"
+        "service.js",
+        "sprites.js"
       ]
     },
     {

@@ -27,6 +27,8 @@ const cmd_daMarkup = "disable markup";
 
 const cmd_help = "help";
 
+const cmd_fixPalantir = "fixptr";
+
 const cmd_deleteToken = "set token";
 
 const cmd_enCharBar = "enable charbar";
@@ -87,6 +89,7 @@ function command_interpreter(cmd) {
     else if (cmd.includes(cmd_showImportantName)) showVip();
     else if (cmd.includes(cmd_clearImportantName)) clearVip();
     else if (cmd.includes(cmd_restore)) restoreDrawing();
+    else if (cmd.includes(cmd_fixPalantir)) fixPalantir();
     else if (cmd.includes(cmd_enBack)) toggleBackbutton(true);
     else if (cmd.includes(cmd_daBack)) toggleBackbutton();
     else if (cmd.includes(cmd_enRandom)) toggleRandomColor(true);
@@ -102,7 +105,7 @@ function command_interpreter(cmd) {
 }
 
 // ----------------------------- OUTPUT - SHOWS CHAT MESSAGE DEPENDING ON COMMAND
-function printCmdOutput(cmd) {
+function printCmdOutput(cmd, info = "", title = "") {
 
     // Create Message
     let p = document.createElement("p");
@@ -111,6 +114,7 @@ function printCmdOutput(cmd) {
 
     let b = document.createElement("b");
     b.innerHTML = "Command:   " + cmd;
+    if (title != "") b.innerHTML = title;
     b.style.display = "block";
 
     let s = document.createElement("span");
@@ -127,6 +131,7 @@ function printCmdOutput(cmd) {
     else if (cmd == cmd_daMarkup || cmd == cmd_enMarkup) s.innerHTML = "Markup toggled";
     else if (cmd == cmd_daInk || cmd == cmd_setSensitivity || cmd == cmd_enInk) s.innerHTML = "Sensitivity was set";
     else if (cmd == "render") s.innerHTML = "Gif is rendering in background and will be downloaded. Takes up to 30s.";
+    else if (cmd == "drop") s.innerHTML = info;
 
     p.appendChild(b);
     p.appendChild(s);
@@ -144,6 +149,15 @@ function setPalette(p) {
     [...document.querySelectorAll(".containerColorbox")].forEach(c => c.style.display = "none");
     document.querySelector("#" + p).style.display = "";
     localStorage.palette = p;
+}
+
+// function to reinitialize report
+function fixPalantir() {
+    Report.playing = true;
+    Report.waiting = false;
+    Report.searching = false;
+    Report.guildLobbies = [];
+    Report.trigger();
 }
 
 // func to add palette
