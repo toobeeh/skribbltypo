@@ -69,15 +69,18 @@
             if (playerSprite == undefined) return;
             let spriteUrl = getSpriteURL(playerSprite);
 
-            player.avatarContainer.querySelector(".special").remove();
-            let spriteContainer = document.createElement("div");
-            spriteContainer.className = "special";
-            spriteContainer.style.backgroundImage = "url(" + spriteUrl + ")";
-            player.avatarContainer.appendChild(spriteContainer);
-            spriteContainer.parentElement.parentElement.style.height = "60px";
+            if (player.avatarContainer.querySelector(".special").style.backgroundImage != "url(\"" + spriteUrl + "\")") {
+                player.avatarContainer.querySelector(".special").remove();
+                let spriteContainer = document.createElement("div");
+                spriteContainer.className = "special";
+                spriteContainer.style.backgroundImage = "url(" + spriteUrl + ")";
+                player.avatarContainer.appendChild(spriteContainer);
+                spriteContainer.parentElement.parentElement.style.height = "60px";
 
-            let special = isSpecial(playerSprite);
-            [...player.avatarContainer.querySelectorAll(".color, .eyes, .mouth")].forEach(a => a.style.display = special ? "none" : "");
+                let special = isSpecial(playerSprite);
+                [...player.avatarContainer.querySelectorAll(".color, .eyes, .mouth")].forEach(a => a.style.display = special ? "none" : "");
+            }
+            
         });
     }
 

@@ -7,6 +7,7 @@ var tabid;
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         settings = JSON.parse(request.get);
+        localStorage.skribblSettings = request.get;
         document.querySelectorAll("button").forEach(function (bt) {
             if (bt.id == "tablet" && settings.ink == "true") bt.className = "active";
             if (bt.id == "imageagent" && settings.imageAgent == "true") bt.className = "active";
@@ -88,9 +89,41 @@ function togglePalette(e) {
 
 // func to check if skribbl is opened and adjust content
 chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-    if (!tabs[0].url.includes("skribbl.io")) {
+    if (tabs[0].url.includes("skribbl.io")) {
+        skribbl = true;
+        document.querySelectorAll(".sketchful:not(.skribbl)").forEach(function (node) { node.remove(); });
+    }
+    else if (tabs[0].url.includes("sketchful.io")) {
         skribbl = false;
-        document.querySelectorAll(".skribbl").forEach(function (node) { node.remove(); });
+        document.querySelectorAll(".skribbl:not(.sketchful)").forEach(function (node) { node.remove(); });
+        document.querySelector("#tabDiscord").classList.add("tabActive");
+        document.querySelector("#palantirSettings").style.display = "block";
+        let skribblSettings = JSON.parse(localStorage.skribblSettings);
+        let member = JSON.parse(skribblSettings.member);
+        //alert(member.UserName);
+        if (member) document.querySelector("#sketchfulLogin").textContent = member.UserName;
+        else document.querySelector("#sketchfulLogin").textContent = "Go to skribbl and log in with your token!";
+        if (member.Guilds.length > 0) {
+            let guildContainer = document.querySelector("#sketchfulGuilds");
+            guildContainer.innerHTML = "";
+            member.Guilds.forEach(g => {
+                guildContainer.innerHTML += "<div class='label'>" + g.GuildName + "</div>";
+            });
+        }
+        if (!localStorage.sketchfulAllow) localStorage.sketchfulAllow = "false";
+        let sketchfulAllowButton = document.querySelector("#palantirToggleSketchful");
+        if (localStorage.sketchfulAllow == "true") sketchfulAllowButton.classList.add("active");
+        sketchfulAllowButton.addEventListener("click", () => {
+            if (localStorage.sketchfulAllow == "true") { sketchfulAllowButton.className = ''; localStorage.sketchfulAllow = "false" }
+            else { sketchfulAllowButton.className = 'active'; localStorage.sketchfulAllow = "true" }
+            updateSketchfulUser(member, localStorage.sketchfulAllow);
+        })
+        updateSketchfulUser(member, localStorage.sketchfulAllow);
+
+    }
+    else {
+        skribbl = false;
+        document.querySelectorAll(".skribbl.sketchful").forEach(function (node) { node.remove(); });
 
         let h1 = document.querySelector("h1");
         h1.style.cursor = "pointer";
@@ -103,6 +136,16 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         };
     }
 });
+
+function updateSketchfulUser(member, userallow) {
+    data = {
+        member: member,
+        userallow: userallow
+    };
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, { updateUser: true, data: JSON.stringify(data) });
+    });
+}
 
 // Check if settins string was received - if not, indicates that the popup didnt sync with skribbl (after update for example)
 setTimeout(function () { if (!settings && skribbl) document.querySelector("h1").innerHTML = "Updated... <br/>Reload Skribbl!"; }, 500);
@@ -143,42 +186,6 @@ function verifyJSON() {
     bt.onclick = togglePalette;
     document.querySelector("#palettes").appendChild(bt);
 }
-
-//// set advanced peek event
-//document.querySelector("#advancedPeek").onclick = function () {
-//    if (this.className != "peekDown") {
-//        this.className = "peekDown";
-//        $("#mainSettings").slideToggle(200);
-//        $("#palantirPeek").slideToggle(200);
-//        $("#advancedSettings").slideToggle(200);
-//        $("h1").text("Advanced");
-//    }
-//    else {
-//        this.className = "peekUp";
-//        $("#mainSettings").slideToggle(200);
-//        $("#palantirPeek").slideToggle(200);
-//        $("#advancedSettings").slideToggle(200);
-//        $("h1").text("Dashboard");
-//    }
-//};
-
-//// set palantir peek event
-//document.querySelector("#palantirPeek").onclick = function () {
-//    if (this.className != "peekUp") {
-//        this.className = "peekUp";
-//        $("#mainSettings").slideToggle(200);
-//        $("#advancedPeek").slideToggle(200);
-//        $("#palantirSettings").slideToggle(200);
-//        $("h1").text("Discord Lobbies");
-//    }
-//    else {
-//        this.className = "peekDown";
-//        $("#mainSettings").slideToggle(200);
-//        $("#advancedPeek").slideToggle(200);
-//        $("#palantirSettings").slideToggle(200);
-//        $("h1").text("Dashboard");
-//    }
-//};
 
 
 // set tab click events

@@ -9,16 +9,25 @@
 <body>
     <div class="flexcol">
         <h1>Skribbl Typo</h1>
-        <div class="tabSelection flexrow skribbl">
-            <div class="tabTitle tabActive" id="tabDashboard">Dashboard</div>
+        <div class="tabSelection flexrow skribbl sketchful">
+            <div class="tabTitle tabActive skribbl" id="tabDashboard">Dashboard</div>
             <div class="tabTitle" id="tabDiscord">Discord</div>
-            <div class="tabTitle" id="tabAdvanced">Advanced</div>
+            <div class="tabTitle skribbl" id="tabAdvanced">Advanced</div>
         </div>
-        <div class="tabContent skribbl">
-            <div id="palantirSettings">
+        <div class="tabContent skribbl sketchful">
+            <div id="palantirSettings" class="sketchful skribbl">
                 <br />
                 <br />
-                <div id="login">
+                <div id="sketchfulInfo" class="sketchful">
+                    <div id="sketchfulLogin" class="label back"></div>
+                    <div class="flexrow flexrowMenu" style="flex-wrap:wrap" id="sketchfulGuilds">
+                        <div class="label">No servers added! <br />Enter a server token on skribbl.</div>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="palantirToggleSketchful">Discord Bot Status</button>
+                    </div>
+                </div>
+                <div id="login" class="skribbl">
                     <div id="loginHead" class="label back">Enter your login:</div>
                     <div class="flexrow flexrowMenu">
                         <input type="text" autocomplete="off" style="width:5em" id="loginEnter" placeholder="12345678" />
@@ -26,11 +35,11 @@
                     </div>
                 </div>
 
-                <div id="server" style="display:none">
+                <div id="server" class="skribbl" style="display:none">
                     <div id="loginName" class="label">Tobeh#7437</div>
                     <div class="label back">Connected Discord Servers</div><br />
 
-                    <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap" id="authGuilds">
+                    <div class="flexrow flexrowMenu" style="flex-wrap:wrap" id="authGuilds">
                         <div class="label">No servers added! Enter a server token below</div>
                     </div>
                     <br />
@@ -45,7 +54,7 @@
 
             </div>
 
-            <div id="mainSettings">
+            <div id="mainSettings" class="skribbl">
                 <br />
                 <br />
                 <div class="flexcol">
@@ -72,7 +81,7 @@
                 <br />
             </div>
 
-            <div id="advancedSettings">
+            <div id="advancedSettings" class="skribbl">
                 <br />
                 <br />
                 <div class="flexcol">

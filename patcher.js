@@ -1,4 +1,4 @@
-
+﻿
 var patcher = new MutationObserver(function (mutations) {
          mutations.forEach(function (mutation){
             mutation.addedNodes.forEach(async function(node){
@@ -20,28 +20,41 @@ var patcher = new MutationObserver(function (mutations) {
                 }
                 if (node.tagName == "A" && node.href.includes("tower")) node.remove();
                 if (node.tagName == "DIV") {
-                    if (node.classList.contains("informationTabs")) await initLobbyTab(true);//{ try { await initLobbyTab(true); } catch { window.location.reload(); } }
-                    if (node.id == "collapseUpdate") node.classList = "updateInfo collapse";
+                    if (node.classList.contains("login-side-right")) {
+                        await initLobbyTab(true);
+                        node.style.width = "300px";
+                        node.style.flex = "0 1 auto";
+                    }
+                    if (node.classList.contains("loginPanelContent") && document.querySelectorAll(".loginPanelContent").length > 2 && document.querySelectorAll(".login-side-left .loginPanelContent").length <= 0) {
+                        let cont = document.querySelector(".login-side-left");
+                        cont.appendChild(node);
+                        cont.style.width = "300px";
+                        cont.style.flex = "0 1 auto";
+                    }
+                    if (node.classList.contains("updateInfo")) {
+                        node.innerHTML = "Hello!<br>Btw - thank u for using Typo! ❤️️<br><br>Since recent skribbl.io layout changes, the frontpage had to be redesigned.<br>Sorry for that.<br>Jump into the freedraw by clicking the big avatar.<br>";
+                    }
+                    
                 }
-                if (node.id == 'buttonLoginCreatePrivate') {
+                if (node.id == 'screenLogin') {
+                    node.style.justifyContent = "center";
+                }
+                if (node.id == 'formLogin') {
                     //add dead lobbies button
                     let privateBtn = document.querySelector("#buttonLoginCreatePrivate");
                     let skipDead = document.createElement("button");
-                    //privateBtn.classList.remove('btn-block');
                     privateBtn.style.display = "inline";
                     privateBtn.style.width = "48%";
                     skipDead.classList.add('btn', 'btn-info');
                     skipDead.textContent = "Skip Dead Lobbies";
                     skipDead.style.width = "48%";
                     skipDead.style.marginTop = "4px";
-                    skipDead.style.marginBottom = "8px";
                     skipDead.style.marginLeft = "4%";
                     skipDead.addEventListener('click', () => { sessionStorage.skipDeadLobbies = "true"; });
                     privateBtn.parentNode.appendChild(skipDead);
-                }
-                if (node.id == 'formLogin') {
+
                     //add search names button and field
-                    let container = document.querySelector("#formLogin").parentElement.parentElement;
+                    let container = node;
                     let containerForm = document.createElement("div");
                     let inputName = document.createElement("input");
                     let inputSubmit = document.createElement("button");
@@ -54,9 +67,9 @@ var patcher = new MutationObserver(function (mutations) {
                     inputName.style.width = "70%";
                     inputName.placeholder = "'name' or 'name, name1, name2'";
                     containerForm.classList.add("loginPanelContent");
-                    containerForm.style.borderTop = "1px solid #d3d3d3";
                     containerForm.style.display = "flex";
                     containerForm.style.justifyContent = "space-between";
+                    containerForm.style.marginTop = "1em";
                     inputSubmit.classList.add("btn", "btn-success");
                     inputSubmit.textContent = "Search Player!";
                     inputSubmit.addEventListener("click", () => {
@@ -67,12 +80,10 @@ var patcher = new MutationObserver(function (mutations) {
                         sessionStorage.searchPlayers = JSON.stringify(players);
                     })
 
-                    //containerForm.append(icon);
                     containerForm.append(inputName);
                     containerForm.append(inputSubmit);
                     container.appendChild(containerForm);
                     containerForm.previousElementSibling.style.borderRadius = "0";
-                    
                 }
                 
             });

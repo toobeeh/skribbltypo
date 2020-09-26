@@ -35,7 +35,7 @@ async function getLoginPlayer() {
 function buildGuildContainer() {
 
     header = document.createElement("h3");
-    header.innerHTML = "<p style='font-weight:700' ; margin-bottom: 0.5em; color:black !important;> Discord Lobbies </p>";
+    header.innerHTML = "<p style='font-weight:700; margin-bottom: 0; color:black !important' ;> Discord Lobbies </p>";
 
     guildLobbies = document.createElement("div");
     guildLobbies.className = "updateInfo";
@@ -68,8 +68,8 @@ async function initLobbyTab(patcher = false) {
     await getLoginPlayer();
     await buildGuildContainer();
 
-    let tab = document.querySelector(".informationTabs").parentElement;
-    tab.style.width = "100%";
+    let tab = document.querySelector(".login-side-right");
+    //tab.style.width = "100%";
 
     let newPalantir = document.createElement("div");
     newPalantir.appendChild(header);
@@ -78,6 +78,8 @@ async function initLobbyTab(patcher = false) {
     // if initiated by patcher, show loading stuff
     if (patcher) {
         newPalantir.id = "palantir";
+        newPalantir.className = "loginPanelContent";
+        newPalantir.style = "height:fit-content; padding: .5em;";
         tab.insertBefore(newPalantir, tab.firstChild);
     }
 

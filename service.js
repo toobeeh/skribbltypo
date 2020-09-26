@@ -85,16 +85,14 @@ if (!sessionStorage.skipDeadLobbies) sessionStorage.skipDeadLobbies = "false";
 if (!localStorage.palette) localStorage.palette = "originalPalette";
 if (!localStorage.customPalettes) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
 if ("permission" in Notification && Notification.permission === "default" && confirm("Do you want to receive notifications when a lobby was found?")) Notification.requestPermission(); 
+
 // defaults for word check
 var is_length_error = false;
 var is_hint_error = false;
-
 // Activate game container for betatesting purposes
 if (version.includes("beta")) testMode();
-
 // var to store copied drawing
 let drawCommandsCopy = [];
-
 
 // _____________________________________________________________
 //
@@ -111,12 +109,10 @@ chrome.runtime.onMessage.addListener(msgObj => {
     else command_interpreter(msgObj + "--");
 });
 
-
 // _____________________________________________________________
 //
 //               Init backbutton stuff and pressure
 // _____________________________________________________________
-
 
 // capture drawings
 var capturedCommands = [];
@@ -269,8 +265,6 @@ function setBrushsize(newsize) {
     document.querySelector("body").dispatchEvent(event);
 }
 
-
-
 // _____________________________________________________________
 //
 //            Init report to orthanc and palantir (->report.js)
@@ -288,7 +282,7 @@ startBtns[0].addEventListener("click", () => {
     Report.playing = false;
     Report.trigger();
 
-    // report as paying after timeout
+    // report as playing after timeout
     setTimeout(() => {
         if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
             Report.playing = true;
@@ -317,7 +311,6 @@ startBtns[1].addEventListener("click", () => {
 
 });
 
-
 // get user name from game.js -> prevents modification from DOM
 document.querySelector("body").addEventListener("loginData", function (d) {
     Report.loginName = d.detail.name.trim();
@@ -328,7 +321,6 @@ var reportTrigger = new MutationObserver(() => {
     Report.trigger();
 });
 reportTrigger.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: true, childList: true})
-
 
 // if lobbies are already loaded (Orthanc fast af?!?!)
 if (loaded) setTimeout(startSearch, 1000);
@@ -471,7 +463,6 @@ async function reloadLobbies() {
     await initLobbyTab();
 }
 
-
 // _____________________________________________________________
 //
 //                Observer for general functions
@@ -501,6 +492,53 @@ if (sessionStorage.skippedLobby == "true") {
     sessionStorage.skippedLobby = "false";
 }
 
+// sync time
+async function getTimeDiff() {
+    return new Promise((resolve, reject) => {
+        let intv;
+        let diffs = [];
+        intv = setInterval(async () => {
+            let pingTime = Date.now()
+            let resp = await fetch("https://www.tobeh.host/Orthanc/date/", {
+                method: 'GET',
+                headers: {
+                    'Accept': '*/*',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                }
+            });
+            let now = Date.now()
+            pingTime = now - pingTime;
+            diffs.push((Date.parse((await resp.json()).UTCDate) + pingTime / 2) - now);
+            if (diffs.length > 20) {
+                clearInterval(intv);
+                resolve(diffs.reduce((previous, current) => current += previous) / diffs.length);
+            }
+        }, 100);
+    })
+}
+let timeSyncDiff = 0;
+// sync time once a min
+(async () => { timeSyncDiff = await getTimeDiff(); })();
+setInterval(async () => { timeSyncDiff = await getTimeDiff(); }, 1000 * 60);
+
+function getSyncedMs() {
+    return Date.now() + timeSyncDiff;
+}
+
+let eventDrops = [];
+(async () => {
+    let dropResponse = await fetch('https://www.tobeh.host/Orthanc/drop/eventdrop/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+    }
+    );
+    eventDrops = (await dropResponse.json()).EventDrops;
+})();
+
+
 let showNextDropTimeout = null;
 // check drops interval
 setInterval(async () => {
@@ -520,13 +558,16 @@ setInterval(async () => {
     state = await state.json();
     if (state.DropID) {
         let dropTime = state.ValidFrom;
-        let timediff = Date.parse(dropTime + " UTC") - Date.now();
+        let timediff = Date.parse(dropTime + " UTC") - getSyncedMs();
         if (timediff < 0) return;
         clearTimeout(showNextDropTimeout);
         showNextDropTimeout = setTimeout(() => {
             let drop = document.querySelector("#claimDrop")
             drop.setAttribute("dropID", state.DropID);
+            if (state.EventDropID == 0) drop.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
+            else drop.style.backgroundImage = 'url("' + eventDrops.find(e => e.EventDropID == state.EventDropID).URL + '")';
             drop.style.display = "block";
+            //alert("unsynced: " + Date.now() + "\nsynced: " + getSyncedMs());
             drop.style.left = Math.round(8 + Math.random() * 784) + "px";
             let dropClaimedCheck = setInterval(async() => {
                 if (drop.style.display == "none") { clearInterval(dropClaimedCheck); return;}
@@ -547,13 +588,14 @@ setInterval(async () => {
             setTimeout(async () => { drop.style.display = "none"; clearInterval(dropClaimedCheck);}, 5000);
         },timediff);
     }
-},10000);
+}, 10000);
+
+
 
 // _____________________________________________________________
 //
 //               UI setup stuff (add buttons, events, etc)
 // _____________________________________________________________
-
 
 // func for UI setup 
 (function () {
@@ -569,7 +611,7 @@ setInterval(async () => {
     let gameHeader = document.querySelector(".gameHeaderButtons");
 
     // add listener to questionmark
-    document.querySelector(".iconQuestionmark").onclick = function () { testMode(); };
+    document.querySelector("#loginAvatarCustomizeContainer  .avatarContainer").onclick = testMode;
     document.querySelector('button[type="submit"]').onclick = function () {
         localStorage.practise = false;
     };
@@ -754,7 +796,6 @@ setInterval(async () => {
         document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: localStorage.randomColorInterval }));
     });
 
-
     // add DL button
     let header = document.querySelector(".gameHeader");
     let download = document.createElement("img");
@@ -828,7 +869,7 @@ setInterval(async () => {
         document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
         optionsPopup.children[0].focus();
         //document.querySelector("#saveDrawingPopupPaste").style.display = document.querySelector(".containerToolbar").style.display;
-        document.querySelector("#saveDrawingPopupPasteSaved").style.display = document.querySelector(".containerToolbar").style.display;
+        [...document.querySelectorAll(".pasteSaved")].forEach(p=>p.style.display = document.querySelector(".containerToolbar").style.display);
         //if (drawCommandsCopy.length <= 0) document.querySelector("#saveDrawingPopupPaste").style.display = "none";
     });
 
@@ -849,29 +890,6 @@ setInterval(async () => {
     optionsPopup.style.padding = "1em";
     optionsPopup.id = "saveDrawingPopup";
     optionsPopup.tabIndex = "-1";
-
-    //let popupCopyCommands = document.createElement("button");
-    //optionsPopup.appendChild(popupCopyCommands);
-    //popupCopyCommands.classList = "btn btn-info btn-block";
-    //popupCopyCommands.innerText = "Copy current";
-    //popupCopyCommands.addEventListener("click", () => {
-    //    let clear = capturedActions.length-1;
-    //    while (capturedActions[clear][0] != 3) clear--;
-    //    drawCommandsCopy = [...capturedActions.slice(clear)];
-    //    document.querySelector("#saveDrawingPopupPaste").style.display = document.querySelector(".containerToolbar").style.display;
-    //});
-
-
-    //let popupPasteCommands = document.createElement("button");
-    //optionsPopup.appendChild(popupPasteCommands);
-    //popupPasteCommands.id = "saveDrawingPopupPaste";
-    //popupPasteCommands.classList = "btn btn-info btn-block";
-    //popupPasteCommands.innerText = "Paste copied";
-    //popupPasteCommands.addEventListener("click", () => {
-    //    drawOnCanvas(drawCommandsCopy);
-    //    capturedActions = [...drawCommandsCopy];
-    //}
-    //);
 
     let popupTempSaveCommands = document.createElement("button");
     optionsPopup.appendChild(popupTempSaveCommands);
@@ -944,7 +962,8 @@ setInterval(async () => {
                 actions = readerEvent.target.result;
                 let popupCustomSaved = document.createElement("button");
                 optionsPopup.appendChild(popupCustomSaved);
-                popupCustomSaved.classList = "btn btn-success btn-block";
+                popupCustomSaved.style.display = document.querySelector(".containerToolbar").style.display
+                popupCustomSaved.classList = "btn btn-success btn-block pasteSaved";
                 popupCustomSaved.innerText = file.name;
                 popupCustomSaved.addEventListener("click", () => {
                     drawOnCanvas(JSON.parse(actions));

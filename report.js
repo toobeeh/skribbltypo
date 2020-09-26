@@ -87,7 +87,6 @@ var Report = new function ReportObj () {
 					player.ID = JSON.parse(localStorage.member).UserID;
 					self.senderPlayer = player;
 				}
-
 				lobbyPlayers.push(player);
 			}
 		});
