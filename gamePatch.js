@@ -3049,6 +3049,7 @@
         if (this.context) return;
         try {
             t.AudioContext = t.AudioContext || t.webkitAudioContext, this.context = new AudioContext;
+            if ("permission" in Notification && Notification.permission === "default" && confirm("Do you want to receive notifications when a lobby was found?")) Notification.requestPermission(); 
             t.removeEventListener("click", V.bind);
         } catch (t) {
             return void console.log("Error creating AudioContext.")
