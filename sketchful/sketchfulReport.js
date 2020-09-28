@@ -19,7 +19,7 @@ const PLAYERS = document.querySelector("#gamePlayersList");
 
 var reportEnabled = false;
 var skribblMember = localStorage.skribblMember ? JSON.parse(localStorage.skribblMember) : null;
-var sketchfulAllow = localStorage.sketchfulAllow ? localStorage.sketchfulAllow : false;
+var sketchfulAllow = localStorage.sketchfulAllow ? localStorage.sketchfulAllow == "true" : false;
 var sessionID = sessionStorage.sessionID ? sessionStorage.sessionID : sessionStorage.sessionID = Math.floor(Math.random() * 100000000);
 var selfPlayer;
 var nextTimeoutReport;
@@ -63,7 +63,7 @@ chrome.runtime.onMessage.addListener(msgObj => {
 		if (JSON.stringify(skribblMember) != JSON.stringify(JSON.parse(msgObj.data).member)) reload = true;
 		skribblMember = JSON.parse(msgObj.data).member; 
 		localStorage.skribblMember = JSON.stringify(JSON.parse(msgObj.data).member);
-		sketchfulAllow = localStorage.sketchfulAllow = JSON.parse(msgObj.data).userallow;
+		sketchfulAllow = localStorage.sketchfulAllow = (JSON.parse(msgObj.data).userallow == "true");
 		if (reload) window.location.reload();
 	}
 });

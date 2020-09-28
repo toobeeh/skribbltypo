@@ -32,7 +32,7 @@ var patcher = new MutationObserver(function (mutations) {
                         cont.style.flex = "0 1 auto";
                     }
                     if (node.classList.contains("updateInfo")) {
-                        node.innerHTML = "Hello!<br>Btw - thank u for using Typo! ❤️️<br><br>Since recent skribbl.io layout changes, the frontpage had to be redesigned.<br>Sorry for that.<br>Jump into the freedraw by clicking the big avatar.<br>";
+                        node.innerHTML = "Hiiiii!<br>Btw - still thank u for using Typo! 💖<br><br>The palantir bot made its way to sketchful!<br>Connect your discord servers and try it out.<br><br>Also, did you notice the tool shortcuts B,F and E?<br>Try out C to use the new color pipette tool!<br>Check out all the other features <a href='https://tobeh.host/Orthanc'>on the updated website</a>!";
                     }
                     
                 }

@@ -31,8 +31,6 @@
  * Todo and bugs:
  * ----fix conflict with image poster (container freespace) 
  * ----fix lobby id check -> as soon as lobby connected
- * fix lobby search not triggering sometimes on first lobby
- * lobby buttons take several clicks sometimes
  *  ----fix lobby status when search is still active (slow connection)
  * fix lobby search not triggering sometimes on first lobby
  * lobby buttons take several clicks sometimes
@@ -44,6 +42,7 @@
  *  ----private lobby settings not set
  *  gif progress bar is not consisten
  *  gif drawing speed could be tweaked
+ *  image tools height gets too high
  * 
  * Feature requests:
  * ----implement gif saving
@@ -93,10 +92,12 @@ var is_hint_error = false;
 if (version.includes("beta")) testMode();
 // var to store copied drawing
 let drawCommandsCopy = [];
+//set url for pipette
+sessionStorage.pipetteURL = chrome.runtime.getURL("res/pipette.gif");
 
 // _____________________________________________________________
 //
-//                Communication with Popup
+//                Communication with Popup and gamepatch
 // _____________________________________________________________
 
 // communication with popup.js
@@ -456,6 +457,11 @@ document.querySelector("body").addEventListener("lobbyConnected", async (e) => {
 setInterval(async () => {
     await reloadLobbies();
 }, 5000)
+
+// set trigger interval to 30s if report crashes
+setInterval(async () => {
+    Report.trigger();
+}, 30000)
 
 async function reloadLobbies() {
     if (document.querySelector("#screenLogin").style.display == "none") return;

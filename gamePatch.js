@@ -321,7 +321,16 @@
                     o = ut.createDrawCommandErase(ut.brush.thickness, ut.mouseposPrev.x, ut.mouseposPrev.y, ut.mousepos.x, ut.mousepos.y);
                     break;
                 case "fill":
-                    ut.brush.toolUsed || (o = ut.createDrawCommandFill(ut.brush.colorIndex, ut.mouseposPrev.x, ut.mouseposPrev.y, ut.mousepos.x, ut.mousepos.y))
+                    ut.brush.toolUsed || (o = ut.createDrawCommandFill(ut.brush.colorIndex, ut.mouseposPrev.x, ut.mouseposPrev.y, ut.mousepos.x, ut.mousepos.y));
+                    break;
+                case "pipette":
+                    let rgb = document.querySelector("#canvasGame").getContext("2d").getImageData(ut.mouseposPrev.x, ut.mouseposPrev.y, 1, 1).data;
+                    // get data color index by rgb value
+                    let rgbString = "rgb(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ")";
+                    let index = [...document.querySelectorAll(".colorItem")].find(c => c.style.background == rgbString).getAttribute("data-color");
+                    //alert(index);
+                    ut.brush.setColor(index);
+                    break;
             }
             null != o && (ut.brush.toolUsed = !0, I(o))
         }
@@ -3207,7 +3216,11 @@
                 n("#canvasGame").css("cursor", "url(" + t + ")" + e + " " + e + ", default");
                 break;
             case "fill":
-                n("#canvasGame").css("cursor", "url(res/fill_graphic.png) 7 38, default")
+                n("#canvasGame").css("cursor", "url(res/fill_graphic.png) 7 38, default");
+                break;
+            case "pipette":
+                n("#canvasGame").css("cursor", "url(" + sessionStorage.pipetteURL + " ) 7 38, default");
+
         }
     };
     var tt = function(t) {
@@ -3519,6 +3532,9 @@
                 break;
             case "F":
                 ut.brush.setTool("fill")
+                break;
+            case "C":
+                ut.brush.setTool("pipette")
                 break;
             case "ESCAPE":
                 it ? it.emit("canvasClear") : ut.clear();
