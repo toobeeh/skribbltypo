@@ -49,8 +49,8 @@
  * ----maybe bigger color palette
  * ----lobby description
  * ----tab style popup
- * ----ustom sprites
- * ff port :(
+ * ----custom sprites
+ * ----ff port :(
  * 
  */
 
@@ -798,7 +798,16 @@ setInterval(async () => {
     rand.firstChild.display = localStorage.randomColorButton ? "" : "none";
     rand.firstChild.id = "randomIcon";
     rand.addEventListener("click", function () {
-        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: localStorage.randomColorInterval }));
+        let colors = [];
+        [...document.querySelectorAll(".colorItem")].forEach(c => {
+            if (c.parentElement.parentElement.style.display != "none") {
+                colors.push(Number(c.getAttribute("data-color")));
+                c.onclick = () => {
+                    document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: "false" } }));
+                }
+            }
+        });
+        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: localStorage.randomColorInterval, colors: colors } }));
     });
 
     // add DL button

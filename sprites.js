@@ -11,6 +11,9 @@
     let playerSprites = []; //list of all player identifications which are online and have sprites
     let lobbyPlayers = []; //list of the players in the players lobby
 
+    // make board behind playerlist so it doesnt hide portions of avatars
+    document.querySelector("#containerPlayerList").style.zIndex = "-1";
+
     // get onlinesprites and spritelist from orthanc
     async function fetchSprites() {
         let resp = await fetch("https://www.tobeh.host/Orthanc/sprites/", {

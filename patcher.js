@@ -1,4 +1,19 @@
-﻿
+﻿let hints = [
+    "Did you notice the tool shortcuts B,F and E?<br>Try out C to use the new color pipette tool.",
+    "Click on the canvas and use STRG+Arrow to draw a perfect straight line!",
+    "Connect the Palantir Discord bot to search your friends easily.",
+    "Enable the ImageAgent to show template pictures when you're drawing.",
+    "Use arrow up/down to recover the last chat input.",
+    "Enable random colors and click the dice in the color field to get a rainbow brush.<br>Click any color to abort.",
+    "Search for multiple player names by separating them with a comma.",
+    "Change the markup color for your chat messages with the slider in the popup tab 'advanced'.",
+    "Change the pressure sensitivity with the slider in the popup tab 'advanced'.",
+    "Toggle your discord bot visibility in the extension popup.",
+    "Get more colors by choosing the sketchful palette in the popup tab 'advanced'.<br>Only extension users see those colors.",
+    "When creating a private lobby, you can set a description which can be seen in the discord bot.",
+    "Click a lobby button to search for a lobby automatically.<br>The search will pause until there are free slots.",
+];
+
 var patcher = new MutationObserver(function (mutations) {
          mutations.forEach(function (mutation){
             mutation.addedNodes.forEach(async function(node){
@@ -39,7 +54,7 @@ var patcher = new MutationObserver(function (mutations) {
                         cont.style.flex = "0 1 auto";
                     }
                     if (node.classList.contains("updateInfo")) {
-                        node.innerHTML = "Hiiiii!<br>Btw - still thank u for using Typo! 💖<br><br>The palantir bot made its way to sketchful!<br>Connect your discord servers and try it out.<br><br>Also, did you notice the tool shortcuts B,F and E?<br>Try out C to use the new color pipette tool!<br>Check out all the other features <a href='https://tobeh.host/Orthanc'>on the updated website</a>!";
+                        node.innerHTML = "Hiiiii!<br>Btw - still thank u for using Typo! 💖<br><br>" + hints[Math.floor((Math.random() * hints.length))] + "<br><br>Check out all the other features <a href='https://tobeh.host/Orthanc'>on the updated website</a>!";
                     }
                     
                 }

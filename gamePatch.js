@@ -345,6 +345,8 @@
         localStorage.getItem('practise') == "true" || st.drawingID == st.myID ? (ut.drawCommands.push(t), ut.performDrawCommand(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }))) : (ut.addDrawCommandReceived(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t })));
     }
 
+    var lastBrushUp = { X: 0, Y: 0 };
+
     function L(t) {
         if (lt) return ht.unshift(t), void U();
         lt = !0;
@@ -3069,7 +3071,7 @@
             e.drawCommandsReceived.length > 0 && e.performDrawCommand(e.drawCommandsReceived.shift())
         }, 1), this.clear()
     };
-    Z.prototype.updateMousePosition = function(t, e, n) {
+    Z.prototype.updateMousePosition = function (t, e, n) {
         var o = this.canvas[0].getBoundingClientRect(),
             r = this.canvas[0].width,
             s = this.canvas[0].height,
@@ -3078,17 +3080,17 @@
             c = (t - o.left) / i,
             u = (e - o.top) / a;
         n ? (this.mouseposPrev.x = this.mousepos.x = Math.floor(c * r), this.mouseposPrev.y = this.mousepos.y = Math.floor(u * s)) : (this.mouseposPrev.x = this.mousepos.x, this.mouseposPrev.y = this.mousepos.y, this.mousepos.x = Math.floor(c * r), this.mousepos.y = Math.floor(u * s))
-    }, Z.prototype.addDrawCommandReceived = function(t) {
+    }, Z.prototype.addDrawCommandReceived = function (t) {
         this.drawCommandsReceived.push(t)
-    }, Z.prototype.addDrawCommand = function(t) {
+    }, Z.prototype.addDrawCommand = function (t) {
         this.drawCommands.push(t)
-    }, Z.prototype.createDrawCommandLine = function(t, e, n, o, r, s) {
+    }, Z.prototype.createDrawCommandLine = function (t, e, n, o, r, s) {
         return [0, t, e, n, o, r, s]
-    }, Z.prototype.createDrawCommandErase = function(t, e, n, o, r) {
+    }, Z.prototype.createDrawCommandErase = function (t, e, n, o, r) {
         return [1, t, e, n, o, r]
-    }, Z.prototype.createDrawCommandFill = function(t, e, n) {
+    }, Z.prototype.createDrawCommandFill = function (t, e, n) {
         return [2, t, e, n]
-    }, Z.prototype.performDrawCommand = function(t) {
+    }, Z.prototype.performDrawCommand = function (t) {
         switch (t[0]) {
             case 0:
                 var e = Math.floor(t[2]);
@@ -3100,6 +3102,7 @@
                     c = i(Math.floor(t[6]), -n, this.canvas[0].height + n),
                     u = a(this.brush.getColor(t[1]));
                 this.plotLine(o, r, s, c, e, u.r, u.g, u.b);
+                lastBrushUp = { X: t[5], Y: t[6] };
                 break;
             case 1:
                 var e = Math.floor(t[1]);
@@ -3548,14 +3551,33 @@
     });
     var gt = null;
     var setColorInterval = null;
-    ut.canvas.on("touchstart", function(t) {
+    n("body").on("keydown", function (t) {
+        if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
+        let prev = lastBrushUp;
+        let acc = 5;
+        switch (t.key) {
+            case "ArrowUp":
+                lastBrushUp.Y = lastBrushUp.Y - acc;
+                break;
+            case "ArrowDown":
+                lastBrushUp.Y = lastBrushUp.Y + acc;
+                break;
+            case "ArrowLeft":
+                lastBrushUp.X = lastBrushUp.X - acc;
+                break;
+            case "ArrowRight":
+                lastBrushUp.X = lastBrushUp.X + acc;
+                break;
+        }
+        I([0, ut.brush.colorIndex, ut.brush.thickness, prev.X, prev.Y, lastBrushUp.X, lastBrushUp.Y]);
+    }),ut.canvas.on("touchstart", function(t) {
         t.preventDefault();
         var e = t.changedTouches;
         e.length > 0 && null == gt && (gt = e[0].identitfier, ut.brush.setDown(!0), T(e[0].clientX, e[0].clientY, !0))
     }), ut.canvas.on("touchend", function(t) {
-        t.preventDefault(), gt = null, ut.brush.setDown(!1)
+        t.preventDefault(), gt = null, ut.brush.setDown(!1);
     }), ut.canvas.on("touchcancel", function(t) {
-        t.preventDefault(), gt = null, ut.brush.setDown(!1)
+        t.preventDefault(), gt = null, ut.brush.setDown(!1);
     }), ut.canvas.on("touchmove", function(t) {
         t.preventDefault();
         for (var e = t.changedTouches, n = 0; n < e.length; n++)
@@ -3575,7 +3597,6 @@
         n(this).data("tool") != "pen" && n(this).data("tool") != "fill" && clearInterval(setColorInterval);
     }), n(".colorItem").on("click", function() {
         var t = n(this).data("color");
-        clearInterval(setColorInterval);
         ut.brush.setColor(Number(t))
     }), n(".brushSize").on("click", function() {
         var t = ut.brush.thicknessMin,
@@ -3595,13 +3616,10 @@
             if (logPos > inputLog.length-1) return;
             n("#inputChat").val(inputLog[++logPos]);
         }
-        //if (n("#inputChat").val() == "e") {
-        //    setInterval(() => { it ? it.emit("canvasClear") : ut.clear() }, 3);
-        //}
     }), n("body").on("setRandomColor", function (e) {
         clearInterval(setColorInterval);
-        if(e.detail != "false") setColorInterval = setInterval(function () {
-            ut.brush.setColor(Math.round(Math.random() * 20 + 1));
+        if(e.detail.enable != "false") setColorInterval = setInterval(function () {
+            ut.brush.setColor(e.detail.colors[Math.floor((Math.random() * e.detail.colors.length))]);
         }, e.detail);
     }), n("body").on("setColor", function (e) {
         ut.brush.setColor(Number(e.detail))

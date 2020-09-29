@@ -105,16 +105,6 @@ async function sendPlayingReport() {
 		// get self player id
 		selfPlayer.LobbyPlayerID = [...document.querySelectorAll("#gamePlayersList li")].find(g => g.querySelector(".gameAvatarName").style.color.includes("teal")).id.split("-")[1];
 
-		// report member as playing to orthanc
-		let state = await fetch('https://www.tobeh.host/Orthanc/memberstate/', {
-			method: 'POST',
-			headers: {
-				'Accept': '*/*',
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-			},
-			body: "playerStatus=playing&session=" + self.sessionID
-		});
-
 		// initiate lobby object
 		let l = new Lobby();
 		l.Key = document.querySelector("#roomInfoLink").value.replace("<").replace(">");
@@ -142,6 +132,23 @@ async function sendPlayingReport() {
 			}
 			);
 		});
+
+		let status = new PlayerStatus(
+			encodeURIComponent(JSON.stringify(skribblMember)),
+			"playing",
+			l.ID,
+			selfPlayer.LobbyPlayerID
+		)
+		// report member as playing to orthanc
+		let state = await fetch('https://www.tobeh.host/Orthanc/memberstate/', {
+			method: 'POST',
+			headers: {
+				'Accept': '*/*',
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+			},
+			body: "playerStatus=" + JSON.stringify(playerStatus) + "&session=" + self.sessionID
+		});
+
 	}
 	// set next timeout for polling
 	nextTimeoutReport = setTimeout(sendPlayingReport, 4000);

@@ -119,7 +119,6 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
             updateSketchfulUser(member, localStorage.sketchfulAllow);
         })
         updateSketchfulUser(member, localStorage.sketchfulAllow);
-
     }
     else {
         skribbl = false;
@@ -320,6 +319,9 @@ async function verifyTokenInput() {
     }
 
     member = memberResponse.Member;
+    let skribblSettings = JSON.parse(localStorage.skribblSettings);
+    skribblSettings.member = JSON.stringify(member);
+    localStorage.skribblSettings = JSON.stringify(skribblSettings);
 
     document.querySelector("#authGuilds").innerHTML = "";
     member.Guilds.forEach((g) => {
@@ -359,6 +361,13 @@ async function verifyLoginInput() {
     document.querySelector("#login").style.display = "none";
     document.querySelector("#server").style.display = "";
     member = loginResponse.Member;
+    if (member.Guilds.length > 0) document.querySelector("#authGuilds").innerHTML = "";
+    member.Guilds.forEach(g => {
+        addAuthGuild(g.GuildID, g.GuildName);
+    });
+    let skribblSettings = JSON.parse(localStorage.skribblSettings);
+    skribblSettings.member = JSON.stringify(member);
+    localStorage.skribblSettings = JSON.stringify(skribblSettings); 
     document.querySelector("#loginName").textContent = member.UserName;
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
