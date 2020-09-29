@@ -2,13 +2,14 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "Collection of useful tools & graphics tablet support for skribbl.io and sketchful.io",
-  "version": "18.4.4",
+  "version": "18.4.6",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
   },
   "browser_specific_settings": {
     "gecko": {
+      "id": "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}",
       "update_url": "https://tobeh.host/typo/firefox/updates.json"
     }
   },

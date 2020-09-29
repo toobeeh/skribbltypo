@@ -134,7 +134,7 @@ async function sendPlayingReport() {
 		});
 
 		let status = new PlayerStatus(
-			encodeURIComponent(JSON.stringify(skribblMember)),
+			skribblMember,
 			"playing",
 			l.ID,
 			selfPlayer.LobbyPlayerID
@@ -146,8 +146,10 @@ async function sendPlayingReport() {
 				'Accept': '*/*',
 				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
 			},
-			body: "playerStatus=" + JSON.stringify(playerStatus) + "&session=" + self.sessionID
+			body: "playerStatus=" + JSON.stringify(status) + "&session=" + self.sessionID
 		});
+		let x = await state.text();
+		console.log(x);
 
 	}
 	// set next timeout for polling
