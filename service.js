@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Contentscript which tweaks skribbl and basically controls what was added to the ui and how that stuff works.
  * Dispatches events to the body dom element to communicate with patched gamejs
  * 
@@ -40,7 +40,7 @@
  *  ----holy not working
  *  ----lobby search stops if lobby is tempoarly down
  *  ----private lobby settings not set
- *  gif progress bar is not consisten
+ *  gif progress bar is not consistent
  *  gif drawing speed could be tweaked
  *  image tools height gets too high
  * 
@@ -49,14 +49,18 @@
  * ----maybe bigger color palette
  * ----lobby description
  * ----tab style popup
- * ----custom sprites
+ * ----custom sprites+
  * ----ff port :(
+ * zoom to canvas for accurate drawing
+ * ----abort image tools drawing process
+ * ----image agent error state message
+ * finish dark mode
  * 
  */
 
 
 'use strict';
-const version = "18.2.1";
+const version = "18.5.1";
 const command_token = "--";
 
 // stop patcher observing
@@ -169,18 +173,24 @@ function restoreDrawing(limit = 0) {
     }, 5);
 }
 
+let abortDrawingProcess = false;
 // function to draw selected draw commands separated in actions
 function drawOnCanvas(drawActions) {
+    abortDrawingProcess = false;
+    document.querySelector("#abortDrawing").style.display = "block";
     document.querySelector("#restore").style.pointerEvents = "none";
     document.querySelector("#canvasGame").style.pointerEvents = "none";
     if(document.querySelector("#clearCanvasBeforePaste").checked) document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
     let body = document.querySelector("body");
     let commands = [];
     let command = 0;
+    let toolbar = document.querySelector(".containerToolbar");
     drawActions.forEach(a => a.forEach(c => commands.push(c)));
     let i = setInterval(() => {
-        command >= commands.length ?(
+        command >= commands.length || abortDrawingProcess === true || toolbar.style.display == "none" ?(
             clearInterval(i),
+            abortDrawingProcess = false,
+            document.querySelector("#abortDrawing").style.display = "none",
             document.querySelector("#restore").style.pointerEvents = "",
             document.querySelector("#canvasGame").style.pointerEvents = ""
         ) : body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: commands[command] })); command++;
@@ -771,9 +781,6 @@ setInterval(async () => {
     document.querySelector("#containerSidebar").insertBefore(containerAgent, document.querySelector("#containerSidebar").firstChild);
     agentButtons.style.display = "none";
 
-    // show help
-    //printCmdOutput(cmd_help);
-
     // add back btn
     let backBtn = document.createElement("div");
     let clearContainer = document.querySelector(".containerClearCanvas");
@@ -810,8 +817,31 @@ setInterval(async () => {
         document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: localStorage.randomColorInterval, colors: colors } }));
     });
 
+    /// Add sidebar, image download and webhook initialisation
+
+    // add container under player container containing image options
+    let newSidebar = document.createElement("div");
+    newSidebar.id = "newSidebar";
+    newSidebar.style.cssText = "position: relative; display: flex; flex-direction: column;";
+    
+    let imageOptions = document.createElement("div");
+    imageOptions.style.height = "48px";
+    imageOptions.style.background = "white";
+    imageOptions.style.borderRadius = "2px";
+    imageOptions.style.display = "flex";
+    imageOptions.style.justifyContent = "space-evenly";
+    imageOptions.style.alignItems = "baseline";
+    imageOptions.style.marginBottom = "8px";
+    imageOptions.style.marginRight = "8px";
+
+    let containerPlayers = document.querySelector("#containerPlayerlist");
+    containerPlayers.style.height = "100%";
+    document.querySelector(".containerGame").insertBefore(newSidebar, containerPlayers);
+    newSidebar.appendChild(imageOptions);
+    newSidebar.appendChild(containerPlayers);
+
     // add DL button
-    let header = document.querySelector(".gameHeader");
+    //let header = document.querySelector(".gameHeader");
     let download = document.createElement("img");
     download.src = "https://media.giphy.com/media/RLKYVelNK5bP3yc8LJ/giphy.gif";
     download.style.cursor = "pointer";
@@ -829,7 +859,8 @@ setInterval(async () => {
         d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
         d.dispatchEvent(e);
     });
-    header.insertBefore(download, header.firstChild);
+    //header.insertBefore(download, header.firstChild);
+    imageOptions.appendChild(download);
 
     // add DL button for gif
     let downloadGif = document.createElement("img");
@@ -849,7 +880,115 @@ setInterval(async () => {
         d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
         drawCommandsToGif(d.download);
     });
-    header.insertBefore(downloadGif, header.firstChild);
+    //header.insertBefore(downloadGif, header.firstChild);
+    imageOptions.appendChild(downloadGif);
+
+    // popup for sharing image
+    let sharePopup = document.createElement("div");
+    imageOptions.appendChild(sharePopup);
+    sharePopup.style.position = "absolute";
+    sharePopup.style.background = "white";
+    sharePopup.style.overflow = "hidden";
+    sharePopup.style.zIndex = "5";
+    sharePopup.style.width = "90%";
+    sharePopup.style.padding = "1em;";
+    sharePopup.style.borderRadius = ".5em";
+    sharePopup.style.marginLeft = "5%";
+    sharePopup.style.boxShadow = "1px 1px 9px -2px black";
+    sharePopup.style.display = "none";
+    sharePopup.style.minHeight = "15%";
+    sharePopup.style.padding = "1em";
+    sharePopup.id = "sharePopup";
+    sharePopup.tabIndex = "-1";
+
+    // btn to open share popup
+    let shareButton = document.createElement("img");
+    shareButton.src = chrome.runtime.getURL("res/letter.gif");
+    shareButton.style.cursor = "pointer";
+    shareButton.id = "downloadGif";
+    shareButton.addEventListener("click", () => {
+        sharePopup.style.display = "";
+        sharePopup.focus();
+        document.querySelector("#postNameInput").value = document.querySelector("#currentWord").innerText;
+    });
+    imageOptions.appendChild(shareButton);
+
+    // input field 
+    let postName = document.createElement("input");
+    postName.type = "text";
+    postName.id = "postNameInput";
+    postName.placeholder = "Title"; 
+    postName.classList.add("form-control");
+    postName.style.marginBottom = "0.75em";
+    sharePopup.appendChild(postName);
+    postName.outerHTML = "Post image @Discord: <br><br>" + postName.outerHTML;
+
+    // get webhooks
+    let webhooks = [];
+    JSON.parse(localStorage.member).Guilds.forEach(g => { if(g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
+
+    // add buttons to post image
+    if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added dc servers has a webhook connected. <br> Ask an admin to add one.";
+    webhooks.forEach(async (w) => {
+        // add share button for image
+        let shareImg = document.createElement("button");
+        shareImg.innerHTML = "[" + w.Guild + "] <br>" + w.Name;
+        shareImg.classList.add("btn", "btn-info", "btn-block");
+        shareImg.addEventListener("click", async () => {
+            let title = document.querySelector("#postNameInput").value.replaceAll("_", "⎽"); 
+            title = title.replaceAll(" ", "⠀"); 
+            let loginName = Report.loginName ? Report.loginName : document.querySelector("#inputName").value;
+            let imgstring = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+            let drawing = localStorage.practise == "true" ? loginName : sessionStorage.lastDrawing ? sessionStorage.lastDrawing : "Unknown painter";
+            let data = new FormData();
+            data.append("image", imgstring);
+            data.append("name", title);
+            let state = await fetch('https://tobeh.host/Orthanc/images/upload.php', {
+                method: 'POST',
+                headers: {
+                    'Accept': '*/*'
+                },
+                body: data
+            });
+            let url = "https://tobeh.host/Orthanc/images/" + await state.text() + ".png";
+            await fetch(w.URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: "Skribbl Image Post",
+                    avatar_url:
+                        'https://tobeh.host/Orthanc/images/letterred.png',
+                    embeds: [
+                        {
+                            "title": title,
+                            "description": "Posted by " + loginName,
+                            "color": 4368373,
+                            "image": {
+                                "url": url
+                            },
+                            "footer": {
+                                "icon_url": "https://tobeh.host/Orthanc/images/typo.png",
+                                "text": "Provided by skribbl typo"
+                            },
+                            "author": {
+                                "name": drawing,
+                                "url": "https://discordapp.com",
+                                "icon_url": "https://skribbl.io/res/pen.gif"
+                            }
+                        }
+                    ]
+                })
+            });
+            sharePopup.style.display = "none";
+        });
+        sharePopup.appendChild(shareImg);
+    });
+
+    Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
+
+    //// ------------------------------------------------------------------------------------------------------------------
 
     // add Description form 
     let containerForms = document.querySelector(".containerSettings");
@@ -891,7 +1030,6 @@ setInterval(async () => {
     document.querySelector("#containerPlayerlist").appendChild(optionsPopup);
     optionsPopup.style.position = "absolute";
     optionsPopup.style.background = "white";
-    //optionsPopup.style.top = "";
     optionsPopup.style.overflow = "hidden";
     optionsPopup.style.zIndex = "5";
     optionsPopup.style.width = "90%";
@@ -987,6 +1125,17 @@ setInterval(async () => {
             }
         }
         fileInput.click();
+    });
+
+    let popupAbort = document.createElement("button");
+    optionsPopup.appendChild(popupAbort);
+    popupAbort.id = "abortDrawing";
+    popupAbort.classList = "btn btn-danger btn-block";
+    popupAbort.innerText = "Abort Drawing";
+    popupAbort.style.display = "none";
+    popupAbort.addEventListener("click", () => {
+        abortDrawingProcess = true;
+        popupAbort.style.display = "none";
     });
 
     let checkbox = document.createElement("input");
@@ -1217,6 +1366,7 @@ function setAgentSource(searchCriteria, exclusive = 0) {
             let doc = new DOMParser().parseFromString(html, "text/html");
             let imgs = doc.querySelectorAll("img");
 
+            if (!imgs[2]) { agent.alt = "Error: No results found :("; agent.src = ""; return; }
             let src = imgs[2].getAttribute("src");
             src = src.substr(src.lastIndexOf("https"));
             agent.setAttribute("src", src);

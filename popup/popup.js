@@ -42,7 +42,7 @@ chrome.runtime.onMessage.addListener(
 
             document.querySelector("#authGuilds").innerHTML = "";
             member.Guilds.forEach((g) => {
-                addAuthGuild(g.GuildID, g.GuildName);
+                addAuthGuild(g.GuildID, g.GuildName, g.ObserveToken);
             });
         }
 
@@ -325,7 +325,7 @@ async function verifyTokenInput() {
 
     document.querySelector("#authGuilds").innerHTML = "";
     member.Guilds.forEach((g) => {
-        addAuthGuild(g.GuldID, g.GuildName);
+        addAuthGuild(g.GuldID, g.GuildName, g.ObserveToken);
     });
 
     // reload skribbl
@@ -333,6 +333,37 @@ async function verifyTokenInput() {
         chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
     });
 
+}
+
+async function removeGuildByToken(token) {
+    let memberResponse = await (await fetch('https://www.tobeh.host/Orthanc/verify/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "remove=true&observeToken=" + token + "&member=" + encodeURIComponent(JSON.stringify(member))
+    }
+    )).json();
+    if (!memberResponse.Valid) {
+        document.querySelector("#observeToken").style.color = "#f04747";
+        return;
+    }
+
+    member = memberResponse.Member;
+    let skribblSettings = JSON.parse(localStorage.skribblSettings);
+    skribblSettings.member = JSON.stringify(member);
+    localStorage.skribblSettings = JSON.stringify(skribblSettings);
+
+    document.querySelector("#authGuilds").innerHTML = "";
+    member.Guilds.forEach((g) => {
+        addAuthGuild(g.GuldID, g.GuildName, g.ObserveToken);
+    });
+
+    // reload skribbl
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
+    });
 }
 
 async function verifyLoginInput() {
@@ -363,7 +394,7 @@ async function verifyLoginInput() {
     member = loginResponse.Member;
     if (member.Guilds.length > 0) document.querySelector("#authGuilds").innerHTML = "";
     member.Guilds.forEach(g => {
-        addAuthGuild(g.GuildID, g.GuildName);
+        addAuthGuild(g.GuildID, g.GuildName, g.ObserveToken);
     });
     let skribblSettings = JSON.parse(localStorage.skribblSettings);
     skribblSettings.member = JSON.stringify(member);
@@ -376,10 +407,25 @@ async function verifyLoginInput() {
 
 }
 
-function addAuthGuild(guildID, guildName) {
+function addAuthGuild(guildID, guildName, guildToken) {
     let container = document.querySelector("#authGuilds");
     let guild = document.createElement("div");
+    let remove = false;
     guild.className = "label";
+    guild.style.cursor = "pointer";
+    guild.onclick = () => {
+        if (remove == false) {
+            guild.textContent = "Remove " + guildName + "?";
+            remove = true;
+            setTimeout(() => {
+                guild.textContent = guildName;
+                remove = false;
+            }, 2000);
+        }
+        else {
+            removeGuildByToken(guildToken);
+        }
+    }
     guild.textContent = guildName;
     guild.id = guildID;
     container.appendChild(guild);

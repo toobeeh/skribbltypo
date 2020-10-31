@@ -227,6 +227,7 @@
             }), it.on("lobbyPlayerDrawing", function(t) {
                 var e = st.players.get(t);
                 st.setPlayerDrawing(e.id), st.chatAddMsg(null, e.name + " is drawing now!", O);
+                sessionStorage.lastDrawing = e.name;
                 document.querySelector("body").dispatchEvent(new Event("drawingFinished"));
                 var n = st.drawingID == st.myID;
                 ut.setDrawing(n), n ? (f(), y()) : (p(), d()), at.playSound("roundStart"), D(st.timeMax), U()

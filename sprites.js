@@ -12,7 +12,7 @@
     let lobbyPlayers = []; //list of the players in the players lobby
 
     // make board behind playerlist so it doesnt hide portions of avatars
-    document.querySelector("#containerPlayerList").style.zIndex = "-1";
+    document.querySelector("#containerGamePlayers").style.zIndex = "1";
 
     // get onlinesprites and spritelist from orthanc
     async function fetchSprites() {

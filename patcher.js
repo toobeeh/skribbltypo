@@ -1,7 +1,7 @@
 ﻿let hints = [
     "Did you notice the tool shortcuts B,F and E?<br>Try out C to use the new color pipette tool.",
     "Click on the canvas and use STRG+Arrow to draw a perfect straight line!",
-    "Connect the Palantir Discord bot to search your friends easily.",
+    "Connect the Palantir Discord bot to search for your friends easily.",
     "Enable the ImageAgent to show template pictures when you're drawing.",
     "Use arrow up/down to recover the last chat input.",
     "Enable random colors and click the dice in the color field to get a rainbow brush.<br>Click any color to abort.",
@@ -12,6 +12,9 @@
     "Get more colors by choosing the sketchful palette in the popup tab 'advanced'.<br>Only extension users see those colors.",
     "When creating a private lobby, you can set a description which can be seen in the discord bot.",
     "Click a lobby button to search for a lobby automatically.<br>The search will pause until there are free slots.",
+    "Click the letter icon to share the current image directly to any of your discord servers.",
+    "To remove a added discord server, click its name in the popup tab 'Discord'.",
+    "If you like the extension, tell others about it or rate it on the chrome store! <3"
 ];
 
 var patcher = new MutationObserver(function (mutations) {
@@ -105,7 +108,7 @@ var patcher = new MutationObserver(function (mutations) {
                     containerForm.append(inputName);
                     containerForm.append(inputSubmit);
                     container.appendChild(containerForm);
-                    containerForm.previousElementSibling.style.borderRadius = "0";
+                    //containerForm.previousElementSibling.style.borderRadius = "0";
                 }
                 
             });
