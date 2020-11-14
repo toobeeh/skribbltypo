@@ -63,7 +63,7 @@ chrome.runtime.onMessage.addListener(
                         });
                         bt.remove();
                     }
-                    else {
+                    else if(bt.id != "sketchfulPalette") {
                         contextm = true;
                         bt.innerText = "Rightclick to delete";
                         setTimeout(() => { contextm = false; bt.innerText = bt.id; }, 2000);
@@ -153,7 +153,7 @@ setTimeout(function () { if (!settings && skribbl) document.querySelector("h1").
 document.querySelectorAll("button").forEach(function (bt) {
     if (bt.id == "help") bt.onclick = function () {
         chrome.tabs.create({
-            url: "https://www.tobeh.host/Orthanc" });
+            url: "https://typo.rip" });
     }//window.location.href = "https://www.tobeh.host/Orthanc"; };
     else if (bt.id == "verifyToken") bt.onclick = verifyTokenInput;
     else if (bt.id == "loginSubmit") bt.onclick = verifyLoginInput;

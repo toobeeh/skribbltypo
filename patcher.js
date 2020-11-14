@@ -57,7 +57,7 @@ var patcher = new MutationObserver(function (mutations) {
                         cont.style.flex = "0 1 auto";
                     }
                     if (node.classList.contains("updateInfo")) {
-                        node.innerHTML = "Hiiiii!<br>Btw - still thank u for using Typo! 💖<br><br>" + hints[Math.floor((Math.random() * hints.length))] + "<br><br>Check out all the other features <a href='https://tobeh.host/Orthanc'>on the updated website</a>!";
+                        node.innerHTML = "Hello there!<br>Woah.. 200+ typo users! :o 💖<br><br>" + hints[Math.floor((Math.random() * hints.length))] + "<br><br>Check out all the other features and bot commands on <a href='https://typo.rip'>typo.rip</a>!";
                     }
                     
                 }

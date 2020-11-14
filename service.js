@@ -55,12 +55,13 @@
  * ----abort image tools drawing process
  * ----image agent error state message
  * finish dark mode
+ * ----recall older drawings to share
  * 
  */
 
 
 'use strict';
-const version = "18.5.1";
+const version = "18.6.0";
 const command_token = "--";
 
 // stop patcher observing
@@ -120,6 +121,7 @@ chrome.runtime.onMessage.addListener(msgObj => {
 
 // capture drawings
 var capturedCommands = [];
+var capturedDrawings = [];
 document.querySelector("body").addEventListener("logDrawCommand", function (e) { capturedCommands.push(e.detail); });
 
 // log canvas clear in actions array
@@ -128,6 +130,9 @@ document.querySelector("body").addEventListener("logCanvasClear", function (e) {
 // clear captured actions if drawer finished
 // actually not necessary and blocks saving the gif while showing the scoreboard
 document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedCommands = []; capturedActions = []; });
+
+// puts the image data in array to be displayable in the image share popup
+document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedDrawings.push(document.querySelector("#canvasGame").toDataURL("2d")); });
 
 // put commands in array (each index is one action aka mouseup on canvas)
 var capturedActions = []
@@ -628,7 +633,7 @@ setInterval(async () => {
     // add listener to questionmark
     document.querySelector("#loginAvatarCustomizeContainer  .avatarContainer").onclick = testMode;
     document.querySelector('button[type="submit"]').onclick = function () {
-        localStorage.practise = false;
+        sessionStorage.practise = false;
     };
 
     // Add event listener to keyup
@@ -847,14 +852,10 @@ setInterval(async () => {
     download.style.cursor = "pointer";
     download.id = "downloadImage";
     download.addEventListener("click", () => {
-        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer;
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
         e.initMouseEvent("click", true, true, window,
             0, 0, 0, 0, 0, false, false, false,
             false, 0, null);
-        try {
-            drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
-        }
-        catch{ drawer = ""; }
         d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
         d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
         d.dispatchEvent(e);
@@ -868,14 +869,10 @@ setInterval(async () => {
     downloadGif.style.cursor = "pointer";
     downloadGif.id = "downloadGif";
     downloadGif.addEventListener("click", () => {
-        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer;
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
         e.initMouseEvent("click", true, true, window,
             0, 0, 0, 0, 0, false, false, false,
             false, 0, null);
-        try {
-            drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
-        }
-        catch{ drawer = ""; }
         d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
         d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
         drawCommandsToGif(d.download);
@@ -903,10 +900,18 @@ setInterval(async () => {
 
     // btn to open share popup
     let shareButton = document.createElement("img");
+    let imageShareString;
     shareButton.src = chrome.runtime.getURL("res/letter.gif");
     shareButton.style.cursor = "pointer";
     shareButton.id = "downloadGif";
     shareButton.addEventListener("click", () => {
+        if (!localStorage.hintShareImage) {
+            alert("The shown image will be shared to one of the displayed discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
+            localStorage.hintImageShare = "true";
+        }
+        imageShareString = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+        document.querySelector("#shareImagePreview").src = imageShareString;
+        document.querySelector("#shareImagePreview").setAttribute("imageIndex", -1);
         sharePopup.style.display = "";
         sharePopup.focus();
         document.querySelector("#postNameInput").value = document.querySelector("#currentWord").innerText;
@@ -923,6 +928,37 @@ setInterval(async () => {
     sharePopup.appendChild(postName);
     postName.outerHTML = "Post image @Discord: <br><br>" + postName.outerHTML;
 
+    // image only checkbox
+    let imageOnly = document.createElement("div");
+    imageOnly.classList.add("checkbox");
+    imageOnly.innerHTML = "<label><input type='checkbox' id='sendImageOnly'>Send only image</label>";
+    sharePopup.appendChild(imageOnly);
+    
+
+    // image preview
+    let imagePreview = document.createElement("img");
+    imagePreview.id = "shareImagePreview";
+    imagePreview.style.width = "100%";
+    imagePreview.style.cursor = "pointer";
+    let navigateImagePreview = (direction) => {
+        let currentIndex = Number(imagePreview.getAttribute("imageIndex"));
+        let allDrawings = [...capturedDrawings];
+        allDrawings.push(document.querySelector("#canvasGame").toDataURL("2d"));
+        if (currentIndex < 0) currentIndex = allDrawings.length - 1;
+        currentIndex += direction;
+        if (currentIndex >= 0 && currentIndex < allDrawings.length) {
+            imagePreview.src = allDrawings[currentIndex];
+            imageShareString = allDrawings[currentIndex];
+            imagePreview.setAttribute("imageIndex", currentIndex);
+        }
+    };
+    imagePreview.onclick = () => { navigateImagePreview(-1);};
+    imagePreview.oncontextmenu = (e) => { e.preventDefault(); navigateImagePreview(1); };
+    sharePopup.appendChild(imagePreview);
+
+    sharePopup.innerHTML += "<br><br>";
+
+
     // get webhooks
     let webhooks = [];
     JSON.parse(localStorage.member).Guilds.forEach(g => { if(g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
@@ -935,11 +971,12 @@ setInterval(async () => {
         shareImg.innerHTML = "[" + w.Guild + "] <br>" + w.Name;
         shareImg.classList.add("btn", "btn-info", "btn-block");
         shareImg.addEventListener("click", async () => {
-            let title = document.querySelector("#postNameInput").value.replaceAll("_", "⎽"); 
-            title = title.replaceAll(" ", "⠀"); 
-            let loginName = Report.loginName ? Report.loginName : document.querySelector("#inputName").value;
-            let imgstring = document.querySelector("#canvasGame").toDataURL("image/png;base64");
-            let drawing = localStorage.practise == "true" ? loginName : sessionStorage.lastDrawing ? sessionStorage.lastDrawing : "Unknown painter";
+            // close popup first to avoid spamming
+            sharePopup.style.display = "none";
+
+            // upload to orthanc
+            let title = document.querySelector("#postNameInput").value.replaceAll("_", " ⎽ ").replaceAll("  ", " ").replaceAll(" ", "⠀");
+            let imgstring = imageShareString;
             let data = new FormData();
             data.append("image", imgstring);
             data.append("name", title);
@@ -951,12 +988,22 @@ setInterval(async () => {
                 body: data
             });
             let url = "https://tobeh.host/Orthanc/images/" + await state.text() + ".png";
-            await fetch(w.URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+
+            // build webhook content
+            let message;
+            let imageOnly = document.querySelector("#sendImageOnly").checked;
+            let loginName = Report.loginName ? Report.loginName : document.querySelector("#inputName").value;
+            if (imageOnly) {
+                message = JSON.stringify({
+                    username: loginName,
+                    avatar_url:
+                        'https://tobeh.host/Orthanc/images/letterred.png',
+                    content: url
+                });
+            }
+            else {
+                let drawer = getCurrentOrLastDrawer();
+                message = JSON.stringify({
                     username: "Skribbl Image Post",
                     avatar_url:
                         'https://tobeh.host/Orthanc/images/letterred.png',
@@ -970,18 +1017,26 @@ setInterval(async () => {
                             },
                             "footer": {
                                 "icon_url": "https://tobeh.host/Orthanc/images/typo.png",
-                                "text": "Provided by skribbl typo"
+                                "text": "skribbl typo"
                             },
                             "author": {
-                                "name": drawing,
-                                "url": "https://discordapp.com",
+                                "name": "Drawn by " + drawer,
+                                "url": "https://tobeh.host/Orthanc",
                                 "icon_url": "https://skribbl.io/res/pen.gif"
                             }
                         }
                     ]
                 })
+            }
+
+            // send webhook
+            await fetch(w.URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: message
             });
-            sharePopup.style.display = "none";
         });
         sharePopup.appendChild(shareImg);
     });
@@ -1397,7 +1452,7 @@ function scrollMessages() {
 
 // func to show game div
 function testMode() {
-    localStorage.practise = true;
+    sessionStorage.practise = true;
     document.querySelector(".containerToolbar").style.display = "";
 
     document.getElementById("screenGame").style.display = "block";
@@ -1432,4 +1487,12 @@ function replaceUmlaute(str) {
         .replace(new RegExp('[' + Object.keys(umlautMap).join('|') + ']', "g"),
             (a) => umlautMap[a]
         );
+}
+function getCurrentOrLastDrawer() {
+    let drawer = "";
+    try {
+        drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
+    }
+    catch{ drawer = sessionStorage.practise == "true" ? document.querySelector("#inputName").value : sessionStorage.lastDrawing; }
+    return drawer;
 }

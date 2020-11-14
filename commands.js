@@ -158,6 +158,7 @@ function fixPalantir() {
     Report.searching = false;
     Report.guildLobbies = [];
     Report.trigger();
+    printCmdOutput("Restarted palantir stuff.");
 }
 
 // func to add palette

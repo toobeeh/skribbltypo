@@ -253,6 +253,7 @@
                 }
             }), it.on("lobbyReveal", function (t) {
                 A(), st.chatEnable(), st.chatAddMsg(null, "The word was '" + t.word + "'", _);
+                document.querySelector("body").dispatchEvent(new Event("wordRevealed"));
                 for (var e = [], n = !0, o = 0; o < t.scores.length / 2; o++) {
                     var r = t.scores[2 * o],
                         s = t.scores[2 * o + 1],
@@ -312,7 +313,7 @@
     }
 
     function T(t, e, n) {
-        if ((localStorage.getItem('practise') == "true" || st.checkDrawing()) && (ut.updateMousePosition(t, e, n), ut.brush.down)) {
+        if ((sessionStorage.getItem('practise') == "true" || st.checkDrawing()) && (ut.updateMousePosition(t, e, n), ut.brush.down)) {
             var o = null;
             switch (ut.brush.tool) {
                 case "pen":
@@ -343,7 +344,7 @@
     }
 
     function I(t) {
-        localStorage.getItem('practise') == "true" || st.drawingID == st.myID ? (ut.drawCommands.push(t), ut.performDrawCommand(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }))) : (ut.addDrawCommandReceived(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t })));
+        sessionStorage.getItem('practise') == "true" || st.drawingID == st.myID ? (ut.drawCommands.push(t), ut.performDrawCommand(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }))) : (ut.addDrawCommandReceived(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t })));
     }
 
     var lastBrushUp = { X: 0, Y: 0 };
@@ -3526,9 +3527,9 @@
         var e = t.originalEvent.wheelDelta > 0 || t.originalEvent.detail < 0 ? 1 : -1;
         ut.brush.setThickness(ut.brush.thickness + 6 * e)
     }), n(e).on("mousemove", function(t) {
-        localStorage.getItem('practise') == "true" && T(t.clientX, t.clientY, !1) || st && st.checkDrawing() && T(t.clientX, t.clientY, !1)
+        sessionStorage.getItem('practise') == "true" && T(t.clientX, t.clientY, !1) || st && st.checkDrawing() && T(t.clientX, t.clientY, !1)
     }), n(e).keydown(function(t) {
-        if (localStorage.getItem('practise')=="true" ||  st && st.checkDrawing() && t !== r && t.key !== r) switch (t.key.toUpperCase()) {
+        if (sessionStorage.getItem('practise')=="true" ||  st && st.checkDrawing() && t !== r && t.key !== r) switch (t.key.toUpperCase()) {
             case "B":
                 ut.brush.setTool("pen");
                 break;
