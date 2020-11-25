@@ -213,7 +213,7 @@ async function drawCommandsToGif(filename = "download") {
     workerJS +=  await (await fetch(chrome.runtime.getURL("gifCap/skribblCanvas.js"))).text();
     workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
     let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
-    renderWorker.postMessage({ 'filename': filename, 'capturedActions': getCapturedActions() });
+    renderWorker.postMessage({ 'filename': filename, 'capturedActions': getCapturedActions(), 'palettes': localStorage.customPalettes });
 
     // T H I C C progress bar 
     let progressBar = document.createElement("p");
@@ -279,6 +279,7 @@ function setBrushsize(newsize) {
     });
     document.querySelector("body").dispatchEvent(event);
 }
+
 
 // _____________________________________________________________
 //
@@ -836,14 +837,14 @@ setInterval(async () => {
     imageOptions.style.display = "flex";
     imageOptions.style.justifyContent = "space-evenly";
     imageOptions.style.alignItems = "baseline";
-    imageOptions.style.marginBottom = "8px";
+    imageOptions.style.marginTop = "8px";
     imageOptions.style.marginRight = "8px";
 
     let containerPlayers = document.querySelector("#containerPlayerlist");
     containerPlayers.style.height = "100%";
     document.querySelector(".containerGame").insertBefore(newSidebar, containerPlayers);
-    newSidebar.appendChild(imageOptions);
     newSidebar.appendChild(containerPlayers);
+    newSidebar.appendChild(imageOptions);
 
     // add DL button
     //let header = document.querySelector(".gameHeader");
@@ -895,6 +896,7 @@ setInterval(async () => {
     sharePopup.style.display = "none";
     sharePopup.style.minHeight = "15%";
     sharePopup.style.padding = "1em";
+    sharePopup.style.bottom = "1em";
     sharePopup.id = "sharePopup";
     sharePopup.tabIndex = "-1";
 
@@ -907,7 +909,7 @@ setInterval(async () => {
     shareButton.addEventListener("click", () => {
         if (!localStorage.hintShareImage) {
             alert("The shown image will be shared to one of the displayed discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
-            localStorage.hintImageShare = "true";
+            localStorage.hintShareImage = "true";
         }
         imageShareString = document.querySelector("#canvasGame").toDataURL("image/png;base64");
         document.querySelector("#shareImagePreview").src = imageShareString;
@@ -952,11 +954,12 @@ setInterval(async () => {
             imagePreview.setAttribute("imageIndex", currentIndex);
         }
     };
-    imagePreview.onclick = () => { navigateImagePreview(-1);};
-    imagePreview.oncontextmenu = (e) => { e.preventDefault(); navigateImagePreview(1); };
     sharePopup.appendChild(imagePreview);
-
-    sharePopup.innerHTML += "<br><br>";
+    //sharePopup.innerHTML += "<br><br>";
+    imagePreview.addEventListener("click", () => { navigateImagePreview(-1); });
+    imagePreview.addEventListener("contextmenu", (e) => { e.preventDefault(); navigateImagePreview(1); });
+    //imagePreview.onclick = () => { alert("hi"); };
+    
 
 
     // get webhooks
@@ -975,11 +978,11 @@ setInterval(async () => {
             sharePopup.style.display = "none";
 
             // upload to orthanc
-            let title = document.querySelector("#postNameInput").value.replaceAll("_", " ⎽ ").replaceAll("  ", " ").replaceAll(" ", "⠀");
+            let title = document.querySelector("#postNameInput").value.replaceAll("_", " ⎽ "); //.replaceAll("  ", " ").replaceAll(" ", "⠀");
             let imgstring = imageShareString;
             let data = new FormData();
             data.append("image", imgstring);
-            data.append("name", title);
+            data.append("name", "post");
             let state = await fetch('https://tobeh.host/Orthanc/images/upload.php', {
                 method: 'POST',
                 headers: {
@@ -1251,7 +1254,23 @@ setInterval(async () => {
     })
     document.querySelector("#containerCanvas").appendChild(dropContainer);
 
-
+    // color picker
+    let toolbar = document.querySelector(".containerToolbar");
+    let picker = document.createElement("div");
+    picker.id = "colPicker";
+    picker.style.display =  localStorage.randomColorButton == "true" ? "flex" : "none";
+    picker.style.justifyContent = "center";
+    picker.style.alignItems = "center";
+    picker.innerHTML = "<img src='" + chrome.runtime.getURL("res/mag.gif") + "' class='toolIcon'>";
+    picker.classList.add("colorPreview");
+    toolbar.insertBefore(picker, toolbar.children[0]);
+    let pickerpopup = new ColorPicker(picker.firstChild);
+    picker.firstChild.addEventListener('colorChange', function (event) {
+        document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: event.detail.color }));
+        picker.style.backgroundColor = event.detail.color.hex;
+        picker.firstChild.style.background = "none";
+    });
+    //document.querySelector("#opacity_slider").style.display = "none";
 })();
 
 function addColorPalette(paletteJson) {

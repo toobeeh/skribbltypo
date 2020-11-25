@@ -31,7 +31,7 @@ Z.prototype.updateMousePosition = function (t, e, n) {
 }, Z.prototype.createDrawCommandFill = function (t, e, n) {
     return [2, t, e, n]
     }, Z.prototype.performDrawCommand = function (t) {
-    console.log(t);
+    //console.log(t);
     switch (t[0]) {
         case 0:
             var e = Math.floor(t[2]);
@@ -146,9 +146,14 @@ Q.prototype.hide = function () {
 }, Q.prototype.setColor = function (t) {
     //this.colorIndex = t, $(".colorPreview").css("background-color", this.getColor(t)), this.updateBrushCursor()
     }, Q.prototype.getColor = function (t) {
+    if (t > 10000) {
+        t = t - 10000;
+        t = t.toString(16);
+        return "#" + t;
+    }
     let color = "#FFF";
-    let colors = JSON.parse('[{"data":0,"color":"rgb(255, 255, 255)"},{"data":2,"color":"rgb(193, 193, 193)"},{"data":4,"color":"rgb(239, 19, 11)"},{"data":6,"color":"rgb(255, 113, 0)"},{"data":8,"color":"rgb(255, 228, 0)"},{"data":10,"color":"rgb(0, 204, 0)"},{"data":12,"color":"rgb(0, 178, 255)"},{"data":14,"color":"rgb(35, 31, 211)"},{"data":16,"color":"rgb(163, 0, 186)"},{"data":18,"color":"rgb(211, 124, 170)"},{"data":20,"color":"rgb(160, 82, 45)"},{"data":1,"color":"rgb(0, 0, 0)"},{"data":3,"color":"rgb(76, 76, 76)"},{"data":5,"color":"rgb(116, 11, 7)"},{"data":7,"color":"rgb(194, 56, 0)"},{"data":9,"color":"rgb(232, 162, 0)"},{"data":11,"color":"rgb(0, 85, 16)"},{"data":13,"color":"rgb(0, 86, 158)"},{"data":15,"color":"rgb(14, 8, 101)"},{"data":17,"color":"rgb(85, 0, 105)"},{"data":19,"color":"rgb(167, 85, 116)"},{"data":21,"color":"rgb(99, 48, 13)"}]');
-    colors.forEach((c) => { if (c.data == t) color = c.color; });
+    
+    colors.forEach((c) => { if (c.index == t) color = c.color; });
     return color;
 }, setBrushSize = Q.prototype.setThickness = function (t) {
     this.thickness = t, this.thickness < this.thicknessMin && (this.thickness = this.thicknessMin), this.thickness > this.thicknessMax && (this.thickness = this.thicknessMax), this.updateBrushCursor()
@@ -171,10 +176,22 @@ function i(t, e, n) {
 }
 
 function a(t) {
+    if (t[0] == "#") return hexToRgb(t.substr(1));
     var e = t.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
     return {
         r: parseInt(e[1]),
         g: parseInt(e[2]),
         b: parseInt(e[3])
     }
+}
+function hexToRgb(hex) {
+    var arrBuff = new ArrayBuffer(4);
+    var vw = new DataView(arrBuff);
+    vw.setUint32(0, parseInt(hex, 16), false);
+    var arrByte = new Uint8Array(arrBuff);
+
+    return { r: arrByte[1], g: arrByte[2], b: arrByte[3] };
+}
+function rgbToHex(r, g, b) {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }

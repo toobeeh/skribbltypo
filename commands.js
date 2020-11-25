@@ -81,7 +81,7 @@ function command_interpreter(cmd) {
     //else if (cmd.includes(cmd_add_observerToken)) addObserveToken((cmd.replace(cmd_add_observerToken, "")).trim());
     //else if (cmd.includes(cmd_remove_observerToken)) removeObserveToken((cmd.replace(cmd_remove_observerToken, "")).trim());
     else if (cmd.includes("memberlogin")) login(cmd.replace("memberlogin", "").trim());
-    else if (cmd.includes("enable palantir")) {localStorage.userAllow = "true"; Report.trigger();}
+    else if (cmd.includes("enable palantir")) {localStorage.userAllow = "true"; fixPalantir(true);}
     else if (cmd.includes("disable palantir")) localStorage.userAllow = "false";
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
     else if (cmd.includes(cmd_addImportantName)) addVip((cmd.replace(cmd_addImportantName, "")).trim());
@@ -152,13 +152,13 @@ function setPalette(p) {
 }
 
 // function to reinitialize report
-function fixPalantir() {
+function fixPalantir(silent = false) {
     Report.playing = true;
     Report.waiting = false;
     Report.searching = false;
     Report.guildLobbies = [];
     Report.trigger();
-    printCmdOutput("Restarted palantir stuff.");
+    if(!silent)printCmdOutput("Restarted palantir stuff.");
 }
 
 // func to add palette
@@ -201,10 +201,14 @@ function viewCharBar() {
 
 // func to set random color button in color preview
 function toggleRandomColor(state = false, silent = false) {
-    if (state) document.querySelector("#randomIcon").style.display = "";   
+    if (state) {
+        document.querySelector("#randomIcon").style.display = "";
+        document.querySelector("#colPicker").style.display = "flex";
+    }
     else {
         document.querySelector("#randomIcon").style.display = "none";
-        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: "false" }));
+        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: "false" } }));
+        document.querySelector("#colPicker").style.display = "none";
     }
     localStorage.randomColorButton = state;
 }

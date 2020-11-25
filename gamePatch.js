@@ -21,12 +21,24 @@
     }
 
     function a(t) {
+        if (t[0] == "#") return hexToRgb(t.substr(1));
         var e = t.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
         return {
             r: parseInt(e[1]),
             g: parseInt(e[2]),
             b: parseInt(e[3])
         }
+    }
+    function hexToRgb(hex) {
+        var arrBuff = new ArrayBuffer(4);
+        var vw = new DataView(arrBuff);
+        vw.setUint32(0, parseInt(hex, 16), false);
+        var arrByte = new Uint8Array(arrBuff);
+
+        return { r: arrByte[1], g: arrByte[2], b: arrByte[3] };
+    }
+    function rgbToHex(r, g, b) {
+        return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
     }
 
     function c() {
@@ -329,9 +341,18 @@
                     let rgb = document.querySelector("#canvasGame").getContext("2d").getImageData(ut.mouseposPrev.x, ut.mouseposPrev.y, 1, 1).data;
                     // get data color index by rgb value
                     let rgbString = "rgb(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ")";
-                    let index = [...document.querySelectorAll(".colorItem")].find(c => c.style.background == rgbString).getAttribute("data-color");
-                    //alert(index);
-                    ut.brush.setColor(index);
+                    let item = [...document.querySelectorAll(".colorItem")].find(c => c.style.background == rgbString);
+                    if (!item) {
+                        let picker = document.querySelector("#colPicker");
+                        picker.style.backgroundColor = rgbString;
+                        let hex = rgbToHex(rgb[0], rgb[1], rgb[2]);
+                        picker.firstChild.setAttribute("data-color", hex);
+                        ut.brush.setColor(10000 + Number("0x" + hex.substr(1)));
+                    }
+                    else {
+                        let index = item.getAttribute("data-color");
+                        ut.brush.setColor(index);
+                    }
                     break;
             }
             null != o && (ut.brush.toolUsed = !0, I(o))
@@ -3206,8 +3227,15 @@
     }, Q.prototype.setTool = function(t) {
         this.tool = t, n(".containerTools .tool").removeClass("toolActive"), n(".containerTools .tool[data-tool='" + t + "']").addClass("toolActive"), this.updateBrushCursor()
     }, Q.prototype.setColor = function(t) {
-        this.colorIndex = t, n(".colorPreview").css("background-color", this.getColor(t)), this.updateBrushCursor()
-    }, Q.prototype.getColor = function(t) {
+        this.colorIndex = t, n(".colorPreview").css("background-color", this.getColor(t)), this.updateBrushCursor();
+        let picker = document.querySelector("#colPicker");
+        if(picker && picker.firstChild) picker.firstChild.setAttribute("data-color", this.getColor(t));
+    }, Q.prototype.getColor = function (t) {
+        if (t > 10000) {
+            t = t - 10000;
+            t = t.toString(16);
+            return "#" + t;
+        }
         return n(".colorItem[data-color='" + t + "']").css("background-color")
     }, setBrushSize = Q.prototype.setThickness = function(t) {
         this.thickness = t, this.thickness < this.thicknessMin && (this.thickness = this.thicknessMin), this.thickness > this.thicknessMax && (this.thickness = this.thicknessMax), this.updateBrushCursor()
@@ -3624,7 +3652,9 @@
             ut.brush.setColor(e.detail.colors[Math.floor((Math.random() * e.detail.colors.length))]);
         }, e.detail);
     }), n("body").on("setColor", function (e) {
-        ut.brush.setColor(Number(e.detail))
+        if (e.detail.hex)
+            ut.brush.setColor(10000 + Number("0x" + e.detail.hex.substr(1)));
+        else ut.brush.setColor(Number(e.detail))
     })
         
 }(window, document, jQuery, localStorage);

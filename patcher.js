@@ -14,6 +14,7 @@
     "Click a lobby button to search for a lobby automatically.<br>The search will pause until there are free slots.",
     "Click the letter icon to share the current image directly to any of your discord servers.",
     "To remove a added discord server, click its name in the popup tab 'Discord'.",
+    "Click the magnifier icon to use a color picker! All Typo users can see the colors.",
     "If you like the extension, tell others about it or rate it on the chrome store! <3"
 ];
 
@@ -57,7 +58,7 @@ var patcher = new MutationObserver(function (mutations) {
                         cont.style.flex = "0 1 auto";
                     }
                     if (node.classList.contains("updateInfo")) {
-                        node.innerHTML = "Hello there!<br>Woah.. 200+ typo users! :o 💖<br><br>" + hints[Math.floor((Math.random() * hints.length))] + "<br><br>Check out all the other features and bot commands on <a href='https://typo.rip'>typo.rip</a>!";
+                        node.innerHTML = "Hello there! 💖<br><br>" + hints[Math.floor((Math.random() * hints.length))] + "<br><br>Check out all the other features and bot commands on <a href='https://typo.rip'>typo.rip</a> or join the <a href='https://discord.gg/pAapmUmWAM'>typo & palantir discord test server</a>!";
                     }
                     
                 }
