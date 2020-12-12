@@ -58,7 +58,8 @@ var patcher = new MutationObserver(function (mutations) {
                         cont.style.flex = "0 1 auto";
                     }
                     if (node.classList.contains("updateInfo")) {
-                        node.innerHTML = "Hello there! 💖<br><br>" + hints[Math.floor((Math.random() * hints.length))] + "<br><br>Check out all the other features and bot commands on <a href='https://typo.rip'>typo.rip</a> or join the <a href='https://discord.gg/pAapmUmWAM'>typo & palantir discord test server</a>!";
+                        let status = await (await fetch("https://typo.rip/status.txt")).text();
+                        node.innerHTML = "Hello there! 💖<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br>" + status;
                     }
                     
                 }
