@@ -1,3 +1,6 @@
+﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
 /*
  * Extends service.js contentscript
   Command detection:
@@ -45,6 +48,7 @@ const cmd_daAgent = "disable agent";
 const cmd_enInk = "enable ink";
 const cmd_daInk = "disable ink";
 const cmd_setSensitivity = "set sens";
+const cmd_setInkmode = "inkmode";
 
 const cmd_restore = "restore pic";
 const cmd_enBack = "enable back";
@@ -84,6 +88,7 @@ function command_interpreter(cmd) {
     else if (cmd.includes("enable palantir")) {localStorage.userAllow = "true"; fixPalantir(true);}
     else if (cmd.includes("disable palantir")) localStorage.userAllow = "false";
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
+    else if (cmd.includes(cmd_setInkmode)) setInkmode((cmd.replace(cmd_setInkmode, "")).trim());
     else if (cmd.includes(cmd_addImportantName)) addVip((cmd.replace(cmd_addImportantName, "")).trim());
     else if (cmd.includes(cmd_removeImportantName)) remVip((cmd.replace(cmd_removeImportantName, "")).trim());
     else if (cmd.includes(cmd_showImportantName)) showVip();
@@ -299,6 +304,12 @@ function setSensitivity(nsens) {
 
     localStorage.sens = nsens;
     printCmdOutput(cmd_setSensitivity + " " + nsens);
+}
+
+// func to set inkmode
+function setInkmode(mode) {
+    localStorage.inkMode = mode;
+    printCmdOutput(cmd_setInkmode + " " + mode);
 }
 
 // func to set charbarsetting visible

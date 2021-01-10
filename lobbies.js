@@ -1,6 +1,5 @@
-(() => {
-    // sexy
-})();
+﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
 var guildLobbies;
 var header;
@@ -9,8 +8,8 @@ var auth = false;
 
 // verify stored login and get player object with connected guilds from orthanc server
 async function getLoginPlayer() {
-    if (auth) return;
-    if (localStorage.login == "" || localStorage.login == undefined) return;
+    if (auth) return true;
+    if (localStorage.login == "" || localStorage.login == undefined) return false;
     let loginResponse = await (await fetch('https://www.tobeh.host/Orthanc/login/', {
         method: 'POST',
         headers: {
@@ -29,6 +28,7 @@ async function getLoginPlayer() {
     }
     else localStorage.member = JSON.stringify(loginResponse.Member);
     auth = true;
+    return true;
 }
 
 // build div on top of updatenews containing a div for each connected guild
@@ -65,7 +65,7 @@ function buildGuildContainer() {
 
 // called by the mutation observer in patcher.js as soon as the update tab is initialized
 async function initLobbyTab(patcher = false) {
-    await getLoginPlayer();
+    if(!await getLoginPlayer())return;
     await buildGuildContainer();
 
     let tab = document.querySelector(".login-side-right");
@@ -121,7 +121,7 @@ async function loadLobbies(observeToken, guildID, container, guildName) {
         body: "observeToken=" + observeToken + "&member=" + encodeURIComponent(localStorage.member)
     });
     let response = await state.text();
-    console.log(response);
+    //console.log(response);
     response = JSON.parse(response);
     if (response.Status.includes("Unauthorized") || response.Verify.Valid == false) {
         container.querySelector("#lobbies" + guildID).innerHTML = "Error retrieving data for " + guildName + " :( ";

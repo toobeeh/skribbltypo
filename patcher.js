@@ -1,5 +1,8 @@
-﻿let hints = [
-    "Did you notice the tool shortcuts B,F and E?<br>Try out C to use the new color pipette tool.",
+﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
+let hints = [
+    "Did you notice the tool shortcuts B,F and E?<br>Try out C to use a color pipette tool.",
     "Click on the canvas and use STRG+Arrow to draw a perfect straight line!",
     "Connect the Palantir Discord bot to search for your friends easily.",
     "Enable the ImageAgent to show template pictures when you're drawing.",
@@ -13,8 +16,9 @@
     "When creating a private lobby, you can set a description which can be seen in the discord bot.",
     "Click a lobby button to search for a lobby automatically.<br>The search will pause until there are free slots.",
     "Click the letter icon to share the current image directly to any of your discord servers.",
-    "To remove a added discord server, click its name in the popup tab 'Discord'.",
+    "To remove an added Discord server, click its name in the popup tab 'Discord'.",
     "Click the magnifier icon to use a color picker! All Typo users can see the colors.",
+    "Precision Work? Use the zoom feature!<br> [STRG + Click] to zoom to point, any number to set zoom level and leave with [STRG + Click].",
     "If you like the extension, tell others about it or rate it on the chrome store! <3"
 ];
 
@@ -58,7 +62,7 @@ var patcher = new MutationObserver(function (mutations) {
                         cont.style.flex = "0 1 auto";
                     }
                     if (node.classList.contains("updateInfo")) {
-                        let status = await (await fetch("https://typo.rip/status.txt")).text();
+                        let status = await (await fetch("https://tobeh.host/Orthanc/status.txt")).text();
                         node.innerHTML = "Hello there! 💖<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br>" + status;
                     }
                     
@@ -96,6 +100,7 @@ var patcher = new MutationObserver(function (mutations) {
                     containerForm.classList.add("loginPanelContent");
                     containerForm.style.display = "flex";
                     containerForm.style.justifyContent = "space-between";
+                    containerForm.style.boxShadow = "unset";
                     containerForm.style.marginTop = "1em";
                     inputSubmit.classList.add("btn", "btn-success");
                     inputSubmit.textContent = "Search Player!";

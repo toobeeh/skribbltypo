@@ -9,7 +9,10 @@ chrome.runtime.onMessage.addListener(
         settings = JSON.parse(request.get);
         localStorage.skribblSettings = request.get;
         document.querySelectorAll("button").forEach(function (bt) {
-            if (bt.id == "tablet" && settings.ink == "true") bt.className = "active";
+            if (bt.id == "tablet" && settings.ink == "true") {
+                bt.className = "active";
+                bt.innerText += (": " + settings.inkMode);
+            }
             if (bt.id == "imageagent" && settings.imageAgent == "true") bt.className = "active";
             if (bt.id == "markup" && settings.markup == "true") bt.className = "active";
             if (bt.id == "holy" && settings.ownHoly == "true") bt.className = "active";
@@ -18,7 +21,6 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "randomToggle" && settings.randomColorButton == "true") bt.className = "active";
             if (bt.id == "palantirToggle" && settings.userAllow == "true") bt.className = "active";
         });
-
         tabid = sender.tab.id;
 
         let sensSlider = document.querySelector("#sensSlider input[type='range']");
@@ -159,8 +161,39 @@ document.querySelectorAll("button").forEach(function (bt) {
     else if (bt.id == "loginSubmit") bt.onclick = verifyLoginInput;
     else if (bt.id == "originalPalette") bt.onclick = togglePalette;
     else if (bt.id == "enterJSON") bt.onclick = verifyJSON;
+    else if (bt.id == "tablet") bt.onclick = setTabletState;
     else bt.onclick = toggleActive;
 });
+
+// func to switch tablet state
+function setTabletState() {
+    let btn = document.querySelector("#tablet");
+    let messages = [];
+    let thickness = btn.innerText.includes("thickness");
+    let brightness = btn.innerText.includes("brightness");
+    let degree = btn.innerText.includes("degree");
+    //if (btn.innerText.includes("All")) brightness = degree = thickness = true;
+
+    if (!thickness && !brightness && !degree) { thickness = true; messages.push("enable ink"); messages.push("inkmode thickness"); }
+    else if (thickness && !brightness && !degree) { brightness = true; thickness = false; messages.push("inkmode brightness"); }
+    else if (!thickness && brightness && !degree) { degree = true; brightness = false; messages.push("inkmode degree"); }
+    else if (!thickness && !brightness && degree) { brightness = true; messages.push("inkmode degree brightness");}
+    else if (!thickness && brightness && degree) { brightness = false; degree = false; messages.push("disable ink");}
+
+    btn.innerText = "Tablet";
+    if (degree || brightness || thickness) {
+        btn.classList.add("active")
+        btn.innerText += ": " +
+            (thickness ? "thickness " : "") +
+            (brightness ? "brightness " : "") +
+            (degree ? "degree " : "");
+    }
+    else btn.classList.remove("active");
+
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        messages.forEach(m => { chrome.tabs.sendMessage(tabs[0].id, m); });
+    });
+}
 
 // func to check palette json
 function verifyJSON() {

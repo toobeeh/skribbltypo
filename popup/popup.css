@@ -95,12 +95,14 @@ button:active {
 h1 {
     font-size: 1.7em;
     text-align: center;
-    margin: .5em;
-    padding-top: 1em;
-    padding-bottom: 1em;
-    background: #282b30;
-    border-radius: 0.5em;
+    padding-bottom: .5em;
 }
+    h1:not(.skribbl) {
+        background: #282b30;
+        border-radius: 0.5em;
+        margin: .5em;
+        padding-top: .5em;
+    }
 
 .back {
     padding: .8em;

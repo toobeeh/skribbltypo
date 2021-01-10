@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "Collection of useful tools & graphics tablet support for skribbl.io and sketchful.io",
-  "version": "18.7.5",
+  "version": "19.1.0",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
@@ -37,7 +37,7 @@
         "*://skribbl.io/*"
       ],
       "js": [
-        "jmin.js",
+        "color.js",
         "picker/colr_pickr.min.js",
         "commands.js",
         "gifCap/LZWEncoder.js",
@@ -59,6 +59,7 @@
         "*://skribbl.io/*"
       ],
       "js": [
+        "errors.js",
         "report.js",
         "lobbies.js",
         "patcher.js"

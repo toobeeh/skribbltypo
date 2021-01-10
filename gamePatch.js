@@ -1,5 +1,4 @@
-
-! function(t, e, n, o, r) {
+﻿! function(t, e, n, o, r) {
     function s(t, e, n, o) {
         var r = e[0] % H,
             s = e[1] % F,
@@ -163,7 +162,7 @@
         }), it.on("connect", function() {
             it.on("disconnect", function() {
                 it.close(), it = null, st = null, ct.goto("login"), n("#modalDisconnect").modal()
-            }), it.emit("userData", e), document.querySelector("body").dispatchEvent(new CustomEvent("loginData", { detail: e })), it.on("kicked", function() {
+            }), it.emit("userData", e),  it.on("kicked", function() {
                 n("#modalKicked").modal()
             }), it.on("drawCommands", function(t) {
                 for (var e = 0; e < t.length; e++) I(t[e])
@@ -187,7 +186,8 @@
                         n = st.players.get(t[1]);
                     st.chatAddMsg(null, "'" + e.name + "' is voting to kick '" + n.name + "' (" + t[2] + "/" + t[3] + ")", N)
                 }
-            }), it.on("lobbyConnected", function(t) {
+            }), it.on("lobbyConnected", function (t) {
+                document.querySelector("body").dispatchEvent(new CustomEvent("loginData", { detail: { name: t.players[t.players.length - 1].name } }));
                 if (ut.clear(), E(""), st = new tt(t), st.inGame) {
                     for (var e = 0; e < t.drawCommands.length; e++) I(t.drawCommands[e]);
                     setTimeout(()=>document.querySelector("body").dispatchEvent(new CustomEvent("lobbyConnected", { detail: t.players },500)));
@@ -240,7 +240,6 @@
                 var e = st.players.get(t);
                 st.setPlayerDrawing(e.id), st.chatAddMsg(null, e.name + " is drawing now!", O);
                 sessionStorage.lastDrawing = e.name;
-                document.querySelector("body").dispatchEvent(new Event("drawingFinished"));
                 var n = st.drawingID == st.myID;
                 ut.setDrawing(n), n ? (f(), y()) : (p(), d()), at.playSound("roundStart"), D(st.timeMax), U()
             }), it.on("lobbyOwnerChanged", function(t) {
@@ -264,6 +263,7 @@
                     })
                 }
             }), it.on("lobbyReveal", function (t) {
+                document.querySelector("body").dispatchEvent(new Event("drawingFinished"));
                 A(), st.chatEnable(), st.chatAddMsg(null, "The word was '" + t.word + "'", _);
                 document.querySelector("body").dispatchEvent(new Event("wordRevealed"));
                 for (var e = [], n = !0, o = 0; o < t.scores.length / 2; o++) {
@@ -3225,13 +3225,15 @@
     }, Q.prototype.setDown = function(t) {
         this.down = t, this.down || (this.toolUsed = !1), n("#cursor .tool").css("top", this.down ? 0 : -8)
     }, Q.prototype.setTool = function(t) {
-        this.tool = t, n(".containerTools .tool").removeClass("toolActive"), n(".containerTools .tool[data-tool='" + t + "']").addClass("toolActive"), this.updateBrushCursor()
+        localStorage.brushtool = t, this.tool = t, n(".containerTools .tool").removeClass("toolActive"), n(".containerTools .tool[data-tool='" + t + "']").addClass("toolActive"), this.updateBrushCursor()
     }, Q.prototype.setColor = function(t) {
-        this.colorIndex = t, n(".colorPreview").css("background-color", this.getColor(t)), this.updateBrushCursor();
+        this.colorIndex = t,
+            (localStorage.down == "true" && (localStorage.inkMode.includes("brightness") || localStorage.inkMode.includes("degree"))  ? 0 : n(".colorPreview").css("background-color", this.getColor(t))),
+            this.updateBrushCursor();
         let picker = document.querySelector("#colPicker");
         if(picker && picker.firstChild) picker.firstChild.setAttribute("data-color", this.getColor(t));
     }, Q.prototype.getColor = function (t) {
-        if (t > 10000) {
+        if (t >= 10000) {
             t = t - 10000;
             t = t.toString(16);
             return "#" + t;
@@ -3244,10 +3246,20 @@
             case "pen":
             case "erase":
                 if (this.thickness <= 0) return;
+                let zoom = Number(document.querySelector("#canvasGame").getAttribute("data-zoom"));
+                let oldmax = this.thicknessMax, oldthickness = this.thickness;
+                if (zoom > 1) {
+                    this.thickness *= zoom;
+                    this.thicknessMax = this.thickness > 128 ? 128 : this.thickness;
+                }
+                this.brushCanvas.width = this.thicknessMax;
+                this.brushCanvas.height = this.thicknessMax;
                 this.brushCanvasCtx.clearRect(0, 0, this.thicknessMax, this.thicknessMax), this.brushCanvasCtx.fillStyle = "erase" == this.tool ? "#FFF" : this.getColor(this.colorIndex), this.brushCanvasCtx.beginPath(), this.brushCanvasCtx.arc(this.thicknessMax / 2, this.thicknessMax / 2, this.thickness / 2 - 1, 0, 2 * Math.PI), this.brushCanvasCtx.fill(), this.brushCanvasCtx.strokeStyle = "#FFF", this.brushCanvasCtx.beginPath(), this.brushCanvasCtx.arc(this.thicknessMax / 2, this.thicknessMax / 2, this.thickness / 2 - 1, 0, 2 * Math.PI), this.brushCanvasCtx.stroke(), this.brushCanvasCtx.strokeStyle = "#000", this.brushCanvasCtx.beginPath(), this.brushCanvasCtx.arc(this.thicknessMax / 2, this.thicknessMax / 2, this.thickness / 2, 0, 2 * Math.PI), this.brushCanvasCtx.stroke();
                 var t = this.brushCanvas.toDataURL(),
                     e = this.thicknessMax / 2;
                 n("#canvasGame").css("cursor", "url(" + t + ")" + e + " " + e + ", default");
+                this.thickness = oldthickness;
+                this.thicknessMax = oldmax; 
                 break;
             case "fill":
                 n("#canvasGame").css("cursor", "url(res/fill_graphic.png) 7 38, default");
@@ -3574,7 +3586,7 @@
                 it ? it.emit("canvasClear") : ut.clear();
         }
     }), ut.canvas.on("mousedown", function(t) {
-        switch (t.preventDefault(), t.button) {
+        switch (t.preventDefault(), t.button +  t.ctrlKey) { // + ctrl key when zooming
             case 0:
                 ut.brush.down || (ut.brush.setDown(!0), T(t.clientX, t.clientY, !0))
         }
@@ -3603,7 +3615,7 @@
     }),ut.canvas.on("touchstart", function(t) {
         t.preventDefault();
         var e = t.changedTouches;
-        e.length > 0 && null == gt && (gt = e[0].identitfier, ut.brush.setDown(!0), T(e[0].clientX, e[0].clientY, !0))
+        e.length > 0 && null == gt && (gt = e[0].identitfier, !(t.ctrlKey) && ut.brush.setDown(!0), T(e[0].clientX, e[0].clientY, !0)) // + ctrl key when zooming
     }), ut.canvas.on("touchend", function(t) {
         t.preventDefault(), gt = null, ut.brush.setDown(!1);
     }), ut.canvas.on("touchcancel", function(t) {

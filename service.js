@@ -41,8 +41,9 @@
  *  ----lobby search stops if lobby is tempoarly down
  *  ----private lobby settings not set
  *  gif progress bar is not consistent
- *  gif drawing speed could be tweaked
- *  image tools height gets too high
+ *  ----gif drawing speed could be tweaked
+ *  ----image tools height gets too high
+ *  ----fetch for imageagent
  * 
  * Feature requests:
  * ----implement gif saving
@@ -51,7 +52,7 @@
  * ----tab style popup
  * ----custom sprites+
  * ----ff port :(
- * zoom to canvas for accurate drawing
+ * ----zoom to canvas for accurate drawing
  * ----abort image tools drawing process
  * ----image agent error state message
  * finish dark mode
@@ -61,8 +62,15 @@
 
 
 'use strict';
-const version = "18.6.0";
+
+// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
+const version = "18.9.0";
 const command_token = "--";
+
+// thats a rickroll! :)))
+document.querySelector("a[href='https://twitter.com/ticedev']").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstleyVEVO";
 
 // stop patcher observing
 patcher.disconnect();
@@ -73,6 +81,7 @@ if (!localStorage.userAllow) localStorage.userAllow = "true";
 if (!localStorage.login) localStorage.login = "";
 if (!localStorage.ownHoly) localStorage.ownHoly = "false";
 if (!localStorage.ink) localStorage.ink = "true";
+if (!localStorage.inkMode) localStorage.inkMode = "thickness";
 if (!localStorage.sens) localStorage.sens = 50;
 if (!localStorage.charBar) localStorage.charBar = "false";
 if (!localStorage.imageAgent) localStorage.imageAgent = "false";
@@ -92,8 +101,6 @@ if (!localStorage.customPalettes) localStorage.customPalettes = '[{"rowCount":13
 // defaults for word check
 var is_length_error = false;
 var is_hint_error = false;
-// Activate game container for betatesting purposes
-if (version.includes("beta")) testMode();
 // var to store copied drawing
 let drawCommandsCopy = [];
 //set url for pipette
@@ -132,7 +139,7 @@ document.querySelector("body").addEventListener("logCanvasClear", function (e) {
 document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedCommands = []; capturedActions = []; });
 
 // puts the image data in array to be displayable in the image share popup
-document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedDrawings.push(document.querySelector("#canvasGame").toDataURL("2d")); });
+document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedDrawings.push({ drawing: document.querySelector("#canvasGame").toDataURL("2d"), drawer: getCurrentOrLastDrawer() }) });
 
 // put commands in array (each index is one action aka mouseup on canvas)
 var capturedActions = []
@@ -206,7 +213,6 @@ function drawOnCanvas(drawActions) {
 async function drawCommandsToGif(filename = "download") {
     let workerJS = "";
     workerJS += await (await fetch(chrome.runtime.getURL("gifCap/b64.js"))).text();
-    //workerJS += await (await fetch(chrome.runtime.getURL("gifCap/jmin.js"))).text();
     workerJS += await (await fetch(chrome.runtime.getURL("gifCap/GIFEncoder.js"))).text();
     workerJS += await (await fetch(chrome.runtime.getURL("gifCap/LZWEncoder.js"))).text();
     workerJS += await (await fetch(chrome.runtime.getURL("gifCap/NeuQuant.js"))).text();
@@ -253,23 +259,36 @@ async function drawCommandsToGif(filename = "download") {
 //init pressure sensibility for windows ink and tablets - k depends on steps
 const kLevel = 1 / 36;
 var refresh = true;
-var refreshCycle = 5;
+var refreshCycle = 2;
 
 // event for pressure drawing
 document.querySelector("#canvasGame").addEventListener("pointermove", (event) => {
-    if (!refresh || localStorage.ink != "true" || event.pointerType != "pen") return;
+    if (!refresh || localStorage.ink != "true" || event.pointerType != "pen" || event.pressure == 0) return;
     refresh = false;
-
-    let size = 4;
-    while (size * kLevel * (100/(101-localStorage.sens)) < event.pressure) size += 0.2;
-    setBrushsize(size);
-
     setTimeout(function () { refresh = true; }, refreshCycle);
+    if (localStorage.inkMode &&  localStorage.inkMode.includes("thickness")) {
+        let size = 4;
+        while (size * kLevel * (100 / (101 - localStorage.sens)) < event.pressure) size += 0.2;
+        setBrushsize(size);
+    }
+    if (localStorage.inkMode && (localStorage.inkMode.includes("brightness") || localStorage.inkMode.includes("degree"))  && localStorage.brushtool == "pen") {
+        localStorage.down = "true";
+        let colorhsl = new Color({ rgb: document.querySelector(".colorPreview").style.backgroundColor }).hsl; 
+        let h = localStorage.inkMode.includes("degree") ? ((event.pressure) * 360) + colorhsl[0] : colorhsl[0];
+        let l = localStorage.inkMode.includes("brightness") ? (event.pressure) * 100 : colorhsl[2];
+        h = h > 360 ? h -= 360 : h;
+        document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: { hex: (new Color({ h: h, s: colorhsl[1], l: l })).hex } }));
+        localStorage.down = "false";
+    }
 });
 
 // event if pen was released
 document.querySelector("#canvasGame").addEventListener("pointerup", (event) => {
-    if (localStorage.ink == "true" && event.pointerType == "pen") setBrushsize(1);
+    if (localStorage.ink == "true" && event.pointerType == "pen" && localStorage.inkMode == "thickness") setBrushsize(1);
+    else if (localStorage.ink == "true" && event.pointerType == "pen" && (localStorage.inkMode.includes("brightness") || localStorage.inkMode.includes("degree")) && localStorage.brushtool == "pen") {
+        let color = new Color({ rgb: document.querySelector(".colorPreview").style.backgroundColor });
+        document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: { reset: true, hex: color.hex } }));
+    }
 });
 
 // func to set the brushsize (event to game.js)
@@ -403,7 +422,7 @@ function startSearch() {
             Report.trigger();
         }
         else if (parseInt(lobbyid.getAttribute('lobbyPlayerCount')) >= 8) {
-            //lobbyid.
+            // something should happen. enlighten me
         }
         else document.querySelector("button[type='submit'].btn-success").click();
     }
@@ -631,8 +650,15 @@ setInterval(async () => {
     let msg_cont = document.querySelector("#boxMessages");
     let gameHeader = document.querySelector(".gameHeaderButtons");
 
-    // add listener to questionmark
-    document.querySelector("#loginAvatarCustomizeContainer  .avatarContainer").onclick = testMode;
+    // add listener to avatar
+    document.querySelector("#loginAvatarCustomizeContainer  .avatarContainer").addEventListener("click", () => {
+        sessionStorage.practise = true;
+        document.querySelector(".containerToolbar").style.display = "";
+        document.getElementById("screenGame").style.display = "block";
+        document.getElementById("screenLogin").style.display = "none";
+        document.querySelector(".header").style.display = "none";
+        document.querySelector("#currentWord").innerHTML = "Practise";
+    });
     document.querySelector('button[type="submit"]').onclick = function () {
         sessionStorage.practise = false;
     };
@@ -644,48 +670,38 @@ setInterval(async () => {
     document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
 
     // Create next button
-    let bt_next = document.createElement("input");
-    bt_next.setAttribute("type", "button");
-    bt_next.setAttribute("value", "Next Lobby");
-    bt_next.onclick = function () {
+    let btNext = document.createElement("input");
+    btNext.type="button";
+    btNext.value = "Next Lobby";
+    btNext.classList.add("btn", "btn-info", "btn-block");
+    btNext.style.margin = "0 0.5em";
+    btNext.addEventListener("click", () => {
         sessionStorage.skipDeadLobbies = "true";
         sessionStorage.skippedLobby = "true";
         window.location.reload();
-    }
-    //bt_next.setAttribute("style", "height: 20px; padding:0px; padding-left: 5px; padding-right:5px;");
-    bt_next.setAttribute("class", "btn btn-info btn-block");
-    bt_next.style.margin = "0 0.5em";
+    });
 
     // Create exit button
-    let bt_exit = document.createElement("input");
-    bt_exit.setAttribute("type", "button");
-    bt_exit.setAttribute("value", "Exit Lobby");
-    bt_exit.onclick = function () { location.reload(); };
-    //bt_exit.setAttribute("style", "height:20px; padding: 0px; padding-left: 5px; padding-right:5px;");
-    bt_exit.setAttribute("class", "btn btn-warning btn-block");
-    bt_exit.style.margin = "0 0.5em";
+    let btExit = document.createElement("input");
+    btExit.type = "button";
+    btExit.value = "Exit Lobby";
+    btExit.classList.add("btn", "btn-warning", "btn-block");
+    btExit.style.margin = "0 0.5em";
+    btExit.addEventListener("click",() => { location.reload(); });
 
     // create table container for buttons
     let lobbyControls = document.createElement("div");
     lobbyControls.style = "display:flex; font-size:15; float: right; justify-content:center; align-items:center;";
-    lobbyControls.appendChild(bt_exit);
-    lobbyControls.appendChild(bt_next);
+    lobbyControls.appendChild(btExit);
+    lobbyControls.appendChild(btNext);
     gameHeader.appendChild(lobbyControls);
 
-    // Add version status
-    let status_box = document.createElement("button");
-    status_box.innerHTML = "T@" + version;
-    status_box.setAttribute("style", "font-size:15px; position:absolute; right:20px");
-    status_box.setAttribute("class", "updateInfo");
-    status_box.onclick = function () { alert("Click the extension icon to open the dashboard!"); };
-    //panel_header.appendChild(status_box);
-
     // Add wordcount under input
-    let table = document.createElement("TABLE");
+    let table = document.createElement("table");
     let tr = table.insertRow();
     let td = tr.insertCell();
-    td.innerHTML = "<div id=\"info\"\></div>"; // lazy guy
-    table.setAttribute("id", "tableBox");
+    td.innerHTML = "<div id=\"info\"\></div>"; 
+    table.id = "tableBox";
     table.style.fontSize = "16px"
     table.style.width = "100%";
     table.style.marginLeft = "0%";
@@ -713,7 +729,7 @@ setInterval(async () => {
     box.appendChild(table);
 
     // clear ads for space 
-    //document.querySelector("#containerFreespace").innerHTML = ""; -> conflicts with image poster
+    document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
 
     // Add imageagent
     let flag = document.createElement("input");
@@ -903,6 +919,7 @@ setInterval(async () => {
     // btn to open share popup
     let shareButton = document.createElement("img");
     let imageShareString;
+    let imageShareStringDrawer;
     shareButton.src = chrome.runtime.getURL("res/letter.gif");
     shareButton.style.cursor = "pointer";
     shareButton.id = "downloadGif";
@@ -912,6 +929,7 @@ setInterval(async () => {
             localStorage.hintShareImage = "true";
         }
         imageShareString = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+        imageShareStringDrawer = getCurrentOrLastDrawer();
         document.querySelector("#shareImagePreview").src = imageShareString;
         document.querySelector("#shareImagePreview").setAttribute("imageIndex", -1);
         sharePopup.style.display = "";
@@ -945,29 +963,26 @@ setInterval(async () => {
     let navigateImagePreview = (direction) => {
         let currentIndex = Number(imagePreview.getAttribute("imageIndex"));
         let allDrawings = [...capturedDrawings];
-        allDrawings.push(document.querySelector("#canvasGame").toDataURL("2d"));
+        allDrawings.push({drawing: document.querySelector("#canvasGame").toDataURL("2d"), drawer: getCurrentOrLastDrawer() });
         if (currentIndex < 0) currentIndex = allDrawings.length - 1;
         currentIndex += direction;
         if (currentIndex >= 0 && currentIndex < allDrawings.length) {
-            imagePreview.src = allDrawings[currentIndex];
-            imageShareString = allDrawings[currentIndex];
+            imagePreview.src = allDrawings[currentIndex].drawing;
+            imageShareString = allDrawings[currentIndex].drawing;
+            imageShareStringDrawer = allDrawings[currentIndex].drawer;
             imagePreview.setAttribute("imageIndex", currentIndex);
         }
     };
     sharePopup.appendChild(imagePreview);
-    //sharePopup.innerHTML += "<br><br>";
     imagePreview.addEventListener("click", () => { navigateImagePreview(-1); });
     imagePreview.addEventListener("contextmenu", (e) => { e.preventDefault(); navigateImagePreview(1); });
-    //imagePreview.onclick = () => { alert("hi"); };
-    
-
 
     // get webhooks
     let webhooks = [];
-    JSON.parse(localStorage.member).Guilds.forEach(g => { if(g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
+    if(localStorage.member) JSON.parse(localStorage.member).Guilds.forEach(g => { if(g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
 
     // add buttons to post image
-    if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added dc servers has a webhook connected. <br> Ask an admin to add one.";
+    if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
     webhooks.forEach(async (w) => {
         // add share button for image
         let shareImg = document.createElement("button");
@@ -1005,7 +1020,7 @@ setInterval(async () => {
                 });
             }
             else {
-                let drawer = getCurrentOrLastDrawer();
+                let drawer = imageShareStringDrawer;
                 message = JSON.stringify({
                     username: "Skribbl Image Post",
                     avatar_url:
@@ -1213,7 +1228,7 @@ setInterval(async () => {
     // add sketchful colors
     document.querySelector(".containerColorbox").id = "originalPalette";
     document.querySelector("#buttonClearCanvas").style.height = "48px";
-    let palettes = JSON.parse(localStorage.customPalettes);
+    let palettes = localStorage.customPalettes ? JSON.parse(localStorage.customPalettes) : [];
     //let sketchfulPalette = '{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}'
     //sketchfulPalette = JSON.parse(sketchfulPalette);
     palettes.forEach(p => addColorPalette(p));
@@ -1270,7 +1285,60 @@ setInterval(async () => {
         picker.style.backgroundColor = event.detail.color.hex;
         picker.firstChild.style.background = "none";
     });
-    //document.querySelector("#opacity_slider").style.display = "none";
+    document.querySelector("#opacity_slider").style.pointerEvents = "none";
+    document.querySelector("#opacity_slider").style.opacity = "0";
+
+    // precise drawing mode
+    let canvasGame = document.querySelector("#canvasGame")
+    let zoomActive = false;
+    let changeZoom;
+    let toggleZoom = (event, skipctrl = false) => {
+        if (event.ctrlKey|| skipctrl) {
+            event.preventDefault();
+            if (!zoomActive && document.querySelector(".containerToolbar").style.display != "none") {
+                zoomActive = true;
+                const zoom = Number(localStorage.zoom) > 1 ? Number(localStorage.zoom) : 3;
+                // refresh brush cursor
+                canvasGame.setAttribute("data-zoom", zoom);
+                document.querySelector(".tool.toolActive").dispatchEvent(new Event("click"));
+                // get current height and set to parent
+                let bRect = canvasGame.getBoundingClientRect();
+                canvasGame.parentElement.style.height = bRect.height + "px";
+                canvasGame.parentElement.style.width = bRect.width + "px";
+                canvasGame.parentElement.style.boxShadow = "black 0px 0px 25px 5px";
+                // zoom canvas
+                canvasGame.style.width = (zoom * 100) + "%";
+                // get position offset
+                canvasGame.style.position = "relative";
+                canvasGame.style.top = "-" + ((event.offsetY * zoom) - (bRect.height / 2)) + "px";
+                canvasGame.style.left = "-" + ((event.offsetX * zoom) - (bRect.width / 2)) + "px";
+                changeZoom = (e) => {
+                    if (Number(e.key) > 1 && Number(e.key) <= 9) {
+                        localStorage.zoom = e.key;
+                        toggleZoom(event);
+                        toggleZoom(event);
+                    }
+                }
+                document.addEventListener("keydown", changeZoom);
+            }
+            else {
+                // reset zoom
+                canvasGame.setAttribute("data-zoom", 1);
+                document.querySelector(".tool.toolActive").dispatchEvent(new Event("click"));
+                canvasGame.parentElement.style.height = "";
+                canvasGame.parentElement.style.width = "";
+                canvasGame.parentElement.style.boxShadow = "";
+                canvasGame.style.width = "100%";
+                canvasGame.style.top = "";
+                canvasGame.style.left = "";
+                document.removeEventListener("keydown", changeZoom);
+                zoomActive = false;
+            }
+        }
+    }
+    document.addEventListener("pointerdown", toggleZoom);
+    document.querySelector("body").addEventListener("logCanvasClear", (e) => { if(zoomActive) toggleZoom(e, true); });
+
 })();
 
 function addColorPalette(paletteJson) {
@@ -1410,94 +1478,59 @@ function updateImageAgent() {
     scrollMessages();
 }
 
-// func to set the image in the agentdiv - TODO: REPLACE COS BYPASS WITH GOOGLE-PERMISSION!!!
-function setAgentSource(searchCriteria, exclusive = 0) {
-    let agent = document.querySelector("#imageAgent");
+// func to set the image in the agentdiv
+let imageIndex;
+let searchImages;
+let agent = document.querySelector("#imageAgent");
+let setAgentSource = async (searchCriteria, exclusive = 0) => {
     let word = document.querySelector("#currentWord").innerHTML;
-
     let search = (exclusive ? "" : word + "+") + searchCriteria;
     search = replaceUmlaute(search);
-
     agent.src = "/res/load.gif";
 
-    // Search engines:
+    // Search engines with CORS bypass:
     // Google, duckduckgo etc detect bot usage -> unusable
     // Not working after few requests due to bot detection or smth:     https://yandex.com/images/search?text=hello%20kitty
     // Working but a bit weird results:                                 https://www.mojeek.com/search?fmt=images&imgpr=bing&q=
+    let uri = encodeURIComponent('https://www.mojeek.com/search?fmt=images&imgpr=bing&q=' + search);
+    let resp = await fetch('https://api.allorigins.win/get?url=' + uri);
+    let html = (await resp.json()).contents;
+    let doc = new DOMParser().parseFromString(html, "text/html");
+    searchImages = doc.querySelectorAll("img");
+    imageIndex = 2;
 
-    //let xhr = new XMLHttpRequest();
-    //xhr.open("GET", "https://www.google.com/search?safe=off&tbm=isch&sclient=img&q=" + search, true);
-    //xhr.onreadystatechange = () => {
-    //    if (xhr.readyState == 4) {
-    //        console.log(xhr.responseText);
-    //    }
-    //}
-    //xhr.send();
-    // change to fetch
-    $.getJSON('https://api.allorigins.win/get?url=' +
-        encodeURIComponent('https://www.mojeek.com/search?fmt=images&imgpr=bing&q=' + search), function (data) {
-            let html = data.contents;
-            let doc = new DOMParser().parseFromString(html, "text/html");
-            let imgs = doc.querySelectorAll("img");
-
-            if (!imgs[2]) { agent.alt = "Error: No results found :("; agent.src = ""; return; }
-            let src = imgs[2].getAttribute("src");
-            src = src.substr(src.lastIndexOf("https"));
-            agent.setAttribute("src", src);
-            $(agent).data("index", "2")
-            scrollMessages();
-
-            $(agent).unbind();
-            $(agent).click(function () {
-                let i = parseInt($(agent).data("index"));
-                i++;
-                if (i >= imgs.length) i = 2;
-
-                let src = imgs[i].getAttribute("src");
-                src = src.substr(src.lastIndexOf("https"));
-                //agent.src="/res/load.gif";
-                agent.setAttribute("src", src);
-                $(agent).data("index", i);
-                scrollMessages();
-            });
-        });
+    if (!searchImages[imageIndex]) { agent.alt = "Error: No results found :("; agent.src = ""; return; }
+    getNextAgentImage();
 }
+let getNextAgentImage = () => {
+    if (imageIndex >= searchImages.length) imageIndex = 2;
+    let src = searchImages[imageIndex].getAttribute("src");
+    src = src.substr(src.lastIndexOf("https"));
+    agent.src = src;
+    scrollMessages();
+    imageIndex++;
+}
+agent.addEventListener("click", getNextAgentImage);
 
 //function to scroll to bottom of message container
 function scrollMessages() {
     let box = document.querySelector("#boxMessages");
-    $(box).scrollTop($(box).prop("scrollHeight"));
+    box.scrollTop = box.scrollHeight;
 }
 
-// func to show game div
-function testMode() {
-    sessionStorage.practise = true;
-    document.querySelector(".containerToolbar").style.display = "";
-
-    document.getElementById("screenGame").style.display = "block";
-    document.getElementById("screenLogin").style.display = "none";
-    document.querySelector(".header").style.display = "none";
-    setTimeout(function () {
-        document.querySelector("#currentWord").innerHTML = "Practise";
-        $("body, html").animate({
-            scrollTop: $(document).height()
-        }, 400);
-    }, 100);
-}
-
-// umlaute which have to be replaced
-const umlautMap = {
-    '\u00dc': 'UE',
-    '\u00c4': 'AE',
-    '\u00d6': 'OE',
-    '\u00fc': 'ue',
-    '\u00e4': 'ae',
-    '\u00f6': 'oe',
-    '\u00df': 'ss',
-}
 
 // func to replace umlaute in a string
-function replaceUmlaute(str) {
+let replaceUmlaute = (str) => {
+    // umlaute which have to be replaced
+    const umlautMap = {
+        '\u00dc': 'UE',
+        '\u00c4': 'AE',
+        '\u00d6': 'OE',
+        '\u00fc': 'ue',
+        '\u00e4': 'ae',
+        '\u00f6': 'oe',
+        '\u00df': 'ss',
+    }
     return str
         .replace(/[\u00dc|\u00c4|\u00d6][a-z]/g, (a) => {
             const big = umlautMap[a.slice(0, 1)];
@@ -1508,10 +1541,12 @@ function replaceUmlaute(str) {
         );
 }
 function getCurrentOrLastDrawer() {
-    let drawer = "";
-    try {
+    let drawer = "Unknown";
+    if (sessionStorage.practise == "true") drawer = document.querySelector("#inputName").value;
+    else if (sessionStorage.lastDrawing) drawer = sessionStorage.lastDrawing;
+    else try {
         drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
     }
-    catch{ drawer = sessionStorage.practise == "true" ? document.querySelector("#inputName").value : sessionStorage.lastDrawing; }
+    catch{ }
     return drawer;
 }
