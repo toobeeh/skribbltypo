@@ -9,9 +9,9 @@ jobs:
       uses: thedoctor0/zip-release@master
       with:
         filename: 'typo-release.zip'
-        exclusions: '*.git* /*node_modules/* web-ext-artifacts/  package-lock.json changelog.md *.web-extension-id .editorconfig .github/'
+        exclusions: '*.git* /*node_modules/* web-ext-artifacts/  package-lock.json changelog.md *.web-extension-id .editorconfig .github/'  
     - name: Upload Release
-        uses: ncipollo/release-action@v1
-        with:
-            artifacts: "typo-release.zip"
-            token: ${{ secrets.GITHUB_TOKEN }}
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "typo-release.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
