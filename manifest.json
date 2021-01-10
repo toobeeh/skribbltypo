@@ -1,11 +1,17 @@
 {
   "manifest_version": 2,
   "name": "Skribbl Typo",
-  "description": "Collection of useful tools & graphics tablet support for skribbl.io ",
-  "version": "16.4",
+  "description": "Collection of useful tools & graphics tablet support for skribbl.io and sketchful.io",
+  "version": "19.1.0",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}",
+      "update_url": "https://tobeh.host/typo/firefox/updates.json"
+    }
   },
   "browser_action": {
     "default_title": "Skribbl Typo",
@@ -16,10 +22,13 @@
   "web_accessible_resources": [
     "gamePatch.js",
     "jmin.js",
-    "res/*"
+    "res/*",
+    "gifCap/*"
   ],
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "*://www.tobeh.host/*",
+    "webRequest"
   ],
   "content_scripts": [
     {
@@ -28,9 +37,19 @@
         "*://skribbl.io/*"
       ],
       "js": [
-        "jmin.js",
+        "color.js",
+        "picker/colr_pickr.min.js",
         "commands.js",
-        "service.js"
+        "gifCap/LZWEncoder.js",
+        "gifCap/NeuQuant.js",
+        "gifCap/GIFEncoder.js",
+        "gifCap/skribblCanvas.js",
+        "gifCap/b64.js",
+        "service.js",
+        "sprites.js"
+      ],
+      "css": [
+        "picker/colr_pickr.min.css"
       ]
     },
     {
@@ -40,7 +59,19 @@
         "*://skribbl.io/*"
       ],
       "js": [
+        "errors.js",
+        "report.js",
+        "lobbies.js",
         "patcher.js"
+      ]
+    },
+    {
+      "matches": [
+        "*://sketchful.io/",
+        "*://sketchful.io/*"
+      ],
+      "js": [
+        "sketchful/sketchfulReport.js"
       ]
     }
   ]

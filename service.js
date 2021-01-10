@@ -1,22 +1,10 @@
-/*
- * Contentscript which tweaks skribbl and basically controls whats added to the ui and how that stuff works.
- * Dispatches events to the body dom element tocommunicate with patched gamejs
+﻿/*
+ * Contentscript which tweaks skribbl and basically controls what was added to the ui and how that stuff works.
+ * Dispatches events to the body dom element to communicate with patched gamejs
  * 
- * That whole code piled up during about one year, still working to make it less ugly and to eliminate the worst of the bad-practise-parts
- * Also, there are still some german parts hiding... :))))
+ * There are some VERY old parts, don't kill me for those.
+ * A complete rework to make it a bit less messy is on my todo.
  */
-
-/*
-    Different versions of the holy gif (yeah DEFINITELY should stop hosting it on giphy)
-    - Mit Kontur                                            https://media.giphy.com/media/RJKTLStD0Lc6IaFw5C/giphy.gif
-    - Zweifarbig                                            https://media.giphy.com/media/UvVlujHiawde07lhXC/giphy.gif
-    - Dreifarbig, dünkler                                   https://media.giphy.com/media/KCvmNt16OGOaQj3tUl/giphy.gif
-    - Verbessert oben, nicht so dunkel                      https://media.giphy.com/media/Idflcn5mfJ5rrS83hs/giphy.gif
-    - Beste Version                                         https://media.giphy.com/media/f4283S48LIV14CJfuf/giphy.gif
-    - Kleiner zweifarbig                                    https://media.giphy.com/media/JUSvACNKQtVX7FDwRY/giphy.gif
-    - Kleiner mit Leuchten                                  https://media.giphy.com/media/VbJZngoMF3A4x9trJM/giphy.gif
-    - -#- dickere Leuchten                                  https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif
-*/
 
 /*
     Report message format:
@@ -37,16 +25,63 @@
         Color   c: 0-22 (Column-wise skribbl colors, left to right)
         Vector  x: 0-800
         Vector  y: 0-600
-
 */
+
+/*
+ * Todo and bugs:
+ * ----fix conflict with image poster (container freespace) 
+ * ----fix lobby id check -> as soon as lobby connected
+ *  ----fix lobby status when search is still active (slow connection)
+ * fix lobby search not triggering sometimes on first lobby
+ * lobby buttons take several clicks sometimes
+ *  ----keydown changes tools when other players draw
+ *  ----mysterious drawing over next persons' canvas sometimes
+ *  ----still that audio thing
+ *  ----holy not working
+ *  ----lobby search stops if lobby is tempoarly down
+ *  ----private lobby settings not set
+ *  gif progress bar is not consistent
+ *  ----gif drawing speed could be tweaked
+ *  ----image tools height gets too high
+ *  ----fetch for imageagent
+ * 
+ * Feature requests:
+ * ----implement gif saving
+ * ----maybe bigger color palette
+ * ----lobby description
+ * ----tab style popup
+ * ----custom sprites+
+ * ----ff port :(
+ * ----zoom to canvas for accurate drawing
+ * ----abort image tools drawing process
+ * ----image agent error state message
+ * finish dark mode
+ * ----recall older drawings to share
+ * 
+ */
+
+
 'use strict';
-const version = "16.4.1";
-const link_to_holy = "https://media.giphy.com/media/kcCw9Eq5QoXrfriJjP/giphy.gif";
+
+// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
+const version = "18.9.0";
 const command_token = "--";
 
+// thats a rickroll! :)))
+document.querySelector("a[href='https://twitter.com/ticedev']").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstleyVEVO";
+
+// stop patcher observing
+patcher.disconnect();
+
 // Set default settings
+if (!localStorage.member) localStorage.member = "";
+if (!localStorage.userAllow) localStorage.userAllow = "true";
+if (!localStorage.login) localStorage.login = "";
 if (!localStorage.ownHoly) localStorage.ownHoly = "false";
 if (!localStorage.ink) localStorage.ink = "true";
+if (!localStorage.inkMode) localStorage.inkMode = "thickness";
 if (!localStorage.sens) localStorage.sens = 50;
 if (!localStorage.charBar) localStorage.charBar = "false";
 if (!localStorage.imageAgent) localStorage.imageAgent = "false";
@@ -57,15 +92,24 @@ if (!localStorage.markupColor) localStorage.markupColor = "#ffd6cc";
 if (!localStorage.randomColorInterval) localStorage.randomColorInterval = 50;
 if (!localStorage.randomColorButton) localStorage.randomColorButton = false;
 if (!localStorage.displayBack) localStorage.displayBack = false;
+if (!sessionStorage.lobbySearch) sessionStorage.lobbySearch = "false";
+if (!sessionStorage.searchPlayers) sessionStorage.searchPlayers = "[]";
+if (!sessionStorage.skipDeadLobbies) sessionStorage.skipDeadLobbies = "false";
+if (!localStorage.palette) localStorage.palette = "originalPalette";
+if (!localStorage.customPalettes) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
 
-// Activate game container for betatesting purposes
-if (version.includes("beta")) testMode();
+// defaults for word check
+var is_length_error = false;
+var is_hint_error = false;
+// var to store copied drawing
+let drawCommandsCopy = [];
+//set url for pipette
+sessionStorage.pipetteURL = chrome.runtime.getURL("res/pipette.gif");
 
-// enter lobby if last lobby was skipped
-if (sessionStorage.skippedLobby == "true") {
-    document.querySelector("button[type='submit'].btn-success").click();
-    sessionStorage.skippedLobby = "false";
-}
+// _____________________________________________________________
+//
+//                Communication with Popup and gamepatch
+// _____________________________________________________________
 
 // communication with popup.js
 chrome.runtime.onMessage.addListener(msgObj => {
@@ -77,15 +121,25 @@ chrome.runtime.onMessage.addListener(msgObj => {
     else command_interpreter(msgObj + "--");
 });
 
+// _____________________________________________________________
+//
+//               Init backbutton stuff and pressure
+// _____________________________________________________________
+
 // capture drawings
 var capturedCommands = [];
+var capturedDrawings = [];
 document.querySelector("body").addEventListener("logDrawCommand", function (e) { capturedCommands.push(e.detail); });
 
 // log canvas clear in actions array
 document.querySelector("body").addEventListener("logCanvasClear", function (e) { capturedCommands = []; capturedActions.push([[3]]); });
 
 // clear captured actions if drawer finished
+// actually not necessary and blocks saving the gif while showing the scoreboard
 document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedCommands = []; capturedActions = []; });
+
+// puts the image data in array to be displayable in the image share popup
+document.querySelector("body").addEventListener("drawingFinished", function (e) { capturedDrawings.push({ drawing: document.querySelector("#canvasGame").toDataURL("2d"), drawer: getCurrentOrLastDrawer() }) });
 
 // put commands in array (each index is one action aka mouseup on canvas)
 var capturedActions = []
@@ -93,14 +147,374 @@ function pushCaptured() { capturedCommands.length > 0 ? (capturedActions.push(ca
 document.querySelector("#canvasGame").addEventListener("pointerup", pushCaptured);
 document.querySelector("#canvasGame").addEventListener("pointerout", pushCaptured);
 
+// function to request captured actions and with unpushed commands
+function getCapturedActions(){
+    return capturedCommands.length > 0 ? capturedActions.concat([[...capturedCommands]]) : capturedActions;
+}
+
+// func to restore drawing based on saved commands
+function restoreDrawing(limit = 0) {
+    document.querySelector("#restore").style.pointerEvents = "none";
+    document.querySelector("#canvasGame").style.pointerEvents = "none";
+    let actions = getCapturedActions().slice(0, -limit);
+    let redo = [];
+
+    // put all commands from each action in one command-array. the last actions (limit) are passed.
+    for (let action = 0, lenA = actions.length - limit; action < lenA; action++)
+        for (let cmd = 0, lenC = actions[action].length; cmd < lenC; cmd++)
+            actions[action][cmd].length > 0 && redo.push(actions[action][cmd]);
+
+    // search for the last clear to avoid unnecessary drawing
+    let lastClear = redo.length - 1;
+    while (lastClear > 0 && redo[lastClear][0] != 3) { lastClear--; }
+
+    let captured = lastClear > 0 ? lastClear + 1 : 0;
+    let maxcaptured = redo.length;
+
+    let body = document.querySelector("body");
+    document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
+    let t = setInterval(function () {
+        captured >= maxcaptured ? (
+            clearInterval(t),
+            capturedActions = [],
+            capturedCommands = [],
+            document.querySelector("#restore").style.pointerEvents = "",
+            capturedActions = actions,
+            document.querySelector("#canvasGame").style.pointerEvents = ""
+            ) : body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] })); captured++;
+    }, 5);
+}
+
+let abortDrawingProcess = false;
+// function to draw selected draw commands separated in actions
+function drawOnCanvas(drawActions) {
+    abortDrawingProcess = false;
+    document.querySelector("#abortDrawing").style.display = "block";
+    document.querySelector("#restore").style.pointerEvents = "none";
+    document.querySelector("#canvasGame").style.pointerEvents = "none";
+    if(document.querySelector("#clearCanvasBeforePaste").checked) document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
+    let body = document.querySelector("body");
+    let commands = [];
+    let command = 0;
+    let toolbar = document.querySelector(".containerToolbar");
+    drawActions.forEach(a => a.forEach(c => commands.push(c)));
+    let i = setInterval(() => {
+        command >= commands.length || abortDrawingProcess === true || toolbar.style.display == "none" ?(
+            clearInterval(i),
+            abortDrawingProcess = false,
+            document.querySelector("#abortDrawing").style.display = "none",
+            document.querySelector("#restore").style.pointerEvents = "",
+            document.querySelector("#canvasGame").style.pointerEvents = ""
+        ) : body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: commands[command] })); command++;
+    }, 5);
+}
+
+// generate a gif of stored draw commands
+async function drawCommandsToGif(filename = "download") {
+    let workerJS = "";
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/b64.js"))).text();
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/GIFEncoder.js"))).text();
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/LZWEncoder.js"))).text();
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/NeuQuant.js"))).text();
+    workerJS +=  await (await fetch(chrome.runtime.getURL("gifCap/skribblCanvas.js"))).text();
+    workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
+    let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
+    renderWorker.postMessage({ 'filename': filename, 'capturedActions': getCapturedActions(), 'palettes': localStorage.customPalettes });
+
+    // T H I C C progress bar 
+    let progressBar = document.createElement("p");
+    progressBar.style.color = "rgb(0, 0, 0)";
+    progressBar.style.background = "rgb(247, 210, 140)";
+    progressBar.innerText = String.fromCodePoint("0x2B1C").repeat(10) + " 0%";
+
+    renderWorker.addEventListener('message', function (e) {
+        if (e.data.download) {
+            progressBar.innerText = String.fromCodePoint("0x1F7E9").repeat(10) + " Done!";
+            let templink = document.createElement("a");
+            templink.download = filename;
+            templink.href = e.data.download;
+            templink.click();
+        }
+        else if (e.data.progress) {
+            let prog = Math.floor(e.data.progress * 10);
+            let miss = 10-prog;
+            let bar = "";
+            while (prog > 0) {
+                bar += String.fromCodePoint("0x1F7E9"); prog--;
+            }
+            while (miss > 0) {
+                bar += String.fromCodePoint("0x2B1C"); miss--;
+            }
+            progressBar.innerText = bar;
+            let percent = Math.round(e.data.progress * 100)
+            progressBar.innerText += " " + percent + "%";
+        }
+		
+    }, false);
+
+    printCmdOutput("render");
+    document.getElementById("boxMessages").appendChild(progressBar);
+}
+
+//init pressure sensibility for windows ink and tablets - k depends on steps
+const kLevel = 1 / 36;
+var refresh = true;
+var refreshCycle = 2;
+
+// event for pressure drawing
+document.querySelector("#canvasGame").addEventListener("pointermove", (event) => {
+    if (!refresh || localStorage.ink != "true" || event.pointerType != "pen" || event.pressure == 0) return;
+    refresh = false;
+    setTimeout(function () { refresh = true; }, refreshCycle);
+    if (localStorage.inkMode &&  localStorage.inkMode.includes("thickness")) {
+        let size = 4;
+        while (size * kLevel * (100 / (101 - localStorage.sens)) < event.pressure) size += 0.2;
+        setBrushsize(size);
+    }
+    if (localStorage.inkMode && (localStorage.inkMode.includes("brightness") || localStorage.inkMode.includes("degree"))  && localStorage.brushtool == "pen") {
+        localStorage.down = "true";
+        let colorhsl = new Color({ rgb: document.querySelector(".colorPreview").style.backgroundColor }).hsl; 
+        let h = localStorage.inkMode.includes("degree") ? ((event.pressure) * 360) + colorhsl[0] : colorhsl[0];
+        let l = localStorage.inkMode.includes("brightness") ? (event.pressure) * 100 : colorhsl[2];
+        h = h > 360 ? h -= 360 : h;
+        document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: { hex: (new Color({ h: h, s: colorhsl[1], l: l })).hex } }));
+        localStorage.down = "false";
+    }
+});
+
+// event if pen was released
+document.querySelector("#canvasGame").addEventListener("pointerup", (event) => {
+    if (localStorage.ink == "true" && event.pointerType == "pen" && localStorage.inkMode == "thickness") setBrushsize(1);
+    else if (localStorage.ink == "true" && event.pointerType == "pen" && (localStorage.inkMode.includes("brightness") || localStorage.inkMode.includes("degree")) && localStorage.brushtool == "pen") {
+        let color = new Color({ rgb: document.querySelector(".colorPreview").style.backgroundColor });
+        document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: { reset: true, hex: color.hex } }));
+    }
+});
+
+// func to set the brushsize (event to game.js)
+function setBrushsize(newsize) {
+    let event = new CustomEvent("setBrushSize", {
+        detail: newsize
+    });
+    document.querySelector("body").dispatchEvent(event);
+}
+
+
+// _____________________________________________________________
+//
+//            Init report to orthanc and palantir (->report.js)
+// _____________________________________________________________
+
+// report lobby after 5 secs in lobby (event on submit button)
+
+// Set status as playing after 5 secs, before as searching
+let startBtns = document.querySelectorAll("button[type='submit']");
+
+startBtns[0].addEventListener("click", () => {
+    // report status as searching      
+    Report.searching = true;
+    Report.waiting = false;
+    Report.playing = false;
+    Report.trigger();
+
+    // report as playing after timeout
+    setTimeout(() => {
+        if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+            Report.playing = true;
+            Report.searching = false;
+            Report.waiting = false;
+            Report.trigger();
+        }
+    }, 4000);
+
+});
+startBtns[1].addEventListener("click", () => {
+    Report.searching = false;
+    Report.waiting = false;
+    Report.playing = true;
+    Report.trigger();
+
+    // report as playing after timeout
+    setTimeout(() => {
+        if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+            Report.playing = true;
+            Report.searching = false;
+            Report.waiting = false;
+            Report.trigger();
+        }
+    }, 4000);
+
+});
+
+// get user name from game.js -> prevents modification from DOM
+document.querySelector("body").addEventListener("loginData", function (d) {
+    Report.loginName = d.detail.name.trim();
+    sessionStorage.lastLoginName = Report.loginName;
+});
+
+var reportTrigger = new MutationObserver(() => {
+    Report.trigger();
+});
+reportTrigger.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: true, childList: true})
+
+// if lobbies are already loaded (Orthanc fast af?!?!)
+if (loaded) setTimeout(startSearch, 1000);
+
+// when async lobbies loaded
+document.querySelector("body").addEventListener("lobbiesLoaded", function (e) {
+    // lobby search function
+    document.querySelectorAll(".lobbySearchButton").forEach(b => {
+        b.addEventListener("click", () => {
+
+            let link = b.getAttribute("link");
+            let key = b.getAttribute("lobbykey");
+            let id = b.getAttribute("lobbyid");
+            let language = b.getAttribute("lobbylang");
+            localStorage.lang = language;
+
+            if (link) {
+                sessionStorage.skippedLobby = "true";
+                window.location.href = link;
+                return;
+            }
+
+            sessionStorage.targetLobby = id;
+            sessionStorage.targetKey = key;
+            sessionStorage.lobbySearch = "true";
+            
+            document.querySelector("button[type='submit'].btn-success").click();
+            Report.searching = true;
+            Report.waiting = false;
+            Report.playing = false;
+            setTimeout(() => {
+                if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
+                    Report.playing = true;
+                    Report.searching = false;
+                    Report.waiting = false;
+                    Report.trigger();
+                }
+            }, 4000);
+            reloadLobbies();
+            document.querySelector("#popupSearch").parentElement.style.display = "block";
+        });
+    });
+    if (sessionStorage.lobbySearch == "true") setTimeout(startSearch, 1000);
+});
+
+
+let lobbyDeadHits = 0;
+function startSearch() {
+    if (sessionStorage.lobbySearch == "true") {
+        let lobbyid = document.querySelector("#lobbyID" + sessionStorage.targetLobby);
+        if (!lobbyid) {
+            lobbyDeadHits++;
+            if (lobbyDeadHits < 5) {
+                setTimeout(startSearch, 3000);
+                return;
+            }
+            sessionStorage.lobbySearch = "false";
+            alert("The lobby doesn't exist anymore :(");
+            document.querySelector("#popupSearch").innerText = "";
+            document.querySelector("#popupSearch").style.display = "none";
+            Report.playing = false;
+            Report.searching = false;
+            Report.waiting = false;
+            Report.trigger();
+        }
+        else if (parseInt(lobbyid.getAttribute('lobbyPlayerCount')) >= 8) {
+            // something should happen. enlighten me
+        }
+        else document.querySelector("button[type='submit'].btn-success").click();
+    }
+}
+
+// check lobby as soon as connected and perform search checks
+document.querySelector("body").addEventListener("lobbyConnected", async (e) => {
+    // if searching for a lobby id
+    if (sessionStorage.lobbySearch == "true") {
+        let key = sessionStorage.targetKey;
+        let id = sessionStorage.targetLobby;
+        let state = await fetch('https://www.tobeh.host/Orthanc/idprovider/', {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: "lobbyID=" + id
+        }
+        );
+        let idResponse = await state.json();
+        let thisKey = Report.generateLobbyKey(false);
+        if (idResponse.Lobby && idResponse.Lobby.Key != thisKey) setTimeout(() => { window.location.reload(); }, 200);
+        else {
+            sessionStorage.lobbySearch = "false";
+            document.querySelector("#popupSearch").parentElement.style.display = "none";
+            if (Notification.permission !== "blocked" && document.hidden) {
+                let n = new Notification("Lobby found!", { body: "Yee! Check out skribbl", icon: "/res/crown.gif" });
+            }
+        }
+    }
+    //if searching for a player
+    else if (sessionStorage.searchPlayers != undefined && JSON.parse(sessionStorage.searchPlayers).length > 0) {
+        let found = false;
+        let players = JSON.parse(sessionStorage.searchPlayers);
+        e.detail.forEach(p => { if (players.includes(p.name)) found = true; });
+        if (found) {
+            sessionStorage.searchPlayers = "[]";
+            document.querySelector("#popupSearch").parentElement.style.display = "none";
+            if (Notification.permission !== "blocked" && document.hidden) {
+                let n = new Notification("Player found!", { body: "Yee! Check out skribbl", icon: "/res/crown.gif"});
+            }
+        }
+        else {
+            sessionStorage.skippedLobby = "true";
+            setTimeout(() => { window.location.reload(); }, 400);
+        }
+    }
+    // if dead lobbies are skipped
+    else if (sessionStorage.skipDeadLobbies == "true") {
+        if (document.querySelectorAll("#containerGamePlayers > .player").length <= 1) {
+            sessionStorage.skippedLobby = "true";
+            setTimeout(() => { window.location.reload(); }, 400);
+        }
+        else {
+            sessionStorage.skipDeadLobbies = "false";
+            document.querySelector("#popupSearch").parentElement.style.display = "none";
+            if (Notification.permission !== "blocked" && document.hidden) {
+                let n = new Notification("Lobby found!", { body: "Yee! Check out skribbl", icon: "/res/crown.gif" });
+            }
+        }
+    }
+});
+
+// refresh lobbies all 5 secs 
+setInterval(async () => {
+    await reloadLobbies();
+}, 5000)
+
+// set trigger interval to 30s if report crashes
+setInterval(async () => {
+    Report.trigger();
+}, 30000)
+
+async function reloadLobbies() {
+    if (document.querySelector("#screenLogin").style.display == "none") return;
+    //for (let node of document.querySelectorAll(".loginPanelContent > h3, .loginPanelContent > .updateInfo")) { node.remove(); }
+    await initLobbyTab();
+}
+
+// _____________________________________________________________
+//
+//                Observer for general functions
+// _____________________________________________________________
+
 // Observer for player and word mutations
-var bigbrother = new MutationObserver(function (mutations) {
+var bigbrother = new MutationObserver(()=> {
     update();
-    checkPlayers();
     updateImageAgent();
 });
 bigbrother.observe(document.querySelector("#currentWord"), { attributes: false, childList: true });
-bigbrother.observe(document.querySelector("#containerGamePlayers"), { attributes: false, childList: true });
+bigbrother.observe(document.querySelector(".containerGame #containerGamePlayers"), { attributes: false, childList: true });
 
 // Observer for chat mutations
 var chatObserver = new MutationObserver(function (mutations) {
@@ -112,48 +526,142 @@ var chatObserver = new MutationObserver(function (mutations) {
 });
 chatObserver.observe(document.getElementById("boxMessages"), { attributes: false, childList: true });
 
-//init pressure sensibility for windows ink and tablets - k depends on steps
-const kLevel = 1 / 36;
-var refresh = true;
-var refreshCycle = 5;
-
-// event for pressure drawing
-document.querySelector("#canvasGame").onpointermove = function (event) {
-
-    if (!refresh || localStorage.ink || event.pointerType != "pen") return;
-    refresh = false;
-
-    let size = 4;
-    while (size * kLevel * (101 - localStorage.sens) / 100 < event.pressure) size += 0.2;
-    setBrushsize(size);
-
-    setTimeout(function () { refresh = true; }, refreshCycle);
+// enter lobby if last lobby was skipped 
+if (sessionStorage.skippedLobby == "true") {
+    setTimeout(() => { document.querySelector("button[type='submit'].btn-success").click(); }, 400);
+    sessionStorage.skippedLobby = "false";
 }
 
-// event if pen was released
-document.querySelector("#canvasGame").onpointerup = function (event) {
-    if (localStorage.ink && event.pointerType == "pen") setBrushsize(1);
+// sync time
+async function getTimeDiff() {
+    return new Promise((resolve, reject) => {
+        let intv;
+        let diffs = [];
+        intv = setInterval(async () => {
+            let pingTime = Date.now()
+            let resp = await fetch("https://www.tobeh.host/Orthanc/date/", {
+                method: 'GET',
+                headers: {
+                    'Accept': '*/*',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                }
+            });
+            let now = Date.now()
+            pingTime = now - pingTime;
+            diffs.push((Date.parse((await resp.json()).UTCDate) + pingTime / 2) - now);
+            if (diffs.length > 20) {
+                clearInterval(intv);
+                resolve(diffs.reduce((previous, current) => current += previous) / diffs.length);
+            }
+        }, 100);
+    })
+}
+let timeSyncDiff = 0;
+// sync time once a min
+(async () => { timeSyncDiff = await getTimeDiff(); })();
+setInterval(async () => { timeSyncDiff = await getTimeDiff(); }, 1000 * 60);
+
+function getSyncedMs() {
+    return Date.now() + timeSyncDiff;
 }
 
-// defaults for word check
-var is_length_error = false;
-var is_hint_error = false;
+let eventDrops = [];
+(async () => {
+    let dropResponse = await fetch('https://www.tobeh.host/Orthanc/drop/eventdrop/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        }
+    }
+    );
+    eventDrops = (await dropResponse.json()).EventDrops;
+})();
+
+
+let showNextDropTimeout = null;
+// check drops interval
+setInterval(async () => {
+    if (Report.guildLobbies.length <= 0){
+        document.querySelector("#claimDrop").style.display = "none";
+        return;
+    }
+    let state = await fetch('https://www.tobeh.host/Orthanc/drop/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "login=" + JSON.parse(localStorage.member).UserLogin
+    }
+    );
+    state = await state.json();
+    if (state.DropID) {
+        let dropTime = state.ValidFrom;
+        let timediff = Date.parse(dropTime + " UTC") - getSyncedMs();
+        if (timediff < 0) return;
+        clearTimeout(showNextDropTimeout);
+        showNextDropTimeout = setTimeout(() => {
+            let drop = document.querySelector("#claimDrop")
+            drop.setAttribute("dropID", state.DropID);
+            if (state.EventDropID == 0) drop.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
+            else drop.style.backgroundImage = 'url("' + eventDrops.find(e => e.EventDropID == state.EventDropID).URL + '")';
+            drop.style.display = "block";
+            //alert("unsynced: " + Date.now() + "\nsynced: " + getSyncedMs());
+            drop.style.left = Math.round(8 + Math.random() * 784) + "px";
+            let dropClaimedCheck = setInterval(async() => {
+                if (drop.style.display == "none") { clearInterval(dropClaimedCheck); return;}
+                let state = await fetch('https://www.tobeh.host/Orthanc/drop/', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: "login=" + JSON.parse(localStorage.member).UserLogin
+                }
+                );
+                state = await state.json();
+                if (!state.DropID) {
+                    drop.dispatchEvent(new Event("click"));
+                }
+            }, 200);
+            setTimeout(async () => { drop.style.display = "none"; clearInterval(dropClaimedCheck);}, 5000);
+        },timediff);
+    }
+}, 10000);
+
+
+
+// _____________________________________________________________
+//
+//               UI setup stuff (add buttons, events, etc)
+// _____________________________________________________________
 
 // func for UI setup 
-(function (event) {
+(function () {
+    // idk why but it has to!
+    document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
 
     // get DOM elements
     let input = document.querySelector("#inputChat");
-    let current = document.querySelector("#currentWord");
     let box = document.querySelector("#boxChatInput");
     let panel_header = document.querySelector(".loginPanelTitle");
     let chat_cont = document.querySelector("#boxChat");
     let msg_cont = document.querySelector("#boxMessages");
-    let div_buttons = document.querySelector(".gameHeaderButtons");
+    let gameHeader = document.querySelector(".gameHeaderButtons");
 
-    // add listener to querstionmark
-    document.querySelector(".iconQuestionmark").onclick = function () { testMode(); };
-    document.querySelector('button[type="submit"]').click = function () { localStorage.practise = false; };
+    // add listener to avatar
+    document.querySelector("#loginAvatarCustomizeContainer  .avatarContainer").addEventListener("click", () => {
+        sessionStorage.practise = true;
+        document.querySelector(".containerToolbar").style.display = "";
+        document.getElementById("screenGame").style.display = "block";
+        document.getElementById("screenLogin").style.display = "none";
+        document.querySelector(".header").style.display = "none";
+        document.querySelector("#currentWord").innerHTML = "Practise";
+    });
+    document.querySelector('button[type="submit"]').onclick = function () {
+        sessionStorage.practise = false;
+    };
 
     // Add event listener to keyup
     input.addEventListener("keyup", function () { keyup(); });
@@ -162,57 +670,38 @@ var is_hint_error = false;
     document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
 
     // Create next button
-    let bt_next = document.createElement("input");
-    bt_next.setAttribute("type", "button");
-    bt_next.setAttribute("value", "Next Lobby");
-    bt_next.onclick = function () {
-        sessionStorage.skippedLobby = true;
-        location.reload();
-    }
-    bt_next.setAttribute("style", "height: 20px; padding:0px; padding-left: 5px; padding-right:5px;");
-    bt_next.setAttribute("class", "btn btn-info btn-block");
+    let btNext = document.createElement("input");
+    btNext.type="button";
+    btNext.value = "Next Lobby";
+    btNext.classList.add("btn", "btn-info", "btn-block");
+    btNext.style.margin = "0 0.5em";
+    btNext.addEventListener("click", () => {
+        sessionStorage.skipDeadLobbies = "true";
+        sessionStorage.skippedLobby = "true";
+        window.location.reload();
+    });
 
     // Create exit button
-    let bt_exit = document.createElement("input");
-    bt_exit.setAttribute("type", "button");
-    bt_exit.setAttribute("value", "Exit Lobby");
-    bt_exit.onclick = function () { location.reload(); };
-    bt_exit.setAttribute("style", "height:20px; padding: 0px; padding-left: 5px; padding-right:5px;");
-    bt_exit.setAttribute("class", "btn btn-block btn-warning");
+    let btExit = document.createElement("input");
+    btExit.type = "button";
+    btExit.value = "Exit Lobby";
+    btExit.classList.add("btn", "btn-warning", "btn-block");
+    btExit.style.margin = "0 0.5em";
+    btExit.addEventListener("click",() => { location.reload(); });
 
     // create table container for buttons
-    var table_controls = document.createElement("table");
-    let td_next = document.createElement("td");
-    let td_exit = td_next;
-    let tr_0 = document.createElement("tr");
-    let tr_1 = tr_0;
-
-    td_next.appendChild(bt_next);
-    tr_1.appendChild(td_next);
-
-    td_exit.appendChild(bt_exit);
-    tr_0.appendChild(td_exit);
-
-    table_controls.setAttribute("style", "margin-top: 2px; margin-right:10px; margin-left: 10px");
-    table_controls.appendChild(tr_0);
-    table_controls.appendChild(tr_1);
-
-    div_buttons.appendChild(table_controls);
-
-    // Add version status
-    let status_box = document.createElement("button");
-    status_box.innerHTML = "T@" + version;
-    status_box.setAttribute("style", "font-size:15px; position:absolute; right:20px");
-    status_box.setAttribute("class", "updateInfo");
-    status_box.onclick = function () { alert("Click the extension icon to open the dashboard!"); };
-    panel_header.appendChild(status_box);
+    let lobbyControls = document.createElement("div");
+    lobbyControls.style = "display:flex; font-size:15; float: right; justify-content:center; align-items:center;";
+    lobbyControls.appendChild(btExit);
+    lobbyControls.appendChild(btNext);
+    gameHeader.appendChild(lobbyControls);
 
     // Add wordcount under input
-    let table = document.createElement("TABLE");
+    let table = document.createElement("table");
     let tr = table.insertRow();
     let td = tr.insertCell();
-    td.innerHTML = "<div id=\"info\"\></div>"; // lazy guy
-    table.setAttribute("id", "tableBox");
+    td.innerHTML = "<div id=\"info\"\></div>"; 
+    table.id = "tableBox";
     table.style.fontSize = "16px"
     table.style.width = "100%";
     table.style.marginLeft = "0%";
@@ -239,17 +728,10 @@ var is_hint_error = false;
     chat_cont.insertBefore(style_cont_msg, msg_cont);
     box.appendChild(table);
 
-    // clear ads for space
-    document.querySelector("#containerFreespace").innerHTML = "";
+    // clear ads for space 
+    document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
 
     // Add imageagent
-    let div_imageAgent = document.createElement("img");
-    div_imageAgent.setAttribute("id", "imageAgent");
-    div_imageAgent.setAttribute("style", "max-width:100%; max-height:30vh !important");
-    document.querySelector("#containerFreespace").insertBefore(div_imageAgent, document.querySelector("#containerFreespace").firstChild);
-    div_imageAgent.parentNode.style = "display:flex;flex-direction:column;align-items:center;";
-
-
     let flag = document.createElement("input");
     flag.setAttribute("type", "button");
     flag.setAttribute("value", "Flag");
@@ -283,7 +765,7 @@ var is_hint_error = false;
     text.setAttribute("value", "Custom");
     text.setAttribute("class", "btn btn-warning");
     text.setAttribute("style", "margin:0.5em; padding:0.2em");
-    text.addEventListener("click", () => { searchAgentInput.style.display == "none" ? searchAgentInput.style.display = "" : text.style.display = "none"; });
+    text.addEventListener("click", () => { searchAgentInput.style.display == "none" ? searchAgentInput.style.display = "" : searchAgentInput.style.display = "none"; });
 
     let searchAgentInput = document.createElement("input");
     searchAgentInput.setAttribute("type", "text");
@@ -307,20 +789,33 @@ var is_hint_error = false;
     agentButtons.appendChild(text);
     agentButtons.appendChild(searchAgentInput);
 
-    document.querySelector("#containerFreespace").insertBefore(agentButtons, document.querySelector("#containerFreespace").firstChild);
-    agentButtons.style.display = "none";
+    let containerAgent = document.createElement("div");
+    containerAgent.id = "containerAgent";
+    containerAgent.appendChild(agentButtons);
+    containerAgent.style = "display:flex;flex-direction:column;align-items:center;";
 
-    // show help
-    printCmdOutput(cmd_help);
+    let div_imageAgent = document.createElement("img");
+    div_imageAgent.setAttribute("id", "imageAgent");
+    div_imageAgent.setAttribute("style", "max-width:100%; max-height:30vh !important");
+
+    containerAgent.appendChild(div_imageAgent);
+
+    document.querySelector("#containerSidebar").insertBefore(containerAgent, document.querySelector("#containerSidebar").firstChild);
+    agentButtons.style.display = "none";
 
     // add back btn
     let backBtn = document.createElement("div");
+    let clearContainer = document.querySelector(".containerClearCanvas");
     backBtn.classList.add("tool");
     backBtn.id = "restore";
     backBtn.style.display = localStorage.displayBack ? "" : "none";
     backBtn.innerHTML = "<img class='toolIcon' src='" + chrome.extension.getURL("/res/back.gif") + "'>";
     backBtn.onclick = function () { restoreDrawing(1); };
-    document.querySelector(".containerTools").appendChild(backBtn);
+    clearContainer.style.marginLeft = "8px";
+    clearContainer.firstChild.classList.add("tool");
+    clearContainer.firstChild.style.opacity = "1";
+    clearContainer.classList.add("containerTools");
+    clearContainer.appendChild(backBtn);
     toggleBackbutton(localStorage.displayBack == "true", true);
 
     // add random color image
@@ -332,10 +827,562 @@ var is_hint_error = false;
     rand.firstChild.display = localStorage.randomColorButton ? "" : "none";
     rand.firstChild.id = "randomIcon";
     rand.addEventListener("click", function () {
-        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: localStorage.randomColorInterval }));
+        let colors = [];
+        [...document.querySelectorAll(".colorItem")].forEach(c => {
+            if (c.parentElement.parentElement.style.display != "none") {
+                colors.push(Number(c.getAttribute("data-color")));
+                c.onclick = () => {
+                    document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: "false" } }));
+                }
+            }
+        });
+        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: localStorage.randomColorInterval, colors: colors } }));
     });
 
+    /// Add sidebar, image download and webhook initialisation
+
+    // add container under player container containing image options
+    let newSidebar = document.createElement("div");
+    newSidebar.id = "newSidebar";
+    newSidebar.style.cssText = "position: relative; display: flex; flex-direction: column;";
+    
+    let imageOptions = document.createElement("div");
+    imageOptions.style.height = "48px";
+    imageOptions.style.background = "white";
+    imageOptions.style.borderRadius = "2px";
+    imageOptions.style.display = "flex";
+    imageOptions.style.justifyContent = "space-evenly";
+    imageOptions.style.alignItems = "baseline";
+    imageOptions.style.marginTop = "8px";
+    imageOptions.style.marginRight = "8px";
+
+    let containerPlayers = document.querySelector("#containerPlayerlist");
+    containerPlayers.style.height = "100%";
+    document.querySelector(".containerGame").insertBefore(newSidebar, containerPlayers);
+    newSidebar.appendChild(containerPlayers);
+    newSidebar.appendChild(imageOptions);
+
+    // add DL button
+    //let header = document.querySelector(".gameHeader");
+    let download = document.createElement("img");
+    download.src = "https://media.giphy.com/media/RLKYVelNK5bP3yc8LJ/giphy.gif";
+    download.style.cursor = "pointer";
+    download.id = "downloadImage";
+    download.addEventListener("click", () => {
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
+        d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+        d.dispatchEvent(e);
+    });
+    //header.insertBefore(download, header.firstChild);
+    imageOptions.appendChild(download);
+
+    // add DL button for gif
+    let downloadGif = document.createElement("img");
+    downloadGif.src = chrome.runtime.getURL("res/gif.gif");
+    downloadGif.style.cursor = "pointer";
+    downloadGif.id = "downloadGif";
+    downloadGif.addEventListener("click", () => {
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
+        d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+        drawCommandsToGif(d.download);
+    });
+    //header.insertBefore(downloadGif, header.firstChild);
+    imageOptions.appendChild(downloadGif);
+
+    // popup for sharing image
+    let sharePopup = document.createElement("div");
+    imageOptions.appendChild(sharePopup);
+    sharePopup.style.position = "absolute";
+    sharePopup.style.background = "white";
+    sharePopup.style.overflow = "hidden";
+    sharePopup.style.zIndex = "5";
+    sharePopup.style.width = "90%";
+    sharePopup.style.padding = "1em;";
+    sharePopup.style.borderRadius = ".5em";
+    sharePopup.style.marginLeft = "5%";
+    sharePopup.style.boxShadow = "1px 1px 9px -2px black";
+    sharePopup.style.display = "none";
+    sharePopup.style.minHeight = "15%";
+    sharePopup.style.padding = "1em";
+    sharePopup.style.bottom = "1em";
+    sharePopup.id = "sharePopup";
+    sharePopup.tabIndex = "-1";
+
+    // btn to open share popup
+    let shareButton = document.createElement("img");
+    let imageShareString;
+    let imageShareStringDrawer;
+    shareButton.src = chrome.runtime.getURL("res/letter.gif");
+    shareButton.style.cursor = "pointer";
+    shareButton.id = "downloadGif";
+    shareButton.addEventListener("click", () => {
+        if (!localStorage.hintShareImage) {
+            alert("The shown image will be shared to one of the displayed discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
+            localStorage.hintShareImage = "true";
+        }
+        imageShareString = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+        imageShareStringDrawer = getCurrentOrLastDrawer();
+        document.querySelector("#shareImagePreview").src = imageShareString;
+        document.querySelector("#shareImagePreview").setAttribute("imageIndex", -1);
+        sharePopup.style.display = "";
+        sharePopup.focus();
+        document.querySelector("#postNameInput").value = document.querySelector("#currentWord").innerText;
+    });
+    imageOptions.appendChild(shareButton);
+
+    // input field 
+    let postName = document.createElement("input");
+    postName.type = "text";
+    postName.id = "postNameInput";
+    postName.placeholder = "Title"; 
+    postName.classList.add("form-control");
+    postName.style.marginBottom = "0.75em";
+    sharePopup.appendChild(postName);
+    postName.outerHTML = "Post image @Discord: <br><br>" + postName.outerHTML;
+
+    // image only checkbox
+    let imageOnly = document.createElement("div");
+    imageOnly.classList.add("checkbox");
+    imageOnly.innerHTML = "<label><input type='checkbox' id='sendImageOnly'>Send only image</label>";
+    sharePopup.appendChild(imageOnly);
+    
+
+    // image preview
+    let imagePreview = document.createElement("img");
+    imagePreview.id = "shareImagePreview";
+    imagePreview.style.width = "100%";
+    imagePreview.style.cursor = "pointer";
+    let navigateImagePreview = (direction) => {
+        let currentIndex = Number(imagePreview.getAttribute("imageIndex"));
+        let allDrawings = [...capturedDrawings];
+        allDrawings.push({drawing: document.querySelector("#canvasGame").toDataURL("2d"), drawer: getCurrentOrLastDrawer() });
+        if (currentIndex < 0) currentIndex = allDrawings.length - 1;
+        currentIndex += direction;
+        if (currentIndex >= 0 && currentIndex < allDrawings.length) {
+            imagePreview.src = allDrawings[currentIndex].drawing;
+            imageShareString = allDrawings[currentIndex].drawing;
+            imageShareStringDrawer = allDrawings[currentIndex].drawer;
+            imagePreview.setAttribute("imageIndex", currentIndex);
+        }
+    };
+    sharePopup.appendChild(imagePreview);
+    imagePreview.addEventListener("click", () => { navigateImagePreview(-1); });
+    imagePreview.addEventListener("contextmenu", (e) => { e.preventDefault(); navigateImagePreview(1); });
+
+    // get webhooks
+    let webhooks = [];
+    if(localStorage.member) JSON.parse(localStorage.member).Guilds.forEach(g => { if(g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
+
+    // add buttons to post image
+    if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
+    webhooks.forEach(async (w) => {
+        // add share button for image
+        let shareImg = document.createElement("button");
+        shareImg.innerHTML = "[" + w.Guild + "] <br>" + w.Name;
+        shareImg.classList.add("btn", "btn-info", "btn-block");
+        shareImg.addEventListener("click", async () => {
+            // close popup first to avoid spamming
+            sharePopup.style.display = "none";
+
+            // upload to orthanc
+            let title = document.querySelector("#postNameInput").value.replaceAll("_", " ⎽ "); //.replaceAll("  ", " ").replaceAll(" ", "⠀");
+            let imgstring = imageShareString;
+            let data = new FormData();
+            data.append("image", imgstring);
+            data.append("name", "post");
+            let state = await fetch('https://tobeh.host/Orthanc/images/upload.php', {
+                method: 'POST',
+                headers: {
+                    'Accept': '*/*'
+                },
+                body: data
+            });
+            let url = "https://tobeh.host/Orthanc/images/" + await state.text() + ".png";
+
+            // build webhook content
+            let message;
+            let imageOnly = document.querySelector("#sendImageOnly").checked;
+            let loginName = Report.loginName ? Report.loginName : document.querySelector("#inputName").value;
+            if (imageOnly) {
+                message = JSON.stringify({
+                    username: loginName,
+                    avatar_url:
+                        'https://tobeh.host/Orthanc/images/letterred.png',
+                    content: url
+                });
+            }
+            else {
+                let drawer = imageShareStringDrawer;
+                message = JSON.stringify({
+                    username: "Skribbl Image Post",
+                    avatar_url:
+                        'https://tobeh.host/Orthanc/images/letterred.png',
+                    embeds: [
+                        {
+                            "title": title,
+                            "description": "Posted by " + loginName,
+                            "color": 4368373,
+                            "image": {
+                                "url": url
+                            },
+                            "footer": {
+                                "icon_url": "https://tobeh.host/Orthanc/images/typo.png",
+                                "text": "skribbl typo"
+                            },
+                            "author": {
+                                "name": "Drawn by " + drawer,
+                                "url": "https://tobeh.host/Orthanc",
+                                "icon_url": "https://skribbl.io/res/pen.gif"
+                            }
+                        }
+                    ]
+                })
+            }
+
+            // send webhook
+            await fetch(w.URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: message
+            });
+        });
+        sharePopup.appendChild(shareImg);
+    });
+
+    Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
+
+    //// ------------------------------------------------------------------------------------------------------------------
+
+    // add Description form 
+    let containerForms = document.querySelector(".containerSettings");
+    let containerGroup = document.createElement("div");
+    containerGroup.classList.add("form-group");
+    let lobbyDescLabel = document.createElement("label");
+    lobbyDescLabel.for = "lobybDesc";
+    lobbyDescLabel.innerText = "Lobby Description";
+    let textareaDesc = document.createElement("textarea");
+    textareaDesc.classList.add("form-control");
+    textareaDesc.placeholder = "Lobby description to show up in the palantir bot";
+    textareaDesc.id = "lobbyDesc";
+
+    containerForms.appendChild(containerGroup);
+    containerGroup.appendChild(lobbyDescLabel);
+    containerGroup.appendChild(textareaDesc);
+
+    // add drawing copy button
+    let optionsButton = document.createElement("button");
+    document.querySelector("#containerPlayerlist div.tooltip-wrapper").appendChild(optionsButton);
+    document.querySelector("#containerPlayerlist div.tooltip-wrapper").setAttribute("data-original-title", "");
+    optionsButton.classList = "btn btn-info btn-block";
+    optionsButton.id = "saveDrawingOptions";
+    optionsButton.innerText = "Image tools";
+    optionsButton.addEventListener("click", () => {
+        if (!localStorage.imageTools) {
+            alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
+            localStorage.imageTools = "READ IT";
+        };
+        document.querySelector("#saveDrawingPopup").style.display = "block";
+        document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+        optionsPopup.children[0].focus();
+        //document.querySelector("#saveDrawingPopupPaste").style.display = document.querySelector(".containerToolbar").style.display;
+        [...document.querySelectorAll(".pasteSaved")].forEach(p=>p.style.display = document.querySelector(".containerToolbar").style.display);
+        //if (drawCommandsCopy.length <= 0) document.querySelector("#saveDrawingPopupPaste").style.display = "none";
+    });
+
+    let optionsPopup = document.createElement("div");
+    document.querySelector("#containerPlayerlist").appendChild(optionsPopup);
+    optionsPopup.style.position = "absolute";
+    optionsPopup.style.background = "white";
+    optionsPopup.style.overflow = "hidden";
+    optionsPopup.style.zIndex = "5";
+    optionsPopup.style.width = "90%";
+    optionsPopup.style.padding = "1em;";
+    optionsPopup.style.borderRadius = ".5em";
+    optionsPopup.style.marginLeft = "5%";
+    optionsPopup.style.boxShadow = "1px 1px 9px -2px black";
+    optionsPopup.style.display = "none";
+    optionsPopup.style.minHeight = "15%";
+    optionsPopup.style.padding = "1em";
+    optionsPopup.id = "saveDrawingPopup";
+    optionsPopup.tabIndex = "-1";
+
+    let popupTempSaveCommands = document.createElement("button");
+    optionsPopup.appendChild(popupTempSaveCommands);
+    popupTempSaveCommands.classList = "btn btn-info btn-block";
+    popupTempSaveCommands.innerText = "Save current";
+    popupTempSaveCommands.addEventListener("click", () => {
+        let originalActions = getCapturedActions();
+        let clear = originalActions.length - 1;
+        while (originalActions[clear][0] != 3) clear--;
+        let popupCustomSaved = document.createElement("button");
+        optionsPopup.appendChild(popupCustomSaved);
+        popupCustomSaved.classList = "btn btn-success btn-block";
+        let actions = [...originalActions.slice(clear)];
+        let drawer;
+        try {
+            drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
+        }
+        catch{ drawer = "coolDrawing"; }
+        popupCustomSaved.innerText = prompt("How would you like to name the drawing?", drawer);
+        popupCustomSaved.addEventListener("click", () => {
+            drawOnCanvas(actions);
+            capturedActions = [...actions];
+        });
+        document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+    });
+
+    let popupSaveCommands = document.createElement("button");
+    optionsPopup.appendChild(popupSaveCommands);
+    popupSaveCommands.classList = "btn btn-warning btn-block";
+    popupSaveCommands.innerText = "Download current";
+    popupSaveCommands.addEventListener("click", () => {
+        let originalActions = getCapturedActions();
+        let clear = originalActions.length - 1;
+        while (originalActions[clear][0] != 3) clear--;
+        if (originalActions.length < 1 || originalActions[0][0] == 3 && originalActions.length == 1) { alert("Error capturing drawing data :("); return;}
+        let content = JSON.stringify([...originalActions.slice(clear)]);
+        let dl = document.createElement('a');
+        dl.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+        dl.setAttribute('download', prompt("What name should the drawing be saved under?", "niceDrawing" ) + ".skd");
+        dl.style.display = 'none';
+        document.body.appendChild(dl);
+        dl.click();
+        document.body.removeChild(dl);
+        let popupCustomSaved = document.createElement("button");
+        optionsPopup.appendChild(popupCustomSaved);
+        popupCustomSaved.classList = "btn btn-success btn-block";
+        let actions = [...originalActions.slice(clear)];
+        popupCustomSaved.innerText = dl.getAttribute("download");
+        popupCustomSaved.addEventListener("click", () => {
+            drawOnCanvas(actions);
+            capturedActions = [...actions];
+        });
+    });
+
+    let popupPasteSavedCommands = document.createElement("button");
+    optionsPopup.appendChild(popupPasteSavedCommands);
+    popupPasteSavedCommands.id = "saveDrawingPopupPasteSaved";
+    popupPasteSavedCommands.classList = "btn btn-warning btn-block";
+    popupPasteSavedCommands.innerText = "Load file";
+    popupPasteSavedCommands.addEventListener("click", () => {
+        let fileInput = document.createElement('input');
+        let actions;
+        fileInput.type = 'file';
+        fileInput.accept = ".skd";
+        fileInput.onchange = e => {
+            let file = e.target.files[0];
+            let reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = readerEvent => {
+                actions = readerEvent.target.result;
+                let popupCustomSaved = document.createElement("button");
+                optionsPopup.appendChild(popupCustomSaved);
+                popupCustomSaved.style.display = document.querySelector(".containerToolbar").style.display
+                popupCustomSaved.classList = "btn btn-success btn-block pasteSaved";
+                popupCustomSaved.innerText = file.name;
+                popupCustomSaved.addEventListener("click", () => {
+                    drawOnCanvas(JSON.parse(actions));
+                    capturedActions = JSON.parse(actions);
+                });
+                document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+            }
+        }
+        fileInput.click();
+    });
+
+    let popupAbort = document.createElement("button");
+    optionsPopup.appendChild(popupAbort);
+    popupAbort.id = "abortDrawing";
+    popupAbort.classList = "btn btn-danger btn-block";
+    popupAbort.innerText = "Abort Drawing";
+    popupAbort.style.display = "none";
+    popupAbort.addEventListener("click", () => {
+        abortDrawingProcess = true;
+        popupAbort.style.display = "none";
+    });
+
+    let checkbox = document.createElement("input");
+    let checkboxWrap = document.createElement("div");
+    let checkboxLabel = document.createElement("label");
+    checkbox.type = "checkbox";
+    checkbox.id = "clearCanvasBeforePaste";
+    checkboxLabel.innerText = "Clear canvas before paste";
+    checkboxLabel.insertBefore(checkbox,checkboxLabel.firstChild);
+    checkboxWrap.appendChild(checkboxLabel);
+    checkboxWrap.classList.add("checkbox");
+    optionsPopup.appendChild(checkboxWrap);
+
+
+    Array.from(optionsPopup.children).concat(optionsPopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!optionsPopup.contains(document.activeElement)) optionsPopup.style.display = "none" }, 20); }));
+
+    // add sketchful colors
+    document.querySelector(".containerColorbox").id = "originalPalette";
+    document.querySelector("#buttonClearCanvas").style.height = "48px";
+    let palettes = localStorage.customPalettes ? JSON.parse(localStorage.customPalettes) : [];
+    //let sketchfulPalette = '{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}'
+    //sketchfulPalette = JSON.parse(sketchfulPalette);
+    palettes.forEach(p => addColorPalette(p));
+
+    // add drop button
+    let dropContainer = document.createElement("div");
+    dropContainer.id = "claimDrop";
+    dropContainer.style.width = "48px";
+    dropContainer.style.height = "48px";
+    dropContainer.style.left = "8px";
+    dropContainer.style.bottom = "8px";
+    dropContainer.style.position = "absolute";
+    dropContainer.style.backgroundSize = "contain";
+    dropContainer.style.cursor = "pointer";
+    dropContainer.style.display = "none";
+    dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
+    dropContainer.addEventListener("click", async () => {
+        if (dropContainer.style.display == "none") return;
+        dropContainer.style.display = "none";
+        let dropID = dropContainer.getAttribute("dropID");
+        let state = await fetch('https://www.tobeh.host/Orthanc/drop/claim/', {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: "login=" + JSON.parse(localStorage.member).UserLogin + "&dropID=" + dropID + "&lobbyKey=" + Report.guildLobbies[0].Key + "&lobbyPlayerID=" + Report.loginName
+        }
+        );
+        state = await state.json();
+        if (state.Caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
+        else {
+            let winner = "";
+            if (state.CaughtLobbyKey == Report.guildLobbies[0].Key) winner = state.CaughtLobbyPlayerID;
+            else winner = "Someone in another lobby"
+            printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
+        }
+    })
+    document.querySelector("#containerCanvas").appendChild(dropContainer);
+
+    // color picker
+    let toolbar = document.querySelector(".containerToolbar");
+    let picker = document.createElement("div");
+    picker.id = "colPicker";
+    picker.style.display =  localStorage.randomColorButton == "true" ? "flex" : "none";
+    picker.style.justifyContent = "center";
+    picker.style.alignItems = "center";
+    picker.innerHTML = "<img src='" + chrome.runtime.getURL("res/mag.gif") + "' class='toolIcon'>";
+    picker.classList.add("colorPreview");
+    toolbar.insertBefore(picker, toolbar.children[0]);
+    let pickerpopup = new ColorPicker(picker.firstChild);
+    picker.firstChild.addEventListener('colorChange', function (event) {
+        document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: event.detail.color }));
+        picker.style.backgroundColor = event.detail.color.hex;
+        picker.firstChild.style.background = "none";
+    });
+    document.querySelector("#opacity_slider").style.pointerEvents = "none";
+    document.querySelector("#opacity_slider").style.opacity = "0";
+
+    // precise drawing mode
+    let canvasGame = document.querySelector("#canvasGame")
+    let zoomActive = false;
+    let changeZoom;
+    let toggleZoom = (event, skipctrl = false) => {
+        if (event.ctrlKey|| skipctrl) {
+            event.preventDefault();
+            if (!zoomActive && document.querySelector(".containerToolbar").style.display != "none") {
+                zoomActive = true;
+                const zoom = Number(localStorage.zoom) > 1 ? Number(localStorage.zoom) : 3;
+                // refresh brush cursor
+                canvasGame.setAttribute("data-zoom", zoom);
+                document.querySelector(".tool.toolActive").dispatchEvent(new Event("click"));
+                // get current height and set to parent
+                let bRect = canvasGame.getBoundingClientRect();
+                canvasGame.parentElement.style.height = bRect.height + "px";
+                canvasGame.parentElement.style.width = bRect.width + "px";
+                canvasGame.parentElement.style.boxShadow = "black 0px 0px 25px 5px";
+                // zoom canvas
+                canvasGame.style.width = (zoom * 100) + "%";
+                // get position offset
+                canvasGame.style.position = "relative";
+                canvasGame.style.top = "-" + ((event.offsetY * zoom) - (bRect.height / 2)) + "px";
+                canvasGame.style.left = "-" + ((event.offsetX * zoom) - (bRect.width / 2)) + "px";
+                changeZoom = (e) => {
+                    if (Number(e.key) > 1 && Number(e.key) <= 9) {
+                        localStorage.zoom = e.key;
+                        toggleZoom(event);
+                        toggleZoom(event);
+                    }
+                }
+                document.addEventListener("keydown", changeZoom);
+            }
+            else {
+                // reset zoom
+                canvasGame.setAttribute("data-zoom", 1);
+                document.querySelector(".tool.toolActive").dispatchEvent(new Event("click"));
+                canvasGame.parentElement.style.height = "";
+                canvasGame.parentElement.style.width = "";
+                canvasGame.parentElement.style.boxShadow = "";
+                canvasGame.style.width = "100%";
+                canvasGame.style.top = "";
+                canvasGame.style.left = "";
+                document.removeEventListener("keydown", changeZoom);
+                zoomActive = false;
+            }
+        }
+    }
+    document.addEventListener("pointerdown", toggleZoom);
+    document.querySelector("body").addEventListener("logCanvasClear", (e) => { if(zoomActive) toggleZoom(e, true); });
+
 })();
+
+function addColorPalette(paletteJson) {
+    let containerColorbox = document.createElement("div");
+    containerColorbox.classList.add("containerColorbox");
+
+    let columns = [];
+    paletteJson.colors.forEach(c => {
+        let index = paletteJson.colors.indexOf(c);
+        if (!columns[Math.floor(index / paletteJson.rowCount)]) columns.push([]);
+        columns[Math.floor(index / paletteJson.rowCount)].push(c);
+    });
+
+    let paletteContainer = document.createElement("div");
+    paletteContainer.id = paletteJson.name;
+
+    if (localStorage.palette == paletteJson.name) document.querySelector(".containerColorbox").style.display = "none";
+    else paletteContainer.style.display = "none";
+
+    paletteContainer.classList.add("containerColorbox");
+    paletteContainer.classList.add("customPalette");
+    paletteContainer.setAttribute("data-toggle", "tooltip");
+    paletteContainer.setAttribute("data-placement", "top");
+    paletteContainer.setAttribute("title", "");
+    paletteContainer.setAttribute("data-original-title", "Select a color");
+
+    columns.forEach(c => {
+        let colorColumn = document.createElement("div");
+        colorColumn.classList.add("containerColorColumn");
+        c.forEach(i => {
+            let colorItem = document.createElement("div");
+            colorItem.classList.add("colorItem");
+            colorItem.setAttribute("data-color", i.index);
+            colorItem.style.background = i.color;
+            colorItem.addEventListener("click", () => document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: i.index })));
+            colorColumn.appendChild(colorItem);
+        });
+        paletteContainer.appendChild(colorColumn);
+    });
+    let tools = document.querySelector(".containerTools");
+    tools.parentElement.insertBefore(paletteContainer, tools);
+    return paletteContainer;
+}
+
 
 // func to mark a message node with background color
 function markMessage(newNode) {
@@ -343,33 +1390,15 @@ function markMessage(newNode) {
 
     let sender = newNode.innerHTML.slice(newNode.innerHTML.indexOf("<b>"), newNode.innerHTML.indexOf("</b>")).slice(3, -2);
     if (sender == document.querySelector("input[placeholder='Enter your name']").value || sender != "" && localStorage.vip.split("/").includes(sender))
-        newNode.style.background = markup_color;
+        newNode.style.background = localStorage.markupColor;
 }
 
-// func to restore drawing based on saved commands
-function restoreDrawing(limit = 0) {
-    let actions = capturedActions.slice(0, -limit);
-    let redo = [];
 
-    // put all commands from each action in one command-array. the last actions (limit) are passed.
-    for (let action = 0, lenA = capturedActions.length - limit; action < lenA; action++)
-        for (let cmd = 0, lenC = capturedActions[action].length; cmd < lenC; cmd++)
-            capturedActions[action][cmd].length > 0 && redo.push(capturedActions[action][cmd]);
+// _____________________________________________________________
+//
+//            General functions (keyups, imageagent, shortcuts)
+// _____________________________________________________________
 
-    // search for the last clear to avoid unnecessary drawing
-    let lastClear = redo.length - 1;
-    while (lastClear > 0 && redo[lastClear][0] != 3) { lastClear--; }
-
-    let captured = lastClear > 0 ? lastClear + 1 : 0;
-    let maxcaptured = redo.length;
-
-    let body = document.querySelector("body");
-    document.querySelector("#buttonClearCanvas").dispatchEvent(new Event("click"));
-    let t = setInterval(function () {
-        captured >= maxcaptured ? (clearInterval(t), capturedActions = [], capturedCommands = [], capturedActions = actions) :
-            body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] })); captured++;
-    }, 3);
-}
 
 // func to process keyups in message field
 function keyup() {
@@ -429,57 +1458,6 @@ function update() {
     info.innerHTML = diff;
 }
 
-// mutation observer callback
-function checkPlayers() {
-
-    let players = document.querySelector(".name");
-    let i;
-
-    for (i = 0; i < players.length; i++) {
-        if (players[i].innerHTML.includes("(You)") || players[i].innerHTML.includes("Ƭ")) // hehehe Ƭobeh is always premium
-        {
-            let playerNode = players[i].parentNode.parentNode;
-            let pNar = playerNode.children;
-            let special;
-
-            let k;
-            for (k = 0; k < pNar.length; k++) {
-
-                if (pNar[k].className == "avatar") {
-
-                    let aNar = pNar[k].children;
-
-                    let j;
-                    for (j = 0; j < pNar.length; j++) {
-
-                        if (aNar[j].className == "special") {
-                            special = aNar[j];
-
-                            if (localStorage.ownHoly == "true") {
-                                special.setAttribute("style", "background-image: url(" + link_to_holy + ");");
-                                players[i].parentElement.parentElement.style.height = "60px";
-                            }
-
-                            if (localStorage.ownHoly == "false") {
-                                special.setAttribute("style", "display:none;");
-                                players[i].parentElement.parentElement.style.height = "50px";
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-} // bootyful
-
-// func to set the brushsize (event to game.js)
-function setBrushsize(newsize) {
-    let event = new CustomEvent("setBrushSize", {
-        detail: newsize
-    });
-    document.querySelector("body").dispatchEvent(event);
-}
-
 // func to set imageagentbuttons visible if drawing
 function updateImageAgent() {
     let word = document.getElementById("currentWord");
@@ -490,102 +1468,69 @@ function updateImageAgent() {
 
     if (word.innerHTML.includes("_") || word.innerHTML == "" || localStorage.imageAgent == "false") {
         div.style.display = "none";
-        document.querySelector("#containerFreespace").setAttribute("class", "");
+        document.querySelector("#containerAgent").setAttribute("class", "");
         document.querySelector("#imageAgent").setAttribute("src", "");
         scrollMessages();
         return;
     }
     div.style.display = "block";
-    document.querySelector("#containerFreespace").setAttribute("class", "updateInfo collapse in");
+    document.querySelector("#containerAgent").setAttribute("class", "updateInfo collapse in");
     scrollMessages();
 }
 
-// func to set the image in the agentdiv - TODO: REPLACE COS BYPASS WITH GOOGLE-PERMISSION!!!
-function setAgentSource(searchCriteria, exclusive = 0) {
-    let agent = document.querySelector("#imageAgent");
+// func to set the image in the agentdiv
+let imageIndex;
+let searchImages;
+let agent = document.querySelector("#imageAgent");
+let setAgentSource = async (searchCriteria, exclusive = 0) => {
     let word = document.querySelector("#currentWord").innerHTML;
-
     let search = (exclusive ? "" : word + "+") + searchCriteria;
     search = replaceUmlaute(search);
-
     agent.src = "/res/load.gif";
 
-    // Search engines:
+    // Search engines with CORS bypass:
     // Google, duckduckgo etc detect bot usage -> unusable
     // Not working after few requests due to bot detection or smth:     https://yandex.com/images/search?text=hello%20kitty
     // Working but a bit weird results:                                 https://www.mojeek.com/search?fmt=images&imgpr=bing&q=
+    let uri = encodeURIComponent('https://www.mojeek.com/search?fmt=images&imgpr=bing&q=' + search);
+    let resp = await fetch('https://api.allorigins.win/get?url=' + uri);
+    let html = (await resp.json()).contents;
+    let doc = new DOMParser().parseFromString(html, "text/html");
+    searchImages = doc.querySelectorAll("img");
+    imageIndex = 2;
 
-    //let xhr = new XMLHttpRequest();
-    //xhr.open("GET", "https://www.google.com/search?safe=off&tbm=isch&sclient=img&q=" + search, true);
-    //xhr.onreadystatechange = () => {
-    //    if (xhr.readyState == 4) {
-    //        console.log(xhr.responseText);
-    //    }
-    //}
-    //xhr.send();
-
-
-    $.getJSON('https://api.allorigins.win/get?url=' +
-        encodeURIComponent('https://www.mojeek.com/search?fmt=images&imgpr=bing&q=' + search), function (data) {
-            let html = data.contents;
-            let doc = new DOMParser().parseFromString(html, "text/html");
-            let imgs = doc.querySelectorAll("img");
-
-            let src = imgs[2].getAttribute("src");
-            src = src.substr(src.lastIndexOf("https"));
-            agent.setAttribute("src", src);
-            $(agent).data("index", "2")
-            scrollMessages();
-
-            $(agent).unbind();
-            $(agent).click(function () {
-                let i = parseInt($(agent).data("index"));
-                i++;
-                if (i >= imgs.length) i = 2;
-
-                let src = imgs[i].getAttribute("src");
-                src = src.substr(src.lastIndexOf("https"));
-                //agent.src="/res/load.gif";
-                agent.setAttribute("src", src);
-                $(agent).data("index", i);
-                scrollMessages();
-            });
-        });
+    if (!searchImages[imageIndex]) { agent.alt = "Error: No results found :("; agent.src = ""; return; }
+    getNextAgentImage();
 }
+let getNextAgentImage = () => {
+    if (imageIndex >= searchImages.length) imageIndex = 2;
+    let src = searchImages[imageIndex].getAttribute("src");
+    src = src.substr(src.lastIndexOf("https"));
+    agent.src = src;
+    scrollMessages();
+    imageIndex++;
+}
+agent.addEventListener("click", getNextAgentImage);
 
 //function to scroll to bottom of message container
 function scrollMessages() {
     let box = document.querySelector("#boxMessages");
-    $(box).scrollTop($(box).prop("scrollHeight"));
+    box.scrollTop = box.scrollHeight;
 }
 
-// func to show game div
-function testMode() {
-    localStorage.practise = true;
-    document.querySelector(".containerToolbar").style.display = "";
-
-    document.getElementById("screenGame").style.display = "block";
-    setTimeout(function () {
-        document.querySelector("#currentWord").innerHTML = "example";
-        $("body, html").animate({
-            scrollTop: $(document).height()
-        }, 400);
-    }, 100);
-}
-
-// umlaute which have to be replaced
-const umlautMap = {
-    '\u00dc': 'UE',
-    '\u00c4': 'AE',
-    '\u00d6': 'OE',
-    '\u00fc': 'ue',
-    '\u00e4': 'ae',
-    '\u00f6': 'oe',
-    '\u00df': 'ss',
-}
 
 // func to replace umlaute in a string
-function replaceUmlaute(str) {
+let replaceUmlaute = (str) => {
+    // umlaute which have to be replaced
+    const umlautMap = {
+        '\u00dc': 'UE',
+        '\u00c4': 'AE',
+        '\u00d6': 'OE',
+        '\u00fc': 'ue',
+        '\u00e4': 'ae',
+        '\u00f6': 'oe',
+        '\u00df': 'ss',
+    }
     return str
         .replace(/[\u00dc|\u00c4|\u00d6][a-z]/g, (a) => {
             const big = umlautMap[a.slice(0, 1)];
@@ -594,4 +1539,14 @@ function replaceUmlaute(str) {
         .replace(new RegExp('[' + Object.keys(umlautMap).join('|') + ']', "g"),
             (a) => umlautMap[a]
         );
+}
+function getCurrentOrLastDrawer() {
+    let drawer = "Unknown";
+    if (sessionStorage.practise == "true") drawer = document.querySelector("#inputName").value;
+    else if (sessionStorage.lastDrawing) drawer = sessionStorage.lastDrawing;
+    else try {
+        drawer = document.querySelector('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.querySelector(".name").textContent.replace(" (You)", "");
+    }
+    catch{ }
+    return drawer;
 }

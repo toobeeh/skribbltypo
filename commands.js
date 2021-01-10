@@ -1,3 +1,6 @@
+﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
 /*
  * Extends service.js contentscript
   Command detection:
@@ -14,6 +17,9 @@ help_text += "<br/>- enable/disable agent (Toggle ImageAgent) <br/>- enable/disa
 help_text += "<br/>- enable/disable ink (Toggle tablet pressure)<br/>- enable/disable back (Toggle back-button)<br/>- enable/disable random (Toggle random color)<br/>- set random [ms] (Random interval, ms)";
 help_text += "<br/>Example: 'set markup #ffffff--'<br/> <br/> Most settings are accessible in the extension popup!";
 
+const cmd_add_observerToken = "adobs";
+const cmd_remove_observerToken = "rmobs";
+
 const cmd_enableOwnHoly = "enable holy";
 const cmd_disableOwnHoly = "disable holy";
 
@@ -23,6 +29,8 @@ const cmd_enMarkup = "enable markup";
 const cmd_daMarkup = "disable markup";
 
 const cmd_help = "help";
+
+const cmd_fixPalantir = "fixptr";
 
 const cmd_deleteToken = "set token";
 
@@ -40,6 +48,7 @@ const cmd_daAgent = "disable agent";
 const cmd_enInk = "enable ink";
 const cmd_daInk = "disable ink";
 const cmd_setSensitivity = "set sens";
+const cmd_setInkmode = "inkmode";
 
 const cmd_restore = "restore pic";
 const cmd_enBack = "enable back";
@@ -49,10 +58,14 @@ const cmd_enRandom = "enable random";
 const cmd_daRandom = "disable random";
 const cmd_setRandom = "set random";
 
+const cmd_setPalette = "palette";
+const cmd_addPalette = "addpal";
+const cmd_removePalette = "rmpal";
+
 // ----------------------------- INTERPRETER - CALLS FUNCTIONS DEPENDING ON ENTERED COMMAND
 function command_interpreter(cmd) {
 
-    cmd = cmd.substr(0, cmd.length - 2);
+    cmd = cmd.replace("--","");
     cmd.trim();
 
     if (cmd.includes(cmd_enableOwnHoly)) setHolyOnOwn();
@@ -69,24 +82,35 @@ function command_interpreter(cmd) {
     else if (cmd.includes(cmd_daInk)) daInk();
     else if (cmd.includes(cmd_enInk)) enInk();
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
+    //else if (cmd.includes(cmd_add_observerToken)) addObserveToken((cmd.replace(cmd_add_observerToken, "")).trim());
+    //else if (cmd.includes(cmd_remove_observerToken)) removeObserveToken((cmd.replace(cmd_remove_observerToken, "")).trim());
+    else if (cmd.includes("memberlogin")) login(cmd.replace("memberlogin", "").trim());
+    else if (cmd.includes("enable palantir")) {localStorage.userAllow = "true"; fixPalantir(true);}
+    else if (cmd.includes("disable palantir")) localStorage.userAllow = "false";
+    else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
+    else if (cmd.includes(cmd_setInkmode)) setInkmode((cmd.replace(cmd_setInkmode, "")).trim());
     else if (cmd.includes(cmd_addImportantName)) addVip((cmd.replace(cmd_addImportantName, "")).trim());
     else if (cmd.includes(cmd_removeImportantName)) remVip((cmd.replace(cmd_removeImportantName, "")).trim());
     else if (cmd.includes(cmd_showImportantName)) showVip();
     else if (cmd.includes(cmd_clearImportantName)) clearVip();
     else if (cmd.includes(cmd_restore)) restoreDrawing();
+    else if (cmd.includes(cmd_fixPalantir)) fixPalantir();
     else if (cmd.includes(cmd_enBack)) toggleBackbutton(true);
     else if (cmd.includes(cmd_daBack)) toggleBackbutton();
     else if (cmd.includes(cmd_enRandom)) toggleRandomColor(true);
     else if (cmd.includes(cmd_daRandom)) toggleRandomColor();
     else if (cmd.includes(cmd_setRandom)) setRandomInterval((cmd.replace(cmd_setRandom, "")).trim());
     else if (cmd.includes(cmd_deleteToken)) setToken((cmd.replace(cmd_deleteToken, "")).trim());
-    else if (cmd.includes(cmd_randomColor)) document.querySelector("body").dispatchEvent(new Event("setRandomColor"));
+    else if (cmd.includes(cmd_addPalette)) addPalette(cmd.replace(cmd_addPalette, "").trim());
+    else if (cmd.includes(cmd_setPalette)) setPalette(cmd.replace(cmd_setPalette, "").trim());
+    else if (cmd.includes(cmd_removePalette)) removePalette(cmd.replace(cmd_removePalette, "").trim());
+    //else if (cmd.includes(cmd_randomColor)) document.querySelector("body").dispatchEvent(new Event("setRandomColor"));
 
     else printCmdOutput("Error");
 }
 
 // ----------------------------- OUTPUT - SHOWS CHAT MESSAGE DEPENDING ON COMMAND
-function printCmdOutput(cmd) {
+function printCmdOutput(cmd, info = "", title = "") {
 
     // Create Message
     let p = document.createElement("p");
@@ -94,15 +118,16 @@ function printCmdOutput(cmd) {
     p.style.background = "rgb(247, 210, 140)";
 
     let b = document.createElement("b");
-    b.innerHTML = "Befehl:   " + cmd;
+    b.innerHTML = "Command:   " + cmd;
+    if (title != "") b.innerHTML = title;
     b.style.display = "block";
 
     let s = document.createElement("span");
 
     // Set Message Content
     if (cmd.includes("Error")) s.innerHTML = "Error by executing the command";
-    else if (cmd == cmd_disableOwnHoly) s.innerHTML = "Holy special was activated";
-    else if (cmd == cmd_enableOwnHoly) s.innerHTML = "Holy special was removed";
+    else if (cmd == cmd_disableOwnHoly) s.innerHTML = "Holy special was removed";
+    else if (cmd == cmd_enableOwnHoly) s.innerHTML = "Holy special was activated";
     else if (cmd == cmd_setMarkup) s.innerHTML = "New markup-color: '" + markup_color + "'";
     else if (cmd == cmd_resetMarkup) s.innerHTML = "Markup-color was reset";
     else if (cmd == cmd_help) s.innerHTML = help_text;
@@ -110,6 +135,8 @@ function printCmdOutput(cmd) {
     else if (cmd == cmd_daAgent || cmd == cmd_enAgent) s.innerHTML = "ImageAgent toggled";
     else if (cmd == cmd_daMarkup || cmd == cmd_enMarkup) s.innerHTML = "Markup toggled";
     else if (cmd == cmd_daInk || cmd == cmd_setSensitivity || cmd == cmd_enInk) s.innerHTML = "Sensitivity was set";
+    else if (cmd == "render") s.innerHTML = "Gif is rendering in background and will be downloaded. Takes up to 30s.";
+    else if (cmd == "drop") s.innerHTML = info;
 
     p.appendChild(b);
     p.appendChild(s);
@@ -120,6 +147,46 @@ function printCmdOutput(cmd) {
 }
 
 // ----------------------------- FUNCTIONS - TO HANDLE COMMAND FUNCTIONALITY
+
+// func to set active palette
+function setPalette(p) {
+    if (!document.querySelector("#" + p)) return;
+    [...document.querySelectorAll(".containerColorbox")].forEach(c => c.style.display = "none");
+    document.querySelector("#" + p).style.display = "";
+    localStorage.palette = p;
+}
+
+// function to reinitialize report
+function fixPalantir(silent = false) {
+    Report.playing = true;
+    Report.waiting = false;
+    Report.searching = false;
+    Report.guildLobbies = [];
+    Report.trigger();
+    if(!silent)printCmdOutput("Restarted palantir stuff.");
+}
+
+// func to add palette
+function addPalette(p) {
+    let palettes = JSON.parse(localStorage.customPalettes);
+    let newPalette = JSON.parse(p);
+    palettes.push(newPalette);
+    localStorage.customPalettes = JSON.stringify(palettes);
+    addColorPalette(p);
+}
+
+// func to remove palette
+function removePalette(p) {
+    let palettes = JSON.parse(localStorage.customPalettes);
+    palettes = palettes.filter(f => { return f.name != p; });
+    document.querySelector("#" + p).remove();
+    if (p == localStorage.palette) {
+        setPalette("standardPalette");
+    }
+    localStorage.customPalettes = JSON.stringify(palettes);
+}
+
+
 // func to update charbar visibility
 function viewCharBar() {
     let _height;
@@ -139,10 +206,14 @@ function viewCharBar() {
 
 // func to set random color button in color preview
 function toggleRandomColor(state = false, silent = false) {
-    if (state) document.querySelector("#randomIcon").style.display = "";   
+    if (state) {
+        document.querySelector("#randomIcon").style.display = "";
+        document.querySelector("#colPicker").style.display = "flex";
+    }
     else {
         document.querySelector("#randomIcon").style.display = "none";
-        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: "false" }));
+        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: "false" } }));
+        document.querySelector("#colPicker").style.display = "none";
     }
     localStorage.randomColorButton = state;
 }
@@ -235,6 +306,12 @@ function setSensitivity(nsens) {
     printCmdOutput(cmd_setSensitivity + " " + nsens);
 }
 
+// func to set inkmode
+function setInkmode(mode) {
+    localStorage.inkMode = mode;
+    printCmdOutput(cmd_setInkmode + " " + mode);
+}
+
 // func to set charbarsetting visible
 function enCharBar() {
     localStorage.charBar = true;
@@ -301,4 +378,8 @@ function showVip() {
     out += (list != "" ? list : "NUR DU!!!");
     out += "</ul>";
     printCmdOutput(out);
+}
+
+function login(login) {
+    localStorage.login = login;
 }

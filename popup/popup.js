@@ -1,18 +1,27 @@
 // add listener to get settings string from skribbl-context
 var settings = null;
 var skribbl = true;
+var member = null;
+var tabid;
+
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         settings = JSON.parse(request.get);
+        localStorage.skribblSettings = request.get;
         document.querySelectorAll("button").forEach(function (bt) {
-            if (bt.id == "tablet" && settings.ink == "true") bt.className = "active";
+            if (bt.id == "tablet" && settings.ink == "true") {
+                bt.className = "active";
+                bt.innerText += (": " + settings.inkMode);
+            }
             if (bt.id == "imageagent" && settings.imageAgent == "true") bt.className = "active";
             if (bt.id == "markup" && settings.markup == "true") bt.className = "active";
             if (bt.id == "holy" && settings.ownHoly == "true") bt.className = "active";
             if (bt.id == "charbar" && settings.charBar == "true") bt.className = "active";
             if (bt.id == "backbutton" && settings.displayBack == "true") bt.className = "active";
             if (bt.id == "randomToggle" && settings.randomColorButton == "true") bt.className = "active";
+            if (bt.id == "palantirToggle" && settings.userAllow == "true") bt.className = "active";
         });
+        tabid = sender.tab.id;
 
         let sensSlider = document.querySelector("#sensSlider input[type='range']");
         sensSlider.value = settings.sens;
@@ -25,14 +34,97 @@ chrome.runtime.onMessage.addListener(
         let randomSlider = document.querySelector("#randomSlider input[type='range']");
         randomSlider.value = settings.randomColorInterval;
         randomSlider.dispatchEvent(new Event('input'));
+
+        if (settings.member != "") {
+
+            document.querySelector("#login").style.display = "none";
+            document.querySelector("#server").style.display = "";
+            member = JSON.parse(settings.member);
+            document.querySelector("#loginName").textContent = member.UserName;
+
+            document.querySelector("#authGuilds").innerHTML = "";
+            member.Guilds.forEach((g) => {
+                addAuthGuild(g.GuildID, g.GuildName, g.ObserveToken);
+            });
+        }
+
+        if (settings.palette == "originalPalette") document.querySelector("#originalPalette").classList.add("active");
+        if (settings.customPalettes && settings.customPalettes.length > 0) {
+            JSON.parse(settings.customPalettes).forEach(p => {
+                let bt = document.createElement("button");
+                if (p.name == settings.palette) bt.classList.add("active");
+                bt.innerText = p.name;
+                bt.id = p.name;
+                bt.onclick = togglePalette;
+                let contextm = false;
+                bt.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    if (contextm == true) {
+                        chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+                            chrome.tabs.sendMessage(tabs[0].id, "rmpal " + bt.id);
+                        });
+                        bt.remove();
+                    }
+                    else if(bt.id != "sketchfulPalette") {
+                        contextm = true;
+                        bt.innerText = "Rightclick to delete";
+                        setTimeout(() => { contextm = false; bt.innerText = bt.id; }, 2000);
+                    }
+                }
+                document.querySelector("#palettes").appendChild(bt);
+            });
+        }
     }
 );
 
+function togglePalette(e) {
+    if (!localStorage.paletteInfo) {
+        alert("WARNING:\nOnly players with the same installed palette can see the colors!\nUse this ONLY for private games and if all players aggreed & added the palette!\nIf you want to know how to create custom palettes, contact tobeh#7437.")
+        localStorage.paletteInfo = true;
+    }
+    [...document.querySelector("#palettes").children].forEach(c => c.classList.remove("active"));
+    e.target.classList.add("active");
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, "palette " + this.id);
+    });
+}
+
 // func to check if skribbl is opened and adjust content
 chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-    if (!tabs[0].url.includes("skribbl.io")) {
+    if (tabs[0].url.includes("skribbl.io")) {
+        skribbl = true;
+        document.querySelectorAll(".sketchful:not(.skribbl)").forEach(function (node) { node.remove(); });
+    }
+    else if (tabs[0].url.includes("sketchful.io")) {
         skribbl = false;
-        document.querySelectorAll(".skribbl").forEach(function (node) { node.remove(); });
+        document.querySelectorAll(".skribbl:not(.sketchful)").forEach(function (node) { node.remove(); });
+        document.querySelector("#tabDiscord").classList.add("tabActive");
+        document.querySelector("#palantirSettings").style.display = "block";
+        let skribblSettings = JSON.parse(localStorage.skribblSettings);
+        let member = JSON.parse(skribblSettings.member);
+        //alert(member.UserName);
+        if (member) document.querySelector("#sketchfulLogin").textContent = member.UserName;
+        else document.querySelector("#sketchfulLogin").textContent = "Go to skribbl and log in with your token!";
+        if (member.Guilds.length > 0) {
+            let guildContainer = document.querySelector("#sketchfulGuilds");
+            guildContainer.innerHTML = "";
+            member.Guilds.forEach(g => {
+                guildContainer.innerHTML += "<div class='label'>" + g.GuildName + "</div>";
+            });
+        }
+        if (!localStorage.sketchfulAllow) localStorage.sketchfulAllow = "false";
+        let sketchfulAllowButton = document.querySelector("#palantirToggleSketchful");
+        if (localStorage.sketchfulAllow == "true") sketchfulAllowButton.classList.add("active");
+        sketchfulAllowButton.addEventListener("click", () => {
+            if (localStorage.sketchfulAllow == "true") { sketchfulAllowButton.className = ''; localStorage.sketchfulAllow = "false" }
+            else { sketchfulAllowButton.className = 'active'; localStorage.sketchfulAllow = "true" }
+            updateSketchfulUser(member, localStorage.sketchfulAllow);
+        })
+        updateSketchfulUser(member, localStorage.sketchfulAllow);
+    }
+    else {
+        skribbl = false;
+        document.querySelectorAll(".skribbl.sketchful").forEach(function (node) { node.remove(); });
 
         let h1 = document.querySelector("h1");
         h1.style.cursor = "pointer";
@@ -46,30 +138,103 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
     }
 });
 
+function updateSketchfulUser(member, userallow) {
+    data = {
+        member: member,
+        userallow: userallow
+    };
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, { updateUser: true, data: JSON.stringify(data) });
+    });
+}
+
 // Check if settins string was received - if not, indicates that the popup didnt sync with skribbl (after update for example)
 setTimeout(function () { if (!settings && skribbl) document.querySelector("h1").innerHTML = "Updated... <br/>Reload Skribbl!"; }, 500);
 
 // set button events
 document.querySelectorAll("button").forEach(function (bt) {
-    if (bt.id == "help") bt.onclick = function () { window.location.href = "readme.html"; };
+    if (bt.id == "help") bt.onclick = function () {
+        chrome.tabs.create({
+            url: "https://typo.rip" });
+    }//window.location.href = "https://www.tobeh.host/Orthanc"; };
+    else if (bt.id == "verifyToken") bt.onclick = verifyTokenInput;
+    else if (bt.id == "loginSubmit") bt.onclick = verifyLoginInput;
+    else if (bt.id == "originalPalette") bt.onclick = togglePalette;
+    else if (bt.id == "enterJSON") bt.onclick = verifyJSON;
+    else if (bt.id == "tablet") bt.onclick = setTabletState;
     else bt.onclick = toggleActive;
 });
 
-// set advanced peek event
-document.querySelector("#advancedPeek").onclick = function () {
-    if (this.className != "peekDown") {
-        this.className = "peekDown";
-        $("#mainSettings").slideToggle(200);
-        $("#advancedSettings").slideToggle(200);
-        $("h1").text("Advanced");
+// func to switch tablet state
+function setTabletState() {
+    let btn = document.querySelector("#tablet");
+    let messages = [];
+    let thickness = btn.innerText.includes("thickness");
+    let brightness = btn.innerText.includes("brightness");
+    let degree = btn.innerText.includes("degree");
+    //if (btn.innerText.includes("All")) brightness = degree = thickness = true;
+
+    if (!thickness && !brightness && !degree) { thickness = true; messages.push("enable ink"); messages.push("inkmode thickness"); }
+    else if (thickness && !brightness && !degree) { brightness = true; thickness = false; messages.push("inkmode brightness"); }
+    else if (!thickness && brightness && !degree) { degree = true; brightness = false; messages.push("inkmode degree"); }
+    else if (!thickness && !brightness && degree) { brightness = true; messages.push("inkmode degree brightness");}
+    else if (!thickness && brightness && degree) { brightness = false; degree = false; messages.push("disable ink");}
+
+    btn.innerText = "Tablet";
+    if (degree || brightness || thickness) {
+        btn.classList.add("active")
+        btn.innerText += ": " +
+            (thickness ? "thickness " : "") +
+            (brightness ? "brightness " : "") +
+            (degree ? "degree " : "");
     }
-    else {
-        this.className = "peekUp";
-        $("#mainSettings").slideToggle(200);
-        $("#advancedSettings").slideToggle(200);
-        $("h1").text("Dashboard");
+    else btn.classList.remove("active");
+
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        messages.forEach(m => { chrome.tabs.sendMessage(tabs[0].id, m); });
+    });
+}
+
+// func to check palette json
+function verifyJSON() {
+    let json = document.querySelector("#paletteJSON").value;
+    let obj;
+    try {
+        obj = JSON.parse(json);
     }
-};
+    catch(e){ alert("Invalid palette JSON!"); return; }
+
+    if (!obj.name || !obj.rowCount || !obj.colors || obj.colors.length < 1) { alert("Invalid palette JSON!") }
+    obj.name = obj.name.replace(" ", "").trim();
+
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, "addpal " + JSON.stringify(obj) );
+    });
+    document.querySelector("#paletteJSON").value = "";
+
+    let bt = document.createElement("button");
+    bt.innerText = obj.name;
+    bt.id = obj.name;
+    bt.onclick = togglePalette;
+    document.querySelector("#palettes").appendChild(bt);
+}
+
+
+// set tab click events
+document.querySelectorAll(".tabSelection .tabTitle").forEach((t) => t.addEventListener("click", setActiveTab));
+
+function setActiveTab(event) {
+    let activeTab = document.querySelector(".tabActive");
+    activeTab.classList.toggle("tabActive");
+    this.classList.toggle("tabActive");
+    if (activeTab.id == "tabDashboard") $("#mainSettings").slideToggle(200);
+    if (activeTab.id == "tabAdvanced") $("#advancedSettings").slideToggle(200);
+    if (activeTab.id == "tabDiscord") $("#palantirSettings").slideToggle(200);
+
+    if (this.id == "tabDashboard") $("#mainSettings").slideToggle(200);
+    if (this.id == "tabAdvanced") $("#advancedSettings").slideToggle(200);
+    if (this.id == "tabDiscord") $("#palantirSettings").slideToggle(200);
+}
 
 // initialize sliders
 (function () {
@@ -133,7 +298,7 @@ document.querySelector("#advancedPeek").onclick = function () {
     let cred = document.querySelector("#credits");
     let dc = document.querySelector("#dc img");
     let cont = cred.innerHTML;
-    dc.onmouseover = function () { cred.innerHTML = "call me ;)"; };
+    dc.onmouseover = function () { cred.innerHTML = "call me maybe ;)"; };
     dc.onmouseout = function () { cred.innerHTML = cont; };
 })();
 
@@ -156,10 +321,147 @@ function toggleActive() {
     if (this.id == "charbar") msg += "charbar";
     if (this.id == "backbutton") msg += "back";
     if (this.id == "randomToggle") msg += "random";
+    if (this.id == "palantirToggle") msg += "palantir";
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg);
     });
+}
+
+async function verifyTokenInput() {
+    let token;
+    token = document.querySelector("#observeToken").value.trim();
+    token = parseInt(token);
+    if (token == NaN || token < 0 || token > 99999999) {
+        document.querySelector("#observeToken").style.color = "#f04747";
+        return;
+    }
+
+    let memberResponse = await (await fetch('https://www.tobeh.host/Orthanc/verify/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "observeToken=" + token + "&member=" + encodeURIComponent(JSON.stringify(member))
+    }
+    )).json();
+    if (!memberResponse.Valid) {
+        document.querySelector("#observeToken").style.color = "#f04747";
+        return;
+    }
+
+    member = memberResponse.Member;
+    let skribblSettings = JSON.parse(localStorage.skribblSettings);
+    skribblSettings.member = JSON.stringify(member);
+    localStorage.skribblSettings = JSON.stringify(skribblSettings);
+
+    document.querySelector("#authGuilds").innerHTML = "";
+    member.Guilds.forEach((g) => {
+        addAuthGuild(g.GuldID, g.GuildName, g.ObserveToken);
+    });
+
+    // reload skribbl
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
+    });
+
+}
+
+async function removeGuildByToken(token) {
+    let memberResponse = await (await fetch('https://www.tobeh.host/Orthanc/verify/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "remove=true&observeToken=" + token + "&member=" + encodeURIComponent(JSON.stringify(member))
+    }
+    )).json();
+    if (!memberResponse.Valid) {
+        document.querySelector("#observeToken").style.color = "#f04747";
+        return;
+    }
+
+    member = memberResponse.Member;
+    let skribblSettings = JSON.parse(localStorage.skribblSettings);
+    skribblSettings.member = JSON.stringify(member);
+    localStorage.skribblSettings = JSON.stringify(skribblSettings);
+
+    document.querySelector("#authGuilds").innerHTML = "";
+    member.Guilds.forEach((g) => {
+        addAuthGuild(g.GuldID, g.GuildName, g.ObserveToken);
+    });
+
+    // reload skribbl
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
+    });
+}
+
+async function verifyLoginInput() {
+    let login;
+    login = document.querySelector("#loginEnter").value;
+    login = parseInt(login);
+    if (login == NaN || login < 0 || login > 99999999) {
+        document.querySelector("#loginEnter").style.color = "#f04747";
+        return;
+    }
+
+    let loginResponse = await (await fetch('https://www.tobeh.host/Orthanc/login/', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        },
+        body: "login=" + login
+    }
+    )).json();
+    if (!loginResponse.Valid) {
+        document.querySelector("#loginEnter").style.color = "#f04747";
+        return;
+    }
+
+    document.querySelector("#login").style.display = "none";
+    document.querySelector("#server").style.display = "";
+    member = loginResponse.Member;
+    if (member.Guilds.length > 0) document.querySelector("#authGuilds").innerHTML = "";
+    member.Guilds.forEach(g => {
+        addAuthGuild(g.GuildID, g.GuildName, g.ObserveToken);
+    });
+    let skribblSettings = JSON.parse(localStorage.skribblSettings);
+    skribblSettings.member = JSON.stringify(member);
+    localStorage.skribblSettings = JSON.stringify(skribblSettings); 
+    document.querySelector("#loginName").textContent = member.UserName;
+
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+        chrome.tabs.sendMessage(tabs[0].id, "memberlogin " + loginResponse.Member.UserLogin);
+    });
+
+}
+
+function addAuthGuild(guildID, guildName, guildToken) {
+    let container = document.querySelector("#authGuilds");
+    let guild = document.createElement("div");
+    let remove = false;
+    guild.className = "label";
+    guild.style.cursor = "pointer";
+    guild.onclick = () => {
+        if (remove == false) {
+            guild.textContent = "Remove " + guildName + "?";
+            remove = true;
+            setTimeout(() => {
+                guild.textContent = guildName;
+                remove = false;
+            }, 2000);
+        }
+        else {
+            removeGuildByToken(guildToken);
+        }
+    }
+    guild.textContent = guildName;
+    guild.id = guildID;
+    container.appendChild(guild);
 }
 
 // convert color code .. thx @stackoverflow

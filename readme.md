@@ -1,16 +1,23 @@
 # Skribbl-Typo
-An extension which adds some extra features to skribbl.io.  
-Stable versions are submitted to the [Chrome Store](https://chrome.google.com/webstore/detail/bpcilmjlpebjklinlbdjhfkkgmmfghfj).  
+An extension for chromium-based and firefox which adds many extra features to skribbl.io.  
+Stable versions are submitted to the [Chrome Store](https://chrome.google.com/webstore/detail/bpcilmjlpebjklinlbdjhfkkgmmfghfj). 
+Get infos on the [Website](https://chrome.google.com/webstore/detail/bpcilmjlpebjklinlbdjhfkkgmmfghfj). 
 
-When I started coding the extension, I was just trying to add some shortcuts for myself, but by the time i became more creative while the code became quite a mess.  
-Though the most parts should be cleaned and reworked now, there might still be some bad-practise-parts or german words in it.  
+There are some VERY old and messy parts, don't kill me for those.
+Maybe, one day, i'll clean that up. 
 
-If you recognize any bugs or got suggestions on how to improve the code, let me know!  
-Contact @Discord: tobeh#7437
+Bugs or requests: @Discord tobeh#7437
 
-## ToDo
-##### Maybe solve the bugs?  
-- First stroke rarely isn't re-drawn  
+## Involved repos
+##### typo.rip  
+ * Website for all the stuff together
 
-##### Improvements
-- Change CORS bypass to xamlhttp Google request
+##### Palantir
+ * Gets skribbl lobby data from typo
+ * Shows these in Discord
+ * Manages bubbles, drops, sprites and events to be shown on skribbl
+ 
+ ##### Orthanc (private repo)  
+ * PHP webdirectory which provides an interface between the database and web-access
+ * Secure authorization via login token
+ * Json based

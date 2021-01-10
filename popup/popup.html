@@ -8,49 +8,118 @@
 </head>
 <body>
     <div class="flexcol">
-        <h1>Dashboard</h1>
-        <hr class="skribbl" />
-
-        <div id="mainSettings">
-            <div class="flexcol">
-                <button type="button" class="skribbl" id="imageagent">ImageAgent</button>
-                <button type="button" class="skribbl" id="tablet">Tablet</button>
-                <button type="button" class="skribbl" id="markup">Markup</button>
-                <button type="button" class="skribbl" id="holy">Holy</button>
-                <button type="button" class="skribbl" id="charbar">CharBar</button>
-            </div>
-            <br />
+        <h1>Skribbl Typo</h1>
+        <div class="tabSelection flexrow skribbl sketchful">
+            <div class="tabTitle tabActive skribbl" id="tabDashboard">Dashboard</div>
+            <div class="tabTitle" id="tabDiscord">Discord</div>
+            <div class="tabTitle skribbl" id="tabAdvanced">Advanced</div>
         </div>
-
-        <div id="advancedPeek" class="peekUp skribbl"></div>
-
-        <div id="advancedSettings">
-            <br />
-            <div class="flexcol">
-                <button type="button" class="skribbl" id="backbutton">Back-Button</button>
-                <button type="button" class="skribbl" id="randomToggle">Random Color</button>
-
-                <div class="label">Random interval </div>
-                <div class="sliderBox" id="randomSlider">
-                    <span class="sliderBar"><span class="sliderFill"></span></span>
-                    <input type="range" class="slider" min="10" max="500" />
+        <div class="tabContent skribbl sketchful">
+            <div id="palantirSettings" class="sketchful skribbl">
+                <br />
+                <br />
+                <div id="sketchfulInfo" class="sketchful">
+                    <div id="sketchfulLogin" class="label back"></div>
+                    <div class="flexrow flexrowMenu" style="flex-wrap:wrap" id="sketchfulGuilds">
+                        <div class="label">No servers added! <br />Enter a server token on skribbl.</div>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="palantirToggleSketchful">Discord Bot Status</button>
+                    </div>
+                </div>
+                <div id="login" class="skribbl">
+                    <div id="loginHead" class="label back">Enter your login:</div>
+                    <div class="flexrow flexrowMenu">
+                        <input type="text" autocomplete="off" style="width:5em; flex-basis:unset" id="loginEnter" placeholder="12345678" />
+                        <button type="button" class="active" id="loginSubmit">Login</button>
+                    </div>
                 </div>
 
-                <div class="label">Markup color  </div>
-                <div class="sliderBox" id="markupSlider">
-                    <span class="sliderBar"><span class="sliderFill"></span></span>
-                    <input type="range" class="slider" min="0" max="357" />
-                </div>
+                <div id="server" class="skribbl" style="display:none">
+                    <div id="loginName" class="label">Tobeh#7437</div>
+                    <div class="label back">Connected Discord Servers</div><br />
 
-                <div class="label">Tablet sensitivity  </div>
-                <div class="sliderBox" id="sensSlider">
-                    <span class="sliderBar"><span class="sliderFill"></span></span>
-                    <input type="range" class="slider" min="0" max="100" />
+                    <div class="flexrow flexrowMenu" style="flex-wrap:wrap" id="authGuilds">
+                        <div class="label">No servers added! Enter a server token below</div>
+                    </div>
+                    <br />
+                    <div class="flexrow flexrowMenu">
+                        <input type="text" autocomplete="off" style="width:5em; flex-basis:unset" id="observeToken" placeholder="12345678" />
+                        <button type="button" class="active" id="verifyToken">Verify</button>
+                    </div>
+                    <br />
                 </div>
+                <br />
+                <br />
+
+            </div>
+
+            <div id="mainSettings" class="skribbl">
+                <br />
+                <br />
+                <div class="flexcol">
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="imageagent">ImageAgent</button>
+                        <button type="button" id="markup">Markup</button>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="tablet">Tablet</button>
+                        <!--<button type="button" id="holy">Pressure</button>-->
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="backbutton">Back-Button</button>
+                        <button type="button" id="charbar">CharBar</button>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="randomToggle">Random Color + Picker</button>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="palantirToggle">Discord Bot Status</button>
+                    </div>
+                </div>
+                <br />
+                <br />
+            </div>
+
+            <div id="advancedSettings" class="skribbl">
+                <br />
+                <br />
+                <div class="flexcol">
+                    <div class="label">Random interval </div>
+                    <div class="sliderBox" id="randomSlider">
+                        <span class="sliderBar"><span class="sliderFill"></span></span>
+                        <input type="range" class="slider" min="10" max="500" />
+                    </div>
+
+                    <div class="label">Markup color  </div>
+                    <div class="sliderBox" id="markupSlider">
+                        <span class="sliderBar"><span class="sliderFill"></span></span>
+                        <input type="range" class="slider" min="0" max="357" />
+                    </div>
+
+                    <div class="label">Tablet sensitivity  </div>
+                    <div class="sliderBox" id="sensSlider">
+                        <span class="sliderBar"><span class="sliderFill"></span></span>
+                        <input type="range" class="slider" min="0" max="100" />
+                    </div>
+
+                    <div>
+                        <div class="label">Color palettes</div>
+                        <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap" id="palettes">
+                            <button type="button" id="originalPalette">Original Palette</button>
+                        </div>
+                        <div class="flexrow flexrowMenu">
+                            <input type="text" autocomplete="off" style="width:5em; flex-basis:unset" id="paletteJSON" placeholder="{ ... }" /> 
+                            <button type="button" class="active" id="enterJSON">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <br />
             </div>
         </div>
-
         <br />
+        
         <hr class="skribbl" />
 
         <div id="footer" class="flexcol">
@@ -58,7 +127,7 @@
             <div id="dc" class="flexrow">
                 <img src="/res/dc.gif" height="20" />
                 <div id="credits" style="margin-left:1em;">
-                    tobeh#7437
+                    Discord: tobeh#7437
                 </div>
             </div>
         </div>

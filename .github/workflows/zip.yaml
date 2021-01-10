@@ -1,0 +1,19 @@
+name: Create Archive
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Archive Release
+      uses: thedoctor0/zip-release@master
+      with:
+        filename: 'typo-release.zip'
+        exclusions: '*.git* /*node_modules/* web-ext-artifacts/  package-lock.json changelog.md *.web-extension-id .editorconfig .github/'  
+    - name: Upload Release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        artifacts: "typo-release.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag: "skribbltypo"

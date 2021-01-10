@@ -77,7 +77,33 @@
         >Structure rework: popup folder, changelog as markdown, have command stuff in own js file
     - .4:
         >Audiocontext create fail should be fixed now
+        
+- 17.0:
+    >Build of Palantir implementation! Lobbies are now sent to verified discord servers.  
+    >Means: popup tweaks, js rework and additions and so on to fit requirements.  
+    >Also new: Arrow keys to switch between previous chat submissions.
+    - .0.x: 
+    > Various bugfixes:
+    > fix lobby id check -> as soon as lobby connected   
+    > fix lobby status when search is still active (slow connection)  
+    > keydown changes tools when other players draw  
+    > undo button position improved  
+    > fixed audio context start event  
+    > huge undo performance improvement for other clients. thx to some anonymous :D  
+    > fix conflict with imageposter  
+    > fix player name when waiting  
+    
+    - .1:
+    > Add animated drawing download  
+    > Fix lobby report not sent on public  
+    > 
+    - .2:
+    > Improved animated gif, thiccccc progress bar  
+    > Added lobby description  
+    > Popup is now tabby (thx mihedas) 
+    - .4:
+    > (Hopefully) fixed temp dead lobby search stop  
+    > Added custom color palettes!  
+    > [1] Fixed private lobby settings bug  
 
-## Bugs:
-- Redo sometimes skips first action
 

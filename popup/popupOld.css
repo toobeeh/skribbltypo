@@ -1,49 +1,13 @@
 body {
     font-family: Arial, Helvetica, sans-serif;
-    background: #181a1c;
+    background: #1e2124;
     color: white;
     letter-spacing: 0.05em;
-    margin: 10px;
-    width: 270px;
-    font-size: 0.7em;
+    margin: 0;
+    width: 250px;
+    font-size:0.7em;
 }
 
-.tabContent {
-    background: #232529;
-    border-bottom-left-radius: 0.5em;
-    border-bottom-right-radius: 0.5em;
-}
-
-.tabSelection {
-    font-size: 1.2em;
-    font-weight: 600;
-    width: 100%;
-    justify-content: space-between;
-}
-
-.tabActive {
-    background: #232529 !important;
-    padding: 0.7em !important;
-    border-top-left-radius: 0.5em;
-    border-top-right-radius: 0.5em;
-    border-bottom-left-radius: 0em !important;
-    border-bottom-right-radius: 0em !important;
-    /*color: #99aab5;*/
-}
-
-.tabTitle {
-    background: #424549;
-    padding: 0.4em;
-    cursor: pointer;
-    user-select: none;
-    transition: background ease 0.3s,border-radius ease 0.3s;
-    border-radius: 0.5em;
-}
-
-    .tabTitle:not(.tabActive):hover {
-        background: #99aab5;
-    }
-    
 ::-webkit-scrollbar {
     display: none;
 }
@@ -95,14 +59,12 @@ button:active {
 h1 {
     font-size: 1.7em;
     text-align: center;
-    padding-bottom: .5em;
+    margin: .5em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    background: #282b30;
+    border-radius: 0.5em;
 }
-    h1:not(.skribbl) {
-        background: #282b30;
-        border-radius: 0.5em;
-        margin: .5em;
-        padding-top: .5em;
-    }
 
 .back {
     padding: .8em;
@@ -137,7 +99,6 @@ hr {
 }
 
 #advancedPeek, #palantirPeek {
-    display:none;
     width: 0;
     height: 0;
     margin-left: calc(50% - 2em);
