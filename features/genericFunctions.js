@@ -1,0 +1,131 @@
+// generic re-usable functions which have no dependencies
+
+//Queryselector bindings
+const QS = document.querySelector.bind(document);
+const QSA = document.querySelectorAll.bind(document);
+
+// func to mark a message node with background color
+const markMessage = (newNode) => {
+    if (localStorage.markup != "true") return;
+    let sender = newNode.innerHTML.slice(newNode.innerHTML.indexOf("<b>"), newNode.innerHTML.indexOf("</b>")).slice(3, -2);
+    if (sender == QS("input[placeholder='Enter your name']").value || sender != "" && localStorage.vip.split("/").includes(sender))
+        newNode.style.background = localStorage.markupColor;
+}
+
+//func to scroll to bottom of message container
+const scrollMessages = () => {
+    let box = document.querySelector("#boxMessages");
+    box.scrollTop = box.scrollHeight;
+}
+
+// func to replace umlaute in a string
+const replaceUmlaute = (str) => {
+    // umlaute which have to be replaced
+    const umlautMap = {
+        '\u00dc': 'UE',
+        '\u00c4': 'AE',
+        '\u00d6': 'OE',
+        '\u00fc': 'ue',
+        '\u00e4': 'ae',
+        '\u00f6': 'oe',
+        '\u00df': 'ss',
+    }
+    return str
+        .replace(/[\u00dc|\u00c4|\u00d6][a-z]/g, (a) => {
+            const big = umlautMap[a.slice(0, 1)];
+            return big.charAt(0) + big.charAt(1).toLowerCase() + a.slice(1);
+        })
+        .replace(new RegExp('[' + Object.keys(umlautMap).join('|') + ']', "g"),
+            (a) => umlautMap[a]
+        );
+}
+
+// get the current or last drawer as safe as possible
+const getCurrentOrLastDrawer = () => {
+    let drawer = "Unknown";
+    if (sessionStorage.practise == "true") drawer = document.querySelector("#inputName").value;
+    else if (sessionStorage.lastDrawing) drawer = sessionStorage.lastDrawing;
+    else try {
+        drawer = QS('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.QS(".name").textContent.replace(" (You)", "");
+    }
+    catch{ }
+    return drawer;
+}
+
+// adds a color palette
+const addColorPalette = (paletteJson) => {
+    let containerColorbox = document.createElement("div");
+    containerColorbox.classList.add("containerColorbox");
+
+    let columns = [];
+    paletteJson.colors.forEach(c => {
+        let index = paletteJson.colors.indexOf(c);
+        if (!columns[Math.floor(index / paletteJson.rowCount)]) columns.push([]);
+        columns[Math.floor(index / paletteJson.rowCount)].push(c);
+    });
+
+    let paletteContainer = document.createElement("div");
+    paletteContainer.id = paletteJson.name;
+
+    if (localStorage.palette == paletteJson.name) document.querySelector(".containerColorbox").style.display = "none";
+    else paletteContainer.style.display = "none";
+
+    paletteContainer.classList.add("containerColorbox");
+    paletteContainer.classList.add("customPalette");
+    paletteContainer.setAttribute("data-toggle", "tooltip");
+    paletteContainer.setAttribute("data-placement", "top");
+    paletteContainer.setAttribute("title", "");
+    paletteContainer.setAttribute("data-original-title", "Select a color");
+
+    columns.forEach(c => {
+        let colorColumn = document.createElement("div");
+        colorColumn.classList.add("containerColorColumn");
+        c.forEach(i => {
+            let colorItem = document.createElement("div");
+            colorItem.classList.add("colorItem");
+            colorItem.setAttribute("data-color", i.index);
+            colorItem.style.background = i.color;
+            colorItem.addEventListener("click", () => document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: i.index })));
+            colorColumn.appendChild(colorItem);
+        });
+        paletteContainer.appendChild(colorColumn);
+    });
+    let tools = document.querySelector(".containerTools");
+    tools.parentElement.insertBefore(paletteContainer, tools);
+    return paletteContainer;
+}
+
+// show practise mode
+const showPractise = () => {
+    sessionStorage.practise = true;
+    QS(".containerToolbar").style.display = "";
+    QS("#screenGame").style.display = "block";
+    QS("#screenLogin").style.display = "none";
+    QS(".header").style.display = "none";
+    document.querySelector("#currentWord").innerHTML = "Practise";
+}
+
+// set default settings
+const setDefaults = (override = false) => {
+    if (!localStorage.member || override) localStorage.member = "";
+    if (!localStorage.userAllow || override) localStorage.userAllow = "true";
+    if (!localStorage.login || override) localStorage.login = "";
+    if (!localStorage.ownHoly || override) localStorage.ownHoly = "false";
+    if (!localStorage.ink || override) localStorage.ink = "true";
+    if (!localStorage.inkMode || override) localStorage.inkMode = "thickness";
+    if (!localStorage.sens || override) localStorage.sens = 50;
+    if (!localStorage.charBar || override) localStorage.charBar = "false";
+    if (!localStorage.imageAgent || override) localStorage.imageAgent = "false";
+    if (!localStorage.vip || override) localStorage.vip = "";
+    if (!localStorage.markup || override) localStorage.markup = "false";
+    if (!localStorage.markupColor || override) localStorage.markupColor = "#ffd6cc";
+    if (!localStorage.randomColorInterval || override) localStorage.randomColorInterval = 50;
+    if (!localStorage.randomColorButton || override) localStorage.randomColorButton = false;
+    if (!localStorage.displayBack || override) localStorage.displayBack = false;
+    if (!sessionStorage.lobbySearch || override) sessionStorage.lobbySearch = "false";
+    if (!sessionStorage.searchPlayers || override) sessionStorage.searchPlayers = "[]";
+    if (!sessionStorage.skipDeadLobbies || override) sessionStorage.skipDeadLobbies = "false";
+    if (!localStorage.palette || override) localStorage.palette = "originalPalette";
+    if (!localStorage.customPalettes || override) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
+    sessionStorage.pipetteURL = chrome.runtime.getURL("res/pipette.gif");
+}

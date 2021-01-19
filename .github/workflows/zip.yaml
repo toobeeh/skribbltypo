@@ -16,4 +16,4 @@ jobs:
         allowUpdates: true
         artifacts: "typo-release.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: "skribbltypo"
+        tag: "chromestore-release"

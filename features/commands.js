@@ -11,7 +11,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 */
 
 // Define command strings
-var help_text = "<h4>Chat with command detection</h4> Confirm command with '--' <br/>- help (Show help) <br/>- enable/disable charbar (Toggle wordbox)<br/>- set markup [#hexcode] (Set chat markup) <br/>- enable/disable holy (Holy special) ";
+let help_text = "<h4>Chat with command detection</h4> Confirm command with '--' <br/>- help (Show help) <br/>- enable/disable charbar (Toggle wordbox)<br/>- set markup [#hexcode] (Set chat markup) <br/>- enable/disable holy (Holy special) ";
 help_text += "<br/>- add vip [name] (New VIP) <br/>- rem vip [name] (Delete VIP) <br/>- show vip (Show VIPs) <br/>- clear vip (Clear VIPs)";
 help_text += "<br/>- enable/disable agent (Toggle ImageAgent) <br/>- enable/disable markup (Toggle markup)";
 help_text += "<br/>- enable/disable ink (Toggle tablet pressure)<br/>- enable/disable back (Toggle back-button)<br/>- enable/disable random (Toggle random color)<br/>- set random [ms] (Random interval, ms)";
@@ -19,6 +19,8 @@ help_text += "<br/>Example: 'set markup #ffffff--'<br/> <br/> Most settings are 
 
 const cmd_add_observerToken = "adobs";
 const cmd_remove_observerToken = "rmobs";
+
+const cmd_resetTypo = "reset!";
 
 const cmd_enableOwnHoly = "enable holy";
 const cmd_disableOwnHoly = "disable holy";
@@ -63,7 +65,7 @@ const cmd_addPalette = "addpal";
 const cmd_removePalette = "rmpal";
 
 // ----------------------------- INTERPRETER - CALLS FUNCTIONS DEPENDING ON ENTERED COMMAND
-function command_interpreter(cmd) {
+const performCommand = (cmd) => {
 
     cmd = cmd.replace("--","");
     cmd.trim();
@@ -82,8 +84,6 @@ function command_interpreter(cmd) {
     else if (cmd.includes(cmd_daInk)) daInk();
     else if (cmd.includes(cmd_enInk)) enInk();
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
-    //else if (cmd.includes(cmd_add_observerToken)) addObserveToken((cmd.replace(cmd_add_observerToken, "")).trim());
-    //else if (cmd.includes(cmd_remove_observerToken)) removeObserveToken((cmd.replace(cmd_remove_observerToken, "")).trim());
     else if (cmd.includes("memberlogin")) login(cmd.replace("memberlogin", "").trim());
     else if (cmd.includes("enable palantir")) {localStorage.userAllow = "true"; fixPalantir(true);}
     else if (cmd.includes("disable palantir")) localStorage.userAllow = "false";
@@ -93,18 +93,17 @@ function command_interpreter(cmd) {
     else if (cmd.includes(cmd_removeImportantName)) remVip((cmd.replace(cmd_removeImportantName, "")).trim());
     else if (cmd.includes(cmd_showImportantName)) showVip();
     else if (cmd.includes(cmd_clearImportantName)) clearVip();
-    else if (cmd.includes(cmd_restore)) restoreDrawing();
     else if (cmd.includes(cmd_fixPalantir)) fixPalantir();
     else if (cmd.includes(cmd_enBack)) toggleBackbutton(true);
     else if (cmd.includes(cmd_daBack)) toggleBackbutton();
     else if (cmd.includes(cmd_enRandom)) toggleRandomColor(true);
     else if (cmd.includes(cmd_daRandom)) toggleRandomColor();
+    else if (cmd.includes(cmd_resetTypo)) { setDefaults(true); window.location.reload(); }
     else if (cmd.includes(cmd_setRandom)) setRandomInterval((cmd.replace(cmd_setRandom, "")).trim());
     else if (cmd.includes(cmd_deleteToken)) setToken((cmd.replace(cmd_deleteToken, "")).trim());
     else if (cmd.includes(cmd_addPalette)) addPalette(cmd.replace(cmd_addPalette, "").trim());
     else if (cmd.includes(cmd_setPalette)) setPalette(cmd.replace(cmd_setPalette, "").trim());
     else if (cmd.includes(cmd_removePalette)) removePalette(cmd.replace(cmd_removePalette, "").trim());
-    //else if (cmd.includes(cmd_randomColor)) document.querySelector("body").dispatchEvent(new Event("setRandomColor"));
 
     else printCmdOutput("Error");
 }
@@ -128,7 +127,7 @@ function printCmdOutput(cmd, info = "", title = "") {
     if (cmd.includes("Error")) s.innerHTML = "Error by executing the command";
     else if (cmd == cmd_disableOwnHoly) s.innerHTML = "Holy special was removed";
     else if (cmd == cmd_enableOwnHoly) s.innerHTML = "Holy special was activated";
-    else if (cmd == cmd_setMarkup) s.innerHTML = "New markup-color: '" + markup_color + "'";
+    else if (cmd == cmd_setMarkup) s.innerHTML = "New markup-color: '" + localStorage.markupColor + "'";
     else if (cmd == cmd_resetMarkup) s.innerHTML = "Markup-color was reset";
     else if (cmd == cmd_help) s.innerHTML = help_text;
     else if (cmd == cmd_daCharBar || cmd == cmd_enCharBar) s.innerHTML = "CharBar toggled";
@@ -329,14 +328,14 @@ function daCharBar() {
 // func to enable imageagent
 function enAgent() {
     localStorage.imageAgent = true;
-    updateImageAgent();
+    imageAgent.updateImageAgent();
     printCmdOutput(cmd_enAgent);
 }
 
 // func to disable imageagent
 function daAgent() {
     localStorage.imageAgent = false;
-    updateImageAgent();
+    imageAgent.updateImageAgent();
     printCmdOutput(cmd_daAgent);
 }
 
