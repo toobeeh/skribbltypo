@@ -3546,11 +3546,15 @@
         ct.goto("load"), it.emit("joinRandom")
     }), n("#buttonLobbyLeave").on("click", P), n("#buttonGameLeave").on("click", P), n("#buttonLobbyPlay").on("click", function() {
         it && st.myID == st.ownerID && it.emit("lobbyGameStart", n("#lobbySetCustomWords").val())
-    }), n("#formChat").submit(function(t) {
+    }), n("#formChat").submit(function (t) {
         var e = n("#inputChat"),
             o = e.val();
         inputLog.push(e.val());
-        logPos=inputLog.length;
+        logPos = inputLog.length;
+        if (sessionStorage.practise == "true") {
+            e.val("");
+            return !1;
+        }
         return o && (it ? it.emit("chat", o) : st.chatAddMsg(st.players.get(st.myID), o, "#000"), e.val("")), !1
     }), n("#buttonOpenLobbyCreation").on("click", function() {
         n("#modalCreateLobby").modal("show")
@@ -3596,7 +3600,7 @@
     n("body").on("keydown", function (t) {
         if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
         let prev = lastBrushUp;
-        let acc = 5;
+        let acc = ut.brush.thickness / 2;
         switch (t.key) {
             case "ArrowUp":
                 lastBrushUp.Y = lastBrushUp.Y - acc;
@@ -3635,6 +3639,7 @@
     }), n("#buttonClearCanvas").on("click", function() {
         it ? it.emit("canvasClear") : ut.clear()
     }), n(".containerTools .tool").on("click", function() {
+        if (this.closest(".containerClearCanvas")) return;
         ut.brush.setTool(n(this).data("tool"));
         n(this).data("tool") != "pen" && n(this).data("tool") != "fill" && clearInterval(setColorInterval);
     }), n(".colorItem").on("click", function() {

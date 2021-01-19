@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "Collection of useful tools & graphics tablet support for skribbl.io and sketchful.io",
-  "version": "19.1.0",
+  "version": "20.0.0",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
@@ -21,7 +21,6 @@
   },
   "web_accessible_resources": [
     "gamePatch.js",
-    "jmin.js",
     "res/*",
     "gifCap/*"
   ],
@@ -32,21 +31,25 @@
   ],
   "content_scripts": [
     {
+      "run_at": "document_idle",
       "matches": [
         "*://skribbl.io/",
         "*://skribbl.io/*"
       ],
       "js": [
-        "color.js",
         "picker/colr_pickr.min.js",
-        "commands.js",
-        "gifCap/LZWEncoder.js",
-        "gifCap/NeuQuant.js",
-        "gifCap/GIFEncoder.js",
-        "gifCap/skribblCanvas.js",
-        "gifCap/b64.js",
-        "service.js",
-        "sprites.js"
+        "color.js",
+        "features/genericFunctions.js",
+        "features/commands.js",
+        "features/capture.js",
+        "features/drops.js",
+        "features/imageTools.js",
+        "features/uiTweaks.js",
+        "features/agent.js",
+        "features/pressure.js",
+        "features/imageOptions.js",
+        "content.js",
+        "features/sprites.js"
       ],
       "css": [
         "picker/colr_pickr.min.css"
@@ -60,8 +63,8 @@
       ],
       "js": [
         "errors.js",
-        "report.js",
-        "lobbies.js",
+        "features/report.js",
+        "features/lobbies.js",
         "patcher.js"
       ]
     },
@@ -71,7 +74,7 @@
         "*://sketchful.io/*"
       ],
       "js": [
-        "sketchful/sketchfulReport.js"
+        "features/sketchfulReport.js"
       ]
     }
   ]

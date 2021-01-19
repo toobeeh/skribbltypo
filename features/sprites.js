@@ -1,8 +1,7 @@
-﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
-window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+﻿(() => {
+    // Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+    window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
-
-(function () {
     // Object which has necessary properties to handle sprite logic
     let PlayerSpriteContainer = function (_lobbyKey, _lobbyPlayerID, _avatarContainer, _name) {
         this.lobbyKey = _lobbyKey;
@@ -50,7 +49,8 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
     function getPlayerList() {
         let players = [];
         let playerContainer = document.querySelector("#containerGamePlayers");
-        [...playerContainer.querySelectorAll(".player")].forEach(p => {
+        let playerContainerLobby = document.querySelector("#containerLobbyPlayers");
+        [...playerContainer.querySelectorAll(".player"), ...playerContainerLobby.querySelectorAll(".lobbyPlayer")].forEach(p => {
             let private = false;
             document.querySelectorAll("#containerGamePlayers .player .owner").forEach((o) => {
                 if (o.style.display != "none") private = true;
@@ -82,12 +82,13 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
                 spriteContainer.className = "special";
                 spriteContainer.style.backgroundImage = "url(" + spriteUrl + ")";
                 player.avatarContainer.appendChild(spriteContainer);
-                spriteContainer.parentElement.parentElement.style.height = "60px";
+                // set style depending on listing
+                if (spriteContainer.closest("#containerLobbyPlayers")) spriteContainer.style.backgroundSize = "contain";
+                else spriteContainer.parentElement.parentElement.style.height = "60px";
 
                 let special = isSpecial(playerSprite);
                 [...player.avatarContainer.querySelectorAll(".color, .eyes, .mouth")].forEach(a => a.style.display = special ? "none" : "");
             }
-            
         });
     }
 
@@ -117,7 +118,35 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
     // mutation observer for game end result
     let endboardObserver = new MutationObserver(() => {
         updateEndboardSprites();
+        updateSprites();
     });
     endboardObserver.observe(document.querySelector(".gameEndContainerPlayersBest"), { childList: true, attributes: true });
+
+    (async () => {
+        if (!lobbies.authorized) return;
+        let memberdata = await(await fetch('https://www.tobeh.host/Orthanc/login/memberdata/', {
+            method: 'POST',
+            headers: {
+                'Accept': '*/*',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: "login=" + localStorage.login
+        })).json();
+        await fetchSprites();
+        let sprites = memberdata.MemberData.Sprites.split(",");
+        let activeSprite = sprites.find(s => s.includes("."));
+        let url = getSpriteURL(activeSprite.replace(".", "")); 
+        let specialContainer = document.querySelector("#loginAvatarCustomizeContainer .special");
+        let clone = specialContainer.cloneNode(true);
+        specialContainer.parentElement.appendChild(clone);
+        clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
+        clone.classList.remove("special");
+        let avatarContainer = document.querySelector("#loginAvatarCustomizeContainer");
+        let wrapper = document.createElement("div");
+        avatarContainer.insertAdjacentHTML("afterend", "<div style='margin:1em 0; text-align: center; pointer-events:none; user-select:none'> 🔮 Current Bubbles: "
+            + memberdata.MemberData.Bubbles + "    💧 Caught Drops: " + memberdata.MemberData.Drops
+            + "</div>" )
+        document.querySelector("#loginAvatarCustomizeContainer .avatarContainer").style.margin = "0 30px";
+    })();
 
 })();

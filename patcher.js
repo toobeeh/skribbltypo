@@ -1,9 +1,10 @@
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
-let hints = [
+// inject patched game.js and modify elements that are immediately after page load visible
+const hints = [
     "Did you notice the tool shortcuts B,F and E?<br>Try out C to use a color pipette tool.",
-    "Click on the canvas and use STRG+Arrow to draw a perfect straight line!",
+    "Click on the canvas and use Shift+Arrow to draw a perfect straight line!",
     "Connect the Palantir Discord bot to search for your friends easily.",
     "Enable the ImageAgent to show template pictures when you're drawing.",
     "Use arrow up/down to recover the last chat input.",
@@ -22,8 +23,8 @@ let hints = [
     "If you like the extension, tell others about it or rate it on the chrome store! <3"
 ];
 
-var patcher = new MutationObserver(function (mutations) {
-         mutations.forEach(function (mutation){
+let patcher = new MutationObserver((mutations) => {
+         mutations.forEach((mutation) => {
             mutation.addedNodes.forEach(async function(node){
                 if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {
                     // block game.js
@@ -48,27 +49,26 @@ var patcher = new MutationObserver(function (mutations) {
                         }
                     });
                 }
-                if (node.tagName == "A" && node.href.includes("tower")) node.remove();
                 if (node.tagName == "DIV") {
                     if (node.classList.contains("login-side-right")) {
-                        await initLobbyTab(true);
                         node.style.width = "300px";
                         node.style.flex = "0 1 auto";
+                        await lobbies.initGuildContainer(true);
                     }
-                    if (node.classList.contains("loginPanelContent") && document.querySelectorAll(".loginPanelContent").length > 2 && document.querySelectorAll(".login-side-left .loginPanelContent").length <= 0) {
+                    else if (node.classList.contains("loginPanelContent") && document.querySelectorAll(".loginPanelContent").length > 2 && document.querySelectorAll(".login-side-left .loginPanelContent").length <= 0) {
                         let cont = document.querySelector(".login-side-left");
                         cont.appendChild(node);
                         cont.style.width = "300px";
                         cont.style.flex = "0 1 auto";
                     }
-                    if (node.classList.contains("updateInfo")) {
+                    else if (node.classList.contains("updateInfo")) {
                         let status = await (await fetch("https://tobeh.host/Orthanc/status.txt")).text();
                         node.innerHTML = "Hello there! 💖<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br>" + status;
                     }
+                    else if (node.id == 'screenLogin') {
+                        node.style.justifyContent = "center";
+                    }
                     
-                }
-                if (node.id == 'screenLogin') {
-                    node.style.justifyContent = "center";
                 }
                 if (node.id == 'formLogin') {
                     //add dead lobbies button
@@ -110,12 +110,10 @@ var patcher = new MutationObserver(function (mutations) {
                         let players = inputName.value.split(",");
                         players = players.map(p => p.trim());
                         sessionStorage.searchPlayers = JSON.stringify(players);
-                    })
-
+                    });
                     containerForm.append(inputName);
                     containerForm.append(inputSubmit);
                     container.appendChild(containerForm);
-                    //containerForm.previousElementSibling.style.borderRadius = "0";
                 }
                 
             });
