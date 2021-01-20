@@ -123,7 +123,7 @@
             })
         }) : w()
     }
-
+    document.body.addEventListener("joinLobby", g);
     function w() {
         at.context && at.context.resume();
         var t = x(),
@@ -159,9 +159,14 @@
             query: {
                 token: dt
             }
-        }), it.on("connect", function() {
+        }), it.on("connect", function () {
+            sessionStorage.initLeave = "";
+            document.body.addEventListener("leaveLobby", () => {
+                sessionStorage.initLeave = "true";
+                it ? it.close() : 0, it = null, st = null, ct.goto("login")
+            }),
             it.on("disconnect", function() {
-                it.close(), it = null, st = null, ct.goto("login"), n("#modalDisconnect").modal()
+                it.close(), it = null, st = null, ct.goto("login"), sessionStorage.initLeave != "true" ? n("#modalDisconnect").modal() : 0
             }), it.emit("userData", e),  it.on("kicked", function() {
                 n("#modalKicked").modal()
             }), it.on("drawCommands", function(t) {
@@ -203,9 +208,8 @@
                     case Y:
                         E("Game will start soon...")
                 }
-            }), document.querySelector("body").addEventListener("sendLobbyID", function (t) {
-                it.emit("{'lobbyID':" + t.detail);
-            }),it.on("lobbyDisconnected", function() {
+            }),
+            it.on("lobbyDisconnected", function() {
                 it.emit("lobbyLeave"), st = null, ct.goto("login")
             }), it.on("lobbyGameStart", function(t) {
                 st.reset(), E(""), ct.goto("game")

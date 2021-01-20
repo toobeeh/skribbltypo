@@ -256,18 +256,12 @@ let lobbies = {
         }, 4000);
     },
     initSearchEvents: () => {
-        // report lobby after 5 secs in lobby (event on submit button)
-        // Set status as playing after 5 secs, before as searching
-        let startBtns = QSA("button[type='submit']");
-        [startBtns[0], startBtns[1]].forEach(button => button.addEventListener("click", () => {
+        // Set status as searching as soon as lobby connected
+        document.body.addEventListener("lobbyConnected", () => {
             Report.reportAsSearching();
             // report as playing after timeout
-            setTimeout(() => {
-                if (sessionStorage.skipDeadLobbies == "false" && JSON.parse(sessionStorage.searchPlayers).length <= 0 && sessionStorage.lobbySearch == "false") {
-                    Report.reportAsPlaying();
-                }
-            }, 4000);
-        }));
+            setTimeout(() => { Report.reportAsPlaying(); }, 4000);
+        });
         // check lobby as soon as connected and perform search checks
         document.body.addEventListener("lobbyConnected", lobbies.lobbyConnected);
         // refresh lobbies all 5 secs 
@@ -277,10 +271,5 @@ let lobbies = {
         }, 5000);
         // if search is active, call
         if (sessionStorage.lobbySearch == "true") setTimeout(lobbies.startSearch, 1000);
-        // enter lobby if last lobby was skipped 
-        if (sessionStorage.skippedLobby == "true") {
-            setTimeout(() => { QS("button[type='submit'].btn-success").click(); }, 400);
-            sessionStorage.skippedLobby = "false";
-        }
     }
 };

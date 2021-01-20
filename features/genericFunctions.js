@@ -105,6 +105,12 @@ const showPractise = () => {
     document.querySelector("#currentWord").innerHTML = "Practise";
 }
 
+// leave lobby
+const leaveLobby = (next = false) => {
+    document.body.dispatchEvent(new Event("leaveLobby"));
+    if (next) document.body.dispatchEvent(new Event("joinLobby"));
+}
+
 // set default settings
 const setDefaults = (override = false) => {
     if (!localStorage.member || override) localStorage.member = "";

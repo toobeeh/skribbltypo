@@ -63,6 +63,7 @@
       ],
       "js": [
         "errors.js",
+        "features/socket.js",
         "features/report.js",
         "features/lobbies.js",
         "patcher.js"

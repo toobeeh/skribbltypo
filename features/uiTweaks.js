@@ -12,9 +12,7 @@ let uiTweaks = {
         btNext.classList.add("btn", "btn-info", "btn-block");
         btNext.style.margin = "0 0.5em";
         btNext.addEventListener("click", () => {
-            sessionStorage.skipDeadLobbies = "true";
-            sessionStorage.skippedLobby = "true";
-            window.location.reload();
+            leaveLobby(true);
         });
 
         // Create exit button
@@ -23,7 +21,7 @@ let uiTweaks = {
         btExit.value = "Exit Lobby";
         btExit.classList.add("btn", "btn-warning", "btn-block");
         btExit.style.margin = "0 0.5em";
-        btExit.addEventListener("click", () => { location.reload(); });
+        btExit.addEventListener("click", () => { leaveLobby(false); });
 
         // create table container for buttons
         let lobbyControls = document.createElement("div");
