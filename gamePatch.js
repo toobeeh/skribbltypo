@@ -3600,7 +3600,7 @@
     n("body").on("keydown", function (t) {
         if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
         let prev = lastBrushUp;
-        let acc = ut.brush.thickness / 2;
+        let acc = ut.brush.thickness / 3.5;
         switch (t.key) {
             case "ArrowUp":
                 lastBrushUp.Y = lastBrushUp.Y - acc;
