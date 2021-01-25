@@ -1,4 +1,4 @@
-﻿(() => {
+﻿const initSprites = () => {
     // Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
     window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
@@ -19,16 +19,8 @@
 
     // get onlinesprites and spritelist from orthanc
     async function fetchSprites() {
-        let resp = await fetch("https://www.tobeh.host/Orthanc/sprites/", {
-            method: 'GET',
-            headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            }
-        });
-        let json = await resp.json();
-        availableSprites = json.Sprites;
-        playerSprites = json.OnlineSprites;
+        availableSprites = socket.data.publicData.sprites;
+        playerSprites = socket.data.publicData.onlineSprites;
     }
 
     // get the gif url from a sprite id
@@ -56,7 +48,7 @@
                 if (o.style.display != "none") private = true;
             });
             let psc = new PlayerSpriteContainer(
-                Report.generateLobbyKey(private),
+                lobbies_.getLobbyKey(private),
                 p.id.replace("player", ""),
                 p.querySelector(".avatar"),
                 p.querySelector(".name").innerText.replace("(You)", "").trim()
@@ -123,20 +115,12 @@
     endboardObserver.observe(document.querySelector(".gameEndContainerPlayersBest"), { childList: true, attributes: true });
 
     (async () => {
-        if (!lobbies.authorized) return;
-        let memberdata = await(await fetch('https://www.tobeh.host/Orthanc/login/memberdata/', {
-            method: 'POST',
-            headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            },
-            body: "login=" + localStorage.login
-        })).json();
+        if (!socket.authenticated) return;
         await fetchSprites();
-        let sprites = memberdata.MemberData.Sprites.split(",");
+        let sprites = socket.data.user.sprites.split(",");
         let activeSprite = sprites.find(s => s.includes("."));
         let url = getSpriteURL(activeSprite.replace(".", "")); 
-        let specialContainer = document.querySelector("#loginAvatarCustomizeContainer .special");
+        let specialContainer = QS("#loginAvatarCustomizeContainer .special");
         let clone = specialContainer.cloneNode(true);
         specialContainer.parentElement.appendChild(clone);
         clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
@@ -144,9 +128,9 @@
         let avatarContainer = document.querySelector("#loginAvatarCustomizeContainer");
         let wrapper = document.createElement("div");
         avatarContainer.insertAdjacentHTML("afterend", "<div style='margin:1em 0; text-align: center; pointer-events:none; user-select:none'> 🔮 Current Bubbles: "
-            + memberdata.MemberData.Bubbles + "    💧 Caught Drops: " + memberdata.MemberData.Drops
+            + socket.data.user.bubbles + "    💧 Caught Drops: " + socket.data.user.drops
             + "</div>" )
         document.querySelector("#loginAvatarCustomizeContainer .avatarContainer").style.margin = "0 30px";
     })();
 
-})();
+};

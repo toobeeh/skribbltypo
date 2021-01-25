@@ -45,7 +45,7 @@ let drops = {
         drops.eventDrops = (await dropResponse.json()).EventDrops;
     },
     getNextDrop: async () => {
-        if (!lobbies.authorized || sessionStorage.practise == "true") {
+        if (!socket.authentificated || sessionStorage.practise == "true") {
             if (QS("#claimDrop")) QS("#claimDrop").style.display = "none";
             return;
         }

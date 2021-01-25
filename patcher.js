@@ -1,6 +1,30 @@
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
+let waitForDocAndPalantir = async () => {
+    let palantirReady = false;
+    let DOMready = false;
+    return new Promise((resolve, reject) => {
+        document.addEventListener("DOMContentLoaded", () => {
+            DOMready = true;
+            if (palantirReady) resolve(true);
+        });
+        document.addEventListener("palantirLoaded", () => {
+            palantirReady = true;
+            if (DOMready) resolve(true);
+        });
+        setTimeout(() => { reject(false); }, 10000);
+    });
+}
+// await DOM load and palantir connection
+(async () => {
+    if (await waitForDocAndPalantir()) {
+        initSprites(); // init sprites
+        drops.initDrops(); // init drops
+    }
+    else alert("Error connecting to Palantir :/");
+})();
+
 // inject patched game.js and modify elements that are immediately after page load visible
 const hints = [
     "Did you notice the tool shortcuts B,F and E?<br>Try out C to use a color pipette tool.",
@@ -34,33 +58,22 @@ let patcher = new MutationObserver((mutations) => {
                     let script = document.createElement("script");
                     script.src = chrome.extension.getURL("gamePatch.js");
                     node.parentElement.appendChild(script);
-                    // insert search popup
-                    let p = document.createElement("div");
-                    p.innerHTML = '<div id="popupSearch" class="btn btn-primary" style=" z-index:10; font-size:1.5em;position: fixed;overflow-wrap: break-word;width: 25vw;word-break: break-all;left: 37.6vw;min-height: 5em;display: flex;align-items: center;justify-content: center;border-radius: 1em;top: 2em;box-shadow: black 0em 0em 10em 1em;">Searching Lobby... [Enter] to abort</div>';
-                    document.body.appendChild(p);
-                    if (!(sessionStorage.lobbySearch == "true" || sessionStorage.skipDeadLobbies == "true" || sessionStorage.searchPlayers && JSON.parse(sessionStorage.searchPlayers).length > 0)) p.style.display = "none";
-                    document.addEventListener("keyup", (e) => {
-                        let keycode = (e.keyCode ? e.keyCode : e.which);
-                        if (keycode == '13') {
-                            sessionStorage.lobbySearch = "false";
-                            sessionStorage.skipDeadLobbies = "false";
-                            sessionStorage.searchPlayers = "[]";
-                            p.style.display = "none";
-                        }
-                    });
+                    
                 }
                 if (node.tagName == "DIV") {
+                    // init guild lobbies and socket
                     if (node.classList.contains("login-side-right")) {
-                        node.style.width = "300px";
-                        node.style.flex = "0 1 auto";
-                        await lobbies.initGuildContainer(true);
+                        lobbies_.init();
+                        await socket.init();
                     }
+                    // put infobox below on the left side
                     else if (node.classList.contains("loginPanelContent") && document.querySelectorAll(".loginPanelContent").length > 2 && document.querySelectorAll(".login-side-left .loginPanelContent").length <= 0) {
                         let cont = document.querySelector(".login-side-left");
                         cont.appendChild(node);
-                        cont.style.width = "300px";
+                        cont.style.width = "400px";
                         cont.style.flex = "0 1 auto";
                     }
+                    // add update info to infobox
                     else if (node.classList.contains("updateInfo")) {
                         let status = await (await fetch("https://tobeh.host/Orthanc/status.txt")).text();
                         node.innerHTML = "Hello there! 💖<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br>" + status;
@@ -68,7 +81,6 @@ let patcher = new MutationObserver((mutations) => {
                     else if (node.id == 'screenLogin') {
                         node.style.justifyContent = "center";
                     }
-                    
                 }
                 if (node.id == 'formLogin') {
                     //add dead lobbies button
@@ -81,7 +93,18 @@ let patcher = new MutationObserver((mutations) => {
                     skipDead.style.width = "48%";
                     skipDead.style.marginTop = "4px";
                     skipDead.style.marginLeft = "4%";
-                    skipDead.addEventListener('click', () => { sessionStorage.skipDeadLobbies = "true"; });
+                    skipDead.addEventListener('click', () => {
+                        let modal = new Modal(elemFromString("<h3>Click anywhere to cancel</h3>"), () => {
+                            lobbies_.searchData.searching = false;
+                        }, "Skipping dead lobbies...","30vw","10em");
+                        lobbies_.startSearch(() => {
+                            return lobbies_.lobbyProperties.Players.length > 1;
+                        }, () => {
+                            setTimeout(()=>leaveLobby(true), 100);
+                        }, () => {
+                             modal.close();
+                         });
+                    });
                     privateBtn.parentNode.appendChild(skipDead);
 
                     //add search names button and field
@@ -106,16 +129,33 @@ let patcher = new MutationObserver((mutations) => {
                     inputSubmit.textContent = "Search Player!";
                     inputSubmit.addEventListener("click", () => {
                         if (inputName.value.trim() == "") return;
-                        document.querySelector("button[type='submit'].btn-success").click();
                         let players = inputName.value.split(",");
+                        let skippedPlayers = [];
                         players = players.map(p => p.trim());
-                        sessionStorage.searchPlayers = JSON.stringify(players);
+                        let modalCont = elemFromString("<div style='text-align:center'><h4>" + inputName.value + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere to cancel</h4><div>");
+                        let modal = new Modal( modalCont, () => {
+                                lobbies_.searchData.searching = false;
+                        }, "Searching for players:", "30vw", "15em");
+                        lobbies_.startSearch(() => {
+                            lobbies_.lobbyProperties.Players.forEach(p => {
+                                if (skippedPlayers.indexOf(p.Name) < 0 && p.Name != socket.clientData.playerName) {
+                                    skippedPlayers.push(p.Name);
+                                    modalCont.querySelector("#skippedPlayers").innerHTML += " [" + p.Name + "] <wbr>";
+                                }
+                            });
+                            return lobbies_.lobbyProperties.Players.some(lobbyplayer =>
+                                players.some(searchPlayer => searchPlayer.toLowerCase() == lobbyplayer.Name.toLowerCase()));
+                        }, () => {
+                            setTimeout(() => leaveLobby(true), 200);
+                        }, () => {
+                            modal.close();
+                        });
+                        document.body.dispatchEvent(new Event("joinLobby"));
                     });
                     containerForm.append(inputName);
                     containerForm.append(inputSubmit);
                     container.appendChild(containerForm);
                 }
-                
             });
         });
 });

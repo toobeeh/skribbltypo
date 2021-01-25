@@ -18,6 +18,12 @@ const scrollMessages = () => {
     box.scrollTop = box.scrollHeight;
 }
 
+const elemFromString = (html) => {
+    let dummy = document.createElement("div");
+    dummy.innerHTML = html;
+    return dummy.firstChild;
+}
+
 // func to replace umlaute in a string
 const replaceUmlaute = (str) => {
     // umlaute which have to be replaced
@@ -101,13 +107,18 @@ const showPractise = () => {
     QS(".containerToolbar").style.display = "";
     QS("#screenGame").style.display = "block";
     QS("#screenLogin").style.display = "none";
-    QS(".header").style.display = "none";
+    QS("#containerLogoBig").style.display = "none";
     document.querySelector("#currentWord").innerHTML = "Practise";
 }
 
 // leave lobby
 const leaveLobby = (next = false) => {
     document.body.dispatchEvent(new Event("leaveLobby"));
+    if (sessionStorage.practise == "true") {
+        sessionStorage.practise = "false";
+        QS("#screenGame").style.display = "none";
+        QS(".containerToolbar").style.display = "none";
+    }
     if (next) document.body.dispatchEvent(new Event("joinLobby"));
 }
 

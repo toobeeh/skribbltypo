@@ -12,6 +12,16 @@ let uiTweaks = {
         btNext.classList.add("btn", "btn-info", "btn-block");
         btNext.style.margin = "0 0.5em";
         btNext.addEventListener("click", () => {
+            let modal = new Modal(elemFromString("<h3>Click anywhere to cancel</h3>"), () => {
+                lobbies_.searchData.searching = false;
+            }, "Searching next lobby...", "30vw", "10em");
+            lobbies_.startSearch(() => {
+                return lobbies_.lobbyProperties.Players.length > 1;
+            }, () => {
+                setTimeout(() => leaveLobby(true), 100);
+            }, () => {
+                modal.close();
+            });
             leaveLobby(true);
         });
 

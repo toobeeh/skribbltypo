@@ -142,7 +142,7 @@
     function x() {
         var e = n("#inputName")[0].value.split("#", 2);
         0 == e.length && (e = ["", ""]), 1 == e.length && e.push("");
-        var o = k(t.location.href),
+        var o = sessionStorage.joinCustom ? sessionStorage.joinCustom : (t.location.href),
             r = n("#loginLanguage").val();
         return {
             name: e[0],
@@ -153,22 +153,42 @@
             createPrivate: pt
         }
     }
-
+    let reset = () => {
+        st = new tt({
+            drawCommands: [],
+            drawingID: 2,
+            inGame: true,
+            key: "",
+            language: "english",
+            myID: 38,
+            name: "Lobby",
+            ownerID: 0,
+            players: [],
+            round: 0,
+            roundMax: 0,
+            slots: 8,
+            time: 61,
+            timeMax: 80,
+            useCustomWordsExclusive: false
+        }), st.setDrawTime(0), U(), ut.clear(), ct.showLogo(2), E(""), ct.goto("login")
+    };
+    document.body.addEventListener("leaveLobby", () => {
+        reset(), sessionStorage.initLeave = "true";
+        it ? it.close() : 0
+    });
     function C(t, e) {
         at.playSound("playerJoin"), it = io(t, {
             query: {
                 token: dt
             }
-        }), it.on("connect", function () {
+        });
+        it.on("connect", function () {
             sessionStorage.initLeave = "";
-            document.body.addEventListener("leaveLobby", () => {
-                sessionStorage.initLeave = "true";
-                it ? it.close() : 0, it = null, st = null, ct.goto("login")
-            }),
             it.on("disconnect", function() {
-                it.close(), it = null, st = null, ct.goto("login"), sessionStorage.initLeave != "true" ? n("#modalDisconnect").modal() : 0
+                it.close(), it = null, st = null, ct.goto("login"), sessionStorage.initLeave != "true" ? n("#modalDisconnect").modal() : 0, document.dispatchEvent(new Event("leftGame"));
             }), it.emit("userData", e),  it.on("kicked", function() {
-                n("#modalKicked").modal()
+                n("#modalKicked").modal(),
+                document.dispatchEvent(new Event("leftGame"));
             }), it.on("drawCommands", function(t) {
                 for (var e = 0; e < t.length; e++) I(t[e])
             }), it.on("canvasClear", function() {
@@ -192,10 +212,9 @@
                     st.chatAddMsg(null, "'" + e.name + "' is voting to kick '" + n.name + "' (" + t[2] + "/" + t[3] + ")", N)
                 }
             }), it.on("lobbyConnected", function (t) {
-                document.querySelector("body").dispatchEvent(new CustomEvent("loginData", { detail: { name: t.players[t.players.length - 1].name } }));
+                document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: t }));
                 if (ut.clear(), E(""), st = new tt(t), st.inGame) {
                     for (var e = 0; e < t.drawCommands.length; e++) I(t.drawCommands[e]);
-                    setTimeout(()=>document.querySelector("body").dispatchEvent(new CustomEvent("lobbyConnected", { detail: t.players },500)));
                     ct.goto("game"), st.drawingID >= 0 && D(st.time)
                 } else ct.goto("lobby")
             }), it.on("lobbyLobby", function() {
@@ -210,7 +229,7 @@
                 }
             }),
             it.on("lobbyDisconnected", function() {
-                it.emit("lobbyLeave"), st = null, ct.goto("login")
+                it.emit("lobbyLeave"), st.reset(), ct.goto("login")
             }), it.on("lobbyGameStart", function(t) {
                 st.reset(), E(""), ct.goto("game")
             }), it.on("lobbyGameEnd", function() {
@@ -3431,7 +3450,9 @@
             game: new et(n("#screenGame"), 1)
         }, this.screenCurrent = null
     };
-    nt.prototype.goto = function(t) {
+    document.addEventListener("gotoScreen", (e) => ct.goto(e.detail.screen));
+    nt.prototype.goto = function (t) {
+        if (t == "login") document.dispatchEvent(new Event("leftGame"));
         this.screenCurrent && this.screens[this.screenCurrent].hide(), this.screenCurrent = t, this.screens[this.screenCurrent].show(), this.screens[this.screenCurrent].logo > 0 ? this.showLogo(this.screens[this.screenCurrent].logo) : this.hideLogo()
     }, nt.prototype.hideLogo = function() {
         n("#containerLogoBig").hide(), n("#containerLogoSmall").hide()
@@ -3602,6 +3623,8 @@
     var gt = null;
     var setColorInterval = null;
     n("body").on("keydown", function (t) {
+        // tab in to focus chat
+        if (t.key == "Tab" && !document.querySelector("#inputChat").matches(":active")) setTimeout(()=>document.querySelector("#inputChat").focus(),50);
         if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
         let prev = lastBrushUp;
         let acc = ut.brush.thickness / 2;

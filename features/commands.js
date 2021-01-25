@@ -85,8 +85,21 @@ const performCommand = (cmd) => {
     else if (cmd.includes(cmd_enInk)) enInk();
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
     else if (cmd.includes("memberlogin")) login(cmd.replace("memberlogin", "").trim());
-    else if (cmd.includes("enable palantir")) {localStorage.userAllow = "true"; fixPalantir(true);}
-    else if (cmd.includes("disable palantir")) localStorage.userAllow = "false";
+    else if (cmd.includes("enable palantir")) {
+        localStorage.userAllow = "true"; 
+        lobbies_.userAllow = true;
+        if (lobbies_.inGame && !lobbies_.joined) {
+            socket.joinLobby(lobbies_.lobbyProperties.Key);
+            lobbies_.joined = true;
+        }
+        socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
+    }
+    else if (cmd.includes("disable palantir")) {
+        lobbies_.userAllow = false;
+        localStorage.userAllow = "false";
+        socket.leaveLobby();
+        lobbies_.joined = false;
+    }
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
     else if (cmd.includes(cmd_setInkmode)) setInkmode((cmd.replace(cmd_setInkmode, "")).trim());
     else if (cmd.includes(cmd_addImportantName)) addVip((cmd.replace(cmd_addImportantName, "")).trim());

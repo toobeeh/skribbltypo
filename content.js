@@ -53,18 +53,13 @@ chrome.runtime.onMessage.addListener(msgObj => {
 });
 
 // initialize modules
-Report.initEvents(); // init report data events from report.js
-lobbies.initSearchEvents(); // init lobby search buttons, lobby guild container is already initialized in patcher
-setInterval(async () => { // Keep report alive
-    await Report.trigger();
-}, 30000);
 captureCanvas.initListeners(); // init capturing draw ommands and drawings
 imageAgent.initImageAgent(); // init image agent from afent.js
 imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
-drops.initDrops(); // init drops
 pressure.initEvents(); // init pressure
+// sprites and drops are initialized in patcher.js as soon as dom and palantir loaded
 QS("#loginAvatarCustomizeContainer  .avatarContainer").addEventListener("click", showPractise); // add listener to show practise
 QS('button[type="submit"]').addEventListener("click", () => { sessionStorage.practise = false; }); // disable when any button is clicked
 

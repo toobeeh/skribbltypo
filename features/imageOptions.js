@@ -219,7 +219,7 @@ let imageOptions = {
                 // build webhook content
                 let message;
                 let imageOnly =QS("#sendImageOnly").checked;
-                let loginName = Report.loginName ? Report.loginName : QS("#inputName").value;
+                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS("#inputName").value;
                 if (imageOnly) {
                     message = JSON.stringify({
                         username: loginName,

@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "Collection of useful tools & graphics tablet support for skribbl.io and sketchful.io",
-  "version": "20.0.0",
+  "version": "21.0.3",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
@@ -39,7 +39,6 @@
       "js": [
         "picker/colr_pickr.min.js",
         "color.js",
-        "features/genericFunctions.js",
         "features/commands.js",
         "features/capture.js",
         "features/drops.js",
@@ -48,8 +47,7 @@
         "features/agent.js",
         "features/pressure.js",
         "features/imageOptions.js",
-        "content.js",
-        "features/sprites.js"
+        "content.js"
       ],
       "css": [
         "picker/colr_pickr.min.css"
@@ -62,10 +60,12 @@
         "*://skribbl.io/*"
       ],
       "js": [
+        "features/modal.js",
+        "features/sprites.js",
+        "features/genericFunctions.js",
         "errors.js",
         "features/socket.js",
-        "features/report.js",
-        "features/lobbies.js",
+        "features/lobbies_.js",
         "patcher.js"
       ]
     },
