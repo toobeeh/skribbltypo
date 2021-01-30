@@ -81,6 +81,7 @@ let patcher = new MutationObserver((mutations) => {
                     else if (node.id == 'screenLogin') {
                         node.style.justifyContent = "center";
                     }
+                    if (node.id == "containerLogoBig" || node.id == "logoAvatarContainer") node.style.display = "";
                 }
                 if (node.id == 'formLogin') {
                     //add dead lobbies button

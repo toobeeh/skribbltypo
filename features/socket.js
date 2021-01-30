@@ -25,26 +25,62 @@ const socket = {
     init: async () => {
         socket.sck = io("https://typo.rip:3000");
         socket.sck.on("connect", async () => {
+            socket.sck.on("new drop", (data) => {
+                drops.newDrop(data.payload.drop);
+            }); socket.sck.on("clear drop", (data) => {
+                drops.clearDrop(data.payload.result);
+            });
             socket.sck.on("public data", (data) => {
                 socket.data.publicData = data.payload.publicData;
             });
             socket.sck.on("online sprites", (data) => {
                 socket.data.publicData.onlineSprites = data.payload.onlineSprites;
             });
+            let updateTimeout = null;
             socket.sck.on("active lobbies", (data) => {
-                socket.data.activeLobbies = data.payload.activeLobbies;
-                lobbies_.setLobbies(socket.data.activeLobbies);
+                socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
+                socket.data.activeLobbies.push(data.payload.activeGuildLobbies);
+                let updateIn = updateTimeout = setTimeout(() => {
+                    if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 100ms
+                    lobbies_.setLobbies(socket.data.activeLobbies);
+                }, 200);
             });
             let loginstate = await socket.emitEvent("login", { loginToken: JSON.parse(localStorage.member).UserLogin }, true);
-            console.log(loginstate);
-            if (loginstate) {
+            if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 lobbies_.setLobbies(socket.data.activeLobbies);
             }
+            else lobbies_.setLobbies(null);
             document.dispatchEvent(new Event("palantirLoaded"));
+
+            let documentIdle = null;
+            let visibilitychangeDisconnect = () => {
+                if (documentIdle) clearInterval(documentIdle);
+                // if visibility changes to hidden disconnect after x seconds
+                if (document.hidden) documentIdle = setTimeout(() => {
+                    if (document.hidden && socket) {
+                        socket.disconnect();
+                        document.removeEventListener("visibilitychange", visibilitychangeDisconnect);
+                        // reconnect when doc is visible again
+                        document.addEventListener("visibilitychange", visibilitychangeConnect);
+                    }
+                }, 1000 * 60 * 5);
+            };
+            let visibilitychangeConnect = () => {
+                // reconnect when doc is visible again 
+                if (!document.hidden) {
+                    document.removeEventListener("visibilitychange", visibilitychangeConnect);
+                    socket.init();
+                }
+            }
+            document.addEventListener('visibilitychange', visibilitychangeDisconnect);
         });
+    },
+    disconnect: () => {
+        socket.sck.close();
+        socket.sck = null;
     },
     searchLobby: async (waiting = false) => {
         await socket.emitEvent("search lobby", { searchData: { userName: socket.clientData.playerName, waiting: waiting } });
@@ -58,5 +94,14 @@ const socket = {
     leaveLobby: async () => {
         let response = await socket.emitEvent("leave lobby", {}, true);
         socket.data.activeLobbies = response.activeLobbies;
+    },
+    claimDrop: async (drop, timeout = false) => {
+        let response = await socket.emitEvent("claim drop", {
+            drop: drop,
+            name: socket.clientData.playerName,
+            lobbyKey: socket.clientData.lobbyKey,
+            timedOut: timeout
+        }, true);
+        return response;
     }
 }

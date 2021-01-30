@@ -173,11 +173,16 @@ let imageOptions = {
         let navigateImagePreview = (direction) => {
             let currentIndex = Number(imagePreview.getAttribute("imageIndex"));
             let allDrawings = [...captureCanvas.capturedDrawings];
-            allDrawings.push({ drawing: document.querySelector("#canvasGame").toDataURL("2d"), drawer: getCurrentOrLastDrawer() });
+            allDrawings.push({
+                drawing: document.querySelector("#canvasGame").toDataURL("2d"),
+                drawer: getCurrentOrLastDrawer(),
+                word: QS("#currentWord").innerText
+            });
             if (currentIndex < 0) currentIndex = allDrawings.length - 1;
             currentIndex += direction;
             if (currentIndex >= 0 && currentIndex < allDrawings.length) {
                 imagePreview.src = allDrawings[currentIndex].drawing;
+                QS("#postNameInput").value = allDrawings[currentIndex].word;
                 imageShareString = allDrawings[currentIndex].drawing;
                 imageShareStringDrawer = allDrawings[currentIndex].drawer;
                 imagePreview.setAttribute("imageIndex", currentIndex);

@@ -91,7 +91,8 @@ const captureCanvas = {
         document.body.addEventListener("drawingFinished", () => {
             captureCanvas.capturedDrawings.push({
                 drawing: QS("#canvasGame").toDataURL("2d"),
-                drawer: getCurrentOrLastDrawer()
+                drawer: getCurrentOrLastDrawer(),
+                word: QS("#currentWord").innerText
             });
         });
         QS("#canvasGame").addEventListener("pointerup", captureCanvas.pushCaptured);

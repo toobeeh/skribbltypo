@@ -67,10 +67,13 @@ const lobbies_ = {
 	},
 	setLobbies: (lobbies) => {
 		if (!lobbies_.lobbyContainer) return;
+		if (!socket.authenticated) {
+			lobbies_.lobbyContainer.innerHTML = "Didn't connect to Palantir. <br>Read the manual on the <a style='font-weight:700; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>Join the typo discord server to try it out!<br>";
+			return;
+		}
 		lobbies_.lobbyContainer.innerHTML = "";
-		let filteredGuilds = lobbies.filter(guild => socket.data.user.member.Guilds.some(memberGuild => memberGuild.GuildID == guild.guildID));
-		filteredGuilds.forEach(guild => {
-			let name = socket.data.user.member.Guilds.find(memberGuild => memberGuild.GuildID == guild.guildID).GuildName;
+		lobbies.forEach(guild => {
+			let name = socket.data.user.member.Guilds.find(memberGuild => memberGuild.GuildID.slice(0,-2) == guild.guildID.slice(0,-2)).GuildName;
 			let guildContainer = document.createElement("div");
 			guildContainer.id = "guildLobbies" + guild.guildID;
 			guildContainer.style.cssText = "display:flex; flex-flow:row wrap; margin:1em";
@@ -79,7 +82,7 @@ const lobbies_ = {
 				lobbyButton.id = "lobby" + lobby.ID.split(":")[1];
 				lobbyButton.setAttribute("playercount", lobby.Players);
 				lobbyButton.setAttribute("key", lobby.Key);
-				lobbyButton.innerText = name + " #" + lobby.ID.split(":")[0] + (lobby.Private? (lobby.Host == "skribbl.io" ? "[Custom]" : "[Sketchful]") : "");
+				lobbyButton.innerText = name + " #" + lobby.ID.split(":")[0] + (lobby.Private? (lobby.Host == "skribbl.io" ? " [Custom]" : " [Sketchful]") : "");
 				lobbyButton.classList.add("btn", "btn-success", "lobbySearchBtn");
 				lobbyButton.style.margin = "0.15em";
 				// add search logic
@@ -141,6 +144,7 @@ const lobbies_ = {
 											button.classList.add("btn-danger");
 											button.innerText += " (waiting...)";
 											modal.setNewTitle("Waiting for free slot...");
+											socket.searchLobby(true);
 										}
 									}
 									else {
@@ -195,7 +199,7 @@ const lobbies_ = {
 		lobbies_.lobbyContainer = lobbies_.initLobbyContainer();
 		// on lobby join
 		document.addEventListener("lobbyConnected", async (e) => {
-			sessionStorage.joinCustom = undefined;
+			sessionStorage.removeItem("joinCustom");
 			lobbies_.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
 			lobbies_.lobbyProperties.Language = e.detail.language.charAt(0).toUpperCase() + e.detail.language.slice(1);
 			lobbies_.lobbyProperties.Private = e.detail.ownerID > -1 ? true : false;

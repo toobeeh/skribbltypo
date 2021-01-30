@@ -24,6 +24,12 @@ const elemFromString = (html) => {
     return dummy.firstChild;
 }
 
+const waitMs = async (timeMs) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(), timeMs);
+    });
+};
+
 // func to replace umlaute in a string
 const replaceUmlaute = (str) => {
     // umlaute which have to be replaced
@@ -113,13 +119,20 @@ const showPractise = () => {
 
 // leave lobby
 const leaveLobby = (next = false) => {
+    if (next && sessionStorage.practise != "true") {
+        let join = () => {
+            document.removeEventListener("disconnectedSocket", join);
+            setTimeout(document.body.dispatchEvent(new Event("joinLobby")),50);
+        }
+        document.addEventListener("disconnectedSocket", join);
+    }
     document.body.dispatchEvent(new Event("leaveLobby"));
     if (sessionStorage.practise == "true") {
         sessionStorage.practise = "false";
         QS("#screenGame").style.display = "none";
         QS(".containerToolbar").style.display = "none";
+        if(next)document.body.dispatchEvent(new Event("joinLobby"))
     }
-    if (next) document.body.dispatchEvent(new Event("joinLobby"));
 }
 
 // set default settings

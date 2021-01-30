@@ -123,7 +123,7 @@
             })
         }) : w()
     }
-    document.body.addEventListener("joinLobby", g);
+    document.body.addEventListener("joinLobby", () => { ct.goto("load"); g(); });
     function w() {
         at.context && at.context.resume();
         var t = x(),
@@ -142,8 +142,9 @@
     function x() {
         var e = n("#inputName")[0].value.split("#", 2);
         0 == e.length && (e = ["", ""]), 1 == e.length && e.push("");
-        var o = sessionStorage.joinCustom ? sessionStorage.joinCustom : (t.location.href),
+        var o = sessionStorage.joinCustom ? sessionStorage.joinCustom : k(t.location.href),
             r = n("#loginLanguage").val();
+        localStorage.removeItem("joinCustom");
         return {
             name: e[0],
             code: e[1],
@@ -153,28 +154,38 @@
             createPrivate: pt
         }
     }
+    let userDisconnect = false;
     let reset = () => {
         st = new tt({
             drawCommands: [],
-            drawingID: 2,
+            drawingID: 0,
             inGame: true,
             key: "",
             language: "english",
-            myID: 38,
+            myID: 0,
             name: "Lobby",
             ownerID: 0,
             players: [],
             round: 0,
             roundMax: 0,
             slots: 8,
-            time: 61,
+            time: 60,
             timeMax: 80,
             useCustomWordsExclusive: false
         }), st.setDrawTime(0), U(), ut.clear(), ct.showLogo(2), E(""), ct.goto("login")
     };
+    let disconnect = () => {
+        reset(), it ? it.close() : 0, it = null, st = null, document.dispatchEvent(new Event("leftGame"))
+    }
+    const waitMs = async (timeMs) => {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => resolve(), timeMs);
+        });
+    };
     document.body.addEventListener("leaveLobby", () => {
-        reset(), sessionStorage.initLeave = "true";
-        it ? it.close() : 0
+        userDisconnect = true;
+        if(it) it.reconnect = false;
+        disconnect();
     });
     function C(t, e) {
         at.playSound("playerJoin"), it = io(t, {
@@ -183,9 +194,15 @@
             }
         });
         it.on("connect", function () {
-            sessionStorage.initLeave = "";
-            it.on("disconnect", function() {
-                it.close(), it = null, st = null, ct.goto("login"), sessionStorage.initLeave != "true" ? n("#modalDisconnect").modal() : 0, document.dispatchEvent(new Event("leftGame"));
+            it.on("", (e, o) =>
+                console.log(e + " - Incoming from " + it.id + "."));
+            it.on("disconnect", async function () {
+                // dont perform events if source is not active socket
+                if (this.id != it.id) return;
+                //await waitMs(100);
+                disconnect();
+                if (!userDisconnect) n("#modalDisconnect").modal();
+                delete it;
             }), it.emit("userData", e),  it.on("kicked", function() {
                 n("#modalKicked").modal(),
                 document.dispatchEvent(new Event("leftGame"));
@@ -1431,7 +1448,7 @@
                 for (var e in n.prototype) t[e] = n.prototype[e];
                 return t
             }
-            t.exports = n, n.prototype.on = n.prototype.addEventListener = function(t, e) {
+                t.exports = n, n.prototype.on = n.prototype.addEventListener = function (t, e) {
                 return this._callbacks = this._callbacks || {}, (this._callbacks[t] = this._callbacks[t] || []).push(e), this
             }, n.prototype.once = function(t, e) {
                 function n() {
@@ -2928,8 +2945,9 @@
                 }) : this.packet({
                     type: r.CONNECT
                 }))
-            }, o.prototype.onclose = function(t) {
-                u("close (%s)", t), this.connected = !1, this.disconnected = !0, delete this.id, this.emit("disconnect", t)
+                }, o.prototype.onclose = function (t) {
+                let port = this.io.engine.port;
+                u("close (%s)", t), this.connected = !1, this.disconnected = !0, delete this.id, this.emit("disconnect", t), (port > 4999 ? document.dispatchEvent(new Event("disconnectedSocket")) : 0)
             }, o.prototype.onpacket = function(t) {
                 if (t.nsp === this.nsp) switch (t.type) {
                     case r.CONNECT:
@@ -2949,7 +2967,11 @@
                     case r.ERROR:
                         this.emit("error", t.data)
                 }
-            }, o.prototype.onevent = function(t) {
+                }, o.prototype.onevent = function (t) {
+                if (it && this.id != it.id) {
+                    this.disconnect();
+                    return;
+                }
                 var e = t.data || [];
                 u("emitting event %j", e), null != t.id && (u("attaching ack callback to event"), e.push(this.ack(t.id))), this.connected ? p.apply(this, e) : this.receiveBuffer.push(e)
             }, o.prototype.ack = function(t) {
@@ -3490,13 +3512,13 @@
     var inputLog = [],
         logPos=0,
         st = null,
-        it = null,
         at = new V,
         ct = new nt,
         ut = new Z(n("#canvasGame")),
         ht = new Array,
         lt = !1,
         pt = !1;
+    let it = null;
     ut.setDrawing(!1), ct.goto("login");
     var ft = !1;
     ct.screens.game.onshow = function() {
