@@ -120,6 +120,11 @@
         let sprites = socket.data.user.sprites.split(",");
         let activeSprite = sprites.find(s => s.includes("."));
         let url = getSpriteURL(activeSprite.replace(".", "")); 
+        if (isSpecial(activeSprite.replace(".", ""))) {
+            QSA("#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .eyes, #loginAvatarCustomizeContainer .mouth").forEach(n => {
+                n.style.opacity = 0;
+            });
+        }
         let specialContainer = QS("#loginAvatarCustomizeContainer .special");
         let clone = specialContainer.cloneNode(true);
         specialContainer.parentElement.appendChild(clone);

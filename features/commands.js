@@ -22,6 +22,8 @@ const cmd_remove_observerToken = "rmobs";
 
 const cmd_resetTypo = "reset!";
 
+const cmd_setScale = "scale";
+
 const cmd_enableOwnHoly = "enable holy";
 const cmd_disableOwnHoly = "disable holy";
 
@@ -107,6 +109,7 @@ const performCommand = (cmd) => {
     else if (cmd.includes(cmd_showImportantName)) showVip();
     else if (cmd.includes(cmd_clearImportantName)) clearVip();
     else if (cmd.includes(cmd_fixPalantir)) fixPalantir();
+    else if (cmd.includes(cmd_setScale)) localStorage.qualityScale = (cmd.replace(cmd_setScale, "")).trim();
     else if (cmd.includes(cmd_enBack)) toggleBackbutton(true);
     else if (cmd.includes(cmd_daBack)) toggleBackbutton();
     else if (cmd.includes(cmd_enRandom)) toggleRandomColor(true);

@@ -307,5 +307,11 @@ padding: 1em; `;
         uiTweaks.initLobbyDescriptionForm();
         uiTweaks.initMarkMessages();
         //uiTweaks.initRicardoSpecial();
+        document.addEventListener("copyToClipboard", async () => {
+            if (!confirm("Copy current image to clipboard?")) return;
+            let canvas = QS("#canvasGame");
+            let scaled = await scaleDataURL(canvas.toDataURL(), canvas.width * localStorage.qualityScale, canvas.height * localStorage.qualityScale);
+            await dataURLtoClipboard(scaled);
+        });
     }
 }

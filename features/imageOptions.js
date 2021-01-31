@@ -79,13 +79,16 @@ let imageOptions = {
         download.src = "https://media.giphy.com/media/RLKYVelNK5bP3yc8LJ/giphy.gif";
         download.style.cursor = "pointer";
         download.id = "downloadImage";
-        download.addEventListener("click", () => {
+        download.addEventListener("click", async () => {
+            let scale = Number(localStorage.qualityScale) ? Number(localStorage.qualityScale) : 1;
             let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
             e.initMouseEvent("click", true, true, window,
                 0, 0, 0, 0, 0, false, false, false,
                 false, 0, null);
             d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
-            d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+            d.href = await scaleDataURL(document.querySelector("#canvasGame").toDataURL("image/png;base64"),
+                document.querySelector("#canvasGame").width * scale,
+                document.querySelector("#canvasGame").height * scale);
             d.dispatchEvent(e);
         });
         imageOptions.optionsContainer.appendChild(download);

@@ -3646,7 +3646,8 @@
     var setColorInterval = null;
     n("body").on("keydown", function (t) {
         // tab in to focus chat
-        if (t.key == "Tab" && !document.querySelector("#inputChat").matches(":active")) setTimeout(()=>document.querySelector("#inputChat").focus(),50);
+        if (t.key == "Tab" && !document.querySelector("#inputChat").matches(":active")) setTimeout(() => document.querySelector("#inputChat").focus(), 50);
+        if (t.ctrlKey && t.key.toLowerCase() == "c") document.dispatchEvent(new Event("copyToClipboard"));
         if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
         let prev = lastBrushUp;
         let acc = ut.brush.thickness / 2;

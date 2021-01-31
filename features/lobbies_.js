@@ -190,8 +190,9 @@ const lobbies_ = {
 				lobbies_.lobbyProperties.Round = QS("#round").textContent.trim().substr(QS("#round").textContent.trim().indexOf(" ") + 1, 1);
 				lobbies_.lobbyProperties.Key = lobbies_.getLobbyKey(lobbies_.lobbyProperties.Private);
 				socket.clientData.lobbyKey = lobbies_.lobbyProperties.Key;
+				let description = lobbies_.lobbyProperties.Private ? QS("#lobbyDesc").value : "";
 				if (lobbies_.joined && lobbies_.userAllow) { // report lobby if joined
-					await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
+					await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key, description);
 				}
 			}
 		});

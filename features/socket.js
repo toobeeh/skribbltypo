@@ -88,8 +88,8 @@ const socket = {
     joinLobby: async (key) => {
         await socket.emitEvent("join lobby", { key: key }, true);
     },
-    setLobby: async (lobby, key) => {
-        await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby });
+    setLobby: async (lobby, key, description = "") => {
+        await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description:  description});
     },
     leaveLobby: async () => {
         let response = await socket.emitEvent("leave lobby", {}, true);

@@ -30,6 +30,36 @@ const waitMs = async (timeMs) => {
     });
 };
 
+const scaleDataURL = async (url, width, height) => {
+    return new Promise((resolve, reject) => {
+        let source = new Image();
+        source.onload = () => {
+            let canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext("2d").drawImage(source, 0, 0, width, height);
+            resolve(canvas.toDataURL());
+        }
+        source.src = url;
+    });
+}
+
+const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackoverflow.com/questions/23182933/converting-an-image-dataurl-to-image
+    // Decode the dataURL
+    let binary = atob(dataUrl.split(',')[1]);
+    // Create 8-bit unsigned array
+    let array = [];
+    for (let i = 0; i < binary.length; i++) {
+        array.push(binary.charCodeAt(i));
+    }
+    // Return blob
+    let blob = new Blob([new Uint8Array(array)], {
+        type: 'image/png'
+    });
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    printCmdOutput("Copied to clipboard");
+}
+
 // func to replace umlaute in a string
 const replaceUmlaute = (str) => {
     // umlaute which have to be replaced
@@ -138,6 +168,7 @@ const leaveLobby = (next = false) => {
 // set default settings
 const setDefaults = (override = false) => {
     if (!localStorage.member || override) localStorage.member = "";
+    if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
     if (!localStorage.userAllow || override) localStorage.userAllow = "true";
     if (!localStorage.login || override) localStorage.login = "";
     if (!localStorage.ownHoly || override) localStorage.ownHoly = "false";
