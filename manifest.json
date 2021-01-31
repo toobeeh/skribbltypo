@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "Collection of useful tools & graphics tablet support for skribbl.io and sketchful.io",
-  "version": "20.0.0",
+  "version": "20.0.2",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"

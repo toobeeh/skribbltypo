@@ -127,6 +127,7 @@ let drops = {
     },
     initDrops: async () => {
         drops.initDropContainer();
+        await drops.fetchEventDrops();
         // sync time once a min
         (async () => { drops.timeSyncDiff = await drops.getTimeDiff(); })();
         setInterval(async () => { drops.timeSyncDiff = await drops.getTimeDiff(); }, 1000 * 60);
