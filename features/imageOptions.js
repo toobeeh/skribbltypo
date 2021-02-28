@@ -5,7 +5,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // dependend on: genericfunctions.js, capture.js, commands.js
 let imageOptions = {
     optionsContainer: undefined,
-    drawCommandsToGif: async (filename = "download") => {
+    drawCommandsToGif: async (filename = "download", actions = null) => {
         // generate a gif of stored draw commands
         let workerJS = "";
         workerJS += await (await fetch(chrome.runtime.getURL("gifCap/b64.js"))).text();
@@ -15,7 +15,8 @@ let imageOptions = {
         workerJS += await (await fetch(chrome.runtime.getURL("gifCap/skribblCanvas.js"))).text();
         workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
         let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
-        renderWorker.postMessage({ 'filename': filename, 'capturedActions': captureCanvas.getCapturedActions(), 'palettes': localStorage.customPalettes });
+        if (!actions) actions = captureCanvas.getCapturedActions();
+        renderWorker.postMessage({ 'filename': filename, 'capturedActions': actions, 'palettes': localStorage.customPalettes });
 
         // T H I C C progress bar 
         let progressBar = document.createElement("p");
@@ -56,6 +57,7 @@ let imageOptions = {
         newSidebar.style.cssText = "position: relative; display: flex; flex-direction: column;";
 
         let optionsContainer = document.createElement("div");
+        optionsContainer.id = "imageOptions";
         optionsContainer.style.height = "48px";
         optionsContainer.style.background = "white";
         optionsContainer.style.borderRadius = "2px";
@@ -73,6 +75,18 @@ let imageOptions = {
 
         imageOptions.optionsContainer = optionsContainer;
     },
+    downloadDataURL: async (url) => {
+        let scale = Number(localStorage.qualityScale) ? Number(localStorage.qualityScale) : 1;
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
+        d.href = await scaleDataURL(url,
+            document.querySelector("#canvasGame").width * scale,
+            document.querySelector("#canvasGame").height * scale);
+        d.dispatchEvent(e);
+    },
     initDownloadPicture: () => {
         // add DL button for images
         let download = document.createElement("img");
@@ -80,16 +94,7 @@ let imageOptions = {
         download.style.cursor = "pointer";
         download.id = "downloadImage";
         download.addEventListener("click", async () => {
-            let scale = Number(localStorage.qualityScale) ? Number(localStorage.qualityScale) : 1;
-            let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
-            e.initMouseEvent("click", true, true, window,
-                0, 0, 0, 0, 0, false, false, false,
-                false, 0, null);
-            d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
-            d.href = await scaleDataURL(document.querySelector("#canvasGame").toDataURL("image/png;base64"),
-                document.querySelector("#canvasGame").width * scale,
-                document.querySelector("#canvasGame").height * scale);
-            d.dispatchEvent(e);
+            await imageOptions.downloadDataURL(document.querySelector("#canvasGame").toDataURL("image/png;base64"));
         });
         imageOptions.optionsContainer.appendChild(download);
     },
@@ -256,7 +261,7 @@ let imageOptions = {
                                 },
                                 "author": {
                                     "name": "Drawn by " + drawer,
-                                    "url": "https://tobeh.host/Orthanc",
+                                    "url": "https://typo.rip",
                                     "icon_url": "https://skribbl.io/res/pen.gif"
                                 }
                             }
@@ -272,6 +277,7 @@ let imageOptions = {
                     },
                     body: message
                 });
+                new Toast("Posted image on Discord.", 2000);
             });
             sharePopup.appendChild(shareImg);
         });

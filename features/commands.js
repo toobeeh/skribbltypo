@@ -24,6 +24,8 @@ const cmd_resetTypo = "reset!";
 
 const cmd_setScale = "scale";
 
+const cmd_typro = "typro";
+
 const cmd_enableOwnHoly = "enable holy";
 const cmd_disableOwnHoly = "disable holy";
 
@@ -34,7 +36,9 @@ const cmd_daMarkup = "disable markup";
 
 const cmd_help = "help";
 
-const cmd_fixPalantir = "fixptr";
+const cmd_votekick = "kick";
+const cmd_like = "like";
+const cmd_dislike = "shame";
 
 const cmd_deleteToken = "set token";
 
@@ -102,13 +106,19 @@ const performCommand = (cmd) => {
         socket.leaveLobby();
         lobbies_.joined = false;
     }
+    else if (cmd.includes("enable controls") || cmd.includes("disable controls")) {
+        QS("#controls").style.display = cmd.includes("enable") ? "flex" : "none";
+        localStorage.controls = cmd.includes("enable");
+    }
+    else if (cmd.includes("enable keepCanvas") || cmd.includes("disable keepCanvas")) {
+        localStorage.keepCanvas = cmd.includes("enable");
+    }
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
     else if (cmd.includes(cmd_setInkmode)) setInkmode((cmd.replace(cmd_setInkmode, "")).trim());
     else if (cmd.includes(cmd_addImportantName)) addVip((cmd.replace(cmd_addImportantName, "")).trim());
     else if (cmd.includes(cmd_removeImportantName)) remVip((cmd.replace(cmd_removeImportantName, "")).trim());
     else if (cmd.includes(cmd_showImportantName)) showVip();
     else if (cmd.includes(cmd_clearImportantName)) clearVip();
-    else if (cmd.includes(cmd_fixPalantir)) fixPalantir();
     else if (cmd.includes(cmd_setScale)) localStorage.qualityScale = (cmd.replace(cmd_setScale, "")).trim();
     else if (cmd.includes(cmd_enBack)) toggleBackbutton(true);
     else if (cmd.includes(cmd_daBack)) toggleBackbutton();
@@ -120,6 +130,10 @@ const performCommand = (cmd) => {
     else if (cmd.includes(cmd_addPalette)) addPalette(cmd.replace(cmd_addPalette, "").trim());
     else if (cmd.includes(cmd_setPalette)) setPalette(cmd.replace(cmd_setPalette, "").trim());
     else if (cmd.includes(cmd_removePalette)) removePalette(cmd.replace(cmd_removePalette, "").trim());
+    else if (cmd.includes(cmd_like)) like();
+    else if (cmd.includes(cmd_dislike)) dislike();
+    else if (cmd.includes(cmd_votekick)) kick();
+    else if (cmd.includes(cmd_typro)) socket.getStoredDrawings();
 
     else printCmdOutput("Error");
 }
@@ -140,7 +154,7 @@ function printCmdOutput(cmd, info = "", title = "") {
     let s = document.createElement("span");
 
     // Set Message Content
-    if (cmd.includes("Error")) s.innerHTML = "Error by executing the command";
+    if (cmd.includes("Error")) s.innerHTML = "Error executing the command";
     else if (cmd == cmd_disableOwnHoly) s.innerHTML = "Holy special was removed";
     else if (cmd == cmd_enableOwnHoly) s.innerHTML = "Holy special was activated";
     else if (cmd == cmd_setMarkup) s.innerHTML = "New markup-color: '" + localStorage.markupColor + "'";
@@ -163,22 +177,25 @@ function printCmdOutput(cmd, info = "", title = "") {
 
 // ----------------------------- FUNCTIONS - TO HANDLE COMMAND FUNCTIONALITY
 
+function like() {
+    let up = QS(".thumbsUp");
+    if (up) up.dispatchEvent(newCustomEvent("click"));
+}
+function dislike() {
+    let down = QS(".thumbsDown");
+    if (down) down.dispatchEvent(newCustomEvent("click"));
+}
+function kick() {
+    let kick = QS("#votekickCurrentplayer");
+    if (kick) kick.dispatchEvent(newCustomEvent("click"));
+}
+
 // func to set active palette
 function setPalette(p) {
     if (!document.querySelector("#" + p)) return;
     [...document.querySelectorAll(".containerColorbox")].forEach(c => c.style.display = "none");
     document.querySelector("#" + p).style.display = "";
     localStorage.palette = p;
-}
-
-// function to reinitialize report
-function fixPalantir(silent = false) {
-    Report.playing = true;
-    Report.waiting = false;
-    Report.searching = false;
-    Report.guildLobbies = [];
-    Report.trigger();
-    if(!silent)printCmdOutput("Restarted palantir stuff.");
 }
 
 // func to add palette
@@ -227,7 +244,7 @@ function toggleRandomColor(state = false, silent = false) {
     }
     else {
         document.querySelector("#randomIcon").style.display = "none";
-        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: "false" } }));
+        document.querySelector("body").dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: "false" } }));
         document.querySelector("#colPicker").style.display = "none";
     }
     localStorage.randomColorButton = state;
@@ -245,8 +262,14 @@ function toggleBackbutton(state = false, silent = false) {
 function setRandomInterval(duration) {
     duration > 1000 ? duration = 1000 : duration < 5 ? duration = 5 : 1;
     localStorage.randomColorInterval = duration;
+    let colors = [];
+    [...QSA(".colorItem")].forEach(c => {
+        if (c.parentElement.parentElement.style.display != "none") {
+            colors.push(Number(c.getAttribute("data-color")));
+        }
+    });
     if (document.querySelector("div[data-tool='pen']").classList.contains("toolActive")) {
-        document.querySelector("body").dispatchEvent(new CustomEvent("setRandomColor", { detail: duration }));
+        document.querySelector("body").dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: duration, colors: colors } }));
     }
 
     printCmdOutput("Interval set to " + duration + "ms");
@@ -396,5 +419,6 @@ function showVip() {
 }
 
 function login(login) {
-    localStorage.login = login;
+    localStorage.member = '{"UserLogin":' + login + '}';
+    new Toast("Reload skribbl to complete the login.");
 }

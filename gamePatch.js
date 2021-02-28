@@ -213,11 +213,13 @@
             }), it.on("lobbyKicked", function(t) {
                 var e = st.players.get(t);
                 null != e && (st.chatAddMsg(null, e.name + " was kicked!", G), e.kicked = !0)
-            }), it.on("chat", function(t) {
+            }), it.on("chat", function (t) {
                 var e = st.players.get(t.id),
                     n = st.players.get(st.myID),
                     o = e.id == st.drawingID || e.guessedWord;
-                n.id != st.drawingID && !n.guessedWord && o || st.chatAddMsg(e, v(t.message), o ? "#7dad3f" : "#000")
+                    n.id != st.drawingID && !n.guessedWord && o || (!e.mute ?
+                        st.chatAddMsg(e, v(t.message), o ? "#7dad3f" : "#000") :
+                        st.chatAddMsg(e, v(t.message), "rgb(0 0 0 / 50%)", t.id))
             }), it.on("lobbySpam", function() {
                 st.chatAddMsg(null, "Spam detected! You're sending too many messages.", G)
             }), it.on("restartNotification", function(t) {
@@ -266,7 +268,7 @@
                 st.setDrawTime(t)
             }), it.on("lobbyCustomWordsExclusive", function(t) {
                 st.setCustomWordsExclusive(t)
-            }), it.on("lobbyPlayerConnected", function(t) {
+            }), it.on("lobbyPlayerConnected", function (t) {
                 st.addPlayer(t), st.chatAddMsg(null, t.name + " joined.", j), at.playSound("playerJoin")
             }), it.on("lobbyPlayerDisconnected", function(t) {
                 var e = st.players.get(t);
@@ -303,6 +305,7 @@
                     })
                 }
             }), it.on("lobbyReveal", function (t) {
+                sessionStorage.lastWord = t.word;
                 document.querySelector("body").dispatchEvent(new Event("drawingFinished"));
                 A(), st.chatEnable(), st.chatAddMsg(null, "The word was '" + t.word + "'", _);
                 document.querySelector("body").dispatchEvent(new Event("wordRevealed"));
@@ -364,9 +367,14 @@
         n("#currentWord").text(t)
     }
 
-    function T(t, e, n) {
+    function T(t, e, n, lineFrom) {
+        var from = lineFrom;
         if ((sessionStorage.getItem('practise') == "true" || st.checkDrawing()) && (ut.updateMousePosition(t, e, n), ut.brush.down)) {
             var o = null;
+            if (lineFrom) {
+                if (lineFrom) ut.mouseposPrev = lineFrom;
+                o = ut.createDrawCommandLine(ut.brush.colorIndex, ut.brush.thickness, ut.mouseposPrev.x, ut.mouseposPrev.y, ut.mousepos.x, ut.mousepos.y);
+            }
             switch (ut.brush.tool) {
                 case "pen":
                     o = ut.createDrawCommandLine(ut.brush.colorIndex, ut.brush.thickness, ut.mouseposPrev.x, ut.mouseposPrev.y, ut.mousepos.x, ut.mousepos.y);
@@ -397,6 +405,7 @@
             }
             null != o && (ut.brush.toolUsed = !0, I(o))
         }
+        else if (from) I(o = ut.createDrawCommandLine(ut.brush.colorIndex, ut.brush.thickness, from.x, from.y, ut.mousepos.x, ut.mousepos.y));
     }
 
     function B(t) {
@@ -3255,7 +3264,11 @@
             }
         }
         this.canvasCtx.putImageData(d, h, l)
-    }, Z.prototype.clear = function() {
+        }, Z.prototype.clear = function () {
+        if (localStorage.keepCanvas == "true") {
+            document.dispatchEvent(new CustomEvent("toast", { detail: { text: "Prevented Canvas Clear." }}));
+            return;
+        }
         this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height), document.querySelector("body").dispatchEvent(new CustomEvent("logCanvasClear"))
     }, Z.prototype.setDrawing = function(t) {
         t ? (this.brush.show(), n(".containerToolbar").show()) : (this.brush.hide(), n(".containerToolbar").hide())
@@ -3332,7 +3345,8 @@
         }), this.containerGamePlayersUpdateDrawing(), this.containerGamePlayersUpdateGuessed(), this.containerGamePlayersUpdateOwner(), this.updateRanks(), this.updateRound(), this.containerLobbyPlayersUpdateOwner(), this.chatEnable()
     }, tt.prototype.checkDrawing = function() {
         return this.drawingID == this.myID
-    }, tt.prototype.addPlayer = function(t) {
+    }, tt.prototype.addPlayer = function (t) {
+        t.mute = false;
         this.players.set(t.id, t), this.containerGamePlayerAdd(t), this.containerLobbyPlayerAdd(t), this.updateRanks()
     }, tt.prototype.removePlayer = function(t) {
         this.containerGamePlayerRemove(t), this.containerLobbyPlayerRemove(t), this.players.delete(t.id), this.updateRanks()
@@ -3372,6 +3386,25 @@
         return this.containerGame.find("#player" + t.id)
     }, tt.prototype.containerGamePlayerAdd = function(t) {
         var e = n("#gamePlayerDummy").clone();
+        e.find(".name").css("cursor", "pointer");
+        e.find(".name").css("user-select", "none");
+        e.find(".name").attr("title", "Toggle mute");
+        e.find(".name").tooltip();
+        e.find(".name").on("click", () => {
+            if (t.id == this.myID) {
+                document.dispatchEvent(new CustomEvent("toast", { detail: { text: "You can't mute yourself, dummy!" } }));
+                return;
+            };
+            t.mute = !t.mute;
+            if (t.mute) e.find(".name")[0].style.setProperty("color", "red","important");
+            else e.find(".name").css("color", "black");
+            document.dispatchEvent(new CustomEvent("toast", { detail: { text: (t.mute ? "Muted " : "Unmuted ") + t.name } }));
+            [...document.querySelectorAll(".mutedMsg" + t.id)].forEach(msg => {
+                if (!t.mute) { msg.querySelector("span").style.display = ""; msg.style.color = "black"}
+                else { msg.querySelector("span").style.display = "none"; msg.style.color = "rgb(0, 0, 0, .5)"; }
+            });
+            return;
+        });
         e.attr("id", "player" + t.id), e.find(".name").text(t.name + (t.id == this.myID ? " (You)" : "")), t.id == this.myID && e.find(".name").css("color", "blue"), e.find(".drawing").hide(), this.containerGame.append(e), this.containerGamePlayerUpdateScore(t), e.show(), s(e, t.avatar, t.id == this.ownerID, 1)
     }, tt.prototype.containerGamePlayerRemove = function(t) {
         this.containerGamePlayerGet(t).remove()
@@ -3442,7 +3475,7 @@
         }, 1500)
     }, tt.prototype.chatClear = function() {
         n("#boxMessages").empty()
-    }, tt.prototype.chatAddMsg = function(t, e, o) {
+    }, tt.prototype.chatAddMsg = function(t, e, o, mute = -1) {
         var r = n("#boxMessages"),
             s = Math.abs(r[0].scrollTop - (r[0].scrollHeight - r.height())),
             i = s < 10,
@@ -3450,11 +3483,16 @@
         if (a.css("color", o), a.appendTo(r), t) {
             n("<b/>", {
                 text: t.name + ": "
-            }).appendTo(a), this.playerMessage(t, e)
-        } else a.css("font-weight", "bold");
+            }).appendTo(a), mute < 0 ? this.playerMessage(t, e) : 0;
+        } else {
+            a.css("font-weight", "bold");
+        }
+        if (!t || t.guessedWord) a.addClass("colorMsg");
         n("<span/>", {
-            text: e
-        }).appendTo(a), i && r.scrollTop(r[0].scrollHeight)
+            text: e,
+            class: !t || t.gues ? "colorMsg" : ""
+        }).appendTo(a), i && r.scrollTop(r[0].scrollHeight);
+        if (mute >= 0) { a.addClass("mutedMsg" + mute); a.find("span").hide(); }
     }, tt.prototype.chatDisable = function() {}, tt.prototype.chatEnable = function() {};
     var et = function(t, e) {
         this.element = t, this.logo = e, this.onshow = null, this.onhide = null
@@ -3602,7 +3640,8 @@
             e.val("");
             return !1;
         }
-        return o && (it ? it.emit("chat", o) : st.chatAddMsg(st.players.get(st.myID), o, "#000"), e.val("")), !1
+        return o && (it ? it.emit("chat", o) : st.chatAddMsg(st.players.get(st.myID), o, "#000"), e.val("")),
+            document.querySelector("#inputChat").dispatchEvent(new Event("input")), !1
     }), n("#buttonOpenLobbyCreation").on("click", function() {
         n("#modalCreateLobby").modal("show")
     }), n("#buttonLobbyCreate").on("click", function() {
@@ -3618,8 +3657,8 @@
         var e = t.originalEvent.wheelDelta > 0 || t.originalEvent.detail < 0 ? 1 : -1;
         ut.brush.setThickness(ut.brush.thickness + 6 * e)
     }), n(e).on("mousemove", function(t) {
-        sessionStorage.getItem('practise') == "true" && T(t.clientX, t.clientY, !1) || st && st.checkDrawing() && T(t.clientX, t.clientY, !1)
-    }), n(e).keydown(function(t) {
+        sessionStorage.getItem('practise') == "true" && T(t.clientX, t.clientY, !1) || st && st.checkDrawing() && T(t.clientX, t.clientY, !1);
+    }), n(e).keydown(function (t) {
         if (sessionStorage.getItem('practise')=="true" ||  st && st.checkDrawing() && t !== r && t.key !== r) switch (t.key.toUpperCase()) {
             case "B":
                 ut.brush.setTool("pen");
@@ -3633,95 +3672,128 @@
             case "C":
                 ut.brush.setTool("pipette")
                 break;
+            case "T":
+                if (document.activeElement.tagName != "INPUT" && !document.querySelector(".tabletOption"))
+                    document.querySelector("#tabMode").dispatchEvent(new Event("click"));
+                else if (document.activeElement.tagName != "INPUT" && document.querySelector(".modalBlur"))
+                    document.querySelector(".modalBlur").dispatchEvent(new Event("click"));
+                break;
             case "ESCAPE":
                 it ? it.emit("canvasClear") : ut.clear();
         }
-    }), ut.canvas.on("mousedown", function(t) {
-        switch (t.preventDefault(), t.button +  t.ctrlKey) { // + ctrl key when zooming
+    }), ut.canvas.on("mousedown", function (t) {
+        switch (t.preventDefault(), t.button + t.ctrlKey) { // + ctrl key when zooming
             case 0:
                 ut.brush.down || (ut.brush.setDown(!0), T(t.clientX, t.clientY, !0))
+        }
+    }),ut.canvas.on("pointerdown", function (t) {
+        if (t.altKey) {
+            let from = { x: lastBrushUp.X, y: lastBrushUp.Y };
+            T(t.clientX, t.clientY, !1, from);
+            //I([0, ut.brush.colorIndex, ut.brush.thickness, prev.X, prev.Y, lastBrushUp.X, lastBrushUp.Y]);
         }
     });
     var gt = null;
     var setColorInterval = null;
     n("body").on("keydown", function (t) {
         // tab in to focus chat
-        if (t.key == "Tab" && !document.querySelector("#inputChat").matches(":active")) setTimeout(() => document.querySelector("#inputChat").focus(), 50);
-        if (t.ctrlKey && t.key.toLowerCase() == "c") document.dispatchEvent(new Event("copyToClipboard"));
-        if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
-        let prev = lastBrushUp;
-        let acc = ut.brush.thickness / 2;
-        switch (t.key) {
-            case "ArrowUp":
-                lastBrushUp.Y = lastBrushUp.Y - acc;
-                break;
-            case "ArrowDown":
-                lastBrushUp.Y = lastBrushUp.Y + acc;
-                break;
-            case "ArrowLeft":
-                lastBrushUp.X = lastBrushUp.X - acc;
-                break;
-            case "ArrowRight":
-                lastBrushUp.X = lastBrushUp.X + acc;
-                break;
+        if (t.key == "Tab" && !document.querySelector("#inputChat").matches(":active")) {
+            setTimeout(() => document.querySelector("#inputChat").focus(), 50);
+            return;
         }
-        I([0, ut.brush.colorIndex, ut.brush.thickness, prev.X, prev.Y, lastBrushUp.X, lastBrushUp.Y]);
-    }),ut.canvas.on("touchstart", function(t) {
+        if (t.ctrlKey && t.key.toLowerCase() == "c") {
+            document.dispatchEvent(new Event("copyToClipboard"));
+            return;
+        }
+        if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
+        let move = () => {
+            let prev = lastBrushUp;
+            let acc = ut.brush.thickness / 4;
+            switch (t.key) {
+                case "ArrowUp":
+                    lastBrushUp.Y = lastBrushUp.Y - acc;
+                    break;
+                case "ArrowDown":
+                    lastBrushUp.Y = lastBrushUp.Y + acc;
+                    break;
+                case "ArrowLeft":
+                    lastBrushUp.X = lastBrushUp.X - acc;
+                    break;
+                case "ArrowRight":
+                    lastBrushUp.X = lastBrushUp.X + acc;
+                    break;
+            }
+            I([0, ut.brush.colorIndex, ut.brush.thickness, prev.X, prev.Y, lastBrushUp.X, lastBrushUp.Y]);
+        }
+        move();
+        move();
+        move();
+    }), ut.canvas.on("touchstart", function (t) {
         t.preventDefault();
         var e = t.changedTouches;
         e.length > 0 && null == gt && (gt = e[0].identitfier, !(t.ctrlKey) && ut.brush.setDown(!0), T(e[0].clientX, e[0].clientY, !0)) // + ctrl key when zooming
-    }), ut.canvas.on("touchend", function(t) {
+    }), ut.canvas.on("touchend", function (t) {
         t.preventDefault(), gt = null, ut.brush.setDown(!1);
-    }), ut.canvas.on("touchcancel", function(t) {
+    }), ut.canvas.on("touchcancel", function (t) {
         t.preventDefault(), gt = null, ut.brush.setDown(!1);
-    }), ut.canvas.on("touchmove", function(t) {
+    }), ut.canvas.on("touchmove", function (t) {
         t.preventDefault();
         for (var e = t.changedTouches, n = 0; n < e.length; n++)
             if (e[n].identitfier == gt) {
                 T(e[n].clientX, e[n].clientY, !1);
                 break
             }
-    }), n(this).on("mouseup", function(t) {
+    }), n(this).on("mouseup", function (t) {
         switch (t.preventDefault(), t.button) {
             case 0:
                 ut.brush.setDown(!1)
         }
-    }), n("#buttonClearCanvas").on("click", function() {
+    }), n("#buttonClearCanvas").on("click", function () {
+        if (localStorage.keepCanvas == "true") {
+            document.dispatchEvent(new CustomEvent("toast", { detail: { text: "Prevented Canvas Clear." } }));
+            return;
+        }
         it ? it.emit("canvasClear") : ut.clear()
-    }), n(".containerTools .tool").on("click", function() {
+    }), n(".containerTools .tool").on("click", function () {
         if (this.closest(".containerClearCanvas")) return;
         ut.brush.setTool(n(this).data("tool"));
         n(this).data("tool") != "pen" && n(this).data("tool") != "fill" && clearInterval(setColorInterval);
-    }), n(".colorItem").on("click", function() {
+    }), n(".colorItem").on("click", function () {
         var t = n(this).data("color");
         ut.brush.setColor(Number(t))
-    }), n(".brushSize").on("click", function() {
+    }), n(".brushSize").on("click", function () {
         var t = ut.brush.thicknessMin,
             e = ut.brush.thicknessMax,
             o = Number(n(this).data("size")) * (e - t) + t;
         ut.brush.setThickness(o)
-    }), n("body").on("setBrushSize", function (event) {
+    }), document.body.addEventListener("setBrushSize", function (event) {
         ut.brush.setThickness(event.detail);
-    }), n("body").on("performDrawCommand", function (event) {
+    }), document.body.addEventListener("performDrawCommand", function (event) {
         I(event.detail);
     }), n("#inputChat").on("keyup", function (e) {
         if (e.key == "ArrowUp") {
-            if (logPos <= 0 ) return;
+            if (logPos <= 0) return;
             n("#inputChat").val(inputLog[--logPos]);
         }
         if (e.key == "ArrowDown") {
-            if (logPos > inputLog.length-1) return;
+            if (logPos > inputLog.length - 1) return;
             n("#inputChat").val(inputLog[++logPos]);
         }
-    }), n("body").on("setRandomColor", function (e) {
+    }), document.body.addEventListener("setRandomColor", function (e) {
         clearInterval(setColorInterval);
-        if(e.detail.enable != "false") setColorInterval = setInterval(function () {
+        if (e.detail.enable != "false") setColorInterval = setInterval(function () {
             ut.brush.setColor(e.detail.colors[Math.floor((Math.random() * e.detail.colors.length))]);
-        }, e.detail);
-    }), n("body").on("setColor", function (e) {
+        }, e.detail.enable);
+    }), document.body.addEventListener("setColor", function (e) {
         if (e.detail.hex)
             ut.brush.setColor(10000 + Number("0x" + e.detail.hex.substr(1)));
         else ut.brush.setColor(Number(e.detail))
-    })
+    }),
+    window.onbeforeunload = (e) => {
+        if (sessionStorage.practise == "true") {
+            e.returnValue = "Sure about that? Your drawing will be lost!";
+            return "Sure about that? Your drawing will be lost!";
+        }
+    }
         
 }(window, document, jQuery, localStorage);

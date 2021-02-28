@@ -4,7 +4,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // Initiates lobby search buttons and lobby search events
 // depends on: genericfunctions.js, socket.js
 const lobbies_ = {
-	userAllow: localStorage.userAllow,
+	userAllow: localStorage.userAllow == "true",
 	inGame: false,
 	joined: false,
 	lobbyContainer: null,
@@ -53,7 +53,7 @@ const lobbies_ = {
 		container.style.cssText = "padding: 0.5em; width:100%;";
 		container.insertAdjacentHTML("afterbegin", `
 		<h3>
-			<p style="font-weight: 700; margin-bottom: 0; color: black !important"> Discord Lobbies </p>
+			<p style="font-weight: 700; margin-bottom: 0; color: black"> Discord Lobbies </p>
 		</h3>`
 		);
 		let lobbies = document.createElement("div");
@@ -67,7 +67,7 @@ const lobbies_ = {
 	},
 	setLobbies: (lobbies) => {
 		if (!lobbies_.lobbyContainer) return;
-		if (!socket.authenticated) {
+		if (!socket.authenticated == true) {
 			lobbies_.lobbyContainer.innerHTML = "Didn't connect to Palantir. <br>Read the manual on the <a style='font-weight:700; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>Join the typo discord server to try it out!<br>";
 			return;
 		}
@@ -91,7 +91,7 @@ const lobbies_ = {
 						if (lobby.Host == "sketchful.io") window.location.href = lobby.Link;
 						else {
 							sessionStorage.joinCustom = lobby.Link.substr(lobby.Link.indexOf("?") + 1);
-							document.body.dispatchEvent(new Event("joinLobby"));
+							document.body.dispatchEvent(newCustomEvent("joinLobby"));
 						}
 						return;
 					}
@@ -144,12 +144,12 @@ const lobbies_ = {
 											button.classList.add("btn-danger");
 											button.innerText += " (waiting...)";
 											modal.setNewTitle("Waiting for free slot...");
-											socket.searchLobby(true);
+											if(lobbies_.userAllow) socket.searchLobby(true);
 										}
 									}
 									else {
 										clearInterval(checkInterval); // go for it!
-										document.body.dispatchEvent(new Event("joinLobby"));
+										document.body.dispatchEvent(newCustomEvent("joinLobby"));
 										modal.setNewTitle("Searching for a discord lobby:");
 									}
 								}
@@ -160,7 +160,7 @@ const lobbies_ = {
 					}, () => { // close modal if search finished
 						modal.close();
 					});
-					document.body.dispatchEvent(new Event("joinLobby"));
+					document.body.dispatchEvent(newCustomEvent("joinLobby"));
 				});
 				guildContainer.appendChild(lobbyButton);
 			});
@@ -187,7 +187,7 @@ const lobbies_ = {
 				// observe new matching elements
 				lobbies_.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { childList: true, attributes: true }));
 				lobbies_.lobbyProperties.Players = lobbies_.getLobbyPlayers();
-				lobbies_.lobbyProperties.Round = QS("#round").textContent.trim().substr(QS("#round").textContent.trim().indexOf(" ") + 1, 1);
+				lobbies_.lobbyProperties.Round = QS("#round").textContent.trim().split(" ")[1];
 				lobbies_.lobbyProperties.Key = lobbies_.getLobbyKey(lobbies_.lobbyProperties.Private);
 				socket.clientData.lobbyKey = lobbies_.lobbyProperties.Key;
 				let description = lobbies_.lobbyProperties.Private ? QS("#lobbyDesc").value : "";
@@ -238,19 +238,26 @@ const lobbies_ = {
 				if (lobbies_.searchData.searching && !lobbies_.searchData.check()) {
 					lobbies_.searchData.proceed();
 					if (setPlaying) {
-						clearInterval(setPlaying);
+						clearTimeout(setPlaying);
 						setPlaying = null;
 					}
 				}
-				else if (lobbies_.searchData.searching) { lobbies_.searchData.searching = false; lobbies_.searchData.ended(); }
+				else if (lobbies_.searchData.searching) {
+					lobbies_.searchData.searching = false;
+					lobbies_.searchData.ended();
+					if (Notification.permission == "granted" && document.hidden) {
+						let notif = new Notification("Lobby found!", { body: "Yee! Check out skribbl", icon: "/res/crown.gif" });
+						notif.onclick = () => window.focus();
+					}
+				}
 			}
 		});
 		// on lobby leave / login show
-		document.addEventListener("leftGame", (e) => {
+		document.addEventListener("leftGame", async () => {
 			if (lobbies_.inGame) {
 				lobbies_.inGame = false;
 				lobbies_.joined = false;
-				socket.leaveLobby();
+				await socket.leaveLobby();
 			}
 		});
 	}

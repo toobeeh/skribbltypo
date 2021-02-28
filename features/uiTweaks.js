@@ -2,7 +2,7 @@
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
 // adds all smaller ui improvements to skribbl
-// depends on: capture.js, generalFunctions.js
+// depends on: capture.js, generalFunctions.js, emojis.js
 let uiTweaks = {
     initGameNavigation: () => {
         // Create next button
@@ -48,7 +48,7 @@ let uiTweaks = {
         let table = document.createElement("table");
         let tr = table.insertRow();
         let td = tr.insertCell();
-        td.innerHTML = "<div id=\"info\"\></div>";
+        td.innerHTML = "<div id=\"info\"\ style='color:black !important'></div><div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 5em;background: white;border-radius: 0.5em;'></div>";
         table.id = "tableBox";
         table.style.fontSize = "16px"
         table.style.width = "100%";
@@ -126,10 +126,10 @@ let uiTweaks = {
                     colors.push(Number(c.getAttribute("data-color")));
                 }
                 c.onclick = () => {
-                    document.body.dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: "false" } }));
+                    document.body.dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: "false" } }));
                 }
             });
-            document.body.dispatchEvent(new CustomEvent("setRandomColor", { detail: { enable: localStorage.randomColorInterval, colors: colors } }));
+            document.body.dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: localStorage.randomColorInterval, colors: colors } }));
         });
     },
     initColorPicker: () => {
@@ -145,7 +145,7 @@ let uiTweaks = {
         toolbar.insertBefore(picker, toolbar.children[0]);
         let pickerpopup = new ColorPicker(picker.firstChild);
         picker.firstChild.addEventListener('colorChange', function (event) {
-            document.querySelector("body").dispatchEvent(new CustomEvent("setColor", { detail: event.detail.color }));
+            document.querySelector("body").dispatchEvent(newCustomEvent("setColor", { detail: event.detail.color }));
             picker.style.backgroundColor = event.detail.color.hex;
             picker.firstChild.style.background = "none";
         });
@@ -165,7 +165,7 @@ let uiTweaks = {
                     const zoom = Number(localStorage.zoom) > 1 ? Number(localStorage.zoom) : 3;
                     // refresh brush cursor
                     canvasGame.setAttribute("data-zoom", zoom);
-                    document.querySelector(".tool.toolActive").dispatchEvent(new Event("click"));
+                    document.querySelector(".tool.toolActive").dispatchEvent(newCustomEvent("click"));
                     // get current height and set to parent
                     let bRect = canvasGame.getBoundingClientRect();
                     canvasGame.parentElement.style.height = bRect.height + "px";
@@ -189,7 +189,7 @@ let uiTweaks = {
                 else {
                     // reset zoom
                     canvasGame.setAttribute("data-zoom", 1);
-                    document.querySelector(".tool.toolActive").dispatchEvent(new Event("click"));
+                    document.querySelector(".tool.toolActive").dispatchEvent(newCustomEvent("click"));
                     canvasGame.parentElement.style.height = "";
                     canvasGame.parentElement.style.width = "";
                     canvasGame.parentElement.style.boxShadow = "";
@@ -229,9 +229,10 @@ let uiTweaks = {
         containerGroup.appendChild(textareaDesc);
     },
     initMarkMessages: () => {
-        // Observer for chat mutations
+        // Observer for chat mutations and emoji replacement
         let chatObserver = new MutationObserver(function (mutations) {
             mutations.forEach(mutation => mutation.addedNodes.forEach(markMessage));
+            mutations.forEach(mutation => mutation.addedNodes.forEach(emojis.replaceEmojiContent));
         });
         chatObserver.observe(QS("#boxMessages"), { attributes: false, childList: true });
     },
@@ -292,6 +293,109 @@ padding: 1em; `;
         });
         QS("#loginAvatarCustomizeContainer").appendChild(ricardo);
     },
+    initSideControls: () => {
+        //init new controls div
+        QS("#audio").insertAdjacentHTML("beforebegin", "<div id='controls'></div>");
+        QS("#controls").appendChild(QS("#audio"));
+        QS("#controls").style.cssText = "z-index: 50;position: fixed;display: flex; flex-direction:column; left: 9px; top: 9px";
+        QS("#controls").style.display = localStorage.controls == "true" ? "flex" : "none";
+        QS("#audio").style.cssText += "z-index: unset;position: unset;left: unset; top:unset";
+        // add fullscreen btn
+        let fulls = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+            + chrome.runtime.getURL("/res/fullscreen.gif")
+            + ") center no-repeat;'></div>");
+        fulls.addEventListener("click", () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            else {
+                if (QS("#screenGame").style.display == "none") {
+                    new Toast("Fullscreen mode is only available in-game.",2000);
+                    return;
+                }
+                document.documentElement.requestFullscreen();
+                document.head.insertAdjacentHTML("beforeEnd", "<style id='fullscreenRules'>#screenGame{position:fixed; left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} .header{display:none !important} .gameHeader{width:100%} *::-webkit-scrollbar{display:none} #controls{flex-direction:row !important; top: 0 !important; left:20vw !important;</style>");
+            }
+        });
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) {
+                QS("#fullscreenRules").remove();
+            }
+        });
+        QS("#controls").append(fulls);
+        // add typro
+        let typroCloud = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+            + chrome.runtime.getURL("/res/cloud.gif")
+            + ") center no-repeat;'></div>");
+        typroCloud.addEventListener("click", typro.show);
+        QS("#controls").append(typroCloud);
+        // add tabletmode
+        let tabletMode = elemFromString("<div id='tabMode' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+            + chrome.runtime.getURL("/res/tablet.gif")
+            + ") center no-repeat;'></div>");
+        tabletMode.addEventListener("click", () => {
+            let modeNone = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
+                + chrome.runtime.getURL("/res/modeNone.png")
+                + ")'></div><h4>Disable</h4></div>");
+            modeNone.addEventListener("click", () => performCommand("disable ink "));
+
+            let modeThickness = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
+                + chrome.runtime.getURL("/res/modeThickness.png")
+                + ")'></div><h4>Thickness</h4></div>");
+            modeThickness.addEventListener("click", () => localStorage.ink == "true" ?
+                performCommand("inkmode thickness") :
+                performCommand("enable ink") || performCommand("inkmode thickness"));
+
+            let modeBrightness = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
+                + chrome.runtime.getURL("/res/modeBrightness.png")
+                + ")'></div><h4>Brightness</h4></div>");
+            modeBrightness.addEventListener("click", () => localStorage.ink == "true" ?
+                performCommand("inkmode brightness") :
+                performCommand("enable ink") || performCommand("inkmode brightness"));
+
+            let modeDegree = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
+                + chrome.runtime.getURL("/res/modeDegree.png")
+                + ")'></div><h4>Degree</h4></div>");
+            modeDegree.addEventListener("click", () => localStorage.ink == "true" ?
+                performCommand("inkmode degree") :
+                performCommand("enable ink") || performCommand("inkmode degree"));
+
+            let modeBrightnessDegree = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
+                + chrome.runtime.getURL("/res/modeBrightnessDegree.png")
+                + ")'></div><h4>Brightness Degree</h4></div>");
+            modeBrightnessDegree.addEventListener("click", () => localStorage.ink == "true" ?
+                performCommand("inkmode degree brightness") :
+                performCommand("enable ink") || performCommand("inkmode degree brightness"));
+
+            let options = elemFromString("<div style='display:flex; width:100%; height: min-content; flex-direction:row; justify-content: space-evenly'></div>");
+            options.appendChild(elemFromString("<style>.tabletOption:hover{background:#00000040}.tabletOption{transition: background 0.2s;display:flex; margin:.5em; padding:.5em; flex-direction: column; align-items: center; justify-items: center; background: #00000026; cursor: pointer; border-radius: .5em;}</style>"));
+            options.append(modeNone, modeThickness, modeBrightness, modeDegree, modeBrightnessDegree);
+            let modal = new Modal(options, () => { }, "Select a tablet mode", "50vw", "0px");
+            options.addEventListener("click", () => modal.close());
+        });
+        QS("#controls").append(tabletMode);
+        // add appearance options
+        let visualsButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+            + chrome.runtime.getURL("/res/visuals.gif")
+            + ") center no-repeat;'></div>");
+        visualsButton.addEventListener("click", visuals.show);
+        QS("#controls").append(visualsButton);
+    },
+    initLobbyChat: () => {
+        // show chat in lobby idle
+        let sectionParent = QS(".containerLobby");
+        let screen = QS("#screenLobby");
+        let sectionChat = elemFromString("<div id='sectionChat' style='width: 0; display: flex; flex-direction: column;'><div class='title'>Chat</div></div>");
+        sectionChat.appendChild(elemFromString("<style>#sectionChat > #containerSidebar{flex: 1 1 0; width: 100%; margin-bottom: 8px}</style>"));
+        sectionParent.append(sectionChat);
+        screen.classList = [];
+        [...sectionParent.children].forEach(c => c.style.flex = "1 1 0");
+        (new MutationObserver(() => {
+            if (screen.style.display == "none") QS(".containerGame").appendChild(QS("#containerSidebar"));
+            else sectionChat.appendChild(QS("#containerSidebar"));
+            scrollMessages();
+        })).observe(screen, { attributes: true, childList: false });
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -306,12 +410,15 @@ padding: 1em; `;
         uiTweaks.initColorPalettes();
         uiTweaks.initLobbyDescriptionForm();
         uiTweaks.initMarkMessages();
+        uiTweaks.initLobbyChat();
         //uiTweaks.initRicardoSpecial();
         document.addEventListener("copyToClipboard", async () => {
-            if (!confirm("Copy current image to clipboard?")) return;
+            if (QS("#screenGame").style.display == "none" || document.getSelection().type == "Range") return;
             let canvas = QS("#canvasGame");
             let scaled = await scaleDataURL(canvas.toDataURL(), canvas.width * localStorage.qualityScale, canvas.height * localStorage.qualityScale);
             await dataURLtoClipboard(scaled);
+            new Toast("Copied image to clipboard.", 1500);
         });
+        uiTweaks.initSideControls();
     }
 }

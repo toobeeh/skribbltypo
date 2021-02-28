@@ -38,7 +38,7 @@ const captureCanvas = {
         while (lastClear > 0 && redo[lastClear][0] != 3) { lastClear--; }
         let captured = lastClear > 0 ? lastClear + 1 : 0;
         let maxcaptured = redo.length;
-        QS("#buttonClearCanvas").dispatchEvent(new Event("click"));
+        QS("#buttonClearCanvas").dispatchEvent(newCustomEvent("click"));
         let t = setInterval(function () {
             if (captured >= maxcaptured) {
                 clearInterval(t);
@@ -49,7 +49,7 @@ const captureCanvas = {
                     captureCanvas.capturedCommands = [];
                 }, 100);
             }
-            else document.body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: redo[captured] }));
+            else document.body.dispatchEvent(newCustomEvent("performDrawCommand", { detail: redo[captured] }));
             captured++;
         }, 5);
     },
@@ -60,7 +60,7 @@ const captureCanvas = {
         let restore = document.querySelector("#restore");
         restore.style.pointerEvents = "none";
         QS("#canvasGame").style.pointerEvents = "none";
-        if (QS("#clearCanvasBeforePaste").checked) QS("#buttonClearCanvas").dispatchEvent(new Event("click"));
+        if (QS("#clearCanvasBeforePaste").checked) QS("#buttonClearCanvas").dispatchEvent(newCustomEvent("click"));
         let commands = [];
         let command = 0;
         let toolbar = QS(".containerToolbar");
@@ -73,7 +73,7 @@ const captureCanvas = {
                 restore.style.pointerEvents = "";
                 QS("#canvasGame").style.pointerEvents = "";
             }
-            else document.body.dispatchEvent(new CustomEvent("performDrawCommand", { detail: commands[command] }));
+            else document.body.dispatchEvent(newCustomEvent("performDrawCommand", { detail: commands[command] }));
             command++;
         }, 5);
     },
@@ -85,15 +85,24 @@ const captureCanvas = {
         // log canvas clear in actions array
         document.body.addEventListener("logCanvasClear", () => {
             captureCanvas.capturedCommands = [];
-            captureCanvas.capturedActions.push([[3]]);
+            captureCanvas.capturedActions = [[[3]]];
         });
         // puts the image data in array to be displayable in the image share popup
-        document.body.addEventListener("drawingFinished", () => {
+        document.body.addEventListener("drawingFinished", async () => {
             captureCanvas.capturedDrawings.push({
                 drawing: QS("#canvasGame").toDataURL("2d"),
                 drawer: getCurrentOrLastDrawer(),
                 word: QS("#currentWord").innerText
             });
+            await socket.emitEvent("store drawing", {
+                meta: {
+                    name: sessionStorage.lastWord ? sessionStorage.lastWord : QS("#currentWord").innerText,
+                    author: getCurrentOrLastDrawer(),
+                    own: getCurrentOrLastDrawer() == socket.clientData.playerName
+                },
+                commands: captureCanvas.getCapturedActions(),
+                uri: QS("#canvasGame").toDataURL()
+            }, true, 5000)
         });
         QS("#canvasGame").addEventListener("pointerup", captureCanvas.pushCaptured);
         QS("#canvasGame").addEventListener("pointerout", captureCanvas.pushCaptured);

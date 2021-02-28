@@ -10,6 +10,7 @@ let imageTools = {
         let optionsButton = document.createElement("button");
         QS("#containerPlayerlist div.tooltip-wrapper").appendChild(optionsButton);
         QS("#containerPlayerlist div.tooltip-wrapper").setAttribute("data-original-title", "");
+
         optionsButton.classList = "btn btn-info btn-block";
         optionsButton.id = "saveDrawingOptions";
         optionsButton.innerText = "Image tools";
@@ -35,6 +36,7 @@ let imageTools = {
             });
         });
     },
+    addSKD: null,
     initImageOptionsPopup: () => {
         // add image options popup
         let optionsPopup = document.createElement("div");
@@ -61,7 +63,7 @@ let imageTools = {
         popupTempSaveCommands.innerText = "Save current";
         popupTempSaveCommands.addEventListener("click", () => {
             let originalActions = captureCanvas.getCapturedActions();
-            // get last anvas clear index
+            // get last canvas clear index
             let clear = originalActions.length - 1;
             while (originalActions[clear][0] != 3) clear--;
             let popupCustomSaved = document.createElement("button");
@@ -75,9 +77,26 @@ let imageTools = {
             let drawer = getCurrentOrLastDrawer();
             let name = prompt("How would you like to name the drawing?", drawer);
             if (!name) return;
+            sessionStorage.lastWord = name;
+            document.body.dispatchEvent(newCustomEvent("drawingFinished"));
+            new Toast("Saved all image data on the typo gallery cloud.");
             optionsPopup.appendChild(popupCustomSaved);
             popupCustomSaved.innerText = name;
-            popupCustomSaved.addEventListener("click", () => {
+            let removeToggle = null;
+            popupCustomSaved.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                if (removeToggle) {
+                    popupCustomSaved.remove();
+                }
+                else {
+                    popupCustomSaved.innerText = "Repeat to remove";
+                    removeToggle = setTimeout(() => {
+                        removeToggle = null;
+                        popupCustomSaved.innerText = name;
+                    }, 2000);
+                }
+            });
+            popupCustomSaved.addEventListener("click", (e) => {
                 captureCanvas.drawOnCanvas(actions);
                 captureCanvas.capturedActions = [...actions];
             });
@@ -120,6 +139,37 @@ let imageTools = {
         popupPasteSavedCommands.id = "saveDrawingPopupPasteSaved";
         popupPasteSavedCommands.classList = "btn btn-warning btn-block";
         popupPasteSavedCommands.innerText = "Load file";
+        imageTools.addSKD = (actions, name) => {
+            let popupCustomSaved = document.createElement("button");
+            optionsPopup.appendChild(popupCustomSaved);
+            //popupCustomSaved.style.display = document.querySelector(".containerToolbar").style.display
+            popupCustomSaved.classList = "btn btn-success btn-block pasteSaved";
+            if (document.querySelector(".containerToolbar").style.display == "none") {
+                popupCustomSaved.classList.remove("btn-success");
+                popupCustomSaved.classList.add("btn-secondary");
+                popupCustomSaved.style.pointerEvents = "none";
+            }
+            popupCustomSaved.innerText = name;
+            let removeToggle = null;
+            popupCustomSaved.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                if (removeToggle) {
+                    popupCustomSaved.remove();
+                }
+                else {
+                    popupCustomSaved.innerText = "Repeat to remove";
+                    removeToggle = setTimeout(() => {
+                        removeToggle = null;
+                        popupCustomSaved.innerText = name;
+                    }, 2000);
+                }
+            });
+            popupCustomSaved.addEventListener("click", () => {
+                captureCanvas.drawOnCanvas(JSON.parse(actions));
+                captureCanvas.capturedActions = JSON.parse(actions);
+            });
+            document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+        };
         popupPasteSavedCommands.addEventListener("click", () => {
             let fileInput = document.createElement('input');
             let actions;
@@ -131,20 +181,7 @@ let imageTools = {
                 reader.readAsText(file);
                 reader.onload = readerEvent => {
                     actions = readerEvent.target.result;
-                    let popupCustomSaved = document.createElement("button");
-                    optionsPopup.appendChild(popupCustomSaved);
-                    popupCustomSaved.style.display = document.querySelector(".containerToolbar").style.display
-                    popupCustomSaved.classList = "btn btn-success btn-block pasteSaved"; if (document.querySelector(".containerToolbar").style.display == "none") {
-                        popupCustomSaved.classList.remove("btn-success");
-                        popupCustomSaved.classList.add("btn-secondary");
-                        popupCustomSaved.style.pointerEvents = "none";
-                    }
-                    popupCustomSaved.innerText = file.name;
-                    popupCustomSaved.addEventListener("click", () => {
-                        captureCanvas.drawOnCanvas(JSON.parse(actions));
-                        captureCanvas.capturedActions = JSON.parse(actions);
-                    });
-                    document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+                    imageTools.addSKD(actions, file.name);
                 }
             }
             fileInput.click();

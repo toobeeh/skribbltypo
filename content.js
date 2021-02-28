@@ -6,11 +6,11 @@
 { 
     /*
      * Todo and bugs:
-     * ----fix conflict with image poster (container freespace) 
-     * ----fix lobby id check -> as soon as lobby connected
+     *  ----fix conflict with image poster (container freespace) 
+     *  ----fix lobby id check -> as soon as lobby connected
      *  ----fix lobby status when search is still active (slow connection)
-     * fix lobby search not triggering sometimes on first lobby
-     * lobby buttons take several clicks sometimes
+     *  ----fix lobby search not triggering sometimes on first lobby
+     *  ----lobby buttons take several clicks sometimes
      *  ----keydown changes tools when other players draw
      *  ----mysterious drawing over next persons' canvas sometimes
      *  ----still that audio thing
@@ -59,7 +59,8 @@ imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
 pressure.initEvents(); // init pressure
-// sprites and drops are initialized in patcher.js as soon as dom and palantir loaded
+setTimeout(async()=>await emojis.init(),0); // init emojis
+// sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
 QS("#loginAvatarCustomizeContainer  .avatarContainer").addEventListener("click", showPractise); // add listener to show practise
 QS('button[type="submit"]').addEventListener("click", () => { sessionStorage.practise = false; }); // disable when any button is clicked
 

@@ -16,18 +16,19 @@ let drops = {
         //hide drop after 5s and emit timeout
         setTimeout(async() => {
             if (dropElem.style.display != "none") {
+                dropElem.style.display = "none";
                 let result = await socket.claimDrop(drops.currentDrop, true);
                 printCmdOutput("drop", "The drop timed out :o", "Whoops...");
                 if(result.lobbyKey != "") printCmdOutput("drop", "Someone with typo older than v21 caught the drop.","..");
-                dropElem.style.display = "none";
                 drops.currentDrop = null;
             }
         }, 5000);
     },
     clearDrop: (result) => {
+        let dropElem = QS("#claimDrop");
         if (dropElem.style.display != "none") {
             let winner = "";
-            if (result.caughtLobbyKey == socket.clientData.lobbyKey) winner = result.playerName;
+            if (result.caughtLobbyKey == socket.clientData.lobbyKey) winner = result.caughtPlayer;
             else winner = "Someone in another lobby";
             printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
             dropElem.style.display = "none";

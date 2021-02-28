@@ -5,21 +5,23 @@ const socket = {
         lobbyKey: undefined
     },
     data: {
-        publicData: { },
+        publicData: {},
         activeLobbies: [],
-        user: { }
+        user: {}
     },
     sck: null,
     authenticated: false,
     emitEvent: (event, payload, listenResponse = false, responseTimeout = 2000) => {
         return new Promise((resolve, reject) => {
+            let timeout = null;
             if (listenResponse) socket.sck.once(event + " response", (data) => {
+                if (timeout) clearTimeout(timeout);
                 resolve(data.payload);
             });
             try { socket.sck.emit(event, { event: event, payload: payload }); }
             catch { reject(new Error("Failed emitting event: " + event)); }
             if (!listenResponse) resolve(true);
-            else setTimeout(() => reject(new Error("Response timed out")), responseTimeout);
+            else timeout = setTimeout(() => { reject((new Error("Timed out")).stack) }, responseTimeout);
         });
     },
     init: async () => {
@@ -33,6 +35,11 @@ const socket = {
             socket.sck.on("public data", (data) => {
                 socket.data.publicData = data.payload.publicData;
             });
+            socket.sck.on("disconnect", (reason) => {
+                console.log("Disconncted with reason: " + reason);
+                lobbies_.joined = false;
+                socket.sck = null;
+            });
             socket.sck.on("online sprites", (data) => {
                 socket.data.publicData.onlineSprites = data.payload.onlineSprites;
             });
@@ -45,15 +52,24 @@ const socket = {
                     lobbies_.setLobbies(socket.data.activeLobbies);
                 }, 200);
             });
-            let loginstate = await socket.emitEvent("login", { loginToken: JSON.parse(localStorage.member).UserLogin }, true);
+            let member = localStorage.member ? localStorage.member : '{"UserLogin":null}';
+            let loginstate = await socket.emitEvent("login", { loginToken: JSON.parse(member).UserLogin, ripro: localStorage.typro == "true" }, true);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
+                localStorage.member = JSON.stringify(socket.data.user.member);
                 lobbies_.setLobbies(socket.data.activeLobbies);
             }
             else lobbies_.setLobbies(null);
-            document.dispatchEvent(new Event("palantirLoaded"));
+            document.dispatchEvent(newCustomEvent("palantirLoaded"));
+
+            // if already in-game / reconnected after disconnect and ingame, continue reporting
+            if (lobbies_.userAllow && lobbies_.inGame) {
+                await socket.joinLobby(lobbies_.lobbyProperties.Key);
+                lobbies_.joined = true;
+                await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
+            }
 
             let documentIdle = null;
             let visibilitychangeDisconnect = () => {
@@ -78,30 +94,50 @@ const socket = {
             document.addEventListener('visibilitychange', visibilitychangeDisconnect);
         });
     },
-    disconnect: () => {
-        socket.sck.close();
-        socket.sck = null;
-    },
+    disconnect: () => socket.sck.close(),
     searchLobby: async (waiting = false) => {
-        await socket.emitEvent("search lobby", { searchData: { userName: socket.clientData.playerName, waiting: waiting } });
+        try {
+            await socket.emitEvent("search lobby", { searchData: { userName: socket.clientData.playerName, waiting: waiting } });
+        }
+        catch (e) { console.log("Error setting search status:" + e.toString()); }
     },
     joinLobby: async (key) => {
-        await socket.emitEvent("join lobby", { key: key }, true);
+        try {
+            await socket.emitEvent("join lobby", { key: key }, true);
+        }
+        catch (e) { console.log("Error joining lobby status:" + e.toString()); }
     },
     setLobby: async (lobby, key, description = "") => {
-        await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description:  description});
+        try {
+            await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description });
+        }
+        catch (e) { console.log("Error setting lobby status:" + e.toString()); }
     },
     leaveLobby: async () => {
-        let response = await socket.emitEvent("leave lobby", {}, true);
-        socket.data.activeLobbies = response.activeLobbies;
+        try {
+            let response = await socket.emitEvent("leave lobby", {}, true);
+            socket.data.activeLobbies = response.activeLobbies;
+        }
+        catch (e) { console.log("Error leaving playing status:" + e.toString()); }
     },
     claimDrop: async (drop, timeout = false) => {
-        let response = await socket.emitEvent("claim drop", {
-            drop: drop,
-            name: socket.clientData.playerName,
-            lobbyKey: socket.clientData.lobbyKey,
-            timedOut: timeout
-        }, true);
-        return response;
+        try {
+            let response = await socket.emitEvent("claim drop", {
+                drop: drop,
+                name: socket.clientData.playerName,
+                lobbyKey: socket.clientData.lobbyKey,
+                timedOut: timeout
+            }, true);
+            return response;
+        }
+        catch (e) {
+            console.log("Error claiming drop:" + e.toString());
+            return { caught: false };
+        }
+    },
+    getStoredDrawings: async (query = {}) => {
+        Object.keys(query).forEach(key => query[key] === undefined && delete query[key])
+        let drawings = (await socket.emitEvent("get meta", { limit: 1000, query: query}, true, 5000)).drawings;
+        return drawings;
     }
 }
