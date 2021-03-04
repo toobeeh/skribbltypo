@@ -7,12 +7,6 @@
   "icons": {
     "128": "res/icon128.png"
   },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}",
-      "update_url": "https://tobeh.host/typo/firefox/updates.json"
-    }
-  },
   "browser_action": {
     "default_title": "Skribbl Typo",
     "default_icon": "res/icon128.png",

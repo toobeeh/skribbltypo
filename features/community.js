@@ -1085,4 +1085,4 @@
     } else {
         window.addEventListener('load', init);
     }
-})(jQuery);
+})//(jQuery);
