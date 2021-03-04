@@ -51,7 +51,7 @@ let uiTweaks = {
         td.innerHTML = "<div id=\"info\"\ style='color:black !important'></div><div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 5em;background: white;border-radius: 0.5em;'></div>";
         table.id = "tableBox";
         table.style.fontSize = "16px"
-        table.style.width = "100%";
+        table.style.width = "15%";
         table.style.marginLeft = "0%";
         table.style.marginTop = "5px";
         table.style.border = "thin stroke"
@@ -64,10 +64,11 @@ let uiTweaks = {
         // add wordcount if enabled
         if (localStorage.charBar == "false") {
             table.style.visibility = "collapse";
+            table.style.position = "absolute";
             _height = 34;
         }
         let style_cont_msg = document.createElement("style");
-        style_cont_msg.innerHTML = "#boxMessages{height:calc(100% - " + _height + "px);}"
+        // style_cont_msg.innerHTML = "#boxMessages{height:calc(100% - " + _height + "px);}"
         style_cont_msg.setAttribute("id", "style_cont_msg");
         chat_cont.insertBefore(style_cont_msg, msg_cont);
         QS("#boxChatInput").appendChild(table);
