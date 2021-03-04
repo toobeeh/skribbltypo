@@ -47,8 +47,9 @@
         "features/uiTweaks.js",
         "features/agent.js",
         "features/pressure.js",
-        "features/tooltips.js",
         "features/imageOptions.js",
+        "features/tooltips.js",
+        "features/keybinds.js",
         "content.js"
       ],
       "css": [
