@@ -3544,8 +3544,6 @@
             },
             AIP_REMOVE: function() {}
         })
-    }), n(function() {
-        n('[data-toggle="tooltip"]').tooltip()
     });
     var inputLog = [],
         logPos=0,

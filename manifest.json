@@ -17,7 +17,7 @@
     "gamePatch.js",
     "res/*",
     "gifCap/*",
-    "features/*"      
+    "features/*"
   ],
   "permissions": [
     "activeTab",
@@ -32,10 +32,13 @@
         "*://skribbl.io/*"
       ],
       "js": [
+        "jquery/jquery-3.6.0.min.js",
+        "jquery/tooltips/jquery-ui.min.js",
+        "bootstrap/popper.min.js",
+        "bootstrap/js/bootstrap.min.js",
         "picker/colr_pickr.min.js",
         "color.js",
         "features/commands.js",
-        "features/community.js",
         "features/capture.js",
         "features/typro.js",
         "features/drops.js",
@@ -44,10 +47,13 @@
         "features/uiTweaks.js",
         "features/agent.js",
         "features/pressure.js",
+        "features/tooltips.js",
         "features/imageOptions.js",
         "content.js"
       ],
       "css": [
+        "bootstrap/css/bootstrap.min.css",
+        "features/tooltips.css",
         "picker/colr_pickr.min.css"
       ]
     },

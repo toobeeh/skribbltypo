@@ -24,7 +24,7 @@ const waitForDocAndPalantir = async () => {
         drops.initDrops(); // init drops
     }
     else alert("Error connecting to Palantir :/");
-})();
+})().catch(console.error);
 
 visuals.init(); //init visual options popup
 
