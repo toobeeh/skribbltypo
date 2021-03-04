@@ -1,7 +1,10 @@
 {
   "overrides": [
     {
-      "files": "features/tooltips.js",
+      "files": [
+        "features/tooltips.js",
+        "features/keybinds.js"
+      ],
       "options": {
         "singleQuote": true,
         "printWidth": 100,
