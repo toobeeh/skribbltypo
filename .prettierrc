@@ -1,0 +1,16 @@
+{
+  "overrides": [
+    {
+      "files": "features/community.js",
+      "options": {
+        "singleQuote": true,
+        "printWidth": 100,
+        "trailingComma": "es5",
+        "endOfLine": "auto",
+        "arrowParens": "avoid",
+        "tabWidth": 4,
+        "semi": true
+      }
+    }
+  ]
+}

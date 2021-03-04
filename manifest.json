@@ -41,6 +41,7 @@
         "picker/colr_pickr.min.js",
         "color.js",
         "features/commands.js",
+        "features/community.js",
         "features/capture.js",
         "features/typro.js",
         "features/drops.js",
