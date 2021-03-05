@@ -15,7 +15,7 @@ const newCustomEvent = (type, detail = {}) => {
 const markMessage = (newNode) => {
     if (localStorage.markup != "true") return;
     let sender = newNode.innerHTML.slice(newNode.innerHTML.indexOf("<b>"), newNode.innerHTML.indexOf("</b>")).slice(3, -2);
-    if (sender == QS("input[placeholder='Enter your name']").value || sender != "" && localStorage.vip.split("/").includes(sender))
+    if (sender == socket.clientData.playerName || sender != "" && localStorage.vip.split("/").includes(sender))
         newNode.style.background = localStorage.markupColor;
 }
 
