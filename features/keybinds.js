@@ -1,6 +1,40 @@
 (() => {
+    'use strict';
+
+    const keybindPanel = `
+<h5>Keybinds</h5>
+<p><i>Esc</i> unbinds a key.</p>
+<div>
+    <label for="brushSize">Brush size:</label>
+    <select class="form-control" id="brushSize">
+        <option>None</option>
+        <option>1-4</option>
+        <option>Numpad 1-4</option>
+    </select>
+    <label for="brushColor">Brush color:</label>
+    <select class="form-control" id="brushColor">
+        <option>None</option>
+        <option>0-9</option>
+        <option>Numpad 0-9</option>
+    </select>
+</div>
+<!-- Sample generic combo keybind
+<div>
+  <label for="example">Example:</label>
+  <select class="form-control" id="example">
+    <option>None</option>
+    <option>Shift</option>
+    <option>Alt</option>
+    <option>Ctrl</option>
+  </select>
+  <h5 class="plus">+</h5>
+  <input class="form-control" id="example2" placeholder="Click to bind..." readonly>
+</div -->
+
+<style>
+</style>`;
+
     const chatInput = document.querySelector('#inputChat');
-    
     document.addEventListener('keydown', e => {
         if (document.activeElement.tagName !== 'INPUT') {
             if (e.key === 'z' && e.ctrlKey) {
@@ -15,4 +49,55 @@
             }
         }
     });
+
+    const userPanel = document.querySelector('#screenLogin > .login-content > .loginPanelContent');
+    const panelElem = document.createElement('div');
+    panelElem.classList.add('keybindMenu');
+    panelElem.innerHTML = keybindPanel;
+    userPanel.append(panelElem);
+
+    function selectBrushSize(e) {
+        const brushSizeOptions = ['1', '2', '3', '4'];
+        if (!brushSizeOptions.includes(e.key)) {
+            return;
+        }
+        if (
+            (settings.scsBrushSize === '1-4' && e.code.match(/Digit[0-9]/)) ||
+            (settings.scsBrushSize === 'Numpad 1-4' && e.code.match(/Numpad[0-9]/))
+        ) {
+            brushSizes[+e.key - 1].click();
+        }
+    }
+
+    function selectBrushColor(e) {
+        const brushColorOptions = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        if (!brushColorOptions.includes(e.key)) {
+            return;
+        }
+
+        if (
+            (settings.scsBrushColor === '0-9' && e.code.match(/Digit[0-9]/)) ||
+            (settings.scsBrushColor === 'Numpad 0-9' && e.code.match(/Numpad[0-9]/))
+        ) {
+            let targetColor = 11;
+            if (e.key === '0') {
+                switch (lastColorIdx) {
+                    case 11:
+                        targetColor = 0;
+                        break;
+                    case 0:
+                        targetColor = 1;
+                        break;
+                    case 1:
+                        targetColor = 12;
+                }
+            } else if (lastColorIdx == +e.key + 1) {
+                targetColor = +e.key + 12;
+            } else {
+                targetColor = +e.key + 1;
+            }
+            brushColors[targetColor].click();
+            lastColorIdx = targetColor;
+        }
+    }
 })();

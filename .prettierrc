@@ -3,6 +3,7 @@
     {
       "files": [
         "features/tooltips.js",
+        "features/gamemode.js",
         "features/keybinds.js"
       ],
       "options": {

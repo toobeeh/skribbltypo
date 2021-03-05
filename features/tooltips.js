@@ -1,4 +1,6 @@
 ($ => {
+    'use strict';
+    
     $(() => {
         const $tooltips = $('[data-toggle="tooltip"], .colorPreview, #restore');
 

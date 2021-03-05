@@ -49,6 +49,7 @@
         "features/pressure.js",
         "features/imageOptions.js",
         "features/tooltips.js",
+        "features/gamemode.js",
         "features/keybinds.js",
         "content.js"
       ],

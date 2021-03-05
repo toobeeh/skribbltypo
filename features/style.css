@@ -1,20 +1,64 @@
 /* Tooltips */
 .tooltip.show {
-    opacity: 1;
+  opacity: 1;
 }
 .tooltip .tooltip-inner,
 .tooltip .arrow {
-    color: #eee !important;
-    background-color: rgba(0, 0, 0, 0.9);
+  color: #eee !important;
+  background-color: rgba(0, 0, 0, 0.9);
 }
 .tooltip .tooltip-inner {
-    border: 1px solid #222;
+  border: 1px solid #222;
 }
 
 /* Character counter */
 #boxChatInput {
-    display: flex;
+  display: flex;
 }
 #formChat {
-    width: 100%;
+  width: 100%;
+}
+
+/* Keybinds */
+.keybindMenu > div {
+  display: flex;
+  margin-bottom: 10px;
+}
+.keybindMenu > h4,
+.keybindMenu > h5,
+.keybindMenu > p {
+  text-align: center;
+}
+.keybindMenu p {
+  font-size: 12px;
+}
+.keybindMenu h5 {
+  font-size: 16px;
+}
+.keybindMenu h5.plus {
+  margin-left: 10px;
+  font-weight: bold;
+}
+.keybindMenu label {
+  vertical-align: middle;
+  align-self: center;
+  margin-bottom: 0;
+}
+.keybindMenu > div > label:nth-child(n + 2) {
+  margin-left: 10px;
+}
+.keybindMenu .form-control {
+  margin-left: 10px;
+  width: auto;
+}
+
+/* Gamemodes */
+.gamemodeMenu {
+    margin-top: 10px;
+  }
+.gamemodeDeaf .message {
+  display: none !important;
+}
+.gamemodeDeaf #boxMessages {
+  opacity: 0;
 }
