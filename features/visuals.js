@@ -11,6 +11,14 @@ const visuals = {
         style.id = "visualRules";
         let urlBackground = options["urlBackground"] ? options["urlBackground"].trim() : "";
         if (urlBackground != "") style.innerHTML += "body {background: url(" + urlBackground + ")}";
+
+        let urlBackgroundGame = options["urlBackgroundGame"] ? options["urlBackgroundGame"].trim() : "";
+        if (urlBackgroundGame != "") {
+            style.innerHTML += "#screenGame:not([style='display: none;'])::after,#screenLoading:not([style='display: none;'])::after{position:fixed; content: ''; left:0; top:0; width:100%; height:100%;z-index:-1; background: url("
+                + urlBackgroundGame + ")}";
+            style.innerHTML += "#screenLoading:not([style='display: none;'])::before{position:fixed; content: ''; left:0; top:0; bottom:0; right:0;z-index:1; background-image:inherit; background-repeat: inherit; background-position:inherit;} ";
+        }
+
         let urlLogo = options["urlLogo"] ? options["urlLogo"].trim() : "";
         if (QS("img.logo.logoBig")) QS("img.logo.logoBig").src = urlLogo != "" ? urlLogo : "res/logo.gif";
         if (QS("img.logo.logoSmall")) QS("img.logo.logoSmall").src = urlLogo != "" ? urlLogo : "res/logo.gif";
@@ -96,6 +104,7 @@ const visuals = {
     loadOptions: (options) => {
         [...visuals.form.querySelectorAll("input")].forEach(input => {
             if (options[input.id] != undefined && options[input.id] != null) input.type == "text" ? input.value = options[input.id] : input.checked = options[input.id];
+            else input.type == "text" ? input.value = "" : input.checked = false; 
         });
         visuals.applyOptions(options);
     },
@@ -104,6 +113,7 @@ const visuals = {
         [...visuals.form.querySelectorAll("input")].forEach(input => options[input.id] = (input.type == "text" ? input.value : input.checked));
         return options;
     },
+    addTheme: undefined,
     init: () => {
         let html =
             `<div id='visualOpt' style='display:flex; flex-direction:column; align-items: center; width:100%'>
@@ -120,6 +130,12 @@ const visuals = {
         <div>
             <h4>Background Image</h4>
             <input class='form-control' type='text' id='urlBackground' placeholder='https://link.here/image.gif'>
+        </div>
+    </div>
+    <div style='width:100%; justify-content: space-evenly;display:flex;'>
+        <div>
+            <h4>In-Game Background Image</h4>
+            <input class='form-control' type='text' id='urlBackgroundGame' placeholder='https://link.here/image.gif'>
         </div>
         <div>
             <h4>Custom Container Backgrounds</h4>
@@ -209,13 +225,17 @@ const visuals = {
             themebtn = createBtn(theme);
             themes.appendChild(themebtn);
         });
+        visuals.addTheme = (name, options) => {
+            visuals.themes.push({ name: name, options:  options});
+            localStorage.themes = JSON.stringify(visuals.themes);
+            themes.insertBefore(createBtn([...visuals.themes].pop()), themes.firstChild);
+        }
         let addtheme = elemFromString("<div class='btn btn-info' style='margin:.5em'>Save Current</div>");
         addtheme.addEventListener("click", () => {
             let input = prompt("How to name the theme?\nYou can right-click a theme to remove it.");
+            if (input == null) return;
             let name = input && input != "" ? input : "new theme";
-            visuals.themes.push({ name: name, options: visuals.getOptions() });
-            localStorage.themes = JSON.stringify(visuals.themes);
-            themes.insertBefore(createBtn([...visuals.themes].pop()), themes.firstChild);
+            visuals.addTheme(name, visuals.getOptions());
         });
         themes.appendChild(addtheme);
         let exportTheme = elemFromString("<div class='btn btn-info' style='margin:.5em'>Export</div>");
@@ -228,7 +248,9 @@ const visuals = {
         importTheme.addEventListener("click", () => {
             try {
                 let theme = prompt("Enter the theme text");
+                if (theme == null) return;
                 let input = prompt("How to name the theme?");
+                if (input == null) return;
                 let name = input && input != "" ? input : "new theme";
                 visuals.themes.push({ name: name, options: JSON.parse(theme) });
                 localStorage.themes = JSON.stringify(visuals.themes);

@@ -67,6 +67,23 @@ let patcher = new MutationObserver((mutations) => {
                     // load current options
                     let opts = JSON.parse(localStorage.visualOptions);
                     visuals.applyOptions(opts);
+                    // check if theme querystring is active
+                    let name = (new URLSearchParams(window.location.search)).get("themename");
+                    let theme = JSON.parse((new URLSearchParams(window.location.search)).get("theme"));
+                    if (name && theme) {
+                        window.history.pushState({}, document.title, "/");
+                        if (visuals.themes.some(t => JSON.stringify(t.options) == JSON.stringify(theme))){
+                            visuals.applyOptions(theme);
+                            localStorage.visualOptions = JSON.stringify(theme);
+                            setTimeout(() => new Toast("🥳 Activated theme " + name), 200);
+                        }
+                        else {
+                            visuals.addTheme(name, theme);
+                            visuals.applyOptions(theme);
+                            localStorage.visualOptions = JSON.stringify(theme);
+                            setTimeout(() => new Toast("🥳 Imported theme " + name), 200);
+                        }
+                    }
                 }
                  if (node.tagName == "BODY") node.style.imageRendering = "crisp-edges"; // ff support
                 if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {

@@ -3490,7 +3490,7 @@
         if (!t || t.guessedWord) a.addClass("colorMsg");
         n("<span/>", {
             text: e,
-            class: !t || t.gues ? "colorMsg" : ""
+            class: !t || t.guessedWord ? "colorMsg" : ""
         }).appendTo(a), i && r.scrollTop(r[0].scrollHeight);
         if (mute >= 0) { a.addClass("mutedMsg" + mute); a.find("span").hide(); }
     }, tt.prototype.chatDisable = function() {}, tt.prototype.chatEnable = function() {};

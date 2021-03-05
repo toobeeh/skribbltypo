@@ -148,6 +148,7 @@ let uiTweaks = {
             document.querySelector("body").dispatchEvent(newCustomEvent("setColor", { detail: event.detail.color }));
             picker.style.backgroundColor = event.detail.color.hex;
             picker.firstChild.style.background = "none";
+            document.body.dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: "false" } }));
         });
         document.querySelector("#opacity_slider").style.pointerEvents = "none";
         document.querySelector("#opacity_slider").style.opacity = "0";
