@@ -44,12 +44,12 @@
     let lastColorIdx = 11;
 
     const brushColors = document.querySelectorAll('[data-color]');
-    const colorInput = document.getElementById('brushColor');
+    const colorInput = document.querySelector('#brushColor');
     colorInput.value = localStorage.brushColor || 'None';
     colorInput.addEventListener('change', e => (localStorage.brushColor = e.target.value));
 
     const brushSizes = document.querySelectorAll('[data-size]');
-    const sizeInput = document.getElementById('brushSize');
+    const sizeInput = document.querySelector('#brushSize');
     sizeInput.value = localStorage.brushSize || 'None';
     sizeInput.addEventListener('change', e => (localStorage.brushSize = e.target.value));
 

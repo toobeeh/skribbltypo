@@ -1,7 +1,11 @@
 ($ => {
     'use strict';
 
-    const currentWord = document.getElementById('currentWord');
+    const containerFreespace = document.querySelector('#containerFreespace');
+    containerFreespace.innerHTML = '';
+    containerFreespace.style.background = 'none';
+
+    const currentWord = document.querySelector('#currentWord');
     const currentWordSize = document.createElement('div');
     currentWordSize.id = 'wordSize';
     currentWord.parentNode.insertBefore(currentWordSize, currentWord.nextSibling);

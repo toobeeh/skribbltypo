@@ -18,10 +18,10 @@
     userPanel.append(panelElem);
 
     const chatInput = document.querySelector('#inputChat');
-    const canvas = document.getElementById('canvasGame');
-    const game = document.getElementsByClassName('containerGame')[0];
-    const currentWord = document.getElementById('currentWord');
-    const gamemodeInput = document.getElementById('gamemode');
+    const canvas = document.querySelector('#canvasGame');
+    const game = document.querySelector('.containerGame');
+    const currentWord = document.querySelector('#currentWord');
+    const gamemodeInput = document.querySelector('#gamemode');
     let currentGamemode = sessionStorage.getItem('gamemode');
     gamemodeInput.value = currentGamemode || 'None';
     gamemodeInput.addEventListener('change', e => {
@@ -93,7 +93,7 @@
             }
         }
     });
-    drawingObserver.observe(document.getElementById('overlay'), {
+    drawingObserver.observe(document.querySelector('#overlay'), {
         attributes: true,
         attributeFilter: ['style'],
     });
