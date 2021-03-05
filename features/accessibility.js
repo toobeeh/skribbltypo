@@ -11,7 +11,6 @@
     currentWord.parentNode.insertBefore(currentWordSize, currentWord.nextSibling);
     const wordObserver = new MutationObserver(mutations => {
         let wordCount = currentWord.innerText;
-        console.log(wordCount);
         if (wordCount) {
             wordCount = wordCount.split(' ');
 
