@@ -72,6 +72,7 @@
                     currentWord.style.opacity = 0;
                     break;
                 case 'One shot':
+                    chatInput.disabled = false;
                     chatInput.addEventListener('keyup', oneshot);
                     break;
             }

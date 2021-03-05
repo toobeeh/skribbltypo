@@ -1,4 +1,4 @@
-/* Tooltips */
+/* Accessibility */
 .tooltip.show {
   opacity: 1;
 }
@@ -10,6 +10,21 @@
 .tooltip .tooltip-inner {
   border: 1px solid #222;
 }
+
+div#currentWord { text-align: right; }
+#wordSize {
+  flex: 1 1 auto;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#containerBoard .containerToolbar { display: flex !important }
 
 /* Character counter */
 #boxChatInput {

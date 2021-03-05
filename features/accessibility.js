@@ -1,6 +1,29 @@
 ($ => {
     'use strict';
-    
+
+    const currentWord = document.getElementById('currentWord');
+    const currentWordSize = document.createElement('div');
+    currentWordSize.id = 'wordSize';
+    currentWord.parentNode.insertBefore(currentWordSize, currentWord.nextSibling);
+    const wordObserver = new MutationObserver(mutations => {
+        let wordCount = currentWord.innerText;
+        console.log(wordCount);
+        if (wordCount) {
+            wordCount = wordCount.split(' ');
+
+            wordCount.forEach((v, i, a) => {
+                a[i] = v.replaceAll('-', '').length;
+            });
+
+            currentWordSize.innerHTML = `&nbsp;(${wordCount.join(',')})`;
+        } else {
+            currentWordSize.innerHTML = '';
+        }
+    });
+    wordObserver.observe(currentWord, {
+        childList: true,
+    });
+
     $(() => {
         const $tooltips = $('[data-toggle="tooltip"], .colorPreview, #restore');
 

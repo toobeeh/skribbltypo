@@ -48,7 +48,7 @@
         "features/agent.js",
         "features/pressure.js",
         "features/imageOptions.js",
-        "features/tooltips.js",
+        "features/accessibility.js",
         "features/gamemode.js",
         "features/keybinds.js",
         "content.js"
