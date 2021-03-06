@@ -1,0 +1,20 @@
+{
+  "overrides": [
+    {
+      "files": [
+        "features/accessibility.js",
+        "features/gamemode.js",
+        "features/keybinds.js"
+      ],
+      "options": {
+        "singleQuote": true,
+        "printWidth": 100,
+        "trailingComma": "es5",
+        "endOfLine": "auto",
+        "arrowParens": "avoid",
+        "tabWidth": 4,
+        "semi": true
+      }
+    }
+  ]
+}

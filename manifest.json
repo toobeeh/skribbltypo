@@ -7,12 +7,6 @@
   "icons": {
     "128": "res/icon128.png"
   },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}",
-      "update_url": "https://tobeh.host/typo/firefox/updates.json"
-    }
-  },
   "browser_action": {
     "default_title": "Skribbl Typo",
     "default_icon": "res/icon128.png",
@@ -23,7 +17,7 @@
     "gamePatch.js",
     "res/*",
     "gifCap/*",
-    "features/*"      
+    "features/*"
   ],
   "permissions": [
     "activeTab",
@@ -38,6 +32,10 @@
         "*://skribbl.io/*"
       ],
       "js": [
+        "jquery/jquery-3.6.0.min.js",
+        "jquery/tooltips/jquery-ui.min.js",
+        "bootstrap/popper.min.js",
+        "bootstrap/js/bootstrap.min.js",
         "picker/colr_pickr.min.js",
         "color.js",
         "features/commands.js",
@@ -50,9 +48,14 @@
         "features/agent.js",
         "features/pressure.js",
         "features/imageOptions.js",
+        "features/accessibility.js",
+        "features/gamemode.js",
+        "features/keybinds.js",
         "content.js"
       ],
       "css": [
+        "bootstrap/css/bootstrap.min.css",
+        "features/style.css",
         "picker/colr_pickr.min.css"
       ]
     },

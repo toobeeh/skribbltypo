@@ -226,14 +226,16 @@ function viewCharBar() {
 
     if (localStorage.charBar == "true") {
         document.getElementById("tableBox").style.visibility = "";
+        document.getElementById("tableBox").style.position = "";
         _height = parseInt(table.style.height.substring(0, table.style.height.length - 2)) + parseInt(table.style.marginTop.substring(0, table.style.marginTop.length - 2)) + 34;
     }
     else {
         document.getElementById("tableBox").style.visibility = "collapse";
+        document.getElementById("tableBox").style.position = "absolute";
         _height = 34;
     }
 
-    document.getElementById("style_cont_msg").innerHTML = "#boxMessages{height:calc(100% - " + _height + "px);}"
+    // document.getElementById("style_cont_msg").innerHTML = "#boxMessages{height:calc(100% - " + _height + "px);}"
 }
 
 // func to set random color button in color preview
