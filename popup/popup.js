@@ -20,6 +20,8 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "backbutton" && settings.displayBack == "true") bt.className = "active";
             if (bt.id == "randomToggle" && settings.randomColorButton == "true") bt.className = "active";
             if (bt.id == "palantirToggle" && settings.userAllow == "true") bt.className = "active";
+            if (bt.id == "clearcanvas" && settings.keepCanvas == "true") bt.className = "active";
+            if (bt.id == "controls" && settings.controls == "true") bt.className = "active";
         });
         tabid = sender.tab.id;
 
@@ -322,6 +324,8 @@ function toggleActive() {
     if (this.id == "backbutton") msg += "back";
     if (this.id == "randomToggle") msg += "random";
     if (this.id == "palantirToggle") msg += "palantir";
+    if (this.id == "clearcanvas") msg += "keepCanvas";
+    if (this.id == "controls") msg += "controls";
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg);

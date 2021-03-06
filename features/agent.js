@@ -16,7 +16,10 @@ let imageAgent = {// func to set the image in the agentdiv
         // Google, duckduckgo etc detect bot usage -> unusable
         // Not working after few requests due to bot detection or smth:     https://yandex.com/images/search?text=hello%20kitty
         // Working but a bit weird results:                                 https://www.mojeek.com/search?fmt=images&imgpr=bing&q=
-        let uri = encodeURIComponent('https://search.aol.com/aol/image;?q=' + search);
+        // Probably best - wikimedia: https://commons.wikimedia.org/wiki/Special:MediaSearch?type=bitmap&q= LOL NO SO WEIRD
+        // Sooo weird  https://search.aol.com/aol/image;?q=
+        // lets give it a try https://www.picsearch.com/index.cgi?q=einhorn
+        let uri = encodeURIComponent('https://www.picsearch.com/index.cgi?q=' + search);
         let resp = await fetch('https://api.allorigins.win/get?url=' + uri);
         let html = (await resp.json()).contents;
         let doc = new DOMParser().parseFromString(html, "text/html");
@@ -28,9 +31,7 @@ let imageAgent = {// func to set the image in the agentdiv
     },
     getNextAgentImage: () => {
         if (imageAgent.imageIndex >= imageAgent.searchImages.length) imageAgent.imageIndex = 2;
-        let src = imageAgent.searchImages[imageAgent.imageIndex * 2 + 1].getAttribute("src");
-        src = src.substr(src.lastIndexOf("https"));
-        imageAgent.agent.src = src;
+        imageAgent.agent.src = imageAgent.searchImages[imageAgent.imageIndex].src;
         scrollMessages();
         imageAgent.imageIndex++;
     },

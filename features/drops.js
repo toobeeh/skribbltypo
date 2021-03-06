@@ -4,88 +4,35 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // handles drops collecting and initialization
 // depends on: generalFunctions.js, commands.js
 let drops = {
-    timeSyncDiff: 0,
-    showNextDropTimeout: null,
     eventDrops: [],
-    getSyncedMs: () => {
-        return Date.now() + drops.timeSyncDiff;
-    },
-    getTimeDiff: async () => {
-        // sync time
-        return new Promise((resolve, reject) => {
-            let intv;
-            let diffs = [];
-            intv = setInterval(async () => {
-                let pingTime = Date.now()
-                let resp = await fetch("https://www.tobeh.host/Orthanc/date/", {
-                    method: 'GET',
-                    headers: {
-                        'Accept': '*/*',
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    }
-                });
-                let now = Date.now()
-                pingTime = now - pingTime;
-                diffs.push((Date.parse((await resp.json()).UTCDate) + pingTime / 2) - now);
-                if (diffs.length > 20) {
-                    clearInterval(intv);
-                    resolve(diffs.reduce((previous, current) => current += previous) / diffs.length);
-                }
-            }, 100);
-        })
-    },
-    fetchEventDrops: async () => {
-        let dropResponse = await fetch('https://www.tobeh.host/Orthanc/drop/eventdrop/', {
-            method: 'POST',
-            headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    currentDrop: null,
+    newDrop: (drop) => {
+        drops.currentDrop = drop;
+        let dropElem = QS("#claimDrop");
+        if (drop.EventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
+        else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.EventDropID).URL + '")';
+        dropElem.style.display = "block";
+        dropElem.style.left = Math.round(8 + Math.random() * 784) + "px";
+        //hide drop after 5s and emit timeout
+        setTimeout(async() => {
+            if (dropElem.style.display != "none") {
+                dropElem.style.display = "none";
+                let result = await socket.claimDrop(drops.currentDrop, true);
+                printCmdOutput("drop", "The drop timed out :o", "Whoops...");
+                if(result.lobbyKey != "") printCmdOutput("drop", "Someone with typo older than v21 caught the drop.","..");
+                drops.currentDrop = null;
             }
-        });
-        drops.eventDrops = (await dropResponse.json()).EventDrops;
+        }, 5000);
     },
-    getNextDrop: async () => {
-        if (!lobbies.authorized || sessionStorage.practise == "true") {
-            if (QS("#claimDrop")) QS("#claimDrop").style.display = "none";
-            return;
-        }
-        let state = await (await fetch('https://www.tobeh.host/Orthanc/drop/', {
-            method: 'POST',
-            headers: {
-                'Accept': '*/*',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-            },
-            body: "login=" + JSON.parse(localStorage.member).UserLogin
-        })).json();
-        if (state.DropID) {
-            let dropTime = state.ValidFrom;
-            let timediff = Date.parse(dropTime + " UTC") - drops.getSyncedMs();
-            if (timediff < 0) return;
-            clearTimeout(drops.showNextDropTimeout);
-            drops.showNextDropTimeout = setTimeout(() => {
-                let drop = QS("#claimDrop");
-                drop.setAttribute("dropID", state.DropID);
-                if (state.EventDropID == 0) drop.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
-                else drop.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == state.EventDropID).URL + '")';
-                drop.style.display = "block";
-                drop.style.left = Math.round(8 + Math.random() * 784) + "px";
-                let dropClaimedCheck = setInterval(async () => {
-                    if (drop.style.display == "none") { clearInterval(dropClaimedCheck); return; }
-                    let state = await fetch('https://www.tobeh.host/Orthanc/drop/', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': '*/*',
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                        },
-                        body: "login=" + JSON.parse(localStorage.member).UserLogin
-                    });
-                    state = await state.json();
-                    if (!state.DropID) {
-                        drop.dispatchEvent(new Event("click"));
-                    }
-                }, 200);
-                setTimeout(async () => { drop.style.display = "none"; clearInterval(dropClaimedCheck); }, 5000);
-            }, timediff);
+    clearDrop: (result) => {
+        let dropElem = QS("#claimDrop");
+        if (dropElem.style.display != "none") {
+            let winner = "";
+            if (result.caughtLobbyKey == socket.clientData.lobbyKey) winner = result.caughtPlayer;
+            else winner = "Someone in another lobby";
+            printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
+            dropElem.style.display = "none";
+            drops.currentDrop = null;
         }
     },
     initDropContainer: () => {
@@ -104,34 +51,20 @@ let drops = {
         dropContainer.addEventListener("click", async () => {
             if (dropContainer.style.display == "none") return;
             dropContainer.style.display = "none";
-            let dropID = dropContainer.getAttribute("dropID");
-            let state = await fetch('https://www.tobeh.host/Orthanc/drop/claim/', {
-                method: 'POST',
-                headers: {
-                    'Accept': '*/*',
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                body: "login=" + JSON.parse(localStorage.member).UserLogin + "&dropID=" + dropID + "&lobbyKey=" + Report.lobby.Key + "&lobbyPlayerID=" + Report.loginName
-            }
-            );
-            state = await state.json();
-            if (state.Caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
+            let result = await socket.claimDrop(drops.currentDrop);
+            if (result.result.caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
             else {
                 let winner = "";
-                if (state.CaughtLobbyKey == Report.lobby.Key) winner = state.CaughtLobbyPlayerID;
-                else winner = "Someone in another lobby"
+                if (result.caughtLobbyKey == socket.clientData.lobbyKey) winner = result.playerName;
+                else winner = "Someone in another lobby";
                 printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
             }
-        })
+            drops.currentDrop = null;
+        });
         document.querySelector("#containerCanvas").appendChild(dropContainer);
     },
     initDrops: async () => {
         drops.initDropContainer();
-        await drops.fetchEventDrops();
-        // sync time once a min
-        (async () => { drops.timeSyncDiff = await drops.getTimeDiff(); })();
-        setInterval(async () => { drops.timeSyncDiff = await drops.getTimeDiff(); }, 1000 * 60);
-        // check drops all 10 seconds
-        setInterval(drops.getNextDrop, 10000);
+        drops.eventDrops = socket.data.publicData.drops;
     }
 }

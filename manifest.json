@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Skribbl Typo",
-  "description": "Collection of useful tools & graphics tablet support for skribbl.io and sketchful.io",
-  "version": "20.0.2",
+  "description": "The most complete toolbox for skribbl.io with namefinder & tablet support",
+  "version": "21.4.5",
   "author": "tobeh",
   "icons": {
     "128": "res/icon128.png"
@@ -22,11 +22,12 @@
   "web_accessible_resources": [
     "gamePatch.js",
     "res/*",
-    "gifCap/*"
+    "gifCap/*",
+    "features/*"      
   ],
   "permissions": [
     "activeTab",
-    "*://www.tobeh.host/*",
+    "<all_urls>",
     "webRequest"
   ],
   "content_scripts": [
@@ -39,17 +40,17 @@
       "js": [
         "picker/colr_pickr.min.js",
         "color.js",
-        "features/genericFunctions.js",
         "features/commands.js",
         "features/capture.js",
+        "features/typro.js",
         "features/drops.js",
         "features/imageTools.js",
+        "features/emojis.js",
         "features/uiTweaks.js",
         "features/agent.js",
         "features/pressure.js",
         "features/imageOptions.js",
-        "content.js",
-        "features/sprites.js"
+        "content.js"
       ],
       "css": [
         "picker/colr_pickr.min.css"
@@ -62,9 +63,13 @@
         "*://skribbl.io/*"
       ],
       "js": [
+        "features/modal.js",
+        "features/sprites.js",
+        "features/genericFunctions.js",
+        "features/visuals.js",
         "errors.js",
-        "features/report.js",
-        "features/lobbies.js",
+        "features/socket.js",
+        "features/lobbies_.js",
         "patcher.js"
       ]
     },

@@ -6,11 +6,11 @@
 { 
     /*
      * Todo and bugs:
-     * ----fix conflict with image poster (container freespace) 
-     * ----fix lobby id check -> as soon as lobby connected
+     *  ----fix conflict with image poster (container freespace) 
+     *  ----fix lobby id check -> as soon as lobby connected
      *  ----fix lobby status when search is still active (slow connection)
-     * fix lobby search not triggering sometimes on first lobby
-     * lobby buttons take several clicks sometimes
+     *  ----fix lobby search not triggering sometimes on first lobby
+     *  ----lobby buttons take several clicks sometimes
      *  ----keydown changes tools when other players draw
      *  ----mysterious drawing over next persons' canvas sometimes
      *  ----still that audio thing
@@ -53,18 +53,14 @@ chrome.runtime.onMessage.addListener(msgObj => {
 });
 
 // initialize modules
-Report.initEvents(); // init report data events from report.js
-lobbies.initSearchEvents(); // init lobby search buttons, lobby guild container is already initialized in patcher
-setInterval(async () => { // Keep report alive
-    await Report.trigger();
-}, 30000);
 captureCanvas.initListeners(); // init capturing draw ommands and drawings
 imageAgent.initImageAgent(); // init image agent from afent.js
 imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
-drops.initDrops(); // init drops
 pressure.initEvents(); // init pressure
+setTimeout(async()=>await emojis.init(),0); // init emojis
+// sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
 QS("#loginAvatarCustomizeContainer  .avatarContainer").addEventListener("click", showPractise); // add listener to show practise
 QS('button[type="submit"]').addEventListener("click", () => { sessionStorage.practise = false; }); // disable when any button is clicked
 
