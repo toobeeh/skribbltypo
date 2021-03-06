@@ -73,8 +73,15 @@ input::-webkit-inner-spin-button {
 
 /* Gamemodes */
 .gamemodeMenu {
-    margin-top: 10px;
-  }
+  display: flex;
+  margin-top: 10px;
+}
+.gamemodeMenu label {
+  align-self: center;
+}
+.gamemodeMenu select {
+  margin-left: 10px;
+}
 .gamemodeDeaf .message {
   display: none !important;
 }
