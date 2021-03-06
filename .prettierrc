@@ -2,7 +2,6 @@
   "overrides": [
     {
       "files": [
-        "features/accessibility.js",
         "features/gamemode.js",
         "features/keybinds.js"
       ],

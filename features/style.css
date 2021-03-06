@@ -1,4 +1,8 @@
 /* Accessibility */
+#containerFreespace {
+  background: none;
+}
+
 .tooltip.show {
   opacity: 1;
 }
