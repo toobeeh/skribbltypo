@@ -87,6 +87,10 @@ const visuals = {
             style.innerHTML += ".spriteSlot{display:none }";
             style.innerHTML += "#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .mouth, #loginAvatarCustomizeContainer .eyes {opacity: 1 !important}";
         }
+        if (options["injection"] && options["injection"] != "") {
+            if (QS("#injectionElems")) QS("#injectionElems").innerHTML = options["injection"];
+            else document.body.append(elemFromString("<div id='injectionElems'>" + options["injection"] + "</div>"));
+        }
 
         if (QS("#visualRules")) QS("#visualRules").innerHTML = style.innerHTML;
         else document.head.append(style);
@@ -186,6 +190,10 @@ const visuals = {
         <label><input type="checkbox" id="hideInGameLogo"> Hide logo in-game</label>
         <label><input type="checkbox" id="hideAvatarSprites"> Hide sprites on frontpage</label>
     </div>
+    <!--<div>
+        <h4>HTML/CSS injection: add HTML to body</h4>
+        <input class='form-control' type='text' id='injection' placeholder='<elem></elem> <style>elem { }</style>'>
+    </div>//-->
 </div>`;
         visuals.form = elemFromString(html);
         [...visuals.form.querySelectorAll("input")].forEach(input => {

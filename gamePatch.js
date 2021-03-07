@@ -3487,10 +3487,10 @@
         } else {
             a.css("font-weight", "bold");
         }
-        if (!t || t.guessedWord) a.addClass("colorMsg");
+        if (!t || t.guessedWord || t.id == this.drawingID) a.addClass("colorMsg");
         n("<span/>", {
             text: e,
-            class: !t || t.guessedWord ? "colorMsg" : ""
+            class: !t || t.guessedWord || t.id == this.drawingID ? "colorMsg" : ""
         }).appendTo(a), i && r.scrollTop(r[0].scrollHeight);
         if (mute >= 0) { a.addClass("mutedMsg" + mute); a.find("span").hide(); }
     }, tt.prototype.chatDisable = function() {}, tt.prototype.chatEnable = function() {};

@@ -6,7 +6,7 @@ const QSA = document.querySelectorAll.bind(document);
 
 // polyfill customevent
 const newCustomEvent = (type, detail = {}) => {
-    if (typeof (cloneInto) == "undefined") return new CustomEvent(type, detail);
+    if (typeof(cloneInto) == "undefined") return new CustomEvent(type, detail);
     let eventDetail = cloneInto(detail, document.defaultView);
     return clonedEvent = new document.defaultView.CustomEvent(type, eventDetail);
 }
