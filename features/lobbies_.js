@@ -173,7 +173,6 @@ const lobbies_ = {
 	startSearch: (check, proceed, ended = () => { }) => {
 		if (lobbies_.searchData.searching) return;
 		lobbies_.searchData.searching = true;
-		// show popup to abort
 		lobbies_.searchData.check = check;
 		lobbies_.searchData.proceed = proceed;
 		lobbies_.searchData.ended = ended;
@@ -205,6 +204,7 @@ const lobbies_ = {
 			lobbies_.lobbyProperties.Language = e.detail.language.charAt(0).toUpperCase() + e.detail.language.slice(1);
 			lobbies_.lobbyProperties.Private = e.detail.ownerID > -1 ? true : false;
 			lobbies_.lobbyProperties.Link = e.detail.key != "" ? "https://skribbl.io/?" + e.detail.key : "";
+			lobbies_.lobbyProperties.Round = e.detail.round;
 			if (!lobbies_.inGame) {
 				// get own name
 				sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.players[e.detail.players.length-1].name;
@@ -236,11 +236,11 @@ const lobbies_ = {
 				}
 				// apply search logic
 				if (lobbies_.searchData.searching && !lobbies_.searchData.check()) {
-					lobbies_.searchData.proceed();
 					if (setPlaying) {
 						clearTimeout(setPlaying);
 						setPlaying = null;
 					}
+					lobbies_.searchData.proceed();
 				}
 				else if (lobbies_.searchData.searching) {
 					lobbies_.searchData.searching = false;
