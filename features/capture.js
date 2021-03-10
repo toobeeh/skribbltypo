@@ -98,7 +98,9 @@ const captureCanvas = {
                 meta: {
                     name: sessionStorage.lastWord ? sessionStorage.lastWord : QS("#currentWord").innerText,
                     author: getCurrentOrLastDrawer(),
-                    own: getCurrentOrLastDrawer() == socket.clientData.playerName
+                    own: getCurrentOrLastDrawer() == socket.clientData.playerName,
+                    language: lobbies_.lobbyProperties.Language,
+                    private: lobbies_.lobbyProperties.Private
                 },
                 commands: captureCanvas.getCapturedActions(),
                 uri: QS("#canvasGame").toDataURL()

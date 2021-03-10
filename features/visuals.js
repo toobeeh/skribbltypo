@@ -29,6 +29,7 @@ const visuals = {
             style.innerHTML += ".loginPanelContent {box-shadow: " + (val != "" ? "" : "none") + "}";//0 0 4px 0 rgba(0,0,0,.5)
             style.innerHTML += "#containerGamePlayers .player, .updateInfo, #boxChat, #boxMessages > p, #loginAvatarCustomizeContainer {background: transparent !important; border: none;}";
             style.innerHTML += ".guessedWord .rank {color: rgb(86, 206, 39) !important}";
+            style.innerHTML += ".guessedWord::after {content: '';position: absolute;inset: 0;border-right: 3px solid #82c669;z-index: -1;box-shadow: inset -55px 0px 50px -50px #82c669;}";
         }
 
         if (options["containerOutlinesCheck"] == true) {

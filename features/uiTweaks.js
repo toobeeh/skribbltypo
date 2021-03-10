@@ -510,7 +510,16 @@ padding: 1em; `;
             if (!isNaN(filter.targetRound)) visual.push("🔄 " + filter.targetRound + (filter.targetRoundModifier ? filter.targetRoundModifier : ""));
             if (!isNaN(filter.targetScore)) visual.push("📈 " + filter.targetScore + (filter.targetScoreModifier ? filter.targetScoreModifier : ""));
             if (!isNaN(filter.targetCount)) visual.push("👥 " + filter.targetCount + (filter.targetCountModifier ? filter.targetCountModifier : ""));
-            if (visual.join("") == "") { new Toast("No filters set."); return; }
+            let remove = () => {
+                let added = JSON.parse(localStorage.addedFilters);
+                added = added.filter(filter => filter.id != id);
+                localStorage.addedFilters = JSON.stringify(added);
+            }
+            if (visual.join("") == "") {
+                new Toast("No filters set.");
+                remove();
+                return;
+            }
             let filterbutton = elemFromString('<div class="checkbox btn" style="margin-left: .5em;width: fit-content; margin-bottom:.5em;"><label><input type="checkbox"><span>' + visual.join(" & ") + '</span></label></div>');
             containerFilters.insertBefore(filterbutton, containerFilters.firstChild);
             filterbutton.querySelector("input").checked = active;
@@ -521,9 +530,7 @@ padding: 1em; `;
             });
             filterbutton.addEventListener("contextmenu", (e) => {
                 e.preventDefault();
-                let added = JSON.parse(localStorage.addedFilters);
-                added = added.filter(filter => filter.id != id);
-                localStorage.addedFilters = JSON.stringify(added);
+                remove();
                 filterbutton.remove();
             });
         }
@@ -572,7 +579,7 @@ padding: 1em; `;
                     }
                 });
                 let lobby = lobbies_.lobbyProperties;
-                return filters.some(filter => filter.matchAll(lobby));
+                return filters.length <= 0 || filters.some(filter => filter.matchAll(lobby)); 
             }, () => {
                 setTimeout(() => leaveLobby(true), 200);
             }, () => {
@@ -610,5 +617,9 @@ padding: 1em; `;
             new Toast("Copied image to clipboard.", 1500);
         });
         uiTweaks.initSideControls();
+        // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins
+        QS("#overlay").insertAdjacentHTML("beforeBegin",
+            "<style>#overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}#overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
+
     }
 }

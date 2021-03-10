@@ -435,6 +435,8 @@
         var r = o.find(".wordContainer");
         if ("choosewords" == t.mode) {
             r.empty(), r.show();
+            document.querySelector("#overlay").classList.remove("countdown"); // restart countdown animation
+            document.querySelector("#overlay").classList.add("countdown");
             for (var i = 0; i < t.words.length; i++) {
                 var a = n("<div class='word'></div>");
                 a.data("id", i), a.text(t.words[i]), r.append(a), a.on("click", function() {
