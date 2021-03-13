@@ -144,6 +144,20 @@ const addColorPalette = (paletteJson) => {
     return paletteContainer;
 }
 
+// Creates accessibility tooltip for an element
+const buildTooltip = (elem) => {
+    let self = elem;
+    if (self.matches('.toolIcon')) {
+        self.parentNode.setAttribute('title', self.getAttribute('title'));
+        self.removeAttribute('title');
+        self = self.parentNode;
+    }
+    self.style.cursor = 'pointer';
+    self.setAttribute('data-placement', 'bottom');
+    self.setAttribute('data-typo-tooltip', 'true'); // To differentiate the tooltips to initialize
+    return self;
+};
+
 // show practise mode
 const showPractise = () => {
     sessionStorage.practise = true;

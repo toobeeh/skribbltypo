@@ -57,8 +57,8 @@ const uiTweaks = {
         td.innerHTML = "<div id=\"info\"\ style='color:black !important'></div>";
         table.id = "tableBox";
         table.style.fontSize = "16px"
-        table.style.width = "100%";
-        table.style.marginLeft = "0%";
+        table.style.width = "15%";
+        table.style.marginLeft = "5px";
         table.style.marginTop = "5px";
         table.style.border = "thin stroke"
         table.style.borderRadius = "7px";
@@ -70,10 +70,11 @@ const uiTweaks = {
         // add wordcount if enabled
         if (localStorage.charBar == "false") {
             table.style.visibility = "collapse";
+            table.style.position = "absolute";
             _height = 34;
         }
         let style_cont_msg = document.createElement("style");
-        style_cont_msg.innerHTML = "#boxMessages{height:calc(100% - " + _height + "px);}"
+        // style_cont_msg.innerHTML = "#boxMessages{height:calc(100% - " + _height + "px);}"
         style_cont_msg.setAttribute("id", "style_cont_msg");
         chat_cont.insertBefore(style_cont_msg, msg_cont);
         QS("#boxChatInput").appendChild(table);
@@ -593,6 +594,67 @@ padding: 1em; `;
             if (containerFilters.style.display != "none") uiTweaks.startFilterSearch();
         });
     },
+    initAccessibility: () => {
+        // Keep freespace, but remove content for for bigger chat window
+        const containerFreespace = document.querySelector('#containerFreespace');
+        containerFreespace.innerHTML = '';
+        
+        // Word count next to the word
+        const currentWord = document.querySelector('#currentWord');
+        const currentWordSize = document.createElement('div');
+        currentWordSize.id = 'wordSize';
+        currentWord.parentNode.insertBefore(currentWordSize, currentWord.nextSibling);
+        const wordObserver = new MutationObserver(m => {
+            let wordCount = currentWord.innerText;
+            if (wordCount) {
+                wordCount = wordCount.split(' ');
+                wordCount.forEach((v, i, a) => a[i] = v.replaceAll('-', '').length);
+                currentWordSize.innerHTML = `&nbsp;(${wordCount.join(',')})`;
+            } else {
+                currentWordSize.innerHTML = '';
+            }
+        });
+        wordObserver.observe(currentWord, { childList: true, });
+        
+        // Create tooltips
+        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore'));
+        tooltips.forEach((v, i, a) => {
+            if (v.matches('.colorPreview:not(#colPicker)')) {
+                v.setAttribute('title', 'Color preview (click for magic)');
+            } else if (v.matches('#colPicker')) {
+                v.setAttribute('title', 'Color picker (click to pick)');
+            } else if (v.matches('.containerColorbox')) {
+                v.setAttribute('title', 'Select a color (0-9)');
+            } else if (v.matches('.containerBrushSizes')) {
+                v.setAttribute('title', 'Set brush size (1-4)');
+            } else if (v.matches('#buttonClearCanvas')) {
+                v.setAttribute('title', 'Clear the board (ESC)');
+            } else if (v.matches('#restore')) {
+                v.setAttribute('title', 'Undo (Ctrl+Z)');
+            }
+            a[i] = buildTooltip(v);
+        });
+        document.body.dispatchEvent(newCustomEvent('tooltip', { detail: { selector: '[data-typo-tooltip]' }}));
+    },
+    initDefaultKeybinds: () => {
+        const chatInput = document.querySelector('#inputChat');
+        document.addEventListener('keydown', e => {
+            if (document.activeElement.tagName !== 'INPUT') {
+                // Undo
+                if (e.key === 'z' && e.ctrlKey) {
+                    e.preventDefault();
+                    captureCanvas.restoreDrawing(1);
+                    return;
+                }
+                // Focus chat
+                if (e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
+                    e.preventDefault();
+                    chatInput.focus();
+                    return;
+                }
+            }
+        });
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -621,6 +683,14 @@ padding: 1em; `;
         // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins
         QS("#overlay").insertAdjacentHTML("beforeBegin",
             "<style>#overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}#overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
-
+        uiTweaks.initAccessibility();
+        uiTweaks.initDefaultKeybinds();
+        // // Test for init and destroy functions
+        // gamemode.init();
+        // setTimeout(gamemode.destroy, 5000);
+        // setTimeout(gamemode.init, 10000);
+        // keybind.init();
+        // setTimeout(keybind.destroy, 5000);
+        // setTimeout(keybind.init, 10000);
     }
 }

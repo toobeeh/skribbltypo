@@ -189,7 +189,7 @@ const lobbies_ = {
 				lobbies_.lobbyProperties.Round = QS("#round").textContent.trim().split(" ")[1];
 				lobbies_.lobbyProperties.Key = lobbies_.getLobbyKey(lobbies_.lobbyProperties.Private);
 				socket.clientData.lobbyKey = lobbies_.lobbyProperties.Key;
-				let description = lobbies_.lobbyProperties.Private ? QS("#lobbyDesc").value : "";
+				let description = lobbies_.lobbyProperties.Private ? (QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
 				if (lobbies_.joined && lobbies_.userAllow) { // report lobby if joined
 					await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key, description);
 				}

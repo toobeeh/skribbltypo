@@ -3546,8 +3546,6 @@
             },
             AIP_REMOVE: function() {}
         })
-    }), n(function() {
-        n('[data-toggle="tooltip"]').tooltip()
     });
     var inputLog = [],
         logPos=0,
@@ -3661,7 +3659,7 @@
     }), n(e).on("mousemove", function(t) {
         sessionStorage.getItem('practise') == "true" && T(t.clientX, t.clientY, !1) || st && st.checkDrawing() && T(t.clientX, t.clientY, !1);
     }), n(e).keydown(function (t) {
-        if (sessionStorage.getItem('practise')=="true" ||  st && st.checkDrawing() && t !== r && t.key !== r) switch (t.key.toUpperCase()) {
+        if ((sessionStorage.getItem('practise')=="true" ||  st && st.checkDrawing() && t !== r && t.key !== r) && document.activeElement.tagName !== 'INPUT') switch (t.key.toUpperCase()) {
             case "B":
                 ut.brush.setTool("pen");
                 break;
@@ -3698,11 +3696,6 @@
     var gt = null;
     var setColorInterval = null;
     n("body").on("keydown", function (t) {
-        // tab in to focus chat
-        if (t.key == "Tab" && !document.querySelector("#inputChat").matches(":active")) {
-            setTimeout(() => document.querySelector("#inputChat").focus(), 50);
-            return;
-        }
         if (t.ctrlKey && t.key.toLowerCase() == "c") {
             document.dispatchEvent(new Event("copyToClipboard"));
             return;
@@ -3791,11 +3784,12 @@
             ut.brush.setColor(10000 + Number("0x" + e.detail.hex.substr(1)));
         else ut.brush.setColor(Number(e.detail))
     }),
-    window.onbeforeunload = (e) => {
+    (window.onbeforeunload = (e) => {
         if (sessionStorage.practise == "true") {
             e.returnValue = "Sure about that? Your drawing will be lost!";
             return "Sure about that? Your drawing will be lost!";
         }
-    }
-        
+    }), document.body.addEventListener('tooltip', function (e) {
+        jQuery(e.detail.selector).tooltip({ container: 'body' });
+    });
 }(window, document, jQuery, localStorage);
