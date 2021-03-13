@@ -435,6 +435,8 @@
         var r = o.find(".wordContainer");
         if ("choosewords" == t.mode) {
             r.empty(), r.show();
+            document.querySelector("#overlay").classList.remove("countdown"); // restart countdown animation
+            document.querySelector("#overlay").classList.add("countdown");
             for (var i = 0; i < t.words.length; i++) {
                 var a = n("<div class='word'></div>");
                 a.data("id", i), a.text(t.words[i]), r.append(a), a.on("click", function() {
@@ -3487,10 +3489,10 @@
         } else {
             a.css("font-weight", "bold");
         }
-        if (!t || t.guessedWord) a.addClass("colorMsg");
+        if (!t || t.guessedWord || t.id == this.drawingID) a.addClass("colorMsg");
         n("<span/>", {
             text: e,
-            class: !t || t.guessedWord ? "colorMsg" : ""
+            class: !t || t.guessedWord || t.id == this.drawingID ? "colorMsg" : ""
         }).appendTo(a), i && r.scrollTop(r[0].scrollHeight);
         if (mute >= 0) { a.addClass("mutedMsg" + mute); a.find("span").hide(); }
     }, tt.prototype.chatDisable = function() {}, tt.prototype.chatEnable = function() {};

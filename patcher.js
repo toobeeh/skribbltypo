@@ -85,7 +85,7 @@ let patcher = new MutationObserver((mutations) => {
                         }
                     }
                 }
-                 if (node.tagName == "BODY") node.style.imageRendering = "crisp-edges"; // ff support
+                if (node.tagName == "BODY") node.style.imageRendering = "crisp-edges"; // ff support
                 if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {
                     // block game.js
                     node.type = "javascript/blocked"; // block for chrome
@@ -104,9 +104,9 @@ let patcher = new MutationObserver((mutations) => {
                         await socket.init();
                     }
                     // put infobox below on the left side
-                    else if (node.classList.contains("loginPanelContent") && document.querySelectorAll(".loginPanelContent").length > 2 && document.querySelectorAll(".login-side-left .loginPanelContent").length <= 0) {
+                    else if (node.id == "tabHow" && node.closest(".login-content")) {
                         let cont = document.querySelector(".login-side-left");
-                        cont.appendChild(node);
+                        cont.appendChild(node.closest(".loginPanelContent"));
                         cont.style.width = "400px";
                         cont.style.flex = "0 1 auto";
                     }
@@ -200,78 +200,79 @@ If you want to know more about your stored data, contact the typo dev.
                 if (node.id == 'formLogin') {
                     //add dead lobbies button
                     let privateBtn = document.querySelector("#buttonLoginCreatePrivate");
-                    let skipDead = document.createElement("button");
+                    let toggleFilter = document.createElement("div");
                     privateBtn.style.display = "inline";
                     privateBtn.style.width = "48%";
-                    skipDead.classList.add('btn', 'btn-info');
-                    skipDead.textContent = "Skip Dead Lobbies";
-                    skipDead.style.width = "48%";
-                    skipDead.style.marginTop = "4px";
-                    skipDead.style.marginLeft = "4%";
-                    skipDead.addEventListener('click', () => {
-                        let modal = new Modal(elemFromString("<h3>Click anywhere to cancel</h3>"), () => {
-                            lobbies_.searchData.searching = false;
-                        }, "Skipping dead lobbies...","30vw","10em");
-                        lobbies_.startSearch(() => {
-                            return lobbies_.lobbyProperties.Players.length > 1;
-                        }, () => {
-                            setTimeout(()=>leaveLobby(true), 100);
-                        }, () => {
-                             modal.close();
-                         });
-                    });
-                    privateBtn.parentNode.appendChild(skipDead);
+                    toggleFilter.classList.add('btn', 'btn-info');
+                    toggleFilter.textContent = "Toggle Lobby Filter";
+                    toggleFilter.style.width = "48%";
+                    toggleFilter.style.marginTop = "4px";
+                    toggleFilter.style.marginLeft = "4%";
+                    toggleFilter.id = "toggleFilter";
+                    //skipDead.addEventListener('click', () => {
+                    //    let modal = new Modal(elemFromString("<h3>Click anywhere to cancel</h3>"), () => {
+                    //        lobbies_.searchData.searching = false;
+                    //    }, "Skipping dead lobbies...","30vw","10em");
+                    //    lobbies_.startSearch(() => {
+                    //        return lobbies_.lobbyProperties.Players.length > 1;
+                    //    }, () => {
+                    //        setTimeout(()=>leaveLobby(true), 100);
+                    //    }, () => {
+                    //         modal.close();
+                    //     });
+                    //});
+                    privateBtn.parentNode.appendChild(toggleFilter);
 
                     //add search names button and field
-                    let container = node;
-                    let containerForm = document.createElement("div");
-                    let inputName = document.createElement("input");
-                    let inputSubmit = document.createElement("button");
-                    let icon = document.createElement("div");
-                    icon.style.display = "inline";
-                    icon.classList.add("iconPlay");
-                    inputName.id = "inputSearchNickName";
-                    inputName.value = sessionStorage.searchPlayers ? JSON.parse(sessionStorage.searchPlayers) : "";
-                    inputName.classList.add("form-control");
-                    inputName.style.width = "70%";
-                    inputName.placeholder = "'name' or 'name, name1, name2'";
-                    containerForm.classList.add("loginPanelContent");
-                    containerForm.style.display = "flex";
-                    containerForm.style.justifyContent = "space-between";
-                    containerForm.style.boxShadow = "unset";
-                    containerForm.style.marginTop = "1em";
-                    containerForm.style.setProperty("background", "transparent", "important");
-                    containerForm.style.setProperty("border", "none", "important");
-                    inputSubmit.classList.add("btn", "btn-success");
-                    inputSubmit.textContent = "Search Player!";
-                    inputSubmit.addEventListener("click", () => {
-                        if (inputName.value.trim() == "") return;
-                        let players = inputName.value.split(",");
-                        let skippedPlayers = [];
-                        players = players.map(p => p.trim());
-                        let modalCont = elemFromString("<div style='text-align:center'><h4>" + inputName.value + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere to cancel</h4><div>");
-                        let modal = new Modal( modalCont, () => {
-                                lobbies_.searchData.searching = false;
-                        }, "Searching for players:", "30vw", "15em");
-                        lobbies_.startSearch(() => {
-                            lobbies_.lobbyProperties.Players.forEach(p => {
-                                if (skippedPlayers.indexOf(p.Name) < 0 && p.Name != socket.clientData.playerName) {
-                                    skippedPlayers.push(p.Name);
-                                    modalCont.querySelector("#skippedPlayers").innerHTML += " [" + p.Name + "] <wbr>";
-                                }
-                            });
-                            return lobbies_.lobbyProperties.Players.some(lobbyplayer =>
-                                players.some(searchPlayer => searchPlayer.toLowerCase() == lobbyplayer.Name.toLowerCase()));
-                        }, () => {
-                            setTimeout(() => leaveLobby(true), 200);
-                        }, () => {
-                            modal.close();
-                        });
-                        document.body.dispatchEvent(newCustomEvent("joinLobby"));
-                    });
-                    containerForm.append(inputName);
-                    containerForm.append(inputSubmit);
-                    container.appendChild(containerForm);
+                    //let container = node;
+                    //let containerForm = document.createElement("div");
+                    //let inputName = document.createElement("input");
+                    //let inputSubmit = document.createElement("button");
+                    //let icon = document.createElement("div");
+                    //icon.style.display = "inline";
+                    //icon.classList.add("iconPlay");
+                    //inputName.id = "inputSearchNickName";
+                    //inputName.value = sessionStorage.searchPlayers ? JSON.parse(sessionStorage.searchPlayers) : "";
+                    //inputName.classList.add("form-control");
+                    //inputName.style.width = "70%";
+                    //inputName.placeholder = "'name' or 'name, name1, name2'";
+                    //containerForm.classList.add("loginPanelContent");
+                    //containerForm.style.display = "flex";
+                    //containerForm.style.justifyContent = "space-between";
+                    //containerForm.style.boxShadow = "unset";
+                    //containerForm.style.marginTop = "1em";
+                    //containerForm.style.setProperty("background", "transparent", "important");
+                    //containerForm.style.setProperty("border", "none", "important");
+                    //inputSubmit.classList.add("btn", "btn-success");
+                    //inputSubmit.textContent = "Search Player!";
+                    //inputSubmit.addEventListener("click", () => {
+                    //    if (inputName.value.trim() == "") return;
+                    //    let players = inputName.value.split(",");
+                    //    let skippedPlayers = [];
+                    //    players = players.map(p => p.trim());
+                    //    let modalCont = elemFromString("<div style='text-align:center'><h4>" + inputName.value + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere to cancel</h4><div>");
+                    //    let modal = new Modal( modalCont, () => {
+                    //            lobbies_.searchData.searching = false;
+                    //    }, "Searching for players:", "30vw", "15em");
+                    //    lobbies_.startSearch(() => {
+                    //        lobbies_.lobbyProperties.Players.forEach(p => {
+                    //            if (skippedPlayers.indexOf(p.Name) < 0 && p.Name != socket.clientData.playerName) {
+                    //                skippedPlayers.push(p.Name);
+                    //                modalCont.querySelector("#skippedPlayers").innerHTML += " [" + p.Name + "] <wbr>";
+                    //            }
+                    //        });
+                    //        return lobbies_.lobbyProperties.Players.some(lobbyplayer =>
+                    //            players.some(searchPlayer => searchPlayer.toLowerCase() == lobbyplayer.Name.toLowerCase()));
+                    //    }, () => {
+                    //        setTimeout(() => leaveLobby(true), 200);
+                    //    }, () => {
+                    //        modal.close();
+                    //    });
+                    //    document.body.dispatchEvent(newCustomEvent("joinLobby"));
+                    //});
+                    //containerForm.append(inputName);
+                    //containerForm.append(inputSubmit);
+                    //container.appendChild(containerForm);
                 }
             });
         });

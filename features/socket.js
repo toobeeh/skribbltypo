@@ -27,6 +27,8 @@ const socket = {
     init: async () => {
         socket.sck = io("https://typo.rip:3000");
         socket.sck.on("connect", async () => {
+            if (socket.sck == null) return;
+            console.log("Connected to Ithil socketio server.");
             socket.sck.on("new drop", (data) => {
                 drops.newDrop(data.payload.drop);
             }); socket.sck.on("clear drop", (data) => {
@@ -36,9 +38,14 @@ const socket = {
                 socket.data.publicData = data.payload.publicData;
             });
             socket.sck.on("disconnect", (reason) => {
-                console.log("Disconncted with reason: " + reason);
+                console.log("Disconnected with reason: " + reason);
                 lobbies_.joined = false;
-                socket.sck = null;
+                // enable reconnects if close not forced
+                if (["ping timeout", "transport close", "transport error"].indexOf(reason) < 0) {
+                    socket.sck.io._reconnection = false;
+                    socket.sck.removeAllListeners();
+                    socket.sck = null; 
+                }
             });
             socket.sck.on("online sprites", (data) => {
                 socket.data.publicData.onlineSprites = data.payload.onlineSprites;
@@ -137,7 +144,7 @@ const socket = {
     },
     getStoredDrawings: async (query = {}) => {
         Object.keys(query).forEach(key => query[key] === undefined && delete query[key])
-        let drawings = (await socket.emitEvent("get meta", { limit: 1000, query: query}, true, 5000)).drawings;
+        let drawings = (await socket.emitEvent("get meta", { limit: 5000, query: query}, true, 5000)).drawings;
         return drawings;
     }
 }

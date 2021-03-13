@@ -6,7 +6,7 @@ const QSA = document.querySelectorAll.bind(document);
 
 // polyfill customevent
 const newCustomEvent = (type, detail = {}) => {
-    if (typeof (cloneInto) == "undefined") return new CustomEvent(type, detail);
+    if (typeof(cloneInto) == "undefined") return new CustomEvent(type, detail);
     let eventDetail = cloneInto(detail, document.defaultView);
     return clonedEvent = new document.defaultView.CustomEvent(type, eventDetail);
 }
@@ -159,7 +159,7 @@ const leaveLobby = (next = false) => {
     if (next && sessionStorage.practise != "true") {
         let join = () => {
             document.removeEventListener("disconnectedSocket", join);
-            setTimeout(document.body.dispatchEvent(newCustomEvent("joinLobby")),50);
+            setTimeout(document.body.dispatchEvent(newCustomEvent("joinLobby")),100);
         }
         document.addEventListener("disconnectedSocket", join);
     }
@@ -179,6 +179,7 @@ document.addEventListener("toast", (e) => new Toast(e.detail.text, 1000));
 const setDefaults = (override = false) => {
     if (!localStorage.member || override) localStorage.member = '';
     if (!localStorage.visualOptions || override) localStorage.visualOptions = "{}";
+    if (!localStorage.addedFilters || override) localStorage.addedFilters = "[]";
     if (!localStorage.themes || override) localStorage.themes = `[{"name":"Original","options":{"urlLogo":"","urlBackground":"","containerImages":"","fontColor":"","fontColorButtons":"","fontStyle":"","containerBackgroundsCheck":false,"containerBackgrounds":"","inputBackgroundsCheck":false,"inputBackgrounds":"","containerOutlinesCheck":false,"containerOutlines":"","inputOutlinesCheck":false,"inputOutlines":"","hideFooter":false,"hideCaptcha":false,"hideMeta":false,"hideAvatarLogo":false,"hideInGameLogo":false,"hideAvatarSprites":false}},{"name":"Dark Discord","options":{"urlLogo":"","urlBackground":"https://cdn.discordapp.com/attachments/715996980849147968/814955491876012032/dcdark.png); background-size: 800px;(","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Karla:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#2C2F3375","inputBackgroundsCheck":true,"inputBackgrounds":"#00000075","containerOutlinesCheck":true,"containerOutlines":"transparent !important; border-left: 4px solid #7289DA !important; ","inputOutlinesCheck":true,"inputOutlines":"transparent !important; border-left: 3px solid #363636 !important; ","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":true}},{"name":"Alpha","options":{"urlLogo":"https://imgur.com/k8e70AG.png","urlBackground":"https://i.imgur.com/UNZtzl6.jpg","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Mulish:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#ffffff50","inputBackgroundsCheck":true,"inputBackgrounds":"#00000040","containerOutlinesCheck":true,"containerOutlines":"","inputOutlinesCheck":true,"inputOutlines":"","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}}]`;
     localStorage.keepCanvas = "false";
     if (!localStorage.controls || override) localStorage.controls = "true";

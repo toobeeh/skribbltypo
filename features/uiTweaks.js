@@ -3,7 +3,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 // adds all smaller ui improvements to skribbl
 // depends on: capture.js, generalFunctions.js, emojis.js
-let uiTweaks = {
+const uiTweaks = {
     initGameNavigation: () => {
         // Create next button
         let btNext = document.createElement("input");
@@ -12,17 +12,23 @@ let uiTweaks = {
         btNext.classList.add("btn", "btn-info", "btn-block");
         btNext.style.margin = "0 0.5em";
         btNext.addEventListener("click", () => {
-            let modal = new Modal(elemFromString("<h3>Click anywhere to cancel</h3>"), () => {
-                lobbies_.searchData.searching = false;
-            }, "Searching next lobby...", "30vw", "10em");
-            lobbies_.startSearch(() => {
-                return lobbies_.lobbyProperties.Players.length > 1;
-            }, () => {
-                setTimeout(() => leaveLobby(true), 100);
-            }, () => {
-                modal.close();
-            });
-            leaveLobby(true);
+            if (QS("#containerFilters").style.display == "none") {
+                let modal = new Modal(elemFromString("<h3>Click anywhere to cancel</h3>"), () => {
+                    lobbies_.searchData.searching = false;
+                }, "Searching next lobby...", "30vw", "10em");
+                lobbies_.startSearch(() => {
+                    return lobbies_.lobbyProperties.Players.length > 1;
+                }, () => {
+                    setTimeout(() => leaveLobby(true), 100);
+                }, () => {
+                    modal.close();
+                });
+                leaveLobby(true);
+            }
+            else {
+                uiTweaks.startFilterSearch();
+                leaveLobby(true);
+            }
         });
 
         // Create exit button
@@ -398,6 +404,195 @@ padding: 1em; `;
             scrollMessages();
         })).observe(screen, { attributes: true, childList: false });
     },
+    startFilterSearch: undefined,
+    SearchFilter: class {
+        constructor(inputOptions) {
+            // get names and define name match func
+            this.names = [];
+            this.names = inputOptions.find(e => e.id == "inputSearchName").value.trim() != "" ? inputOptions.find(e => e.id == "inputSearchName").value.trim().split(",").map(p => p.trim()) : []
+            const matchesNames = (players) => {
+                return this.names.length == 0 || players.some(lobbyplayer =>
+                    this.names.some(searchPlayer => searchPlayer.toLowerCase() == lobbyplayer.Name.toLowerCase()));
+            };
+            // get round and round modifier + match func
+            this.targetRound = 0;
+            this.targetRoundModifier = 0;
+            let valRound = inputOptions.find(e => e.id == "inputSearchRound").value.trim();
+            this.targetRound = parseInt(valRound);
+            this.targetRoundModifier = valRound[valRound.indexOf(this.targetRound) + this.targetRound.toString().length];
+            if (this.targetRoundModifier != "+" && this.targetRoundModifier != "-" && this.targetRoundModifier != undefined
+                || isNaN(this.targetRound)) this.targetRoundModifier = "+";
+            const matchesRound = (round) => {
+                return isNaN(this.targetRound) ||
+                    (this.targetRoundModifier == "+" ? round >= this.targetRound
+                        : this.targetRoundModifier == "-" ? round <= this.targetRound
+                            : round == this.targetRound);
+            };
+            // get score and score modifier + match func
+            this.targetScore = 0;
+            this.targetScoreModifier = 0;
+            let valScore = inputOptions.find(e => e.id == "inputSearchScore").value.trim();
+            this.targetScore = parseInt(valScore);
+            this.targetScoreModifier = valScore[valScore.indexOf(this.targetScore) + this.targetScore.toString().length];
+            if (this.targetScoreModifier != "+" && this.targetScoreModifier != "-" && this.targetScoreModifier != undefined
+                || isNaN(this.targetScore)) this.targetScoreModifier = "+";
+            const matchesScore = (players) => {
+                let avg = ((ps) => { let avg = 0; ps.forEach(p => avg += p.Score / ps.length); return avg; })(players);
+                return isNaN(this.targetScore)
+                    || (this.targetScoreModifier == "-" ? avg < this.targetScoreModifier : avg >= this.targetScore);
+            };
+            // get count and count modifier + match func
+            this.targetCount = 0;
+            this.targetCountModifier = 0;
+            let valCount = inputOptions.find(e => e.id == "inputSearchCount").value.trim();
+            this.targetCount = parseInt(valCount);
+            this.targetCountModifier = valCount[valCount.indexOf(this.targetCount) + this.targetCount.toString().length];
+            if (this.targetCountModifier != "+" && this.targetCountModifier != "-" && this.targetCountModifier != undefined
+                || isNaN(this.targetCount)) this.targetCountModifier = "+";
+            const matchesCount = (players) => {
+                return isNaN(this.targetCount)
+                    || (this.targetCountModifier == "-" ? players.length <= this.targetCount : this.targetCountModifier == "+" ? players.length >= this.targetCount : players.length == this.targetCount);
+            };
+            // get ptr players checked + match func
+            this.targetPalantirPresent = inputOptions.find(e => e.id == "inputSearchPalantir").checked;
+            const matchesPalantir = (lobbyKey) => {
+                return !this.targetPalantirPresent || sprites.playerSprites.some(sprite => sprite.LobbyKey == lobbyKey);
+            };
+            //function to check if all filters match
+            this.matchAll = (lobbyProperties) => {
+                return matchesNames(lobbyProperties.Players) 
+                    && matchesCount(lobbyProperties.Players)
+                    && matchesScore(lobbyProperties.Players)
+                    && matchesRound(lobbyProperties.Round)
+                    && matchesPalantir(lobbyProperties.Key)
+            }
+        }
+    },
+    initLobbyFilters: () => {
+        let filterBtn = QS("#toggleFilter");
+        let containerFilters = elemFromString('<div id="containerFilters" class="loginPanelContent" style="display: none; flex-direction:column; justify-content: space-between; box-shadow: unset; margin-top: 1em; background: transparent !important; border: none !important;"></div>')
+        let filterNamesForm = elemFromString('<div style="display:flex; width: 100%; margin-bottom:.5em;"><h5>Filter Names:</h5><input id="inputSearchName" class="form-control" placeholder="\'name\' or \'name, name1, name2\'" style="flex-grow: 2; width:unset; margin-left: .5em;"></div>');
+        let filterDetailsForm = elemFromString('<div style="display:flex; width: 100%; margin-bottom:.5em;"><h5 style="flex:1;">In Round:</h5><input id="inputSearchRound" class="form-control" placeholder="\'1\' or \'2+\'" style="flex: 1;margin-left: .5em;"><h5 style="margin-left: .5em; flex:1;">Avg Score:</h5><input id="inputSearchScore" class="form-control" placeholder="\'500+\' or \'500-\'" style="flex: 1; margin-left: .5em;"></div>');
+        let filterPlayersForm = elemFromString('<div style="display:flex; width: 100%;"><h5 style="flex:1;">Player Count:</h5><input id="inputSearchCount" class="form-control" placeholder="\'4-\' or \'8\'" style="flex: 1;margin-left: .5em;"><div class="checkbox" style="margin-left: .5em; flex:2"><label><input type="checkbox" id="inputSearchPalantir"><span>With Palantir Player</span></label></div><div class="btn btn-success" id="addFilter" style="height: fit-content;">✔ Add</div></div>');
+        containerFilters.appendChild(filterNamesForm);
+        containerFilters.appendChild(filterDetailsForm);
+        containerFilters.appendChild(filterPlayersForm);
+        filterBtn.parentElement.appendChild(containerFilters);
+        filterBtn.addEventListener("click", () => containerFilters.style.display = containerFilters.style.display == "none" ? "flex" : "none");
+        // get last form values
+        if (localStorage.filterForm) {
+            try {
+                JSON.parse(localStorage.filterForm).forEach(input => {
+                    if (containerFilters.querySelector("#" + input.id)) {
+                        containerFilters.querySelector("#" + input.id).value = input.value;
+                        containerFilters.querySelector("#" + input.id).checked = input.checked;
+                    }
+                });
+            } catch{ }
+            containerFilters.style.display = "flex";
+        }
+        // save form on window unload
+        const savesettings = (saveform = true) => {
+            let values = [];
+            [...containerFilters.querySelectorAll("input")].forEach(elem => {
+                values.push({ id: elem.id, checked: elem.checked, value: elem.value });
+            });
+            if (containerFilters.style.display == "none") localStorage.removeItem("filterForm");
+            else if(saveform) localStorage.filterForm = JSON.stringify(values);
+            return JSON.stringify(values);
+        };
+        window.addEventListener("beforeunload", savesettings);
+        // function to add a filter
+        const addFilter = (filterstring, active, id) => {
+            let filter = new uiTweaks.SearchFilter(JSON.parse(filterstring));
+            let names = (filter.targetPalantirPresent ? [...filter.names, "Palantir users"] : filter.names).join(", ");
+            let visual = [];
+            if (names != "") visual.push("🔎 " + names);
+            if (!isNaN(filter.targetRound)) visual.push("🔄 " + filter.targetRound + (filter.targetRoundModifier ? filter.targetRoundModifier : ""));
+            if (!isNaN(filter.targetScore)) visual.push("📈 " + filter.targetScore + (filter.targetScoreModifier ? filter.targetScoreModifier : ""));
+            if (!isNaN(filter.targetCount)) visual.push("👥 " + filter.targetCount + (filter.targetCountModifier ? filter.targetCountModifier : ""));
+            let remove = () => {
+                let added = JSON.parse(localStorage.addedFilters);
+                added = added.filter(filter => filter.id != id);
+                localStorage.addedFilters = JSON.stringify(added);
+            }
+            if (visual.join("") == "") {
+                new Toast("No filters set.");
+                remove();
+                return;
+            }
+            let filterbutton = elemFromString('<div class="checkbox btn" style="margin-left: .5em;width: fit-content; margin-bottom:.5em;"><label><input type="checkbox"><span>' + visual.join(" & ") + '</span></label></div>');
+            containerFilters.insertBefore(filterbutton, containerFilters.firstChild);
+            filterbutton.querySelector("input").checked = active;
+            filterbutton.addEventListener("click", () => {
+                let added = JSON.parse(localStorage.addedFilters);
+                added.forEach(filter => { if (filter.id == id) filter.active = filterbutton.querySelector("input").checked });
+                localStorage.addedFilters = JSON.stringify(added);
+            });
+            filterbutton.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+                remove();
+                filterbutton.remove();
+            });
+        }
+        // add filter when save is pressed
+        QS("#addFilter").addEventListener("click", () => {
+            let filterstring = savesettings(false);
+            let id = Date.now();
+            localStorage.addedFilters = JSON.stringify([...JSON.parse(localStorage.addedFilters), { active: true, filter: filterstring, id: id }]);
+            addFilter(filterstring, true, id);
+        });
+        // add saved filters
+        JSON.parse(localStorage.addedFilters).forEach(filter => {
+            addFilter(filter.filter, filter.active, filter.id);
+        });
+
+        // filter search function
+        uiTweaks.startFilterSearch = () => {
+            // load and create filters
+            let filters = [];
+            let humanCriterias = [];
+            JSON.parse(localStorage.addedFilters).forEach(filter => {
+                if (filter.active) {
+                    let filterObj = new uiTweaks.SearchFilter(JSON.parse(filter.filter));
+                    filters.push(filterObj);
+                    criteria = [];
+                    if (filterObj.names.length > 0 || filterObj.targetPalantirPresent) criteria.push("<b>Names:</b> " + (filterObj.targetPalantirPresent ? [...filterObj.names, "Palantir Users"] : filterObj.names).join(", "));
+                    if (!isNaN(filterObj.targetRound)) criteria.push("<b>Round:</b> " + filterObj.targetRound + (filterObj.targetRoundModifier ? filterObj.targetRoundModifier : ""));
+                    if (!isNaN(filterObj.targetScore)) criteria.push("<b>Avg Score:</b> " + filterObj.targetScore + (filterObj.targetScoreModifier ? filterObj.targetScoreModifier : ""));
+                    if (!isNaN(filterObj.targetCount)) criteria.push("<b>Players:</b> " + filterObj.targetCount + (filterObj.targetCountModifier ? filterObj.targetCountModifier : ""));
+                    if (criteria.length > 0) humanCriterias.push(criteria.join(" & "));
+                }
+            });
+            // create search modal 
+            let searchParamsHuman = (humanCriterias.join("<br>or<br>") != "" ?
+                "Search Criteria:<br>" + humanCriterias.join("<br>or<br>") : "<b>Whoops,</b> You didn't set any filters.");
+            let modalCont = elemFromString("<div style='text-align:center'><h4>" + searchParamsHuman + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere to cancel</h4><div>");
+            let modal = new Modal(modalCont, () => {
+                lobbies_.searchData.searching = false;
+            }, "Searching for filter match:", "40vw", "15em");
+            let skippedPlayers = [];
+            lobbies_.startSearch(() => {
+                lobbies_.lobbyProperties.Players.forEach(p => {
+                    if (skippedPlayers.indexOf(p.Name) < 0 && p.Name != socket.clientData.playerName) {
+                        skippedPlayers.push(p.Name);
+                        modalCont.querySelector("#skippedPlayers").innerHTML += " [" + p.Name + "] <wbr>";
+                    }
+                });
+                let lobby = lobbies_.lobbyProperties;
+                return filters.length <= 0 || filters.some(filter => filter.matchAll(lobby)); 
+            }, () => {
+                setTimeout(() => leaveLobby(true), 200);
+            }, () => {
+                modal.close();
+            });
+        }
+        // start search on play button
+        QS("#formLogin button[type=submit].btn.btn-success").addEventListener("click", () => {
+            // if filters enabled
+            if (containerFilters.style.display != "none") uiTweaks.startFilterSearch();
+        });
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -413,6 +608,7 @@ padding: 1em; `;
         uiTweaks.initLobbyDescriptionForm();
         uiTweaks.initMarkMessages();
         uiTweaks.initLobbyChat();
+        uiTweaks.initLobbyFilters();
         //uiTweaks.initRicardoSpecial();
         document.addEventListener("copyToClipboard", async () => {
             if (QS("#screenGame").style.display == "none" || document.getSelection().type == "Range") return;
@@ -422,5 +618,9 @@ padding: 1em; `;
             new Toast("Copied image to clipboard.", 1500);
         });
         uiTweaks.initSideControls();
+        // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins
+        QS("#overlay").insertAdjacentHTML("beforeBegin",
+            "<style>#overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}#overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
+
     }
 }
