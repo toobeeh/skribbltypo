@@ -32,10 +32,6 @@
         "*://skribbl.io/*"
       ],
       "js": [
-        "jquery/jquery-3.6.0.min.js",
-        "jquery/tooltips/jquery-ui.min.js",
-        "bootstrap/popper.min.js",
-        "bootstrap/js/bootstrap.min.js",
         "picker/colr_pickr.min.js",
         "color.js",
         "features/commands.js",
@@ -48,13 +44,11 @@
         "features/agent.js",
         "features/pressure.js",
         "features/imageOptions.js",
-        "features/accessibility.js",
         "features/gamemode.js",
         "features/keybinds.js",
         "content.js"
       ],
       "css": [
-        "bootstrap/css/bootstrap.min.css",
         "features/style.css",
         "picker/colr_pickr.min.css"
       ]
@@ -63,7 +57,9 @@
       "run_at": "document_start",
       "matches": [
         "*://skribbl.io/",
-        "*://skribbl.io/*"
+        "*://skribbl.io/*",
+        "*://web.archive.org/web/*/*://skribbl.io/",
+        "*://web.archive.org/web/*/*://skribbl.io/*"
       ],
       "js": [
         "features/modal.js",

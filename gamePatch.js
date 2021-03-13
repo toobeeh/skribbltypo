@@ -3784,11 +3784,12 @@
             ut.brush.setColor(10000 + Number("0x" + e.detail.hex.substr(1)));
         else ut.brush.setColor(Number(e.detail))
     }),
-    window.onbeforeunload = (e) => {
+    (window.onbeforeunload = (e) => {
         if (sessionStorage.practise == "true") {
             e.returnValue = "Sure about that? Your drawing will be lost!";
             return "Sure about that? Your drawing will be lost!";
         }
-    }
-        
+    }), document.body.addEventListener('tooltip', function (e) {
+        jQuery(e.detail.selector).tooltip({ container: 'body' });
+    });
 }(window, document, jQuery, localStorage);
