@@ -646,7 +646,7 @@ padding: 1em; `;
                     return;
                 }
                 // Focus chat
-                if (e.key === 'Shift' && !(e.altKey || e.ctrlKey)) {
+                if (e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
                     e.preventDefault();
                     chatInput.focus();
                     return;
