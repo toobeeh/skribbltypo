@@ -440,6 +440,25 @@ padding: 1em; `;
         });
         document.body.dispatchEvent(newCustomEvent('tooltip', { detail: { selector: '[data-typo-tooltip]' }}));
     },
+    initDefaultKeybinds: () => {
+        const chatInput = document.querySelector('#inputChat');
+        document.addEventListener('keydown', e => {
+            if (document.activeElement.tagName !== 'INPUT') {
+                // Undo
+                if (e.key === 'z' && e.ctrlKey) {
+                    e.preventDefault();
+                    captureCanvas.restoreDrawing(1);
+                    return;
+                }
+                // Focus chat
+                if (e.key === 'Shift' && !(e.altKey || e.ctrlKey)) {
+                    e.preventDefault();
+                    chatInput.focus();
+                    return;
+                }
+            }
+        });
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -465,5 +484,6 @@ padding: 1em; `;
         });
         uiTweaks.initSideControls();
         uiTweaks.initAccessibility();
+        uiTweaks.initDefaultKeybinds();
     }
 }
