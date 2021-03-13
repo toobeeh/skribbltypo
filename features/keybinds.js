@@ -1,5 +1,6 @@
 const keybind = {
     isInit: false,
+    hasRunOnce: false,
     lastColorIdx: 11,
     keybindPanel: `
 <h5>Keybinds</h5>
@@ -30,9 +31,9 @@ const keybind = {
   <h5 class="plus">+</h5>
   <input class="form-control" id="example2" placeholder="Click to bind..." readonly>
 </div -->`,
-    init: () => {
+    runOnce: () => {
         'use strict';
-        if (!keybind.isInit) {
+        if (!keybind.hasRunOnce) {
             keybind.brushColors = document.querySelectorAll('[data-color]');
             keybind.brushSizes = document.querySelectorAll('[data-size]');
             keybind.userPanel = document.querySelector(
@@ -41,13 +42,20 @@ const keybind = {
             keybind.panelElem = document.createElement('div');
             keybind.panelElem.classList.add('keybindMenu');
             keybind.panelElem.innerHTML = keybind.keybindPanel;
+            keybind.hasRunOnce = true;
+        }
+    },
+    init: () => {
+        'use strict';
+        if (!keybind.isInit) {
+            keybind.runOnce();
             keybind.userPanel.append(keybind.panelElem);
-            const colorInput = document.querySelector('#brushColor');
-            colorInput.value = localStorage.brushColor || 'None';
-            colorInput.addEventListener('change', e => (localStorage.brushColor = e.target.value));
-            const sizeInput = document.querySelector('#brushSize');
-            sizeInput.value = localStorage.brushSize || 'None';
-            sizeInput.addEventListener('change', e => (localStorage.brushSize = e.target.value));
+            keybind.colorInput = document.querySelector('#brushColor');
+            keybind.sizeInput = document.querySelector('#brushSize');
+            keybind.colorInput.value = localStorage.brushColor || 'None';
+            keybind.colorInput.addEventListener('change', keybind.changeColor);
+            keybind.sizeInput.value = localStorage.brushSize || 'None';
+            keybind.sizeInput.addEventListener('change', keybind.changeSize);
             document.addEventListener('keydown', keybind.keydown);
             keybind.isInit = true;
         }
@@ -56,10 +64,14 @@ const keybind = {
         'use strict';
         if (keybind.isInit) {
             keybind.userPanel.removeChild(keybind.panelElem);
+            keybind.colorInput.removeEventListener('change', keybind.changeColor);
+            keybind.sizeInput.removeEventListener('change', keybind.changeSize);
             document.removeEventListener('keydown', keybind.keydown);
             keybind.isInit = false;
         }
     },
+    changeColor: e => (localStorage.brushColor = e.target.value),
+    changeSize: e => (localStorage.brushSize = e.target.value),
     keydown: e => {
         'use strict';
         if (document.activeElement.tagName !== 'INPUT') {

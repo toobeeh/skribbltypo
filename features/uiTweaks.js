@@ -485,5 +485,13 @@ padding: 1em; `;
         uiTweaks.initSideControls();
         uiTweaks.initAccessibility();
         uiTweaks.initDefaultKeybinds();
+
+        // // Test for init and destroy functions
+        // gamemode.init();
+        // setTimeout(gamemode.destroy, 5000);
+        // setTimeout(gamemode.init, 10000);
+        // keybind.init();
+        // setTimeout(keybind.destroy, 5000);
+        // setTimeout(keybind.init, 10000);
     }
 }
