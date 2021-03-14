@@ -45,10 +45,12 @@ let imageAgent = {// func to set the image in the agentdiv
             div.style.display = "none";
             QS("#containerAgent").setAttribute("class", "");
             QS("#imageAgent").setAttribute("src", "");
+            QS("#imageAgent").style.display = "none";
             scrollMessages();
             return;
         }
         div.style.display = "block";
+        QS("#imageAgent").style.display = "block";
         QS("#containerAgent").setAttribute("class", "updateInfo collapse in");
         scrollMessages();
     },

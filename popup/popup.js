@@ -22,6 +22,8 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "palantirToggle" && settings.userAllow == "true") bt.className = "active";
             if (bt.id == "clearcanvas" && settings.keepCanvas == "true") bt.className = "active";
             if (bt.id == "controls" && settings.controls == "true") bt.className = "active";
+            if (bt.id == "keybinds" && settings.keybinds == "true") bt.className = "active";
+            if (bt.id == "gamemodes" && settings.gamemodes == "true") bt.className = "active";
         });
         tabid = sender.tab.id;
 
@@ -326,6 +328,8 @@ function toggleActive() {
     if (this.id == "palantirToggle") msg += "palantir";
     if (this.id == "clearcanvas") msg += "keepCanvas";
     if (this.id == "controls") msg += "controls";
+    if (this.id == "gamemodes") msg += "gamemodes";
+    if (this.id == "keybinds") msg += "keybinds";
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg);

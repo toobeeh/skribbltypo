@@ -153,7 +153,7 @@ const buildTooltip = (elem) => {
         self = self.parentNode;
     }
     self.style.cursor = 'pointer';
-    self.setAttribute('data-placement', 'bottom');
+    self.setAttribute('data-placement', 'auto bottom');
     self.setAttribute('data-typo-tooltip', 'true'); // To differentiate the tooltips to initialize
     return self;
 };

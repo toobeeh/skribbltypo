@@ -603,6 +603,7 @@ padding: 1em; `;
         const currentWord = document.querySelector('#currentWord');
         const currentWordSize = document.createElement('div');
         currentWordSize.id = 'wordSize';
+        if(localStorage.charBar != "true") currentWordSize.style.visibility = "hidden";
         currentWord.parentNode.insertBefore(currentWordSize, currentWord.nextSibling);
         const wordObserver = new MutationObserver(m => {
             let wordCount = currentWord.innerText;
@@ -680,17 +681,12 @@ padding: 1em; `;
             new Toast("Copied image to clipboard.", 1500);
         });
         uiTweaks.initSideControls();
+        uiTweaks.initAccessibility();
         // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins
         QS("#overlay").insertAdjacentHTML("beforeBegin",
             "<style>#overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}#overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
-        uiTweaks.initAccessibility();
         uiTweaks.initDefaultKeybinds();
-        // // Test for init and destroy functions
-        // gamemode.init();
-        // setTimeout(gamemode.destroy, 5000);
-        // setTimeout(gamemode.init, 10000);
-        // keybind.init();
-        // setTimeout(keybind.destroy, 5000);
-        // setTimeout(keybind.init, 10000);
+        if (localStorage.gamemodes == "true") gamemode.init();
+        if (localStorage.keybinds == "true") keybind.init();
     }
 }

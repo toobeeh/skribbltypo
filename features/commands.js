@@ -110,6 +110,16 @@ const performCommand = (cmd) => {
         QS("#controls").style.display = cmd.includes("enable") ? "flex" : "none";
         localStorage.controls = cmd.includes("enable");
     }
+    else if (cmd.includes("enable gamemodes") || cmd.includes("disable gamemodes")) {
+        localStorage.gamemodes = cmd.includes("enable");
+        if (cmd.includes("enable")) gamemode.init();
+        else gamemode.destroy();
+    }
+    else if (cmd.includes("enable keybinds") || cmd.includes("disable keybinds")) {
+        localStorage.keybinds = cmd.includes("enable");
+        if (cmd.includes("enable")) keybind.init();
+        else keybind.destroy();
+    }
     else if (cmd.includes("enable keepCanvas") || cmd.includes("disable keepCanvas")) {
         localStorage.keepCanvas = cmd.includes("enable");
     }
@@ -225,6 +235,7 @@ function viewCharBar() {
     let table = document.getElementById("tableBox");
 
     if (localStorage.charBar == "true") {
+        QS("#wordSize").style.visibility = "";
         document.getElementById("tableBox").style.visibility = "";
         document.getElementById("tableBox").style.position = "";
         _height = parseInt(table.style.height.substring(0, table.style.height.length - 2)) + parseInt(table.style.marginTop.substring(0, table.style.marginTop.length - 2)) + 34;
@@ -232,6 +243,7 @@ function viewCharBar() {
     else {
         document.getElementById("tableBox").style.visibility = "collapse";
         document.getElementById("tableBox").style.position = "absolute";
+        QS("#wordSize").style.visibility = "hidden";
         _height = 34;
     }
 

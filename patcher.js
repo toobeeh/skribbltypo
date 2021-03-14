@@ -57,7 +57,11 @@ const hints = [
     "To set a custom font, go to <a href='https://fonts.google.com/'>Google Fonts</a>, select a font and copy the bold text in the input field in the visual options.",
     "Click the magnifier icon to use a color picker! All Typo users can see the colors.",
     "Precision Work? Use the zoom feature!<br> [STRG + Click] to zoom to point, any number to set zoom level and leave with [STRG + Click].",
-    "If you like the extension, tell others about it or rate it on the chrome store! <3"
+    "If you like the extension, tell others about it or rate it on the chrome store! <3",
+    "Skribbl is too easy? Try the game modes deaf, one shot & blind!",
+    "Remove a filter by right-clicking it",
+    "The filters for Round, Player Count and Average Score accept modifiers like + and -.",
+    "If you enter multiple player names for a filter, the filter matches at anyone of these."
 ];
 
 let patcher = new MutationObserver((mutations) => {
@@ -112,11 +116,28 @@ let patcher = new MutationObserver((mutations) => {
                     }
                     // add update info to infobox
                     else if (node.classList.contains("updateInfo")) { 
-                        node.innerHTML = "Heya, take a cookie! 🍪<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br> Typo is back with a massive update - it's epic!<br> <div class='btn btn-success'>View the changes</div>";
-                        node.innerHTML += "<br><br> Data can be used to do pretty cool stuff.<br> By using Typo, you agree on <a id='typodata' role='button'>how Typo uses data.</a>";
+                        node.innerHTML = "Heya, take a cookie! 🍪<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br> Additional to the march update, some features have rolled out.<br><br> <div class='btn btn-block btn-success'>View the changelog</div>";
+                        node.innerHTML += "<br>Data can be used to do pretty cool stuff.<br> By using Typo, you agree on <a id='typodata' role='button'>how Typo uses data.</a>";
                         node.innerHTML += "<br><br>To learn more about Typo, visit the <a href='https://typo.rip' role='button'>website</a> or <a href='https://discord.link/typo' role='button'>join the Discord server.</a>"
                         let popupChanges = elemFromString(
-`<div style="width: 100%"><h3>The fastest lobby search engine ever.</h3>
+`<div style="width: 100%">
+<h2>March update #2</h2>
+<hr>
+<h3>Merged S's <a href='https://github.com/sbarrack/skribbl-community-scripts'>community script</a> features.</h3>
+This includes 3 new gamemodes to make skribbl more challenging for you as well as keybinds for colors, brush sizes and some UI improvements!<br>
+Toggle both features in the extension popup. 
+<br>Kudos to S & and all involved contributors!
+<br><h3>Lobby filters</h3>
+Lobby filters enable you to exactly set at which lobbies you want the search to stop.<br>
+To see & activate filters, click "Toggle Lobby Filter". As soon as you set the filter properties, click add. <br>
+When the filter panel is visible, you can check filters you'd like to apply and click "Play" to search with them.<br>
+Player Names & Palantir Users combine with "OR", other properties with "AND" and multiple active filters also combine with "AND".
+<br><h3>Quality-Of-Life stuff</h3>
+More tooltips (thanks S), prettier "player guessed word" indicator on custom themes and a visualizer of the left time to choose a word.
+<hr>
+<h2>Epic march update #1</h2>
+<hr>
+<h3>The fastest lobby search engine ever.</h3>
 The all-new lobbycrawler jumps right through lobbies without reloading skribbl.<br>
 With fair internet, 100+ lobbies per minute are possible - comparison: Old typo was tested with 20 lobbies/min, "frienddl" with 31/min and "Friend Finder" with 21 lobbies/min.<br>
 <br><h3>Typo Gallery Cloud</h3>
@@ -209,70 +230,7 @@ If you want to know more about your stored data, contact the typo dev.
                     toggleFilter.style.marginTop = "4px";
                     toggleFilter.style.marginLeft = "4%";
                     toggleFilter.id = "toggleFilter";
-                    //skipDead.addEventListener('click', () => {
-                    //    let modal = new Modal(elemFromString("<h3>Click anywhere to cancel</h3>"), () => {
-                    //        lobbies_.searchData.searching = false;
-                    //    }, "Skipping dead lobbies...","30vw","10em");
-                    //    lobbies_.startSearch(() => {
-                    //        return lobbies_.lobbyProperties.Players.length > 1;
-                    //    }, () => {
-                    //        setTimeout(()=>leaveLobby(true), 100);
-                    //    }, () => {
-                    //         modal.close();
-                    //     });
-                    //});
                     privateBtn.parentNode.appendChild(toggleFilter);
-
-                    //add search names button and field
-                    //let container = node;
-                    //let containerForm = document.createElement("div");
-                    //let inputName = document.createElement("input");
-                    //let inputSubmit = document.createElement("button");
-                    //let icon = document.createElement("div");
-                    //icon.style.display = "inline";
-                    //icon.classList.add("iconPlay");
-                    //inputName.id = "inputSearchNickName";
-                    //inputName.value = sessionStorage.searchPlayers ? JSON.parse(sessionStorage.searchPlayers) : "";
-                    //inputName.classList.add("form-control");
-                    //inputName.style.width = "70%";
-                    //inputName.placeholder = "'name' or 'name, name1, name2'";
-                    //containerForm.classList.add("loginPanelContent");
-                    //containerForm.style.display = "flex";
-                    //containerForm.style.justifyContent = "space-between";
-                    //containerForm.style.boxShadow = "unset";
-                    //containerForm.style.marginTop = "1em";
-                    //containerForm.style.setProperty("background", "transparent", "important");
-                    //containerForm.style.setProperty("border", "none", "important");
-                    //inputSubmit.classList.add("btn", "btn-success");
-                    //inputSubmit.textContent = "Search Player!";
-                    //inputSubmit.addEventListener("click", () => {
-                    //    if (inputName.value.trim() == "") return;
-                    //    let players = inputName.value.split(",");
-                    //    let skippedPlayers = [];
-                    //    players = players.map(p => p.trim());
-                    //    let modalCont = elemFromString("<div style='text-align:center'><h4>" + inputName.value + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere to cancel</h4><div>");
-                    //    let modal = new Modal( modalCont, () => {
-                    //            lobbies_.searchData.searching = false;
-                    //    }, "Searching for players:", "30vw", "15em");
-                    //    lobbies_.startSearch(() => {
-                    //        lobbies_.lobbyProperties.Players.forEach(p => {
-                    //            if (skippedPlayers.indexOf(p.Name) < 0 && p.Name != socket.clientData.playerName) {
-                    //                skippedPlayers.push(p.Name);
-                    //                modalCont.querySelector("#skippedPlayers").innerHTML += " [" + p.Name + "] <wbr>";
-                    //            }
-                    //        });
-                    //        return lobbies_.lobbyProperties.Players.some(lobbyplayer =>
-                    //            players.some(searchPlayer => searchPlayer.toLowerCase() == lobbyplayer.Name.toLowerCase()));
-                    //    }, () => {
-                    //        setTimeout(() => leaveLobby(true), 200);
-                    //    }, () => {
-                    //        modal.close();
-                    //    });
-                    //    document.body.dispatchEvent(newCustomEvent("joinLobby"));
-                    //});
-                    //containerForm.append(inputName);
-                    //containerForm.append(inputSubmit);
-                    //container.appendChild(containerForm);
                 }
             });
         });
