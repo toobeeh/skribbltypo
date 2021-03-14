@@ -618,7 +618,9 @@ padding: 1em; `;
         wordObserver.observe(currentWord, { childList: true, });
         
         // Create tooltips
-        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore'));
+        // remove original votekick tooltip
+        QS("#containerPlayerlist .tooltip-wrapper").setAttribute("data-toggle", "");
+        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore, #votekickCurrentPlayer, #saveDrawingOptions, #controls [style*="tablet.gif"],#controls [style*="fullscreen.gif"], #controls [style*="cloud.gif"], #controls [style*="visuals.gif"]'));
         tooltips.forEach((v, i, a) => {
             if (v.matches('.colorPreview:not(#colPicker)')) {
                 v.setAttribute('title', 'Color preview (click for magic)');
@@ -632,6 +634,18 @@ padding: 1em; `;
                 v.setAttribute('title', 'Clear the board (ESC)');
             } else if (v.matches('#restore')) {
                 v.setAttribute('title', 'Undo (Ctrl+Z)');
+            } else if (v.matches('#votekickCurrentPlayer')) {
+                v.setAttribute('title', 'Votekick the current player if they are misbehaving');
+            } else if (v.matches('#saveDrawingOptions')) {
+                v.setAttribute('title', 'Save the current drawing to re-use it later');
+            } else if (v.matches('#controls [style*="tablet.gif"]')) {
+                v.setAttribute('title', 'Set the graphics tablet pressure mode');
+            } else if (v.matches('#controls [style*="visuals.gif"]')) {
+                v.setAttribute('title', 'Customize how skribbl.io looks like');
+            } else if (v.matches('#controls [style*="cloud.gif"]')) {
+                v.setAttribute('title', 'Access all images in the cloud');
+            } else if(v.matches('#controls [style*="fullscreen.gif"]')) {
+            v.setAttribute('title', 'Toggle fullscreen mode');
             }
             a[i] = buildTooltip(v);
         });
