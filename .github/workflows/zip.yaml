@@ -14,6 +14,6 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
-        artifacts: "typo-release.zip"
+        artifacts: "typo-release-store21.5.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: "release"
