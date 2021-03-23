@@ -124,39 +124,38 @@ const lobbies_ = {
 						});
 						return lobbies_.getLobbyKey(lobby.Private) == QS("#" + lobbyButton.id).getAttribute("key"); // lobby key is target key?
 					}, () => {
-						setTimeout(() => {
-							leaveLobby();
-							let deadHits = 0;
-							let checkCallback = () => {
-								let button = QS("#" + lobbyButton.id);
-								if (!button) { // lobby exists?
-									if (deadHits++ > 10) {
-										modal.close();
-										new Modal(false, () => { }, "This lobby doesn't exist anymore :(");
-										clearInterval(checkInterval);
-									}
-								}
-								else { 
-									deadHits = 0;
-									if (Number(button.getAttribute("playercount")) > 7) { // lobby is full?
-										if (button.classList.contains("btn-success")) {
-											button.classList.remove("btn-success");
-											button.classList.add("btn-danger");
-											button.innerText += " (waiting...)";
-											modal.setNewTitle("Waiting for free slot...");
-											if(lobbies_.userAllow) socket.searchLobby(true);
-										}
-									}
-									else {
-										clearInterval(checkInterval); // go for it!
-										document.body.dispatchEvent(newCustomEvent("joinLobby"));
-										modal.setNewTitle("Searching for a discord lobby:");
-									}
+						leaveLobby();
+						let deadHits = 0;
+						let checkCallback = () => {
+							let button = QS("#" + lobbyButton.id);
+							if (!button) { // lobby exists?
+								if (deadHits++ > 10) {
+									modal.close();
+									new Modal(false, () => { }, "This lobby doesn't exist anymore :(");
+									clearInterval(checkInterval);
 								}
 							}
-							checkInterval = setInterval(checkCallback, 500);
-							checkCallback();
-						}, 100);
+							else { 
+								deadHits = 0;
+								if (Number(button.getAttribute("playercount")) > 7) { // lobby is full?
+									if (button.classList.contains("btn-success")) {
+										button.classList.remove("btn-success");
+										button.classList.add("btn-danger");
+										button.innerText += " (waiting...)";
+										modal.setNewTitle("Waiting for free slot...");
+										if(lobbies_.userAllow) socket.searchLobby(true);
+									}
+								}
+								else {
+									clearInterval(checkInterval); // go for it!
+									document.body.dispatchEvent(newCustomEvent("joinLobby"));
+									modal.setNewTitle("Searching for a discord lobby:");
+								}
+							}
+						}
+						checkInterval = setInterval(checkCallback, 500);
+						checkCallback();
+						
 					}, () => { // close modal if search finished
 						modal.close();
 					});

@@ -123,7 +123,11 @@
             })
         }) : w()
     }
-    document.body.addEventListener("joinLobby", () => { ct.goto("load"); g(); });
+    document.body.addEventListener("joinLobby", () => {
+        document.dispatchEvent(new Event("initJoin"));
+        ct.goto("load");
+        g();
+    });
     function w() {
         at.context && at.context.resume();
         var t = x(),
@@ -177,17 +181,13 @@
     let disconnect = () => {
         reset(), it ? it.close() : 0, it = null, st = null, document.dispatchEvent(new Event("leftGame"))
     }
-    const waitMs = async (timeMs) => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => resolve(), timeMs);
-        });
-    };
     document.body.addEventListener("leaveLobby", () => {
         userDisconnect = true;
         if(it) it.reconnect = false;
         disconnect();
     });
     function C(t, e) {
+        if (it && it.connected) return;
         at.playSound("playerJoin"), it = io(t, {
             query: {
                 token: dt
@@ -435,8 +435,7 @@
         var r = o.find(".wordContainer");
         if ("choosewords" == t.mode) {
             r.empty(), r.show();
-            document.querySelector("#overlay").classList.remove("countdown"); // restart countdown animation
-            document.querySelector("#overlay").classList.add("countdown");
+            document.querySelector("#overlay").classList.add("countdown"); // start countdown animation
             for (var i = 0; i < t.words.length; i++) {
                 var a = n("<div class='word'></div>");
                 a.data("id", i), a.text(t.words[i]), r.append(a), a.on("click", function() {
@@ -448,6 +447,7 @@
         var c = e.find(".revealReason"),
             u = o.find(".revealContainer");
         if ("reveal" == t.mode) {
+            document.querySelector("#overlay").classList.remove("countdown"); // restart countdown animation
             c.text(t.revealReason), c.show(), u.empty(), u.show(), t.players.sort(function(t, e) {
                 return e.scoreGuessed - t.scoreGuessed
             });
@@ -475,6 +475,7 @@
                 var g = l.find(".rank");
                 g.text("#" + h.rank), h.rank <= 3 && g.addClass("rank-" + h.rank), h.rank <= 3 ? y.append(l) : m.append(l), s(l, h.avatar, h.id == st.ownerID, h.rank <= 3 ? 2 : 1)
             }
+            st.chatAddMsg(null, t.players[0].name + " won the game with a score of " + t.players[0].score + " points.", "#ff3300");
         } else d.hide();
         o.show(), o.animate({
             bottom: "0%"
@@ -3679,7 +3680,7 @@
                     document.querySelector(".modalBlur").dispatchEvent(new Event("click"));
                 break;
             case "ESCAPE":
-                it ? it.emit("canvasClear") : ut.clear();
+                !document.querySelector(".modalBlur") ? (it ? it.emit("canvasClear") : ut.clear()) : 0;
         }
     }), ut.canvas.on("mousedown", function (t) {
         switch (t.preventDefault(), t.button + t.ctrlKey) { // + ctrl key when zooming

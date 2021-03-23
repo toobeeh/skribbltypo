@@ -25,7 +25,7 @@ const socket = {
         });
     },
     init: async () => {
-        socket.sck = io("https://typo.rip:3000");
+        socket.sck = io("https://typo.rip:3000", { transports: ["websocket"] });
         socket.sck.on("connect", async () => {
             if (socket.sck == null) return;
             console.log("Connected to Ithil socketio server.");
@@ -142,9 +142,9 @@ const socket = {
             return { caught: false };
         }
     },
-    getStoredDrawings: async (query = {}) => {
+    getStoredDrawings: async (query = {}, limit = 5000) => {
         Object.keys(query).forEach(key => query[key] === undefined && delete query[key])
-        let drawings = (await socket.emitEvent("get meta", { limit: 5000, query: query}, true, 5000)).drawings;
+        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query}, true, 5000)).drawings;
         return drawings;
     }
 }

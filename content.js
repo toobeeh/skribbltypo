@@ -54,7 +54,7 @@ chrome.runtime.onMessage.addListener(msgObj => {
 
 // initialize modules
 captureCanvas.initListeners(); // init capturing draw ommands and drawings
-imageAgent.initImageAgent(); // init image agent from afent.js
+imageAgent.initImageAgent(); // init image agent from agent.js
 imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js

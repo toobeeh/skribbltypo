@@ -160,7 +160,7 @@ document.querySelectorAll("button").forEach(function (bt) {
     if (bt.id == "help") bt.onclick = function () {
         chrome.tabs.create({
             url: "https://typo.rip" });
-    }//window.location.href = "https://www.tobeh.host/Orthanc"; };
+    }
     else if (bt.id == "verifyToken") bt.onclick = verifyTokenInput;
     else if (bt.id == "loginSubmit") bt.onclick = verifyLoginInput;
     else if (bt.id == "originalPalette") bt.onclick = togglePalette;
@@ -345,7 +345,7 @@ async function verifyTokenInput() {
         return;
     }
 
-    let memberResponse = await (await fetch('https://www.tobeh.host/Orthanc/verify/', {
+    let memberResponse = await (await fetch('https://tobeh.host/Orthanc/verify/', {
         method: 'POST',
         headers: {
             'Accept': '*/*',
@@ -377,7 +377,7 @@ async function verifyTokenInput() {
 }
 
 async function removeGuildByToken(token) {
-    let memberResponse = await (await fetch('https://www.tobeh.host/Orthanc/verify/', {
+    let memberResponse = await (await fetch('https://tobeh.host/Orthanc/verify/', {
         method: 'POST',
         headers: {
             'Accept': '*/*',
@@ -416,7 +416,7 @@ async function verifyLoginInput() {
         return;
     }
 
-    let loginResponse = await (await fetch('https://www.tobeh.host/Orthanc/login/', {
+    let loginResponse = await (await fetch('https://tobeh.host/Orthanc/login/', {
         method: 'POST',
         headers: {
             'Accept': '*/*',

@@ -11,7 +11,16 @@
         "https://slackmojis.com/",
         "https://slackmojis.com/categories/19-random-emojis"
     ];
-    // get emojis by regex since dom parser and queryselector not available
+    // get spcific emojis from emoji api
+    let apiEm = await (await fetch("https://tobeh.host/Orthanc/emojiapi/all.json")).json();
+    apiEm.forEach(emoji => {
+        emojis.push({
+            name: emoji.name,
+            url: emoji.url,
+            animated: emoji.url.indexOf(".gif") > 0 ? true : false
+        });
+    });
+    // get categoryemojis by regex since dom parser and queryselector not available
     for (const category of categories) {
         let doc = await (await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(category)}`)).text();
         for (const match of doc.matchAll(new RegExp("<li[^>]*title=[^>]*>(.+?|\n)</li>", "g"))) {

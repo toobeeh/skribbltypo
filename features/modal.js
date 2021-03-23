@@ -49,6 +49,13 @@ class Modal {
         }
         document.body.appendChild(modal);
         document.body.appendChild(blur);
+        let esc = (e) => {
+            if (e.which == 27) {
+                e.preventDefault();
+                this.close();
+            }
+        }
+        document.addEventListener("keydown", esc);
         this.modal = modal;
         this.blur = blur;
         this.onclose = onclose;
@@ -62,6 +69,7 @@ class Modal {
             this.onclose();
             this.blur.remove();
             this.modal.remove();
+            document.removeEventListener("keydown", esc);
         };
         blur.addEventListener("click", this.close);
     }

@@ -11,6 +11,8 @@ const emojis = {
         loadWorker.addEventListener('message', message => {
             emojis.emojis = message.data;
         });
+        QS("#emojiPrev").style.maxHeight = "80%";
+        QS("#emojiPrev").style.overflowY = "auto";
         // show emoji preview on chat type
         QS("#inputChat").addEventListener("input", (e) => {
             let val = QS("#inputChat").value;
@@ -19,25 +21,30 @@ const emojis = {
                 QS("#emojiPrev").style.display = "none";
             }
             else {
-                QS("#emojiPrev").style.display = "";
-                let content = "";
-                let search = emojis.search(lastsplit).splice(0, 25);
-                if (!search.length || search.length <= 0) {
-                    QS("#emojiPrev").style.display = "none";
-                    return;
+                let setEmojis = (limit) => {
+                    QS("#emojiPrev").style.display = "";
+                    let content = "";
+                    let search = emojis.search(lastsplit).splice(0, limit);
+                    if (!search.length || search.length <= 0) {
+                        QS("#emojiPrev").style.display = "none";
+                        return;
+                    }
+                    search.forEach(
+                        emoji => content +=
+                            "<span style='background-color: rgba(0,0,0,0.1); display: inline-block;cursor: pointer; border-radius: 0.3em; padding:0.1em; margin: .2em;'>" +
+                            emoji.name + " <span style='position:relative; bottom: -0.25em; display: inline-block;height: 1em;background-size: contain;background-repeat:no-repeat;width:1em;image-rendering: auto;background-image: url( " + emoji.url + ");'></span>" +
+                            "</span>"
+                    );
+                    if (limit < 100) content += "<br><span style='color:black'>Loading more...</span>";
+                    QS("#emojiPrev").innerHTML = content;
+                    [...QSA("#emojiPrev > span")].forEach(emoji => emoji.addEventListener("click", () => {
+                        QS("#inputChat").value = QS("#inputChat").value.replace(":" + lastsplit, ":" + emoji.textContent.trim() + ":");
+                        QS("#inputChat").dispatchEvent(newCustomEvent("input"));
+                        QS("#inputChat").focus();
+                    }));
                 }
-                search.forEach(
-                    emoji => content +=
-                        "<span style='background-color: rgba(0,0,0,0.1); display: inline-block;cursor: pointer; border-radius: 0.3em; padding:0.1em; margin: .2em;'>" +
-                        emoji.name + " <span style='position:relative; bottom: -0.25em; display: inline-block;height: 1em;background-size: contain;background-repeat:no-repeat;width:1em;image-rendering: auto;background-image: url( " + emoji.url + ");'></span>" +
-                        "</span>"
-                );
-                QS("#emojiPrev").innerHTML = content;
-                [...QSA("#emojiPrev > span")].forEach(emoji => emoji.addEventListener("click", () => {
-                    QS("#inputChat").value = QS("#inputChat").value.replace(":"+lastsplit, ":"+emoji.textContent.trim()+":");
-                    QS("#inputChat").dispatchEvent(newCustomEvent("input"));
-                    QS("#inputChat").focus();
-                }));
+                setEmojis(50);
+                setTimeout(() => { if (QS("#inputChat").value == val) setEmojis(500); }, 2000);                
             }
         });
     },

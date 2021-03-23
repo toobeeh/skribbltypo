@@ -47,8 +47,9 @@ const sprites = {
             sprites.playerSprites.forEach(sprite => {
                 if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) playerSlots.push({ sprite: sprite.Sprite, slot: sprite.Slot });
             });
+            
             if (playerSlots.length > 0) {
-                // check if existent lots are set to 0
+                // check if existent slots are set to 0
                 [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => {
                     if (!playerSlots.some(slot => existentSlot.classList.contains("specialSlot" + slot.slot))) existentSlot.remove();
                 });
@@ -75,6 +76,9 @@ const sprites = {
                     }
                 });
             }
+            // else remove all existent slots
+            else [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove()); 
+            
         });
     },
     updateEndboardSprites: () => { // show sprites on endboard

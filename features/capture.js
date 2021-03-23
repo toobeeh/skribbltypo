@@ -95,12 +95,13 @@ const captureCanvas = {
                 word: QS("#currentWord").innerText
             });
             await socket.emitEvent("store drawing", {
-                meta: {
+                meta: { 
                     name: sessionStorage.lastWord ? sessionStorage.lastWord : QS("#currentWord").innerText,
                     author: getCurrentOrLastDrawer(),
                     own: getCurrentOrLastDrawer() == socket.clientData.playerName,
                     language: lobbies_.lobbyProperties.Language,
-                    private: lobbies_.lobbyProperties.Private
+                    private: lobbies_.lobbyProperties.Private,
+                    thumbnail: await scaleDataURL(QS("#canvasGame").toDataURL("2d"), QS("#canvasGame").width / 10, QS("#canvasGame").height / 10)
                 },
                 commands: captureCanvas.getCapturedActions(),
                 uri: QS("#canvasGame").toDataURL()

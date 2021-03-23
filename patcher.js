@@ -116,11 +116,26 @@ let patcher = new MutationObserver((mutations) => {
                     }
                     // add update info to infobox
                     else if (node.classList.contains("updateInfo")) { 
-                        node.innerHTML = "Heya, take a cookie! 🍪<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br> Additional to the march update, some features have rolled out.<br><br> <div class='btn btn-block btn-success'>View the changelog</div>";
+                        node.innerHTML = "Heya, take a cookie! 🍪<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br> Additional to the march update, some features have rolled out.<br><br> <div class='btn btn-block btn-success'>View the changelog" + (localStorage.lastChangelogview != chrome.runtime.getManifest().version ? " 📢 New!" : "") + "</div>";
                         node.innerHTML += "<br>Data can be used to do pretty cool stuff.<br> By using Typo, you agree on <a id='typodata' role='button'>how Typo uses data.</a>";
                         node.innerHTML += "<br><br>To learn more about Typo, visit the <a href='https://typo.rip' role='button'>website</a> or <a href='https://discord.link/typo' role='button'>join the Discord server.</a>"
                         let popupChanges = elemFromString(
 `<div style="width: 100%">
+<h2>March update #2 - the fixes</h2>
+<hr>
+<ul>
+<li>Fixed the left-time-choosing bar, which was only visible once</li>
+<li>Added thousands of new emojis from dynamic sources.</li>
+<li>Gallery Cloud works now with pixelate thumbnails.<br>
+This results in a much better loading time and better server stability.</li>
+<li>Added a message declaring the winner of a finished game in the chat</li>
+<li>Fixed the tab-to-focus-chat thing behaving weird</li>
+<li>Fixed some rare sprite bugs</li>
+<li>Reduced extension permissions to the bare minimum</li>
+<li>Fixed pressing ESC to close popups instead clearing the canvas</li>
+<li>... and the lobby search should be even faster now</li>
+</ul>
+<hr>
 <h2>March update #2</h2>
 <hr>
 <h3>Merged S's <a href='https://github.com/sbarrack/skribbl-community-scripts'>community script</a> features.</h3>
@@ -186,6 +201,7 @@ Clicking "TAB" will auto-focus the chat input.<br>
 </div>`);
                         node.querySelector("div").addEventListener("click", () => {
                             new Modal(popupChanges, () => { }, "Changelog");
+                            localStorage.lastChangelogview = chrome.runtime.getManifest().version;
                         });
                         let popupData = elemFromString(
                             `<div style="width:100%">
