@@ -25,7 +25,7 @@ const socket = {
         });
     },
     init: async () => {
-        socket.sck = io("https://typo.rip:3000", { transports: ["websocket"] });
+        socket.sck = io("https://typo.rip:3000");
         socket.sck.on("connect", async () => {
             if (socket.sck == null) return;
             console.log("Connected to Ithil socketio server.");
@@ -116,13 +116,18 @@ const socket = {
     },
     setLobby: async (lobby, key, description = "") => {
         try {
-            await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description });
+            let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby}, true));
+            let veriflobby = resp.lobbyData.lobby;
+            let owner = resp.owner;
+            lobbies_.lobbyProperties.Description = veriflobby.Description;
+            QS("#lobbyDesc").value = veriflobby.Description;
+            QS("#restrictLobby").style.display = owner && lobbies_.lobbyProperties.Private ? "" : "none";
         }
         catch (e) { console.log("Error setting lobby status:" + e.toString()); }
     },
     leaveLobby: async () => {
         try {
-            let response = await socket.emitEvent("leave lobby", {}, true);
+            let response = await socket.emitEvent("leave lobby", {joined: lobbies_.joined}, true);
             socket.data.activeLobbies = response.activeLobbies;
         }
         catch (e) { console.log("Error leaving playing status:" + e.toString()); }

@@ -16,7 +16,8 @@ const lobbies_ = {
 		Host: "skribbl.io",
 		Language: "",
 		Players: [],
-		Key: ""
+		Key: "",
+		Description: ""
 	},
 	getLobbyKey: () => {
 		// generate pseudo-unique lobby id based on first player and languge details
@@ -138,12 +139,13 @@ const lobbies_ = {
 							else { 
 								deadHits = 0;
 								if (Number(button.getAttribute("playercount")) > 7) { // lobby is full?
+									leaveLobby(false);
 									if (button.classList.contains("btn-success")) {
 										button.classList.remove("btn-success");
 										button.classList.add("btn-danger");
 										button.innerText += " (waiting...)";
 										modal.setNewTitle("Waiting for free slot...");
-										if(lobbies_.userAllow) socket.searchLobby(true);
+										if (lobbies_.userAllow) socket.searchLobby(true);
 									}
 								}
 								else {
@@ -231,7 +233,7 @@ const lobbies_ = {
 						await socket.joinLobby(lobbies_.lobbyProperties.Key);
 						await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
 						lobbies_.joined = true;
-					}, 2000);
+					}, 7000);
 				}
 				// apply search logic
 				if (lobbies_.searchData.searching && !lobbies_.searchData.check()) {
@@ -253,10 +255,11 @@ const lobbies_ = {
 		});
 		// on lobby leave / login show
 		document.addEventListener("leftGame", async () => {
-			if (lobbies_.inGame) {
-				lobbies_.inGame = false;
-				lobbies_.joined = false;
+			lobbies_.inGame = false;
+			QS("#restrictLobby").style.display = "none";
+			if (lobbies_.joined) {
 				await socket.leaveLobby();
+				lobbies_.joined = false;
 			}
 		});
 	}

@@ -194,14 +194,19 @@
             }
         });
         it.on("connect", function () {
-            it.on("", (e, o) =>
-                console.log(e + " - Incoming from " + it.id + "."));
             it.on("disconnect", async function () {
                 // dont perform events if source is not active socket
                 if (this.id != it.id) return;
                 //await waitMs(100);
                 disconnect();
-                if (!userDisconnect) n("#modalDisconnect").modal();
+                if (!userDisconnect) {
+                    n("#modalDisconnect").modal();
+                    setTimeout(() => {
+                        document.body.dispatchEvent(new CustomEvent("disconnectedSocket"), 100)
+                        //alert("caught disc.");
+                    });
+                }
+                userDisconnect = false;
                 delete it;
             }), it.emit("userData", e),  it.on("kicked", function() {
                 n("#modalKicked").modal(),
@@ -3610,6 +3615,7 @@
             t.preventDefault(), pt = !0, g()
         }), grecaptcha = t.grecaptcha || null;
     var dt = null,
+        refreshThickness = true,
         yt = null,
         mt = 0;
     S(80), n("#lobbySetLanguage").on("change", function() {
@@ -3657,7 +3663,7 @@
         t.preventDefault();
         var e = t.originalEvent.wheelDelta > 0 || t.originalEvent.detail < 0 ? 1 : -1;
         ut.brush.setThickness(ut.brush.thickness + 6 * e)
-    }), n(e).on("mousemove", function(t) {
+    }), n(e).on("mousemove", function (t) {
         sessionStorage.getItem('practise') == "true" && T(t.clientX, t.clientY, !1) || st && st.checkDrawing() && T(t.clientX, t.clientY, !1);
     }), n(e).keydown(function (t) {
         if ((sessionStorage.getItem('practise')=="true" ||  st && st.checkDrawing() && t !== r && t.key !== r) && document.activeElement.tagName !== 'INPUT') switch (t.key.toUpperCase()) {

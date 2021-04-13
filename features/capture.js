@@ -92,7 +92,8 @@ const captureCanvas = {
             captureCanvas.capturedDrawings.push({
                 drawing: QS("#canvasGame").toDataURL("2d"),
                 drawer: getCurrentOrLastDrawer(),
-                word: QS("#currentWord").innerText
+                word: QS("#currentWord").innerText,
+                hint: QS("#wordSize").innerText
             });
             await socket.emitEvent("store drawing", {
                 meta: { 

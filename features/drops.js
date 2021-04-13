@@ -52,7 +52,7 @@ let drops = {
             if (dropContainer.style.display == "none") return;
             dropContainer.style.display = "none";
             let result = await socket.claimDrop(drops.currentDrop);
-            if (result.result.caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
+            if (result.caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
             else {
                 let winner = "";
                 if (result.caughtLobbyKey == socket.clientData.lobbyKey) winner = result.playerName;

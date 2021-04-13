@@ -14,7 +14,7 @@ const waitForDocAndPalantir = async () => {
             palantirReady = true;
             if (DOMready) resolve(true);
         });
-        setTimeout(() => { reject(false); }, 10000);
+        setTimeout(() => { reject(false); }, 20000);
     });
 }
 // await DOM load and palantir connection
@@ -22,6 +22,9 @@ const waitForDocAndPalantir = async () => {
     if (await waitForDocAndPalantir()) {
         await sprites.init(); // init sprites
         drops.initDrops(); // init drops
+        if (localStorage.restrictLobby == "") {
+            QS("#restrictLobby").dispatchEvent(new Event("click"));
+        }
     }
     else alert("Error connecting to Palantir :/");
 })().catch(console.error);
@@ -121,7 +124,14 @@ let patcher = new MutationObserver((mutations) => {
                         node.innerHTML += "<br><br>To learn more about Typo, visit the <a href='https://typo.rip' role='button'>website</a> or <a href='https://discord.link/typo' role='button'>join the Discord server.</a>"
                         let popupChanges = elemFromString(
 `<div style="width: 100%">
-<h2>March update #2 - the fixes</h2>
+<h2>April privacy update</h2>
+<hr>
+You can now control which of your connected discord servers see your lobby invite link. <br>
+If you're the lobby owner or topmost player with Palantir, a lock icon is shown next to the timer in-game. <br>
+Click the lock to set the lobby privacy. This will overrule the setting of every other lobby member. <br>
+The lock indicates your privacy setting (red - public, green - restricted). <br>
+<hr>
+<h2>March update #3 - the fixes</h2>
 <hr>
 <ul>
 <li>Fixed the left-time-choosing bar, which was only visible once</li>

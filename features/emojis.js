@@ -35,9 +35,9 @@ const emojis = {
                             emoji.name + " <span style='position:relative; bottom: -0.25em; display: inline-block;height: 1em;background-size: contain;background-repeat:no-repeat;width:1em;image-rendering: auto;background-image: url( " + emoji.url + ");'></span>" +
                             "</span>"
                     );
-                    if (limit < 100) content += "<br><span style='color:black'>Loading more...</span>";
+                    if (limit < 100) content += "<br><span style='color:black' id='loadingHintEmojis'>Loading more...</span>";
                     QS("#emojiPrev").innerHTML = content;
-                    [...QSA("#emojiPrev > span")].forEach(emoji => emoji.addEventListener("click", () => {
+                    [...QSA("#emojiPrev > span:not(#loadingHintEmojis)")].forEach(emoji => emoji.addEventListener("click", () => {
                         QS("#inputChat").value = QS("#inputChat").value.replace(":" + lastsplit, ":" + emoji.textContent.trim() + ":");
                         QS("#inputChat").dispatchEvent(newCustomEvent("input"));
                         QS("#inputChat").focus();

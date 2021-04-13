@@ -153,7 +153,7 @@ let imageOptions = {
             QS("#shareImagePreview").setAttribute("imageIndex", -1);
             sharePopup.style.display = "";
             sharePopup.focus();
-            QS("#postNameInput").value = QS("#currentWord").innerText;
+            QS("#postNameInput").value = QS("#currentWord").innerText + QS("#wordSize").innerText;
         });
         imageOptions.optionsContainer.appendChild(shareButton);
 
@@ -184,13 +184,14 @@ let imageOptions = {
             allDrawings.push({
                 drawing: document.querySelector("#canvasGame").toDataURL("2d"),
                 drawer: getCurrentOrLastDrawer(),
-                word: QS("#currentWord").innerText
+                word: QS("#currentWord").innerText,
+                hint: QS("#wordSize").innerText
             });
             if (currentIndex < 0) currentIndex = allDrawings.length - 1;
             currentIndex += direction;
             if (currentIndex >= 0 && currentIndex < allDrawings.length) {
                 imagePreview.src = allDrawings[currentIndex].drawing;
-                QS("#postNameInput").value = allDrawings[currentIndex].word;
+                QS("#postNameInput").value = allDrawings[currentIndex].word + allDrawings[currentIndex].hint;
                 imageShareString = allDrawings[currentIndex].drawing;
                 imageShareStringDrawer = allDrawings[currentIndex].drawer;
                 imagePreview.setAttribute("imageIndex", currentIndex);

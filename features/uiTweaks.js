@@ -670,6 +670,43 @@ padding: 1em; `;
             else if (document.activeElement.id == "inputChat" && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
         });
     },
+    initLobbyRestriction: () => {
+        let timer = QS(".timer-container");
+        let restrict = elemFromString("<div id='restrictLobby' style='position:relative;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
+        timer.parentElement.insertBefore(restrict, timer);
+        let updateIcon = () => {
+            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/unrestricted.gif") + ")";
+            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/restricted.gif") + ")";
+        }
+        updateIcon();
+        restrict.addEventListener("click", () => {
+            let servers = "";
+            socket.data.user.member.Guilds.forEach(guild => servers += "<option value='" + guild.GuildID + "'>" + guild.GuildName + "</option>");
+            let modal = new Modal(elemFromString(`<div id="selectrestriction"><h4>Choose in which Discord Servers Palantir is allowed to share the lobby invite link.<br>Your preference is used when you're the owner of a private lobby.<br>You can change it anytime in-game.</h4><br>
+                        <input type="radio" id="unrestricted" name="restriction" value="unrestricted" checked>
+                        <label for="unrestricted"> No Restrictions</label><br> 
+                        <input type="radio" id="restrictserver" name="restriction" value="server">
+                        <label for="restrictserver"> Allow a single server: </label> <select>
+                        ${servers}
+                        </select><br> 
+                        <input type="radio" id="restricted" name="restriction" value="restricted">
+                        <label for="restricted"> Allow no one to see the invite</label></div>`), async () => {
+                    localStorage.restrictLobby = QS("#selectrestriction input[name=restriction]:checked").value;
+                    if (localStorage.restrictLobby == "server") localStorage.restrictLobby = QS("#selectrestriction select").value;
+                    updateIcon();
+                    if (lobbies_.joined && lobbies_.userAllow) { // report lobby if joined
+                        let description = lobbies_.lobbyProperties.Private ? (QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
+                        await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key, description);
+                    }
+            }, "Lobby Privacy");
+            if (localStorage.restrictLobby == "restricted") modal.content.querySelector("#restricted").setAttribute("checked", "checked");
+            else if (localStorage.restrictLobby == "unrestricted") modal.content.querySelector("#unrestricted").setAttribute("checked", "checked");
+            else if(localStorage.restrictLobby != ""){
+                modal.content.querySelector("#restrictserver").setAttribute("checked", "checked");
+                modal.content.querySelector("select").value = localStorage.restrictLobby;
+            }
+        });
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -686,6 +723,7 @@ padding: 1em; `;
         uiTweaks.initMarkMessages();
         uiTweaks.initLobbyChat();
         uiTweaks.initLobbyFilters();
+        uiTweaks.initLobbyRestriction();
         //uiTweaks.initRicardoSpecial();
         document.addEventListener("copyToClipboard", async () => {
             if (QS("#screenGame").style.display == "none" || document.getSelection().type == "Range") return;
