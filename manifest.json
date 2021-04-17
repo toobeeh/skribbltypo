@@ -2,10 +2,13 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & tablet support",
-  "version": "22.0.2",
+  "version": "22.0.3",
   "author": "tobeh",
   "icons": {
-    "128": "res/icon128.png"
+    "256": "res/icon/256MaxFit.png",
+    "128": "res/icon/128MaxFit.png",
+    "32": "res/icon/32CircleFit.png",
+    "16": "res/icon/16Fit.png"
   },
   "browser_specific_settings": {
     "gecko": {
@@ -15,7 +18,7 @@
   },
   "browser_action": {
     "default_title": "Skribbl Typo",
-    "default_icon": "res/icon128.png",
+    "default_icon": "res/icon/128MaxFit.png",
     "title": "Dashboard",
     "default_popup": "popup/popup.html"
   },
