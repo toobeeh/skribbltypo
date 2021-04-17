@@ -16,4 +16,4 @@ jobs:
         allowUpdates: true
         artifacts: "typo-release.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: "typo-release-store21.5.1"
+        tag: "typo-release-store22.0.3"
