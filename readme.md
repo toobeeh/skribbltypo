@@ -24,7 +24,13 @@ Features are located in the **features** directory and are objects, each object 
  * Shows these in Discord
  * Manages bubbles, drops, sprites and events to be shown on skribbl
  
- ##### Orthanc (private repo)  
+ ##### Ithil
+ * A socket.io server
+ * Establishes a real-time connection between the palantir server & typo client
+ * Used for authentification, lobby data loading, drop cathing, sprites etc
+ * Some features of the original Orthanc API are still not implemented
+ 
+ ##### Orthanc (private repo, OUTDATED)  
  * PHP webdirectory which provides an interface between the database and web-access
  * Secure authorization via login token
  * Json based
