@@ -106,6 +106,12 @@ const performCommand = (cmd) => {
         socket.leaveLobby();
         lobbies_.joined = false;
     }
+    else if (cmd.includes("clr")) {
+        let elems = [...QSA("#boxMessages > *")];
+        elems = elems.length > 50 ? elems.slice(0, elems.length - 50) : elems;
+        elems.forEach(elem => elem.remove());
+        printCmdOutput("","Cleared chat", "Removed all except last 50 messages, if existent.");
+    }
     else if (cmd.includes("enable controls") || cmd.includes("disable controls")) {
         QS("#controls").style.display = cmd.includes("enable") ? "flex" : "none";
         localStorage.controls = cmd.includes("enable");

@@ -84,7 +84,7 @@ let typro = {
                 savepng.addEventListener("click", async () => {
                     new Toast("Loading...");
                     if (!data) data = await socket.emitEvent("fetch drawing", { id: drawing.id }, true, 5000);
-                    imageOptions.downloadDataURL(data.drawing.uri);
+                    imageOptions.downloadDataURL(data.drawing.uri, "skribblCloud-" + drawing.meta.name + "-by-" + drawing.meta.author);
                     new Toast("Started the image download.");
                 });
                 options.appendChild(savepng);

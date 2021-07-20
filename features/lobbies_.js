@@ -256,7 +256,7 @@ const lobbies_ = {
 		// on lobby leave / login show
 		document.addEventListener("leftGame", async () => {
 			lobbies_.inGame = false;
-			QS("#restrictLobby").style.display = "none";
+			if (QS("#restrictLobby")) QS("#restrictLobby").style.display = "none";
 			if (lobbies_.joined) {
 				await socket.leaveLobby();
 				lobbies_.joined = false;

@@ -6,9 +6,11 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 let drops = {
     eventDrops: [],
     currentDrop: null,
+    dropContainer: null,
+    fakeboxes: [],
     newDrop: (drop) => {
         drops.currentDrop = drop;
-        let dropElem = QS("#claimDrop");
+        let dropElem = drops.dropContainer;
         if (drop.EventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
         else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.EventDropID).URL + '")';
         dropElem.style.display = "block";
@@ -25,11 +27,9 @@ let drops = {
         }, 5000);
     },
     clearDrop: (result) => {
-        let dropElem = QS("#claimDrop");
+        let dropElem = drops.dropContainer;
         if (dropElem.style.display != "none") {
-            let winner = "";
-            if (result.caughtLobbyKey == socket.clientData.lobbyKey) winner = result.caughtPlayer;
-            else winner = "Someone in another lobby";
+            let winner = result.caughtPlayer;
             printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
             dropElem.style.display = "none";
             drops.currentDrop = null;
@@ -38,8 +38,9 @@ let drops = {
     initDropContainer: () => {
         // add drop button
         let dropContainer = document.createElement("div");
-        dropContainer.id = "claimDrop";
+        drops.dropContainer = dropContainer;
         dropContainer.style.width = "48px";
+        dropContainer.setAttribute("fuck-you", "are you really trying to auto-click drops? come on...");
         dropContainer.style.height = "48px";
         dropContainer.style.left = "8px";
         dropContainer.style.bottom = "8px";
@@ -48,15 +49,32 @@ let drops = {
         dropContainer.style.cursor = "pointer";
         dropContainer.style.display = "none";
         dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
-        dropContainer.addEventListener("click", async () => {
+        dropContainer.addEventListener("click", async (event) => {
+            if (!event.isTrusted) {
+                dropContainer.remove();
+                // send webhook
+                await fetch("https://discord.com/api/webhooks/796790905272795186/hQVi5HKJpdP46FOEWxXgjVUStqphpkjtzk3PG-ir-FB0fOHWHwiSotJOsSWp6nI8AvLv", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: "fuck you",
+                        embeds: [
+                            {
+                                "title": socket.data.user.member.UserLogin + socket.data.user.member.UserName
+                            }
+                        ]
+                    })
+                });
+                return;
+            }
             if (dropContainer.style.display == "none") return;
             dropContainer.style.display = "none";
             let result = await socket.claimDrop(drops.currentDrop);
             if (result.caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
             else {
-                let winner = "";
-                if (result.caughtLobbyKey == socket.clientData.lobbyKey) winner = result.playerName;
-                else winner = "Someone in another lobby";
+                let winner = result.playerName;
                 printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
             }
             drops.currentDrop = null;

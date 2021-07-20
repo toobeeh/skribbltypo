@@ -251,7 +251,7 @@ If you want to know more about your stored data, contact the typo dev.
                     privateBtn.style.display = "inline";
                     privateBtn.style.width = "48%";
                     toggleFilter.classList.add('btn', 'btn-info');
-                    toggleFilter.textContent = "Toggle Lobby Filter";
+                    toggleFilter.textContent = "Toggle Lobby Search";
                     toggleFilter.style.width = "48%";
                     toggleFilter.style.marginTop = "4px";
                     toggleFilter.style.marginLeft = "4%";

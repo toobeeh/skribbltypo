@@ -349,10 +349,17 @@ padding: 1em; `;
 
             let modeThickness = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
                 + chrome.runtime.getURL("/res/modeThickness.png")
-                + ")'></div><h4>Thickness</h4></div>");
+                + ")'></div><h4>Size (Absolute)</h4></div>");
             modeThickness.addEventListener("click", () => localStorage.ink == "true" ?
                 performCommand("inkmode thickness") :
                 performCommand("enable ink") || performCommand("inkmode thickness"));
+
+            let modeRelative = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
+                + chrome.runtime.getURL("/res/modeThickness.png")
+                + ")'></div><h4>Size (Relative)</h4></div>");
+            modeRelative.addEventListener("click", () => localStorage.ink == "true" ?
+                performCommand("inkmode relative") :
+                performCommand("enable ink") || performCommand("inkmode relative"));
 
             let modeBrightness = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
                 + chrome.runtime.getURL("/res/modeBrightness.png")
@@ -375,9 +382,9 @@ padding: 1em; `;
                 performCommand("inkmode degree brightness") :
                 performCommand("enable ink") || performCommand("inkmode degree brightness"));
 
-            let options = elemFromString("<div style='display:flex; width:100%; height: min-content; flex-direction:row; justify-content: space-evenly'></div>");
+            let options = elemFromString("<div style='display:flex; gap:3em; flex-wrap: wrap; width:100%; height: min-content; flex-direction:row; justify-content: space-evenly'></div>");
             options.appendChild(elemFromString("<style>.tabletOption:hover{background:#00000040}.tabletOption{transition: background 0.2s;display:flex; margin:.5em; padding:.5em; flex-direction: column; align-items: center; justify-items: center; background: #00000026; cursor: pointer; border-radius: .5em;}</style>"));
-            options.append(modeNone, modeThickness, modeBrightness, modeDegree, modeBrightnessDegree);
+            options.append(modeNone, modeThickness, modeRelative, modeBrightness, modeDegree, modeBrightnessDegree);
             let modal = new Modal(options, () => { }, "Select a tablet mode", "50vw", "0px");
             options.addEventListener("click", () => modal.close());
         });
@@ -471,7 +478,7 @@ padding: 1em; `;
     initLobbyFilters: () => {
         let filterBtn = QS("#toggleFilter");
         let containerFilters = elemFromString('<div id="containerFilters" class="loginPanelContent" style="display: none; flex-direction:column; justify-content: space-between; box-shadow: unset; margin-top: 1em; background: transparent !important; border: none !important;"></div>')
-        let filterNamesForm = elemFromString('<div style="display:flex; width: 100%; margin-bottom:.5em;"><h5>Filter Names:</h5><input id="inputSearchName" class="form-control" placeholder="\'name\' or \'name, name1, name2\'" style="flex-grow: 2; width:unset; margin-left: .5em;"></div>');
+        let filterNamesForm = elemFromString('<div style="display:flex; width: 100%; margin-bottom:.5em;"><h5>Search Names:</h5><input id="inputSearchName" class="form-control" placeholder="\'name\' or \'name, name1, name2\'" style="flex-grow: 2; width:unset; margin-left: .5em;"></div>');
         let filterDetailsForm = elemFromString('<div style="display:flex; width: 100%; margin-bottom:.5em;"><h5 style="flex:1;">In Round:</h5><input id="inputSearchRound" class="form-control" placeholder="\'1\' or \'2+\'" style="flex: 1;margin-left: .5em;"><h5 style="margin-left: .5em; flex:1;">Avg Score:</h5><input id="inputSearchScore" class="form-control" placeholder="\'500+\' or \'500-\'" style="flex: 1; margin-left: .5em;"></div>');
         let filterPlayersForm = elemFromString('<div style="display:flex; width: 100%;"><h5 style="flex:1;">Player Count:</h5><input id="inputSearchCount" class="form-control" placeholder="\'4-\' or \'8\'" style="flex: 1;margin-left: .5em;"><div class="checkbox" style="margin-left: .5em; flex:2"><label><input type="checkbox" id="inputSearchPalantir"><span>With Palantir Player</span></label></div><div class="btn btn-success" id="addFilter" style="height: fit-content;">✔ Add</div></div>');
         containerFilters.appendChild(filterNamesForm);
@@ -707,6 +714,95 @@ padding: 1em; `;
             }
         });
     },
+    initQuickReact: () => {
+        let react = elemFromString(`<div tabindex="0" id="quickreact" style="
+        display: flex;
+        place-content: space-evenly;
+        width: 100%;
+        border-radius: .5em;
+        margin-right: .5em;
+        cursor: not-allowed;
+        user-select: none;
+        display:none;
+        outline: none;
+    ">
+    <style>
+        #quickreact > span {
+            background: white;
+            border-radius: .5em;
+            padding: .5em;
+            color: black;
+            font-weight: 600;
+        }
+    </style>
+    <span>⬅️Close</span><span>⬆️Like</span><span>⬇️Shame</span><span>➡️Kick</span></div>`);
+        QS("#boxChat").appendChild(react);
+        let chatinput = QS("#inputChat");
+        chatinput.addEventListener("keyup", (e) => {
+            if (e.which == 37 && react.style.display == "none") {
+                react.style.display = "flex";
+                react.focus();
+            }
+            else if (e.which == 37 && react.style.display == "flex") {
+                react.style.display = "none";
+            }
+        });
+        react.addEventListener("focusout", () => react.style.display = "none");
+        react.addEventListener("keyup", (e) => {
+            e.bubbles = false;
+            if (e.which == 38) { // up
+                performCommand(cmd_like);
+            }
+            else if (e.which == 39) { // right
+                performCommand(cmd_votekick);
+            }
+            else if (e.which == 40) { // down
+                performCommand(cmd_dislike);
+            }
+            chatinput.focus();
+        });
+        react.addEventListener("keydown", (e) => e.preventDefault());
+    },
+    initSelectionFormatter: () => {
+        let popup = elemFromString(`<div id="copyFormatted" style="
+    position: absolute;
+    width: calc(90% - 8px);
+    left: 5%;
+    background: white;
+    border-radius: .5em;
+    padding: .5em;
+    color: black !important;
+    font-weight: 600;
+    top:0;
+    text-align: center;
+    cursor: pointer;
+    user-select:none;
+">Copy chat selection for Discord</div>`);
+        popup.style.display = "none";
+        const chatbox = QS("#boxChat");
+        popup.addEventListener("pointerdown", () => {
+            let chat = document.getSelection().toString();
+            chat = chat.replace(/(\n)(?=.*? guessed the word!)/g, "+ ")
+                .replace(/(\n)(?=.*? joined.)/g, "+ ")
+                .replace(/(\n)(?=The word was)/g, "+ ")
+                .replace(/(\n)(?=.*? is drawing now!)/g, "+ ")
+                .replace(/(\n)(?=.*? left.)/g, "- ")
+                .replace(/(\n)(?=.*? is voting to kick.)/g, "- ")
+                .replace(/(\n)(?=.*? was kicked.)/g, "- ")
+                .replace(/(\n)(?=Whoops.*? caught the drop before you.)/g, "--- ")
+                .replace(/(\n)(?=Yeee.*? and caught the drop!)/g, "--- ")
+                .replaceAll("\n\n", "\n");
+            navigator.clipboard.writeText("```diff\n" + chat + "\n```");
+            document.getSelection().removeAllRanges();
+            new Toast("Copied chat to clipboard!", 1000);
+        });
+        document.addEventListener("selectionchange", () => {
+            const selection = document.getSelection();
+            if (selection.toString() != "" && chatbox.contains(selection.anchorNode)) popup.style.display = "";
+            else setTimeout(()=>popup.style.display = "none", 20);
+        });
+        QS("#containerChat").appendChild(popup);
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -724,6 +820,8 @@ padding: 1em; `;
         uiTweaks.initLobbyChat();
         uiTweaks.initLobbyFilters();
         uiTweaks.initLobbyRestriction();
+        uiTweaks.initQuickReact();
+        uiTweaks.initSelectionFormatter();
         //uiTweaks.initRicardoSpecial();
         document.addEventListener("copyToClipboard", async () => {
             if (QS("#screenGame").style.display == "none" || document.getSelection().type == "Range") return;
@@ -740,5 +838,6 @@ padding: 1em; `;
         uiTweaks.initDefaultKeybinds();
         if (localStorage.gamemodes == "true") gamemode.init();
         if (localStorage.keybinds == "true") keybind.init();
+        if(Math.random() < 0.1) QS("#inputChat").placeholder = "Typo your guess here...";
     }
 }

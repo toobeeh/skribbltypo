@@ -19,6 +19,7 @@ let imageTools = {
                 alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
                 localStorage.imageTools = "READ IT";
             };
+            QS("#popupPasteImage").style.display = sessionStorage.practise == "true" ? "" : "none";
             QS("#saveDrawingPopup").style.display = "block";
             QS("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
             imageTools.optionsPopup.children[0].focus();
@@ -186,6 +187,63 @@ let imageTools = {
             }
             fileInput.click();
         });
+
+        // EXPERIMENTAL
+        let popupPasteImage = document.createElement("button");
+        optionsPopup.appendChild(popupPasteImage);
+        popupPasteImage.id = "popupPasteImage";
+        popupPasteImage.classList = "btn btn-warning btn-block";
+        popupPasteImage.innerText = "Paste Image";
+        popupPasteImage.addEventListener("click", () => {
+            let fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = ".png";
+            fileInput.onchange = e => {
+                let dummyimg = new Image();
+                dummyimg.onload = () => {
+                    let canvas = QS("#canvasGame");
+                    let pressedKeys = [];
+                    let trackPress = (e) => e.type == "keydown" ? pressedKeys.push(e.key) : pressedKeys = pressedKeys.filter(k => k != e.key);
+                    canvas.addEventListener("pointerdown", (e) => {
+                        if (pressedKeys.some(k => k == "1")) {
+                            canvas.getContext("2d").drawImage(dummyimg, e.layerX, e.layerY);
+                            stoptrack();
+                        }
+                        else if (pressedKeys.some(k => k == "2")) {
+                            let firstClick = { x: e.layerX, y: e.layerY };
+                            canvas.addEventListener("pointerdown", (e) => {
+                                let aspect = dummyimg.width / dummyimg.height;
+                                let clickwidth = e.layerX - firstClick.x;
+                                let clickheight = e.layerY - firstClick.y;
+                                let clickaspect = clickwidth / clickheight;
+                                if (clickaspect > aspect) clickwidth = clickheight * aspect;
+                                else clickheight = clickwidth * 1 / aspect;
+                                canvas.getContext("2d").drawImage(dummyimg, firstClick.x, firstClick.y, clickwidth, clickheight);
+                                stoptrack();
+                            }, { once: true });
+                        }
+                        else if (pressedKeys.some(k => k == "3")) {
+                            canvas.getContext("2d").drawImage(dummyimg, 0, 0, canvas.width, canvas.height);
+                            stoptrack();
+                        }
+                        else {
+                            canvas.getContext("2d").drawImage(dummyimg, 0, 0);
+                            stoptrack();
+                        }
+                    }, { once: true });
+                    document.addEventListener("keydown", trackPress);
+                    document.addEventListener("keyup", trackPress);
+                    let stoptrack = () => {
+                        document.removeEventListener("keydown", trackPress);
+                        document.removeEventListener("keyup", trackPress);
+                    }
+                    new Toast("Click the canvas to paste now. Options:<br>[1] pressed: draw on click position<br>[2] pressed: draw on area between two clicks<br>[3] pressed: draw on full canvas");
+                }
+                dummyimg.src = URL.createObjectURL(e.target.files[0]);
+            }
+            fileInput.click();
+        });
+        // -----------
 
         let popupAbort = document.createElement("button");
         optionsPopup.appendChild(popupAbort);

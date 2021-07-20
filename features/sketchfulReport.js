@@ -47,7 +47,7 @@ menuItem.addEventListener("click", () => {
 	menuPage.classList.add("active");
 	menuItem.firstChild.classList.add("active");
 });
-menuItem.innerHTML = "<a draggable='false'><img class='lazy' src='" + chrome.runtime.getURL("res/icon128.png") + "' draggable='false'><span> Typo</span></a>";
+menuItem.innerHTML = "<a draggable='false'><img class='lazy' src='" + chrome.runtime.getURL("res/icon/128MaxFit.png") + "' draggable='false'><span> Typo</span></a>";
 document.querySelector(".menuNav ul").appendChild(menuItem);
 
 if (localStorage.showInfo != "false") {

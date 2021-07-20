@@ -25,7 +25,7 @@ const visuals = {
         
         if (options["containerBackgroundsCheck"] == true) {
             let val = options["containerBackgrounds"] ? options["containerBackgrounds"].trim() : "";
-            style.innerHTML += "#containerGamePlayers, .lobbyName, .lobbyContent, .tool:not(.toolActive), .brushSize, .loginPanelContent, .gameHeader, #containerChat, #imageOptions {background-color: " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#containerGamePlayers, #quickreact > span, .lobbyName, .lobbyContent, .tool:not(.toolActive), .brushSize, .loginPanelContent, .gameHeader, #containerChat, #imageOptions {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += ".loginPanelContent {box-shadow: " + (val != "" ? "" : "none") + "}";//0 0 4px 0 rgba(0,0,0,.5)
             style.innerHTML += "#containerGamePlayers .player, .updateInfo, #boxChat, #boxMessages > p, #loginAvatarCustomizeContainer {background: transparent !important; border: none;}";
             style.innerHTML += ".guessedWord .rank {color: rgb(86, 206, 39) !important}";

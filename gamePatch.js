@@ -3301,12 +3301,12 @@
     }, Q.prototype.getColor = function (t) {
         if (t >= 10000) {
             t = t - 10000;
-            t = t.toString(16);
+            t = t.toString(16).padStart(6, "0");
             return "#" + t;
         }
         return n(".colorItem[data-color='" + t + "']").css("background-color")
     }, setBrushSize = Q.prototype.setThickness = function(t) {
-        this.thickness = t, this.thickness < this.thicknessMin && (this.thickness = this.thicknessMin), this.thickness > this.thicknessMax && (this.thickness = this.thicknessMax), this.updateBrushCursor()
+        this.thickness = t, this.thickness < this.thicknessMin && (this.thickness = this.thicknessMin), this.thickness > this.thicknessMax && (this.thickness = this.thicknessMax), sessionStorage.pressureDown != "true" && this.updateBrushCursor()
     }, Q.prototype.updateBrushCursor = function() {
         switch (this.tool) {
             case "pen":
@@ -3707,6 +3707,10 @@
             document.dispatchEvent(new Event("copyToClipboard"));
             return;
         }
+        //else if (t.ctrlKey && t.key.toLowerCase() == "v") {
+        //    document.dispatchEvent(new Event("pasteFromClipboard"));
+        //    return;
+        //}
         if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
         let move = () => {
             let prev = lastBrushUp;
@@ -3766,7 +3770,7 @@
     }), n(".brushSize").on("click", function () {
         var t = ut.brush.thicknessMin,
             e = ut.brush.thicknessMax,
-            o = Number(n(this).data("size")) * (e - t) + t;
+            o = Number(this.getAttribute("data-size")) * (e - t) + t;
         ut.brush.setThickness(o)
     }), document.body.addEventListener("setBrushSize", function (event) {
         ut.brush.setThickness(event.detail);

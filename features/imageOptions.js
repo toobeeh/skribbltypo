@@ -75,13 +75,13 @@ let imageOptions = {
 
         imageOptions.optionsContainer = optionsContainer;
     },
-    downloadDataURL: async (url) => {
+    downloadDataURL: async (url, name = "") => {
         let scale = Number(localStorage.qualityScale) ? Number(localStorage.qualityScale) : 1;
         let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
         e.initMouseEvent("click", true, true, window,
             0, 0, 0, 0, 0, false, false, false,
             false, 0, null);
-        d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
+        d.download = name == "" ? "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "") : name;
         d.href = await scaleDataURL(url,
             document.querySelector("#canvasGame").width * scale,
             document.querySelector("#canvasGame").height * scale);
@@ -257,7 +257,7 @@ let imageOptions = {
                                     "url": url
                                 },
                                 "footer": {
-                                    "icon_url": "https://tobeh.host/Orthanc/images/typo.png",
+                                    "icon_url": "https://cdn.discordapp.com/attachments/334696834322661376/860509383104528425/128CircleFit.png",
                                     "text": "skribbl typo"
                                 },
                                 "author": {

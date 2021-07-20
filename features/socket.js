@@ -60,7 +60,7 @@ const socket = {
                 }, 200);
             });
             let member = localStorage.member ? localStorage.member : '{"UserLogin":null}';
-            let loginstate = await socket.emitEvent("login", { loginToken: JSON.parse(member).UserLogin, ripro: localStorage.typro == "true" }, true);
+            let loginstate = await socket.emitEvent("login", { loginToken: JSON.parse(member).UserLogin, client: localStorage.client }, true);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;

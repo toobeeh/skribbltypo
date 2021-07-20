@@ -93,7 +93,7 @@ opacity: 0;
 transition: opacity 0.5s;
 box-shadow: black 1px 1px 9px -2px;
 "></div>`);
-        toast.innerText = content;
+        toast.innerHTML = content;
         toast.classList.add("toast");
         document.body.appendChild(toast);
         let width = toast.getBoundingClientRect().width;
@@ -103,5 +103,9 @@ box-shadow: black 1px 1px 9px -2px;
             toast.style.opacity = "0";
             setTimeout(()=> toast.remove(), 500);
         }, duration);
+        this.toast = toast;
+    }
+    remove() {
+        this.toast.remove();
     }
 }
