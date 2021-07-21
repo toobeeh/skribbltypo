@@ -739,7 +739,7 @@ padding: 1em; `;
         QS("#boxChat").appendChild(react);
         let chatinput = QS("#inputChat");
         chatinput.addEventListener("keyup", (e) => {
-            if (e.which == 17 && react.style.display == "none") {
+            if (e.which == 17 && chatinput.value == "" && react.style.display == "none") {
                 react.style.display = "flex";
                 react.focus();
             }
