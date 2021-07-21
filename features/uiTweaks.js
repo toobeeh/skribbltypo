@@ -739,17 +739,15 @@ padding: 1em; `;
         QS("#boxChat").appendChild(react);
         let chatinput = QS("#inputChat");
         chatinput.addEventListener("keyup", (e) => {
-            if (e.which == 37 && react.style.display == "none") {
+            if (e.which == 17 && react.style.display == "none") {
                 react.style.display = "flex";
                 react.focus();
-            }
-            else if (e.which == 37 && react.style.display == "flex") {
-                react.style.display = "none";
             }
         });
         react.addEventListener("focusout", () => react.style.display = "none");
         react.addEventListener("keyup", (e) => {
             e.bubbles = false;
+            e.preventDefault();
             if (e.which == 38) { // up
                 performCommand(cmd_like);
             }
@@ -798,7 +796,7 @@ padding: 1em; `;
         });
         document.addEventListener("selectionchange", () => {
             const selection = document.getSelection();
-            if (selection.toString() != "" && chatbox.contains(selection.anchorNode)) popup.style.display = "";
+            if (selection.toString() != "" && chatbox.contains(selection.anchorNode) && selection.anchorNode.id != "formChat") popup.style.display = "";
             else setTimeout(()=>popup.style.display = "none", 20);
         });
         QS("#containerChat").appendChild(popup);

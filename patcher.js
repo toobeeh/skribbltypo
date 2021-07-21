@@ -64,7 +64,11 @@ const hints = [
     "Skribbl is too easy? Try the game modes deaf, one shot & blind!",
     "Remove a filter by right-clicking it",
     "The filters for Round, Player Count and Average Score accept modifiers like + and -.",
-    "If you enter multiple player names for a filter, the filter matches at anyone of these."
+    "If you enter multiple player names for a filter, the filter matches at anyone of these.",
+    "The game feels slow & lags after a time in the same lobby?<br>Use the command 'clr--' to clear old chat & make the game fast gain.",
+    "Use the quickreact-menu to like, dislike & kick with your keyboard!<br>You can access it by klicking 'CTRL' in the chat box.",
+    "Want to share a chat snippet on Discord?<br>Select the messages and click 'Copy chat election for Discord' to create a nicely formatted chat history.",
+    "In practise, you can also paste .png to the skribbl canvas! To do so, click 'Paste Image' in Image Tools."
 ];
 
 let patcher = new MutationObserver((mutations) => {
@@ -124,6 +128,20 @@ let patcher = new MutationObserver((mutations) => {
                         node.innerHTML += "<br><br>To learn more about Typo, visit the <a href='https://typo.rip' role='button'>website</a> or <a href='https://discord.link/typo' role='button'>join the Discord server.</a>"
                         let popupChanges = elemFromString(
 `<div style="width: 100%">
+<h2>July's quality-of-life update</h2>
+<hr>
+Some small & medium fixes, improvements and additions: <br>
+<ul>
+<li>Quickreact-menu: when the chat input is focused, you can press "CTRL" and choose from kick, like & dislike with the arrow keys</li>
+<li>Formatted chat: when you select text from the chat history, you can click the popup to get a nicely formatted chat protocol in your clipboard for pasting on Discord</li>
+<li>Practise drawing: the option "paste image" allows you to paste a png to the skribbl canvas. This only works in practise!<br>
+Choose the image and click while having the 1 key pressed to paste the image on the click position, click twice while having the 2 pressed to draw the image between the range of the clicks or click with 3 pressed to fill the canvas with the image</li>
+<li>Pressure drawing is much smoother now for many people</li>
+<li>Relative pressure mode: the brushsize is depending on pressure, but in a range relative to the selected size</li>
+<li>Chat clear: type "clr--" to delete all except the last 50 messsages.<br>This fixes lags when you've been in a lobby for a long time.</li>
+<li>A rare color picking bug is vanished now!</li>
+</ul>
+<hr>
 <h2>April privacy update</h2>
 <hr>
 You can now control which of your connected discord servers see your lobby invite link. <br>
