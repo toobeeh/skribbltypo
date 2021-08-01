@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & tablet support",
-  "version": "22.2.5",
+  "version": "22.2.6",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
@@ -30,10 +30,12 @@
   ],
   "permissions": [
     "activeTab",
-    "webRequest",
     "*://tobeh.host/*",
     "*://typo.rip/*",
     "*://allorigins.win/*"
+  ],
+  "optional_permissions": [
+    "webRequest"
   ],
   "content_scripts": [
     {
