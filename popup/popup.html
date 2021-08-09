@@ -8,10 +8,10 @@
 </head>
 <body>
     <div class="flexcol">
-        <h1>Skribbl Typo</h1>
+        <h1>Typo Dashboard</h1>
         <div class="tabSelection flexrow skribbl sketchful">
-            <div class="tabTitle tabActive skribbl" id="tabDashboard">Dashboard</div>
-            <div class="tabTitle" id="tabDiscord">Discord</div>
+            <div class="tabTitle tabActive skribbl" id="tabDashboard">Feature - Toggles</div>
+            <div class="tabTitle" id="tabDiscord">Discord / Palantir</div>
             <div class="tabTitle skribbl" id="tabAdvanced">Advanced</div>
         </div>
         <div class="tabContent skribbl sketchful">
@@ -30,7 +30,7 @@
                 <div id="login" class="skribbl">
                     <div id="loginHead" class="label back">Enter your login:</div>
                     <div class="flexrow flexrowMenu">
-                        <input type="text" autocomplete="off" style="width:5em; flex-basis:unset" id="loginEnter" placeholder="12345678" />
+                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="loginEnter" placeholder="12345678" />
                         <button type="button" class="active" id="loginSubmit">Login</button>
                     </div>
                 </div>
@@ -44,8 +44,8 @@
                     </div>
                     <br />
                     <div class="flexrow flexrowMenu">
-                        <input type="text" autocomplete="off" style="width:5em; flex-basis:unset" id="observeToken" placeholder="12345678" />
-                        <button type="button" class="active" id="verifyToken">Verify</button>
+                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="observeToken" placeholder="12345678" />
+                        <button type="button" class="active" id="verifyToken">Verify & Add Server</button>
                     </div>
                     <br />
                 </div>
@@ -61,25 +61,29 @@
                     <div class="flexrow flexrowMenu">
                         <button type="button" id="imageagent">ImageAgent</button>
                         <button type="button" id="markup">Markup</button>
+                        <button type="button" id="keybinds">Keybinds</button>
                     </div>
                     <div class="flexrow flexrowMenu">
-                        <button type="button" id="controls">Controls</button>
                         <button type="button" id="clearcanvas">Don't Clear</button>
-                        <!--<button type="button" id="tablet">Tablet</button>-->
-                        <!--<button type="button" id="holy">Pressure</button>-->
+                        <button type="button" id="gamemodes">Game Modes</button>
+                        <button type="button" id="controls">Controls</button>
                     </div>
                     <div class="flexrow flexrowMenu">
                         <button type="button" id="backbutton">Back-Button</button>
                         <button type="button" id="charbar">Char Count</button>
+                        <button type="button" id="emojipicker">Emojis</button>
                     </div>
                     <div class="flexrow flexrowMenu">
-                        <button type="button" id="gamemodes">Game Modes</button>
-                        <button type="button" id="keybinds">Keybinds</button>
+                        <button type="button" id="drops">Drops</button>
+                        <button type="button" id="zoomdraw">Zoom Draw</button>
+                        <button type="button" id="sizeslider">Size Slider</button>
                     </div>
                     <div class="flexrow flexrowMenu">
-                        <button type="button" id="randomToggle">Random Color + Picker</button>
+                        <button type="button" id="randomToggle">Randomizer + Picker</button>
+                        <button type="button" id="chatcommands">Chat Commands</button>
                     </div>
                     <div class="flexrow flexrowMenu">
+                        <button type="button" id="quickreact">Quickreact by CTRL</button>
                         <button type="button" id="palantirToggle">Discord Bot Status</button>
                     </div>
                 </div>
@@ -111,12 +115,12 @@
 
                     <div>
                         <div class="label">Color palettes</div>
-                        <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap" id="palettes">
+                        <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap; place-content:center;" id="palettes">
                             <button type="button" id="originalPalette">Original Palette</button>
                         </div>
                         <div class="flexrow flexrowMenu">
-                            <input type="text" autocomplete="off" style="width:5em; flex-basis:unset" id="paletteJSON" placeholder="{ ... }" /> 
-                            <button type="button" class="active" id="enterJSON">Add</button>
+                            <input type="text" autocomplete="off" style="width:12ex; flex-basis:unset" id="paletteJSON" placeholder="{ ... }" /> 
+                            <button type="button" class="active" id="enterJSON">Add palette JSON</button>
                         </div>
                     </div>
                 </div>
@@ -129,16 +133,15 @@
         <hr class="skribbl" />
 
         <div id="footer" class="flexcol">
-            <button type="button" class="active" id="help">How-To</button>
-            <div id="dc" class="flexrow">
-                <img src="/res/dc.gif" height="20" />
-                <div id="credits" style="margin-left:1em;">
-                    Discord: tobeh#7437
-                </div>
+            <div class="flexrow flexrowMenu">
+                <button type="button" class="active" id="help">How-To</button>
+                <button id="dc">
+                    <div id="credits">
+                        tobeh#7437
+                    </div>
+                </button>
             </div>
         </div>
-
-    </div>
     <script src="popup.js"></script>
 </body>
 </html>

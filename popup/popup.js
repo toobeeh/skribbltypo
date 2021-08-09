@@ -24,6 +24,12 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "controls" && settings.controls == "true") bt.className = "active";
             if (bt.id == "keybinds" && settings.keybinds == "true") bt.className = "active";
             if (bt.id == "gamemodes" && settings.gamemodes == "true") bt.className = "active";
+            if (bt.id == "chatcommands" && settings.chatcommands == "true") bt.className = "active";
+            if (bt.id == "emojipicker" && settings.emojipicker == "true") bt.className = "active";
+            if (bt.id == "drops" && settings.drops == "true") bt.className = "active";
+            if (bt.id == "zoomdraw" && settings.zoomdraw == "true") bt.className = "active";
+            if (bt.id == "sizeslider" && settings.sizeslider == "true") bt.className = "active";
+            if (bt.id == "quickreact" && settings.quickreact == "true") bt.className = "active";
         });
         tabid = sender.tab.id;
 
@@ -44,7 +50,7 @@ chrome.runtime.onMessage.addListener(
             document.querySelector("#login").style.display = "none";
             document.querySelector("#server").style.display = "";
             member = JSON.parse(settings.member);
-            document.querySelector("#loginName").textContent = member.UserName;
+            document.querySelector("#loginName").textContent = "Logged in as '" + member.UserName + "'";
 
             document.querySelector("#authGuilds").innerHTML = "";
             member.Guilds.forEach((g) => {
@@ -300,10 +306,11 @@ function setActiveTab(event) {
 // set discord-events
 (function () {
     let cred = document.querySelector("#credits");
-    let dc = document.querySelector("#dc img");
+    let dc = document.querySelector("#credits::before");
     let cont = cred.innerHTML;
-    dc.onmouseover = function () { cred.innerHTML = "call me maybe ;)"; };
-    dc.onmouseout = function () { cred.innerHTML = cont; };
+    credits.parentElement.onclick = ()=> window.open("https://discord.com/invite/pAapmUmWAM");
+    cred.onmouseover = function () { cred.innerHTML = "call me maybe?"; };
+    cred.onmouseout = function () { cred.innerHTML = cont; };
 })();
 
 // request setting string
@@ -330,6 +337,12 @@ function toggleActive() {
     if (this.id == "controls") msg += "controls";
     if (this.id == "gamemodes") msg += "gamemodes";
     if (this.id == "keybinds") msg += "keybinds";
+    if (this.id == "chatcommands") msg += "chatcommands";
+    if (this.id == "sizeslider") msg += "sizeslider";
+    if (this.id == "zoomdraw") msg += "zoomdraw";
+    if (this.id == "quickreact") msg += "quickreact";
+    if (this.id == "drops") msg += "drops";
+    if (this.id == "emojipicker") msg += "emojipicker";
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, msg);
@@ -440,7 +453,7 @@ async function verifyLoginInput() {
     let skribblSettings = JSON.parse(localStorage.skribblSettings);
     skribblSettings.member = JSON.stringify(member);
     localStorage.skribblSettings = JSON.stringify(skribblSettings); 
-    document.querySelector("#loginName").textContent = member.UserName;
+    document.querySelector("#loginName").textContent = "Logged in as '" + member.UserName + "'";
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         chrome.tabs.sendMessage(tabs[0].id, "memberlogin " + loginResponse.Member.UserLogin);

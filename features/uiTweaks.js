@@ -85,7 +85,7 @@ const uiTweaks = {
             // remove content if clear token is present
             if (input.value.includes(localStorage.token)) input.value = "";
             // recognize command and call interpreter
-            else if (input.value.includes("--")) {
+            else if (input.value.includes("--") && localStorage.chatcommands == "true") {
                 performCommand(input.value);
                 input.value = "";
             }
@@ -166,8 +166,21 @@ const uiTweaks = {
         let canvasGame = QS("#canvasGame");
         let zoomActive = false;
         let changeZoom;
+        uiTweaks.resetZoom = () => {
+            // reset zoom
+            canvasGame.setAttribute("data-zoom", 1);
+            document.querySelector(".tool.toolActive").dispatchEvent(newCustomEvent("click"));
+            canvasGame.parentElement.style.height = "";
+            canvasGame.parentElement.style.width = "";
+            canvasGame.parentElement.style.boxShadow = "";
+            canvasGame.style.width = "100%";
+            canvasGame.style.top = "";
+            canvasGame.style.left = "";
+            document.removeEventListener("keydown", changeZoom);
+            zoomActive = false;
+        }
         let toggleZoom = (event, skipctrl = false) => {
-            if (event.ctrlKey || skipctrl) {
+            if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
                 event.preventDefault();
                 if (!zoomActive && document.querySelector(".containerToolbar").style.display != "none") {
                     zoomActive = true;
@@ -196,17 +209,7 @@ const uiTweaks = {
                     document.addEventListener("keydown", changeZoom);
                 }
                 else {
-                    // reset zoom
-                    canvasGame.setAttribute("data-zoom", 1);
-                    document.querySelector(".tool.toolActive").dispatchEvent(newCustomEvent("click"));
-                    canvasGame.parentElement.style.height = "";
-                    canvasGame.parentElement.style.width = "";
-                    canvasGame.parentElement.style.boxShadow = "";
-                    canvasGame.style.width = "100%";
-                    canvasGame.style.top = "";
-                    canvasGame.style.left = "";
-                    document.removeEventListener("keydown", changeZoom);
-                    zoomActive = false;
+                    uiTweaks.resetZoom();
                 }
             }
         }
@@ -739,7 +742,7 @@ padding: 1em; `;
         QS("#boxChat").appendChild(react);
         let chatinput = QS("#inputChat");
         chatinput.addEventListener("keyup", (e) => {
-            if (e.which == 17 && chatinput.value == "" && react.style.display == "none") {
+            if (localStorage.quickreact == "true" && e.which == 17 && chatinput.value == "" && react.style.display == "none") {
                 react.style.display = "flex";
                 react.focus();
             }
@@ -801,6 +804,42 @@ padding: 1em; `;
         });
         QS("#containerChat").appendChild(popup);
     },
+    initSizeSlider: () => {
+        if (QS("#sizeslider") || localStorage.sizeslider == "false") return;
+        let slider = elemFromString(`<div id="sizeslider" class="containerTools" style="
+    position: absolute;
+    inset: 0;
+    "><div class="tool" style="
+    position: absolute;
+    display: flex;
+    place-content: center;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    padding: .5em;
+    "><span style="
+    text-align: center;
+    margin: .5em;
+">Thickness: <label>5</label></span><input type="range" value="4" min="4" max="40" step="1">
+<style>div.containerBrushSizes > div.brushSize {
+    visibility: hidden;
+    pointer-events: none;
+    cursor: unset;
+    } .containerBrushSizes{position:relative} #sizeslider input{cursor:pointer}</style></div></div>`);
+        QS(".containerBrushSizes").appendChild(slider);
+        let label = slider.querySelector("label");
+        let sliderRange = slider.querySelector("input");
+        sliderRange.addEventListener("input", (e) => {
+            label.innerText = e.target.value;
+            pressure.setBrushsize(Number(e.target.value), true);
+        });
+        const wheelThicknessSet = (e) => {
+            if (!document.body.contains(slider)) document.removeEventListener("wheelThicknessSet", wheelThicknessSet); // remove listener if slider disabled
+            label.innerText = e.detail;
+            sliderRange.value = e.detail;
+        }
+        document.addEventListener("wheelThicknessSet", wheelThicknessSet);
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -820,6 +859,7 @@ padding: 1em; `;
         uiTweaks.initLobbyRestriction();
         uiTweaks.initQuickReact();
         uiTweaks.initSelectionFormatter();
+        uiTweaks.initSizeSlider();
         //uiTweaks.initRicardoSpecial();
         document.addEventListener("copyToClipboard", async () => {
             if (QS("#screenGame").style.display == "none" || document.getSelection().type == "Range") return;

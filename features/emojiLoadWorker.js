@@ -1,5 +1,6 @@
 // Webworker to load emojis
 (async () => {
+    
     let emojis = [];
     // sources
     const categories = [

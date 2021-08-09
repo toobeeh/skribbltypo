@@ -1,10 +1,10 @@
-body {
+﻿body {
     font-family: Arial, Helvetica, sans-serif;
     background: #181a1c;
     color: white;
     letter-spacing: 0.05em;
     margin: 10px;
-    width: 270px;
+    width: 65ex;
     font-size: 0.7em;
 }
 
@@ -75,6 +75,19 @@ button, input[type='text'],
     color: white;
     font-weight: 600;
     letter-spacing: 0.1em;
+}
+#dc, #help {
+    cursor: pointer;
+}
+#credits::before {
+    content: " ";
+    display: inline-block;
+    width: 3em;
+    transform: scale(1.5);
+    height: 1em;
+    background: url("/res/dc.gif") no-repeat;
+    background-size: contain;
+    background-position: center center;
 }
 
     button:hover {
@@ -231,4 +244,14 @@ hr {
     border-bottom-right-radius: 50%;
     border-top-right-radius: 50%;
     transform: translateY(-25%);
+}
+
+#palettes > button {flex-basis:auto;}
+
+#authGuilds > .label:hover:after {
+    position: absolute;
+    margin-left: 1em;
+    content: 'x';
+    color:red;
+    font-weight:700;
 }

@@ -126,6 +126,30 @@ const performCommand = (cmd) => {
         if (cmd.includes("enable")) keybind.init();
         else keybind.destroy();
     }
+    else if (cmd.includes("enable chatcommands") || cmd.includes("disable chatcommands")) {
+        localStorage.chatcommands = cmd.includes("enable");
+    }
+    else if (cmd.includes("enable experimental") || cmd.includes("disable experimental")) {
+        localStorage.experimental = cmd.includes("enable");
+    }
+    else if (cmd.includes("enable sizeslider") || cmd.includes("disable sizeslider")) {
+        localStorage.sizeslider = cmd.includes("enable");
+        if (cmd.includes("enable")) uiTweaks.initSizeSlider();
+        else QS("#sizeslider").remove();
+    }
+    else if (cmd.includes("enable emojipicker") || cmd.includes("disable emojipicker")) {
+        localStorage.emojipicker = cmd.includes("enable");
+    }
+    else if (cmd.includes("enable drops") || cmd.includes("disable drops")) {
+        localStorage.drops = cmd.includes("enable");
+    }
+    else if (cmd.includes("enable zoomdraw") || cmd.includes("disable zoomdraw")) {
+        localStorage.zoomdraw = cmd.includes("enable");
+        uiTweaks.resetZoom();
+    }
+    else if (cmd.includes("enable quickreact") || cmd.includes("disable quickreact")) {
+        localStorage.quickreact = cmd.includes("enable");
+    }
     else if (cmd.includes("enable keepCanvas") || cmd.includes("disable keepCanvas")) {
         localStorage.keepCanvas = cmd.includes("enable");
     }

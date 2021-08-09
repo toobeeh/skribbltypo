@@ -3306,7 +3306,7 @@
         }
         return n(".colorItem[data-color='" + t + "']").css("background-color")
     }, setBrushSize = Q.prototype.setThickness = function(t) {
-        this.thickness = t, this.thickness < this.thicknessMin && (this.thickness = this.thicknessMin), this.thickness > this.thicknessMax && (this.thickness = this.thicknessMax), sessionStorage.pressureDown != "true" && this.updateBrushCursor()
+        this.thickness = t, this.thickness < this.thicknessMin && (this.thickness = this.thicknessMin), this.thickness > this.thicknessMax && (this.thickness = this.thicknessMax), sessionStorage.pressureDown != "true" && this.updateBrushCursor();
     }, Q.prototype.updateBrushCursor = function() {
         switch (this.tool) {
             case "pen":
@@ -3663,6 +3663,7 @@
         t.preventDefault();
         var e = t.originalEvent.wheelDelta > 0 || t.originalEvent.detail < 0 ? 1 : -1;
         ut.brush.setThickness(ut.brush.thickness + 6 * e)
+        document.dispatchEvent(new CustomEvent("wheelThicknessSet", { detail: ut.brush.thickness }));
     }), n(e).on("mousemove", function (t) {
         sessionStorage.getItem('practise') == "true" && T(t.clientX, t.clientY, !1) || st && st.checkDrawing() && T(t.clientX, t.clientY, !1);
     }), n(e).keydown(function (t) {

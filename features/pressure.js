@@ -50,14 +50,18 @@ pressure = {
         // event handler if pen was pressed - start thickness at 1
         if (localStorage.ink == "true" && event.pointerType == "pen" && localStorage.inkMode == "thickness") {
             pressure.setBrushsize(1);
+            document.dispatchEvent(newCustomEvent("wheelThicknessSet", { detail: 4 }));
             sessionStorage.pressureDown = true;
         }
     },
-    setBrushsize: (newsize) => {
+    setBrushsize: (newsize, setToSizeElement = false) => {
          /*func to set the brushsize (event to game.js) OLD WAY*/
         let event = new CustomEvent("setBrushSize", {
             detail: newsize
         });
+        if (setToSizeElement) {
+            pressure.sizeElement.setAttribute("data-size", newsize / 40);
+        }
         document.body.dispatchEvent(event);
     },
     setBrushsizeData: (pressureval, relativeTo = -1) => {
@@ -71,6 +75,7 @@ pressure = {
         const sensitivity = 100 - localStorage.sens;
 
         if (Math.round(calcSkribblSize(oldVal)) != Math.round(calcSkribblSize(calcLevelledSize(pressureval, sensitivity)))) {
+            if(localStorage.experimental == "true") document.dispatchEvent(newCustomEvent("wheelThicknessSet", { detail: Math.round(calcSkribblSize(calcLevelledSize(pressureval, sensitivity))) }));
             pressure.sizeElement.setAttribute("data-size", calcLevelledSize(pressureval, sensitivity));
             pressure.sizeElement.dispatchEvent(newCustomEvent("click", { pressureSet: true }));
             pressure.sizeElement.setAttribute("data-size", oldVal);

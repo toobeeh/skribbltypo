@@ -8,16 +8,18 @@ const emojis = {
         // load emojis in worker to avoid blocking ui
         let workerJS = await (await fetch(chrome.runtime.getURL("features/emojiLoadWorker.js"))).text();
         let loadWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
-        loadWorker.addEventListener('message', message => {
-            emojis.emojis = message.data;
-        });
+        setTimeout(() => {
+            loadWorker.addEventListener('message', message => {
+                emojis.emojis = message.data;
+            });
+        }, navigator.userAgent.includes("Firefox") ? 1000 : 0); // firefox seems to have problems to immediately initialize the worker
         QS("#emojiPrev").style.maxHeight = "80%";
         QS("#emojiPrev").style.overflowY = "auto";
         // show emoji preview on chat type
         QS("#inputChat").addEventListener("input", (e) => {
             let val = QS("#inputChat").value;
             let lastsplit = val.indexOf(":") >= 0 ? val.split(":").pop() : "";
-            if (lastsplit == "" || e.key == "Enter") {
+            if (lastsplit == "" || e.key == "Enter" || localStorage.emojipicker == "false") {
                 QS("#emojiPrev").style.display = "none";
             }
             else {
@@ -69,6 +71,8 @@ const emojis = {
           
         }
         // if scrolled very down, scroll to view full emoji height
-        if (Math.floor(node.parentElement.scrollHeight - node.parentElement.scrollTop) <= node.parentElement.clientHeight + 30) scrollMessages();
+        if (Math.floor(node.parentElement.scrollHeight - node.parentElement.scrollTop) <= node.parentElement.clientHeight + 30) {
+            scrollMessages();
+        }
     }
 };

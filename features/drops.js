@@ -9,6 +9,7 @@ let drops = {
     dropContainer: null,
     fakeboxes: [],
     newDrop: (drop) => {
+        if (localStorage.drops == "false") return;
         drops.currentDrop = drop;
         let dropElem = drops.dropContainer;
         if (drop.EventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
@@ -27,6 +28,7 @@ let drops = {
         }, 5000);
     },
     clearDrop: (result) => {
+        if (localStorage.drops == "false") return;
         let dropElem = drops.dropContainer;
         if (dropElem.style.display != "none") {
             let winner = result.caughtPlayer;

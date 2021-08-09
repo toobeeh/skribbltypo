@@ -8,12 +8,12 @@ jobs:
     - name: Archive Release
       uses: thedoctor0/zip-release@master
       with:
-        filename: 'typo-release-store22.2.6.1.zip'
+        filename: 'typo-release-store22.3.1.zip'
         exclusions: '*.git* *.xpi changelog.md *.web-extension-id .editorconfig .github/'  
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
-        artifacts: "typo-release-store22.2.6.1.zip"
+        artifacts: "typo-release-store22.3.1.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: "typo-release-store22.2.6.1"
+        tag: "typo-release-store22.3.1"

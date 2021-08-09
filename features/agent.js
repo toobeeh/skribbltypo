@@ -46,7 +46,7 @@ let imageAgent = {// func to set the image in the agentdiv
             QS("#containerAgent").setAttribute("class", "");
             QS("#imageAgent").setAttribute("src", "");
             QS("#imageAgent").style.display = "none";
-            scrollMessages();
+            scrollMessages(true);
             return;
         }
         div.style.display = "block";

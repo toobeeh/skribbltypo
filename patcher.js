@@ -232,7 +232,7 @@ Clicking "TAB" will auto-focus the chat input.<br>
                             localStorage.lastChangelogview = chrome.runtime.getManifest().version;
                         });
                         let popupData = elemFromString(
-                            `<div style="width:100%">
+                            `<div style="width:100%"><h4><a href="https://typo.rip#privacy">A more detailed privacy statement is available on https://typo.rip#privacy</a></h4><br>
     <code><h4>Without connecting Palantir, Typo will collect and store NO data.</h4>
     <h4>Collected data is ONLY used for feature-related purposes.</h4>
     <h5>However, for Palantir-features like Sprites, Discord Lobbies and Typo Gallery Cloud, collecting data is inevitable.</h5></code>

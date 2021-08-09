@@ -20,9 +20,11 @@ const markMessage = (newNode) => {
 }
 
 //func to scroll to bottom of message container
-const scrollMessages = () => {
+const scrollMessages = (onlyIfScrolledDown = false) => {
     let box = document.querySelector("#boxMessages");
-    box.scrollTop = box.scrollHeight;
+    if (!onlyIfScrolledDown ||  Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 30) {
+        box.scrollTop = box.scrollHeight;
+    }
 }
 
 const elemFromString = (html) => {
@@ -214,6 +216,12 @@ const setDefaults = (override = false) => {
     if (!localStorage.sens || override) localStorage.sens = 50;
     if (!localStorage.charBar || override) localStorage.charBar = "false";
     if (!localStorage.imageAgent || override) localStorage.imageAgent = "false";
+    if (!localStorage.sizeslider || override) localStorage.sizeslider = "false";
+    if (!localStorage.emojipicker || override) localStorage.emojipicker = "true";
+    if (!localStorage.drops || override) localStorage.drops = "true";
+    if (!localStorage.zoomdraw || override) localStorage.zoomdraw = "true";
+    if (!localStorage.quickreact || override) localStorage.quickreact = "true";
+    if (!localStorage.chatcommands || override) localStorage.chatcommands = "true";
     if (!localStorage.vip || override) localStorage.vip = "";
     if (!localStorage.markup || override) localStorage.markup = "false";
     if (!localStorage.markupColor || override) localStorage.markupColor = "#ffd6cc";
