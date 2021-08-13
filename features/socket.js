@@ -25,10 +25,19 @@ const socket = {
         });
     },
     init: async () => {
-        socket.sck = io("https://typo.rip:3000");
+        // get balanced socket port
+        let contact = io("https://typo.rip:4000");
+        let balancedPort = await new Promise((resolve, reject) => {
+            setTimeout(() => contact && resolve(3000), 5000); // if server is not responding, use old port
+            contact.on("connect", () => {
+                contact.on("balanced port", (data) => contact = undefined || resolve(data.port));
+                contact.emit("request port", { auth: "member" });
+            });
+        });
+        socket.sck = io("https://typo.rip:" + balancedPort.toString());
         socket.sck.on("connect", async () => {
             if (socket.sck == null) return;
-            console.log("Connected to Ithil socketio server.");
+            console.log("Connected to Ithil socketio server on port " + balancedPort);
             socket.sck.on("new drop", (data) => {
                 drops.newDrop(data.payload.drop);
             }); socket.sck.on("clear drop", (data) => {
