@@ -7,6 +7,7 @@ let drops = {
     eventDrops: [],
     currentDrop: null,
     dropContainer: null,
+    waitForClear: false,
     fakeboxes: [],
     newDrop: (drop) => {
         if (localStorage.drops == "false") return;
@@ -17,7 +18,8 @@ let drops = {
         dropElem.style.display = "block";
         dropElem.style.left = Math.round(8 + Math.random() * 784) + "px";
         //hide drop after 5s and emit timeout
-        setTimeout(async() => {
+        setTimeout(async () => {
+            drops.waitForClear = false;
             if (dropElem.style.display != "none") {
                 dropElem.style.display = "none";
                 let result = await socket.claimDrop(drops.currentDrop, true);
@@ -30,11 +32,12 @@ let drops = {
     clearDrop: (result) => {
         if (localStorage.drops == "false") return;
         let dropElem = drops.dropContainer;
-        if (dropElem.style.display != "none") {
+        if (dropElem.style.display != "none" || drops.waitForClear) {
             let winner = result.caughtPlayer;
             printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
             dropElem.style.display = "none";
             drops.currentDrop = null;
+            drops.waitForClear = false;
         }
     },
     initDropContainer: () => {
@@ -74,11 +77,9 @@ let drops = {
             if (dropContainer.style.display == "none") return;
             dropContainer.style.display = "none";
             let result = await socket.claimDrop(drops.currentDrop);
+            // if drop caught, print immediately - else wait for clear drop
             if (result.caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
-            else {
-                let winner = result.playerName;
-                printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
-            }
+            else drops.waitForClear = true;
             drops.currentDrop = null;
         });
         document.querySelector("#containerCanvas").appendChild(dropContainer);

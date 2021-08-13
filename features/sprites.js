@@ -152,6 +152,9 @@ const sprites = {
         avatarContainer.insertAdjacentHTML("afterend", "<div style='margin:1em 0; text-align: center; pointer-events:none; user-select:none'> 🔮 Current Bubbles: "
             + socket.data.user.bubbles + "    💧 Caught Drops: " + socket.data.user.drops
             + "</div>")
+        if(localStorage.experimental == "true") avatarContainer.insertAdjacentHTML("afterend", "<div style='opacity:0.6, margin:1em 0; text-align: center; pointer-events:none; user-select:none'>"
+            + "Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri
+            + "</div>")
         QS("#loginAvatarCustomizeContainer .avatarContainer").style.margin = "0 30px";
     }
 
