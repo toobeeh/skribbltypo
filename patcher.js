@@ -128,6 +128,15 @@ let patcher = new MutationObserver((mutations) => {
                         node.innerHTML += "<br><br>To learn more about Typo, visit the <a href='https://typo.rip' role='button'>website</a> or <a href='https://discord.link/typo' role='button'>join the Discord server.</a>"
                         let popupChanges = elemFromString(
 `<div style="width: 100%">
+<h2>Aaaaand some August-fixes</h2>
+<hr>
+<ul>
+<li>Added a size slider for picking a precise drawing brush thickness</li>
+<li>Added many new toggles in the extension popup</li>
+<li>Reworked backend applications to make everything faster & smoother</li>
+<li>Chat doesn't jump when scrolled up</li>
+</ul>
+<hr>
 <h2>July's quality-of-life update</h2>
 <hr>
 Some small & medium fixes, improvements and additions: <br>
