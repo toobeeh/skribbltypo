@@ -15,9 +15,6 @@ let typro = {
             for (const drawing of drawingBatch) {
                 if (currentQuery != typro.queryID) return;
                 let container = document.createElement("div");
-                container.style.width = "30%";
-                container.style.margin = "0.5em";
-                container.style.position = "relative";
                 container.id = drawing.id;
 
                 container.classList.add(drawing.meta.name.replaceAll(" ", "_"));
@@ -27,26 +24,12 @@ let typro = {
                 if (drawing.meta.own == true) container.classList.add("own");
 
                 let thumb = document.createElement("img");
-                thumb.style.cssText = "width:100%; height:auto; transition: opacity 0.25s; box-shadow:rgb(0 0 0 / 15%) 1px 1px 9px 1px";
                 let data = null;
                 thumb.src = drawing.meta.thumbnail ? drawing.meta.thumbnail : typro.thumbnail;
-                let overlay = elemFromString(`<div style='
-                transition: opacity 0.25s;
-                opacity: 0;
-                position:absolute;
-                inset: 0;
-                display:flex;
-                place-items:center;
-                justify-content:space-around;
-                border-radius: 1em;
-                z-index:200;
-                background: rgba(0, 0, 0, 0.1);
-                flex-direction: column;'
-                ></div>`);
+                let overlay = elemFromString(`<div></div>`);
                 overlay.appendChild(elemFromString("<h3>" + drawing.meta.name + " by " + drawing.meta.author + "</h3>"));
-                let options = elemFromString("<div style='display:flex; flex-wrap: wrap; align-content: space-evenly; justify-content: space-evenly; height:100%; width: 100%;'></div>");
+                let options = elemFromString("<div ></div>");
                 overlay.appendChild(options);
-
 
                 let imgtools = elemFromString("<div class='btn btn-success'>Add to ImageTools</div>");
                 imgtools.addEventListener("click", async () => {
@@ -137,6 +120,55 @@ let typro = {
         }
     },
     show: async () => {
+        let imagecloudStyle = elemFromString(`<style>
+#drawings > div {
+    width: 30%;
+    margin: 0.5em;
+    position: relative;
+}
+#drawings > div > img {
+    width: 100%;
+    height: auto;
+    transition: opacity 0.25s ease 0s;
+    box-shadow: rgb(0 0 0 / 15%) 1px 1px 9px 1px;
+    opacity: 1;
+}
+#drawings > div > div {
+    transition: opacity 0.25s ease 0s;
+    opacity: 0;
+    position: absolute;
+    inset: 0px;
+    display: flex;
+    place-items: center;
+    justify-content: space-around;
+    border-radius: 1em;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+}
+#drawings > div > div > div {
+    display:flex;
+    flex-wrap: wrap;
+    align-content: space-evenly;
+    justify-content: space-evenly;
+    height:100%;
+    width: 100%;
+}
+#drawings > div > img.skeletonImage{
+    opacity: 0.4;
+}
+#drawings > div.skeletonDiv{
+    animation-name:skeleton;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-timing-function: ease-in;
+}
+@keyframes skeleton{
+  from {background-color: #fafafa;}
+  to {background-color: #969595;}
+}</style>`);
+
         let drawings = [];
         let contentDrawings = document.createElement("div");
         contentDrawings.id = "drawings";
@@ -145,6 +177,7 @@ let typro = {
         let modalContent = document.createElement("div");
         modalContent.style.width = "100%";
         modalContent.style.position = "relative";
+        modalContent.appendChild(imagecloudStyle);
         modalContent.appendChild(contentDrawings);
 
         let sidebar = elemFromString("<div style='position:absolute; left:0; padding:1em; top: 0; bottom: 0; width:18%; background: rgba(0, 0, 0, 0.05); border-radius:1em'></div>");
@@ -156,14 +189,18 @@ let typro = {
             own: undefined
         }
         let debounce = null;
+        const getSkeletons = () => {
+            contentDrawings.innerHTML = `<div class="skeletonDiv" ><image class="skeletonImage" src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA8CAYAAADxJz2MAAAAAXNSR0IArs4c6QAAAudJREFUeF7tmumq4kAQhfu64C6KiqLi+7+Gr+IPRVx/uK/DyZDhjsxIUqdakpkqEEVyKt1fqrurK/01Ho+fzkxM4MsAitkFQgPI8TOAJD8DaABZAqTe5kADSBIg5RaBBpAkQMotAg0gSYCUWwQaQJIAKbcINIAkAVKeigh8PB4On/l87u73+9suZzIZ12g0XLlcdvjt2xIPEOC2263b7XaxWJRKJYdPtVqNpYt7ceIBLpdLdzgc4vbr1/X1ej2ISF+WaIAYsufzme67T4heAWK+ej5/vnI5nU7uer3+BiOfz7tisRj8h/nq+5y1Wq3cfr+n4YUOms2mq9Vqav5CR94AInI2m427XC6RGo25CkMNEAEeAAFdy7LZrOv1eg7fmuYFIOABwO12i9VWrJztdjuY86APozeWkzcXh/61/MGPOkBEz2w2C9IOieVyuSAKo0Zu3HuMRqO4krfXqwPEPAeASbXhcKiaH6oDXK/XsXO2T8LWXkzUAU4mk0/yiH0vJNedTie27m+C/w4g5th+v28ApQQSDxALyGvCLO2sD12lUnGtVkvNtfoQPh6PbrFYqDVQ29FgMFBNptUBInmeTqfa/Vbzl9g8MNz34htFgKRauIC87r2l7aUjEDsObPpRr0vy3PcKCHvvQqHgMCcyRgNk63VM4zW0bKmLAqhVr9MAIfWB6ky323VIbyQmBoiKC1ZbadFA0lhfGia1EQH0Ua/zBSeK348D9FWvi9JZH9d8HCBWXRQ8/xUzgOSTNIBpA4jtGoawxitHsu+0HDsS1AeRVEtMtArjRtqvHSWN19Cw5S0xwKSX7qPARRKN6gxjYoAoWyEK05pIY8hi6LIHkMQA8dSQD2IvnDYDPBRVpdu37/2lAMIRFhSAxAmqNBjKWVqlLPSXBvgnaChr4VgGSlzapwskDwknEnyd0PICUNLJtGoMIPnkDKABJAmQcotAA0gSIOUWgQaQJEDKLQINIEmAlFsEkgB/AJLI18R7H33eAAAAAElFTkSuQmCC
+'><div></div></div></div>`.repeat(40);
+        }
         let applyFilter = async () => {
             let queryID = typro.queryID = Date.now();
             setTimeout(async () => {
                 if (queryID != typro.queryID) return;
+                getSkeletons();
                 drawings = await socket.getStoredDrawings(query);
-                contentDrawings.innerHTML = "";
                 if (drawings && drawings.length > 0) await typro.setDrawings(drawings, contentDrawings);
-                else contentDrawings.innerHTML = "<br><br><h3> No drawings found for this filter. </h3><br><h3> The lite-version of the gallery saves images only for two weeks. </h3><br><h3>To get full access, ask tobeh.</h3>";
+                else contentDrawings.innerHTML = "<br><br><h3> No drawings found for this filter :( <br> Subscribe on patreon to store images forever! </h3>";
             }, 500);
         }
         // artist filter
@@ -200,7 +237,7 @@ let typro = {
         sidebar.appendChild(elemFromString("<h5 style='text-align:center;'><br><br>Typo Gallery Cloud stores all drawings from your skribbl sessions automatically.<br> Rewatch images, post on discord or re-draw them in skribbl whenever you want!<br><br>By default, images are stored for two weeks.</h5>"));
         modalContent.appendChild(sidebar);
         let modal = new Modal(modalContent, () => { }, "Typo Cloud Gallery", "90vw", "90vh");
-        contentDrawings.innerHTML = "<h2>Loading results from cloud...</h2>";
+        getSkeletons();
         drawings = await socket.getStoredDrawings({}, 150);
         await typro.setDrawings(drawings, contentDrawings);
     }

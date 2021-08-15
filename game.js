@@ -3550,5 +3550,3 @@
         ut.brush.setThickness(o)
     })
 }(window, document, jQuery, localStorage);
-
-}
