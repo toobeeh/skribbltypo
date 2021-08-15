@@ -158,7 +158,7 @@ const socket = {
     },
     getStoredDrawings: async (query = {}, limit = 5000) => {
         Object.keys(query).forEach(key => query[key] === undefined && delete query[key])
-        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query}, true, 5000)).drawings;
+        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query}, true, 10000)).drawings;
         return drawings;
     }
 }

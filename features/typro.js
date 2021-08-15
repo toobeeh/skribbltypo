@@ -238,7 +238,7 @@ let typro = {
         modalContent.appendChild(sidebar);
         let modal = new Modal(modalContent, () => { }, "Typo Cloud Gallery", "90vw", "90vh");
         getSkeletons();
-        drawings = await socket.getStoredDrawings({}, 150);
+        drawings = await socket.getStoredDrawings({}, 500);
         await typro.setDrawings(drawings, contentDrawings);
     }
 }
