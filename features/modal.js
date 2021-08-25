@@ -1,6 +1,8 @@
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
+const STOP_EXECUTION = localStorage.typoincompatibility == "true";
+
 class Modal {
     constructor(contentParent, onclose, title = "Modal", width = "50vw", height = "50vh") {
         let modal = document.createElement("div");

@@ -288,4 +288,4 @@ If you want to know more about your stored data, contact the typo dev.
             });
         });
 });
-patcher.observe(document, { attributes: false, childList: true, subtree: true });
+if (!STOP_EXECUTION) patcher.observe(document, { attributes: false, childList: true, subtree: true });
