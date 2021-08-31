@@ -16,8 +16,9 @@ const emojis = {
         QS("#emojiPrev").style.maxHeight = "80%";
         QS("#emojiPrev").style.overflowY = "auto";
         // show emoji preview on chat type
-        QS("#inputChat").addEventListener("input", (e) => {
-            let val = QS("#inputChat").value;
+        const input = QS("#game-chat form input");
+        input.addEventListener("input", (e) => {
+            let val = input.value;
             let lastsplit = val.indexOf(":") >= 0 ? val.split(":").pop() : "";
             if (lastsplit == "" || e.key == "Enter" || localStorage.emojipicker == "false") {
                 QS("#emojiPrev").style.display = "none";
@@ -33,20 +34,20 @@ const emojis = {
                     }
                     search.forEach(
                         emoji => content +=
-                            "<span style='background-color: rgba(0,0,0,0.1); display: inline-block;cursor: pointer; border-radius: 0.3em; padding:0.1em; margin: .2em;'>" +
-                            emoji.name + " <span style='position:relative; bottom: -0.25em; display: inline-block;height: 1em;background-size: contain;background-repeat:no-repeat;width:1em;image-rendering: auto;background-image: url( " + emoji.url + ");'></span>" +
+                            "<span class='emojiwrapper'>" +
+                            emoji.name + " <span class='emojipreview' style='background-image: url( " + emoji.url + ");'></span>" +
                             "</span>"
                     );
-                    if (limit < 100) content += "<br><span style='color:black' id='loadingHintEmojis'>Loading more...</span>";
+                    if (limit < 100 && search.length == limit) content += "<br><span style='color:black' id='loadingHintEmojis'>Loading more...</span>";
                     QS("#emojiPrev").innerHTML = content;
                     [...QSA("#emojiPrev > span:not(#loadingHintEmojis)")].forEach(emoji => emoji.addEventListener("click", () => {
-                        QS("#inputChat").value = QS("#inputChat").value.replace(":" + lastsplit, ":" + emoji.textContent.trim() + ":");
-                        QS("#inputChat").dispatchEvent(newCustomEvent("input"));
-                        QS("#inputChat").focus();
+                        input.value = QS("#game-chat input").value.replace(":" + lastsplit, ":" + emoji.textContent.trim() + ":");
+                        input.dispatchEvent(newCustomEvent("input"));
+                        input.focus();
                     }));
                 }
                 setEmojis(50);
-                setTimeout(() => { if (QS("#inputChat").value == val) setEmojis(500); }, 2000);                
+                setTimeout(() => { if (input.value == val) setEmojis(500); }, 2000);
             }
         });
     },

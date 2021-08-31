@@ -1,4 +1,14 @@
 ﻿/*
+ *
+
+░██████╗██╗░░██╗██████╗░██╗██████╗░██████╗░██╗░░░░░  ████████╗██╗░░░██╗██████╗░░█████╗░
+██╔════╝██║░██╔╝██╔══██╗██║██╔══██╗██╔══██╗██║░░░░░  ╚══██╔══╝╚██╗░██╔╝██╔══██╗██╔══██╗
+╚█████╗░█████═╝░██████╔╝██║██████╦╝██████╦╝██║░░░░░  ░░░██║░░░░╚████╔╝░██████╔╝██║░░██║
+░╚═══██╗██╔═██╗░██╔══██╗██║██╔══██╗██╔══██╗██║░░░░░  ░░░██║░░░░░╚██╔╝░░██╔═══╝░██║░░██║
+██████╔╝██║░╚██╗██║░░██║██║██████╦╝██████╦╝███████╗  ░░░██║░░░░░░██║░░░██║░░░░░╚█████╔╝
+╚═════╝░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝╚═════╝░╚═════╝░╚══════╝  ░░░╚═╝░░░░░░╚═╝░░░╚═╝░░░░░░╚════╝░
+ * 
+ * 
  * So this is... finally reworked code?! :O
  * Right!! Almost everything is split into easy-to-understand procedural initialized modules, capsulated and called here in service.js.
  */
@@ -17,7 +27,7 @@
      *  ----holy not working
      *  ----lobby search stops if lobby is tempoarly down
      *  ----private lobby settings not set
-     *  gif progress bar is not consistent
+     *  ----gif progress bar is not consistent
      *  ----gif drawing speed could be tweaked
      *  ----image tools height gets too high
      *  ----fetch for imageagent
@@ -33,7 +43,7 @@
      * ----zoom to canvas for accurate drawing
      * ----abort image tools drawing process
      * ----image agent error state message
-     * xxxxfinish dark mode # wont: way too lazy
+     * ----finish dark mode # wont: way too lazy
      * ----recall older drawings to share
      */
 }
@@ -47,31 +57,22 @@ patcher.disconnect(); // stop patcher observing
 setDefaults(false); // Set default settings
 
 // communication with popup.js
-chrome.runtime.onMessage.addListener(msgObj => { 
-    if (msgObj == "get") chrome.runtime.sendMessage({ get: JSON.stringify(localStorage) });
-    else performCommand(msgObj + "--");
+chrome.runtime.onMessage.addListener(message => { 
+    if (message == "getSettings") chrome.runtime.sendMessage({ settings: JSON.stringify(localStorage) });
+    else performCommand(message + "--");
 });
-if (!STOP_EXECUTION) {
-    if (document.body.innerText.includes("Fresh paint")) {
-        localStorage.typoincompatibility = "true";
-        window.location.reload();
-    }
-    else QS("#loginAvatarCustomizeContainer").insertAdjacentText("afterend", "Attention! Due to an upcoming skribbl update, Typo will be deactivated soon. Do not remove Typo, after a few days it will re-enable on its own. ");
-    // initialize modules
-    captureCanvas.initListeners(); // init capturing draw ommands and drawings
-    imageAgent.initImageAgent(); // init image agent from agent.js
-    imageOptions.initAll(); // init image options from imageOptions.js
-    imageTools.initAll(); // init image tools from imageTools.js
-    pressure.initEvents(); // init pressure
-    uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
-    setTimeout(async () => await emojis.init(), 0); // init emojis
-    // sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
-    QS("#loginAvatarCustomizeContainer  .avatarContainer").addEventListener("click", showPractise); // add listener to show practise
-    QS('button[type="submit"]').addEventListener("click", () => { sessionStorage.practise = false; }); // disable when any button is clicked
 
-    // thats a rickroll! :)))
-    QS("a[href='https://twitter.com/ticedev']").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-}
-else {
-    new Toast("Typo has been deactivated tempoary due to Skribbl update compatibilities.", 2000);
-}
+// initialize modules
+captureCanvas.initListeners(); // init capturing draw ommands and drawings
+imageAgent.initImageAgent(); // init image agent from agent.js
+imageOptions.initAll(); // init image options from imageOptions.js
+imageTools.initAll(); // init image tools from imageTools.js
+gamemodes.setup();
+//pressure.initEvents(); // init pressure
+uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
+setTimeout(async () => await emojis.init(), 0); // init emojis
+// sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
+
+// thats a rickroll! :)))
+//QS("a[href='https://twitter.com/ticedev']").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+

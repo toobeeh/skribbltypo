@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & tablet support",
-  "version": "22.3.6",
+  "version": "23.0.2",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
@@ -23,7 +23,7 @@
     "default_popup": "popup/popup.html"
   },
   "web_accessible_resources": [
-    "gamePatch.js",
+    "newGamePatch.js",
     "res/*",
     "gifCap/*",
     "features/*"
@@ -39,7 +39,9 @@
       "run_at": "document_idle",
       "matches": [
         "*://skribbl.io/",
-        "*://skribbl.io/*"
+        "*://skribbl.io/*",
+        "https://web.archive.org/web/*/https://skribbl.io/*",
+        "*://135.125.189.105/*"
       ],
       "js": [
         "picker/colr_pickr.min.js",
@@ -52,22 +54,20 @@
         "features/emojis.js",
         "features/uiTweaks.js",
         "features/agent.js",
-        "features/pressure.js",
+        //"features/pressure.js",
         "features/imageOptions.js",
         "features/gamemode.js",
-        "features/keybinds.js",
+        //"features/keybinds.js",
         "content.js"
-      ],
-      "css": [
-        "features/style.css",
-        "picker/colr_pickr.min.css"
       ]
     },
     {
       "run_at": "document_start",
       "matches": [
         "*://skribbl.io/",
-        "*://skribbl.io/*"
+        "*://skribbl.io/*",
+        "https://web.archive.org/web/*/https://skribbl.io/*",
+        "*://135.125.189.105/*"
       ],
       "js": [
         "features/modal.js",
@@ -78,6 +78,10 @@
         "features/socket.js",
         "features/lobbies_.js",
         "patcher.js"
+      ],
+      "css": [
+        "features/style.css",
+        "picker/colr_pickr.min.css"
       ]
     },
     {

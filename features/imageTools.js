@@ -7,173 +7,98 @@ let imageTools = {
     optionsPopup: null,
     initImageOptionsButton: () => {
         // add image options button
-        let optionsButton = document.createElement("button");
-        QS("#containerPlayerlist div.tooltip-wrapper").appendChild(optionsButton);
-        QS("#containerPlayerlist div.tooltip-wrapper").setAttribute("data-original-title", "");
+        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/potion.gif")}" id="imgTools" style="cursor: pointer;">`);
+        imageOptions.optionsContainer.appendChild(toolsIcon);
 
-        optionsButton.classList = "btn btn-info btn-block";
-        optionsButton.id = "saveDrawingOptions";
-        optionsButton.innerText = "Image tools";
-        optionsButton.addEventListener("click", () => {
+        toolsIcon.addEventListener("click", () => {
+            imageTools.optionsPopup.style.display = "";
             if (!localStorage.imageTools) {
                 alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
                 localStorage.imageTools = "READ IT";
             };
-            QS("#popupPasteImage").style.display = sessionStorage.practise == "true" ? "" : "none";
-            QS("#saveDrawingPopup").style.display = "block";
-            QS("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
-            imageTools.optionsPopup.children[0].focus();
-            [...document.querySelectorAll(".pasteSaved")].forEach(p => {
-                if (document.querySelector(".containerToolbar").style.display == "none") {
-                    p.classList.remove("btn-success");
-                    p.classList.add("btn-secondary");
+            imageTools.optionsPopup.focus();
+            [...document.querySelectorAll("#itoolsButtons button")].forEach(p => {
+                if (QS("#game-toolbar.hidden")) {
+                    p.classList.remove("green");
+                    p.classList.remove("orange");
                     p.style.pointerEvents = "none";
                 }
                 else {
-                    p.classList.add("btn-success");
-                    p.classList.remove("btn-secondary");
+                    p.classList.add("green");
+                    p.classList.remove("orange");
                     p.style.pointerEvents = "";
                 }
             });
         });
     },
-    addSKD: null,
     initImageOptionsPopup: () => {
         // add image options popup
-        let optionsPopup = document.createElement("div");
-        QS("#containerPlayerlist").appendChild(optionsPopup);
-        optionsPopup.style.position = "absolute";
-        optionsPopup.style.background = "white";
-        optionsPopup.style.overflow = "hidden";
-        optionsPopup.style.zIndex = "5";
-        optionsPopup.style.width = "90%";
-        optionsPopup.style.padding = "1em;";
-        optionsPopup.style.borderRadius = ".5em";
-        optionsPopup.style.marginLeft = "5%";
-        optionsPopup.style.boxShadow = "1px 1px 9px -2px black";
-        optionsPopup.style.display = "none";
-        optionsPopup.style.minHeight = "15%";
-        optionsPopup.style.padding = "1em";
-        optionsPopup.id = "saveDrawingPopup";
-        optionsPopup.tabIndex = "-1";
+        let optionsPopup = elemFromString(`<div id="optionsPopup" tabIndex="-1" style="display:none">
+Image tools
+    <button class="flatUI blue air" id="itoolsTempSave">Save current</button>
+    <button class="flatUI orange air" id="itoolsDownload">Download current</button>
+    <button class="flatUI orange air" id="itoolsLoad">Load file</button>
+    <button class="flatUI orange air" id="itoolsPasteImage">Paste image</button>
+    <div id="itoolsButtons"></div>
+    <button class="flatUI blue air" id="itoolsAbort">Abort</button>
+    <label for="itoolsClearBefore">
+        <input type="checkbox" id="itoolsClearBefore" class="flatUI small">
+        <span>Clear before paste</span>
+    </label>
+</div>`);
         imageTools.optionsPopup = optionsPopup;
-
-        let popupTempSaveCommands = document.createElement("button");
-        optionsPopup.appendChild(popupTempSaveCommands);
-        popupTempSaveCommands.classList = "btn btn-info btn-block";
-        popupTempSaveCommands.innerText = "Save current";
-        popupTempSaveCommands.addEventListener("click", () => {
-            let originalActions = captureCanvas.getCapturedActions();
-            // get last canvas clear index
-            let clear = originalActions.length - 1;
-            while (originalActions[clear][0] != 3) clear--;
-            let popupCustomSaved = document.createElement("button");
-            popupCustomSaved.classList = "btn btn-success btn-block pasteSaved";
-            if (document.querySelector(".containerToolbar").style.display == "none") {
-                popupCustomSaved.classList.remove("btn-success");
-                popupCustomSaved.classList.add("btn-secondary");
-                popupCustomSaved.style.pointerEvents = "none";
-            }
-            let actions = [...originalActions.slice(clear)];
-            let drawer = getCurrentOrLastDrawer();
-            let name = prompt("How would you like to name the drawing?", drawer);
-            if (!name) return;
-            sessionStorage.lastWord = name;
-            document.body.dispatchEvent(newCustomEvent("drawingFinished"));
-            new Toast("Saved all image data on the typo gallery cloud.");
-            optionsPopup.appendChild(popupCustomSaved);
-            popupCustomSaved.innerText = name;
-            let removeToggle = null;
-            popupCustomSaved.addEventListener("contextmenu", (e) => {
+        imageOptions.optionsContainer.appendChild(optionsPopup);
+        // func to add paste btn
+        const addPasteCommandsButton = (commands, name) => {
+            // if old actions format
+            if (commands[0][0][0]) commands = convertActionsArray(commands);
+            const btn = elemFromString(`<button class="flatUI orange green" id="itoolsDownload">📋${name}</button>`); 
+            optionsPopup.querySelector("#itoolsButtons").appendChild(btn);
+            btn.addEventListener("click", () => {
+                if (QS("#itoolsClearBefore").checked)
+                    QS(".tools .tool div.icon[style*='clear.gif']").parentElement.dispatchEvent(new Event("click"));
+                captureCanvas.drawOnCanvas(commands);
+            });
+            let removeToggle = 0;
+            btn.addEventListener("contextmenu", (e) => {
                 e.preventDefault();
                 if (removeToggle) {
-                    popupCustomSaved.remove();
+                    bt.remove();
                 }
                 else {
-                    popupCustomSaved.innerText = "Repeat to remove";
+                    btn.innerText = "Repeat to remove";
                     removeToggle = setTimeout(() => {
                         removeToggle = null;
-                        popupCustomSaved.innerText = name;
+                        btn.innerText = "📋" + name;
                     }, 2000);
                 }
             });
-            popupCustomSaved.addEventListener("click", (e) => {
-                captureCanvas.drawOnCanvas(actions);
-                captureCanvas.capturedActions = [...actions];
-            });
-            document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+        }
+        imageTools.addPasteCommandsButton = addPasteCommandsButton;
+        // add temp save listener
+        QS("#itoolsTempSave").addEventListener("click", () => {
+            const commands = captureCanvas.capturedCommands;
+            const name = getCurrentOrLastDrawer() + getCurrentWordOrHint();
+            addPasteCommandsButton(commands, name);
+            new Toast("Saved all image data on the typo gallery cloud.");
         });
-
-        let popupSaveCommands = document.createElement("button");
-        optionsPopup.appendChild(popupSaveCommands);
-        popupSaveCommands.classList = "btn btn-warning btn-block ";
-        popupSaveCommands.innerText = "Download current";
-        popupSaveCommands.addEventListener("click", () => {
-            let originalActions = captureCanvas.getCapturedActions();
-            let clear = originalActions.length - 1;
-            while (originalActions[clear][0] != 3) clear--;
-            if (originalActions.length < 1 || originalActions[0][0] == 3 && originalActions.length == 1) { alert("Error capturing drawing data :("); return; }
-            let content = JSON.stringify([...originalActions.slice(clear)]);
+        // add skd save listener
+        QS("#itoolsDownload").addEventListener("click", () => {
+            const commands = captureCanvas.capturedCommands;
+            const content = JSON.stringify(commands);
+            const name = getCurrentOrLastDrawer() + getCurrentWordOrHint();
             let dl = document.createElement('a');
             dl.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-            let name = prompt("What name should the drawing be saved under?", "niceDrawing");
-            if (!name) return;
-            name = name + ".skd";
-            dl.setAttribute('download', name);
+            dl.setAttribute('download', name + ".skd");
             dl.style.display = 'none';
             document.body.appendChild(dl);
             dl.click();
             document.body.removeChild(dl);
-            let popupCustomSaved = document.createElement("button");
-            optionsPopup.appendChild(popupCustomSaved);
-            popupCustomSaved.classList = "btn btn-success btn-block";
-            let actions = [...originalActions.slice(clear)];
-            popupCustomSaved.innerText = dl.getAttribute("download");
-            popupCustomSaved.addEventListener("click", () => {
-                captureCanvas.drawOnCanvas(actions);
-                captureCanvas.capturedActions = [...actions];
-            });
+            addPasteCommandsButton(commands, name);
         });
-
-        let popupPasteSavedCommands = document.createElement("button");
-        optionsPopup.appendChild(popupPasteSavedCommands);
-        popupPasteSavedCommands.id = "saveDrawingPopupPasteSaved";
-        popupPasteSavedCommands.classList = "btn btn-warning btn-block";
-        popupPasteSavedCommands.innerText = "Load file";
-        imageTools.addSKD = (actions, name) => {
-            let popupCustomSaved = document.createElement("button");
-            optionsPopup.appendChild(popupCustomSaved);
-            //popupCustomSaved.style.display = document.querySelector(".containerToolbar").style.display
-            popupCustomSaved.classList = "btn btn-success btn-block pasteSaved";
-            if (document.querySelector(".containerToolbar").style.display == "none") {
-                popupCustomSaved.classList.remove("btn-success");
-                popupCustomSaved.classList.add("btn-secondary");
-                popupCustomSaved.style.pointerEvents = "none";
-            }
-            popupCustomSaved.innerText = name;
-            let removeToggle = null;
-            popupCustomSaved.addEventListener("contextmenu", (e) => {
-                e.preventDefault();
-                if (removeToggle) {
-                    popupCustomSaved.remove();
-                }
-                else {
-                    popupCustomSaved.innerText = "Repeat to remove";
-                    removeToggle = setTimeout(() => {
-                        removeToggle = null;
-                        popupCustomSaved.innerText = name;
-                    }, 2000);
-                }
-            });
-            popupCustomSaved.addEventListener("click", () => {
-                captureCanvas.drawOnCanvas(JSON.parse(actions));
-                captureCanvas.capturedActions = JSON.parse(actions);
-            });
-            document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
-        };
-        popupPasteSavedCommands.addEventListener("click", () => {
-            let fileInput = document.createElement('input');
-            let actions;
+        // add load skd listener
+        QS("#itoolsLoad").addEventListener("click", () => {
+            const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = ".skd";
             fileInput.onchange = e => {
@@ -181,27 +106,26 @@ let imageTools = {
                 let reader = new FileReader();
                 reader.readAsText(file);
                 reader.onload = readerEvent => {
-                    actions = readerEvent.target.result;
-                    imageTools.addSKD(actions, file.name);
+                    let commands = JSON.parse(readerEvent.target.result);
+                    addPasteCommandsButton(commands, file.name);
                 }
             }
             fileInput.click();
         });
+        // add abort listener
+        QS("#itoolsAbort").addEventListener("click", () => {
+            captureCanvas.abortDrawingProcess = true;
+        });
 
         // EXPERIMENTAL
-        let popupPasteImage = document.createElement("button");
-        optionsPopup.appendChild(popupPasteImage);
-        popupPasteImage.id = "popupPasteImage";
-        popupPasteImage.classList = "btn btn-warning btn-block";
-        popupPasteImage.innerText = "Paste Image";
-        popupPasteImage.addEventListener("click", () => {
+        QS("#itoolsPasteImage").addEventListener("click", () => {
             let fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = ".png";
             fileInput.onchange = e => {
                 let dummyimg = new Image();
                 dummyimg.onload = () => {
-                    let canvas = QS("#canvasGame");
+                    let canvas = QS("#game-canvas canvas");
                     let pressedKeys = [];
                     let trackPress = (e) => e.type == "keydown" ? pressedKeys.push(e.key) : pressedKeys = pressedKeys.filter(k => k != e.key);
                     canvas.addEventListener("pointerdown", (e) => {
@@ -244,28 +168,6 @@ let imageTools = {
             fileInput.click();
         });
         // -----------
-
-        let popupAbort = document.createElement("button");
-        optionsPopup.appendChild(popupAbort);
-        popupAbort.id = "abortDrawing";
-        popupAbort.classList = "btn btn-danger btn-block";
-        popupAbort.innerText = "Abort Drawing";
-        popupAbort.style.display = "none";
-        popupAbort.addEventListener("click", () => {
-            captureCanvas.abortDrawingProcess = true;
-            popupAbort.style.display = "none";
-        });
-
-        let checkbox = document.createElement("input");
-        let checkboxWrap = document.createElement("div");
-        let checkboxLabel = document.createElement("label");
-        checkbox.type = "checkbox";
-        checkbox.id = "clearCanvasBeforePaste";
-        checkboxLabel.innerText = "Clear canvas before paste";
-        checkboxLabel.insertBefore(checkbox, checkboxLabel.firstChild);
-        checkboxWrap.appendChild(checkboxLabel);
-        checkboxWrap.classList.add("checkbox");
-        optionsPopup.appendChild(checkboxWrap);
 
         Array.from(optionsPopup.children).concat(optionsPopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!optionsPopup.contains(document.activeElement)) optionsPopup.style.display = "none" }, 20); }));
     },

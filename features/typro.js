@@ -31,17 +31,17 @@ let typro = {
                 let options = elemFromString("<div ></div>");
                 overlay.appendChild(options);
 
-                let imgtools = elemFromString("<div class='btn btn-success'>Add to ImageTools</div>");
+                let imgtools = elemFromString("<button class='flatUI blue min air'>Add to ImageTools</button>");
                 imgtools.addEventListener("click", async () => {
                     new Toast("Loading...");
                     let resp = (await socket.emitEvent("get commands", { id: drawing.id}, true, 5000));
                     let commands = resp.commands;
-                    imageTools.addSKD(JSON.stringify(commands), drawing.meta.name);
+                    imageTools.addPasteCommandsButton(commands, drawing.meta.name);
                     new Toast("Added drawing to ImageTools. You can paste it now!");
                 });
                 options.appendChild(imgtools);
 
-                let imgpost = elemFromString("<div class='btn btn-success'>Add to ImagePost</div>");
+                let imgpost = elemFromString("<button class='flatUI blue min air'>Add to ImagePost</button>");
                 imgpost.addEventListener("click", async () => {
                     new Toast("Loading...");
                     if (!data) data = await socket.emitEvent("fetch drawing", { id: drawing.id }, true, 5000);
@@ -54,7 +54,7 @@ let typro = {
                 });
                 options.appendChild(imgpost);
 
-                let clipboard = elemFromString("<div class='btn btn-info'>Copy to Clipboard</div>");
+                let clipboard = elemFromString("<button class='flatUI blue min air'>Copy to Clipboard</button>");
                 clipboard.addEventListener("click", async () => {
                     new Toast("Loading...");
                     if (!data) data = await socket.emitEvent("fetch drawing", { id: drawing.id }, true, 5000);
@@ -63,7 +63,7 @@ let typro = {
                 });
                 options.appendChild(clipboard);
 
-                let savepng = elemFromString("<div class='btn btn-info'>Save PNG</div>");
+                let savepng = elemFromString("<button class='flatUI green min air'>Save PNG</button>");
                 savepng.addEventListener("click", async () => {
                     new Toast("Loading...");
                     if (!data) data = await socket.emitEvent("fetch drawing", { id: drawing.id }, true, 5000);
@@ -72,7 +72,7 @@ let typro = {
                 });
                 options.appendChild(savepng);
 
-                let savegif = elemFromString("<div class='btn btn-info'>Save GIF</div>");
+                let savegif = elemFromString("<button class='flatUI green min air'>Save GIF</button>");
                 savegif.addEventListener("click", async () => {
                     new Toast("Loading...");
                     let commands = (await socket.emitEvent("fetch drawing", { id: drawing.id, withCommands: true }, true, 5000)).drawing.commands;
@@ -81,7 +81,7 @@ let typro = {
                 });
                 options.appendChild(savegif);
 
-                let remove = elemFromString("<div class='btn btn-warning'>Delete</div>");
+                let remove = elemFromString("<button class='flatUI orange min air'>Delete</button>");
                 let removeConfirm = false;
                 remove.addEventListener("click", async () => {
                     if (!removeConfirm) { remove.innerHTML = "Really?"; removeConfirm = true; return;}
@@ -110,7 +110,7 @@ let typro = {
             await new Promise((resolve, reject) => {
                 let onscroll = () => {
                     if (Math.floor(contentDrawings.scrollHeight - contentDrawings.scrollTop)
-                        <= contentDrawings.clientHeight + 2 * QS("#drawings > div").getBoundingClientRect().height) {
+                        <= contentDrawings.clientHeight + 2 * QS("#imageCloud > div").getBoundingClientRect().height) {
                         contentDrawings.removeEventListener("scroll", onscroll);
                         setTimeout(() => resolve(true), 50);
                     }
@@ -120,78 +120,25 @@ let typro = {
         }
     },
     show: async () => {
-        let imagecloudStyle = elemFromString(`<style>
-#drawings > div {
-    width: 30%;
-    margin: 0.5em;
-    position: relative;
-}
-#drawings > div > img {
-    width: 100%;
-    height: auto;
-    transition: opacity 0.25s ease 0s;
-    box-shadow: rgb(0 0 0 / 15%) 1px 1px 9px 1px;
-    opacity: 1;
-}
-#drawings > div > div {
-    transition: opacity 0.25s ease 0s;
-    opacity: 0;
-    position: absolute;
-    inset: 0px;
-    display: flex;
-    place-items: center;
-    justify-content: space-around;
-    border-radius: 1em;
-    z-index: 200;
-    background: rgba(0, 0, 0, 0.1);
-    flex-direction: column;
-}
-#drawings > div > div > div {
-    display:flex;
-    flex-wrap: wrap;
-    align-content: space-evenly;
-    justify-content: space-evenly;
-    height:100%;
-    width: 100%;
-}
-#drawings > div > img.skeletonImage{
-    opacity: 0.4;
-}
-#drawings > div.skeletonDiv{
-    animation-name:skeleton;
-    animation-duration: 1.5s;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-    animation-timing-function: ease-in;
-}
-@keyframes skeleton{
-  from {background-color: #fafafa;}
-  to {background-color: #969595;}
-}</style>`);
-
         let drawings = [];
         let contentDrawings = document.createElement("div");
-        contentDrawings.id = "drawings";
-        contentDrawings.style.cssText = "display:flex; flex-direction:row; flex-wrap:wrap; justify-content: center;margin-left:18%; max-height: 100%; overflow-y:auto;";
+        contentDrawings.id = "imageCloud";
 
         let modalContent = document.createElement("div");
         modalContent.style.width = "100%";
         modalContent.style.position = "relative";
-        modalContent.appendChild(imagecloudStyle);
         modalContent.appendChild(contentDrawings);
 
-        let sidebar = elemFromString("<div style='position:absolute; left:0; padding:1em; top: 0; bottom: 0; width:18%; background: rgba(0, 0, 0, 0.05); border-radius:1em'></div>");
-        sidebar.appendChild(elemFromString("<h3 style='text-align:center;'>Filter<br><br></h3>"));
+        let sidebar = elemFromString("<div id='imageCloudSidebar'><h3 style='text-align:center;'>Filter Drawings</h3></div>");
         let query = {
             author: undefined,
             name: undefined,
             date: undefined,
             own: undefined
         }
-        let debounce = null;
         const getSkeletons = () => {
-            contentDrawings.innerHTML = `<div class="skeletonDiv" ><image class="skeletonImage" src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA8CAYAAADxJz2MAAAAAXNSR0IArs4c6QAAAudJREFUeF7tmumq4kAQhfu64C6KiqLi+7+Gr+IPRVx/uK/DyZDhjsxIUqdakpkqEEVyKt1fqrurK/01Ho+fzkxM4MsAitkFQgPI8TOAJD8DaABZAqTe5kADSBIg5RaBBpAkQMotAg0gSYCUWwQaQJIAKbcINIAkAVKeigh8PB4On/l87u73+9suZzIZ12g0XLlcdvjt2xIPEOC2263b7XaxWJRKJYdPtVqNpYt7ceIBLpdLdzgc4vbr1/X1ej2ISF+WaIAYsufzme67T4heAWK+ej5/vnI5nU7uer3+BiOfz7tisRj8h/nq+5y1Wq3cfr+n4YUOms2mq9Vqav5CR94AInI2m427XC6RGo25CkMNEAEeAAFdy7LZrOv1eg7fmuYFIOABwO12i9VWrJztdjuY86APozeWkzcXh/61/MGPOkBEz2w2C9IOieVyuSAKo0Zu3HuMRqO4krfXqwPEPAeASbXhcKiaH6oDXK/XsXO2T8LWXkzUAU4mk0/yiH0vJNedTie27m+C/w4g5th+v28ApQQSDxALyGvCLO2sD12lUnGtVkvNtfoQPh6PbrFYqDVQ29FgMFBNptUBInmeTqfa/Vbzl9g8MNz34htFgKRauIC87r2l7aUjEDsObPpRr0vy3PcKCHvvQqHgMCcyRgNk63VM4zW0bKmLAqhVr9MAIfWB6ky323VIbyQmBoiKC1ZbadFA0lhfGia1EQH0Ua/zBSeK348D9FWvi9JZH9d8HCBWXRQ8/xUzgOSTNIBpA4jtGoawxitHsu+0HDsS1AeRVEtMtArjRtqvHSWN19Cw5S0xwKSX7qPARRKN6gxjYoAoWyEK05pIY8hi6LIHkMQA8dSQD2IvnDYDPBRVpdu37/2lAMIRFhSAxAmqNBjKWVqlLPSXBvgnaChr4VgGSlzapwskDwknEnyd0PICUNLJtGoMIPnkDKABJAmQcotAA0gSIOUWgQaQJEDKLQINIEmAlFsEkgB/AJLI18R7H33eAAAAAElFTkSuQmCC
-'><div></div></div></div>`.repeat(40);
+            contentDrawings.innerHTML = `<div class="skeletonDiv"><image class="skeletonImage" src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA8CAYAAADxJz2MAAAAAXNSR0IArs4c6QAAAudJREFUeF7tmumq4kAQhfu64C6KiqLi+7+Gr+IPRVx/uK/DyZDhjsxIUqdakpkqEEVyKt1fqrurK/01Ho+fzkxM4MsAitkFQgPI8TOAJD8DaABZAqTe5kADSBIg5RaBBpAkQMotAg0gSYCUWwQaQJIAKbcINIAkAVKeigh8PB4On/l87u73+9suZzIZ12g0XLlcdvjt2xIPEOC2263b7XaxWJRKJYdPtVqNpYt7ceIBLpdLdzgc4vbr1/X1ej2ISF+WaIAYsufzme67T4heAWK+ej5/vnI5nU7uer3+BiOfz7tisRj8h/nq+5y1Wq3cfr+n4YUOms2mq9Vqav5CR94AInI2m427XC6RGo25CkMNEAEeAAFdy7LZrOv1eg7fmuYFIOABwO12i9VWrJztdjuY86APozeWkzcXh/61/MGPOkBEz2w2C9IOieVyuSAKo0Zu3HuMRqO4krfXqwPEPAeASbXhcKiaH6oDXK/XsXO2T8LWXkzUAU4mk0/yiH0vJNedTie27m+C/w4g5th+v28ApQQSDxALyGvCLO2sD12lUnGtVkvNtfoQPh6PbrFYqDVQ29FgMFBNptUBInmeTqfa/Vbzl9g8MNz34htFgKRauIC87r2l7aUjEDsObPpRr0vy3PcKCHvvQqHgMCcyRgNk63VM4zW0bKmLAqhVr9MAIfWB6ky323VIbyQmBoiKC1ZbadFA0lhfGia1EQH0Ua/zBSeK348D9FWvi9JZH9d8HCBWXRQ8/xUzgOSTNIBpA4jtGoawxitHsu+0HDsS1AeRVEtMtArjRtqvHSWN19Cw5S0xwKSX7qPARRKN6gxjYoAoWyEK05pIY8hi6LIHkMQA8dSQD2IvnDYDPBRVpdu37/2lAMIRFhSAxAmqNBjKWVqlLPSXBvgnaChr4VgGSlzapwskDwknEnyd0PICUNLJtGoMIPnkDKABJAmQcotAA0gSIOUWgQaQJEDKLQINIEmAlFsEkgB/AJLI18R7H33eAAAAAElFTkSuQmCC
+'><div></div></div></div>`.repeat(20);
         }
         let applyFilter = async () => {
             let queryID = typro.queryID = Date.now();
@@ -200,12 +147,12 @@ let typro = {
                 getSkeletons();
                 drawings = await socket.getStoredDrawings(query);
                 if (drawings && drawings.length > 0) await typro.setDrawings(drawings, contentDrawings);
-                else contentDrawings.innerHTML = "<br><br><h3> No drawings found for this filter :( <br> Subscribe on patreon to store images forever! </h3>";
+                else contentDrawings.innerHTML = "<br><br><h3>Typo Gallery Cloud stores all drawings from your skribbl sessions automatically.<br> Rewatch images, post on discord or re-draw them in skribbl whenever you want!<br><br>By default, images are stored for two weeks<br> Subscribe on patreon to store images forever! </h3>";
             }, 500);
         }
         // artist filter
         sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Artist</h4>"));
-        let filterAuthor = elemFromString("<input type='text' class='form-control' placeholder='tobeh'>");
+        let filterAuthor = elemFromString("<input type='text' class='flatUI' placeholder='tobeh'>");
         filterAuthor.addEventListener("input", async () => {
             query.author = filterAuthor.value.trim() != "" ? filterAuthor.value.trim() : undefined;
             await applyFilter();
@@ -213,7 +160,7 @@ let typro = {
         sidebar.appendChild(filterAuthor);
         // title filter
         sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Title</h4>"));
-        let filterName = elemFromString("<input type='text' class='form-control' placeholder='Sonic'>");
+        let filterName = elemFromString("<input type='text' class='flatUI' placeholder='Sonic'>");
         filterName.addEventListener("input", async () => {
             query.name = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
             await applyFilter();
@@ -221,20 +168,19 @@ let typro = {
         sidebar.appendChild(filterName);
         // date filter
         sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Date</h4>"));
-        let filterDate = elemFromString("<input type='text' class='form-control' placeholder='Jan 15 2020'>");
+        let filterDate = elemFromString("<input type='text' class='flatUI' placeholder='Jan 15 2020'>");
         filterDate.addEventListener("input", async () => {
             query.date = filterDate.value.trim() != "" ? filterDate.value.trim() : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterDate);
         // own filter
-        let filterOwn = elemFromString("<div class='checkbox'><label><input type='checkbox'>Only your drawings</label></div>");
+        let filterOwn = elemFromString("<label><input type='checkbox' class='flatUI'><span>Only your drawings</span></label>");
         filterOwn.querySelector("input").addEventListener("input", async () => {
             query.own = filterOwn.querySelector("input").checked;
             await applyFilter();
         });
         sidebar.appendChild(filterOwn);
-        sidebar.appendChild(elemFromString("<h5 style='text-align:center;'><br><br>Typo Gallery Cloud stores all drawings from your skribbl sessions automatically.<br> Rewatch images, post on discord or re-draw them in skribbl whenever you want!<br><br>By default, images are stored for two weeks.</h5>"));
         modalContent.appendChild(sidebar);
         let modal = new Modal(modalContent, () => { }, "Typo Cloud Gallery", "90vw", "90vh");
         getSkeletons();

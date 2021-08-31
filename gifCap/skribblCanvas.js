@@ -153,23 +153,50 @@ Q.prototype.hide = function () {
     }
     let color = "#FFF";
     
-    colors.forEach((c) => { if (c.index == t) color = c.color; });
+    color = [[255, 255, 255],
+    [80, 80, 80],
+    [0, 0, 0],
+    [210, 210, 210],
+    [168, 168, 168],
+    [126, 126, 126],
+    [239, 19, 11],
+    [183, 6, 0],
+    [86, 8, 6],
+    [255, 113, 0],
+    [206, 67, 12],
+    [137, 39, 0],
+    [255, 228, 0],
+    [232, 162, 0],
+    [163, 103, 0],
+    [0, 204, 0],
+    [0, 114, 21],
+    [0, 61, 3],
+    [0, 255, 145],
+    [0, 158, 114],
+    [0, 120, 93],
+    [0, 178, 255],
+    [0, 86, 158],
+    [0, 59, 120],
+    [35, 31, 211],
+    [18, 11, 145],
+    [8, 3, 82],
+    [163, 0, 186],
+    [108, 0, 135],
+    [65, 0, 81],
+    [211, 124, 170],
+    [167, 85, 116],
+    [118, 48, 75],
+    [255, 172, 142],
+    [226, 139, 93],
+    [204, 119, 77],
+    [160, 82, 45],
+    [99, 48, 13],
+        [72, 28, 0]][t];
+    color = rgbToHex(color);
     return color;
 }, setBrushSize = Q.prototype.setThickness = function (t) {
     this.thickness = t, this.thickness < this.thicknessMin && (this.thickness = this.thicknessMin), this.thickness > this.thicknessMax && (this.thickness = this.thicknessMax), this.updateBrushCursor()
 }, Q.prototype.updateBrushCursor = function () {
-    //switch (this.tool) {
-    //    case "pen":
-    //    case "erase":
-    //        if (this.thickness <= 0) return;
-    //        this.brushCanvasCtx.clearRect(0, 0, this.thicknessMax, this.thicknessMax), this.brushCanvasCtx.fillStyle = "erase" == this.tool ? "#FFF" : this.getColor(this.colorIndex), this.brushCanvasCtx.beginPath(), this.brushCanvasCtx.arc(this.thicknessMax / 2, this.thicknessMax / 2, this.thickness / 2 - 1, 0, 2 * Math.PI), this.brushCanvasCtx.fill(), this.brushCanvasCtx.strokeStyle = "#FFF", this.brushCanvasCtx.beginPath(), this.brushCanvasCtx.arc(this.thicknessMax / 2, this.thicknessMax / 2, this.thickness / 2 - 1, 0, 2 * Math.PI), this.brushCanvasCtx.stroke(), this.brushCanvasCtx.strokeStyle = "#000", this.brushCanvasCtx.beginPath(), this.brushCanvasCtx.arc(this.thicknessMax / 2, this.thicknessMax / 2, this.thickness / 2, 0, 2 * Math.PI), this.brushCanvasCtx.stroke();
-    //        var t = this.brushCanvas.toDataURL(),
-    //            e = this.thicknessMax / 2;
-    //        //$("#canvasGame").css("cursor", "url(" + t + ")" + e + " " + e + ", default");
-    //        break;
-    //    case "fill":
-    //        //$("#canvasGame").css("cursor", "url(res/fill_graphic.png) 7 38, default")
-    //}
     };
 function i(t, e, n) {
     return t < e ? e : t > n ? n : t

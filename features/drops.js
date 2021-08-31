@@ -82,7 +82,7 @@ let drops = {
             else drops.waitForClear = true;
             drops.currentDrop = null;
         });
-        document.querySelector("#containerCanvas").appendChild(dropContainer);
+        document.querySelector("#game-canvas").appendChild(dropContainer);
     },
     initDrops: async () => {
         drops.initDropContainer();

@@ -24,17 +24,13 @@ const sprites = {
     },
     getPlayerList: () => { //get the lobby player list and store in lobbyPlayers
         let players = [];
-        let playerContainer = QS("#containerGamePlayers");
-        let playerContainerLobby = QS("#containerLobbyPlayers");
-        [...playerContainer.querySelectorAll(".player"), ...playerContainerLobby.querySelectorAll(".lobbyPlayer")].forEach(p => {
-            let private = false;
-            QSA("#containerGamePlayers .player .owner").forEach((o) => {
-                if (o.style.display != "none") private = true;
-            });
+        let playerContainer = QS("#game-players .list");
+        //let playerContainerLobby = QS("#containerLobbyPlayers");, ...playerContainerLobby.querySelectorAll(".lobbyPlayer")
+        [...playerContainer.querySelectorAll(".player")].forEach(p => {
             let psc = new sprites.PlayerSpriteContainer(
-                lobbies_.getLobbyKey(private),
-                p.id.replace("player", ""),
-                p.querySelector(".avatar"),
+                lobbies.lobbyProperties.Key,
+                p.getAttribute("playerid"),
+                p.querySelector(".avatar"), 
                 p.querySelector(".name").innerText.replace("(You)", "").trim()
             )
             players.push(psc);
@@ -72,7 +68,10 @@ const sprites = {
                         player.avatarContainer.appendChild(spriteContainer);
                         // set style depending on listing
                         if (spriteContainer.closest("#containerLobbyPlayers")) spriteContainer.style.backgroundSize = "contain";
-                        else spriteContainer.parentElement.parentElement.style.height = "60px";
+                        else {
+                            spriteContainer.parentElement.parentElement.style.height = "60px";
+                            spriteContainer.parentElement.style.top = "5px";
+                        } 
                     }
                 });
             }
@@ -82,27 +81,27 @@ const sprites = {
         });
     },
     updateEndboardSprites: () => { // show sprites on endboard
-        let endboardAvatars = QSA(".gameEndPlayer .name");
+        let endboardAvatars = QSA(".overlay-content .result .rank-name");
         sprites.lobbyPlayers.forEach(player => {
-            let avatarFitContainer = null;
-            endboardAvatars.forEach(a => { if (a.innerText == player.name) avatarFitContainer = a.parentElement.querySelector(".special"); });
-            if (avatarFitContainer != null) {
+            let avatarContainer = null;
+            endboardAvatars.forEach(a => { if (a.innerText == player.name) avatarContainer = a.parentElement.querySelector(".avatar"); });
+            if (avatarContainer != null) {
                 // remove all existent special slots on avatar
-                [...avatarFitContainer.parentElement.querySelectorAll(".typoSpecialSlot")].forEach(slot => slot.remove());
+                [...avatarContainer.parentElement.querySelectorAll(".typoSpecialSlot")].forEach(slot => slot.remove());
                 // update background depending on avatar
                 let state = player.avatarContainer.querySelector(".color").style.display;
-                [...avatarFitContainer.parentElement.querySelectorAll(".color, .eyes, .mouth")].forEach(elem => elem.style.display = state);
+                [...avatarContainer.parentElement.querySelectorAll(".color, .eyes, .mouth")].forEach(elem => elem.style.display = state);
                 // add slots to avatar
                 let slotsOnSidebar = [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")];
                 slotsOnSidebar.forEach(slot => {
-                    let slotElem = avatarFitContainer.cloneNode(true);
+                    let slotElem = avatarContainer.querySelector(".special").cloneNode(true);
                     slotElem.style.backgroundSize = "cover";
                     slotElem.classList.add(".typoSpecialSlot");
                     slotElem.style.display = "";
                     slotElem.style.backgroundPosition = "";
                     slotElem.style.backgroundImage = slot.style.backgroundImage;
                     slotElem.style.zIndex = slot.style.zIndex;
-                    avatarFitContainer.parentElement.appendChild(slotElem);
+                    avatarContainer.appendChild(slotElem);
                 });
             }
         });
@@ -118,14 +117,14 @@ const sprites = {
     },
     init: async () => {
         // make board behind playerlist so it doesnt hide portions of avatars
-        QS("#containerGamePlayers").style.zIndex = "1";
+        QS("#game-players .list").style.zIndex = "1";
         // polling for sprites, observer does not make sense since sprites take a few seconds to be activated
         setInterval(sprites.refreshCallback, 2000);
         let endboardObserver = new MutationObserver(() => { // mutation observer for game end result
             sprites.updateEndboardSprites();
             sprites.updateSprites();
         });
-        endboardObserver.observe(QS(".gameEndContainerPlayersBest"), { childList: true, attributes: true });
+        endboardObserver.observe(QS(".overlay-content .result"), { childList: true, attributes: true });
 
         if (!socket.authenticated) return;
         sprites.getSprites();
@@ -136,11 +135,11 @@ const sprites = {
             let id = sprite.replaceAll(".", "");
             let url = sprites.getSpriteURL(id);
             if (sprites.isSpecial(id)) {
-                QSA("#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .eyes, #loginAvatarCustomizeContainer .mouth").forEach(n => {
+                QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
                     n.style.opacity = 0;
                 });
             }
-            let specialContainer = QS("#loginAvatarCustomizeContainer .special");
+            let specialContainer = QS(".avatar-customizer .special");
             let clone = specialContainer.cloneNode(true);
             specialContainer.parentElement.appendChild(clone);
             clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
@@ -148,14 +147,14 @@ const sprites = {
             clone.classList.add("spriteSlot");
             clone.classList.remove("special");
         });
-        let avatarContainer = document.querySelector("#loginAvatarCustomizeContainer");
-        avatarContainer.insertAdjacentHTML("afterend", "<div style='margin:1em 0; text-align: center; pointer-events:none; user-select:none'> 🔮 Current Bubbles: "
-            + socket.data.user.bubbles + "    💧 Caught Drops: " + socket.data.user.drops
+        let avatarContainer = document.querySelector(".avatar-customizer");
+        avatarContainer.insertAdjacentHTML("afterend", "<div id='typoUserInfo' style='padding:.5em; background:#e2e2e2; border-radius:1em;font-weight:bold;margin:1em; text-align: center; pointer-events:none; user-select:none'> 🔮 Bubbles: "
+            + socket.data.user.bubbles + "  💧 Drops: " + socket.data.user.drops
             + "</div>")
         if(localStorage.experimental == "true") avatarContainer.insertAdjacentHTML("afterend", "<div style='opacity:0.6, margin:1em 0; text-align: center; pointer-events:none; user-select:none'>"
             + "Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri
             + "</div>")
-        QS("#loginAvatarCustomizeContainer .avatarContainer").style.margin = "0 30px";
+        QS(".avatar-customizer .container").style.margin = "0 30px";
     }
 
 };

@@ -20,21 +20,25 @@ const visuals = {
         }
 
         let urlLogo = options["urlLogo"] ? options["urlLogo"].trim() : "";
-        if (QS("img.logo.logoBig")) QS("img.logo.logoBig").src = urlLogo != "" ? urlLogo : "res/logo.gif";
-        if (QS("img.logo.logoSmall")) QS("img.logo.logoSmall").src = urlLogo != "" ? urlLogo : "res/logo.gif";
+        if (QS("div.logo-big img")) QS("div.logo-big img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
+        if (QS("div.logo-small img")) QS("div.logo-small img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
         
         if (options["containerBackgroundsCheck"] == true) {
             let val = options["containerBackgrounds"] ? options["containerBackgrounds"].trim() : "";
-            style.innerHTML += "#containerGamePlayers, #quickreact > span, .lobbyName, .lobbyContent, .tool:not(.toolActive), .brushSize, .loginPanelContent, .gameHeader, #containerChat, #imageOptions {background-color: " + (val != "" ? val : "transparent") + " !important}";
-            style.innerHTML += ".loginPanelContent {box-shadow: " + (val != "" ? "" : "none") + "}";//0 0 4px 0 rgba(0,0,0,.5)
-            style.innerHTML += "#containerGamePlayers .player, .updateInfo, #boxChat, #boxMessages > p, #loginAvatarCustomizeContainer {background: transparent !important; border: none;}";
-            style.innerHTML += ".guessedWord .rank {color: rgb(86, 206, 39) !important}";
-            style.innerHTML += ".guessedWord::after {content: '';position: absolute;inset: 0;border-right: 3px solid #82c669;z-index: -1;box-shadow: inset -55px 0px 50px -50px #82c669;}";
+            style.innerHTML += "#emojiPrev, #imageAgent, #home .news ::-webkit-scrollbar, #home .news ::-webkit-scrollbar-thumb, .modalContainer, .toast, #modal .box, #home .panel, #home .bottom .footer {background-color: " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#home .bottom svg {fill: " + (val != "" ? val : "transparent") + " !important}";
+        }
+        if (options["ingameContainerBackgroundsCheck"] == true) {
+            let val = options["ingameContainerBackgrounds"] ? options["ingameContainerBackgrounds"].trim() : "";
+            style.innerHTML += "#imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar div.color-picker div.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .list .player:not(.odd) {background-color: " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#game-players .list .player{background-color: " + (val != "" ? val : "transparent") + "; filter:brightness(0.9)}";
+            style.innerHTML += "#game-chat .content {background:none}";
+            style.innerHTML += "#game-chat .container .content p:nth-child(even) {background-color: #ffffff20;}";
         }
 
         if (options["containerOutlinesCheck"] == true) {
             let val = options["containerOutlines"] ? options["containerOutlines"].trim() : "";
-            style.innerHTML += ".loginPanelContent, .lobbyName, .lobbyContent, .modalContainer, .gameHeader, #containerChat, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#imageAgent, #modal .box, #home .panel, .modalContainer, #game-chat .container, #game-players .list .player, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
         }
 
         if (options["containerImages"] && options["containerImages"].trim() != "")
@@ -42,15 +46,23 @@ const visuals = {
             style.innerHTML += "#containerGamePlayers, .lobbyName, .lobbyContent, .loginPanelContent, .gameHeader, #containerChat, #imageOptions  {background-image: url(" + options["containerImages"].trim() + ") !important}";
             style.innerHTML += "#containerGamePlayers .player{background:none !important}";
         }
-
+        // font color
         let color = options["fontColor"] ? options["fontColor"] : "";
         if (color && color != "") {
-            style.innerHTML += "*:not(.colorMsg){color:" + color.trim() + " !important}";
-            style.innerHTML += "#emojiPrev span, #sharePopup, .player .text, .wordContainer .word, .modalTitle, .modal-title, .checkbox label {color: black !important}";
+            style.innerHTML += "#home .bottom .footer .notice, * {color:" + color.trim() + "}";
+            style.innerHTML += "input[type=checkbox].flatUI, #game-chat .container form input, input[type=text].flatUI, #home .bottom .footer .section-container .section{color:unset}"
+            //style.innerHTML += "#emojiPrev span, #sharePopup, .player .text, .wordContainer .word, .modalTitle, .modal-title, .checkbox label {color: black !important}";
         }
+        // font color of everything in-game 
+        let ingamecolor = options["ingameFontColor"] ? options["ingameFontColor"] : "";
+        if (ingamecolor && ingamecolor != "") {
+            style.innerHTML += "#game * {color:" + ingamecolor.trim() + "}";
+            style.innerHTML += "div#game-toolbar.typomod div.tools-container div.tools div.tool div.key, #game-word .description, #game-round .round-max, #game-round span, #game-players .player-amount b:nth-child(4), #game-players .player-amount span {color:" + ingamecolor.trim() + "; filter: brightness(0.8);}";
+        }
+        // font color of buttons / inputs
         let colorBtns = options["fontColorButtons"] ? options["fontColorButtons"] : "";
-        if (colorBtns && colorBtns != "") style.innerHTML += "select, input, .btn{color:" + colorBtns.trim() + " !important}";
-        if (color || colorBtns) style.innerHTML += "#timer, .modalContainer *, .toast {color: black !important;}";
+        if (colorBtns && colorBtns != "") style.innerHTML += "select, input, button, textarea {color:" + colorBtns.trim() + "}";
+        if (ingamecolor || color || colorBtns) style.innerHTML += "#game-clock{color:black}";
         let font = options["fontStyle"] ? options["fontStyle"] : "";
         if (font && font != "") {
             [...QSA(".fontImport")].forEach(s => s.remove());
@@ -59,15 +71,18 @@ const visuals = {
                 + '<link href="https://fonts.googleapis.com/css2?family=' + font.trim() + '&display=swap" rel="stylesheet"></div>'));
             style.innerHTML += "*{font-family:'" + font.trim().split(":")[0].replaceAll("+"," ") + "', sans-serif !important}";
         }
-
+        // input backgrounds 
         if (options["inputBackgroundsCheck"] == true) {
             let val = options["inputBackgrounds"] ? options["inputBackgrounds"].trim() : "";
-            style.innerHTML += "input, textarea, .btn, select {background: " + (val != "" ? val : "transparent") + " !important}";
-            style.innerHTML += "input:hover, textarea:hover, .btn:hover, select:hover {background: " + (val != "" ? val : "transparent") + " !important; opacity: 0.85}";
+            style.innerHTML += "input[type=checkbox], input[type=checkbox].flatUI,#modal .container .box .content .container-rooms .room, button.flatUI.green,button.flatUI.orange, button.flatUI.blue, button.flatUI, input[type=text].flatUI, .link .input-container .link-overlay, input, textarea, button, select {background: " + (val != "" ? val : "transparent") + " !important; box-shadow:none !important;} ";
+            style.innerHTML += "button.flatUI.green:hover,button.flatUI.orange:hover, button.flatUI.blue:hover, button.flatUI:hover,input:hover, textarea:hover, button:hover, select:hover {background: " + (val != "" ? val : "transparent") + " !important; opacity: 0.85}";
+            style.innerHTML += "#game-room .container-settings .group.customwords .checkbox input[type=checkbox]:checked:after { content: '🞬'; width: 100 %; display: grid; place - content: center;}";
         }
+
+        // outlines of inputs
         if (options["inputOutlinesCheck"] == true) {
             let val = options["inputOutlines"] ? options["inputOutlines"].trim() : "";
-            style.innerHTML += "input, textarea, .btn, select {border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += ".link .input-container .link-overlay {display:none !important} input[type=checkbox]{border:none !important;} input, textarea, button, select {border: 2px solid " + (val != "" ? val : "transparent") + " !important; }";
         }
         if (options["hideFooter"] == true) {
             style.innerHTML += ".login-content .col-xs-12{display:none}";
@@ -85,8 +100,8 @@ const visuals = {
             style.innerHTML += "#logoAvatarContainer{display:none }";
         }
         if (options["hideAvatarSprites"] == true) {
-            style.innerHTML += ".spriteSlot{display:none }";
-            style.innerHTML += "#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .mouth, #loginAvatarCustomizeContainer .eyes {opacity: 1 !important}";
+            style.innerHTML += ".avatar-customizer .spriteSlot{display:none }";
+            style.innerHTML += ".avatar-customizer .color, .avatar-customizer .mouth, .avatar-customizer .eyes {opacity: 1 !important}";
         }
         if (options["injection"] && options["injection"] != "") {
             if (QS("#injectionElems")) QS("#injectionElems").innerHTML = options["injection"];
@@ -122,29 +137,25 @@ const visuals = {
     init: () => {
         let html =
             `<div id='visualOpt' style='display:flex; flex-direction:column; align-items: center; width:100%'>
-<style>
-#visualOpt .checkbox {width:100%; justify-content: space-evenly;display:flex; flex-wrap: wrap;}
-#visualOpt .checkbox label{margin:1em;flex:1;}
-</style>
     <h3>Image Replacements</h3>
     <div style='width:100%; justify-content: space-evenly;display:flex;'>
         <div>
             <h4>Skribbl-Logo Image</h4>
-            <input class='form-control' type='text' id='urlLogo' placeholder='https://link.here/image.gif'>
+            <input class='flatUI' type='text' id='urlLogo' placeholder='https://link.here/image.gif'>
         </div>
         <div>
             <h4>Background Image</h4>
-            <input class='form-control' type='text' id='urlBackground' placeholder='https://link.here/image.gif'>
+            <input class='flatUI' type='text' id='urlBackground' placeholder='https://link.here/image.gif'>
         </div>
     </div>
     <div style='width:100%; justify-content: space-evenly;display:flex;'>
         <div>
             <h4>In-Game Background Image</h4>
-            <input class='form-control' type='text' id='urlBackgroundGame' placeholder='https://link.here/image.gif'>
+            <input class='flatUI' type='text' id='urlBackgroundGame' placeholder='https://link.here/image.gif'>
         </div>
         <div>
             <h4>Custom Container Backgrounds</h4>
-            <input class='form-control' type='text' id='containerImages' placeholder='https://link.here/image.gif'>
+            <input class='flatUI' type='text' id='containerImages' placeholder='https://link.here/image.gif'>
         </div>
     </div>
     <br>
@@ -152,49 +163,65 @@ const visuals = {
     <div style='width:100%; justify-content: space-evenly;display:flex;'>
         <div>
             <h4>Font Color</h4>
-            <input class='form-control' type='text' id='fontColor' placeholder='#ffffff'>
+            <input class='flatUI' type='text' id='fontColor' placeholder='#ffffff'>
         </div>
         <div>
+            <h4>Ing-GameFont Color</h4>
+            <input class='flatUI' type='text' id='ingameFontColor' placeholder='#ffffff'>
+        </div>
+
+        <div>
             <h4>Button Font Color</h4>
-            <input class='form-control' type='text' id='fontColorButtons' placeholder='#ffffff'>
+            <input class='flatUI' type='text' id='fontColorButtons' placeholder='#ffffff'>
         </div>
         <div>
             <h4>Font Style</h4>
-            <input class='form-control' type='text' id='fontStyle' placeholder='Roboto:ital,wght@1,300'>
+            <input class='flatUI' type='text' id='fontStyle' placeholder='Roboto:ital,wght@1,300'>
         </div>
     </div>
     <br>
     <h3>Color Options</h3>
     <h4> Colors as rgb: <code>rgb(x, x, x, x%)</code> or hex: <code>#xxxxxxxx</code> or empty for transparent</h4>
-    <div class="checkbox">
+    <div style="display: grid; grid-template-columns: 1fr 2fr; grid-column-gap: 1em;grid-row-gap: 1em; margin: 0 1em;">
         <label>
-            <input type="checkbox" id='containerBackgroundsCheck'> Change Container Backgrounds 
-            <input class='form-control' type='text' id='containerBackgrounds' placeholder='transparent'>
+            <input type="checkbox" class="flatUI" id='containerBackgroundsCheck'> <span>Change Container Backgrounds</span>
         </label>
-        <label><input type="checkbox" id='inputBackgroundsCheck'> Change Input Backgrounds
-            <input class='form-control' type='text' id='inputBackgrounds' placeholder='transparent'>
+        <input class='flatUI' type='text' id='containerBackgrounds' placeholder='transparent'>
+
+        <label>
+            <input type="checkbox" class="flatUI" id='ingameContainerBackgroundsCheck'> <span>Change Ingame-Container Backgrounds</span>
         </label>
-        <label><input type="checkbox" id='containerOutlinesCheck'> Container Outlines
-            <input class='form-control' type='text' id='containerOutlines' placeholder='transparent'>
+        <input class='flatUI' type='text' id='ingameContainerBackgrounds' placeholder='transparent'>
+
+        <label>
+            <input type="checkbox" class="flatUI" id='inputBackgroundsCheck'> <span>Change Input Backgrounds</span>
         </label>
-        <label><input type="checkbox" id='inputOutlinesCheck'> Input Outlines
-            <input class='form-control' type='text' id='inputOutlines' placeholder='transparent'>
+        <input class='flatUI' type='text' id='inputBackgrounds' placeholder='transparent'>
+
+        <label>
+            <input type="checkbox" class="flatUI" id='containerOutlinesCheck'> <span>Container Outlines</span>
         </label>
+        <input class='flatUI' type='text' id='containerOutlines' placeholder='transparent'>
+
+        <label>
+            <input type="checkbox" class="flatUI" id='inputOutlinesCheck'> <span>Input Outlines</span>
+        </label>
+        <input class='flatUI' type='text' id='inputOutlines' placeholder='transparent'>
     </div>
     <br>
     <h3>Hide Elements</h3>
-    <div class="checkbox">
-        <label><input type="checkbox" id="hideFooter"> Hide credits, contact & TOS on frontpage</label>
-        <label><input type="checkbox" id="hideCaptcha"> Hide captcha</label>
-        <label><input type="checkbox" id="hideMeta"> Hide About & How to Play</label>
-        <label><input type="checkbox" id="hideAvatarLogo"> Hide avatars beyond logo</label>
-        <label><input type="checkbox" id="hideInGameLogo"> Hide logo in-game</label>
-        <label><input type="checkbox" id="hideAvatarSprites"> Hide sprites on frontpage</label>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 1em;grid-row-gap: 1em; margin: 0 1em;">
+        <label><input type="checkbox" class="flatUI" id="hideFooter"> <span>Hide credits, contact & TOS on frontpage</span></label>
+        <label><input type="checkbox" class="flatUI" id="hideCaptcha"> <span> Hide captcha</span></label>
+        <label><input type="checkbox" class="flatUI" id="hideMeta"> <span> Hide About & How to Play</span></label>
+        <label><input type="checkbox" class="flatUI" id="hideAvatarLogo"> <span> Hide avatars beyond logo</span></label>
+        <label><input type="checkbox" class="flatUI" id="hideInGameLogo"> <span> Hide logo in-game</span></label>
+        <label><input type="checkbox" class="flatUI" id="hideAvatarSprites"> <span> Hide sprites on frontpage</span></label>
     </div>
-    <!--<div>
+    <div>
         <h4>HTML/CSS injection: add HTML to body</h4>
-        <input class='form-control' type='text' id='injection' placeholder='<elem></elem> <style>elem { }</style>'>
-    </div>//-->
+        <input class='flatUI' type='text' id='injection' placeholder='<elem></elem> <style>elem { }</style>'>
+    </div>
 </div>`;
         visuals.form = elemFromString(html);
         [...visuals.form.querySelectorAll("input")].forEach(input => {

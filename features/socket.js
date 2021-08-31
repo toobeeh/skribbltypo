@@ -48,7 +48,7 @@ const socket = {
             });
             socket.sck.on("disconnect", (reason) => {
                 console.log("Disconnected with reason: " + reason);
-                lobbies_.joined = false;
+                lobbies.joined = false;
                 // enable reconnects if close not forced
                 if (["ping timeout", "transport close", "transport error"].indexOf(reason) < 0) {
                     socket.sck.io._reconnection = false;
@@ -65,7 +65,7 @@ const socket = {
                 socket.data.activeLobbies.push(data.payload.activeGuildLobbies);
                 let updateIn = updateTimeout = setTimeout(() => {
                     if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 100ms
-                    lobbies_.setLobbies(socket.data.activeLobbies);
+                    //lobbies_.setLobbies(socket.data.activeLobbies);
                 }, 200);
             });
             let member = localStorage.member ? localStorage.member : '{"UserLogin":null}';
@@ -75,17 +75,17 @@ const socket = {
                 socket.data.activeLobbies = loginstate.activeLobbies;
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
-                lobbies_.setLobbies(socket.data.activeLobbies);
+                //lobbies_.setLobbies(socket.data.activeLobbies);
             }
-            else lobbies_.setLobbies(null);
+            //else lobbies_.setLobbies(null);
             document.dispatchEvent(newCustomEvent("palantirLoaded"));
 
             // if already in-game / reconnected after disconnect and ingame, continue reporting
-            if (lobbies_.userAllow && lobbies_.inGame) {
-                await socket.joinLobby(lobbies_.lobbyProperties.Key);
-                lobbies_.joined = true;
-                await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
-            }
+            //if (lobbies_.userAllow && lobbies_.inGame) {
+            //    await socket.joinLobby(lobbies_.lobbyProperties.Key);
+            //    lobbies_.joined = true;
+            //    await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
+            //}
 
             let documentIdle = null;
             let visibilitychangeDisconnect = () => {
@@ -128,15 +128,15 @@ const socket = {
             let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby}, true));
             let veriflobby = resp.lobbyData.lobby;
             let owner = resp.owner;
-            lobbies_.lobbyProperties.Description = veriflobby.Description;
-            QS("#lobbyDesc").value = veriflobby.Description;
-            QS("#restrictLobby").style.display = owner && lobbies_.lobbyProperties.Private ? "" : "none";
+            lobbies.lobbyProperties.Description = veriflobby.Description;
+            if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
+            if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
         }
         catch (e) { console.log("Error setting lobby status:" + e.toString()); }
     },
     leaveLobby: async () => {
         try {
-            let response = await socket.emitEvent("leave lobby", {joined: lobbies_.joined}, true);
+            let response = await socket.emitEvent("leave lobby", {joined: lobbies.joined}, true);
             socket.data.activeLobbies = response.activeLobbies;
         }
         catch (e) { console.log("Error leaving playing status:" + e.toString()); }

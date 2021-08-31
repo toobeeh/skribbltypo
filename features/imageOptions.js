@@ -5,7 +5,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // dependend on: genericfunctions.js, capture.js, commands.js
 let imageOptions = {
     optionsContainer: undefined,
-    drawCommandsToGif: async (filename = "download", actions = null) => {
+    drawCommandsToGif: async (filename = "download", commands = null) => {
         // generate a gif of stored draw commands
         let workerJS = "";
         workerJS += await (await fetch(chrome.runtime.getURL("gifCap/b64.js"))).text();
@@ -15,8 +15,8 @@ let imageOptions = {
         workerJS += await (await fetch(chrome.runtime.getURL("gifCap/skribblCanvas.js"))).text();
         workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
         let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
-        if (!actions) actions = captureCanvas.getCapturedActions();
-        renderWorker.postMessage({ 'filename': filename, 'capturedActions': actions, 'palettes': localStorage.customPalettes });
+        if (!commands) commands = captureCanvas.capturedCommands;
+        renderWorker.postMessage({ 'filename': filename, 'capturedCommands': commands});
 
         // T H I C C progress bar 
         let progressBar = document.createElement("p");
@@ -24,6 +24,10 @@ let imageOptions = {
         progressBar.style.background = "rgb(247, 210, 140)";
         progressBar.innerText = String.fromCodePoint("0x2B1C").repeat(10) + " 0%";
 
+        renderWorker.onerror = (err) => {
+            progressBar.innerText = "Failed creating the GIF :(";
+            console.log(err);
+        };
         renderWorker.addEventListener('message', function (e) {
             if (e.data.download) {
                 progressBar.innerText = String.fromCodePoint("0x1F7E9").repeat(10) + " Done!";
@@ -47,145 +51,121 @@ let imageOptions = {
                 progressBar.innerText += " " + percent + "%";
             }
         }, false);
-        printCmdOutput("render");
-        QS("#boxMessages").appendChild(progressBar);
+        //printCmdOutput("render");
+        QS("#game-chat .container .content").appendChild(progressBar);
     },
     initContainer: () => {
-        // add options container and re-organize sidebar for handling popups
-        let newSidebar = document.createElement("div");
-        newSidebar.id = "newSidebar";
-        newSidebar.style.cssText = "position: relative; display: flex; flex-direction: column;";
-
-        let optionsContainer = document.createElement("div");
-        optionsContainer.id = "imageOptions";
-        optionsContainer.style.height = "48px";
-        optionsContainer.style.background = "white";
-        optionsContainer.style.borderRadius = "2px";
-        optionsContainer.style.display = "flex";
-        optionsContainer.style.justifyContent = "space-evenly";
-        optionsContainer.style.alignItems = "baseline";
-        optionsContainer.style.marginTop = "8px";
-        optionsContainer.style.marginRight = "8px";
-
-        let containerPlayers = QS("#containerPlayerlist");
-        containerPlayers.style.height = "100%";
-        containerPlayers.parentElement.insertBefore(newSidebar, containerPlayers);
-        newSidebar.appendChild(containerPlayers);
-        newSidebar.appendChild(optionsContainer);
-
-        imageOptions.optionsContainer = optionsContainer;
+        // new imageoptions container on the right side
+        let imgtools = elemFromString(`<div id="imageOptions"></div>`);
+        QS("#game-players").appendChild(imgtools);
+        imageOptions.optionsContainer = imgtools;
     },
-    downloadDataURL: async (url, name = "") => {
-        let scale = Number(localStorage.qualityScale) ? Number(localStorage.qualityScale) : 1;
+    downloadDataURL: async (url, name = "skribbl-unknown", scale = 1) => {
         let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
         e.initMouseEvent("click", true, true, window,
             0, 0, 0, 0, 0, false, false, false,
             false, 0, null);
-        d.download = name == "" ? "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "") : name;
+        d.download = name;
         d.href = await scaleDataURL(url,
-            document.querySelector("#canvasGame").width * scale,
-            document.querySelector("#canvasGame").height * scale);
+            document.querySelector("#game-canvas canvas").width * scale,
+            document.querySelector("#game-canvas canvas").height * scale);
         d.dispatchEvent(e);
     },
-    initDownloadPicture: () => {
-        // add DL button for images
-        let download = document.createElement("img");
-        download.src = "https://media.giphy.com/media/RLKYVelNK5bP3yc8LJ/giphy.gif";
-        download.style.cursor = "pointer";
-        download.id = "downloadImage";
-        download.addEventListener("click", async () => {
-            await imageOptions.downloadDataURL(document.querySelector("#canvasGame").toDataURL("image/png;base64"));
-        });
-        imageOptions.optionsContainer.appendChild(download);
-    },
-    initDownloadGif: () => {
+    initDownloadOptions: () => {
         // add DL button for gif
-        let downloadGif = document.createElement("img");
-        downloadGif.src = chrome.runtime.getURL("res/gif.gif");
-        downloadGif.style.cursor = "pointer";
-        downloadGif.id = "downloadGif";
-        downloadGif.addEventListener("click", () => {
+        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;">`);
+        // popup for sharing image
+        const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
+    Save Image<br><br><label for="sendImageOnly">
+        <input type="checkbox" id="dlQuality" class="flatUI small">
+        <span>High quality</span>
+    </label>
+    <button class="flatUI blue" id="dlPng" >As PNG</button><br>
+    <button class="flatUI blue" id="dlGif" >As GIF</button>
+    <button class="flatUI green" id="saveCloud">In Typo Cloud</button>
+</div>`);
+        imageOptions.optionsContainer.appendChild(downloadOptions);
+        downloadOptions.addEventListener("click", () => {
+            downloadPopup.style.display = "";
+            downloadPopup.focus();
+        });
+        imageOptions.optionsContainer.appendChild(downloadPopup);
+        QS("#dlGif").addEventListener("click", () => {
             let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
             e.initMouseEvent("click", true, true, window,
                 0, 0, 0, 0, 0, false, false, false,
                 false, 0, null);
-            d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
-            d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
+            d.download = "skribbl" + document.querySelector("#game-word .word").textContent + (drawer ? drawer : "");
+            d.href = document.querySelector("#game-canvas canvas").toDataURL("image/png;base64");
             imageOptions.drawCommandsToGif(d.download);
+            downloadPopup.style.display = "none";
         });
-        imageOptions.optionsContainer.appendChild(downloadGif);
+        QS("#dlPng").addEventListener("click", async () => {
+            await imageOptions.downloadDataURL(
+                document.querySelector("#game-canvas canvas").toDataURL("image/png;base64"),
+                "skribbl-" + getCurrentWordOrHint() + "-by-" + getCurrentOrLastDrawer(),
+                QS("#dlQuality").checked ? 3 : 1
+            );
+            downloadPopup.style.display = "none";
+        });
+        QS("#saveCloud").addEventListener("click", async () => {
+            if (socket.authenticated) {
+                document.body.dispatchEvent(newCustomEvent("drawingFinished"));
+                new Toast("Saved the drawing in the cloud.");
+            }
+            else {
+                new Toast("Create a palantir account to save drawings in the cloud!");
+            }
+            downloadPopup.style.display = "none";
+        });
+        Array.from(downloadPopup.children).concat(downloadPopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!downloadPopup.contains(document.activeElement)) downloadPopup.style.display = "none" }, 20); }));
     },
     initImagePoster: () => {
         // popup for sharing image
-        let sharePopup = document.createElement("div");
-        sharePopup.style.position = "absolute";
-        sharePopup.style.background = "white";
-        sharePopup.style.overflow = "hidden";
-        sharePopup.style.zIndex = "5";
-        sharePopup.style.width = "90%";
-        sharePopup.style.padding = "1em;";
-        sharePopup.style.borderRadius = ".5em";
-        sharePopup.style.marginLeft = "5%";
-        sharePopup.style.boxShadow = "1px 1px 9px -2px black";
-        sharePopup.style.display = "none";
-        sharePopup.style.minHeight = "15%";
-        sharePopup.style.padding = "1em";
-        sharePopup.style.bottom = "1em";
-        sharePopup.id = "sharePopup";
-        sharePopup.tabIndex = "-1";
+        let sharePopup = elemFromString(`<div id="sharePopup" tabIndex="-1" style="display:none">
+    Post @ Discord<br><br>
+    <input type="text" class="flatUI" id="postNameInput" placeholder="Post Title"><br>
+    <label for="sendImageOnly">
+        <input type="checkbox" id="sendImageOnly" class="flatUI small">
+        <span>Send only image</span>
+    </label>
+    <img id="shareImagePreview">
+    <div id="shareButtons">
+    </div>
+</div>`);
         imageOptions.optionsContainer.appendChild(sharePopup);
+        let buttonCont = QS("#shareButtons");
 
         // btn to open share popup
-        let shareButton = document.createElement("img");
         let imageShareString;
         let imageShareStringDrawer;
-        shareButton.src = chrome.runtime.getURL("res/letter.gif");
-        shareButton.style.cursor = "pointer";
-        shareButton.id = "downloadGif";
+        let shareButton = elemFromString(`<img src="${chrome.runtime.getURL("res/letter.gif")}" id="shareImg" style="cursor: pointer;">`);
         shareButton.addEventListener("click", () => {
             if (!localStorage.hintShareImage) {
-                alert("The shown image will be shared to one of the displayed discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
+                alert("The shown image will be posted to one of the displayed Discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
                 localStorage.hintShareImage = "true";
             }
-            imageShareString = QS("#canvasGame").toDataURL("image/png;base64");
+            imageShareString = QS("#game-canvas canvas").toDataURL("image/png;base64");
             imageShareStringDrawer = getCurrentOrLastDrawer();
             QS("#shareImagePreview").src = imageShareString;
             QS("#shareImagePreview").setAttribute("imageIndex", -1);
+            let word = getCurrentWordOrHint();
+            QS("#postNameInput").value = word + " (" + word.length + ")";
             sharePopup.style.display = "";
             sharePopup.focus();
-            QS("#postNameInput").value = QS("#currentWord").innerText + QS("#wordSize").innerText;
         });
         imageOptions.optionsContainer.appendChild(shareButton);
 
-        // input field 
-        let postName = document.createElement("input");
-        postName.type = "text";
-        postName.id = "postNameInput";
-        postName.placeholder = "Title";
-        postName.classList.add("form-control");
-        postName.style.marginBottom = "0.75em";
-        sharePopup.appendChild(postName);
-        postName.outerHTML = "Post image @Discord: <br><br>" + postName.outerHTML;
-
-        // image only checkbox
-        let imageOnly = document.createElement("div");
-        imageOnly.classList.add("checkbox");
-        imageOnly.innerHTML = "<label><input type='checkbox' id='sendImageOnly'>Send only image</label>";
-        sharePopup.appendChild(imageOnly);
-
         // image preview
-        let imagePreview = document.createElement("img");
-        imagePreview.id = "shareImagePreview";
-        imagePreview.style.width = "100%";
-        imagePreview.style.cursor = "pointer";
+        let imagePreview = QS("#shareImagePreview");
         let navigateImagePreview = (direction) => {
             let currentIndex = Number(imagePreview.getAttribute("imageIndex"));
             let allDrawings = [...captureCanvas.capturedDrawings];
             allDrawings.push({
-                drawing: document.querySelector("#canvasGame").toDataURL("2d"),
+                drawing: document.querySelector("#game-canvas canvas").toDataURL("2d"),
                 drawer: getCurrentOrLastDrawer(),
-                word: QS("#currentWord").innerText,
-                hint: QS("#wordSize").innerText
+                word: getCurrentWordOrHint(),
+                hint: "(" + getCurrentWordOrHint().length + ")"
             });
             if (currentIndex < 0) currentIndex = allDrawings.length - 1;
             currentIndex += direction;
@@ -197,21 +177,18 @@ let imageOptions = {
                 imagePreview.setAttribute("imageIndex", currentIndex);
             }
         };
-        sharePopup.appendChild(imagePreview);
         imagePreview.addEventListener("click", () => { navigateImagePreview(-1); });
         imagePreview.addEventListener("contextmenu", (e) => { e.preventDefault(); navigateImagePreview(1); });
 
         // get webhooks
         let webhooks = [];
-        if (localStorage.member) JSON.parse(localStorage.member).Guilds.forEach(g => { if (g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
+        if (localStorage.member) JSON.parse(localStorage.member).Guilds?.forEach(g => { if (g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
 
         // add buttons to post image
-        if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
+        if (webhooks.length <= 0) buttonCont.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
         webhooks.forEach(async (w) => {
             // add share button for image
-            let shareImg = document.createElement("button");
-            shareImg.innerHTML = "[" + w.Guild + "] <br>" + w.Name;
-            shareImg.classList.add("btn", "btn-info", "btn-block");
+            let shareImg = elemFromString(`<button class="flatUI blue">[${w.Guild}]<br>${w.Name}</button>`);
             shareImg.addEventListener("click", async () => {
                 // close popup first to avoid spamming
                 sharePopup.style.display = "none";
@@ -233,7 +210,7 @@ let imageOptions = {
                 // build webhook content
                 let message;
                 let imageOnly =QS("#sendImageOnly").checked;
-                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS("#inputName").value;
+                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".name me").textContent.replace("(You)", "").trim();
                 if (imageOnly) {
                     message = JSON.stringify({
                         username: loginName,
@@ -278,7 +255,7 @@ let imageOptions = {
                     },
                     body: message
                 });
-                new Toast("Posted image on Discord.", 2000);
+                new Toast("Posted image on Discord", 2000);
             });
             sharePopup.appendChild(shareImg);
         });
@@ -286,8 +263,7 @@ let imageOptions = {
     },
     initAll: () => {
         imageOptions.initContainer();
-        imageOptions.initDownloadGif();
-        imageOptions.initDownloadPicture();
+        imageOptions.initDownloadOptions();
         imageOptions.initImagePoster();
     }
 }

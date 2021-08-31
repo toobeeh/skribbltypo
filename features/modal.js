@@ -8,34 +8,15 @@ class Modal {
         let modal = document.createElement("div");
         modal.classList.add("modalContainer");
         modal.style.cssText = `
-            position: fixed;
             width: ${width};
             min-height: ${height};
-            max-height: 85vh;
-            overflow:hidden;
             left: calc((100vw - ${width}) / 2);
             top: calc((100vh - ${height}) / 4);
-            padding: 1em;
-            background-color: white;
-            border-radius: 1em;
-            box-shadow: black 1px 1px 9px -2px;
-            z-index: 60;
-            display:flex;
-            flex-direction:column;
         `;
         let blur = document.createElement("div");
         blur.classList.add("modalBlur");
-        blur.style.cssText = `
-            position: fixed;
-            width: 100vw;
-            height: 100vh;
-            left: 0;
-            top: 0;
-            background-color: black;
-            opacity:0.25;
-            z-index: 59;
-        `;
-        modal.insertAdjacentHTML("afterbegin","<h2 style='text-align:center; font-weight: 600;'>" + title + "</h2>");
+        modal.insertAdjacentHTML("afterbegin", "<h3 style='text-align:center; font-weight: 600; font-size:1.7em;'>" + title + "</h2>");
+        modal.insertAdjacentHTML("afterbegin", `<div id="modalClose">🞬</div>`);
         if (contentParent) {
             let content = document.createElement("div");
             content.style.cssText = `
@@ -68,12 +49,23 @@ class Modal {
             this.modal.querySelector("h2").innerText = title;
         };
         this.close = () => {
-            this.onclose();
-            this.blur.remove();
-            this.modal.remove();
+            modal.style.transform = "translate(0,-20vh)";
+            modal.style.opacity = "0";
+            blur.style.opacity = "0";
             document.removeEventListener("keydown", esc);
+            setTimeout(() => {
+                this.onclose();
+                this.blur.remove();
+                this.modal.remove();
+            },200)
         };
         blur.addEventListener("click", this.close);
+        modal.querySelector("#modalClose").addEventListener("click", this.close);
+        setTimeout(() => {
+            modal.style.transform = "translate(0)";
+            modal.style.opacity = "1";
+            blur.style.opacity = "0.5";
+        }, 20);
     }
 }
 

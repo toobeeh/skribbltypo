@@ -14,14 +14,14 @@ const newCustomEvent = (type, detail = {}) => {
 // func to mark a message node with background color
 const markMessage = (newNode) => {
     if (localStorage.markup != "true") return;
-    let sender = newNode.innerHTML.slice(newNode.innerHTML.indexOf("<b>"), newNode.innerHTML.indexOf("</b>")).slice(3, -2);
+    let sender = newNode.firstChild.textContent.trim().slice(0, -1);
     if (sender == socket.clientData.playerName || sender != "" && localStorage.vip.split("/").includes(sender))
-        newNode.style.background = localStorage.markupColor;
+        newNode.style.background = (new Color({ h: Number(localStorage.markupcolor), s: 100, l: 90 })).hex;
 }
 
 //func to scroll to bottom of message container
 const scrollMessages = (onlyIfScrolledDown = false) => {
-    let box = document.querySelector("#boxMessages");
+    let box = document.querySelector("#game-chat .content");
     if (!onlyIfScrolledDown ||  Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 30) {
         box.scrollTop = box.scrollHeight;
     }
@@ -94,146 +94,191 @@ const replaceUmlaute = (str) => {
 // get the current or last drawer as safe as possible
 const getCurrentOrLastDrawer = () => {
     let drawer = "Unknown";
-    if (sessionStorage.practise == "true") drawer = document.querySelector("#inputName").value.split("#")[0];
-    else if (sessionStorage.lastDrawing) drawer = sessionStorage.lastDrawing;
-    else try {
-        drawer = QS('#containerGamePlayers .drawing:not([style*="display: none"])').parentElement.parentElement.QS(".name").textContent.replace(" (You)", "");
+    if (QS(".avatar .drawing[style*=block]"))
+        drawer = QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".name").textContent.replace("(You)", "").trim();
+    else {
+        try {
+            drawer = (new RegExp(">([^>]+?) is drawing now!<\/b>", "g")).exec(QS("#game-chat .content").innerHTML).pop();
+        }
+        catch {}
     }
-    catch{ }
     return drawer;
 }
 
-// adds a color palette
-const addColorPalette = (paletteJson) => {
-    let containerColorbox = document.createElement("div");
-    containerColorbox.classList.add("containerColorbox");
-
-    let columns = [];
-    paletteJson.colors.forEach(c => {
-        let index = paletteJson.colors.indexOf(c);
-        if (!columns[Math.floor(index / paletteJson.rowCount)]) columns.push([]);
-        columns[Math.floor(index / paletteJson.rowCount)].push(c);
-    });
-
-    let paletteContainer = document.createElement("div");
-    paletteContainer.id = paletteJson.name;
-
-    if (localStorage.palette == paletteJson.name) document.querySelector(".containerColorbox").style.display = "none";
-    else paletteContainer.style.display = "none";
-
-    paletteContainer.classList.add("containerColorbox");
-    paletteContainer.classList.add("customPalette");
-    paletteContainer.setAttribute("data-toggle", "tooltip");
-    paletteContainer.setAttribute("data-placement", "top");
-    paletteContainer.setAttribute("title", "");
-    paletteContainer.setAttribute("data-original-title", "Select a color");
-
-    columns.forEach(c => {
-        let colorColumn = document.createElement("div");
-        colorColumn.classList.add("containerColorColumn");
-        c.forEach(i => {
-            let colorItem = document.createElement("div");
-            colorItem.classList.add("colorItem");
-            colorItem.setAttribute("data-color", i.index);
-            colorItem.style.background = i.color;
-            colorItem.addEventListener("click", () => document.querySelector("body").dispatchEvent(newCustomEvent("setColor", { detail: i.index })));
-            colorColumn.appendChild(colorItem);
-        });
-        paletteContainer.appendChild(colorColumn);
-    });
-    let tools = document.querySelector(".containerTools");
-    tools.parentElement.insertBefore(paletteContainer, tools);
-    return paletteContainer;
+const getCurrentWordOrHint = () => {
+    if (QS("#game-word .description").textContent.includes("DRAW")) {
+        // get whole word
+        return QS("#game-word .word").textContent;
+    }
+    else return [...document.querySelectorAll("#game-word .hints .container .hint")].map(elem => elem.textContent).join("");
 }
 
-// Creates accessibility tooltip for an element
-const buildTooltip = (elem) => {
-    let self = elem;
-    if (self.matches('.toolIcon')) {
-        self.parentNode.setAttribute('title', self.getAttribute('title'));
-        self.removeAttribute('title');
-        self = self.parentNode;
+// adds a color palette
+const setColorPalette = (colorPalette) => {
+    paletteContainer = elemFromString(`<div class="colors custom"></div>`);
+    let swatches = [...colorPalette.swatches];
+    while (swatches.length > 0) {
+        const rowElem = elemFromString("<div class='mid'></div>");
+        swatches.splice(0, colorPalette.rowCount).forEach(swatch => {
+            rowElem.appendChild(swatch.swatch);
+        });
+        paletteContainer.appendChild(rowElem);
     }
-    self.style.cursor = 'pointer';
-    self.setAttribute('data-placement', 'auto bottom');
-    self.setAttribute('data-typo-tooltip', 'true'); // To differentiate the tooltips to initialize
-    return self;
-};
+    paletteContainer.addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
+    if (QS("#game-toolbar .color-picker .colors.custom")) {
+        QS("#game-toolbar .color-picker .colors.custom").replaceWith(paletteContainer);
+    }
+    else QS("#game-toolbar .color-picker .colors").insertAdjacentElement("afterend", paletteContainer);
+    QS("#game-toolbar .color-picker .colors").style.display = "none";
+}
 
-// show practise mode
-const showPractise = () => {
-    sessionStorage.practise = true;
-    QS(".containerToolbar").style.display = "";
-    QS("#screenGame").style.display = "block";
-    QS("#screenLogin").style.display = "none";
-    QS("#containerLogoBig").style.display = "none";
-    document.querySelector("#currentWord").innerHTML = "Practise";
+const createColorPalette = (paletteObject) => {
+    const palette = {
+        rowCount: 1,
+        name: paletteObject.name,
+        colors: [
+        ],
+        swatches: [
+        ],
+        json: "",
+        activate: () => {
+            setColorPalette(palette);
+        }
+    };
+    palette.rowCount = paletteObject && paletteObject.rowCount ? paletteObject.rowCount : 2;
+    let dummyColorTester = elemFromString("<div style='display:none'></div>");
+    document.body.appendChild(dummyColorTester);
+    paletteObject?.colors?.forEach(color => {
+        if (color.color) {
+            dummyColorTester.style.backgroundColor = color.color;
+            const col = new Color({ rgb: window.getComputedStyle(dummyColorTester).backgroundColor });
+            palette.colors.push({ color: col.hex });
+            const swatch = elemFromString(`<div class="item"><div class="inner" style="background-color:${col.hex}"></div></div>`);
+            const code = parseInt(col.hex.replace("#",""), 16) + 10000;
+            swatch.addEventListener("mousedown", (e) => {
+                document.dispatchEvent(newCustomEvent("setColor", { detail: { code: code, secondary: e.button === 2 } }));
+            });
+            palette.swatches.push({ swatch: swatch });
+        }
+    });
+    document.body.removeChild(dummyColorTester);
+    palette.json = JSON.stringify({ rowCount: palette.rowCount, name: palette.name, colors: palette.colors });
+    return palette;
+}
+
+const convertActionsArray = (actions) => {
+    const commands = actions.flat();
+    commands.forEach(command => {
+        switch (command[0]) {
+            case 2: command[0] = 1;
+            case 0:
+                if (command[1] > 11) command[1] += 2; // if index > 11, skip new cyan color column
+                if (command[1] > 19) command[1] += 2; // if index > 11, skip new skin tone color column
+                command[1] = command[1] % 2 == 0 ? // if command is fill or brush
+                    command[1] + (command[1] / 2) : // if color is even, add half of index
+                    command[1] + ((command[1] + 1) / 2); // if odd, add half of index+1
+                break;
+            case 1:
+                command = [command[0], 0, command[1], command[2], command[3], command[4], command[5]];
+                break;
+        }
+    });
+    return commands;
 }
 
 // leave lobby
-const leaveLobby = (next = false) => {
-    if (next && sessionStorage.practise != "true") {
-        QS("#screenLogin").style.display = "none";
-        let join = async () => {
-            document.removeEventListener("disconnectedSocket", join);
+const leaveLobby = async (next = false) => {
+    return new Promise((resolve, reject) => {
+        if (next) {
             let joined = false;
-            document.addEventListener("initJoin", () => joined = true);
-            while (!joined) {
-                await waitMs(50);
-                document.body.dispatchEvent(newCustomEvent("joinLobby"));
-            }
+            setTimeout(() => { joined || reject(); }, 4000);
+            document.addEventListener("leftLobby", () => {
+                document.addEventListener("joinedLobby", () => {
+                    joined = true;
+                    resolve();
+                }, { once: true });
+                document.dispatchEvent(newCustomEvent("joinLobby"));
+            }, { once: true });   
         }
-        document.addEventListener("disconnectedSocket", join);
-    }
-    document.body.dispatchEvent(newCustomEvent("leaveLobby"));
-    if (sessionStorage.practise == "true") {
-        sessionStorage.practise = "false";
-        QS("#screenGame").style.display = "none";
-        QS(".containerToolbar").style.display = "none";
-        if (next) document.body.dispatchEvent(newCustomEvent("joinLobby"));
-    }
-    if (!next && document.fullscreenElement) document.exitFullscreen();
+        document.dispatchEvent(newCustomEvent("leaveLobby"));
+        if (!next && document.fullscreenElement) {
+            document.exitFullscreen();
+            resolve();
+        }
+    });    
 }
 document.addEventListener("toast", (e) => new Toast(e.detail.text, 1000));
 
 
 // set default settings
 const setDefaults = (override = false) => {
-    if (!localStorage.member || override) localStorage.member = '';
+    if (!localStorage.member || override) localStorage.member = "";
     if (!localStorage.client || override) localStorage.client = Date.now();
     if (!localStorage.visualOptions || override) localStorage.visualOptions = "{}";
-    if (!localStorage.addedFilters || override) localStorage.addedFilters = "[]";
     if (!localStorage.themes || override) localStorage.themes = `[{"name":"Original","options":{"urlLogo":"","urlBackground":"","containerImages":"","fontColor":"","fontColorButtons":"","fontStyle":"","containerBackgroundsCheck":false,"containerBackgrounds":"","inputBackgroundsCheck":false,"inputBackgrounds":"","containerOutlinesCheck":false,"containerOutlines":"","inputOutlinesCheck":false,"inputOutlines":"","hideFooter":false,"hideCaptcha":false,"hideMeta":false,"hideAvatarLogo":false,"hideInGameLogo":false,"hideAvatarSprites":false}},{"name":"Dark Discord","options":{"urlLogo":"","urlBackground":"https://cdn.discordapp.com/attachments/715996980849147968/814955491876012032/dcdark.png); background-size: 800px;(","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Karla:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#2C2F3375","inputBackgroundsCheck":true,"inputBackgrounds":"#00000075","containerOutlinesCheck":true,"containerOutlines":"transparent !important; border-left: 4px solid #7289DA !important; ","inputOutlinesCheck":true,"inputOutlines":"transparent !important; border-left: 3px solid #363636 !important; ","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":true}},{"name":"Alpha","options":{"urlLogo":"https://imgur.com/k8e70AG.png","urlBackground":"https://i.imgur.com/UNZtzl6.jpg","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Mulish:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#ffffff50","inputBackgroundsCheck":true,"inputBackgrounds":"#00000040","containerOutlinesCheck":true,"containerOutlines":"","inputOutlinesCheck":true,"inputOutlines":"","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}}]`;
-    localStorage.keepCanvas = "false";
     if (!localStorage.controls || override) localStorage.controls = "true";
     if (!localStorage.restrictLobby || override) localStorage.restrictLobby = "";
     if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
-    if (!localStorage.userAllow || override) localStorage.userAllow = "true";
-    if (!localStorage.login || override) localStorage.login = "";
-    if (!localStorage.ownHoly || override) localStorage.ownHoly = "false";
+    if (!localStorage.palantir || override) localStorage.palantir = "true";
     if (!localStorage.ink || override) localStorage.ink = "true";
     if (!localStorage.inkMode || override) localStorage.inkMode = "thickness";
-    if (!localStorage.sens || override) localStorage.sens = 50;
-    if (!localStorage.charBar || override) localStorage.charBar = "false";
-    if (!localStorage.imageAgent || override) localStorage.imageAgent = "false";
+    if (!localStorage.sensitivity || override) localStorage.sensitivity = 50;
+    if (!localStorage.charbar || override) localStorage.charbar = "false";
+    if (!localStorage.agent || override) localStorage.agent = "false";
     if (!localStorage.sizeslider || override) localStorage.sizeslider = "false";
     if (!localStorage.emojipicker || override) localStorage.emojipicker = "true";
     if (!localStorage.drops || override) localStorage.drops = "true";
     if (!localStorage.zoomdraw || override) localStorage.zoomdraw = "true";
+    if (!localStorage.drops || override) localStorage.drops = "true";
     if (!localStorage.quickreact || override) localStorage.quickreact = "true";
     if (!localStorage.chatcommands || override) localStorage.chatcommands = "true";
-    if (!localStorage.vip || override) localStorage.vip = "";
+    if (!localStorage.vip || override) localStorage.vip = "[]";
     if (!localStorage.markup || override) localStorage.markup = "false";
-    if (!localStorage.markupColor || override) localStorage.markupColor = "#ffd6cc";
-    if (!localStorage.randomColorInterval || override) localStorage.randomColorInterval = 50;
-    if (!localStorage.randomColorButton || override) localStorage.randomColorButton = false;
-    if (!localStorage.displayBack || override) localStorage.displayBack = false;
-    if (!sessionStorage.lobbySearch || override) sessionStorage.lobbySearch = "false";
-    if (!sessionStorage.searchPlayers || override) sessionStorage.searchPlayers = "[]";
-    if (!sessionStorage.skipDeadLobbies || override) sessionStorage.skipDeadLobbies = "false";
+    if (!localStorage.markupcolor || override) localStorage.markupcolor = "254";
+    if (!localStorage.randominterval || override) localStorage.randominterval = 50;
+    if (!localStorage.random || override) localStorage.random = "true";
     if (!localStorage.palette || override) localStorage.palette = "originalPalette";
     if (!localStorage.customPalettes || override) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
-    sessionStorage.pipetteURL = chrome.runtime.getURL("res/pipette.gif");
-    sessionStorage.practise = "false";
     if (!Number(localStorage.qualityScale) || Number(localStorage.qualityScale) < 1  ) localStorage.qualityScale = 1;
 }
+
+
+const hints = [
+    "Did you notice the tool shortcuts B,F and E?<br>Try out C to use a color pipette tool.",
+    "Click on the canvas and use Shift+Arrow to draw a perfect straight line!",
+    "Connect the Palantir Discord bot to search for your friends easily.",
+    "Enable the ImageAgent to show template pictures when you're drawing.",
+    "Use arrow up/down to recover the last chat input.",
+    "Enable random colors and click the dice in the color field to get a rainbow brush.<br>Click any color to abort.",
+    "Search for multiple player names by separating them with a comma.",
+    "Change the markup color for your chat messages with the slider in the popup tab 'advanced'.",
+    "Change the pressure sensitivity with the slider in the popup tab 'advanced'.",
+    "Toggle your discord bot visibility in the extension popup.",
+    "Get more colors by choosing the sketchful palette in the popup tab 'advanced'.<br>Only extension users see those colors.",
+    "When creating a private lobby, you can set a description which can be seen in the discord bot.",
+    "Click a lobby button to search for a lobby automatically.<br>The search will pause until there are free slots.",
+    "Click the letter icon to share the current image directly to any of your discord servers.",
+    "To remove an added Discord server, click its name in the popup tab 'Discord'.",
+    "To save a practise drawing in Typo Cloud Gallery, click 'Save current' in 'ImageTools'.",
+    "Use emojis in the chat! To send one, type :emoji-name:",
+    "Use kick-- like-- shame-- to quickly kick, like or dislike without having to grab your mouse.",
+    "Remove drawings from ImageTools by right-clicking them.",
+    "Remove themes by right-clicking them.",
+    "SPAMGUESS!!!1! - oh wait, you didn't click the input field. <br>Click TAB to quickly select the chatbox.",
+    "Mute players by clicking their name. A red name is a muted player.",
+    "Create masterpieces with the Don't Clear mode - the canvas won't be cleared after your turn.<br>This is fun on custom rounds!",
+    "Press STRG+C to copy the current drawing to the clipboard.",
+    "Press T to quickly open the tablet options.",
+    "To set a custom font, go to <a href='https://fonts.google.com/'>Google Fonts</a>, select a font and copy the bold text in the input field in the visual options.",
+    "Click the magnifier icon to use a color picker! All Typo users can see the colors.",
+    "Precision Work? Use the zoom feature!<br> [STRG + Click] to zoom to point, any number to set zoom level and leave with [STRG + Click].",
+    "If you like the extension, tell others about it or rate it on the chrome store! <3",
+    "Skribbl is too easy? Try the game modes deaf, one shot & blind!",
+    "Remove a filter by right-clicking it",
+    "The filters for Round, Player Count and Average Score accept modifiers like + and -.",
+    "If you enter multiple player names for a filter, the filter matches at anyone of these.",
+    "The game feels slow & lags after a time in the same lobby?<br>Use the command 'clr--' to clear old chat & make the game fast gain.",
+    "Use the quickreact-menu to like, dislike & kick with your keyboard!<br>You can access it by klicking 'CTRL' in the chat box.",
+    "Want to share a chat snippet on Discord?<br>Select the messages and click 'Copy chat election for Discord' to create a nicely formatted chat history.",
+    "In practise, you can also paste .png to the skribbl canvas! To do so, click 'Paste Image' in Image Tools."
+];
