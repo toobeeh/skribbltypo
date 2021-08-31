@@ -41,7 +41,7 @@ const emojis = {
                     if (limit < 100 && search.length == limit) content += "<br><span style='color:black' id='loadingHintEmojis'>Loading more...</span>";
                     QS("#emojiPrev").innerHTML = content;
                     [...QSA("#emojiPrev > span:not(#loadingHintEmojis)")].forEach(emoji => emoji.addEventListener("click", () => {
-                        input.value = QS("#game-chat input").value.replace(":" + lastsplit, ":" + emoji.textContent.trim() + ":");
+                        input.value = input.value.replace(":" + lastsplit, ":" + emoji.textContent.trim() + ":");
                         input.dispatchEvent(newCustomEvent("input"));
                         input.focus();
                     }));

@@ -56,6 +56,7 @@ const visuals = {
         // font color of everything in-game 
         let ingamecolor = options["ingameFontColor"] ? options["ingameFontColor"] : "";
         if (ingamecolor && ingamecolor != "") {
+            style.innerHTML += "#game-chat > div.container > div.content > p *:not([style*='rgb(125, 173, 63)']) {color:" + ingamecolor.trim() + " !important}";
             style.innerHTML += "#game * {color:" + ingamecolor.trim() + "}";
             style.innerHTML += "div#game-toolbar.typomod div.tools-container div.tools div.tool div.key, #game-word .description, #game-round .round-max, #game-round span, #game-players .player-amount b:nth-child(4), #game-players .player-amount span {color:" + ingamecolor.trim() + "; filter: brightness(0.8);}";
         }
