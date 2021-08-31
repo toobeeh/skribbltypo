@@ -30,8 +30,8 @@ const visuals = {
         }
         if (options["ingameContainerBackgroundsCheck"] == true) {
             let val = options["ingameContainerBackgrounds"] ? options["ingameContainerBackgrounds"].trim() : "";
-            style.innerHTML += "#imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar div.color-picker div.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .list .player:not(.odd) {background-color: " + (val != "" ? val : "transparent") + " !important}";
-            style.innerHTML += "#game-players .list .player{background-color: " + (val != "" ? val : "transparent") + "; filter:brightness(0.9)}";
+            style.innerHTML += "#imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar div.color-picker div.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .list .player, #game-players .list .player.odd {background-color: " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#game-players .list .player.odd{background-image: linear-gradient(0, " + (val != "" ? val : "transparent") + ", " + (val != "" ? val : "transparent") + ");}";
             style.innerHTML += "#game-chat .content {background:none}";
             style.innerHTML += "#game-chat .container .content p:nth-child(even) {background-color: #ffffff20;}";
         }

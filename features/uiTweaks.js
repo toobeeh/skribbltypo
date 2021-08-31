@@ -28,18 +28,18 @@ const uiTweaks = {
         // Add wordcount under input
         const input = QS("#game-chat .container form input");
         const hints = QS("#game-word .hints .container");
-        let charbar = (input.insertAdjacentHTML("afterend", "<span id='charbar'></span>"), QS("#charbar"));
-        charbar.display = localStorage.charbar == "true" ? "" : "none";
+        let charbar = (input.insertAdjacentHTML("afterend", "<span id='charbar' style='color:black' ></span>"), QS("#charbar"));
+        charbar.insertAdjacentHTML("afterend", "<style id='charcountRules'></style>");
 
-        input.insertAdjacentHTML("afterEnd", "</div><div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 2.5em;background: white;border-radius: 0.5em;'></div>");
+        input.insertAdjacentHTML("afterEnd", "<div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 2.5em;background: white;border-radius: 0.5em;'></div>");
         let refreshCharBar = () => {
             // recognize command and call interpreter
             if (input.value.includes("--") && localStorage.chatcommands == "true") {
                 performCommand(input.value);
                 input.value = "";
             }
-            if (hints.querySelector(".word-length")) { // show charbar only if guessing 
-                charbar.style.display = "";
+            QS("#charcountRules").innerHTML = localStorage.charbar == "true" ? ".word-length{display:block !important}" : "#charbar { display: none !important }";
+            if (hints.querySelector(".word-length") && hints.querySelector(".word-length").parentElement.style.display != "none") { // show charbar only if guessing
                 let word = hints.textContent.replace(hints.querySelector(".word-length").innerText, "");
                 charbar.textContent = word.length - input.value.length;
                 if (input.value.length > word.length
@@ -49,17 +49,15 @@ const uiTweaks = {
                 else charbar.style.background = "#BAFFAA";
             }
             else {
-                charbar.innerText = "";
-                charbar.style.display = "none";
+                charbar.innerText = " - ";
+                charbar.style.background = "#BAFFAA";
             }
-            if (localStorage.charbar == "true" && hints.querySelector(".word-length")) 
-                hints.querySelector(".word-length").style.display = "block";
         }
-
+        refreshCharBar();
         // Add event listener to keyup and process to hints
         input.addEventListener("keyup", refreshCharBar);
         // Add event listener to word mutations
-        (new MutationObserver(refreshCharBar)).observe(QS("#game-word"), { attributes: true, childList: true, subtree:true, characterData:true });
+        (new MutationObserver(refreshCharBar)).observe(QS("#game-word"), { attributes: true, childList: true, subtree: true, characterData: true });
     },
     initRandomColorDice: () => {
         // add random color image
@@ -441,6 +439,42 @@ const uiTweaks = {
             new Toast("Copied image to clipboard.", 1500);
         });
     },
+    initChatRecall: () => {
+        const input = QS("#game-chat .container form input");
+        let history = [];
+        let lookup = [];
+        // Add event listener to keyup and process to hints
+        input.addEventListener("keydown", (event) => {
+            if (event.code == "Enter") {
+                history = history.concat(lookup.splice(0).reverse());
+                history.push(input.value);
+            }
+            else if (event.code == "ArrowUp") {
+                let prev = history.pop();
+                if (prev) {
+                    lookup.push(prev);
+                    input.value = prev;
+                }
+            }
+            else if (event.code == "ArrowDown") {
+                let next = lookup.pop();
+                if (next) {
+                    history.push(next);
+                    input.value = next;
+                }
+            }
+        });
+    },
+    initChooseCountdown: () => {
+        const overlay = QS(".overlay");
+        QS(".overlay").insertAdjacentHTML("beforeBegin",
+            "<style>.overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}.overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
+        const overlayObserver = new MutationObserver(() => {
+            if (QS(".overlay-content .text.show").innerText.includes("Choose a word")) overlay.classList.add("countdown");
+            else overlay.classList.remove("countdown");
+        });
+        overlayObserver.observe(QS(".overlay-content"), {subtree:true, attributes:true, characterData:true});
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -461,12 +495,12 @@ const uiTweaks = {
         uiTweaks.initSelectionFormatter();
         uiTweaks.initSideControls();
         uiTweaks.initDefaultKeybinds();
+        uiTweaks.initChatRecall();
+        uiTweaks.initChooseCountdown();
 
         // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins, clean frontpage
         QS(".footer").insertAdjacentElement("afterbegin", QS(".socials"));
-        QS(".overlay").insertAdjacentHTML("beforeBegin",
-            "<style>.overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}.overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
-
+        
         // random easteregg
         if(Math.random() < 0.1) QS("#game-chat .container form input").placeholder = "Typo your guess here...";
     }
