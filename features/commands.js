@@ -435,7 +435,7 @@ const performCommand = (command) => {
     else if (command.startsWith("disable")) toggle = false;
     command = command.replace("enable", "").replace("disable", "").trim();
     // extract args
-    const args = commands.includes(" ") ? command.substr(command.indexOf(" ")).trim() : "";
+    const args = command.includes(" ") ? command.substr(command.indexOf(" ")).trim() : "";
     command = command.replace(args, "").trim();
     match = false;
     // find matching command
