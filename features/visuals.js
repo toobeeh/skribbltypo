@@ -86,19 +86,19 @@ const visuals = {
             style.innerHTML += ".link .input-container .link-overlay {display:none !important} input[type=checkbox]{border:none !important;} input, textarea, button, select {border: 2px solid " + (val != "" ? val : "transparent") + " !important; }";
         }
         if (options["hideFooter"] == true) {
-            style.innerHTML += ".login-content .col-xs-12{display:none}";
+            style.innerHTML += ".tos, .notice {display:none}";
         }
-        if (options["hideCaptcha"] == true) {
-            style.innerHTML += ".grecaptcha-badge{display:none !important}";
+        if (options["hideTypoInfo"] == true) {
+            style.innerHTML += "#typoUserInfo {display:none !important}";
         }
-        if (options["hideMeta"] == true) {
-            style.innerHTML += "#tabAbout, #tabHow{display:none}";
+        if (options["hideDiscord"] == true) {
+            style.innerHTML += "#home .footer .socials {display:none}";
         }
         if (options["hideInGameLogo"] == true) {
-            style.innerHTML += "#containerLogoSmall{display:none !important}";
+            style.innerHTML += "#game > .logo-small{display:none}";
         }
         if (options["hideAvatarLogo"] == true) {
-            style.innerHTML += "#logoAvatarContainer{display:none }";
+            style.innerHTML += "#home .logo-big .avatar-container {display:none }";
         }
         if (options["hideAvatarSprites"] == true) {
             style.innerHTML += ".avatar-customizer .spriteSlot{display:none }";
@@ -167,7 +167,7 @@ const visuals = {
             <input class='flatUI' type='text' id='fontColor' placeholder='#ffffff'>
         </div>
         <div>
-            <h4>Ing-GameFont Color</h4>
+            <h4>In-Game Font Color</h4>
             <input class='flatUI' type='text' id='ingameFontColor' placeholder='#ffffff'>
         </div>
 
@@ -190,7 +190,7 @@ const visuals = {
         <input class='flatUI' type='text' id='containerBackgrounds' placeholder='transparent'>
 
         <label>
-            <input type="checkbox" class="flatUI" id='ingameContainerBackgroundsCheck'> <span>Change Ingame-Container Backgrounds</span>
+            <input type="checkbox" class="flatUI" id='ingameContainerBackgroundsCheck'> <span>Change In-Game-Container Backgrounds</span>
         </label>
         <input class='flatUI' type='text' id='ingameContainerBackgrounds' placeholder='transparent'>
 
@@ -213,8 +213,8 @@ const visuals = {
     <h3>Hide Elements</h3>
     <div style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 1em;grid-row-gap: 1em; margin: 0 1em;">
         <label><input type="checkbox" class="flatUI" id="hideFooter"> <span>Hide credits, contact & TOS on frontpage</span></label>
-        <label><input type="checkbox" class="flatUI" id="hideCaptcha"> <span> Hide captcha</span></label>
-        <label><input type="checkbox" class="flatUI" id="hideMeta"> <span> Hide About & How to Play</span></label>
+        <label><input type="checkbox" class="flatUI" id="hideTypoInfo"> <span> Hide palantir stats</span></label>
+        <label><input type="checkbox" class="flatUI" id="hideDiscord"> <span> Hide Discord banner</span></label>
         <label><input type="checkbox" class="flatUI" id="hideAvatarLogo"> <span> Hide avatars beyond logo</span></label>
         <label><input type="checkbox" class="flatUI" id="hideInGameLogo"> <span> Hide logo in-game</span></label>
         <label><input type="checkbox" class="flatUI" id="hideAvatarSprites"> <span> Hide sprites on frontpage</span></label>

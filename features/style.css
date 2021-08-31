@@ -14,8 +14,8 @@
         margin-bottom:5px;
     }
 
-html > body{
-    margin-bottom:15px;
+#game{
+    margin-bottom:15px !important;
 }
 
 #home .news .head, #game-room .container-settings .lobby-name{border-bottom-color:transparent !important}
@@ -179,6 +179,11 @@ span.small {
     min-height: 15%;
     padding: 1em;
     bottom: 3em;
+}
+#emojiPrev {
+    background-color: rgb(3 34 140 / 75%);
+    backdrop-filter: blur(4px);
+    box-shadow: black 1px 1px 9px -2px;
 }
 #game-players.room #imageOptions{
     display:none;
