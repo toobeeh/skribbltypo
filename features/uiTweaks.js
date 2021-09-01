@@ -90,22 +90,23 @@ const uiTweaks = {
             useAsButton: true,
             theme: 'nano',
             components: {
-
                 // Main components
                 preview: true,
                 hue: true,
-
                 // Input / output Options
                 interaction: {
                     input: true,
                 }
             }
         });
+        let dontDispatch = false;
         pickr.on("change", color => {
             colcode = parseInt(color.toHEXA().toString().replace("#", ""),16) + 10000;
-            document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
+            if (!dontDispatch) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
+            dontDispatch = false;
         });
         document.querySelector(".colors").addEventListener("click", () => {
+            dontDispatch = true;
             pickr.setColor(QS("#color-preview-primary").style.fill);
         });
     },
@@ -279,7 +280,8 @@ const uiTweaks = {
             let modal = new Modal(options, () => { }, "Select a tablet mode", "50vw", "0px");
             options.addEventListener("click", () => modal.close());
         });
-        //QS("#controls").append(tabletMode);
+        tabletMode.style.display = localStorage.ink == "true" ? "" : "none";
+        QS("#controls").append(tabletMode);
         // add appearance options
         let visualsButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/visuals.gif")
@@ -470,7 +472,7 @@ const uiTweaks = {
         QS(".overlay").insertAdjacentHTML("beforeBegin",
             "<style>.overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}.overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
         const overlayObserver = new MutationObserver(() => {
-            if (QS(".overlay-content .text.show").innerText.includes("Choose a word")) overlay.classList.add("countdown");
+            if (QS(".overlay-content .text.show")?.innerText.includes("Choose a word")) overlay.classList.add("countdown");
             else overlay.classList.remove("countdown");
         });
         overlayObserver.observe(QS(".overlay-content"), {subtree:true, attributes:true, characterData:true});

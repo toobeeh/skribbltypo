@@ -69,7 +69,7 @@ let patcher = new MutationObserver((mutations) => {
                     node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true });
                     // insert patched script
                     let script = document.createElement("script");
-                    script.src = chrome.extension.getURL("newGamePatch.js");
+                    script.src = chrome.extension.getURL("gamePatch.js");
                     node.parentElement.appendChild(script);
                     
                 }

@@ -251,6 +251,25 @@ const commands = [
             }
         }
     }, {
+        command: "typoink",
+        options: {
+            type: "toggle",
+            description: "Enables typo's ink drawing instead built-in.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.typoink = "true";
+                QS("#tabMode").style.display = "";
+            },
+            actionDisable: () => {
+                localStorage.typoink = "false";
+                QS("#tabMode").style.display = "none";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " typo inkmodes.";
+            }
+        }
+    }, {
         command: "quickreact",
         options: {
             type: "toggle",
