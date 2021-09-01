@@ -69,8 +69,11 @@
                 else _n() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = ""
             });
             document.addEventListener("setColor", (e) => {
-                if (e.detail.secondary) st(e.detail.code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill
-                else ct(e.detail.code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill
+                let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
+                let match = Ge.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
+                let code = match >= 0 ? match : e.detail.code;
+                if (e.detail.secondary) st(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill
+                else ct(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill
             });
             document.addEventListener("performDrawCommand", (e) => {
                 Ee.push(e.detail); // IDENTIFY x.push(e.detail): .getContext("2d"), x = []

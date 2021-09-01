@@ -76,7 +76,7 @@
         "features/visuals.js",
         "errors.js",
         "features/socket.js",
-        "features/lobbies_.js",
+        "features/lobbies.js",
         "patcher.js"
       ],
       "css": [
