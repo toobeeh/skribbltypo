@@ -1323,6 +1323,10 @@
         switch (t) {
             case Kn:
                 Nn(n);
+                // TYPOMOD
+                // desc: send lobbydata
+                document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: e.data }));
+                // TYPOEND
                 break;
             case Vn:
                 Fn(n);
@@ -1337,10 +1341,6 @@
                 Ma = n;
                 break;
             case Xn:
-                // TYPOMOD
-                // desc: send lobbydata
-                document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: e.data }));
-                // TYPOEND
                 fe(ua(n, !0).name + " joined the room!", "", h, !0), pn.playSound(en);
                 break;
             case Bn:
