@@ -170,6 +170,9 @@ const uiTweaks = {
         palettes = JSON.parse(localStorage.customPalettes).forEach(palette => {
             uiTweaks.palettes.push(createColorPalette(palette));
         });
+        // add small skribbl palette
+        const smallSkribbl = `{"name":"oldSkribbl", "rowCount": 11, "colors":[{"color":"rgb(255, 255, 255)"},{"color":"rgb(210, 210, 210)"},{"color":"rgb(239, 19, 11)"},{"color":"rgb(255, 113, 0)"},{"color":"rgb(255, 228, 0)"},{"color":"rgb(0, 204, 0)"},{"color":"rgb(0, 178, 255)"},{"color":"rgb(35, 31, 211)"},{"color":"rgb(163, 0, 186)"},{"color":"rgb(211, 124, 170)"},{"color":"rgb(160, 82, 45)"},{"color":"rgb(0, 0, 0)"},{"color":"rgb(80, 80, 80)"},{"color":"rgb(86, 8, 6)"},{"color":"rgb(137, 39, 0)"},{"color":"rgb(163, 103, 0)"},{"color":"rgb(0, 61, 3)"},{"color":"rgb(0, 59, 120)"},{"color":"rgb(8, 3, 82)"},{"color":"rgb(65, 0, 81)"},{"color":"rgb(118, 48, 75)"},{"color":"rgb(72, 28, 0)"}]}`;
+        uiTweaks.palettes.push(createColorPalette(JSON.parse(smallSkribbl)));
         uiTweaks.palettes.push({
             name: "originalPalette", activate: () => {
                 [...QSA("#game-toolbar .color-picker .colors.custom")].forEach(p => p.remove());
