@@ -59,7 +59,6 @@ const visuals = {
         if (color && color != "") {
             style.innerHTML += "#home .bottom .footer .notice, * {color:" + color.trim() + "}";
             style.innerHTML += "input[type=checkbox].flatUI, #game-chat .container form input, input[type=text].flatUI, #home .bottom .footer .section-container .section{color:unset}"
-            //style.innerHTML += "#emojiPrev span, #sharePopup, .player .text, .wordContainer .word, .modalTitle, .modal-title, .checkbox label {color: black !important}";
         }
         // font color of everything in-game 
         if (!options["ingameFontColor"] && options["fontColor"]) {

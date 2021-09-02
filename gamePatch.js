@@ -39,7 +39,7 @@
         createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
             // IDENTIFY x.value.split: #home .container-name-lang input
             // IDENTIFY x.avatar: [Math.round(100 * Math.random()) %
-            return { id: id, name: name.length != 0 ? name : (wn.value.split("#")[0] != "" ? wn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? I.avatar : avatar, score: score, guessed: guessed };
+            return { id: id, name: name.length != 0 ? name : (Cn.value.split("#")[0] != "" ? Cn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? I.avatar : avatar, score: score, guessed: guessed };
         },
         createFakeLobbyData: (
             settings = ["PRACTISE", "en", 1, 8, 80, 3, 3, 2, 0, false],
@@ -59,14 +59,14 @@
                 jn(true);
                 setTimeout(() => {
                     typo.lastConnect = Date.now();
-                    xn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play")
-                    Ln(false); // IDENTIFY x(false): querySelector("#load").style.display
+                    qn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play")
+                    Mn(false); // IDENTIFY x(false): querySelector("#load").style.display
                     document.dispatchEvent(new Event("joinedLobby"));
                 }, timeoutdiff < 3000 ? 3000 - timeoutdiff : 0);
             });
             document.addEventListener("leaveLobby", () => {
                 if (typo.disconnect) typo.disconnect();
-                else _n() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = ""
+                else Pn() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = ""
             });
             document.addEventListener("setColor", (e) => {
                 let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
@@ -104,7 +104,7 @@
     }
 
     function A() {
-        u.localStorageAvailable && (n.setItem("name", wn.value), n.setItem("lang", qn.value), n.setItem("audio", I.audio_mute ? 1 : 0), n.setItem("ava", JSON.stringify(I.avatar)), console.log("Settings saved."))
+        u.localStorageAvailable && (n.setItem("name", Cn.value), n.setItem("lang", wn.value), n.setItem("audio", I.audio_mute ? 1 : 0), n.setItem("ava", JSON.stringify(I.avatar)), console.log("Settings saved."))
     }
 
     function E(e, t, n) {
@@ -214,11 +214,11 @@
             case j:
                 G.textContent = "";
                 var a = K[j].querySelector(".buttons");
-                a.style.display = t.id == sn ? "none" : "flex", a.querySelector(".button-pair").style.display = sn == dn ? "flex" : "none", V(t.muted);
+                a.style.display = t.id == cn ? "none" : "flex", a.querySelector(".button-pair").style.display = cn == sn ? "flex" : "none", V(t.muted);
                 var o = J.querySelector(".player");
                 O(o);
                 a = R(t.avatar, 96);
-                F(a, dn == t.id), a.style.width = "96px", a.style.height = "96px", o.appendChild(a), o.appendChild(T("name", t.id == sn ? t.name + " (You)" : t.name));
+                F(a, sn == t.id), a.style.width = "96px", a.style.height = "96px", o.appendChild(a), o.appendChild(T("name", t.id == cn ? t.name + " (You)" : t.name));
                 break;
             case z:
                 G.textContent = "Rooms", oe(t);
@@ -249,7 +249,7 @@
                 page: 0,
                 data: e
             }), E(t, "click", function () {
-                An(e.id)
+                Dn(e.id)
             })
         }(t[e]);
         ! function () {
@@ -381,8 +381,8 @@
             ! function () {
                 {
                     var e;
-                    0 < Ye.length && (Ye.pop(), 0 < Ye.length ? (pt(e = Ye[Ye.length - 1]), ln && ln.emit("data", {
-                        id: la,
+                    0 < Ye.length && (Ye.pop(), 0 < Ye.length ? (pt(e = Ye[Ye.length - 1]), rn && rn.emit("data", {
+                        id: ra,
                         data: e
                     })) : St())
                 }
@@ -413,7 +413,7 @@
 
     function He() {
         var e = Le[ze].cursor;
-        if (fn.id == m && un == sn) {
+        if (hn.id == m && dn == cn) {
             if (ze == me) {
                 var t = _e.width,
                     n = Je;
@@ -423,7 +423,7 @@
                 let rgbArr = Xe < 10000 ? Ge[Xe] : typo.hexToRgb((Xe - 10000).toString(16).padStart(6, "0"));
                 je.clearRect(0, 0, t, t), je.fillStyle = ht(rgbArr), je.beginPath(), je.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), je.fill(), je.strokeStyle = "#FFF", je.beginPath(), je.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), je.stroke(), je.strokeStyle = "#000", je.beginPath(), je.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), je.stroke();
                 // TYPOEND
-                // ORIG je.clearRect(0, 0, t, t), je.fillStyle = ht(Ge[Xe]), je.beginPath(), je.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), je.fill(), je.strokeStyle = "#FFF", je.beginPath(), je.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), je.stroke(), je.strokeStyle = "#000", je.beginPath(), je.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), je.stroke();
+                // ORIGINAL je.clearRect(0, 0, t, t), je.fillStyle = ht(Ge[Xe]), je.beginPath(), je.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), je.fill(), je.strokeStyle = "#FFF", je.beginPath(), je.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), je.stroke(), je.strokeStyle = "#000", je.beginPath(), je.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), je.stroke();
                 t = t / 2, e = "url(" + _e.toDataURL() + ")" + t + " " + t + ", default"
             }
         } else e = "default";
@@ -515,7 +515,7 @@
             ht(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) :
             ht(Ge[e]);
         // TYPOEND
-        // ORIG var t = ht(Ge[e]);
+        // ORIGINAL var t = ht(Ge[e]);
         nt(t), Xe = e, c.querySelector("#color-preview-primary").style.fill = t, He()
     }
 
@@ -560,40 +560,38 @@
     }
 
     function pt(e) {
-        if (Ee = Ee.slice(0, e), !(sn != un && Ne < e)) {
-            // TYPOMOD
-            // desc: replace draw commands because of redo
-            const keepCommands = Ee;
-            // TYPOEND
+        // TYPOMOD
+        // desc: replace draw commands because of redo
+        const keepCommands = Ee;
+        // TYPOEND
+        if (Ee = Ee.slice(0, e), !(cn != dn && Ne < e)) {
             Re = mt();
             e = Math.floor(Ee.length / gt);
-            console.log("canvas cache is: " + Oe.length), console.log("keeping: " + e), Oe = Oe.slice(0, e), xt(), console.log("applied " + Oe.length + " cached canvas imgs.");
+            Oe = Oe.slice(0, e), xt();
             for (var t = 0; t < Oe.length; t++) {
                 var n = Oe[t];
                 Ae.putImageData(n.data, n.bounds[1], n.bounds[2])
             }
-            e = Oe.length * gt;
-            console.log("redrawn " + (Ee.length - e) + " drawCommands");
-            for (t = e; t < Ee.length; t++) yt(kt(Ee[t]));
+            for (t = Oe.length * gt; t < Ee.length; t++) yt(kt(Ee[t]));
             Te = Math.min(Ee.length, Te), Ne = Math.min(Ee.length, Ne)
-            // TYPOMOD 
-            // log kept commands
-            document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));
-            // TYPOEND
         }
+        // TYPOMOD 
+        // log kept commands
+        document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));
+        // TYPOEND
     }
-    const gt = 100;
+    const gt = 200;
 
     function mt() {
         return [0, 9999, 9999, 0, 0]
     }
 
     function yt(e) {
-        var t, n, a, o;
-        Re[0] += 1, Re[1] = Math.min(Re[1], e[0]), Re[2] = Math.min(Re[2], e[1]), Re[3] = Math.max(Re[3], e[2]), Re[4] = Math.max(Re[4], e[3]), Re[0] >= gt && (t = Re[1], n = Re[2], a = Re[3], o = Re[4], e = Ae.getImageData(t, n, a - t, o - n), Oe.push({
-            data: e,
+        var t, n, a;
+        Re[0] += 1, Re[1] = Math.min(Re[1], e[0]), Re[2] = Math.min(Re[2], e[1]), Re[3] = Math.max(Re[3], e[2]), Re[4] = Math.max(Re[4], e[3]), Re[0] >= gt && (t = Re[1], a = Re[2], n = Re[3], e = Re[4], a = Ae.getImageData(t, a, n - t, e - a), Oe.push({
+            data: a,
             bounds: Re
-        }), Re = mt(), console.log("stashed image data with bounds of " + t + ", " + n + ", " + a + ", " + o + " (" + (a - t) + "x" + (o - n) + "px)"))
+        }), Re = mt())
     }
 
     function vt(e) {
@@ -601,13 +599,13 @@
     }
 
     function St() {
-        vt() && ln && ln.emit("data", {
-            id: ra
+        vt() && rn && rn.emit("data", {
+            id: oa
         })
     }
 
     function bt(e) {
-        Ee.push(e), sn == un && yt(kt(e))
+        Ee.push(e), cn == dn && yt(kt(e))
         // TYPOMOD
         // log draw commands
         document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }));
@@ -744,16 +742,16 @@
     }), E(De, "contextmenu", function (e) {
         return e.preventDefault(), !1
     }), E(De, "mousedown", function (e) {
-        e.preventDefault(), 0 != e.button && 2 != e.button || -1 != Ke || Rt(e.button, e.clientX, e.clientY, !0, -1)
+        e.preventDefault(), 0 != e.button && 2 != e.button || -1 != Ke || Ot(e.button, e.clientX, e.clientY, !0, -1)
     }), E(c, "mouseup", function (e) {
-        e.preventDefault(), Yt(e.button), Mt = !1
+        e.preventDefault(), Rt(e.button), Mt = !1
     }), E(c, "mousemove", function (e) {
-        Ot(e.clientX, e.clientY, !1, -1), Mt && Lt(e.clientX)
+        Nt(e.clientX, e.clientY, !1, -1), Mt && Lt(e.clientX)
     });
     // TYPOMOD 
     // desc: add event handlers for typo features
     E(".avatar-customizer .container", "pointerdown", () => {
-        Nn(typo.createFakeLobbyData()); // IDENTIFY x(typo.c()): .querySelector("#home").style.display = "none"
+        Tn(typo.createFakeLobbyData()); // IDENTIFY x(typo.c()): .querySelector("#home").style.display = "none"
     });
     // TYPOEND
     var At = null;
@@ -767,37 +765,33 @@
     E(De, "touchstart", function (e) {
         e.preventDefault();
         e = e.changedTouches;
-        0 < e.length && null == At && (At = e[0].identitfier, Rt(0, e[0].clientX, e[0].clientY, !0, e[0].force))
+        0 < e.length && null == At && (At = e[0].identitfier, Ot(0, e[0].clientX, e[0].clientY, !0, e[0].force))
     }), E(De, "touchend touchcancel", function (e) {
-        e.preventDefault(), Yt(Ke)
+        e.preventDefault(), Rt(Ke)
     }), E(De, "touchmove", function (e) {
         e.preventDefault();
         for (var t = e.changedTouches, n = 0; n < t.length; n++)
             if (t[n].identitfier == At) {
-                Ot(t[n].clientX, t[n].clientY, !1, t[n].force);
+                Nt(t[n].clientX, t[n].clientY, !1, t[n].force);
                 break
             }
     });
-    var Tt = !1,
-        Nt = 0;
-    setInterval(function () {
-        Tt && (Ft(!1), Tt = !1)
-    }, 1e3 / 90);
+    var Tt = 0;
 
-    function Ot(e, t, n, a) {
-        Tt || (Tt = !0, Et(e, t, a, n))
+    function Nt(e, t, n, a) {
+        Et(e, t, a, n), Yt(!1)
     }
 
-    function Rt(e, t, n, a, o) {
-        Ee.length, Ke = e, Et(t, n, o, a), Ft(!0)
+    function Ot(e, t, n, a, o) {
+        Ee.length, Ke = e, Et(t, n, o, a), Yt(!0)
+    }
+
+    function Rt(e) {
+        -1 == e || 0 != e && 2 != e || Ke != e || (Tt = Ee.length, Ye.push(Tt), At = null, Ke = -1)
     }
 
     function Yt(e) {
-        -1 == e || 0 != e && 2 != e || Ke != e || (Nt = Ee.length, Ye.push(Nt), At = null, Ke = -1)
-    }
-
-    function Ft(e) {
-        if (fn.id == m && un == sn && -1 != Ke) {
+        if (hn.id == m && dn == cn && -1 != Ke) {
             var t = 0 == Ke ? Xe : Be,
                 n = null;
             if (e && (ze == ve && (o = t, r = Fe[0], l = Fe[1], n = [ge, o, r, l]), ze == ye)) {
@@ -823,33 +817,33 @@
     }
     setInterval(() => {
         var e, t;
-        ln && fn.id == m && un == sn && 0 < Ee.length - Te && (t = Ee.slice(Te, e = Te + 8), ln.emit("data", {
-            id: oa,
+        rn && hn.id == m && dn == cn && 0 < Ee.length - Te && (t = Ee.slice(Te, e = Te + 8), rn.emit("data", {
+            id: aa,
             data: t
         }), Te = Math.min(e, Ee.length))
     }, 50), setInterval(function () {
-        ln && fn.id == m && un != sn && Ne < Ee.length && (yt(kt(Ee[Ne])), Ne++)
+        rn && hn.id == m && dn != cn && Ne < Ee.length && (yt(kt(Ee[Ne])), Ne++)
     }, 3);
-    var Ut = c.querySelector("#game-canvas .overlay"),
-        Pt = c.querySelector("#game-canvas .overlay-content"),
-        _t = c.querySelector("#game-canvas .overlay-content .text"),
-        jt = c.querySelector("#game-canvas .overlay-content .words"),
-        Ht = c.querySelector("#game-canvas .overlay-content .reveal"),
-        Wt = c.querySelector("#game-canvas .overlay-content .result"),
-        zt = -100,
-        Xt = 0,
-        Bt = void 0;
+    var Ft = c.querySelector("#game-canvas .overlay"),
+        Ut = c.querySelector("#game-canvas .overlay-content"),
+        Pt = c.querySelector("#game-canvas .overlay-content .text"),
+        _t = c.querySelector("#game-canvas .overlay-content .words"),
+        jt = c.querySelector("#game-canvas .overlay-content .reveal"),
+        Ht = c.querySelector("#game-canvas .overlay-content .result"),
+        Wt = -100,
+        zt = 0,
+        Xt = void 0;
 
-    function Gt(e, r, l) {
-        let i = zt,
-            c = Xt,
+    function Bt(e, r, l) {
+        let i = Wt,
+            c = zt,
             s = e.top - i,
             d = e.opacity - c;
         if (Math.abs(s) < .001 && Math.abs(d) < .001) l && l();
         else {
             let a = void 0,
                 o = 0;
-            Bt = u.requestAnimationFrame(function e(t) {
+            Xt = u.requestAnimationFrame(function e(t) {
                 null == a && (a = t);
                 var n = t - a;
                 a = t, o = Math.min(o + n, r);
@@ -858,35 +852,35 @@
                 }(2 * n, 1.2 * 1.5) : .5 * (function (e, t) {
                     return e * e * ((t + 1) * e + t)
                 }(2 * n - 2, 1.2 * 1.5) + 2), t = t * t * (3 - 2 * t);
-                zt = i + s * n, Xt = c + d * t, Pt.style.top = zt + "%", Ut.style.opacity = Xt, o == r ? l && l() : Bt = u.requestAnimationFrame(e)
+                Wt = i + s * n, zt = c + d * t, Ut.style.top = Wt + "%", Ft.style.opacity = zt, o == r ? l && l() : Xt = u.requestAnimationFrame(e)
             })
         }
     }
 
-    function Jt(e) {
+    function Gt(e) {
         e.classList.add("show")
     }
 
-    function Kt(e) {
+    function Jt(e) {
         e.classList.remove("show")
     }
 
-    function Vt(t) {
+    function Kt(t) {
         switch (! function () {
-            for (var e = 0; e < Pt.children.length; e++) Kt(Pt.children[e])
+            for (var e = 0; e < Ut.children.length; e++) Jt(Ut.children[e])
         }(), t.id) {
             case b:
-                Jt(_t), _t.textContent = "Round " + (t.data + 1);
+                Gt(Pt), Pt.textContent = "Round " + (t.data + 1);
                 break;
             case v:
-                Jt(_t), _t.textContent = "Waiting for players...";
+                Gt(Pt), Pt.textContent = "Waiting for players...";
                 break;
             case S:
-                Jt(_t), _t.textContent = "Game starting in a few seconds...";
+                Gt(Pt), Pt.textContent = "Game starting in a few seconds...";
                 break;
             case C:
-                Jt(Ht), Ht.querySelector("p span.word").textContent = t.data.word, Ht.querySelector(".reason").textContent = y[t.data.reason];
-                var e = Ht.querySelector(".player-container");
+                Gt(jt), jt.querySelector("p span.word").textContent = t.data.word, jt.querySelector(".reason").textContent = y[t.data.reason];
+                var e = jt.querySelector(".player-container");
                 O(e);
                 for (var n = [], a = 0; a < t.data.scores.length; a += 3) {
                     var o = t.data.scores[a + 0],
@@ -908,8 +902,8 @@
                 }
                 break;
             case w:
-                Jt(Wt);
-                let l = [Wt.querySelector(".podest-1"), Wt.querySelector(".podest-2"), Wt.querySelector(".podest-3"), Wt.querySelector(".ranks")];
+                Gt(Ht);
+                let l = [Ht.querySelector(".podest-1"), Ht.querySelector(".podest-2"), Ht.querySelector(".podest-3"), Ht.querySelector(".ranks")];
                 for (let e = 0; e < 4; e++) O(l[e]);
                 if (0 < t.data.length) {
                     let r = [
@@ -952,38 +946,38 @@
                     }
                     0 < r[0].length ? (m = r[0].map(function (e) {
                         return e.player.name
-                    }).join(", "), Wt.querySelector(".winner-name").textContent = 0 < r[0].length ? m : "<user left>", Wt.querySelector(".winner-text").textContent = 1 == r[0].length ? " is the winner!" : " are the winners!") : (Wt.querySelector(".winner-name").textContent = "", Wt.querySelector(".winner-text").textContent = "Nobody won!")
-                } else Wt.querySelector(".winner-name").textContent = "", Wt.querySelector(".winner-text").textContent = "Nobody won!";
+                    }).join(", "), Ht.querySelector(".winner-name").textContent = 0 < r[0].length ? m : "<user left>", Ht.querySelector(".winner-text").textContent = 1 == r[0].length ? " is the winner!" : " are the winners!") : (Ht.querySelector(".winner-name").textContent = "", Ht.querySelector(".winner-text").textContent = "Nobody won!")
+                } else Ht.querySelector(".winner-name").textContent = "", Ht.querySelector(".winner-text").textContent = "Nobody won!";
                 break;
             case k:
                 if (t.data.words) {
-                    Jt(_t), Jt(jt), _t.textContent = "Choose a word", O(jt);
+                    Gt(Pt), Gt(_t), Pt.textContent = "Choose a word", O(_t);
                     for (a = 0; a < t.data.words.length; a++) {
                         var g = T("word", t.data.words[a]);
                         g.index = a, E(g, "click", function () {
                             var e;
-                            e = this.index, ln && ln.connected && fn.id == k && ln.emit("data", {
-                                id: aa,
+                            e = this.index, rn && rn.connected && hn.id == k && rn.emit("data", {
+                                id: na,
                                 data: e
                             })
-                        }), jt.appendChild(g)
+                        }), _t.appendChild(g)
                     }
                 } else {
-                    Jt(_t);
+                    Gt(Pt);
                     var m = (c = da(t.data.id)) ? c.name : "User";
-                    _t.textContent = m + " is choosing a word!"
+                    Pt.textContent = m + " is choosing a word!"
                 }
         }
     }
-    const Zt = 0,
-        $t = 1,
-        Qt = 2,
-        en = 3,
-        tn = 4,
-        nn = 5,
-        an = 6;
+    const Vt = 0,
+        Zt = 1,
+        $t = 2,
+        Qt = 3,
+        en = 4,
+        tn = 5,
+        nn = 6;
 
-    function on(e, t) {
+    function an(e, t) {
         this.url = t, this.buffer = null, this.loaded = !1;
         var n = this,
             a = new XMLHttpRequest;
@@ -995,19 +989,19 @@
             })
         }, a.send()
     }
-    var rn = function () {
+    var on = function () {
         this.context = null, this.sounds = new Map, u.addEventListener("load", this.load.bind(this), !1)
     };
-    rn.prototype.addSound = function (e, t) {
-        this.sounds.set(e, new on(this, t))
-    }, rn.prototype.loadSounds = function () {
-        this.addSound(Zt, "/audio/roundStart.ogg"), this.addSound($t, "/audio/roundEndSuccess.ogg"), this.addSound(Qt, "/audio/roundEndFailure.ogg"), this.addSound(en, "/audio/join.ogg"), this.addSound(tn, "/audio/leave.ogg"), this.addSound(nn, "/audio/playerGuessed.ogg"), this.addSound(an, "/audio/tick.ogg")
-    }, rn.prototype.playSound = function (e) {
+    on.prototype.addSound = function (e, t) {
+        this.sounds.set(e, new an(this, t))
+    }, on.prototype.loadSounds = function () {
+        this.addSound(Vt, "/audio/roundStart.ogg"), this.addSound(Zt, "/audio/roundEndSuccess.ogg"), this.addSound($t, "/audio/roundEndFailure.ogg"), this.addSound(Qt, "/audio/join.ogg"), this.addSound(en, "/audio/leave.ogg"), this.addSound(tn, "/audio/playerGuessed.ogg"), this.addSound(nn, "/audio/tick.ogg")
+    }, on.prototype.playSound = function (e) {
         var t, n;
         null != this.context && ("running" == this.context.state ? null == this.context || I.audio_mute || !this.sounds.has(e) || (t = this.sounds.get(e)).loaded && ((n = this.context.createBufferSource()).buffer = t.buffer, n.connect(this.context.destination), n.start(0)) : this.context.resume().then(() => {
             this.playSound(e)
         }))
-    }, rn.prototype.load = function () {
+    }, on.prototype.load = function () {
         try {
             u.AudioContext = u.AudioContext || u.webkitAudioContext, this.context = new AudioContext
         } catch (e) {
@@ -1016,36 +1010,36 @@
         this.loadSounds()
     };
     v;
-    var ln, cn = [],
-        sn = 0,
+    var rn, ln = [],
+        cn = 0,
+        sn = -1,
         dn = -1,
-        un = -1,
-        hn = [],
-        fn = {
+        un = [],
+        hn = {
             id: -1,
             time: 0,
             data: 0
         },
-        pn = new rn,
-        gn = void 0,
-        mn = c.querySelector("#game-room"),
-        yn = c.querySelector("#game-players"),
-        vn = c.querySelector("#game-board"),
-        Sn = yn.querySelector(".list"),
-        bn = yn.querySelector(".footer"),
-        kn = [c.querySelector("#game-round .round-current"), c.querySelector("#game-round .round-max")],
-        Cn = [c.querySelector("#game-word .description"), c.querySelector("#game-word .word"), c.querySelector("#game-word .hints .container")],
-        wn = c.querySelector("#home .container-name-lang input"),
-        qn = c.querySelector("#home .container-name-lang select"),
-        xn = c.querySelector("#home .panel .button-play"),
-        Mn = c.querySelector("#home .panel .button-create"),
+        fn = new on,
+        pn = void 0,
+        gn = c.querySelector("#game-room"),
+        mn = c.querySelector("#game-players"),
+        yn = c.querySelector("#game-board"),
+        vn = mn.querySelector(".list"),
+        Sn = mn.querySelector(".footer"),
+        bn = [c.querySelector("#game-round .round-current"), c.querySelector("#game-round .round-max")],
+        kn = [c.querySelector("#game-word .description"), c.querySelector("#game-word .word"), c.querySelector("#game-word .hints .container")],
+        Cn = c.querySelector("#home .container-name-lang input"),
+        wn = c.querySelector("#home .container-name-lang select"),
+        qn = c.querySelector("#home .panel .button-play"),
+        xn = c.querySelector("#home .panel .button-create"),
         e = c.querySelector("#home .panel .button-rooms");
 
-    function Ln(e) {
+    function Mn(e) {
         c.querySelector("#load").style.display = e ? "block" : "none"
     }
 
-    function In(e, t, n, a) {
+    function Ln(e, t, n, a) {
         var o, r;
         o = e, e = t, r = function (e, t) {
             switch (e) {
@@ -1070,27 +1064,27 @@
         }, t.open("POST", o, !0), t.setRequestHeader("Content-type", "application/x-www-form-urlencoded"), t.send(e)
     }
 
-    function Dn(e, t) {
-        pn.context.resume(), ln && ln.disconnect();
+    function In(e, t) {
+        fn.context.resume(), rn && rn.disconnect();
         let n = 0;
-        (ln = a(e)).on("connect", function () {
+        (rn = a(e)).on("connect", function () {
             // TYPOMOD
             // desc: disconnect socket & leave lobby
             typo.disconnect = () => {
-                if (ln) {
-                    ln.on("disconnect", () => {
+                if (rn) {
+                    rn.on("disconnect", () => {
                         typo.disconnect = undefined;
                         document.dispatchEvent(new Event("leftLobby"));
                     });
-                    ln.off("data");
-                    ln.reconnect = false;
-                    ln.disconnect();
+                    rn.off("data");
+                    rn.reconnect = false;
+                    rn.disconnect();
                 }
                 else document.dispatchEvent(new Event("leftLobby"));
             }
             // TYPOEND
-            ln.on("joinerr", function (e) {
-                _n(), Z(H, function (e) {
+            rn.on("joinerr", function (e) {
+                Pn(), Z(H, function (e) {
                     switch (e) {
                         case 1:
                             return "Room not found!";
@@ -1104,19 +1098,19 @@
                             return "An unknown error (" + e + ") occured! "
                     }
                 }(e))
-            }), ln.on("data", sa);
-            var e = wn.value.split("#"),
+            }), rn.on("data", sa);
+            var e = Cn.value.split("#"),
                 e = {
                     join: t,
                     name: e[0],
-                    lang: qn.value,
+                    lang: wn.value,
                     code: e[1],
                     avatar: I.avatar
                 };
-            ln.emit("login", e)
-        }), ln.on("reason", function (e) {
+            rn.emit("login", e)
+        }), rn.on("reason", function (e) {
             n = e
-        }), ln.on("disconnect", function () {
+        }), rn.on("disconnect", function () {
             switch (n) {
                 case r:
                     Z(W, "You have been kicked!");
@@ -1124,20 +1118,20 @@
                 case x:
                     Z(W, "You have been banned!")
             }
-            _n()
-        }), ln.on("connect_error", e => {
-            _n(), Z(H, e.message)
+            Pn()
+        }), rn.on("connect_error", e => {
+            Pn(), Z(H, e.message)
+        })
+    }
+
+    function Dn(e) {
+        e = "" != e ? "id=" + e : "lang=" + wn.value;
+        le(), Mn(!0), Ln(location.origin + ":3000/play", e, function (e) {
+            Mn(!1), e.success && In((e = e.data.split(","))[0], e[1])
         })
     }
 
     function An(e) {
-        e = "" != e ? "id=" + e : "lang=" + qn.value;
-        le(), Ln(!0), In(location.origin + ":3000/play", e, function (e) {
-            Ln(!1), e.success && Dn((e = e.data.split(","))[0], e[1])
-        })
-    }
-
-    function En(e) {
         let n = [],
             a = e.split(",");
         var t = parseInt(a.shift());
@@ -1158,68 +1152,68 @@
         return n
     }
 
-    function Tn() {
+    function En() {
         var e = K[z].querySelector(".filter select.lang").value,
             t = K[z].querySelector(".filter select.type").value;
-        In(location.origin + ":3000/rooms", "lang=" + e + "&type=" + t, function (e) {
-            e.success && oe(En(e.data))
+        Ln(location.origin + ":3000/rooms", "lang=" + e + "&type=" + t, function (e) {
+            e.success && oe(An(e.data))
         })
     }
 
-    function Nn(e) {
+    function Tn(e) {
         var t;
-        pn.playSound(en), it(me, !0), ot(28), ct(2), st(0), vt(!0), O(se), c.querySelector("#home").style.display = "none", c.querySelector("#game").style.display = "flex", sn = e.me, c.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id, t = e.settings, hn = t, On(), O(Sn), cn = [];
+        fn.playSound(Qt), it(me, !0), ot(28), ct(2), st(0), vt(!0), O(se), c.querySelector("#home").style.display = "none", c.querySelector("#game").style.display = "flex", cn = e.me, c.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id, t = e.settings, un = t, Nn(), O(vn), ln = [];
         for (var n = 0; n < e.users.length; n++) ua(e.users[n], !1);
-        ma(), va(), zn(e.owner), Fn(e.state, !0)
+        ma(), va(), Wn(e.owner), Yn(e.state, !0)
     }
 
-    function On() {
-        c.querySelector("#game-room .lobby-name").textContent = hn[L.NAME], kn[1].textContent = hn[L.ROUNDS];
+    function Nn() {
+        c.querySelector("#game-room .lobby-name").textContent = un[L.NAME], bn[1].textContent = un[L.ROUNDS];
         for (var e, t = 0; t < ka.length; t++) {
             var n = ka[t];
-            n.index && (n = hn[(e = n).index], "checkbox" == e.element.type ? e.element.checked = !!n : e.element.value = n)
+            n.index && (n = un[(e = n).index], "checkbox" == e.element.type ? e.element.checked = !!n : e.element.value = n)
         }
     }
 
-    function Rn(e, t, n) {
-        hn[e] = t, n && ln && ln.emit("data", {
-            id: Zn,
+    function On(e, t, n) {
+        un[e] = t, n && rn && rn.emit("data", {
+            id: Vn,
             data: {
                 id: e,
                 val: t
             }
-        }), On()
+        }), Nn()
     }
 
-    function Yn() {
-        for (let e = 0; e < cn.length; e++) cn[e].score = 0;
-        for (let e = 0; e < cn.length; e++) Sa(cn[e], !1), ba(cn[e], !1), ya(cn[e])
+    function Rn() {
+        for (let e = 0; e < ln.length; e++) ln[e].score = 0;
+        for (let e = 0; e < ln.length; e++) Sa(ln[e], !1), ba(ln[e], !1), ya(ln[e])
     }
 
-    function Fn(e, t) {
+    function Yn(e, t) {
         var n, a;
-        if (n = fn = e, null != Bt && (u.cancelAnimationFrame(Bt), Bt = void 0), n.id == m || n.id == q ? Gt({
+        if (n = hn = e, null != Xt && (u.cancelAnimationFrame(Xt), Xt = void 0), n.id == m || n.id == q ? Bt({
             top: -100,
             opacity: 0
         }, 700, function () {
-            Ut.classList.remove("show")
-        }) : Ut.classList.contains("show") ? Gt({
+            Ft.classList.remove("show")
+        }) : Ft.classList.contains("show") ? Bt({
             top: -100,
             opacity: 1
         }, 700, function () {
-            Vt(n), Gt({
+            Kt(n), Bt({
                 top: 0,
                 opacity: 1
             }, 700)
-        }) : (Ut.classList.add("show"), Vt(n), Gt({
+        }) : (Ft.classList.add("show"), Kt(n), Bt({
             top: 0,
             opacity: 1
         }, 700)), a = e.time, La(), Ma = a, qa.textContent = Ma, xa = setInterval(function () {
             Ma = Math.max(0, Ma - 1), qa.textContent = Ma;
             var e = -1;
-            fn.id == m && (e = Ca), fn.id == k && (e = wa), qa.style.animationName = Ma < e ? Ma % 2 == 0 ? "rot_left" : "rot_right" : "none", Ma < e && pn.playSound(an), Ma <= 0 && La()
-        }, 1e3), Ce.classList.add("hidden"), He(), Pn(!1), e.id == q ? (Yn(), mn.style.display = "flex", vn.style.display = "none", yn.classList.add("room")) : (mn.style.display = "none", vn.style.display = "", yn.classList.remove("room")), ma(), e.id == b && (kn[0].textContent = e.data + 1, 0 == e.data && Yn()), e.id == C) {
-            sn != un && Wn(e.data.word);
+            hn.id == m && (e = Ca), hn.id == k && (e = wa), qa.style.animationName = Ma < e ? Ma % 2 == 0 ? "rot_left" : "rot_right" : "none", Ma < e && fn.playSound(nn), Ma <= 0 && La()
+        }, 1e3), Ce.classList.add("hidden"), He(), Un(!1), e.id == q ? (Rn(), gn.style.display = "flex", yn.style.display = "none", mn.classList.add("room")) : (gn.style.display = "none", yn.style.display = "", mn.classList.remove("room")), ma(), e.id == b && (bn[0].textContent = e.data + 1, 0 == e.data && Rn()), e.id == C) {
+            cn != dn && Hn(e.data.word);
             for (var o = 0; o < e.data.scores.length; o += 3) {
                 var r = e.data.scores[o + 0],
                     l = e.data.scores[o + 1],
@@ -1227,169 +1221,179 @@
                 r && (r.score = l)
             }
             va();
-            for (var i = !0, o = 0; o < cn.length; o++)
-                if (cn[o].guessed) {
+            for (var i = !0, o = 0; o < ln.length; o++)
+                if (ln[o].guessed) {
                     i = !1;
                     break
-                } i ? pn.playSound(Qt) : pn.playSound($t), fe("The word was '" + e.data.word + "'", "", p, !0)
+                } i ? fn.playSound($t) : fn.playSound(Zt), fe("The word was '" + e.data.word + "'", "", p, !0)
             // TYPOMOD
             // desc: log finished drawing
             document.dispatchEvent(new CustomEvent("drawingFinished", { detail: e.data.word }));
             // TYPOEND
-        } else e.id != m && (Cn[0].textContent = "WAITING", Cn[0].classList.add("waiting"), Cn[1].style.display = "none", Cn[2].style.display = "none");
+        } else e.id != m && (kn[0].textContent = "WAITING", kn[0].classList.add("waiting"), kn[1].style.display = "none", kn[2].style.display = "none");
         if (e.id == m) {
-            if (un = e.data.id, pn.playSound(Zt), vt(!0), e.data.drawCommands && (Ee = e.data.drawCommands), fe(da(un).name + " is drawing now!", "", d, !0), !t)
-                for (o = 0; o < cn.length; o++) Sa(cn[o], !1);
-            Cn[0].classList.remove("waiting"), un == sn ? (t = e.data.word, Cn[0].textContent = "DRAW THIS", Cn[1].style.display = "", Cn[2].style.display = "none", Cn[1].textContent = t, Ce.classList.remove("hidden"), He()) : (Pn(!0), jn(e.data.word), Hn(e.data.hints))
+            if (dn = e.data.id, fn.playSound(Vt), vt(!0), e.data.drawCommands && (Ee = e.data.drawCommands), fe(da(dn).name + " is drawing now!", "", d, !0), !t)
+                for (o = 0; o < ln.length; o++) Sa(ln[o], !1);
+            kn[0].classList.remove("waiting"), dn == cn ? (t = e.data.word, kn[0].textContent = "DRAW THIS", kn[1].style.display = "", kn[2].style.display = "none", kn[1].textContent = t, Ce.classList.remove("hidden"), He()) : (Un(!0), _n(e.data.word), jn(e.data.hints))
         } else {
-            un = -1;
-            for (o = 0; o < cn.length; o++) Sa(cn[o], !1)
+            dn = -1;
+            for (o = 0; o < ln.length; o++) Sa(ln[o], !1)
         }
-        for (o = 0; o < cn.length; o++) ba(cn[o], cn[o].id == un)
+        for (o = 0; o < ln.length; o++) ba(ln[o], ln[o].id == dn)
+    }
+
+    function Fn(e) {
+        rn && rn.connected && hn.id == m && (rn.emit("data", {
+            id: Gn,
+            data: e
+        }), Un(!1))
     }
 
     function Un(e) {
-        ln && ln.connected && fn.id == m && (ln.emit("data", {
-            id: Jn,
-            data: e
-        }), Pn(!1))
-    }
-
-    function Pn(e) {
         c.querySelector("#game-rate").style.display = e ? "" : "none"
     }
 
-    function _n() {
-        ln && ln.close(), ln = void 0, vt(), La(), cn = [], hn = [], fn = {
-            id: un = dn = -1,
-            time: sn = 0,
+    function Pn() {
+        rn && rn.close(), rn = void 0, vt(), La(), ln = [], un = [], hn = {
+            id: dn = sn = -1,
+            time: cn = 0,
             data: 0
         }, c.querySelector("#home").style.display = "", c.querySelector("#game").style.display = "none"
     }
 
-    function jn(e) {
+    function _n(e) {
         var t = 0 == e;
-        Cn[0].textContent = t ? "WORD HIDDEN" : "GUESS THIS", Cn[1].style.display = "none", Cn[2].style.display = "", O(Cn[2]), Cn[2].hints = [], t && (e = 3);
-        for (var n = 0; n < e; n++) Cn[2].hints[n] = T("hint", t ? "?" : "_"), Cn[2].appendChild(Cn[2].hints[n]);
-        t || Cn[2].appendChild(T("word-length", e))
+        kn[0].textContent = t ? "WORD HIDDEN" : "GUESS THIS", kn[1].style.display = "none", kn[2].style.display = "", O(kn[2]), kn[2].hints = [], t && (e = 3);
+        for (var n = 0; n < e; n++) kn[2].hints[n] = T("hint", t ? "?" : "_"), kn[2].appendChild(kn[2].hints[n]);
+        t || kn[2].appendChild(T("word-length", e))
     }
 
-    function Hn(e) {
-        for (var t = Cn[2].hints, n = 0; n < e.length; n++) {
+    function jn(e) {
+        for (var t = kn[2].hints, n = 0; n < e.length; n++) {
             var a = e[n][0],
                 o = e[n][1];
             t[a].textContent = o, t[a].classList.add("uncover")
         }
     }
 
-    function Wn(e) {
-        (!Cn[2].hints || Cn[2].hints.length < e.length) && jn(e.length);
+    function Hn(e) {
+        (!kn[2].hints || kn[2].hints.length < e.length) && _n(e.length);
         for (var t = [], n = 0; n < e.length; n++) t.push([n, e.charAt(n)]);
-        Hn(t)
+        jn(t)
     }
 
-    function zn(e) {
-        dn = e;
-        for (var t = 0; t < cn.length; t++) F(cn[t].element, cn[t].id == dn), pa(cn[t], 0, cn[t].id == dn);
+    function Wn(e) {
+        sn = e;
+        for (var t = 0; t < ln.length; t++) F(ln[t].element, ln[t].id == sn), pa(ln[t], 0, ln[t].id == sn);
         ! function (t) {
             for (var n = 0; n < ka.length; n++) {
                 let e = ka[n];
                 e.element.disabled = t
             }
-        }(sn != dn);
-        e = da(dn);
+        }(cn != sn);
+        e = da(sn);
         e && fe(e.name + " is now the lobby owner!", "", o, !0)
     }
-    E(K[z].querySelectorAll(".filter select"), "change", Tn), E(K[z].querySelector("button.refresh"), "click", Tn);
-    const Xn = 1,
-        Bn = 2,
-        Gn = 5,
-        Jn = 8,
-        Kn = 10,
-        Vn = 11,
-        Zn = 12,
-        $n = 13,
-        Qn = 14,
-        ea = 15,
-        ta = 16,
-        na = 17,
-        aa = 18,
-        oa = 19,
-        ra = 20,
-        la = 21;
-    const ia = 30;
-    const ca = 32;
+    E(K[z].querySelectorAll(".filter select"), "change", En), E(K[z].querySelector("button.refresh"), "click", En);
+    const zn = 1,
+        Xn = 2,
+        Bn = 5,
+        Gn = 8,
+        Jn = 10,
+        Kn = 11,
+        Vn = 12,
+        Zn = 13,
+        $n = 14,
+        Qn = 15,
+        ea = 16,
+        ta = 17,
+        na = 18,
+        aa = 19,
+        oa = 20,
+        ra = 21;
+    const la = 30,
+        ia = 31,
+        ca = 32;
 
     function sa(e) {
         var t = e.id,
             n = e.data;
         switch (t) {
-            case Kn:
-                Nn(n);
+            case Jn:
+                Tn(n);
                 // TYPOMOD
                 // desc: send lobbydata
                 document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: e.data }));
                 // TYPOEND
                 break;
+            case Kn:
+                Yn(n);
+                break;
             case Vn:
-                Fn(n);
+                On(n.id, n.val, !1);
                 break;
             case Zn:
-                Rn(n.id, n.val, !1);
+                jn(n);
                 break;
             case $n:
-                Hn(n);
-                break;
-            case Qn:
                 Ma = n;
                 break;
-            case Xn:
-                fe(ua(n, !0).name + " joined the room!", "", h, !0), pn.playSound(en);
+            case zn:
+                fe(ua(n, !0).name + " joined the room!", "", h, !0), fn.playSound(Qt);
                 break;
-            case Bn:
+            case Xn:
                 var a = function (e) {
-                    for (var t = 0; t < cn.length; t++) {
-                        var n = cn[t];
-                        if (n.id == e) return cn.splice(t, 1), n.element.remove(), va(), ma(), n
+                    for (var t = 0; t < ln.length; t++) {
+                        var n = ln[t];
+                        if (n.id == e) return ln.splice(t, 1), n.element.remove(), va(), ma(), n
                     }
                     return
                 }(n.id);
-                a && (fe(a.name + M[n.reason], "", f, !0), pn.playSound(tn));
+                a && (fe(a.name + M[n.reason], "", f, !0), fn.playSound(en));
                 break;
-            case Gn:
+            case Bn:
                 var a = da(n[0]),
                     o = da(n[1]),
                     r = n[2],
                     l = n[3];
                 a && o && fe("'" + a.name + "' is voting to kick '" + o.name + "' (" + r + "/" + l + ")", "", s, !0);
                 break;
-            case ea:
+            case Qn:
                 var i = da(n.id);
-                i && (fe(i.name + " guessed the word!", "", h, !0), Sa(i, !0), pn.playSound(nn), n.id == sn && Wn(n.word));
+                i && (fe(i.name + " guessed the word!", "", h, !0), Sa(i, !0), fn.playSound(tn), n.id == cn && Hn(n.word));
                 break;
-            case Jn:
+            case Gn:
                 o = da(n.id);
                 o && (r = o, l = 0 == n.vote ? "thumbsdown.gif" : "thumbsup.gif", (i = T("icon")).style.backgroundImage = "url(/img/" + l + ")", fa(r, i), n.vote ? fe(o.name + " liked the drawing!", "", h, !0) : fe(o.name + " disliked the drawing!", "", f, !0));
                 break;
-            case na:
-                zn(n);
-                break;
             case ta:
+                Wn(n);
+                break;
+            case ea:
                 fe("'" + n + " is close!", "", s, !0);
                 break;
-            case ia:
+            case la:
                 ha(da(n.id), n.msg);
                 break;
             case ca:
                 fe("Spam detected! You're sending messages too quickly.", "", f, !0);
                 break;
-            case oa:
+            case ia:
+                switch (n.id) {
+                    case 0:
+                        fe("You need at least 2 players to start the game!", "", f, !0);
+                        break;
+                    case 100:
+                        fe("Server restarting in about " + n.data + " seconds!", "", f, !0)
+                }
+                break;
+            case aa:
                 for (var c = 0; c < n.length; c++) bt(n[c]);
                 break;
-            case ra:
+            case oa:
                 vt(!0);
                 break;
-            case la:
+            case ra:
                 pt(n);
                 break;
             default:
@@ -1398,8 +1402,8 @@
     }
 
     function da(e) {
-        for (var t = 0; t < cn.length; t++) {
-            var n = cn[t];
+        for (var t = 0; t < ln.length; t++) {
+            var n = ln[t];
             if (n.id == e) return n
         }
     }
@@ -1419,18 +1423,18 @@
             element: T("player"),
             bubble: void 0
         };
-        cn.push(n), I.filterChat && n.id != sn && he(n.name.slice()) != n.name && (n.name = "user");
-        var a = n.id == sn ? n.name + " (You)" : n.name,
+        ln.push(n), I.filterChat && n.id != cn && he(n.name.slice()) != n.name && (n.name = "user");
+        var a = n.id == cn ? n.name + " (You)" : n.name,
             o = T("info"),
             e = T("name", a);
-        n.id == sn && e.classList.add("me"), o.appendChild(e), o.appendChild(T("rank", "#" + n.rank)), o.appendChild(T("score", n.score + " points")), n.element.appendChild(o);
+        n.id == cn && e.classList.add("me"), o.appendChild(e), o.appendChild(T("rank", "#" + n.rank)), o.appendChild(T("score", n.score + " points")), n.element.appendChild(o);
         a = R(n.avatar);
         // TYPOMOD
         // desc: set ID to player to identify
         n.element.setAttribute("playerid", n.id);
         // TYPOEND
-        n.element.drawing = T("drawing"), a.appendChild(n.element.drawing), n.element.appendChild(a), Sn.appendChild(n.element), E(n.element, "click", function () {
-            gn = n, Z(j, n)
+        n.element.drawing = T("drawing"), a.appendChild(n.element.drawing), n.element.appendChild(a), vn.appendChild(n.element), E(n.element, "click", function () {
+            pn = n, Z(j, n)
         });
         e = T("icons"), o = T("icon owner"), a = T("icon muted");
         return e.appendChild(o), e.appendChild(a), n.element.appendChild(e), n.element.icons = [o, a], Sa(n, n.guessed), t && ma(), n
@@ -1438,7 +1442,7 @@
 
     function ha(e, t) {
         var n;
-        e.muted || (n = e.id == un || e.guessed, sn != un && !da(sn).guessed && n || (t = he(t), fa(e, T("text", t)), fe(e.name, t, n ? "#7dad3f" : "#000")))
+        e.muted || (n = e.id == dn || e.guessed, cn != dn && !da(cn).guessed && n || (t = he(t), fa(e, T("text", t)), fe(e.name, t, n ? "#7dad3f" : "#000")))
     }
 
     function fa(e, t) {
@@ -1456,18 +1460,18 @@
     var ga = void 0;
 
     function ma() {
-        var e = fn.id == q,
+        var e = hn.id == q,
             t = e ? 112 : 48,
-            n = Math.max(t, Sn.clientHeight);
+            n = Math.max(t, vn.clientHeight);
         let a = Math.floor(n / t);
         e && (a *= 4);
-        t = Math.ceil(cn.length / a);
-        for (let e = 0; e < cn.length; e++) cn[e].page = Math.floor(e / a);
+        t = Math.ceil(ln.length / a);
+        for (let e = 0; e < ln.length; e++) ln[e].page = Math.floor(e / a);
         e = c.querySelectorAll("#game-players .player-amount b");
-        e[0].textContent = cn.length, e[1].textContent = hn[L.SLOTS], null == ga ? ga = U(bn, t, [yn], function (e, n, t) {
+        e[0].textContent = ln.length, e[1].textContent = un[L.SLOTS], null == ga ? ga = U(Sn, t, [mn], function (e, n, t) {
             let a = [];
-            for (let t = 0; t < cn.length; t++) {
-                let e = cn[t];
+            for (let t = 0; t < ln.length; t++) {
+                let e = ln[t];
                 var o = e.page == n;
                 e.element.style.display = o ? "" : "none", o && a.push(e.element)
             }
@@ -1483,8 +1487,8 @@
 
     function ya(t) {
         let n = 1;
-        for (let e = 0; e < cn.length; e++) {
-            var a = cn[e];
+        for (let e = 0; e < ln.length; e++) {
+            var a = ln[e];
             a.id != t.id && t.score < a.score && n++
         }
         t.rank = n, t.element.querySelector(".score").textContent = t.score + " points";
@@ -1493,7 +1497,7 @@
     }
 
     function va() {
-        for (var e = 0; e < cn.length; e++) ya(cn[e])
+        for (var e = 0; e < ln.length; e++) ya(ln[e])
     }
 
     function Sa(e, t) {
@@ -1505,7 +1509,7 @@
     }
     var ka = [];
     ! function () {
-        for (var e = mn.querySelectorAll('*[id^="item-"]'), n = 0; n < e.length; n++) {
+        for (var e = gn.querySelectorAll('*[id^="item-"]'), n = 0; n < e.length; n++) {
             let t = {
                 id: e[n].id.replace("item-settings-", ""),
                 element: e[n],
@@ -1513,7 +1517,7 @@
             };
             ka.push(t), E(t.element, "change", function () {
                 var e = "checkbox" == this.type ? this.checked : this.value;
-                console.log("lobby setting " + t.id + " changed to " + e), null != t.index && Rn(t.index, e, !0)
+                console.log("lobby setting " + t.id + " changed to " + e), null != t.index && On(t.index, e, !0)
             })
         }
     }();
@@ -1526,9 +1530,9 @@
     function La() {
         xa && (clearInterval(xa), xa = null)
     }
-    var Ia, Da, Aa, Ea, Ta, rn = c.querySelector("#tutorial"),
-        Na = rn.querySelectorAll(".page"),
-        Oa = U(rn, Na.length, [rn.querySelector(".pages")], function (e, t, n) {
+    var Ia, Da, Aa, Ea, Ta, on = c.querySelector("#tutorial"),
+        Na = on.querySelectorAll(".page"),
+        Oa = U(on, Na.length, [on.querySelector(".pages")], function (e, t, n) {
             n && clearInterval(Ra);
             for (let e = 0; e < Na.length; e++) Na[e].classList.remove("active");
             Na[t].classList.add("active")
@@ -1540,32 +1544,32 @@
     function Ya(e) {
         Ta.parts[e].classList.remove("bounce"), Ta.parts[e].offsetWidth, Ta.parts[e].classList.add("bounce")
     }
-    E(u, "resize", ma), E([wn, qn], "change", A), E(xn, "click", function () {
+    E(u, "resize", ma), E([Cn, wn], "change", A), E(qn, "click", function () {
         var e, t, n;
-        An((e = u.location.href, n = "", e = e.split("?"), n = 1 < e.length ? (n = "" + e[1]).substring(0, t) : n))
+        Dn((e = u.location.href, n = "", e = e.split("?"), n = 1 < e.length ? (n = "" + e[1]).substring(0, t) : n))
     }), E(e, "click", function () {
-        K[z].querySelector(".filter select.lang").value = qn.value;
+        K[z].querySelector(".filter select.lang").value = wn.value;
         var e = K[z].querySelector(".filter select.type").value;
-        In(location.origin + ":3000/rooms", "lang=" + qn.value + "&type=" + e, function (e) {
-            e.success && Z(z, En(e.data))
+        Ln(location.origin + ":3000/rooms", "lang=" + wn.value + "&type=" + e, function (e) {
+            e.success && Z(z, An(e.data))
         })
-    }), E(Mn, "click", function () {
-        le(), Ln(!0), In(location.origin + ":3000/create", "lang=" + qn.value, function (e) {
-            Ln(!1), e.success && Dn((e = e.data.split(","))[0], e[1])
+    }), E(xn, "click", function () {
+        le(), Mn(!0), Ln(location.origin + ":3000/create", "lang=" + wn.value, function (e) {
+            Mn(!1), e.success && In((e = e.data.split(","))[0], e[1])
         })
     }), E(c.querySelector("#game-rate .like"), "click", function () {
-        Un(1)
+        Fn(1)
     }), E(c.querySelector("#game-rate .dislike"), "click", function () {
-        Un(0)
+        Fn(0)
     }), E(c.querySelector("#start-game"), "click", function () {
-        if (ln) {
+        if (rn) {
             let t = c.querySelector("#item-settings-customwords").value.split(","),
                 e = "";
             if (5 <= t.length) {
                 for (let e = 0; e < t.length; e++) t[e] = t[e].trim();
                 e = t.join(",")
             }
-            ln.emit("data", {
+            rn.emit("data", {
                 id: 22,
                 data: e
             })
@@ -1579,35 +1583,35 @@
             console.log("Unable to copy link " + e)
         }
     }), E(K[j].querySelector("button.kick"), "click", function () {
-        le(), null != gn && gn.id != sn && sn == dn && ln && ln.emit("data", {
+        le(), null != pn && pn.id != cn && cn == sn && rn && rn.emit("data", {
             id: 3,
-            data: gn.id
+            data: pn.id
         })
     }), E(K[j].querySelector("button.ban"), "click", function () {
-        le(), null != gn && gn.id != sn && sn == dn && ln && ln.emit("data", {
+        le(), null != pn && pn.id != cn && cn == sn && rn && rn.emit("data", {
             id: 4,
-            data: gn.id
+            data: pn.id
         })
     }), E(K[j].querySelector("button.votekick"), "click", function () {
-        le(), null != gn && gn.id != sn && ln && ln.emit("data", {
-            id: Gn,
-            data: gn.id
+        le(), null != pn && pn.id != cn && rn && rn.emit("data", {
+            id: Bn,
+            data: pn.id
         })
     }), E(K[j].querySelector("button.mute"), "click", function () {
-        null != gn && gn.id != sn && (gn.muted = !gn.muted, pa(gn, 1, gn.muted), gn.muted ? fe("You muted '" + gn.name + "'!", "", f, !0) : fe("You unmuted '" + gn.name + "'!", "", f, !0), ln && ln.emit("data", {
+        null != pn && pn.id != cn && (pn.muted = !pn.muted, pa(pn, 1, pn.muted), pn.muted ? fe("You muted '" + pn.name + "'!", "", f, !0) : fe("You unmuted '" + pn.name + "'!", "", f, !0), rn && rn.emit("data", {
             id: 7,
-            data: gn.id
-        }), V(gn.muted))
+            data: pn.id
+        }), V(pn.muted))
     }), E(K[j].querySelector("button.report"), "click", function () {
-        ln && null != gn && gn.id != sn && ln.emit("data", {
+        rn && null != pn && pn.id != cn && rn.emit("data", {
             id: 6,
-            data: gn.id
+            data: pn.id
         })
     }), E(ie, "submit", function (e) {
-        return e.preventDefault(), ce.value && (ln && ln.connected ? ln.emit("data", {
-            id: ia,
+        return e.preventDefault(), ce.value && (rn && rn.connected ? rn.emit("data", {
+            id: la,
             data: ce.value
-        }) : ha(da(sn), ce.value)), ie.reset(), !1
+        }) : ha(da(cn), ce.value)), ie.reset(), !1
     }),
         function () {
             if (!u.localStorageAvailable) {
@@ -1617,7 +1621,7 @@
                 } catch (e) { }
                 u.localStorageAvailable = e
             }
-            u.localStorageAvailable ? (wn.value = D("name", ""), qn.value = function (e) {
+            u.localStorageAvailable ? (Cn.value = D("name", ""), wn.value = function (e) {
                 for (var t = c.querySelectorAll("#home .panel .container-name-lang select option"), n = 0; n < t.length; n++)
                     if (e.startsWith(t[n].value)) return t[n].value;
                 return "en"
@@ -1632,12 +1636,11 @@
             I.avatar[0] = Math.floor(Math.random() * t[0]), I.avatar[1] = Math.floor(Math.random() * t[1]), I.avatar[2] = Math.floor(Math.random() * t[2]), Ya(1), Ya(2), Y(Ta, I.avatar, 96), A()
         }),
         function () {
-            Math.round(8 * Math.random());
-            for (var e = c.querySelector("#home .logo-big .avatar-container"), t = 0; t < 8; t++) {
-                var n = [0, 0, 0, 0];
-                n[0] = t, n[1] = Math.round(100 * Math.random()) % i, n[2] = Math.round(100 * Math.random()) % g, n[3] = 1e3 * Math.random() < 70 ? Math.round(+Math.random()) : -1;
-                n = R(n, 48);
-                e.append(n)
+            for (var e = Math.round(8 * Math.random()), t = c.querySelector("#home .logo-big .avatar-container"), n = 0; n < 8; n++) {
+                var a, o = [0, 0, 0, -1];
+                o[0] = n, o[1] = Math.round(100 * Math.random()) % i, o[2] = Math.round(100 * Math.random()) % g, 1e3 * Math.random() < 10 && (o[3] = (a = [0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])[Math.floor(Math.random() * a.length)]);
+                o = R(o, 48, e == n);
+                t.append(o)
             }
         }()
 }(window, document, localStorage, io);
