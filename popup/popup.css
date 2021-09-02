@@ -63,6 +63,7 @@
 
 button, input[type='text'],
 #dc {
+    cursor:pointer;
     font-size:inherit;
     transition: background 0.15s;
     margin: 1em;
