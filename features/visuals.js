@@ -14,9 +14,9 @@ const visuals = {
 
         let urlBackgroundGame = options["urlBackgroundGame"] ? options["urlBackgroundGame"].trim() : "";
         if (urlBackgroundGame != "") {
-            style.innerHTML += "#screenGame:not([style='display: none;'])::after,#screenLoading:not([style='display: none;'])::after{position:fixed; content: ''; left:0; top:0; width:100%; height:100%;z-index:-1; background: url("
+            style.innerHTML += "#game:not([style='display: none;'])::after{position:fixed; content: ''; left:0; top:0; width:100%; height:100%;z-index:-1; background: url("
                 + urlBackgroundGame + ")}";
-            style.innerHTML += "#screenLoading:not([style='display: none;'])::before{position:fixed; content: ''; left:0; top:0; bottom:0; right:0;z-index:1; background-image:inherit; background-repeat: inherit; background-position:inherit;} ";
+            //style.innerHTML += "#screenLoading:not([style='display: none;'])::before{position:fixed; content: ''; left:0; top:0; bottom:0; right:0;z-index:1; background-image:inherit; background-repeat: inherit; background-position:inherit;} ";
         }
 
         let urlLogo = options["urlLogo"] ? options["urlLogo"].trim() : "";
@@ -27,6 +27,14 @@ const visuals = {
             let val = options["containerBackgrounds"] ? options["containerBackgrounds"].trim() : "";
             style.innerHTML += "#emojiPrev, #imageAgent, #home .news ::-webkit-scrollbar, #home .news ::-webkit-scrollbar-thumb, .modalContainer, .toast, #modal .box, #home .panel, #home .bottom .footer {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#home .bottom svg {fill: " + (val != "" ? val : "transparent") + " !important}";
+        }
+        if (options["containerBackgroundsCheck"] == true && options["ingameContainerBackgroundsCheck"] !== false) {
+            options["ingameContainerBackgrounds"] = options["containerBackgrounds"];
+            options["ingameContainerBackgroundsCheck"] = true;
+            try {
+                QS("#ingameContainerBackgrounds").value = options["ingameContainerBackgrounds"];
+                QS("#ingameContainerBackgroundsCheck").checked = true;
+            } catch { }
         }
         if (options["ingameContainerBackgroundsCheck"] == true) {
             let val = options["ingameContainerBackgrounds"] ? options["ingameContainerBackgrounds"].trim() : "";
@@ -43,8 +51,8 @@ const visuals = {
 
         if (options["containerImages"] && options["containerImages"].trim() != "")
         {
-            style.innerHTML += "#containerGamePlayers, .lobbyName, .lobbyContent, .loginPanelContent, .gameHeader, #containerChat, #imageOptions  {background-image: url(" + options["containerImages"].trim() + ") !important}";
-            style.innerHTML += "#containerGamePlayers .player{background:none !important}";
+            style.innerHTML += "#imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat .container, #game-players .list  {background-image: url(" + options["containerImages"].trim() + ") !important}";
+            style.innerHTML += "#game-players .list {background:none !important}";
         }
         // font color
         let color = options["fontColor"] ? options["fontColor"] : "";
@@ -54,6 +62,12 @@ const visuals = {
             //style.innerHTML += "#emojiPrev span, #sharePopup, .player .text, .wordContainer .word, .modalTitle, .modal-title, .checkbox label {color: black !important}";
         }
         // font color of everything in-game 
+        if (!options["ingameFontColor"] && options["fontColor"]) {
+            options["ingameFontColor"] = options["fontColor"];
+            try {
+                QS("#ingameFontColor").value = options["fontColor"];
+            } catch { }
+        }
         let ingamecolor = options["ingameFontColor"] ? options["ingameFontColor"] : "";
         if (ingamecolor && ingamecolor != "") {
             style.innerHTML += "#game-chat > div.container > div.content > p *:not([style*='rgb(125, 173, 63)']):not([style*='rgb(206, 79, 10)']):not([style*='rgb(204, 204, 0)']) {color:" + ingamecolor.trim() + " !important}";
@@ -232,7 +246,7 @@ const visuals = {
         try { visuals.themes = JSON.parse(localStorage.themes); }
         catch{ visuals.themes = []; }
         let createBtn = (theme) => {
-            let themebtn = elemFromString("<div class='btn btn-success' style='margin:.5em'>" + theme.name + "</div>");
+            let themebtn = elemFromString("<button class='flatUI green min air' style='margin:.5em'>" + theme.name + "</button>");
             themebtn.addEventListener("click", () => {
                 visuals.loadOptions(theme.options);
                 visuals.applyOptions(theme.options);
@@ -267,7 +281,7 @@ const visuals = {
             localStorage.themes = JSON.stringify(visuals.themes);
             themes.insertBefore(createBtn([...visuals.themes].pop()), themes.firstChild);
         }
-        let addtheme = elemFromString("<div class='btn btn-info' style='margin:.5em'>Save Current</div>");
+        let addtheme = elemFromString("<button class='flatUI blue min air' style='margin:.5em'>Save Current</button>");
         addtheme.addEventListener("click", () => {
             let input = prompt("How to name the theme?\nYou can right-click a theme to remove it.");
             if (input == null) return;
@@ -275,13 +289,13 @@ const visuals = {
             visuals.addTheme(name, visuals.getOptions());
         });
         themes.appendChild(addtheme);
-        let exportTheme = elemFromString("<div class='btn btn-info' style='margin:.5em'>Export</div>");
+        let exportTheme = elemFromString("<button class='flatUI blue min air' style='margin:.5em'>Export</button>");
         exportTheme.addEventListener("click", () => {
             navigator.clipboard.writeText(JSON.stringify(visuals.getOptions()));
             new Toast("Copied theme text to clipboard.");
         });
         themes.appendChild(exportTheme);
-        let importTheme = elemFromString("<div class='btn btn-info' style='margin:.5em'>Import</div>");
+        let importTheme = elemFromString("<button class='flatUI blue min air' style='margin:.5em'>Import</button>");
         importTheme.addEventListener("click", () => {
             try {
                 let theme = prompt("Enter the theme text");
