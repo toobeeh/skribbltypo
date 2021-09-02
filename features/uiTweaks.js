@@ -174,7 +174,7 @@ const uiTweaks = {
         const smallSkribbl = `{"name":"oldSkribbl", "rowCount": 11, "colors":[{"color":"rgb(255, 255, 255)"},{"color":"rgb(210, 210, 210)"},{"color":"rgb(239, 19, 11)"},{"color":"rgb(255, 113, 0)"},{"color":"rgb(255, 228, 0)"},{"color":"rgb(0, 204, 0)"},{"color":"rgb(0, 178, 255)"},{"color":"rgb(35, 31, 211)"},{"color":"rgb(163, 0, 186)"},{"color":"rgb(211, 124, 170)"},{"color":"rgb(160, 82, 45)"},{"color":"rgb(0, 0, 0)"},{"color":"rgb(80, 80, 80)"},{"color":"rgb(86, 8, 6)"},{"color":"rgb(137, 39, 0)"},{"color":"rgb(163, 103, 0)"},{"color":"rgb(0, 61, 3)"},{"color":"rgb(0, 59, 120)"},{"color":"rgb(8, 3, 82)"},{"color":"rgb(65, 0, 81)"},{"color":"rgb(118, 48, 75)"},{"color":"rgb(72, 28, 0)"}]}`;
         const smallPalette = createColorPalette(JSON.parse(smallSkribbl));
         smallPalette.json = null;
-        uiTweaks.palettes.push(csmallPalette);
+        uiTweaks.palettes.push(smallPalette);
         uiTweaks.palettes.push({
             name: "originalPalette", activate: () => {
                 [...QSA("#game-toolbar .color-picker .colors.custom")].forEach(p => p.remove());
@@ -220,7 +220,7 @@ const uiTweaks = {
                     return;
                 }
                 document.documentElement.requestFullscreen();
-                document.head.insertAdjacentHTML("beforeEnd", "<style id='fullscreenRules'>div#game-board{flex-grow:1}#controls{flex-direction:row !important;bottom:9px;top:unset !important;} #game-board:{flex-grow: 1 !important} #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} .logo-small{display:none !important}  *::-webkit-scrollbar{display:none}</style>");
+                document.head.insertAdjacentHTML("beforeEnd", "<style id='fullscreenRules'>div#game-board{flex-grow:1}#controls{flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} #game-board:{flex-grow: 1 !important} #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} .logo-small{display:none !important}  *::-webkit-scrollbar{display:none}</style>");
             }
         });
         document.addEventListener("fullscreenchange", () => {
