@@ -198,7 +198,7 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
                 });
                 let remove = false;
                 const cap = btn.innerText;
-                if (btn.id.replace("palette_", "") != "originalPalette") btn.addEventListener("contextmenu", (e) => {
+                if (btn.id.replace("palette_", "") != "originalPalette" && btn.id.replace("palette_", "") != "oldSkribbl") btn.addEventListener("contextmenu", (e) => {
                     e.preventDefault();
                     if (!remove) {
                         remove = true;
