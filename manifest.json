@@ -29,6 +29,7 @@
     "features/*"
   ],
   "permissions": [
+    "webRequest",
     "activeTab",
     "*://tobeh.host/*",
     "*://typo.rip/*",
