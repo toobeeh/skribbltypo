@@ -25,7 +25,7 @@ const visuals = {
         
         if (options["containerBackgroundsCheck"] == true) {
             let val = options["containerBackgrounds"] ? options["containerBackgrounds"].trim() : "";
-            style.innerHTML += "#emojiPrev, #imageAgent, #home .news ::-webkit-scrollbar, #home .news ::-webkit-scrollbar-thumb, .modalContainer, .toast, #modal .box, #home .panel, #home .bottom .footer {background-color: " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#setting-bar .content, #emojiPrev, #imageAgent, #home .news ::-webkit-scrollbar, #home .news ::-webkit-scrollbar-thumb, .modalContainer, .toast, #modal .box, #home .panel, #home .bottom .footer {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#home .bottom svg {fill: " + (val != "" ? val : "transparent") + " !important}";
         }
         if (options["containerBackgroundsCheck"] == true && options["ingameContainerBackgroundsCheck"] !== false) {
