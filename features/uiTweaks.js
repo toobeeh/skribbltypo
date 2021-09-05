@@ -109,6 +109,10 @@ const uiTweaks = {
             dontDispatch = true;
             pickr.setColor(QS("#color-preview-primary").style.fill);
         });
+        document.addEventListener("setColor", (detail) => {
+            dontDispatch = true;
+            pickr.setColor(QS("#color-preview-primary").style.fill);
+        });
     },
     initCanvasZoom: () => {
         // init precise drawing mode
