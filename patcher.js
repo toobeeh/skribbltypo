@@ -22,7 +22,7 @@ const waitForDocAndPalantir = async () => {
     if (await waitForDocAndPalantir()) {
         await sprites.init(); // init sprites
         drops.initDrops(); // init drops
-        if (localStorage.restrictLobby == "") {
+        if (localStorage.restrictLobby == "" && socket.data.user.member) {
             QS("#restrictLobby").dispatchEvent(new Event("click"));
         }
     }

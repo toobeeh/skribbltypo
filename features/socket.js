@@ -75,10 +75,12 @@ const socket = {
                 socket.data.activeLobbies = loginstate.activeLobbies;
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
+                document.dispatchEvent(newCustomEvent("palantirLoaded"));
                 //lobbies_.setLobbies(socket.data.activeLobbies);
             }
+            else document.dispatchEvent(newCustomEvent("palantirLoaded"));
+
             //else lobbies_.setLobbies(null);
-            document.dispatchEvent(newCustomEvent("palantirLoaded"));
 
             // if already in-game / reconnected after disconnect and ingame, continue reporting
             //if (lobbies_.userAllow && lobbies_.inGame) {
