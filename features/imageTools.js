@@ -63,7 +63,8 @@ Image tools
             btn.addEventListener("contextmenu", (e) => {
                 e.preventDefault();
                 if (removeToggle) {
-                    bt.remove();
+                    optionsPopup.focus();
+                    btn.remove();
                 }
                 else {
                     btn.innerText = "Repeat to remove";
@@ -80,7 +81,6 @@ Image tools
             const commands = captureCanvas.capturedCommands;
             const name = getCurrentOrLastDrawer() + getCurrentWordOrHint();
             addPasteCommandsButton(commands, name);
-            new Toast("Saved all image data on the typo gallery cloud.");
         });
         // add skd save listener
         QS("#itoolsDownload").addEventListener("click", () => {

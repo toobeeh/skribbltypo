@@ -33,7 +33,7 @@ const lobbies = {
 		return players;
 	},
 	getTriggerElements: () => {
-		return [QS(".round-current"), QS("#game-players .list"), [...QSA(".avatar .drawing")]].flat();
+		return [QS("#game-round"), QS("#game-players .list"), [...QSA(".avatar .drawing")]].flat();
 	},
 	initLobbyContainer: () => {
 		let lobbies = elemFromString("<div></div>");
@@ -59,7 +59,7 @@ const lobbies = {
 				// observe new matching elements
 				lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true}));
 				lobbies.lobbyProperties.Players = lobbies.getLobbyPlayers();
-				lobbies.lobbyProperties.Round = QS(".round-current").textContent.trim();
+				lobbies.lobbyProperties.Round = QS("#game-round").textContent.trim();
 				socket.clientData.lobbyKey = lobbies.lobbyProperties.Key;
 				let description = QS(".icon.owner.visible") ? (QS("#lobbyDesc") && QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
 				if (lobbies.joined && lobbies.userAllow) { // report lobby if joined

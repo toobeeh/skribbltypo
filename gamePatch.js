@@ -71,7 +71,7 @@
             });
             document.addEventListener("setColor", (e) => {
                 let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
-                let match = Ge.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
+                let match = Qe.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY colors array
                 let code = match >= 0 ? match : e.detail.code;
                 if (e.detail.secondary) mt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill
                 else pt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill
@@ -1387,7 +1387,6 @@
         switch (t) {
             case ta:
                 _n(n);
-                Tn(n);
                 // TYPOMOD
                 // desc: send lobbydata
                 document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: e.data }));
