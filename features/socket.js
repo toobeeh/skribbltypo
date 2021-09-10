@@ -149,7 +149,7 @@ const socket = {
                 lobbyKey: socket.clientData.lobbyKey,
                 timedOut: timeout
             }, true);
-            return response;
+            return true;
         }
         catch (e) {
             console.log("Error claiming drop:" + e.toString());

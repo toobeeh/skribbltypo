@@ -20,25 +20,21 @@ let drops = {
         //hide drop after 5s and emit timeout
         setTimeout(async () => {
             drops.waitForClear = false;
-            if (dropElem.style.display != "none") {
-                dropElem.style.display = "none";
-                let result = await socket.claimDrop(drops.currentDrop, true);
-                printCmdOutput("drop", "The drop timed out :o", "Whoops...");
-                if(result.lobbyKey != "") printCmdOutput("drop", "Someone with typo older than v21 caught the drop.","..");
-                drops.currentDrop = null;
-            }
+            dropElem.style.display = "none";
+            printCmdOutput("drop", "The drop timed out :o", "Whoops...");
+            
         }, 5000);
     },
     clearDrop: (result) => {
         if (localStorage.drops == "false") return;
         let dropElem = drops.dropContainer;
-        if (dropElem.style.display != "none" || drops.waitForClear) {
-            let winner = result.caughtPlayer;
-            printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
-            dropElem.style.display = "none";
-            drops.currentDrop = null;
-            drops.waitForClear = false;
-        }
+        let winner = result.caughtPlayer;
+        if (result.claimSocketID == socket.sck.id) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
+        else printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
+        dropElem.style.display = "none";
+        drops.currentDrop = null;
+        drops.waitForClear = false;
+        
     },
     initDropContainer: () => {
         // add drop button
@@ -77,9 +73,6 @@ let drops = {
             if (dropContainer.style.display == "none") return;
             dropContainer.style.display = "none";
             let result = await socket.claimDrop(drops.currentDrop);
-            // if drop caught, print immediately - else wait for clear drop
-            if (result.caught) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
-            else drops.waitForClear = true;
             drops.currentDrop = null;
         });
         document.querySelector("#containerCanvas").appendChild(dropContainer);
