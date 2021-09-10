@@ -19,9 +19,11 @@ let drops = {
         dropElem.style.left = Math.round(8 + Math.random() * 784) + "px";
         //hide drop after 5s and emit timeout
         setTimeout(async () => {
-            drops.waitForClear = false;
-            dropElem.style.display = "none";
-            printCmdOutput("drop", "The drop timed out :o", "Whoops...");
+            if (drops.currentDrop) {
+                dropElem.style.display = "none";
+                printCmdOutput("drop", "The drop timed out :o", "Whoops...");
+                drops.currentDrop = null;
+            }
             
         }, 5000);
     },
