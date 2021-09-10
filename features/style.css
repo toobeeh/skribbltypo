@@ -18,6 +18,68 @@
     margin-bottom:15px !important;
 }
 
+#panelgrid {
+    display: grid;
+    grid-template-columns: repeat(3, 400px);
+    grid-column-gap: 2em;
+    color:white;
+}
+#panelgrid a{color:inherit;}
+#panelgrid > div:nth-child(1){
+    height:90%;
+    margin-top:10%;
+    width:90%;
+    margin-left:10%;
+}
+    #panelgrid > div:nth-child(3) {
+        height: 90%;
+        margin-top: 10%;
+        width: 90%;
+        margin-right: 10%;
+    }
+    #panelgrid .panel > h2 {margin-top:0;}
+
+typosocial {
+    display: inline-block;
+    padding: .5em;
+    border-radius: .5em;
+    margin: .5em;
+    color: white;
+    line-height: 1em;
+    background-size: 1.5em 1.5em;
+    background-repeat: no-repeat;
+    background-position: .2em center;
+    transform: scale(1);
+    transition:transform .2s;
+}
+    typosocial:hover {
+        transform: scale(0.95);
+    }
+    typosocial a {
+        margin-left:1.5em;
+        text-decoration: none;
+        color: white;
+        font-weight:bold;
+    }
+
+    typosocial[media=discord] {
+        background-color: #5865F2;
+        background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885972636239282246/discord_logo_icon_181298.png);
+    }
+    typosocial[media=website] {
+        background-color: #7058f2;
+        background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885973183977619476/256CircleFit.png);
+    }
+    typosocial[media=patreon] {
+        background-color: #FF424D;
+        background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885975333990461490/5396969-black-patreon-logo-png-1-sound-of-the-future-patreon-logo-png-1600_1600_preview.png);
+    }
+    typosocial[media=github] {
+        background-color: black;
+        background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885977424863584256/Untitled-1.png);
+    }
+
+
 #home .news .head, #game-room .container-settings .lobby-name{border-bottom-color:transparent !important}
 
 #game-board #game-canvas canvas {

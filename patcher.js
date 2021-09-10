@@ -72,8 +72,27 @@ let patcher = new MutationObserver((mutations) => {
                     script.src = chrome.extension.getURL("gamePatch.js");
                     node.parentElement.appendChild(script);
                     
-                }
-//                if (node.tagName == "DIV" && node.classList.contains("updateInfo")) { 
+                 }
+                 if (node.parentElement.id == "home" && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
+                     const panelGrid = elemFromString("<div id='panelgrid'></div>");
+                     node.parentElement.insertBefore(panelGrid, node);
+                     node.classList.add("patched");
+                     const leftCard = elemFromString(`<div class='panel patched' > <h2>Typo News</h2>
+    Typo is now compatible to the new skribbl.io update!<br><br>While many features were removed, the spirit stays the same <3 <br>
+<br><br>
+<div class="panel" style="width:unset; border:none !important"><b>BTW, did you know?</b>
+<br>${hints[Math.floor(Math.random() * hints.length)]}
+</div>
+<br> <typosocial media="discord"><a target="_blank" href='https://discord.link/typo'>Typo Discord</a>
+</typosocial> <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a>
+</typosocial><typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a>
+</typosocial><typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial></div>`);
+                     const rightCard = elemFromString("<div class='panel patched' ></div>");
+                     panelGrid.appendChild(leftCard);
+                     panelGrid.appendChild(node);
+                     panelGrid.appendChild(rightCard);
+                 }
+//               //if (node.tagName == "DIV" && node.classList.contains("updateInfo")) { 
 //                        node.innerHTML = "Heya, take a cookie! 🍪<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br> Additional to the march update, some features have rolled out.<br><br> <div class='btn btn-block btn-success'>View the changelog" + (localStorage.lastChangelogview != chrome.runtime.getManifest().version ? " 📢 New!" : "") + "</div>";
 //                        node.innerHTML += "<br>Data can be used to do pretty cool stuff.<br> By using Typo, you agree on <a id='typodata' role='button'>how Typo uses data.</a>";
 //                        node.innerHTML += "<br><br>To learn more about Typo, visit the <a href='https://typo.rip' role='button'>website</a> or <a href='https://discord.link/typo' role='button'>join the Discord server.</a>"

@@ -151,11 +151,9 @@ const socket = {
                 lobbyKey: socket.clientData.lobbyKey,
                 timedOut: timeout
             }, true);
-            return response;
         }
         catch (e) {
             console.log("Error claiming drop:" + e.toString());
-            return { caught: false };
         }
     },
     getStoredDrawings: async (query = {}, limit = 5000) => {

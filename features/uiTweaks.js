@@ -508,9 +508,6 @@ const uiTweaks = {
         uiTweaks.initDefaultKeybinds();
         uiTweaks.initChatRecall();
         uiTweaks.initChooseCountdown();
-
-        // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins, clean frontpage
-        QS(".footer").insertAdjacentElement("afterbegin", QS(".socials"));
         
         // random easteregg
         if(Math.random() < 0.1) QS("#game-chat .container form input").placeholder = "Typo your guess here...";
