@@ -224,7 +224,7 @@ const uiTweaks = {
                     return;
                 }
                 document.documentElement.requestFullscreen();
-                document.head.insertAdjacentHTML("beforeEnd", "<style id='fullscreenRules'>div#game-board{flex-grow:1}#controls{flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} #game-board:{flex-grow: 1 !important} #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} .logo-small{display:none !important}  *::-webkit-scrollbar{display:none}</style>");
+                document.head.insertAdjacentHTML("beforeEnd", "<style id='fullscreenRules'>div#game-board{flex-grow:1}#controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} #game-board:{flex-grow: 1 !important} #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} .logo-small{display:none !important}  *::-webkit-scrollbar{display:none}</style>");
             }
         });
         document.addEventListener("fullscreenchange", () => {
