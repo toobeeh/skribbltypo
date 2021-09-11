@@ -22,7 +22,7 @@
 
 #typoUserInfo {
     padding: 1em;
-    background: #e2e2e2;
+    background: inherit;
     border-radius: 1em;
     font-weight: bold;
     margin: 1em;

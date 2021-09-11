@@ -21,7 +21,6 @@ let drops = {
         setTimeout(async () => {
             if (drops.currentDrop) {
                 dropElem.style.display = "none";
-                addChatMessage("Whoops..", "The drop timed out :o");
                 drops.currentDrop = null;
             }
         }, 5000);
