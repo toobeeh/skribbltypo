@@ -73,20 +73,28 @@ let patcher = new MutationObserver((mutations) => {
                     node.parentElement.appendChild(script);
                     
                  }
-                 if (node.parentElement.id == "home" && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
+                 if (node.classList.contains("button-play")) {
+                     node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'>Connecting to Typo server...</div>");
+                 }
+                 if (node.parentElement?.id == "home" && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
                      const panelGrid = elemFromString("<div id='panelgrid'></div>");
                      node.parentElement.insertBefore(panelGrid, node);
                      node.classList.add("patched");
-                     const leftCard = elemFromString(`<div class='panel patched' > <h2>Typo News</h2>
-    Typo is now compatible to the new skribbl.io update!<br><br>While many features were removed, the spirit stays the same <3 <br>
-<br><br>
-<div class="panel" style="width:unset; border:none !important"><b>BTW, did you know?</b>
-<br>${hints[Math.floor(Math.random() * hints.length)]}
+                     const leftCard = elemFromString(`<div class='panel patched' > 
+<div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;">
+    <h2>Typo News</h2>
+    <span>Typo is now compatible to the new skribbl.io update!</span><span>While many features were removed, the spirit stays the same <3 </span>
+    <div class="panel" style="width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
+        <br>${hints[Math.floor(Math.random() * hints.length)]}
+    </div>
+    <div style="display: grid; grid-template-columns: 50% 50%;">
+        <typosocial media="discord"><a target="_blank" href='https://discord.link/typo'>Typo Discord</a></typosocial>
+        <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a></typosocial>
+        <typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a></typosocial>
+        <typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial>
+    </div>
 </div>
-<br> <typosocial media="discord"><a target="_blank" href='https://discord.link/typo'>Typo Discord</a>
-</typosocial> <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a>
-</typosocial><typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a>
-</typosocial><typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial></div>`);
+</div>`);
                      const rightCard = elemFromString("<div class='panel patched' ></div>");
                      panelGrid.appendChild(leftCard);
                      panelGrid.appendChild(node);

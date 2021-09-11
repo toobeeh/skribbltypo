@@ -105,7 +105,7 @@ const visuals = {
             style.innerHTML += "#typoUserInfo {display:none !important}";
         }
         if (options["hideDiscord"] == true) {
-            style.innerHTML += "#home .footer .socials {display:none}";
+            style.innerHTML += "#home .socials {opacity:0}";
         }
         if (options["hideInGameLogo"] == true) {
             style.innerHTML += "#game > .logo-small{display:none}";

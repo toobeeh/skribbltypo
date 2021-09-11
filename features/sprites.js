@@ -126,35 +126,40 @@ const sprites = {
         });
         endboardObserver.observe(QS(".overlay-content .result"), { childList: true, attributes: true });
 
-        if (!socket.authenticated) return;
-        sprites.getSprites();
-        let ownsprites = socket.data.user.sprites.split(",");
-        let activeSprites = ownsprites.filter(s => s.includes("."));
-        activeSprites.forEach(sprite => {
-            let slot = sprite.split(".").length - 1;
-            let id = sprite.replaceAll(".", "");
-            let url = sprites.getSpriteURL(id);
-            if (sprites.isSpecial(id)) {
-                QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
-                    n.style.opacity = 0;
-                });
-            }
-            let specialContainer = QS(".avatar-customizer .special");
-            let clone = specialContainer.cloneNode(true);
-            specialContainer.parentElement.appendChild(clone);
-            clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
-            clone.style.zIndex = slot;
-            clone.classList.add("spriteSlot");
-            clone.classList.remove("special");
-        });
-        let avatarContainer = document.querySelector(".avatar-customizer");
-        avatarContainer.insertAdjacentHTML("afterend", "<div id='typoUserInfo' style='padding:.5em; background:#e2e2e2; border-radius:1em;font-weight:bold;margin:1em; text-align: center; pointer-events:none; user-select:none'> 🔮 Bubbles: "
-            + socket.data.user.bubbles + "  💧 Drops: " + socket.data.user.drops
-            + "</div>")
-        if(localStorage.experimental == "true") avatarContainer.insertAdjacentHTML("afterend", "<div style='opacity:0.6, margin:1em 0; text-align: center; pointer-events:none; user-select:none'>"
-            + "Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri
-            + "</div>")
-        QS(".avatar-customizer .container").style.margin = "0 30px";
+        if (!socket.authenticated) {
+            const userinfo = QS("#typoUserInfo")
+            userinfo.innerText = "No palantir account connected!";
+            userinfo.style.cssText = "opacity:1; transition: opacity 0.5s";
+            setTimeout(() => { userinfo.style.opacity = "0"; }, 3000);
+            setTimeout(() => { userinfo.style.display = "none" }, 3500);
+        }
+        else {
+            sprites.getSprites();
+            let ownsprites = socket.data.user.sprites.split(",");
+            let activeSprites = ownsprites.filter(s => s.includes("."));
+            activeSprites.forEach(sprite => {
+                let slot = sprite.split(".").length - 1;
+                let id = sprite.replaceAll(".", "");
+                let url = sprites.getSpriteURL(id);
+                if (sprites.isSpecial(id)) {
+                    QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
+                        n.style.opacity = 0;
+                    });
+                }
+                let specialContainer = QS(".avatar-customizer .special");
+                let clone = specialContainer.cloneNode(true);
+                specialContainer.parentElement.appendChild(clone);
+                clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
+                clone.style.zIndex = slot;
+                clone.classList.add("spriteSlot");
+                clone.classList.remove("special");
+            });
+            QS("#typoUserInfo").innerText = " 🔮 Bubbles: "
+                + socket.data.user.bubbles + "  💧 Drops: " + socket.data.user.drops;
+            if (localStorage.experimental == "true") QS("#typoUserInfo").innerText.insertAdjacentHTML("beforeend",
+                + "<br>Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri);
+        }
+        
     }
 
 };

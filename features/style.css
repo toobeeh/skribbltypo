@@ -13,9 +13,22 @@
         text-align: center;
         margin-bottom:5px;
     }
+.avatar-customizer .container {
+    margin: 0 30px
+}
+#game {
+    margin-bottom: 15px !important;
+}
 
-#game{
-    margin-bottom:15px !important;
+#typoUserInfo {
+    padding: 1em;
+    background: #e2e2e2;
+    border-radius: 1em;
+    font-weight: bold;
+    margin: 1em;
+    text-align: center;
+    pointer-events: none;
+    user-select: none
 }
 
 #panelgrid {
@@ -28,20 +41,22 @@
 #panelgrid > div:nth-child(1){
     height:90%;
     margin-top:10%;
-    width:90%;
-    margin-left:10%;
+    width:95%;
+    margin-left:5%;
 }
     #panelgrid > div:nth-child(3) {
         height: 90%;
         margin-top: 10%;
-        width: 90%;
-        margin-right: 10%;
+        width: 95%;
+        margin-right: 5%;
     }
-    #panelgrid .panel > h2 {margin-top:0;}
+    #panelgrid .panel  h2 {margin-top:0;}
 
 typosocial {
+    font-size:0.9em;
+    cursor:pointer;
     display: inline-block;
-    padding: .5em;
+    padding: .8em;
     border-radius: .5em;
     margin: .5em;
     color: white;
@@ -51,6 +66,7 @@ typosocial {
     background-position: .2em center;
     transform: scale(1);
     transition:transform .2s;
+    image-rendering:auto;
 }
     typosocial:hover {
         transform: scale(0.95);
