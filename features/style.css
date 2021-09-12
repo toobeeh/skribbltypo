@@ -16,6 +16,7 @@
 .avatar-customizer .container {
     margin: 0 30px
 }
+#game-toolbar .color-picker .preview{margin-right:24px !important}
 #game {
     margin-bottom: 15px !important;
 }
