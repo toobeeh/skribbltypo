@@ -104,7 +104,7 @@
         background-color: #00000014;
         cursor:not-allowed;
     }
-        #cabinSlots > div.unlocked {
+        #cabinSlots > div.unlocked, .spriteChoice {
             background-color: #ffffff14;
             cursor: pointer;
             transform: scale(1);
@@ -114,9 +114,12 @@
             background-position:center;
             color: transparent;
         }
+            .spriteChoice:hover {
+                transform: scale(0.95);
+            }
             #cabinSlots > div.unlocked:hover {
                 transform: scale(0.95);
-                color:unset;
+                color: unset;
                 background-size: 0%;
             }
 
