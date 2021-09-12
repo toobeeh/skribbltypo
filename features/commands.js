@@ -441,6 +441,22 @@ const commands = [
                 return "";
             }
         }
+    }, {
+        command: "resettypo",
+        options: {
+            type: "action",
+            description: "Resets everything to the defaults.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: () => {
+                setDefaults(true);
+                window.location.reload();
+            },
+            response: (args) => {
+                return "";
+            }
+        }
     }
 
 ];

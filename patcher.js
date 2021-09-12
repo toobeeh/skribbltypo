@@ -102,8 +102,8 @@ let patcher = new MutationObserver((mutations) => {
 </div>
 </div>`);
                      const rightCard = elemFromString(`<div class='panel patched' >
-<div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;">
-    <h2>Sprite Cabin</h2>
+<div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="rightPanelContent" class="lobbies">
+    <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
     <div id="cabinSlots" class="unauth">
         <div id="loginRedir"><a href="https://tobeh.host/Orthanc/auth"><button class="flatUI air min">Log in with Palantir</button></a></div>
         <div>Slot 1</div>
@@ -121,6 +121,10 @@ let patcher = new MutationObserver((mutations) => {
                      panelGrid.appendChild(leftCard);
                      panelGrid.appendChild(node);
                      panelGrid.appendChild(rightCard);
+                     QS("#rightPanelContent h2").addEventListener("click", (event) => {
+                         event.target.closest("#rightPanelContent").classList.toggle("cabin");
+                         event.target.closest("#rightPanelContent").classList.toggle("lobbies");
+                     });
                  }
 //               //if (node.tagName == "DIV" && node.classList.contains("updateInfo")) { 
 //                        node.innerHTML = "Heya, take a cookie! 🍪<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))] + "<br><br> Additional to the march update, some features have rolled out.<br><br> <div class='btn btn-block btn-success'>View the changelog" + (localStorage.lastChangelogview != chrome.runtime.getManifest().version ? " 📢 New!" : "") + "</div>";

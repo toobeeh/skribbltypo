@@ -20,6 +20,42 @@
     margin-bottom: 15px !important;
 }
 
+#rightPanelContent h2 span:first-child {
+    user-select:none;
+    float: right
+}
+#rightPanelContent h2 span:last-child {
+    user-select: none;
+    float: left
+}
+
+#rightPanelContent.lobbies h2 span:first-child {
+    opacity: 0.5;
+    cursor: pointer;
+}
+#rightPanelContent.lobbies h2 span:last-child {
+    opacity: 1;
+    pointer-events: none;
+}
+#rightPanelContent.lobbies #cabinSlots {
+    display:none;
+}
+
+
+#rightPanelContent.cabin h2 span:last-child {
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+#rightPanelContent.cabin h2 span:first-child {
+    opacity: 1;
+    pointer-events: none;
+}
+
+#rightPanelContent.cabin #discordLobbies {
+    display: none;
+}
+
 #typoUserInfo {
     padding: 1em;
     background: inherit;
