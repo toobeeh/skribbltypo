@@ -105,16 +105,16 @@ let patcher = new MutationObserver((mutations) => {
 <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="rightPanelContent" class="lobbies">
     <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
     <div id="cabinSlots" class="unauth">
-        <div id="loginRedir"><a href="https://tobeh.host/Orthanc/auth"><button class="flatUI air min">Log in with Palantir</button></a></div>
-        <div>Slot 1</div>
-        <div>Slot 2</div>
-        <div>Slot 3</div>
-        <div>Slot 4</div>
-        <div>Slot 5</div>
-        <div>Slot 6</div>
-        <div>Slot 7</div>
-        <div>Slot 8</div>
-        <div>Slot 9</div>
+        <div id="loginRedir"><a href="https://tobeh.host/Orthanc/auth"><button class="flatUI air min blue">Log in with Palantir</button></a></div>
+        <div>Slot 1<p></p></div>
+        <div>Slot 2<p></p></div>
+        <div>Slot 3<p></p></div>
+        <div>Slot 4<p></p></div>
+        <div>Slot 5<p></p></div>
+        <div>Slot 6<p></p></div>
+        <div>Slot 7<p></p></div>
+        <div>Slot 8<p></p></div>
+        <div>Slot 9<p></p></div>
     </div>
 </div>
 </div>`);

@@ -86,36 +86,47 @@
     z-index:10;
 }
 
-#cabinSlots{
-    position:relative;
-    display:grid;
+#cabinSlots {
+    -ms-overflow-style: none; /* for Internet Explorer, Edge */
+    scrollbar-width: none; /* for Firefox */
+    overflow-y: scroll;
+    aspect-ratio: 1;
+    position: relative;
+    display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-column-gap: 1em;
-    grid-row-gap:1em;
-    opacity:1;
-    transition:opacity 0.25s;
+    grid-row-gap: 1em;
+    opacity: 1;
+    transition: opacity 0.25s;
 }
+    #cabinSlots::-webkit-scrollbar {
+        display: none; /* for Chrome, Safari, and Opera */
+    }
 
     #cabinSlots > div {
         aspect-ratio: 1;
         display: flex;
+        flex-direction: column;
         place-items: center;
         place-content: center;
         border-radius: .5em;
         background-color: #00000014;
         cursor:not-allowed;
         pointer-events:none;
+        user-select:none;
     }
+    #cabinSlots > div:not(#loginRedir) * {pointer-events:none;}
+        #cabinSlots > div:not(#loginRedir) > p{font-size:0.7em;}
         #cabinSlots > div.unlocked, .spriteChoice {
             background-color: #ffffff14;
             cursor: pointer;
             transform: scale(1);
             transition: all .2s;
             background-size: 100%;
-            background-repeat:no-repeat;
-            background-position:center;
+            background-repeat: no-repeat;
+            background-position: center;
             color: transparent;
-            pointer-events:all;
+            pointer-events: all;
         }
             .spriteChoice:hover {
                 transform: scale(0.95);

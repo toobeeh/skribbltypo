@@ -165,5 +165,9 @@ const socket = {
     setSpriteSlot: async (slot, sprite) => {
         let user = (await socket.emitEvent("set slot", { slot: slot, sprite: sprite }, true, 10000)).user;
         return user;
+    },
+    setSpriteCombo: async (combostring) => {
+        let user = (await socket.emitEvent("set combo", { combostring: combostring }, true, 10000)).user;
+        return user;
     }
 }
