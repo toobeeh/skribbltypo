@@ -460,11 +460,14 @@ const uiTweaks = {
                 history = history.concat(lookup.splice(0).reverse());
                 history.push(input.value);
             }
-            else if (event.code == "ArrowUp") {
+        });
+        input.addEventListener("keyup", (event) => {
+            if (event.code == "ArrowUp") {
                 let prev = history.pop();
                 if (prev) {
                     lookup.push(prev);
                     input.value = prev;
+                    input.setSelectionRange(input.value.length, input.value.length);
                 }
             }
             else if (event.code == "ArrowDown") {
@@ -472,6 +475,7 @@ const uiTweaks = {
                 if (next) {
                     history.push(next);
                     input.value = next;
+                    input.setSelectionRange(input.value.length, input.value.length);
                 }
             }
         });
