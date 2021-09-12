@@ -76,41 +76,7 @@ const socket = {
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
-                const cabin = QS("#cabinSlots");
-                cabin.classList.remove("unauth");
-                const slots = [...QS("#cabinSlots").children];
-                socket.data.user.sprites.split(",")
-                    .filter(spt => spt.includes("."))
-                    .map(spt => [spt.replaceAll(".", ""), spt.split(".").length - 1])
-                    .forEach(slot => {
-                        slots[slot[1]-1].classList.add("unlocked");
-                        slots[slot[1] - 1].style.backgroundImage = "url(" + socket.data.publicData.sprites.find(spt => spt.ID == slot[0]).URL + ")";
-                    });
-                cabin.addEventListener("click", event => {
-                    slot = slots.find(elem => elem == event.target);
-                    if (slot) {
-                        const slotNo = slots.indexOf(slot) + 1;
-                        const spriteList = elemFromString(`<div style="width:100%; display:flex; flex-wrap:wrap; justify-content:center;"></div>`);
-                        socket.data.user.sprites.split(",").forEach(spt => {
-                            const id = spt.replaceAll(".", "");
-                            const active = spt.includes(".");
-                            if (!active && id > 0) {
-                                spriteList.insertAdjacentHTML("beforeend",
-                                    "<div class='spriteChoice' sprite='" + id + "' style='margin:.5em; height:6em; aspect-ratio:1; background-image:url("
-                                    + socket.data.publicData.sprites.find(spt => spt.ID == id).URL
-                                    + ")'></div>");
-                            }
-                        });
-                        const picker = new Modal(spriteList, () => { }, "Choose a sprite for slot " + slotNo);
-                        spriteList.addEventListener("click", event => {
-                            const spt = event.target.getAttribute("sprite");
-                            if (spt) {
-                                picker.close();
-                                alert("slot:" + slotNo + "- spt: " + spt);
-                            }
-                        })
-                    }
-                });
+                
                 //lobbies_.setLobbies(socket.data.activeLobbies);
             }
             else document.dispatchEvent(newCustomEvent("palantirLoaded"));
@@ -192,8 +158,12 @@ const socket = {
         }
     },
     getStoredDrawings: async (query = {}, limit = 5000) => {
-        Object.keys(query).forEach(key => query[key] === undefined && delete query[key])
+        Object.keys(query).forEach(key => query[key] === undefined && delete query[key]);
         let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query}, true, 10000)).drawings;
         return drawings;
+    },
+    setSpriteSlot: async (slot, sprite) => {
+        let user = (await socket.emitEvent("set slot", { slot: slot, sprite: sprite }, true, 10000)).user;
+        return user;
     }
 }

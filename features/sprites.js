@@ -135,29 +135,80 @@ const sprites = {
         }
         else {
             sprites.getSprites();
-            let ownsprites = socket.data.user.sprites.split(",");
-            let activeSprites = ownsprites.filter(s => s.includes("."));
-            activeSprites.forEach(sprite => {
-                let slot = sprite.split(".").length - 1;
-                let id = sprite.replaceAll(".", "");
-                let url = sprites.getSpriteURL(id);
-                if (sprites.isSpecial(id)) {
+            const setLandingSprites = () => {
+                let ownsprites = socket.data.user.sprites.split(",");
+                let activeSprites = ownsprites.filter(s => s.includes("."));
+                QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
+                activeSprites.forEach(sprite => {
+                    let slot = sprite.split(".").length - 1;
+                    let id = sprite.replaceAll(".", "");
+                    let url = sprites.getSpriteURL(id);
                     QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
-                        n.style.opacity = 0;
+                        n.style.opacity = sprites.isSpecial(id) ? 0 : 1;
                     });
-                }
-                let specialContainer = QS(".avatar-customizer .special");
-                let clone = specialContainer.cloneNode(true);
-                specialContainer.parentElement.appendChild(clone);
-                clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
-                clone.style.zIndex = slot;
-                clone.classList.add("spriteSlot");
-                clone.classList.remove("special");
-            });
-            QS("#typoUserInfo").innerText = " 🔮 Bubbles: "
-                + socket.data.user.bubbles + "  💧 Drops: " + socket.data.user.drops;
+                    let specialContainer = QS(".avatar-customizer .special");
+                    let clone = specialContainer.cloneNode(true);
+                    specialContainer.parentElement.appendChild(clone);
+                    clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
+                    clone.style.zIndex = slot;
+                    clone.classList.add("spriteSlot");
+                    clone.classList.remove("special");
+                });
+            }
+            setLandingSprites();
+            QS("#typoUserInfo").innerHTML = "<div style='display:flex; justify-content:space-between; width:100%;'><span>🔮 Bubbles: "
+                + socket.data.user.bubbles + "</span><span>💧 Drops: " + socket.data.user.drops + "</span></div>";
             if (localStorage.experimental == "true") QS("#typoUserInfo").innerText.insertAdjacentHTML("beforeend",
                 + "<br>Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri);
+            // add sprite cabin stuff
+            const cabin = QS("#cabinSlots");
+            cabin.classList.remove("unauth");
+            const slots = [...QSA("#cabinSlots > div:not(#loginRedir)")];
+            const setSlotSprites = () => {
+                socket.data.user.sprites.split(",")
+                    .filter(spt => spt.includes("."))
+                    .map(spt => [spt.replaceAll(".", ""), spt.split(".").length - 1])
+                    .forEach(slot => {
+                        if (slot[0] > 0) slots[slot[1] - 1].style.backgroundImage = "url(" + socket.data.publicData.sprites.find(spt => spt.ID == slot[0]).URL + ")";
+                        else slots[slot[1] - 1].style.backgroundImage = "none";
+                    });
+                slots.forEach(slot => {
+                    if (slots.indexOf(slot) < socket.data.user.slots)
+                        slot.classList.add("unlocked");
+                    else slot.classList.remove("unlocked");
+                });
+            }
+            setSlotSprites();
+            cabin.addEventListener("click", event => {
+                slot = slots.find(elem => elem == event.target);
+                if (slot) {
+                    const slotNo = slots.indexOf(slot) + 1;
+                    const spriteList = elemFromString(`<div style="width:100%; display:flex; flex-wrap:wrap; justify-content:center;"></div>`);
+                    spriteList.insertAdjacentHTML("beforeend",
+                        "<div class='spriteChoice' sprite='0' style='margin:.5em; height:6em; aspect-ratio:1; background-image:none'></div>");
+                    socket.data.user.sprites.split(",").forEach(spt => {
+                        const id = spt.replaceAll(".", "");
+                        const active = spt.includes(".");
+                        if (!active && id > 0) {
+                            spriteList.insertAdjacentHTML("beforeend",
+                                "<div class='spriteChoice' sprite='" + id + "' style='margin:.5em; height:6em; aspect-ratio:1; background-image:url("
+                                + socket.data.publicData.sprites.find(spt => spt.ID == id).URL
+                                + ")'></div>");
+                        }
+                    });
+                    const picker = new Modal(spriteList, () => { }, "Choose a sprite for slot " + slotNo);
+                    spriteList.addEventListener("click", async event => {
+                        const spt = event.target.getAttribute("sprite");
+                        if (spt) {
+                            picker.close();
+                            let updatedmember = await socket.setSpriteSlot(slotNo, spt);
+                            socket.data.user = updatedmember;
+                            setSlotSprites();
+                            setLandingSprites();
+                        }
+                    })
+                }
+            });
         }
         
     }
