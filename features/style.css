@@ -31,6 +31,59 @@
     user-select: none
 }
 
+#loginRedir{
+    z-index:-1;
+    opacity:0;
+    position:absolute;
+    inset:0;
+    display:flex;
+    place-items:center;
+    transition:opacity .25s;
+}
+#loginRedir button {color:inherit !important;}
+#cabinSlots.unauth:hover > div:not(#loginRedir){
+    opacity: 0.3;
+}
+#cabinSlots.unauth:hover #loginRedir {
+    opacity:1;
+    z-index:10;
+}
+
+#cabinSlots{
+    position:relative;
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 1em;
+    grid-row-gap:1em;
+    opacity:1;
+    transition:opacity 0.25s;
+}
+
+    #cabinSlots > div {
+        aspect-ratio: 1;
+        display: flex;
+        place-items: center;
+        place-content: center;
+        border-radius: .5em;
+        background-color: #00000014;
+        cursor:not-allowed;
+    }
+        #cabinSlots > div.unlocked {
+            background-color: #ffffff14;
+            cursor: pointer;
+            transform: scale(1);
+            transition: all .2s;
+            background-size: 100%;
+            background-repeat:no-repeat;
+            background-position:center;
+            color: transparent;
+        }
+            #cabinSlots > div.unlocked:hover {
+                transform: scale(0.95);
+                color:unset;
+                background-size: 0%;
+            }
+
 #panelgrid {
     display: grid;
     grid-template-columns: repeat(3, 400px);

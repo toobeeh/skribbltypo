@@ -1,6 +1,13 @@
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
+// check if redirected from login
+const loginRedirected = (new URLSearchParams(window.location.search)).get("login");
+if (loginRedirected && loginRedirected.length > 0) {
+    localStorage.member = '{"UserLogin":"' + loginRedirected + '"}';
+    window.location.href = window.location.origin;
+}
+
 // execute inits when both DOM and palantir are loaded
 const waitForDocAndPalantir = async () => {
     let palantirReady = false;
@@ -35,7 +42,6 @@ setTimeout(async () => {
 }, 0);
 
 visuals.init(); //init visual options popup
-
 
 // inject patched game.js and modify elements that are immediately after page load visible
 let patcher = new MutationObserver((mutations) => {
@@ -73,7 +79,7 @@ let patcher = new MutationObserver((mutations) => {
                     node.parentElement.appendChild(script);
                     
                  }
-                 if (node.classList.contains("button-play")) {
+                 if (node.classList && node.classList.contains("button-play")) {
                      node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'>Connecting to Typo server...</div>");
                  }
                  if (node.parentElement?.id == "home" && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
@@ -95,7 +101,23 @@ let patcher = new MutationObserver((mutations) => {
     </div>
 </div>
 </div>`);
-                     const rightCard = elemFromString("<div class='panel patched' ></div>");
+                     const rightCard = elemFromString(`<div class='panel patched' >
+<div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;">
+    <h2>Sprite Cabin</h2>
+    <div id="cabinSlots" class="unauth">
+        <div id="loginRedir"><a href="https://tobeh.host/Orthanc/auth"><button class="flatUI air min">Log in with Palantir</button></a></div>
+        <div>Slot 1</div>
+        <div>Slot 2</div>
+        <div>Slot 3</div>
+        <div>Slot 4</div>
+        <div>Slot 5</div>
+        <div>Slot 6</div>
+        <div>Slot 7</div>
+        <div>Slot 8</div>
+        <div>Slot 9</div>
+    </div>
+</div>
+</div>`);
                      panelGrid.appendChild(leftCard);
                      panelGrid.appendChild(node);
                      panelGrid.appendChild(rightCard);
