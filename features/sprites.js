@@ -139,13 +139,13 @@ const sprites = {
                 let ownsprites = socket.data.user.sprites.split(",");
                 let activeSprites = ownsprites.filter(s => s.includes("."));
                 QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
+                QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
+                    n.style.opacity = activeSprites.some(spt => sprites.isSpecial(spt.replaceAll(".", ""))) ? 0 : 1;
+                });
                 activeSprites.forEach(sprite => {
                     let slot = sprite.split(".").length - 1;
                     let id = sprite.replaceAll(".", "");
-                    let url = sprites.getSpriteURL(id);
-                    QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
-                        n.style.opacity = sprites.isSpecial(id) ? 0 : 1;
-                    });
+                    let url = sprites.getSpriteURL(id);                    
                     let specialContainer = QS(".avatar-customizer .special");
                     let clone = specialContainer.cloneNode(true);
                     specialContainer.parentElement.appendChild(clone);

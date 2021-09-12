@@ -103,6 +103,7 @@
         border-radius: .5em;
         background-color: #00000014;
         cursor:not-allowed;
+        pointer-events:none;
     }
         #cabinSlots > div.unlocked, .spriteChoice {
             background-color: #ffffff14;
@@ -113,6 +114,7 @@
             background-repeat:no-repeat;
             background-position:center;
             color: transparent;
+            pointer-events:all;
         }
             .spriteChoice:hover {
                 transform: scale(0.95);
