@@ -116,7 +116,10 @@
         user-select:none;
     }
     #cabinSlots > div:not(#loginRedir) * {pointer-events:none;}
-        #cabinSlots > div:not(#loginRedir) > p{font-size:0.7em;}
+        #cabinSlots > div:not(#loginRedir) > p {
+            font-size: 0.7em;
+            color:inherit !important;
+        }
         #cabinSlots > div.unlocked, .spriteChoice {
             background-color: #ffffff14;
             cursor: pointer;
