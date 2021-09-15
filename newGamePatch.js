@@ -71,7 +71,7 @@
             });
             document.addEventListener("setColor", (e) => {
                 let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
-                let match = Ge.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
+                let match = Qe.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY colors array
                 let code = match >= 0 ? match : e.detail.code;
                 if (e.detail.secondary) mt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill
                 else pt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill
@@ -476,7 +476,7 @@
                 // TYPOMOD
                 // desc: cursor with custom color
                 let rgbArr = Ve < 10000 ? Qe[Ve] : typo.hexToRgb((Ve - 10000).toString(16).padStart(6, "0"));
-                Be.clearRect(0, 0, t, t), Be.fillStyle = ht(rgbArr), Be.beginPath(), Be.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), Be.fill(), Be.strokeStyle = "#FFF", Be.beginPath(), Be.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), Be.stroke(), Be.strokeStyle = "#000", Be.beginPath(), Be.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), Be.stroke();
+                Be.clearRect(0, 0, t, t), Be.fillStyle = vt(rgbArr), Be.beginPath(), Be.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), Be.fill(), Be.strokeStyle = "#FFF", Be.beginPath(), Be.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), Be.stroke(), Be.strokeStyle = "#000", Be.beginPath(), Be.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), Be.stroke();
                 // TYPOEND
                 // ORIGINAL Be.clearRect(0, 0, t, t), Be.fillStyle = vt(Qe[Ve]), Be.beginPath(), Be.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), Be.fill(), Be.strokeStyle = "#FFF", Be.beginPath(), Be.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), Be.stroke(), Be.strokeStyle = "#000", Be.beginPath(), Be.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), Be.stroke();
                 t = t / 2, e = "url(" + Xe.toDataURL() + ")" + t + " " + t + ", default"
@@ -751,7 +751,7 @@
         // TYPOMOD
         // desc: log a canvas clear
         const data = document.querySelector("#game-canvas canvas").toDataURL();
-        Re.fillStyle = "#FFF", Re.fillRect(0, 0, Re.width, Re.height)
+        Re.fillStyle = "#FFF", Re.fillRect(0, 0, Ne.width, Ne.height)
         document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));
         // TYPOEND
         // ORIGINAL Re.fillStyle = "#FFF", Re.fillRect(0, 0, Ne.width, Ne.height)
@@ -1387,7 +1387,6 @@
         switch (t) {
             case ta:
                 _n(n);
-                Tn(n);
                 // TYPOMOD
                 // desc: send lobbydata
                 document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: e.data }));
