@@ -41,7 +41,7 @@ const visuals = {
             style.innerHTML += ".tooltip .tooltip-content, #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar div.color-picker div.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .list .player, #game-players .list .player.odd {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#game-players .list .player.odd{background-image: linear-gradient(0, " + (val != "" ? val : "transparent") + ", " + (val != "" ? val : "transparent") + ");}";
             style.innerHTML += "#game-chat .content {background:none}";
-            style.innerHTML += ".tooltip.E .tooltip-arrow {border-right-color: " + val + " !important} .tooltip.N .tooltip-arrow {border-top-color: " + val + " !important}";
+            style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; } ";
             style.innerHTML += "#game-chat .container .content p:nth-child(even) {background-color: #ffffff20;}";
         }
 

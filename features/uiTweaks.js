@@ -207,8 +207,8 @@ const uiTweaks = {
     },
     initSideControls: () => {
         //init new controls div
-        QS("#setting-bar").insertAdjacentElement("afterbegin", elemFromString("<div id='controls'></div>"));
-        QS("#controls").style.cssText = "-z-index: 50;-position: fixed;display: flex; flex-direction:column; -left: 9px; -top: 9px";
+        QS("#setting-bar").insertAdjacentElement("beforebegin", elemFromString("<div id='controls'></div>"));
+        QS("#controls").style.cssText = "z-index: 50;position: fixed;display: flex; flex-direction:column; left: 9px; top: 9px";
         QS("#controls").style.display = localStorage.controls == "true" ? "flex" : "none";
         // add fullscreen btn
         let fulls = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
