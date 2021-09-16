@@ -59,7 +59,8 @@ const lobbies = {
 				// observe new matching elements
 				lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true}));
 				lobbies.lobbyProperties.Players = lobbies.getLobbyPlayers();
-				lobbies.lobbyProperties.Round = QS("#game-round").textContent.trim();
+				lobbies.lobbyProperties.Round = parseInt(QS("#game-round").textContent.trim()[6]);
+				if (!lobbies.lobbyProperties.Round) lobbies.lobbyProperties.Round = 0;
 				socket.clientData.lobbyKey = lobbies.lobbyProperties.Key;
 				let description = QS(".icon.owner.visible") ? (QS("#lobbyDesc") && QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
 				if (lobbies.joined && lobbies.userAllow) { // report lobby if joined
@@ -72,7 +73,7 @@ const lobbies = {
 		// on lobby join
 		document.addEventListener("lobbyConnected", async (e) => {
 			lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
-			lobbies.lobbyProperties.Language = QS("#home > div.panel > div.container-name-lang > select option[value = " + e.detail.settings[1] +"]").innerText;
+			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = " + e.detail.settings[1] +"]").innerText;
 			lobbies.lobbyProperties.Private = e.detail.owner >= 0 ? true : false;
 			lobbies.lobbyProperties.Link = "https://skribbl.io/?" + e.detail.id;
 			lobbies.lobbyProperties.Key = e.detail.id;
