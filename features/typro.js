@@ -96,6 +96,7 @@ let typro = {
 
                 let triggers = [overlay, [...overlay.querySelectorAll("*")]].flat();
                 triggers.forEach(trigger => trigger.addEventListener("pointermove", async () => {
+                    // load detailed drawing
                     thumb.style.opacity = "0.2";
                     overlay.style.opacity = "1";
                     let hide = () => {
