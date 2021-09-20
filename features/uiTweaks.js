@@ -502,7 +502,7 @@ const uiTweaks = {
         // Credits for basic idea of canvas preview to https://greasyfork.org/en/scripts/410108-skribbl-line-tool/code
         // preview canvas
         const preview = {
-            canvas: elemFromString(`<canvas style="position:absolute; touch-action:none; left:0; top:0; z-index:10; opacity:0.5" width="800" height="600"></canvas>`),
+            canvas: elemFromString(`<canvas style="position:absolute; touch-action:none; inset: 0; z-index:10; opacity:0.5" width="800" height="600"></canvas>`),
             context: () => preview.canvas.getContext("2d"),
             gameCanvas: QS("#game canvas"),
             use: () => {
