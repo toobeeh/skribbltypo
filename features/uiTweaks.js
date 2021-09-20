@@ -498,6 +498,88 @@ const uiTweaks = {
         });
         overlayObserver.observe(QS(".overlay-content"), {subtree:true, attributes:true, characterData:true});
     },
+    initStraightLines: () => {
+        // Credits for basic idea of canvas preview to https://greasyfork.org/en/scripts/410108-skribbl-line-tool/code
+        // preview canvas
+        const preview = {
+            canvas: elemFromString(`<canvas style="position:absolute; touch-action:none; left:0; top:0; z-index:10; opacity:0.5" width="800" height="600"></canvas>`),
+            context: () => preview.canvas.getContext("2d"),
+            gameCanvas: QS("#game canvas"),
+            use: () => {
+                preview.clear();
+                preview.gameCanvas.insertAdjacentElement("afterend", preview.canvas);
+                preview.gameCanvas.style.pointerEvents = "none";
+            },
+            stop: () => {
+                preview.canvas.remove();
+                preview.gameCanvas.style.pointerEvents = "";
+            },
+            clear: () => preview.context().clearRect(0, 0, 800, 600),
+            line: (x, y, x1, y1, color = "black") => {
+                preview.clear();
+                const ctx = preview.context();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x1, y1);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            }
+        }
+        let straight = false;
+        let pointerdown = false;
+        let lastDown = [null, null];
+        let lastDownClient = [null, null];
+        const mouseEvent = (type, x, y) => {
+            return new MouseEvent(type, {
+                bubbles: true,
+                clientX: x,
+                clientY: y,
+                button:0
+            });
+        }
+        // listen for shift down
+        document.addEventListener("keydown", (event) => {
+            let state = straight;
+            straight = straight || event.which === 16;
+            if (straight && !state) preview.use();
+        });
+        document.addEventListener("keyup", (event) => {
+            straight = straight && event.which !== 16;
+            if (!straight && !pointerdown) preview.stop();
+        });
+        // listen for pointer events
+        preview.canvas.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            pointerdown = true;
+            if (straight) {
+                lastDownClient = [event.clientX, event.clientY];
+                lastDown = [event.offsetX, event.offsetY];
+            }
+        });
+        preview.canvas.addEventListener("pointerup", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            pointerdown = false;
+            if (straight) {
+                preview.clear();
+                lastDown = [null, null];
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousedown", lastDownClient[0], lastDownClient[1]));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", event.clientX, event.clientY));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", event.clientX, event.clientY));
+            }
+
+        });
+        preview.canvas.addEventListener("pointermove", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (straight) {
+                const col = QS("#color-preview-primary").style.fill;
+                if(lastDown[0]) preview.line(lastDown[0], lastDown[1], event.offsetX, event.offsetY, col);
+            }
+        });
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -520,7 +602,7 @@ const uiTweaks = {
         uiTweaks.initDefaultKeybinds();
         uiTweaks.initChatRecall();
         uiTweaks.initChooseCountdown();
-        
+        uiTweaks.initStraightLines();
         // random easteregg
         if(Math.random() < 0.1) QS("#game-chat .container form input").placeholder = "Typo your guess here...";
     }
