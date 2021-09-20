@@ -527,6 +527,8 @@ const uiTweaks = {
             }
         }
         let straight = false;
+        let lastRelease = 0;
+        let snap = false;
         let pointerdown = false;
         let lastDown = [null, null];
         let lastDownClient = [null, null];
@@ -543,11 +545,21 @@ const uiTweaks = {
             let state = straight;
             straight = straight || event.which === 16;
             if (straight && !state) preview.use();
+            if (straight && !state && Date.now() - lastRelease < 300) snap = true;
         });
         document.addEventListener("keyup", (event) => {
+            let state = straight;
             straight = straight && event.which !== 16;
+            snap = straight && snap;
             if (!straight && !pointerdown) preview.stop();
+            if (!straight && state) lastRelease = Date.now();
         });
+        // get snap end coordinates
+        const snapDestination = (x, y, x1, y1) => {
+            let dx = Math.abs(x - x1);
+            let dy = Math.abs(y - y1);
+            return dx > dy ? [x1, y] : [x, y1];
+        }
         // listen for pointer events
         preview.canvas.addEventListener("pointerdown", (event) => {
             event.preventDefault();
@@ -565,18 +577,25 @@ const uiTweaks = {
             if (straight) {
                 preview.clear();
                 lastDown = [null, null];
+                let dest = [event.clientX, event.clientY];
+                if (snap) dest = snapDestination(lastDownClient[0], lastDownClient[1], event.clientX, event.clientY);
                 preview.gameCanvas.dispatchEvent(mouseEvent("mousedown", lastDownClient[0], lastDownClient[1]));
-                preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", event.clientX, event.clientY));
-                preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", event.clientX, event.clientY));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", dest[0], dest[1]));
             }
-
         });
         preview.canvas.addEventListener("pointermove", (event) => {
             event.preventDefault();
             event.stopPropagation();
             if (straight) {
                 const col = QS("#color-preview-primary").style.fill;
-                if(lastDown[0]) preview.line(lastDown[0], lastDown[1], event.offsetX, event.offsetY, col);
+                if (lastDown[0]) {
+                    if (!snap) preview.line(lastDown[0], lastDown[1], event.offsetX, event.offsetY, col);
+                    else {
+                        let dest = snapDestination(lastDown[0], lastDown[1], event.offsetX, event.offsetY);
+                        preview.line(lastDown[0], lastDown[1], dest[0], dest[1], col);
+                    }
+                }
             }
         });
     },
