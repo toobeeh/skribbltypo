@@ -515,14 +515,14 @@ const uiTweaks = {
                 preview.gameCanvas.style.pointerEvents = "";
             },
             clear: () => preview.context().clearRect(0, 0, 800, 600),
-            line: (x, y, x1, y1, color = "black") => {
+            line: (x, y, x1, y1, color = "black", size = 5) => {
                 preview.clear();
                 const ctx = preview.context();
                 ctx.beginPath();
                 ctx.moveTo(x, y);
                 ctx.lineTo(x1, y1);
                 ctx.strokeStyle = color;
-                ctx.lineWidth = 4;
+                ctx.lineWidth = size;
                 ctx.stroke();
             }
         }
@@ -589,11 +589,12 @@ const uiTweaks = {
             event.stopPropagation();
             if (straight) {
                 const col = QS("#color-preview-primary").style.fill;
+                const size = QS("#game-toolbar > div.color-picker > div.preview > div.size").innerText.replace("px", "");
                 if (lastDown[0]) {
-                    if (!snap) preview.line(lastDown[0], lastDown[1], event.offsetX, event.offsetY, col);
+                    if (!snap) preview.line(lastDown[0], lastDown[1], event.offsetX, event.offsetY, col, size);
                     else {
                         let dest = snapDestination(lastDown[0], lastDown[1], event.offsetX, event.offsetY);
-                        preview.line(lastDown[0], lastDown[1], dest[0], dest[1], col);
+                        preview.line(lastDown[0], lastDown[1], dest[0], dest[1], col, size);
                     }
                 }
             }
