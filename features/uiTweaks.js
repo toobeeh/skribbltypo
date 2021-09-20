@@ -601,7 +601,7 @@ const uiTweaks = {
                     let real = getRealCoordinates(event.offsetX, event.offsetY);
                     if (!snap) preview.line(lastDown[0], lastDown[1], real[0], real[1], col, size);
                     else {
-                        let dest = snapDestination(lastDown[0], lastDown[1], event.offsetX, event.offsetY);
+                        let dest = snapDestination(lastDown[0], lastDown[1], real[0], real[1]);
                         preview.line(lastDown[0], lastDown[1], dest[0], dest[1], col, size);
                     }
                 }
