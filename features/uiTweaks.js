@@ -540,6 +540,13 @@ const uiTweaks = {
                 button:0
             });
         }
+        // get pos when scaled
+        const getRealCoordinates = (x,y) => {
+            const { width, height } = preview.canvas.getBoundingClientRect();
+            x = (800 / width) * x;
+            y = (600 / height) * y;
+            return [x, y];
+        }
         // listen for shift down
         document.addEventListener("keydown", (event) => {
             let state = straight;
@@ -567,7 +574,7 @@ const uiTweaks = {
             pointerdown = true;
             if (straight) {
                 lastDownClient = [event.clientX, event.clientY];
-                lastDown = [event.offsetX, event.offsetY];
+                lastDown = getRealCoordinates(event.offsetX, event.offsetY);
             }
         });
         preview.canvas.addEventListener("pointerup", (event) => {
@@ -591,7 +598,8 @@ const uiTweaks = {
                 const col = QS("#color-preview-primary").style.fill;
                 const size = QS("#game-toolbar > div.color-picker > div.preview > div.size").innerText.replace("px", "");
                 if (lastDown[0]) {
-                    if (!snap) preview.line(lastDown[0], lastDown[1], event.offsetX, event.offsetY, col, size);
+                    let real = getRealCoordinates(event.offsetX, event.offsetY);
+                    if (!snap) preview.line(lastDown[0], lastDown[1], real[0], real[1], col, size);
                     else {
                         let dest = snapDestination(lastDown[0], lastDown[1], event.offsetX, event.offsetY);
                         preview.line(lastDown[0], lastDown[1], dest[0], dest[1], col, size);
