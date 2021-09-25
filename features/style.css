@@ -16,7 +16,16 @@
 .avatar-customizer .container {
     margin: 0 30px
 }
-#game-toolbar .color-picker .preview{margin-right:24px !important}
+#game-toolbar.typomod .color-picker .preview{margin-right:24px !important}
+
+#game-toolbar.typomod div.color-picker div.preview div.graphic-container {
+    border: none;
+    border-radius: 8px;
+    background-color: white;
+    width: 54px;
+    height: 54px;
+    margin: 4px;
+}
 #game {
     margin-bottom: 15px !important;
 }
@@ -408,15 +417,6 @@ span.small {
     padding: 0px 0.5em;
     display: grid;
     place-items: center;
-}
-
-#game-toolbar div.color-picker div.preview div.graphic-container {
-    border:none;
-    border-radius:8px;
-    background-color:white;
-    width:54px;
-    height:54px;
-    margin:4px;
 }
 
 .button-blue {

@@ -221,6 +221,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
     if (!localStorage.palantir || override) localStorage.palantir = "true";
     if (!localStorage.typoink || override) localStorage.typoink = "true";
+    if (!localStorage.typotoolbar || override) localStorage.typotoolbar = "true";
     if (!localStorage.inkMode || override) localStorage.inkMode = "thickness";
     if (!localStorage.sensitivity || override) localStorage.sensitivity = 50;
     if (!localStorage.charbar || override) localStorage.charbar = "false";

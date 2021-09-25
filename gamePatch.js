@@ -591,7 +591,7 @@
                 // TYPOMOD
                 // desc: cursor with custom color
                 let rgbArr = ot < 10000 ? it[ot] : typo.hexToRgb((ot - 10000).toString(16).padStart(6, "0"));
-                et.clearRect(0, 0, t, t), et.fillStyle = vt(rgbArr), et.beginPath(), et.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), et.fill(), et.strokeStyle = "#FFF", et.beginPath(), et.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), et.stroke(), et.strokeStyle = "#000", et.beginPath(), et.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), et.stroke();
+                et.clearRect(0, 0, t, t), et.fillStyle = xt(rgbArr), et.beginPath(), et.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), et.fill(), et.strokeStyle = "#FFF", et.beginPath(), et.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), et.stroke(), et.strokeStyle = "#000", et.beginPath(), et.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), et.stroke();
                 // TYPOEND
                 // ORIGINAL et.clearRect(0, 0, t, t), et.fillStyle = xt(it[ot]), et.beginPath(), et.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), et.fill(), et.strokeStyle = "#FFF", et.beginPath(), et.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), et.stroke(), et.strokeStyle = "#000", et.beginPath(), et.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), et.stroke();
                 t = t / 2, e = "url(" + Qe.toDataURL() + ")" + t + " " + t + ", default"

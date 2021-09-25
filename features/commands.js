@@ -77,6 +77,25 @@ const commands = [
             }
         }
     }, {
+        command: "typotoolbar",
+        options: {
+            type: "toggle",
+            description: "Sets the toolbar style.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.typotoolbar = "true";
+                QS("#game-toolbar").classList.add("typomod");
+            },
+            actionDisable: () => {
+                localStorage.typotoolbar = "false";
+                QS("#game-toolbar").classList.remove("typomod");
+            },
+            actionAfter: null,
+            response: (state) => {
+                return "The toolbar style is now " + (state ? "typo-modded" : "original") + ".";
+            }
+        }
+    }, {
         command: "clr",
         options: {
             type: "action",
