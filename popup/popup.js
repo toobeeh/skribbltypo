@@ -2,6 +2,9 @@ let settings = null;
 let skribbl = true;
 let palantirMember = null;
 let tabID = 0;
+if (typeof (localStorage) !== "object") { // localstoray polyfill dummy for safari
+    this.localStorage = [];
+}
 
 const setMemberTab = (member) => {
     if (member) {
