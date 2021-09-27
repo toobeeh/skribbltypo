@@ -207,7 +207,7 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                QS("#game-rate .like").dispatchEvent(new Event("mousedown"));
+                QS("#game-rate .like").dispatchEvent(new Event("click"));
             },
             response: (args) => {
                 return "You liked " + getCurrentOrLastDrawer() + "s drawing.";
@@ -222,7 +222,7 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                QS("#game-rate .dislike").dispatchEvent(new Event("mousedown"));
+                QS("#game-rate .dislike").dispatchEvent(new Event("click"));
             },
             response: (args) => {
                 return "You disliked " + getCurrentOrLastDrawer() + "s drawing.";
