@@ -66,7 +66,7 @@ const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackover
         type: 'image/png'
     });
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-    printCmdOutput("Copied to clipboard");
+    addChatMessage("","Copied to clipboard");
 }
 
 // func to replace umlaute in a string

@@ -41,8 +41,9 @@
       "matches": [
         "*://skribbl.io/",
         "*://skribbl.io/*",
-        "https://web.archive.org/web/*/https://skribbl.io/*",
-        "*://135.125.189.105/*"
+        "*://*.skribbl.io/*",
+        "*://*.skribbl.io/",
+        "https://web.archive.org/web/*/https://skribbl.io/*"
       ],
       "js": [
         "picker/colr_pickr.min.js",
@@ -67,8 +68,9 @@
       "matches": [
         "*://skribbl.io/",
         "*://skribbl.io/*",
-        "https://web.archive.org/web/*/https://skribbl.io/*",
-        "*://135.125.189.105/*"
+        "*://*.skribbl.io/*",
+        "*://*.skribbl.io/",
+        "https://web.archive.org/web/*/https://skribbl.io/*"
       ],
       "js": [
         "features/modal.js",

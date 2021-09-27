@@ -608,7 +608,7 @@ const uiTweaks = {
             }
         });
     },
-    initPenPointer = () => {
+    initPenPointer: () => {
         //const canvas = QS("#game-canvas canvas");
         //const pointerRule = elemFromString("<style></style>");
         //canvas.insertAdjacentElement("beforebegin", pointerRule);
