@@ -120,34 +120,38 @@
         place-content: center;
         border-radius: .5em;
         background-color: #00000014;
-        cursor:not-allowed;
-        pointer-events:none;
-        user-select:none;
+        user-select: none;
     }
-    #cabinSlots > div:not(#loginRedir) * {pointer-events:none;}
+        #cabinSlots > div:not(#loginRedir) {
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        #cabinSlots > div:not(#loginRedir) * {
+            pointer-events: none;
+        }
         #cabinSlots > div:not(#loginRedir) > p {
             font-size: 0.7em;
             color:inherit !important;
         }
-        #cabinSlots > div.unlocked, .spriteChoice {
-            background-color: #ffffff14;
-            cursor: pointer;
-            transform: scale(1);
-            transition: all .2s;
-            background-size: 100%;
-            background-repeat: no-repeat;
-            background-position: center;
-            color: transparent;
-            pointer-events: all;
-        }
+            #cabinSlots > div:not(#loginRedir).unlocked, .spriteChoice {
+                background-color: #ffffff14;
+                cursor: pointer;
+                transform: scale(1);
+                transition: all .2s;
+                background-size: 100%;
+                background-repeat: no-repeat;
+                background-position: center;
+                color: transparent;
+                pointer-events: all;
+            }
             .spriteChoice:hover {
                 transform: scale(0.95);
             }
-            #cabinSlots > div.unlocked:hover {
-                transform: scale(0.95);
-                color: unset;
-                background-size: 0%;
-            }
+                #cabinSlots > div:not(#loginRedir).unlocked:hover {
+                    transform: scale(0.95);
+                    color: unset;
+                    background-size: 0%;
+                }
 
 #panelgrid {
     display: grid;
