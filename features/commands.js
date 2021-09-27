@@ -104,8 +104,9 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                const elems = [...QSA("#game-chat .container .content > *")];
-                if (elems.length > 50) elems.forEach(elem => elem.remove());
+                let elems = [...QSA("#game-chat .container .content > *")];
+                if (elems.length > 50) elems = elems.slice(-50);
+                elems.forEach(elem => elem.remove());
             },
             response: (args) => {
                 return "Removed last 50 messages, if existent.";
@@ -356,7 +357,7 @@ const commands = [
         command: "markupcolor",
         options: {
             type: "action",
-            description: "Sets the markup color. Argument: color code",
+            description: "Sets the markup color. Argument: degree component of HSL",
             actionBefore: null,
             actionEnable: null,
             actionDisable: null,
