@@ -42,6 +42,7 @@ const visuals = {
             style.innerHTML += "#game-players .list .player.odd{background-image: linear-gradient(0, " + (val != "" ? val : "transparent") + ", " + (val != "" ? val : "transparent") + ");}";
             style.innerHTML += "#game-chat .content {background:none}";
             style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; } ";
+            style.innerHTML += "#game-players div.list div.player div.bubble div.arrow{border-right-color:" + val + "} #game-players div.list div.player div.bubble div.content{background-color:" + val + "}";
             style.innerHTML += "#game-chat .container .content p:nth-child(even) {background-color: #ffffff20;}";
         }
 
