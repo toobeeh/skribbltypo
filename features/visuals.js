@@ -92,7 +92,7 @@ const visuals = {
             let val = options["inputBackgrounds"] ? options["inputBackgrounds"].trim() : "";
             style.innerHTML += "input[type=checkbox], input[type=checkbox].flatUI,#modal .container .box .content .container-rooms .room, button.flatUI.green,button.flatUI.orange, button.flatUI.blue, button.flatUI, input[type=text].flatUI, .link .input-container .link-overlay, input, textarea, button, select {background: " + (val != "" ? val : "transparent") + " !important; box-shadow:none !important;} ";
             style.innerHTML += "button:is(.flatUI, .flatUI.green, .flatUI.orange, .flatUI.blue):is(:hover, :active, :focus), input:is(:hover, :active, :focus), textarea:is(:hover, :active, :focus), button:is(:hover, :active, :focus), select:is(:hover, :active, :focus) {background: " + (val != "" ? val : "transparent") + " !important; opacity: 0.75}";
-            style.innerHTML += "#game-room .container-settings .group.customwords .checkbox input[type=checkbox]:checked:after { content: '🞬'; width: 100 %; display: grid; place - content: center;}";
+            style.innerHTML += ":is(#game-room .container-settings .group.customwords .checkbox, .report-menu) input[type=checkbox]:checked:after { content: '🞬'; height:100%; width: 100%; display: grid; place-content: center;}";
         }
 
         // outlines of inputs
