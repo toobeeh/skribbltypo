@@ -105,7 +105,7 @@ const commands = [
             actionDisable: null,
             actionAfter: (args) => {
                 let elems = [...QSA("#game-chat .container .content > *")];
-                if (elems.length > 50) elems = elems.slice(-50);
+                if (elems.length > 50) elems = elems.slice(0, -50);
                 elems.forEach(elem => elem.remove());
             },
             response: (args) => {
