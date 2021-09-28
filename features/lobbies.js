@@ -35,20 +35,35 @@ const lobbies = {
 	getTriggerElements: () => {
 		return [QS("#game-round"), QS("#game-players .list"), [...QSA(".avatar .drawing")]].flat();
 	},
-	initLobbyContainer: () => {
-		let lobbies = elemFromString("<div></div>");
-		return lobbies;
-	},
-	setLobbies: (lobbies) => {
-		if (!lobbies.lobbyContainer) return;
-		if (!socket.authenticated == true) {
-			lobbies.lobbyContainer.innerHTML = "Didn't connect to Palantir. <br>Read the manual on the <a style='font-weight:700; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>Join the typo discord server to try it out!<br>";
-			return;
+	setLobbyContainer: () => {
+		// get online players with lobby links
+		let onlinePlayers = [];
+		socket.data.activeLobbies.forEach(
+			guild => guild.guildLobbies.forEach(
+				lobby => lobby.Players.forEach(
+					player => player.Sender
+						&& !onlinePlayers.some(onlineplayer => onlineplayer.id == player.ID)
+						&& onlinePlayers.push({
+							id: player.ID, name: player.Name, key: lobby.Key
+						}))));
+		let playerButtons = "";
+		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
+		let container = elemFromString("<div id='discordLobbies'></div>");
+		if (socket.sck?.connected) {
+			if (socket.authenticated) container.innerHTML = playerButtons;
+			else container.innerHTML = `<h3>No palantir account connected.</h3><br><a style="width:100%" href="https://tobeh.host/Orthanc/auth"><button class="flatUI air min blue">Log in with Palantir</button></a>`;
 		}
-		lobbies.lobbyContainer.innerHTML = "";
-		lobbies.forEach(guild => {
-			let name = socket.data.user.member.Guilds.find(memberGuild => memberGuild.GuildID.slice(0,-2) == guild.guildID.slice(0,-2)).GuildName;	
+		else {
+			container.innerHTML = "Connecting to Typo server...";
+        }
+		container.addEventListener("click", e => {
+			let key = e.target.getAttribute("lobby");
+			if (key) {
+				document.dispatchEvent(newCustomEvent("joinLobby", { detail: { join: key } }));
+				if (key.length > 10) new Toast("This lobby probably is invalid or on old skribbl :/");
+            }
 		});
+		QS("#discordLobbies").replaceWith(container);
 	},
 	init: () => {
 		lobbies.inGame = false; // as soon as player is in a lobby
@@ -69,7 +84,7 @@ const lobbies = {
 			}
 		});
 		// init lobby container
-		lobbies.lobbyContainer = lobbies.initLobbyContainer();
+		lobbies.lobbyContainer = lobbies.setLobbyContainer();
 		// on lobby join
 		document.addEventListener("lobbyConnected", async (e) => {
 			lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));

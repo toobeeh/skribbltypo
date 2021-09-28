@@ -57,12 +57,14 @@
         disconnect: undefined,
         lastConnect: 0,
         initListeners: (() => {
-            document.addEventListener("joinLobby", () => {
+            document.addEventListener("joinLobby", (e) => {
                 let timeoutdiff = Date.now() - typo.lastConnect;
-                jn(true);
+                Xn(true);
                 setTimeout(() => {
                     typo.lastConnect = Date.now();
                     Vn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play")
+                    Wn = !1 // IDENTIFY: x:  = !1
+                    Jn(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" +
                     Xn(false); // IDENTIFY x(false): querySelector("#load").style.display
                     document.dispatchEvent(new Event("joinedLobby"));
                 }, timeoutdiff < 3000 ? 3000 - timeoutdiff : 0);
@@ -1747,6 +1749,7 @@
             // desc: disconnect socket & leave lobby
             typo.disconnect = () => {
                 if (qn) {
+                    qn.typoDisconnect = true;
                     qn.on("disconnect", () => {
                         typo.disconnect = undefined;
                         document.dispatchEvent(new Event("leftLobby"));
@@ -1790,6 +1793,10 @@
                 n = e
             }),
             qn.on("disconnect", function () {
+                // TYPOMOD
+                // DESC: no msg if disconnect intentionally
+                if(!qn.typoDisconnect)
+                //TYPOEND
                 switch (n) {
                     case p:
                         Q(F, Ae("You have been kicked!"));

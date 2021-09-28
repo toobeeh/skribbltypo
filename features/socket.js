@@ -65,7 +65,7 @@ const socket = {
                 socket.data.activeLobbies.push(data.payload.activeGuildLobbies);
                 let updateIn = updateTimeout = setTimeout(() => {
                     if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 100ms
-                    //lobbies_.setLobbies(socket.data.activeLobbies);
+                    lobbies.lobbyContainer = lobbies.setLobbyContainer();
                 }, 200);
             });
             let member = localStorage.member ? localStorage.member : '{"UserLogin":null}';
@@ -76,19 +76,9 @@ const socket = {
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
-                
-                //lobbies_.setLobbies(socket.data.activeLobbies);
             }
             else document.dispatchEvent(newCustomEvent("palantirLoaded"));
-
-            //else lobbies_.setLobbies(null);
-
-            // if already in-game / reconnected after disconnect and ingame, continue reporting
-            //if (lobbies_.userAllow && lobbies_.inGame) {
-            //    await socket.joinLobby(lobbies_.lobbyProperties.Key);
-            //    lobbies_.joined = true;
-            //    await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
-            //}
+            lobbies.lobbyContainer = lobbies.setLobbyContainer();
 
             let documentIdle = null;
             let visibilitychangeDisconnect = () => {

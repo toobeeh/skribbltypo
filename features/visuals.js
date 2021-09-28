@@ -10,7 +10,7 @@ const visuals = {
         let style = document.createElement("style");
         style.id = "visualRules";
         let urlBackground = options["urlBackground"] ? options["urlBackground"].trim() : "";
-        if (urlBackground != "") style.innerHTML += "body {background: url(" + urlBackground + ")}";
+        if (urlBackground != "") style.innerHTML += "html:is([data-theme=dark], [data-theme='']) body {background: url(" + urlBackground + ")}";
 
         let urlBackgroundGame = options["urlBackgroundGame"] ? options["urlBackgroundGame"].trim() : "";
         if (urlBackgroundGame != "") {
