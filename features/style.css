@@ -21,7 +21,7 @@
 #game-toolbar.typomod div.color-picker div.preview div.graphic-container {
     border: none;
     border-radius: 8px;
-    background-color: white;
+    background-color: var(--COLOR_PANEL_BG);
     width: 54px;
     height: 54px;
     margin: 4px;
@@ -228,7 +228,7 @@ div#game-toolbar.typomod div.tools-container div.tools div.tool {
     width: 48px;
     height: 48px;
     margin: 4px;
-    background-color: white;
+    background-color: var(--COLOR_PANEL_BG);
 }
 div#game-toolbar.typomod div.tools-container div.tools div.tool div.icon {
     width: 40px;
@@ -397,7 +397,7 @@ span.small {
 #imageOptions {
     position: absolute;
     height: 54px;
-    background-color: white;
+    background-color: var(--COLOR_PANEL_BG);
     width: 100%;
     bottom: -64px;
     border-radius: 8px;
