@@ -30,6 +30,10 @@
     margin-bottom: 15px !important;
 }
 
+#panel-right, #panel-left{
+    display:none !important;
+}
+
 #rightPanelContent h2 span:first-child {
     user-select:none;
     float: right
