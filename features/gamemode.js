@@ -129,16 +129,16 @@ const gamemodes = {
                     attributes: true
                 },
                 observeAction: () => {
-                    const itemWidth = getComputedStyle(QS("#game-toolbar > div.color-picker > div.colors:not([style*=none]) > div > div")).width;
-                    const itemCount = QS("#game-toolbar > div.color-picker > div.colors:not([style*=none]) > div").children.length;
+                    const itemWidth = getComputedStyle(QS("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div")).width;
+                    const itemCount = QS("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div").children.length;
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
                     QS("#randomColor").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                        `#game-toolbar > div.color-picker > div.colors > div > div.item:not(:nth-child(${randomIndex}))
+                        `#game-toolbar > div.picker > div.color-picker > div.colors > div > div.item:not(:nth-child(${randomIndex}))
                             {display:none;}
                          #colPicker{display:none;}
-                         #game-toolbar > div.color-picker > div.colors > div > div.item:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
+                         #game-toolbar > div.picker > div.color-picker > div.colors > div > div.item:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
                 }
             }
         }

@@ -80,7 +80,7 @@
             });
             document.addEventListener("performDrawCommand", (e) => {
                 Ke.push(e.detail); // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
-                $t(Tt(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
+                Dt(Tt(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
             });
         })(),
         hexToRgb: (hex) => {
@@ -668,7 +668,7 @@
                 lt.clearRect(0, 0, r, r);
                 // TYPOMOD
                 // desc: cursor with custom color
-                let e = ut < 10000 ? ft[ut] : typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));
+                let e = ut < 10000 ? ft[ut] : typo.hexToRgb((ut - 10000).toString(16).padStart(6, "0"));
                 // TYPOEND  
                 1 == m.dark && (n = Math.floor(.75 * e[0]), a = Math.floor(.75 * e[1]), o = Math.floor(.75 * e[2]), e = [n, a, o]), lt.fillStyle = xt(e), lt.beginPath(), lt.arc(r / 2, r / 2, i / 2 - 1, 0, 2 * Math.PI), lt.fill(), lt.strokeStyle = "#FFF", lt.beginPath(), lt.arc(r / 2, r / 2, i / 2 - 1, 0, 2 * Math.PI), lt.stroke(), lt.strokeStyle = "#000", lt.beginPath(), lt.arc(r / 2, r / 2, i / 2, 0, 2 * Math.PI), lt.stroke();
                 r = r / 2, t = "url(" + it.toDataURL() + ")" + r + " " + r + ", default"
@@ -777,13 +777,13 @@
 
     function wt(e) {
         var t =
-            ut > 10000 ? xt(typo.hexToRgb((ut - 10000).toString(16).padStart(6, "0"))) : xt(ft[e]);
+            e > 10000 ? xt(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : xt(ft[e]);
         ut = e, c.querySelector("#color-preview-primary").style.fill = t, st()
     }
 
     function Ct(e) {
         var t =
-            ht > 10000 ? xt(typo.hexToRgb((ht - 10000).toString(16).padStart(6, "0"))) : xt(ft[e]);
+            e > 10000 ? xt(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : xt(ft[e]);
         ht = e, c.querySelector("#color-preview-secondary").style.fill = t, st()
     }
 
