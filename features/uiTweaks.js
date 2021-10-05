@@ -308,6 +308,14 @@ const uiTweaks = {
                     chatInput.focus();
                     return;
                 }
+                // Switch colors
+                if (e.key === 's' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
+                    const prim = parseInt(new Color({ rgb: QS("#color-preview-primary").style.fill}).hex.replace("#", ""), 16) + 10000;
+                    const sec = parseInt(new Color({ rgb: QS("#color-preview-secondary").style.fill }).hex.replace("#", ""), 16) + 10000;
+                    document.dispatchEvent(newCustomEvent("setColor", { detail: { code: sec, secondary: false } }));
+                    document.dispatchEvent(newCustomEvent("setColor", { detail: { code: prim, secondary: true } }));
+                    return;
+                }
             }
             else if (document.activeElement.id == "inputChat" && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
         });
