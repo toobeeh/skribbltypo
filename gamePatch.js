@@ -69,7 +69,7 @@
             });
             document.addEventListener("leaveLobby", () => {
                 if (typo.disconnect) typo.disconnect();
-                else oe() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
+                else na() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
             });
             document.addEventListener("setColor", (e) => {
                 let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));

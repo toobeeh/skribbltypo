@@ -110,7 +110,7 @@ const visuals = {
             style.innerHTML += "#home .socials {opacity:0}";
         }
         if (options["hideInGameLogo"] == true) {
-            style.innerHTML += "#game > .logo-small{display:none}";
+            style.innerHTML += "#game .logo-small{display:none}";
         }
         if (options["hideAvatarLogo"] == true) {
             style.innerHTML += "#home .logo-big .avatar-container {display:none }";
