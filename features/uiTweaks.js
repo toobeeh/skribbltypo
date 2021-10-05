@@ -626,7 +626,7 @@ const uiTweaks = {
         //document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
         // mel i love you i would never do this
         uiTweaks.initGameNavigation();
-        uiTweaks.initToolsMod();
+        uiTweaks.initToolsMod(localStorage.typotoolbar == "true");
         uiTweaks.initWordHint();
         uiTweaks.initRandomColorDice();
         uiTweaks.initClipboardCopy();
