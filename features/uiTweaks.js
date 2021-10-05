@@ -604,7 +604,7 @@ const uiTweaks = {
             event.stopPropagation();
             if (straight) {
                 const col = QS("#color-preview-primary").style.fill;
-                const size = QS("#game-toolbar > div.color-picker > div.preview > div.size").innerText.replace("px", "");
+                const size = QS("#game-toolbar > div.picker > div.size-picker > div.preview > div.size").innerText.replace("px", "");
                 if (lastDown[0]) {
                     let real = getRealCoordinates(event.offsetX, event.offsetY);
                     if (!snap) preview.line(lastDown[0], lastDown[1], real[0], real[1], col, size);

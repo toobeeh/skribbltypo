@@ -242,44 +242,40 @@ const setDefaults = (override = false) => {
     if (!localStorage.customPalettes || override) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
     if (!Number(localStorage.qualityScale) || Number(localStorage.qualityScale) < 1  ) localStorage.qualityScale = 1;
 }
-
+258;
 
 const hints = [
-    "Did you notice the tool shortcuts B,F and E?<br>Try out C to use a color pipette tool.",
-    "Click on the canvas and use Shift+Arrow to draw a perfect straight line!",
-    "Connect the Palantir Discord bot to search for your friends easily.",
+    "Hold shift to draw a perfect straight line! Double-press shift to make it snap horizontally / vertically.",
+    "Connect the Palantir Discord bot to easily join your friend's lobbies.",
     "Enable the ImageAgent to show template pictures when you're drawing.",
     "Use arrow up/down to recover the last chat input.",
     "Enable random colors and click the dice in the color field to get a rainbow brush.<br>Click any color to abort.",
-    "Search for multiple player names by separating them with a comma.",
     "Change the markup color for your chat messages with the slider in the popup tab 'advanced'.",
-    "Change the pressure sensitivity with the slider in the popup tab 'advanced'.",
     "Toggle your discord bot visibility in the extension popup.",
-    "Get more colors by choosing the sketchful palette in the popup tab 'advanced'.<br>Only extension users see those colors.",
+    "Get more colors by adding a custom palette in the popup tab 'advanced'.<br>Only extension users see those colors.",
     "When creating a private lobby, you can set a description which can be seen in the discord bot.",
-    "Click a lobby button to search for a lobby automatically.<br>The search will pause until there are free slots.",
     "Click the letter icon to share the current image directly to any of your discord servers.",
     "To remove an added Discord server, click its name in the popup tab 'Discord'.",
-    "To save a practise drawing in Typo Cloud Gallery, click 'Save current' in 'ImageTools'.",
+    "To save a practise drawing in Typo Cloud Gallery, click the floppy disc icon and select 'In Typo Cloud'.",
     "Use emojis in the chat! To send one, type :emoji-name:",
-    "Use kick-- like-- shame-- to quickly kick, like or dislike without having to grab your mouse.",
+    "Use like-- or shame-- to quickly like or dislike without having to grab your mouse.",
     "Remove drawings from ImageTools by right-clicking them.",
     "Remove themes by right-clicking them.",
     "SPAMGUESS!!!1! - oh wait, you didn't click the input field. <br>Click TAB to quickly select the chatbox.",
-    "Mute players by clicking their name. A red name is a muted player.",
-    "Create masterpieces with the Don't Clear mode - the canvas won't be cleared after your turn.<br>This is fun on custom rounds!",
+    "Create masterpieces with the Don't Clear challenge - the canvas won't be cleared after your turn.<br>This is fun on custom rounds!",
+    "Get artsy with the monochrome challenge - you can only select between a pair of colors!",
+    "If you're feeling pro, try the one shot challenge. You have only one try to guess.",
+    "With the deaf guess challenge, you can't see other's guesses (or typos) in the chat.",
+    "To practise word blank spamming, use the blind guess challenge!",
     "Press STRG+C to copy the current drawing to the clipboard.",
-    "Press T to quickly open the tablet options.",
     "To set a custom font, go to <a href='https://fonts.google.com/'>Google Fonts</a>, select a font and copy the bold text in the input field in the visual options.",
     "Click the magnifier icon to use a color picker! All Typo users can see the colors.",
     "Precision Work? Use the zoom feature!<br> [STRG + Click] to zoom to point, any number to set zoom level and leave with [STRG + Click].",
     "If you like the extension, tell others about it or rate it on the chrome store! <3",
-    "Skribbl is too easy? Try the game modes deaf, one shot & blind!",
-    "Remove a filter by right-clicking it",
-    "The filters for Round, Player Count and Average Score accept modifiers like + and -.",
-    "If you enter multiple player names for a filter, the filter matches at anyone of these.",
+    "Quickly switch colors by pressing 's'",
     "The game feels slow & lags after a time in the same lobby?<br>Use the command 'clr--' to clear old chat & make the game fast gain.",
     "Use the quickreact-menu to like, dislike & kick with your keyboard!<br>You can access it by klicking 'CTRL' in the chat box.",
     "Want to share a chat snippet on Discord?<br>Select the messages and click 'Copy chat election for Discord' to create a nicely formatted chat history.",
-    "In practise, you can also paste .png to the skribbl canvas! To do so, click 'Paste Image' in Image Tools."
+    "In practise, you can also paste .png to the skribbl canvas! To do so, click 'Paste Image' in Image Tools.",
+    "To draw without time limit, click the avatar on the landing page!"
 ];
