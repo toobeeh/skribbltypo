@@ -300,6 +300,7 @@ const uiTweaks = {
     },
     initDefaultKeybinds: () => {
         const chatInput = QS('#game-chat .container form input');
+        let lastColorSwitch = 0;
         document.addEventListener('keydown', e => {
             if (!document.activeElement.matches("input[type='text']")) {
                 // Focus chat
@@ -310,6 +311,8 @@ const uiTweaks = {
                 }
                 // Switch colors
                 if (e.key === 's' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
+                    if (Date.now() - lastColorSwitch < 20) return;
+                    lastColorSwitch = Date.now();
                     const prim = parseInt(new Color({ rgb: QS("#color-preview-primary").style.fill}).hex.replace("#", ""), 16) + 10000;
                     const sec = parseInt(new Color({ rgb: QS("#color-preview-secondary").style.fill }).hex.replace("#", ""), 16) + 10000;
                     document.dispatchEvent(newCustomEvent("setColor", { detail: { code: sec, secondary: false } }));
