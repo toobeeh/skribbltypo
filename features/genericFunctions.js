@@ -16,7 +16,7 @@ const markMessage = (newNode) => {
     if (localStorage.markup != "true") return;
     let sender = newNode.firstChild.textContent.trim().slice(0, -1);
     if (sender == socket.clientData.playerName || sender != "" && localStorage.vip.split("/").includes(sender))
-        newNode.style.background = (new Color({ h: Number(localStorage.markupcolor), s: 100, l: 90 })).hex;
+        newNode.style.background = (new Color({ h: Number(localStorage.markupcolor), s: 100, l: 90 })).hex + "AA";
 }
 
 //func to scroll to bottom of message container
