@@ -61,7 +61,7 @@ const uiTweaks = {
     },
     initRandomColorDice: () => {
         // add random color image
-        const rand = elemFromString(`<div id="randomColor" class="tool">
+        const rand = elemFromString(`<div id="randomColor" class="tool clickable">
 <div class="icon" style="background-image: url(img/randomize.gif); background-size:90%;">
 </div></div>`);
         rand.style.display = localStorage.random == "true" ? "" : "none";
@@ -80,7 +80,7 @@ const uiTweaks = {
     initColorPicker: () => {
         // color picker
         let toolbar = QS(".tools-container .tools");
-        let picker = elemFromString(`<div id="colPicker" class="tool">
+        let picker = elemFromString(`<div id="colPicker" class="tool clickable">
 <div class="icon" style="background-image: url(${chrome.runtime.getURL("res/mag.gif")});">
 </div></div>`);
         picker.style.display = localStorage.random == "true" ? "" : "none";
