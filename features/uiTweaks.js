@@ -486,11 +486,11 @@ const uiTweaks = {
         QS(".overlay").insertAdjacentHTML("beforeBegin",
             "<style>.overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}.overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
         const overlayObserver = new MutationObserver(() => {
-            if (QS(".overlay-content .result.show")?.innerText.includes("is the winner!")) {
-                let winnerMsg = QS(".rank-name").innerText + " won the game with a score of " + QS(".rank-score").innerText + "!";
-                if (winnerMsg != lastWinnerMsg) addChatMessage(winnerMsg, "");
-                lastWinnerMsg = winnerMsg;
-            }
+            //if (QS(".overlay-content .result.show")?.innerText.includes("is the winner!")) {
+            //    let winnerMsg = QS(".rank-name").innerText + " won the game with a score of " + QS(".rank-score").innerText + "!";
+            //    if (winnerMsg != lastWinnerMsg) addChatMessage(winnerMsg, "");
+            //    lastWinnerMsg = winnerMsg;
+            //}
             if (QS(".overlay-content .text.show")?.innerText.includes("Choose a word")) {
                 overlay.classList.add("countdown");
             }
