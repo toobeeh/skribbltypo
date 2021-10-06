@@ -321,6 +321,22 @@ const uiTweaks = {
                 }
             }
             else if (document.activeElement.id == "inputChat" && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
+
+            if (e.key === 'AltGraph' && !(e.altKey || e.ctrlKey || e.shiftKey)) {// Show player IDs
+                let removeIDs = (event) => {
+                    if (event.key == "AltGraph") {
+                        document.removeEventListener("keyup", removeIDs);
+                        QSA(".list .player").forEach(player => {
+                            player.querySelector(".icons span").remove();
+                        });
+                    }
+                }
+                document.addEventListener("keyup", removeIDs);
+                QSA(".list .player").forEach(player => {
+                    if(!player.querySelector(".icons span")) player.querySelector(".icons").insertAdjacentHTML("afterbegin","<span>#" + player.getAttribute("playerid") + " </span>");
+                });
+                return;
+            }
         });
     },
     initLobbyRestriction: () => {
@@ -398,7 +414,7 @@ const uiTweaks = {
                 performCommand("like");
             }
             else if (e.which == 39) { // right
-                performCommand(cmd_votekick);
+                performCommand("kick");
             }
             else if (e.which == 40) { // down
                 performCommand("shame");

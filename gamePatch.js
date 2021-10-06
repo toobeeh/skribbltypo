@@ -40,7 +40,13 @@
         createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
             // IDENTIFY x.value.split: #home .container-name-lang input -> Yn
             // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> m
-            return { id: id, name: name.length != 0 ? name : (Yn.value.split("#")[0] != "" ? Yn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? m.avatar : avatar, score: score, guessed: guessed };
+            return {
+                id: id,
+                name: name.length != 0 ? name : (Yn.value.split("#")[0] != "" ? Yn.value.split("#")[0] : "Dummy"),
+                avatar: avatar.length == 0 ? m.avatar : avatar,
+                score: score,
+                guessed: guessed
+            };
         },
         createFakeLobbyData: (
             settings = ["PRACTISE", "en", 1, 8, 80, 3, 3, 2, 0, false],
@@ -48,9 +54,23 @@
             me = 0,
             owner = 0,
             users = [],
-            state = { id: 4, time: 999, data: { id: 0, word: "Anything" } }) => {
+            state = {
+                id: 4,
+                time: 999,
+                data: {
+                    id: 0,
+                    word: "Anything"
+                }
+            }) => {
             if (users.length == 0) users = [typo.createFakeUser()];
-            return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };
+            return {
+                settings: settings,
+                id: id,
+                me: me,
+                owner: owner,
+                users: users,
+                state: state
+            };
         },
         disconnect: undefined,
         lastConnect: 0,
@@ -126,7 +146,9 @@
     function I(e) {
         /* TYPOMOD 
                  log draw commands */
-        document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }));
+        document.dispatchEvent(new CustomEvent("logDrawCommand", {
+            detail: e
+        }));
         /* TYPOEND */
         m.dark = e ? 1 : 0, c.documentElement.dataset.theme = m.dark ? "dark" : ""
     }
@@ -798,10 +820,11 @@
     }
 
     function Mt(e) {
-/*TYPOMOD   
-desc: if color code > 1000 -> customcolor*/if (e < 1000)
+        /*TYPOMOD   
+        desc: if color code > 1000 -> customcolor*/
+        if (e < 1000)
             e = Nt(e, 0, ft.length), e = ft[e];
-        else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
+        else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0")); /* TYPOEND */
         return {
             r: e[0],
             g: e[1],
@@ -811,8 +834,9 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
 
     function $t(e) {
         if (Ke = Ke.slice(0, e), !(Sn != bn && Qe < e)) {
-/* TYPOMOD
-        desc: replace draw commands because of redo*/        const keepCommands = Ke;
+            /* TYPOMOD
+                    desc: replace draw commands because of redo*/
+            const keepCommands = Ke;
             /* TYPOEND*/
             tt = At();
             e = Math.floor(Ke.length / Lt);
@@ -826,9 +850,11 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
 
             /* TYPOMOD 
                      log kept commands*/
-            document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));
+            document.dispatchEvent(new CustomEvent("logRedo", {
+                detail: keepCommands
+            }));
             /* TYPOEND*/
-}
+        }
     }
     const Lt = 200;
 
@@ -857,7 +883,9 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
     function Rt(e) {
         /* TYPOMOD 
                  log draw commands */
-        document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }));
+        document.dispatchEvent(new CustomEvent("logDrawCommand", {
+            detail: e
+        }));
         /* TYPOEND */
         Ke.push(e), Sn == bn && Dt(Tt(e))
     }
@@ -951,7 +979,10 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
         _e.fillStyle = "#FFF", _e.fillRect(0, 0, Xe.width, Xe.height)
             /* TYPOMOD
                      desc: dispatch clear event */
-            ; document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));
+            ;
+        document.dispatchEvent(new CustomEvent("logCanvasClear", {
+            detail: data
+        }));
         /* TYPOEND */
     }
     var Yt = !1;
@@ -1350,6 +1381,10 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
         })).on("connect", function () {
             /* TYPOMOD
                          desc: disconnect socket & leave lobby */
+            document.addEventListener('socketEmit', event => yn.emit('data', {
+                id: event.detail.id,
+                data: event.detail.data
+            }));
             typo.disconnect = () => {
                 if (yn) {
                     yn.typoDisconnect = true;
@@ -1360,8 +1395,7 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
                     yn.off("data");
                     yn.reconnect = false;
                     yn.disconnect();
-                }
-                else document.dispatchEvent(new Event("leftLobby"));
+                } else document.dispatchEvent(new Event("leftLobby"));
             }
             /* TYPOEND */
             yn.on("joinerr", function (e) {
@@ -1519,7 +1553,10 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
                 } l ? $n.playSound(dn) : $n.playSound(cn), be(Ae("The word was '$'", a.data.word), "", ke(ge), !0)
                 /* TYPOMOD
                              desc: log finished drawing */
-                ; document.dispatchEvent(new CustomEvent("drawingFinished", { detail: a.data.word }));
+                ;
+            document.dispatchEvent(new CustomEvent("drawingFinished", {
+                detail: a.data.word
+            }));
             /* TYPOEND */
         } else a.id != h && (zn[0].textContent = Ae("WAITING"), zn[0].classList.add("waiting"), zn[1].style.display = "none", zn[2].style.display = "none");
         if (a.id == h) {
@@ -1634,7 +1671,9 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
             case ha:
                 /* TYPOMOD
                                  desc: send lobbydata*/
-                document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: e.data }));
+                document.dispatchEvent(new CustomEvent("lobbyConnected", {
+                    detail: e.data
+                }));
                 /* TYPOEND*/
                 Zn(n);
                 break;

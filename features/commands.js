@@ -339,6 +339,23 @@ const commands = [
             }
         }
     }, {
+        command: "kick",
+        options: {
+            type: "action",
+            description: "Kicks a player. Press AltGr to view player IDs. Argument: player ID",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+            },
+            response: (args) => {
+                let kickPlayer = QS("div[playerid='" + args + "']");
+                if (!kickPlayer) kickPlayer = QS(".player .drawing[style*='block'").closest(".player");
+                if(kickPlayer) document.dispatchEvent(newCustomEvent("socketEmit", { detail: { id: 5, data: parseInt(kickPlayer.getAttribute("playerid")) } }));
+                return kickPlayer ? "Executed kick for " + kickPlayer.querySelector(".name").textContent.replace("(You)","").trim() : "No-one to kick :(";
+            }
+        }
+    }, {
         command: "randominterval",
         options: {
             type: "action",
