@@ -327,7 +327,7 @@ const uiTweaks = {
                     if (event.key == "AltGraph") {
                         document.removeEventListener("keyup", removeIDs);
                         QSA(".list .player").forEach(player => {
-                            player.querySelector(".icons span").remove();
+                            player.querySelector(".icons span")?.remove();
                         });
                     }
                 }
