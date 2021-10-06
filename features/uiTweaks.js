@@ -311,7 +311,7 @@ const uiTweaks = {
                 }
                 // Switch colors
                 if (e.key === 's' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
-                    if (Date.now() - lastColorSwitch < 20) return;
+                    if (Date.now() - lastColorSwitch < 50) return;
                     lastColorSwitch = Date.now();
                     const prim = parseInt(new Color({ rgb: QS("#color-preview-primary").style.fill}).hex.replace("#", ""), 16) + 10000;
                     const sec = parseInt(new Color({ rgb: QS("#color-preview-secondary").style.fill }).hex.replace("#", ""), 16) + 10000;
@@ -620,16 +620,17 @@ const uiTweaks = {
         });
     },
     initPenPointer: () => {
-        //const canvas = QS("#game-canvas canvas");
-        //const pointerRule = elemFromString("<style></style>");
-        //canvas.insertAdjacentElement("beforebegin", pointerRule);
-        //const smallBlackPointerCss = `cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAqCAYAAADFw8lbAAAAAXNSR0IArs4c6QAAAMxJREFUWEftkrENAjEQBPczO6CJS6CBpwtCQhqwa3gCiF0FIT1ADg1Ack3A58jSR4hwA7/YK2A1mpsOM7luJpwQKPtTMiqjbAPsPTUqo2wD7D01KqNsA+w9Ndq60RWAfoK8AXiygJmvXwLYm9miwrn7C8ARwIMBywTdmdm2lLIJIbxzzld3PwM4NQsaYxxTSpdWQWufw9frD6xOma+vH66drqdX31l91j02KCPHnxsCZauVURllG2DvqVEZZRtg76lRGWUbYO+p0b81+gHeNSQrN2iaOgAAAABJRU5ErkJggg==") 21 21, default`;
-        //canvas.addEventListener("pointerdown", () => {
-        //    pointerRule.innerHTML = "#game-canvas canvas{" + smallBlackPointerCss + " !important}";
-        //});
-        //canvas.addEventListener("pointerup", () => {
-        //    pointerRule.innerHTML = "";
-        //});
+        const canvas = QS("#game-canvas canvas");
+        const pointerRule = elemFromString("<style></style>");
+        canvas.insertAdjacentElement("beforebegin", pointerRule);
+        const smallBlackPointerCss = `cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACoAAAAqCAYAAADFw8lbAAAAAXNSR0IArs4c6QAAAMxJREFUWEftkrENAjEQBPczO6CJS6CBpwtCQhqwa3gCiF0FIT1ADg1Ack3A58jSR4hwA7/YK2A1mpsOM7luJpwQKPtTMiqjbAPsPTUqo2wD7D01KqNsA+w9Ndq60RWAfoK8AXiygJmvXwLYm9miwrn7C8ARwIMBywTdmdm2lLIJIbxzzld3PwM4NQsaYxxTSpdWQWufw9frD6xOma+vH66drqdX31l91j02KCPHnxsCZauVURllG2DvqVEZZRtg76lRGWUbYO+p0b81+gHeNSQrN2iaOgAAAABJRU5ErkJggg==") 21 21, default`;
+        canvas.addEventListener("pointerenter", (event) => {
+            if (event.pointerType == "pen" && localStorage.pressure === "1")
+                pointerRule.innerHTML = "#game-canvas canvas{" + smallBlackPointerCss + " !important}";
+        });
+        canvas.addEventListener("pointerleave", () => {
+            pointerRule.innerHTML = "";
+        });
     },
     initAll: () => {
         // clear ads for space 
