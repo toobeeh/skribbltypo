@@ -252,7 +252,7 @@ const uiTweaks = {
         let brushmagicButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/tablet.gif")
             + ") center no-repeat;'></div>");
-        brushmagicButton.addEventListener("click", brushmagic.showSettings);
+        brushmagicButton.addEventListener("click", brushtools.showSettings);
         QS("#controls").append(brushmagicButton);
     },
     initDefaultKeybinds: () => {

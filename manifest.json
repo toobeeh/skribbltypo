@@ -56,11 +56,9 @@
         "features/emojis.js",
         "features/uiTweaks.js",
         "features/agent.js",
-        //"features/pressure.js",
         "features/imageOptions.js",
         "features/gamemode.js",
-        "features/brushmagic.js",
-        //"features/keybinds.js",
+        "features/brushtools.js",
         "content.js"
       ]
     },

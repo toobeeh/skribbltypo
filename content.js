@@ -68,7 +68,7 @@ imageAgent.initImageAgent(); // init image agent from agent.js
 imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 gamemodes.setup();
-brushmagic.setup();
+brushtools.setup();
 //pressure.initEvents(); // init pressure
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
 setTimeout(async () => await emojis.init(), 0); // init emojis
