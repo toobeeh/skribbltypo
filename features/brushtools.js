@@ -12,6 +12,7 @@ const brushtools = {
                         mode.disable();
                     }
                     brushtools.groups.color.rainbow.enabled = true;
+                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
                 },
                 disable: () => {
                     brushtools.groups.color.rainbow.enabled = false;
@@ -36,6 +37,7 @@ const brushtools = {
                     for (let [name, mode] of Object.entries(brushtools.groups.color)) {
                         mode.disable();
                     }
+                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
                     brushtools.groups.color.brightness.enabled = true;
                 },
                 disable: () => {

@@ -118,6 +118,8 @@ const gamemodes = {
                 description: "You can only choose between three random color shades.",
                 init: () => {
                     QS("#game-toolbar").appendChild(elemFromString(`<style id="gamemodeMonochromeRules"></style>`));
+                    brushtools.groups.color.brightness.disable();
+                    brushtools.groups.color.rainbow.disable();
                 },
                 initWithAction: true,
                 destroy: () => {
