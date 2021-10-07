@@ -250,7 +250,7 @@ const uiTweaks = {
 
         // add brush tools
         let brushmagicButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/tablet.gif")
+            + chrome.runtime.getURL("/res/brush.gif")
             + ") center no-repeat;'></div>");
         brushmagicButton.addEventListener("click", brushtools.showSettings);
         QS("#controls").append(brushmagicButton);
