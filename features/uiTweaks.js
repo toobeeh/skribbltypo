@@ -233,64 +233,14 @@ const uiTweaks = {
             }
         });
         QS("#controls").append(fulls);
+
         // add typro
         let typroCloud = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/cloud.gif")
             + ") center no-repeat;'></div>");
         typroCloud.addEventListener("click", typro.show);
         QS("#controls").append(typroCloud);
-        // add tabletmode
-        let tabletMode = elemFromString("<div id='tabMode' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/tablet.gif")
-            + ") center no-repeat;'></div>");
-        tabletMode.addEventListener("click", () => {
-            let modeNone = elemFromString("<button class='flatUI min air'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeNone.png")
-                + ")'></div><h4>Disable</h4></button>");
-            modeNone.addEventListener("click", () => performCommand("disable ink "));
 
-            let modeThickness = elemFromString("<button class='flatUI min air'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeThickness.png")
-                + ")'></div><h4>Size (Absolute)</h4></button>");
-            modeThickness.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode thickness") :
-                performCommand("enable ink") || performCommand("inkmode thickness"));
-
-            let modeRelative = elemFromString("<button class='flatUI min air'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeThickness.png")
-                + ")'></div><h4>Size (Relative)</h4></button>");
-            modeRelative.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode relative") :
-                performCommand("enable ink") || performCommand("inkmode relative"));
-
-            let modeBrightness = elemFromString("<button class='flatUI min air'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeBrightness.png")
-                + ")'></div><h4>Brightness</h4></button>");
-            modeBrightness.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode brightness") :
-                performCommand("enable ink") || performCommand("inkmode brightness"));
-
-            let modeDegree = elemFromString("<button class='flatUI min air'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeDegree.png")
-                + ")'></div><h4>Degree</h4></button>");
-            modeDegree.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode degree") :
-                performCommand("enable ink") || performCommand("inkmode degree"));
-
-            let modeBrightnessDegree = elemFromString("<button class='flatUI min air'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeBrightnessDegree.png")
-                + ")'></div><h4>Brightness Degree</h4></button>");
-            modeBrightnessDegree.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode degree brightness") :
-                performCommand("enable ink") || performCommand("inkmode degree brightness"));
-
-            let options = elemFromString("<div style='display:flex; gap:3em; flex-wrap: wrap; width:100%; height: min-content; flex-direction:row; justify-content: space-evenly'></div>");
-            options.append(modeNone, modeThickness, modeRelative, modeBrightness, modeDegree, modeBrightnessDegree);
-            let modal = new Modal(options, () => { }, "Select a tablet mode", "50vw", "0px");
-            options.addEventListener("click", () => modal.close());
-        });
-        tabletMode.style.display = localStorage.ink == "true" ? "" : "none";
-        QS("#controls").append(tabletMode);
         // add appearance options
         let visualsButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/visuals.gif")
@@ -298,6 +248,7 @@ const uiTweaks = {
         visualsButton.addEventListener("click", visuals.show);
         QS("#controls").append(visualsButton);
 
+        // add brush tools
         let brushmagicButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/tablet.gif")
             + ") center no-repeat;'></div>");
