@@ -194,10 +194,8 @@ const brushmagic = {
                         for (let i = 1; i < density; i++) {
                             const offset = event.pressure * (i / density) * tilt * size;
                             let clone = new MouseEvent("mousemove", event)
-                            const addX = Math.abs(event.movementX) > Math.abs(event.movementY) ? i : 0;
-                            const addY = Math.abs(event.movementX) < Math.abs(event.movementY) ? i : 0;
-                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset  + addX});
-                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset + addY});
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset  + 2 * i});
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset});
                             brushmagic.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
                         }
                     }
