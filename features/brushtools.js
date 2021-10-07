@@ -313,6 +313,7 @@ const brushtools = {
         }
 
         brushtools.showSettings = () => {
+            updateStates();
             new Modal(settingsContent, () => { }, "Brush Laboratory");
 		}
     }
