@@ -69,6 +69,9 @@ const brushmagic = {
                     for (let [name, mode] of Object.entries(brushmagic.groups.mirror)) {
                         mode.disable();
                     }
+                    for (let [name, mode] of Object.entries(brushmagic.groups.stroke)) {
+                        mode.disable();
+                    }
                     brushmagic.groups.mirror.mandala.enabled = true;
                 },
                 disable: () => {
@@ -117,6 +120,9 @@ const brushmagic = {
                     for (let [name, mode] of Object.entries(brushmagic.groups.mirror)) {
                         mode.disable();
                     }
+                    for (let [name, mode] of Object.entries(brushmagic.groups.stroke)) {
+                        mode.disable();
+                    }
                     brushmagic.groups.mirror.sculpt.enabled = true;
                 },
                 disable: () => {
@@ -148,6 +154,9 @@ const brushmagic = {
                     }
                 },
                 enable: () => {
+                    for (let [name, mode] of Object.entries(brushmagic.groups.mirror)) {
+                        mode.disable();
+                    }
                     brushmagic.groups.stroke.dash.enabled = true;
                 },
                 disable: () => {
@@ -181,6 +190,9 @@ const brushmagic = {
                     }
                 },
                 enable: () => {
+                    for (let [name, mode] of Object.entries(brushmagic.groups.mirror)) {
+                        mode.disable();
+                    }
                     brushmagic.groups.stroke.tilt.enabled = true;
                 },
                 disable: () => {
