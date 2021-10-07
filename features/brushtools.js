@@ -201,16 +201,17 @@ const brushtools = {
                     brushtools.groups.stroke.tilt.enabled = false;
                 },
                 pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
+                    if (event.pressure > 0 ) {
                         const density = brushtools.groups.stroke.tilt.options.density.val;
                         const tilt = brushtools.groups.stroke.tilt.options.tilt.val;
                         const size = parseInt(QS("#game-toolbar > div.picker > div.size-picker > div.preview > div.size").innerText.replace("px", ""));
                         for (let i = 1; i < density; i++) {
-                            const offset = event.pressure * (i / density) * tilt * size;
+                            const offset = event.pressure  * tilt * size;
                             let clone = new MouseEvent("mousemove", event)
-                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset  + 2 * i});
-                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset});
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset - i});
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset - i});
                             brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
+                            //brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", event));
                         }
                     }
                 }
