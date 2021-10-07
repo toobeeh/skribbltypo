@@ -297,6 +297,12 @@ const uiTweaks = {
             + ") center no-repeat;'></div>");
         visualsButton.addEventListener("click", visuals.show);
         QS("#controls").append(visualsButton);
+
+        let brushmagicButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+            + chrome.runtime.getURL("/res/tablet.gif")
+            + ") center no-repeat;'></div>");
+        brushmagicButton.addEventListener("click", brushmagic.showSettings);
+        QS("#controls").append(brushmagicButton);
     },
     initDefaultKeybinds: () => {
         const chatInput = QS('#game-chat .container form input');
@@ -653,116 +659,6 @@ const uiTweaks = {
         });
         canvas.addEventListener("pointerleave", () => {
             pointerRule.innerHTML = "";
-        });
-
-        const getColorsWeighted = () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
-            .map(col => new Color({ rgb: col.style.backgroundColor }))
-            .map(col => [Math.sqrt(0.5 * col.hsl[0] * col.hsl[0] + 0.5 * col.hsl[1] * col.hsl[1] + col.hsl[2] * col.hsl[2]), col])
-            .sort((a,b) => a[0] - b[0]);
-        const getColorsHue = () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
-            .map(col => new Color({ rgb: col.style.backgroundColor }))
-            .map(col => [col.hsl[0], col.hsl[2], col])
-            .sort((a,b) => a[0] - b[0]);
-
-        const colorGroups = [
-            ['rgb(255, 255, 255)', 'rgb(210, 210, 210)', 'rgb(168, 168, 168)', 'rgb(126, 126, 126)', 'rgb(80, 80, 80)', 'rgb(0, 0, 0)'],
-            ['rgb(239, 19, 11)', 'rgb(183, 6, 0)', 'rgb(86, 8, 6)'],
-            ['rgb(255, 113, 0)', 'rgb(206, 67, 12)', 'rgb(137, 39, 0)'],
-            ['rgb(255, 228, 0)', 'rgb(232, 162, 0)', 'rgb(163, 103, 0)'],
-            ['rgb(0, 255, 145)', 'rgb(0, 158, 114)', 'rgb(0, 120, 93)', 'rgb(0, 204, 0)', 'rgb(0, 114, 21)', 'rgb(0, 61, 3)'],
-            ['rgb(0, 178, 255)', 'rgb(0, 86, 158)', 'rgb(0, 59, 120)', 'rgb(35, 31, 211)', 'rgb(18, 11, 145)', 'rgb(8, 3, 82)'],
-            ['rgb(211, 124, 170)', 'rgb(167, 85, 116)', 'rgb(118, 48, 75)', 'rgb(163, 0, 186)', 'rgb(108, 0, 135)', 'rgb(65, 0, 81)'],
-            ['rgb(255, 172, 142)', 'rgb(226, 139, 93)', 'rgb(204, 119, 77)', 'rgb(160, 82, 45)', 'rgb(99, 48, 13)', 'rgb(72, 28, 0)']
-        ]
-
-        let lastHit = 0;
-        let lastpressure = 0;
-        let wait = false;
-        
-        const context = canvas.getContext("2d");
-        let currentDown = false;
-        canvas.addEventListener("pointerdown", () => currentDown = true);
-        canvas.addEventListener("pointerup", () => currentDown = false);
-        canvas.addEventListener("pointermove", (event) => {
-            const mode = localStorage.brushmode;//"mirror";
-            //if (Date.now() - lastHit < 25) return;
-            lastHit = Date.now();
-            if (event.pointerType == "pen" && event.pressure > 0) {
-                // weighted rainbow
-                if (mode == "skribblrainbow") {
-                    const colors = getColorsHue();
-                    const index = Math.round(event.pressure * (colors.length-1));
-                    const color = colors[index][2].hex;
-                    colcode = parseInt(color.toString().replace("#", ""), 16) + 10000;
-                    if (colcode != 10000 + 16777215) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                }
-                else if (mode == "skribblbrightness") {
-                    // skribbl brightness
-                    const selected = QS("#color-preview-primary").style.fill;
-                    const matchGroup = colorGroups.find(group => group.some(col => col == selected));
-                    const index = Math.round(event.pressure * (matchGroup.length-1));
-                    const color = new Color({ rgb: matchGroup[index] });
-                    colcode = parseInt(color.hex.toString().replace("#", ""), 16) + 10000;
-                    document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                }
-                else if (mode == "add") {
-                    const pixels = context.getImageData(event.offsetX, event.offsetY, 1, 1).data;
-                    const color = new Color({ r: pixels[0], g: pixels[1], b: pixels[2] }).hex;
-                    colcode = parseInt(color.toString().replace("#", ""), 16) + 10000;
-                    if (colcode != 10000 + 16777215) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                }
-                else if (mode == "tilt") {
-                    const density = 10;
-                    const tilt = 5;
-                    const size = parseInt(QS("#game-toolbar > div.picker > div.size-picker > div.preview > div.size").innerText.replace("px", ""));
-                    for (let i = 1; i < density; i++) {
-                        const offset = event.pressure * (i / density) * tilt * size;
-                        let clone = new MouseEvent("mousemove", event)
-                        clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset });
-                        clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset });
-                        canvas.dispatchEvent(new MouseEvent("mousemove", clone));
-                    }
-                }
-                else if (mode == "sculpt") {
-                    const mirror = localStorage.mirror;//"XY";
-                    let clone = new MouseEvent("mousemove", event)
-                    const canvasRect = canvas.getBoundingClientRect();
-                    const sculptX = canvasRect.width - event.offsetX;
-                    const sculptY = canvasRect.height - event.offsetY;
-                    if (mirror.indexOf("X") >= 0) clone = Object.defineProperty(clone, "clientX", { value: canvasRect.left + sculptX });
-                    if(mirror.indexOf("Y") >= 0) clone = Object.defineProperty(clone, "clientY", { value: canvasRect.top + sculptY });
-                    canvas.dispatchEvent(new MouseEvent("mousemove", clone));
-                    
-                }
-                else if (mode == "mirror") {
-                    const mirror = localStorage.mirror;//"XY";
-                    let clone = new MouseEvent("mousemove", event)
-                    const canvasRect = canvas.getBoundingClientRect();
-                    const sculptX = canvasRect.width - event.offsetX;
-                    const sculptY = canvasRect.height - event.offsetY;
-                    if (mirror.indexOf("X") >= 0) clone = Object.defineProperty(clone, "clientX", { value: canvasRect.left + sculptX });
-                    if (mirror.indexOf("Y") >= 0) clone = Object.defineProperty(clone, "clientY", { value: canvasRect.top + sculptY });
-
-
-                    canvas.dispatchEvent(new MouseEvent("mousedown", event));
-                    canvas.dispatchEvent(new MouseEvent("mousemove", event));
-                    canvas.dispatchEvent(new MouseEvent("mouseup", event));
-                    canvas.dispatchEvent(new MouseEvent("mousedown", clone));
-                    canvas.dispatchEvent(new MouseEvent("mousemove", clone));
-                    canvas.dispatchEvent(new MouseEvent("mouseup", clone));
-
-                }
-                else if (mode == "dash") {
-                    if (!wait) {
-                        wait = true;
-                        canvas.dispatchEvent(new MouseEvent("mouseup", event));
-                        setTimeout(() => {
-                            wait = false;
-                            if(currentDown) canvas.dispatchEvent(new MouseEvent("mousedown", event));
-                        },10);
-                    }
-                }
-            }
         });
     },
     initAll: () => {

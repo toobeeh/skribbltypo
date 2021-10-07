@@ -729,3 +729,8 @@ input::-webkit-inner-spin-button {
     max-height:20vh;
     max-width:90%;
 }
+
+#brushmagicSettings .mode{
+    margin:2em 0;
+}
+#brushmagicSettings .mode .options:not(:empty){margin-top:1em;}

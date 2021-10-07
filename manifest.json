@@ -59,6 +59,7 @@
         //"features/pressure.js",
         "features/imageOptions.js",
         "features/gamemode.js",
+        "features/brushmagic.js",
         //"features/keybinds.js",
         "content.js"
       ]
