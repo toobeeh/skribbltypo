@@ -71,7 +71,7 @@ const brushtools = {
                     gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
                 },
                 disable: () => {
-                    brushtools.groups.color.rainbow.enabled = false;
+                    brushtools.groups.color.rainbowcircle.enabled = false;
                 },
                 pointermoveCallback: (event) => {
                     const colors = ["ef130b", "ff7100", "ffe400", "00cc00", "00ff91", "00b2ff", "231fd3", "a300ba", "d37caa"];
@@ -108,6 +108,10 @@ const brushtools = {
                     axis: {
                         val: "X",
                         type: ["X", "XY", "Y"]
+                    },
+                    mirrorpoint: {
+                        mirrorpoint: "Center",
+                        type: ["Center", "Click"]
                     }
                 },
                 enable: () => {
@@ -124,11 +128,21 @@ const brushtools = {
                 },
                 pointermoveCallback: (event) => {
                     if (event.pressure > 0) {
+                        if (event.type == "pointerdown") {
+                            brushtools.groups.mirror.mandala.lastDownPos = [event.offsetX, event.offsetY];
+                            brushtools.canvas.addEventListener("pointerup", () => {
+                                brushtools.groups.mirror.mandala.lastDownPos = [];
+                                brushtools.groups.mirror.mandala.lastEvent = null;
+                                brushtools.groups.mirror.mandala.lastClone = null;
+                            }, { once: true });
+                        }
                         const mirror = brushtools.groups.mirror.mandala.options.axis.val;
+                        const point = brushtools.groups.mirror.mandala.options.mirrorpoint.val;
+                        const lastDown = brushtools.groups.mirror.mandala.lastDownPos;
                         let clone = new MouseEvent("mousemove", event)
                         const canvasRect = brushtools.canvas.getBoundingClientRect();
-                        const sculptX = canvasRect.width - event.offsetX;
-                        const sculptY = canvasRect.height - event.offsetY;
+                        const sculptX = point == "Center" ? canvasRect.width - event.offsetX : lastDown[0] - ((lastDown[0] - event.offsetX) * -1);
+                        const sculptY = point == "Center" ? canvasRect.height - event.offsetY : lastDown[1] - ((lastDown[1] - event.offsetY) * -1);
                         if (mirror.indexOf("X") >= 0) clone = Object.defineProperty(clone, "clientX", { value: canvasRect.left + sculptX });
                         if (mirror.indexOf("Y") >= 0) clone = Object.defineProperty(clone, "clientY", { value: canvasRect.top + sculptY });
 
@@ -159,6 +173,10 @@ const brushtools = {
                     axis: {
                         val: "X",
                         type: ["X", "XY", "Y"]
+                    },
+                    mirrorpoint: {
+                        mirrorpoint: "Center",
+                        type: ["Center", "Click"]
                     }
                 },
                 enable: () => {
@@ -176,13 +194,16 @@ const brushtools = {
                 pointermoveCallback: (event) => {
                     if (event.pressure > 0) {
                         if (event.type == "pointerdown") {
+                            brushtools.groups.mirror.sculpt.lastDownPos = [event.offsetX, event.offsetY];
                             brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", event));
                         }
                         const mirror = brushtools.groups.mirror.sculpt.options.axis.val;
+                        const point = brushtools.groups.mirror.sculpt.options.mirrorpoint.val;
+                        const lastDown = brushtools.groups.mirror.sculpt.lastDownPos;
                         let clone = new MouseEvent("mousemove", event)
                         const canvasRect = brushtools.canvas.getBoundingClientRect();
-                        const sculptX = canvasRect.width - event.offsetX;
-                        const sculptY = canvasRect.height - event.offsetY;
+                        const sculptX = point == "Center" ? canvasRect.width - event.offsetX : lastDown[0] - ((lastDown[0] - event.offsetX) * -1);
+                        const sculptY = point == "Center" ? canvasRect.height - event.offsetY : lastDown[1] - ((lastDown[1] - event.offsetY) * -1);
                         if (mirror.indexOf("X") >= 0) clone = Object.defineProperty(clone, "clientX", { value: canvasRect.left + sculptX });
                         if (mirror.indexOf("Y") >= 0) clone = Object.defineProperty(clone, "clientY", { value: canvasRect.top + sculptY });
                         brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
@@ -206,6 +227,9 @@ const brushtools = {
                 },
                 enable: () => {
                     for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
+                        mode.disable();
+                    }
+                    for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
                         mode.disable();
                     }
                     brushtools.groups.stroke.dash.enabled = true;
@@ -242,6 +266,9 @@ const brushtools = {
                 },
                 enable: () => {
                     for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
+                        mode.disable();
+                    }
+                    for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
                         mode.disable();
                     }
                     brushtools.groups.stroke.tilt.enabled = true;
@@ -325,7 +352,7 @@ const brushtools = {
         const updateStates = () => {
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
-                    const toggle = settingsContent.querySelector("input#brushmagicToggle" + mode.name);
+                    const toggle = settingsContent.querySelector("input#brushmagicToggle" + name);
                     if (toggle) toggle.checked = mode.enabled;
                 }
             }
@@ -336,7 +363,7 @@ const brushtools = {
             for (let [name, mode] of Object.entries(group)) {
                 const modeDetails = elemFromString(`<div class="mode">
                 <label>
-                    <input id="brushmagicToggle${mode.name}" type="checkbox" class="flatUI"></input>
+                    <input id="brushmagicToggle${name}" type="checkbox" class="flatUI"></input>
                     <span>${mode.name}</span>
                 </label>
                 <span>${mode.description}</span>

@@ -329,9 +329,11 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
     }
     // set events of discord info
     const credits = document.querySelector("#credits");
+    const website = document.querySelector("#help");
     const cont = credits.innerHTML;
     credits.parentElement.onclick = () => window.open("https://discord.com/invite/pAapmUmWAM");
     credits.onmouseover = () => { credits.innerHTML = "call me maybe?"; };
     credits.onmouseout = () => { credits.innerHTML = cont; };
+    website.addEventListener("click", () => chrome.tabs.create({ url: "https://typo.rip/" }));
 });
 
