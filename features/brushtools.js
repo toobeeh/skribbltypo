@@ -175,6 +175,9 @@ const brushtools = {
                 },
                 pointermoveCallback: (event) => {
                     if (event.pressure > 0) {
+                        if (event.type == "pointerdown") {
+                            brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", event));
+                        }
                         const mirror = brushtools.groups.mirror.sculpt.options.axis.val;
                         let clone = new MouseEvent("mousemove", event)
                         const canvasRect = brushtools.canvas.getBoundingClientRect();
@@ -183,6 +186,9 @@ const brushtools = {
                         if (mirror.indexOf("X") >= 0) clone = Object.defineProperty(clone, "clientX", { value: canvasRect.left + sculptX });
                         if (mirror.indexOf("Y") >= 0) clone = Object.defineProperty(clone, "clientY", { value: canvasRect.top + sculptY });
                         brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
+                        if (event.type == "pointerdown") {
+                            brushtools.canvas.dispatchEvent(new MouseEvent("mouseup", clone));
+                        }
                     }
                 }
             }
