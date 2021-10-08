@@ -210,7 +210,7 @@ let imageOptions = {
                 // build webhook content
                 let message;
                 let imageOnly =QS("#sendImageOnly").checked;
-                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".name me").textContent.replace("(You)", "").trim();
+                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".name.me").textContent.replace("(You)", "").trim();
                 if (imageOnly) {
                     message = JSON.stringify({
                         username: loginName,
@@ -248,7 +248,7 @@ let imageOptions = {
                 }
 
                 // send webhook
-                await fetch(w.URL, {
+                await fetch("https://discord.com/api/webhooks/896083122356121620/eWxVFF0vPLryXW3kKEafbR-TcO0hBVefEWgX_0TMl-kAtsfJq5gMu_nPyfS-KmCjWaIS", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
