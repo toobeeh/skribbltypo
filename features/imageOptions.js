@@ -248,7 +248,7 @@ let imageOptions = {
                 }
 
                 // send webhook
-                await fetch("https://discord.com/api/webhooks/896083122356121620/eWxVFF0vPLryXW3kKEafbR-TcO0hBVefEWgX_0TMl-kAtsfJq5gMu_nPyfS-KmCjWaIS", {
+                await fetch(w.URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
