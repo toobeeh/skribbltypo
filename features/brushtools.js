@@ -294,7 +294,14 @@ const brushtools = {
     showSettings: null,
     setup: () => {
         brushtools.canvas = QS("#game-canvas canvas");
-        brushtools.canvas.addEventListener("pointerdown", () => brushtools.currentDown = true);
+        brushtools.canvas.addEventListener("pointerdown", (event) => {
+            brushtools.currentDown = true;
+            for (let [name, group] of Object.entries(brushtools.groups)) {
+                for (let [name, mode] of Object.entries(group)) {
+                    if (mode.enabled) mode.pointermoveCallback(event);
+                }
+            }
+        });
         brushtools.canvas.addEventListener("pointerup", () => brushtools.currentDown = false);
         brushtools.canvas.addEventListener("pointermove", (event) => {
             for (let [name, group] of Object.entries(brushtools.groups)){

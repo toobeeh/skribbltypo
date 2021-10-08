@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Skribbl Typo",
-  "description": "The most complete toolbox for skribbl.io with namefinder & tablet support",
-  "version": "23.1.0",
+  "description": "The most complete toolbox for skribbl.io with Discord integration",
+  "version": "23.1.2",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
@@ -29,7 +29,6 @@
     "features/*"
   ],
   "permissions": [
-    "webRequest",
     "activeTab",
     "*://tobeh.host/*",
     "*://typo.rip/*",
@@ -42,8 +41,7 @@
         "*://skribbl.io/",
         "*://skribbl.io/*",
         "*://*.skribbl.io/*",
-        "*://*.skribbl.io/",
-        "https://web.archive.org/web/*/https://skribbl.io/*"
+        "*://*.skribbl.io/"
       ],
       "js": [
         "picker/colr_pickr.min.js",
@@ -68,8 +66,7 @@
         "*://skribbl.io/",
         "*://skribbl.io/*",
         "*://*.skribbl.io/*",
-        "*://*.skribbl.io/",
-        "https://web.archive.org/web/*/https://skribbl.io/*"
+        "*://*.skribbl.io/"
       ],
       "js": [
         "features/modal.js",
