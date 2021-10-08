@@ -110,7 +110,7 @@ const brushtools = {
                         type: ["X", "XY", "Y"]
                     },
                     mirrorpoint: {
-                        mirrorpoint: "Center",
+                        val: "Center",
                         type: ["Center", "Click"]
                     }
                 },
@@ -175,7 +175,7 @@ const brushtools = {
                         type: ["X", "XY", "Y"]
                     },
                     mirrorpoint: {
-                        mirrorpoint: "Center",
+                        val: "Center",
                         type: ["Center", "Click"]
                     }
                 },
@@ -192,7 +192,7 @@ const brushtools = {
                     brushtools.groups.mirror.sculpt.enabled = false;
                 },
                 pointermoveCallback: (event) => {
-                    if (event.pressure > 0) {
+                    if (event.pressure > 0 && !event.ctrlKey) {
                         if (event.type == "pointerdown") {
                             brushtools.groups.mirror.sculpt.lastDownPos = [event.offsetX, event.offsetY];
                             brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", event));
@@ -324,6 +324,7 @@ const brushtools = {
             }
         }
     },
+    modal: null,
     showSettings: null,
     setup: () => {
         brushtools.canvas = QS("#game-canvas canvas");
@@ -398,7 +399,13 @@ const brushtools = {
 
         brushtools.showSettings = () => {
             updateStates();
-            new Modal(settingsContent, () => { }, "Brush Laboratory");
-		}
+            if (!brushtools.modal) brushtools.modal = new Modal(settingsContent, () => { }, "Brush Laboratory");
+            else {
+                brushtools.modal.close();
+                brushtools.modal = null;
+            }
+        }
+
+        document.addEventListener("openBrushLab", brushtools.showSettings);
     }
 };

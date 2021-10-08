@@ -561,3 +561,10 @@
 } #brushmagicSettings .mode{
     margin:2em 0;
 } #brushmagicSettings .mode .options:not(:empty){margin-top:1em;}
+
+.tool[data-tooltip='Switcher'] {
+    display: none;
+}
+.tool[data-tooltip='Lab'] .icon {
+    background-image:var(--typobrush) !important;
+}

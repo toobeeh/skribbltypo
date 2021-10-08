@@ -249,11 +249,11 @@ const uiTweaks = {
         QS("#controls").append(visualsButton);
 
         // add brush tools
-        let brushmagicButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/brush.gif")
-            + ") center no-repeat;'></div>");
-        brushmagicButton.addEventListener("click", brushtools.showSettings);
-        QS("#controls").append(brushmagicButton);
+        //let brushmagicButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+        //    + chrome.runtime.getURL("/res/brush.gif")
+        //    + ") center no-repeat;'></div>");
+        //brushmagicButton.addEventListener("click", brushtools.showSettings);
+        //QS("#controls").append(brushmagicButton);
     },
     initDefaultKeybinds: () => {
         const chatInput = QS('#game-chat .container form input');
@@ -264,16 +264,6 @@ const uiTweaks = {
                 if (e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
                     e.preventDefault();
                     chatInput.focus();
-                    return;
-                }
-                // Switch colors
-                if (e.key === 's' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
-                    if (Date.now() - lastColorSwitch < 50) return;
-                    lastColorSwitch = Date.now();
-                    const prim = parseInt(new Color({ rgb: QS("#color-preview-primary").style.fill}).hex.replace("#", ""), 16) + 10000;
-                    const sec = parseInt(new Color({ rgb: QS("#color-preview-secondary").style.fill }).hex.replace("#", ""), 16) + 10000;
-                    document.dispatchEvent(newCustomEvent("setColor", { detail: { code: sec, secondary: false } }));
-                    document.dispatchEvent(newCustomEvent("setColor", { detail: { code: prim, secondary: true } }));
                     return;
                 }
             }
@@ -294,6 +284,15 @@ const uiTweaks = {
                 });
                 return;
             }
+        });
+        // Switch colors
+        document.addEventListener("toggleColor", () => {
+            if (Date.now() - lastColorSwitch < 50) return;
+            lastColorSwitch = Date.now();
+            const prim = parseInt(new Color({ rgb: QS("#color-preview-primary").style.fill }).hex.replace("#", ""), 16) + 10000;
+            const sec = parseInt(new Color({ rgb: QS("#color-preview-secondary").style.fill }).hex.replace("#", ""), 16) + 10000;
+            document.dispatchEvent(newCustomEvent("setColor", { detail: { code: sec, secondary: false } }));
+            document.dispatchEvent(newCustomEvent("setColor", { detail: { code: prim, secondary: true } }));
         });
     },
     initLobbyRestriction: () => {

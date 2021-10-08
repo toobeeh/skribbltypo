@@ -96,7 +96,8 @@
     }
     // TYPOEND
     const t = ["B", "V", "F"],
-        n = ["U", "C"];
+        n = ["U", "C"
+/*TYPOMOD DESC: add action shortcuts defaults*/, "S", "L" /*TYPOEND*/];
     var m = {
         avatar: [Math.round(100 * Math.random()) % i, Math.round(100 * Math.random()) % l, Math.round(100 * Math.random()) % s, -1],
         audioMute: 0,
@@ -105,8 +106,9 @@
         pressureSensitivity: 1,
         displayLang: "en",
         hotkeysTools: ["B", "V", "F"],
-        hotkeysActions: ["U", "C"],
-        chatDeleteQuota: 100
+        hotkeysActions: ["U", "C"
+/*TYPOMOD DESC: add action shortcuts*/, "S", "L" /*TYPOEND*/],
+        undefined
     };
 
     function A(e, t) {
@@ -642,7 +644,19 @@
         name: "Clear",
         graphic: "clear.gif",
         action: It
-    });
+    })
+        , /*TYPOMOD DESC: add action for colorswitch*/ _e(2, {
+            isAction: !0,
+            name: "Switcher",
+            graphic: "",
+            action: () => { document.dispatchEvent(new Event("toggleColor")); }
+        }) /*TYPOEND*/
+        , /*TYPOMOD DESC: add action for brushlab*/ _e(3, {
+            isAction: !0,
+            name: "Lab",
+            graphic: "",
+            action: () => { document.dispatchEvent(new Event("openBrushLab")); }
+        }) /*TYPOEND*/;
     var Xe = c.querySelector("#game-canvas canvas"),
         Ze = Xe.getContext("2d"),
         Ke = [],
