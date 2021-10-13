@@ -4,16 +4,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@oldSkribbl
     - name: Archive Release
-      uses: thedoctor0/zip-release@master
+      uses: thedoctor0/zip-release@oldSkribbl
       with:
-        filename: 'typo-release-store22.3.7.zip'
+        filename: 'typo-release-store22.4.0.zip'
         exclusions: '*.git* *.xpi changelog.md *.web-extension-id .editorconfig .github/'  
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
-        artifacts: "typo-release-store22.3.7.zip"
+        artifacts: "typo-release-store22.4.0.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: "typo-release-store22.3.7"
+        tag: "typo-release-store22.4.0"

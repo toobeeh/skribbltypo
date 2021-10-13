@@ -74,4 +74,5 @@ if (!STOP_EXECUTION) {
 }
 else {
     new Toast("Typo has been deactivated tempoary due to Skribbl update compatibilities.", 2000);
+    localStorage.typoincompatibility = "";
 }
