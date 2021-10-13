@@ -6,7 +6,7 @@ jobs:
     steps:
     - uses: actions/checkout@oldSkribbl
     - name: Archive Release
-      uses: thedoctor0/zip-release@oldSkribbl
+      uses: thedoctor0/zip-release@master
       with:
         filename: 'typo-release-store22.4.0.zip'
         exclusions: '*.git* *.xpi changelog.md *.web-extension-id .editorconfig .github/'  
@@ -16,4 +16,4 @@ jobs:
         allowUpdates: true
         artifacts: "typo-release-store22.4.0.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: "typo-release-store22.4.0"
+        tag: "typo-release-store22.3.7"
