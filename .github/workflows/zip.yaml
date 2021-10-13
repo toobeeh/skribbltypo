@@ -4,7 +4,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@oldSkribbl
+    - uses: actions/checkout@master
     - name: Archive Release
       uses: thedoctor0/zip-release@master
       with:
