@@ -3,8 +3,7 @@
  * Right!! Almost everything is split into easy-to-understand procedural initialized modules, capsulated and called here in service.js.
  */
 // Comment section: Todo list .. close this section in your IDE
-{ 
-    /*
+{     /*
      * Todo and bugs:
      *  ----fix conflict with image poster (container freespace) 
      *  ----fix lobby id check -> as soon as lobby connected
@@ -33,13 +32,11 @@
      * ----zoom to canvas for accurate drawing
      * ----abort image tools drawing process
      * ----image agent error state message
-     * xxxxfinish dark mode # wont: way too lazy
+     * ----finish dark mode # wont: way too lazy
      * ----recall older drawings to share
      */
 }
-
-// Important things go first
-'use strict'; // Show no weaknesses
+'use strict';
 // Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
@@ -51,12 +48,12 @@ chrome.runtime.onMessage.addListener(msgObj => {
     if (msgObj == "get") chrome.runtime.sendMessage({ get: JSON.stringify(localStorage) });
     else performCommand(msgObj + "--");
 });
+// check if execution is aborted due to skribbl update. will be removed after update is reliably live.
 if (!STOP_EXECUTION) {
     if (document.body.innerText.includes("Fresh paint")) {
         localStorage.typoincompatibility = "true";
         window.location.reload();
     }
-    else QS("#loginAvatarCustomizeContainer").insertAdjacentText("afterend", "Attention! Due to an upcoming skribbl update, Typo will be deactivated soon. Do not remove Typo, after a few days it will re-enable on its own. ");
     // initialize modules
     captureCanvas.initListeners(); // init capturing draw ommands and drawings
     imageAgent.initImageAgent(); // init image agent from agent.js

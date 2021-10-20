@@ -107,14 +107,38 @@ const sprites = {
             }
         });
     },
+    updateScenes: () => {
+        const playerlist = QS("#containerPlayerlist");
+        let scenesCSS = elemFromString("<style id='scenesRules'></style>");
+
+        sprites.onlineScenes.forEach(scene => {
+            if (scene.LobbyKey == socket.clientData.lobbyKey) {
+                scenesCSS.innerHTML += `
+                #containerGamePlayers div.player#player${scene.LobbyPlayerID} {
+                    background-image: url(${sprites.availableScenes.find(av => av.ID == scene.Sprite).URL}) !important;
+                    background-size: cover !important;
+                    background-position: center center !important;
+                    background-repeat: no-repeat !important;
+                }
+                #containerGamePlayers div.player#player${scene.LobbyPlayerID} *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
+            }
+            
+        });
+
+        QS("#scenesRules")?.remove();
+        playerlist.insertAdjacentElement("afterbegin", scenesCSS);
+    },
     refreshCallback: async () => { // refresh all
         sprites.getSprites();
         sprites.getPlayerList();
         sprites.updateSprites();
+        sprites.updateScenes();
     },
     getSprites: () => {
         sprites.availableSprites = socket.data.publicData.sprites;
+        sprites.availableScenes = socket.data.publicData.scenes;
         sprites.playerSprites = socket.data.publicData.onlineSprites;
+        sprites.onlineScenes = socket.data.publicData.onlineScenes;
     },
     init: async () => {
         // make board behind playerlist so it doesnt hide portions of avatars
