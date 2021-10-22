@@ -120,10 +120,7 @@ const sprites = {
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
                 }
-                .guessedWord#player${scene.LobbyPlayerID} .rank:after {
-                    position: absolute;
-                    content: " 🗸";
-                }
+                #containerGamePlayers div.player.guessedWord#player${scene.LobbyPlayerID} *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
                 #containerGamePlayers div.player#player${scene.LobbyPlayerID} *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
             
