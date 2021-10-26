@@ -116,7 +116,7 @@ const sprites = {
                 scenesCSS.innerHTML += `
                 #containerGamePlayers div.player#player${scene.LobbyPlayerID} {
                     background-image: url(${sprites.availableScenes.find(av => av.ID == scene.Sprite).URL}) !important;
-                    background-size: cover !important;
+                    background-size: auto 100% !important;
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
                 }
