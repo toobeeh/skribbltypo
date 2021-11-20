@@ -123,7 +123,6 @@ const sprites = {
                 #containerGamePlayers div.player.guessedWord#player${scene.LobbyPlayerID} *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
                 #containerGamePlayers div.player#player${scene.LobbyPlayerID} *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
-            
         });
 
         QS("#scenesRules")?.remove();
@@ -152,35 +151,6 @@ const sprites = {
         });
         endboardObserver.observe(QS(".gameEndContainerPlayersBest"), { childList: true, attributes: true });
 
-        if (!socket.authenticated) return;
-        sprites.getSprites();
-        let ownsprites = socket.data.user.sprites.split(",");
-        let activeSprites = ownsprites.filter(s => s.includes("."));
-        activeSprites.forEach(sprite => {
-            let slot = sprite.split(".").length - 1;
-            let id = sprite.replaceAll(".", "");
-            let url = sprites.getSpriteURL(id);
-            if (sprites.isSpecial(id)) {
-                QSA("#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .eyes, #loginAvatarCustomizeContainer .mouth").forEach(n => {
-                    n.style.opacity = 0;
-                });
-            }
-            let specialContainer = QS("#loginAvatarCustomizeContainer .special");
-            let clone = specialContainer.cloneNode(true);
-            specialContainer.parentElement.appendChild(clone);
-            clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
-            clone.style.zIndex = slot;
-            clone.classList.add("spriteSlot");
-            clone.classList.remove("special");
-        });
-        let avatarContainer = document.querySelector("#loginAvatarCustomizeContainer");
-        avatarContainer.insertAdjacentHTML("afterend", "<div style='margin:1em 0; text-align: center; pointer-events:none; user-select:none'> 🔮 Current Bubbles: "
-            + socket.data.user.bubbles + "    💧 Caught Drops: " + socket.data.user.drops
-            + "</div>")
-        if(localStorage.experimental == "true") avatarContainer.insertAdjacentHTML("afterend", "<div style='opacity:0.6, margin:1em 0; text-align: center; pointer-events:none; user-select:none'>"
-            + "Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri
-            + "</div>")
-        QS("#loginAvatarCustomizeContainer .avatarContainer").style.margin = "0 30px";
     }
 
 };

@@ -53,8 +53,9 @@ const lobbies_ = {
 		container.id = "palantirLobbies";
 		container.style.cssText = "padding: 0.5em; width:100%;";
 		container.insertAdjacentHTML("afterbegin", `
-		<h3>
+		<h3 style="display:flex; justify-content:space-between; margin-bottom:1em;">
 			<p style="font-weight: 700; margin-bottom: 0; color: black"> Discord Lobbies </p>
+			<p id="palantirLogin" style="font-weight: 700; margin-bottom: 0; color: black; opacity: .5; cursor:pointer"> ` + (localStorage.accessToken ? "Logout" : "Login") + ` </p>
 		</h3>`
 		);
 		let lobbies = document.createElement("div");
@@ -64,14 +65,75 @@ const lobbies_ = {
 		panel.appendChild(container);
 		panel.classList.add("loginPanelContent");
 		panel.style.cssText = "height: fit-content; width: 400px; flex: 0 1 auto;";
+		container.querySelector("#palantirLogin").addEventListener("click", (event) => {
+			let member = null;
+			try {
+				member = JSON.parse(localStorage.member);
+			} catch {}
+			if (member?.UserLogin) {
+				event.target.innerText = "Login";
+				localStorage.removeItem("member");
+				localStorage.removeItem("accessToken");
+				socket.authenticated = false;
+				socket.sck.disconnect();
+				socket.init();
+				lobbies_.setLobbies(false);
+			}
+			else {
+				localStorage.removeItem("member");
+				localStorage.removeItem("accessToken");
+				window.addEventListener("message", async msg => {
+					// save access token
+					localStorage.accessToken = msg.data.accessToken;
+					socket.sck.disconnect();
+					socket.init();
+					lobbies_.setLobbies(false);
+					event.target.innerText = "Logout";
+				}, { once: true });
+				window.open('https://tobeh.host/Orthanc/auth/ext/', 'Log in to Palantir', 'height=650,width=500,right=0,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+            }
+		});
 		return lobbies;
 	},
 	setLobbies: (lobbies) => {
 		if (!lobbies_.lobbyContainer) return;
+		let avatarContainer = document.querySelector("#loginAvatarCustomizeContainer");
+		QS("#expDetails")?.remove();
+		QS("#userDetails")?.remove();
+		QSA("#loginAvatarCustomizeContainer .spriteSlot").forEach(s => s.remove());
 		if (!socket.authenticated == true) {
-			lobbies_.lobbyContainer.innerHTML = "Didn't connect to Palantir. <br>Read the manual on the <a style='font-weight:700; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>Join the typo discord server to try it out!<br>";
+			lobbies_.lobbyContainer.innerHTML = "You are not logged in with Palantir :( <br><br>To find out what this is, head over to the <a style='font-weight:700; text-decoration:underline; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>Also, join the <a style='font-weight:700; color:black;text-decoration:underline; ' href='https://typo.rip/#palantir'>typo server</a> if you like :)<br><br>Just click 'Login' to login or create a new account!<br>";
 			return;
 		}
+		// set player stats
+		avatarContainer.insertAdjacentHTML("afterend", "<div id='userDetails' style='margin:1em 0; text-align: center; pointer-events:none; user-select:none'> 🔮 Current Bubbles: "
+			+ socket.data.user.bubbles + "    💧 Caught Drops: " + socket.data.user.drops
+			+ "</div>")
+		if (localStorage.experimental == "true") avatarContainer.insertAdjacentHTML("afterend", "<div id='expDetails'  style='opacity:0.6, margin:1em 0; text-align: center; pointer-events:none; user-select:none'>"
+			+ "Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri
+			+ "</div>")
+		QS("#loginAvatarCustomizeContainer .avatarContainer").style.margin = "0 30px";
+		// set player sprites
+		let ownsprites = socket.data.user.sprites.split(",");
+		let activeSprites = ownsprites.filter(s => s.includes("."));
+		activeSprites.forEach(sprite => {
+			let slot = sprite.split(".").length - 1;
+			let id = sprite.replaceAll(".", "");
+			let url = sprites.getSpriteURL(id);
+			if (sprites.isSpecial(id)) {
+				QSA("#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .eyes, #loginAvatarCustomizeContainer .mouth").forEach(n => {
+					n.style.opacity = 0;
+				});
+			}
+			let specialContainer = QS("#loginAvatarCustomizeContainer .special");
+			let clone = specialContainer.cloneNode(true);
+			specialContainer.parentElement.appendChild(clone);
+			clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
+			clone.style.zIndex = slot;
+			clone.classList.add("spriteSlot");
+			clone.classList.remove("special");
+		});
+		// build lobbies
 		lobbies_.lobbyContainer.innerHTML = "";
 		lobbies.forEach(guild => {
 			let name = socket.data.user.member.Guilds.find(memberGuild => memberGuild.GuildID.slice(0,-2) == guild.guildID.slice(0,-2)).GuildName;

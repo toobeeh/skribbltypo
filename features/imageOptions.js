@@ -203,7 +203,7 @@ let imageOptions = {
 
         // get webhooks
         let webhooks = [];
-        if (localStorage.member) JSON.parse(localStorage.member).Guilds.forEach(g => { if (g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
+        if (localStorage.member) JSON.parse(localStorage.member)?.Guilds.forEach(g => { if (g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
 
         // add buttons to post image
         if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";

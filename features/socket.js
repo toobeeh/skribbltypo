@@ -69,16 +69,27 @@ const socket = {
                     lobbies_.setLobbies(socket.data.activeLobbies);
                 }, 200);
             });
-            let member = localStorage.member ? localStorage.member : '{"UserLogin":null}';
-            let loginstate = await socket.emitEvent("login", { loginToken: JSON.parse(member).UserLogin, client: localStorage.client }, true);
+            const accessToken = localStorage.accessToken;
+            let login = null;
+            if (!accessToken) try {
+                // if access token not found, log in with login.
+                // may be removed in future for security favors!
+                login = JSON.parse(localStorage.member).UserLogin;
+                accessToken = false;
+            } catch { }
+            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true);
             if (loginstate.authorized == true) {
+                QS("#palantirLogin").textContent = "Logout";
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 lobbies_.setLobbies(socket.data.activeLobbies);
             }
-            else lobbies_.setLobbies(null);
+            else {
+                lobbies_.setLobbies(null);
+                localStorage.removeItem("member");
+            }
             document.dispatchEvent(newCustomEvent("palantirLoaded"));
 
             // if already in-game / reconnected after disconnect and ingame, continue reporting
