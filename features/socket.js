@@ -80,9 +80,10 @@ const socket = {
             let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true);
             if (loginstate.authorized == true) {
                 QS("#palantirLogin").textContent = "Logout";
+                sprites.getSprites();
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
-                socket.data.user = (await socket.emitEvent("get user", null, true)).user;
+                socket.data.user = loginstate.member;
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 lobbies_.setLobbies(socket.data.activeLobbies);
             }

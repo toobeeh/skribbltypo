@@ -102,7 +102,7 @@ const lobbies_ = {
 		QS("#userDetails")?.remove();
 		QSA("#loginAvatarCustomizeContainer .spriteSlot").forEach(s => s.remove());
 		if (!socket.authenticated == true) {
-			lobbies_.lobbyContainer.innerHTML = "You are not logged in with Palantir :( <br><br>To find out what this is, head over to the <a style='font-weight:700; text-decoration:underline; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>Also, join the <a style='font-weight:700; color:black;text-decoration:underline; ' href='https://typo.rip/#palantir'>typo server</a> if you like :)<br><br>Just click 'Login' to login or create a new account!<br>";
+			lobbies_.lobbyContainer.innerHTML = "You are not logged in with Palantir :( <br><br>To find out what this is, head over to the <a style='font-weight:700; text-decoration:underline; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>Also, join the <a style='font-weight:700; color:black;text-decoration:underline; ' href='https://discord.link/typo/'>typo server</a> if you like :)<br><br>Just click 'Login' to login or create a new account!<br>";
 			return;
 		}
 		// set player stats
