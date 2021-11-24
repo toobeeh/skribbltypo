@@ -114,7 +114,7 @@ const lobbies_ = {
 			+ "</div>")
 		QS("#loginAvatarCustomizeContainer .avatarContainer").style.margin = "0 30px";
 		// set player sprites
-		let ownsprites = socket.data.user.sprites.split(",");
+		let ownsprites = socket.data.user.sprites ? socket.data.user.sprites.split(",") : [];
 		let activeSprites = ownsprites.filter(s => s.includes("."));
 		activeSprites.forEach(sprite => {
 			let slot = sprite.split(".").length - 1;
