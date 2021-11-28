@@ -681,9 +681,9 @@ padding: 1em; `;
         });
     },
     initLobbyRestriction: () => {
-        let timer = QS(".timer-container");
+        let controls = QS("#controls");
         let restrict = elemFromString("<div id='restrictLobby' style='position:relative;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
-        timer.parentElement.insertBefore(restrict, timer);
+        controls.appendChild(restrict);
         let updateIcon = () => {
             if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/unrestricted.gif") + ")";
             else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/restricted.gif") + ")";
@@ -856,7 +856,6 @@ padding: 1em; `;
         uiTweaks.initMarkMessages();
         uiTweaks.initLobbyChat();
         uiTweaks.initLobbyFilters();
-        uiTweaks.initLobbyRestriction();
         uiTweaks.initQuickReact();
         uiTweaks.initSelectionFormatter();
         uiTweaks.initSizeSlider();
@@ -869,6 +868,7 @@ padding: 1em; `;
             new Toast("Copied image to clipboard.", 1500);
         });
         uiTweaks.initSideControls();
+        uiTweaks.initLobbyRestriction();
         uiTweaks.initAccessibility();
         // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins
         QS("#overlay").insertAdjacentHTML("beforeBegin",
