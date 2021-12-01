@@ -37,7 +37,7 @@ let imageTools = {
 Image tools
     <button class="flatUI blue air" id="itoolsTempSave">Save current</button>
     <button class="flatUI orange air" id="itoolsDownload">Download current</button>
-    <button class="flatUI orange air" id="itoolsLoad">Load file</button>
+    <button class="flatUI orange air" id="itoolsLoad">Load file(s)</button>
     <button class="flatUI orange air" id="itoolsPasteImage">Paste image</button>
     <div id="itoolsButtons"></div>
     <button class="flatUI blue air" id="itoolsAbort">Abort</button>
@@ -101,13 +101,17 @@ Image tools
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.accept = ".skd";
+            fileInput.multiple = "multiple"
             fileInput.onchange = e => {
-                let file = e.target.files[0];
-                let reader = new FileReader();
-                reader.readAsText(file);
-                reader.onload = readerEvent => {
-                    let commands = JSON.parse(readerEvent.target.result);
-                    addPasteCommandsButton(commands, file.name);
+                for (var file_counter = 0; file_counter < e.target.files.length; file_counter++) {
+                    let file = e.target.files[file_counter];
+                    let reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = readerEvent => {
+                        actions = readerEvent.target.result;
+                        imageTools.addSKD(actions, file.name);
+                    }
+
                 }
             }
             fileInput.click();
