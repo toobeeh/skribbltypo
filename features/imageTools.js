@@ -176,13 +176,16 @@ let imageTools = {
             let actions;
             fileInput.type = 'file';
             fileInput.accept = ".skd";
+            fileInput.multiple = "multiple"
             fileInput.onchange = e => {
-                let file = e.target.files[0];
-                let reader = new FileReader();
-                reader.readAsText(file);
-                reader.onload = readerEvent => {
-                    actions = readerEvent.target.result;
-                    imageTools.addSKD(actions, file.name);
+                for (var file_counter = 0; file_counter < e.target.files.length; file_counter++) {
+                    let file = e.target.files[file_counter];
+                    let reader = new FileReader();
+                    reader.readAsText(file);
+                    reader.onload = readerEvent => {
+                        actions = readerEvent.target.result;
+                        imageTools.addSKD(actions, file.name);
+                    }
                 }
             }
             fileInput.click();
