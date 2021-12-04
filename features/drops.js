@@ -3,7 +3,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 // handles drops collecting and initialization
 // depends on: generalFunctions.js, commands.js
-let drops = {
+const drops = {
     eventDrops: [],
     currentDrop: null,
     dropContainer: null,

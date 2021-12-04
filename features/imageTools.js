@@ -3,7 +3,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 // creates a dialogue to save and re-draw drawings on the skribbl canvas
 // depends on: capture.js, generalFunctions.js
-let imageTools = {
+const imageTools = {
     optionsPopup: null,
     initImageOptionsButton: () => {
         // add image options button

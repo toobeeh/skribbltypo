@@ -3,7 +3,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 // enables pressure sensitivity
 // dependent on: genericfunctions.js
-pressure = {
+const pressure = {
     kLevel: 1 / 36,
     refreshCycle: 5,
     refresh: true,

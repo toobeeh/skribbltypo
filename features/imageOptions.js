@@ -3,7 +3,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 // inits the image options bar
 // dependend on: genericfunctions.js, capture.js, commands.js
-let imageOptions = {
+const imageOptions = {
     optionsContainer: undefined,
     drawCommandsToGif: async (filename = "download", actions = null) => {
         // generate a gif of stored draw commands

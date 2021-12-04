@@ -2,7 +2,7 @@
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
 // Object which contains image agent functions and initialisation
-let imageAgent = {// func to set the image in the agentdiv
+const imageAgent = {// func to set the image in the agentdiv
     imageIndex: 0,
     searchImages: [],
     agent: undefined,
