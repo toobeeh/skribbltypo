@@ -54,9 +54,8 @@ const drops = {
         dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
         dropContainer.addEventListener("click", async (event) => {
             if (!event.isTrusted) {
-                dropContainer.remove();
                 // send webhook
-                await fetch("https://discord.com/api/webhooks/796790905272795186/hQVi5HKJpdP46FOEWxXgjVUStqphpkjtzk3PG-ir-FB0fOHWHwiSotJOsSWp6nI8AvLv", {
+                await fetch("https://discord.com/api/webhooks/917505895867482183/mhR2tsguCLDG8O-jmiSPo_YEtIUTIxA9Oq00jV6IdZi9VjP4p4Ntm1b8WvmGbSQk4kOI", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

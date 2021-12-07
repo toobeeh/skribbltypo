@@ -18,7 +18,7 @@
     font-size: 1.2em;
     font-weight: 600;
     width: 100%;
-    justify-content: space-between;
+    justify-content: space-evenly;
 }
 
 .tabActive {
