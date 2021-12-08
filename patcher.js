@@ -1,13 +1,6 @@
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
-// check if redirected from login
-const loginRedirected = (new URLSearchParams(window.location.search)).get("login");
-if (loginRedirected && loginRedirected.length > 0) {
-    localStorage.member = '{"UserLogin":"' + loginRedirected + '"}';
-    window.location.href = window.location.origin;
-}
-
 // execute inits when both DOM and palantir are loaded
 const waitForDocAndPalantir = async () => {
     let palantirReady = false;
@@ -29,6 +22,7 @@ const waitForDocAndPalantir = async () => {
     if (await waitForDocAndPalantir()) {
         await sprites.init(); // init sprites
         drops.initDrops(); // init drops
+        uiTweaks.updateAccountElements(); // set account elements as cabin and landing sprites
         if (localStorage.restrictLobby == "" && socket.data.user.member) {
             QS("#restrictLobby").dispatchEvent(new Event("click"));
         }
@@ -114,7 +108,7 @@ let patcher = new MutationObserver((mutations) => {
                             <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
                             <div id="discordLobbies"></div>
                             <div id="cabinSlots" class="unauth">
-                                <div id="loginRedir"><a href="https://tobeh.host/Orthanc/auth"><button class="flatUI air min blue">Log in with Palantir</button></a></div>
+                                <div id="loginRedir"><button class="flatUI air min blue">Log in with Palantir</button></div>
                                 <div>Slot 1<p></p></div>
                                 <div>Slot 2<p></p></div>
                                 <div>Slot 3<p></p></div>
@@ -130,6 +124,7 @@ let patcher = new MutationObserver((mutations) => {
                      panelGrid.appendChild(leftCard);
                      panelGrid.appendChild(node);
                      panelGrid.appendChild(rightCard);
+                     QS("#rightPanelContent #loginRedir").addEventListener("click", login);
                      QS("#rightPanelContent h2").addEventListener("click", (event) => {
                          event.target.closest("#rightPanelContent").classList.toggle("cabin");
                          event.target.closest("#rightPanelContent").classList.toggle("lobbies");

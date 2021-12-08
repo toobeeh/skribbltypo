@@ -51,7 +51,10 @@ const lobbies = {
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
 			if (socket.authenticated) container.innerHTML = playerButtons;
-			else container.innerHTML = `<h3>No palantir account connected.</h3><br><a style="width:100%" href="https://tobeh.host/Orthanc/auth"><button class="flatUI air min blue">Log in with Palantir</button></a>`;
+			else {
+				container.innerHTML = `<h3>No palantir account connected.</h3><br><button class="flatUI air min blue">Log in with Palantir</button>`;
+				container.querySelector("button")?.addEventListener("click", login);
+			}
 		}
 		else {
 			container.innerHTML = "Connecting to Typo server...";

@@ -12,6 +12,33 @@ const newCustomEvent = (type, detail = {}) => {
     return clonedEvent = new document.defaultView.CustomEvent(type, eventDetail);
 }
 
+// start login process
+const login = () => {
+    localStorage.removeItem("member");
+    localStorage.removeItem("accessToken");
+    window.addEventListener("message", async msg => {
+        // save access token
+        localStorage.accessToken = msg.data.accessToken;
+        socket.sck.disconnect();
+        document.addEventListener("palantirLoaded", () => {
+            uiTweaks.updateAccountElements();
+        }, { once: true });
+        socket.init();
+    }, { once: true });
+    window.open('https://tobeh.host/Orthanc/auth/ext/', 'Log in to Palantir', 'height=650,width=500,right=0,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+}
+
+const logout = () => {
+    localStorage.removeItem("member");
+    localStorage.removeItem("accessToken");
+    socket.sck.disconnect();
+    socket.authenticated = false;
+    document.addEventListener("palantirLoaded", () => {
+        uiTweaks.updateAccountElements();
+    }, { once: true });
+    socket.init();
+}
+
 // func to mark a message node with background color
 const markMessage = (newNode) => {
     if (localStorage.markup != "true") return;

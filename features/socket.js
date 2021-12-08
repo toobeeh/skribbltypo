@@ -68,8 +68,15 @@ const socket = {
                     lobbies.lobbyContainer = lobbies.setLobbyContainer();
                 }, 200);
             });
-            let member = localStorage.member ? localStorage.member : '{"UserLogin":null}';
-            let loginstate = await socket.emitEvent("login", { loginToken: JSON.parse(member).UserLogin, client: localStorage.client }, true);
+            const accessToken = localStorage.accessToken;
+            let login = null;
+            if (!accessToken) try {
+                // if access token not found, log in with login.
+                // may be removed in future for security favors!
+                login = JSON.parse(localStorage.member).UserLogin;
+                accessToken = false;
+            } catch { }
+            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;

@@ -115,52 +115,53 @@ const sprites = {
         sprites.availableSprites = socket.data.publicData.sprites;
         sprites.playerSprites = socket.data.publicData.onlineSprites;
     },
-    init: async () => {
-        // make board behind playerlist so it doesnt hide portions of avatars
-        QS("#game-players .list").style.zIndex = "1";
-        // polling for sprites, observer does not make sense since sprites take a few seconds to be activated
-        setInterval(sprites.refreshCallback, 2000);
-        let endboardObserver = new MutationObserver(() => { // mutation observer for game end result
-            sprites.updateEndboardSprites();
-            sprites.updateSprites();
-        });
-        endboardObserver.observe(QS(".overlay-content .result"), { childList: true, attributes: true });
-
-        if (!socket.authenticated) {
-            const userinfo = QS("#typoUserInfo")
-            userinfo.innerText = "No palantir account connected!";
-            userinfo.style.cssText = "opacity:1; transition: opacity 0.5s";
-            setTimeout(() => { userinfo.style.opacity = "0"; }, 3000);
-            setTimeout(() => { userinfo.style.display = "none" }, 3500);
+    setLandingSprites: (authenticated = false) => {
+        QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
+        if (authenticated) {
+            let ownsprites = socket.data.user.sprites.split(",");
+            let activeSprites = ownsprites.filter(s => s.includes("."));
+            QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
+                n.style.opacity = activeSprites.some(spt => sprites.isSpecial(spt.replaceAll(".", ""))) ? 0 : 1;
+            });
+            activeSprites.forEach(sprite => {
+                let slot = sprite.split(".").length - 1;
+                let id = sprite.replaceAll(".", "");
+                let url = sprites.getSpriteURL(id);
+                let specialContainer = QS(".avatar-customizer .special");
+                let clone = specialContainer.cloneNode(true);
+                specialContainer.parentElement.appendChild(clone);
+                clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
+                clone.style.zIndex = slot;
+                clone.classList.add("spriteSlot");
+                clone.classList.remove("special");
+            });
         }
         else {
-            sprites.getSprites();
-            const setLandingSprites = () => {
-                let ownsprites = socket.data.user.sprites.split(",");
-                let activeSprites = ownsprites.filter(s => s.includes("."));
-                QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
-                QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
-                    n.style.opacity = activeSprites.some(spt => sprites.isSpecial(spt.replaceAll(".", ""))) ? 0 : 1;
-                });
-                activeSprites.forEach(sprite => {
-                    let slot = sprite.split(".").length - 1;
-                    let id = sprite.replaceAll(".", "");
-                    let url = sprites.getSpriteURL(id);                    
-                    let specialContainer = QS(".avatar-customizer .special");
-                    let clone = specialContainer.cloneNode(true);
-                    specialContainer.parentElement.appendChild(clone);
-                    clone.style = "background-image:url(" + url + "); background-size:contain; position: absolute; left: -33%; top: -33%; width: 166%;height: 166%;";
-                    clone.style.zIndex = slot;
-                    clone.classList.add("spriteSlot");
-                    clone.classList.remove("special");
-                });
-            }
-            setLandingSprites();
-            QS("#typoUserInfo").innerHTML = "<div style='display:flex; justify-content:space-between; width:100%;'><span>🔮 Bubbles: "
-                + socket.data.user.bubbles + "</span><span>💧 Drops: " + socket.data.user.drops + "</span></div>";
-            if (localStorage.experimental == "true") QS("#typoUserInfo").innerText.insertAdjacentHTML("beforeend",
-                + "<br>Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri);
+            QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
+                n.style.opacity = 1;
+            });
+        }
+    },
+    resetCabin: (authorized = false) => {
+        const cabin = QS("#cabinSlots");
+        cabin.innerHTML = `
+            <div id="loginRedir">
+                <button class="flatUI air min blue">Log in with Palantir</button>
+            </div>
+            <div>Slot 1<p></p></div>
+            <div>Slot 2<p></p></div>
+            <div>Slot 3<p></p></div>
+            <div>Slot 4<p></p></div>
+            <div>Slot 5<p></p></div>
+            <div>Slot 6<p></p></div>
+            <div>Slot 7<p></p></div>
+            <div>Slot 8<p></p></div>
+            <div>Slot 9<p></p></div>`;
 
+        if (!authorized) {
+            cabin.classList.add("unauth");
+        }
+        else {
             // add sprite cabin stuff
             const createSlot = (slot, unlocked = false, caption = false, background = false, id = 0) => {
                 return elemFromString(`<div draggable="true" spriteid="${id}" slotid="${slot}" class="${unlocked ? "unlocked" : ""}" style="background-image:url(${background ?
@@ -170,11 +171,10 @@ const sprites = {
             const getCombo = () => {
                 let slots = [...QSA("#cabinSlots > div:not(#loginRedir)")];
                 slots = slots.map(slot => { return { slot: slots.indexOf(slot) + 1, sprite: slot.getAttribute("spriteid") }; });
-                while (slots[slots.length-1].sprite == 0) slots.pop();
+                while (slots[slots.length - 1].sprite == 0) slots.pop();
                 return slots.map(slot => ".".repeat(parseInt(slot.slot)) + slot.sprite)
                     .join(",");
             }
-            const cabin = QS("#cabinSlots");
             cabin.classList.remove("unauth");
             const setSlotSprites = () => {
                 // clean slots
@@ -240,15 +240,18 @@ const sprites = {
                         let updatedmember = await socket.setSpriteCombo(getCombo());
                         socket.data.user = updatedmember;
                         setSlotSprites();
-                        setLandingSprites();
-                                           
+                        sprites.setLandingSprites(true);
+
                     }
                     document.addEventListener("pointerup", reset, { once: true });
                     document.addEventListener("pointermove", followMouse);
                 }
+
                 QSA("#cabinSlots > div:not(#loginRedir)").forEach(slot => slot.addEventListener("dragstart", drag));
             }
+
             setSlotSprites();
+
             cabin.addEventListener("click", event => {
                 if (event.target.getAttribute("released") == "false") return;
                 slotid = event.target.getAttribute("slotid");
@@ -275,17 +278,27 @@ const sprites = {
                             let updatedmember = await socket.setSpriteSlot(slotNo, spt);
                             socket.data.user = updatedmember;
                             setSlotSprites();
-                            setLandingSprites();
+                            sprites.setLandingSprites(true);
                         }
                     })
                 }
             });
-            // make the grid draggable
-            //cabin.addEventListener("dragstart", () => {
-            //    alert("hi");
-            //});
+            
         }
-        
+
+        QS("#rightPanelContent #loginRedir").addEventListener("click", login);
+    },
+    init: async () => {
+        // make board behind playerlist so it doesnt hide portions of avatars
+        QS("#game-players .list").style.zIndex = "1";
+        // polling for sprites, observer does not make sense since sprites take a few seconds to be activated
+        setInterval(sprites.refreshCallback, 2000);
+        let endboardObserver = new MutationObserver(() => { // mutation observer for game end result
+            sprites.updateEndboardSprites();
+            sprites.updateSprites();
+        });
+        endboardObserver.observe(QS(".overlay-content .result"), { childList: true, attributes: true });
+        sprites.getSprites();     
     }
 
 };

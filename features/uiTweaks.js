@@ -611,6 +611,33 @@ const uiTweaks = {
             pointerRule.innerHTML = "";
         });
     },
+    updateAccountElements: () => {
+        const loggedIn = socket.authenticated;
+        if (loggedIn) {
+            QS("#typoUserInfo").style.cssText = "";
+            QS("#typoUserInfo").innerHTML = "<div style='display:flex; justify-content:space-between; width:100%;'><small>Connected: "
+                + socket.data.user.member.UserName + "</small><small id='ptrManage'>Manage</small><small id='ptrLogout'>Logout</small></div><br>";
+            QS("#typoUserInfo").innerHTML += "<div style='display:flex; justify-content:space-between; width:100%;'><span>🔮 Bubbles: "
+                + socket.data.user.bubbles + "</span><span>💧 Drops: " + socket.data.user.drops + "</span></div>";
+            if (localStorage.experimental == "true") QS("#typoUserInfo").innerText.insertAdjacentHTML("beforeend",
+                + "<br>Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri);
+            QS("#typoUserInfo #ptrManage").addEventListener("click", () => window.open("https://typo.rip#u"));
+            QS("#typoUserInfo #ptrLogout").addEventListener("click", logout);
+
+            sprites.setLandingSprites(true);
+            sprites.resetCabin(true);
+        }
+        else {
+            const userinfo = QS("#typoUserInfo")
+            userinfo.innerText = "No palantir account connected!";
+            userinfo.style.cssText = "opacity:1; transition: opacity 0.5s";
+            setTimeout(() => { userinfo.style.opacity = "0"; }, 3000);
+            setTimeout(() => { userinfo.style.display = "none" }, 3500);
+
+            sprites.setLandingSprites(false);
+            sprites.resetCabin(false);
+        }
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
