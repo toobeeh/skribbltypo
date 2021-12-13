@@ -116,6 +116,9 @@ const performCommand = (cmd) => {
         QS("#controls").style.display = cmd.includes("enable") ? "flex" : "none";
         localStorage.controls = cmd.includes("enable");
     }
+    else if (cmd.includes("newvision")) {
+        new Vision();
+    }
     else if (cmd.includes("enable gamemodes") || cmd.includes("disable gamemodes")) {
         localStorage.gamemodes = cmd.includes("enable");
         if (cmd.includes("enable")) gamemode.init();
