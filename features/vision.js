@@ -3,19 +3,26 @@
 
     constructor() {
         this.element = elemFromString(
-`<div class="visionFrame">
+`<div class="visionFrame ghost">
     <div class="visionHead" draggable="true">
         <div class="visionControls">
             <input type="text" placeholder="Image URL">
-            <input type="range" min="1" max="7">
+            <input type="range" min="1" max="9">
         </div>
-        <span class="visionClose">🞫</span>
+        <span class="visionControl">
+            <span class="visionClose">🞫</span>
+            <span class="visionMode"> 🞅 </span>
+            <span class="visionType"> ◇ </span>
+    </span>
     </div>
     <div class="visionBorder"></div>
     <div class="visionBorder rightResize" draggable="true"></div>
     <div class="visionBorder"></div>
     <div class="visionBorder bottomResize" draggable="true"></div>
     <div class="visionBorder allResize" draggable="true"></div>
+    <iframe class="visionContent">
+
+    <iframe>
     <div class="visionContent">
 
     <div>
@@ -89,10 +96,35 @@
 
         // close handler
         this.element.querySelector(".visionClose").addEventListener("click", this.destroy);
+
+        // toggle click mode handler
+        this.element.querySelector(".visionMode").addEventListener("click", (e) => {
+            if (this.element.classList.contains("ghost")) {
+                e.target.textContent = " ⯄ ";
+                this.element.classList.remove("ghost");
+            }
+            else {
+                e.target.textContent = " 🞅 ";
+                this.element.classList.add("ghost");
+            }
+        });
+
+        // toggle frame mode handler
+        this.element.querySelector(".visionType").addEventListener("click", (e) => {
+            if (this.element.classList.contains("iframe")) {
+                e.target.textContent = " ◇ ";
+                this.element.classList.remove("iframe");
+            }
+            else {
+                e.target.textContent = " ◆ ";
+                this.element.classList.add("iframe");
+            }
+        });
     }
 
     setSource = (source) => {
         this.element.querySelector(".visionContent").style.backgroundImage = "url(" + source + ")";
+        this.element.querySelector(".visionContent").src = source;
     }
 
     setOpacity = (op) => {
