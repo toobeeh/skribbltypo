@@ -22,10 +22,10 @@
     <div class="visionBorder allResize" draggable="true"></div>
     <iframe class="visionContent">
 
-    <iframe>
+    </iframe>
     <div class="visionContent">
 
-    <div>
+    </div>
 </div>`        );
         document.body.appendChild(this.element);
         let drag = false;
@@ -123,8 +123,8 @@
     }
 
     setSource = (source) => {
-        this.element.querySelector(".visionContent").style.backgroundImage = "url(" + source + ")";
-        this.element.querySelector(".visionContent").src = source;
+        this.element.querySelector("div.visionContent").style.backgroundImage = "url(" + source + ")";
+        this.element.querySelector("iframe.visionContent").src = source;
     }
 
     setOpacity = (op) => {
