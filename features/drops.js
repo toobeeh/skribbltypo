@@ -38,6 +38,12 @@ const drops = {
         drops.waitForClear = false;
         
     },
+    rankDrop: (data) => {
+        const dropID = data.dropID;
+        const ranks = data.ranks;
+        const text = ranks.map(r => "- " + r).join("<br>");
+        printCmdOutput("drop", text, "Last drop claim ranking:");
+    },
     initDropContainer: () => {
         // add drop button
         let dropContainer = document.createElement("div");

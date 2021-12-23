@@ -28,7 +28,7 @@ const socket = {
         // get balanced socket port
         let contact = io("https://typo.rip:4000");
         let balancedPort = await new Promise((resolve, reject) => {
-            setTimeout(() => contact && resolve(4001), 5000); // if server is not responding, use first port
+            setTimeout(() => contact && resolve(4002), 15000); // if server is not responding, use first port
             contact.on("connect", () => {
                 contact.on("balanced port", (data) => contact = undefined || resolve(data.port));
                 contact.emit("request port", { auth: "member", client: localStorage.client});
@@ -40,8 +40,12 @@ const socket = {
             console.log("Connected to Ithil socketio server on port " + balancedPort);
             socket.sck.on("new drop", (data) => {
                 drops.newDrop(data.payload.drop);
-            }); socket.sck.on("clear drop", (data) => {
+            });
+            socket.sck.on("clear drop", (data) => {
                 drops.clearDrop(data.payload.result);
+            });
+            socket.sck.on("rank drop", (data) => {
+                drops.rankDrop(data.payload.result);
             });
             socket.sck.on("public data", (data) => {
                 socket.data.publicData = data.payload.publicData;
@@ -49,11 +53,16 @@ const socket = {
             socket.sck.on("disconnect", (reason) => {
                 console.log("Disconnected with reason: " + reason);
                 lobbies_.joined = false;
-                // enable reconnects if close not forced
-                if (["ping timeout", "transport close", "transport error"].indexOf(reason) < 0) {
-                    socket.sck.io._reconnection = false;
-                    socket.sck.removeAllListeners();
-                    socket.sck = null; 
+                
+                // disable socketio-reconnects 
+                socket.sck.removeAllListeners();
+                socket.sck.io._reconnection = false;
+                socket.sck = null;
+
+                // reconnect manually if disconnect not forced
+                if (["ping timeout", "transport close", "transport error"].indexOf(reason) >= 0) {
+                    console.log("Trying to reconnect...");
+                    socket.init();
                 }
             });
             socket.sck.on("online sprites", (data) => {
@@ -65,7 +74,7 @@ const socket = {
                 socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
                 socket.data.activeLobbies.push(data.payload.activeGuildLobbies);
                 let updateIn = updateTimeout = setTimeout(() => {
-                    if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 100ms
+                    if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 200ms
                     lobbies_.setLobbies(socket.data.activeLobbies);
                 }, 200);
             });
