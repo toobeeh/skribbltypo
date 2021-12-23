@@ -39,6 +39,7 @@ const drops = {
         
     },
     rankDrop: (data) => {
+        if (localStorage.drops == "false") return;
         const dropID = data.dropID;
         const ranks = data.ranks;
         const text = ranks.map(r => "- " + r).join("<br>");
