@@ -295,7 +295,10 @@ const lobbies_ = {
 						await socket.joinLobby(lobbies_.lobbyProperties.Key);
 						await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
 						lobbies_.joined = true;
-					}, 7000);
+					}, 5000);
+					document.addEventListener("leftGame", () => {
+						clearTimeout(setPlaying);
+					}, { once: true });
 				}
 				// apply search logic
 				if (lobbies_.searchData.searching && !lobbies_.searchData.check()) {
@@ -319,10 +322,8 @@ const lobbies_ = {
 		document.addEventListener("leftGame", async () => {
 			lobbies_.inGame = false;
 			if (QS("#restrictLobby")) QS("#restrictLobby").style.display = "none";
-			if (lobbies_.joined) {
-				await socket.leaveLobby();
-				lobbies_.joined = false;
-			}
+			await socket.leaveLobby();
+			lobbies_.joined = false;
 		});
 	}
 

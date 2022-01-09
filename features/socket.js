@@ -26,7 +26,7 @@ const socket = {
     },
     init: async () => {
         // get balanced socket port
-        let contact = io("https://typo.rip:4000");
+        let contact = io("https://typo.rip:4100");
         let balancedPort = await new Promise((resolve, reject) => {
             setTimeout(() => contact && resolve(4002), 15000); // if server is not responding, use first port
             contact.on("connect", () => {
