@@ -13,8 +13,8 @@ const drops = {
         if (localStorage.drops == "false") return;
         drops.currentDrop = drop;
         let dropElem = drops.dropContainer;
-        if (drop.EventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
-        else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.EventDropID).URL + '")';
+        if (drop.eventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
+        else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.eventDropID).URL + '")';
         dropElem.style.display = "block";
         dropElem.style.left = Math.round(8 + Math.random() * 784) + "px";
         //hide drop after 5s and emit timeout
@@ -31,7 +31,7 @@ const drops = {
         if (localStorage.drops == "false") return;
         let dropElem = drops.dropContainer;
         let winner = result.caughtPlayer;
-        if (result.claimSocketID == socket.sck.id) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
+        if (result.claimTicket == drops.currentDrop.claimTicket) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
         else printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
         dropElem.style.display = "none";
         drops.currentDrop = null;
