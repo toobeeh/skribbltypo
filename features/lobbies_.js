@@ -102,11 +102,11 @@ const lobbies_ = {
 		QS("#userDetails")?.remove();
 		QSA("#loginAvatarCustomizeContainer .spriteSlot").forEach(s => s.remove());
 		if (!socket.authenticated == true) {
-			lobbies_.lobbyContainer.innerHTML = "You are not logged in with Palantir :( <br><br>To find out what this is, head over to the <a style='font-weight:700; text-decoration:underline; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>Also, join the <a style='font-weight:700; color:black;text-decoration:underline; ' href='https://discord.link/typo/'>typo server</a> if you like :)<br><br>Just click 'Login' to login or create a new account!<br>";
+			lobbies_.lobbyContainer.innerHTML = "<b>You are not logged in with Palantir. </b><br>Just click the 'Login' button above to login or create a new account. <br><br> To find out what this is, head over to the <a style='font-weight:700; text-decoration:underline; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>You can also get support at the <a style='font-weight:700; color:black;text-decoration:underline; ' href='https://typo.rip/discord'>typo discord server</a><br>";
 			return;
 		}
 		// set player stats
-		avatarContainer.insertAdjacentHTML("afterend", "<div id='userDetails' style='margin:1em 0; text-align: center; user-select:none'> <a target='_blank' href='https://typo.rip#u'>🔮 Current Bubbles: "
+		avatarContainer.insertAdjacentHTML("afterend", "<div id='userDetails' style='margin:1em 0; text-align: center; user-select:none'> <a target='_blank' style='color:inherit; text-decoration: none !important' href='https://typo.rip#u'>🔮 Current Bubbles: "
 			+ socket.data.user.bubbles + "    💧 Caught Drops: " + socket.data.user.drops
 			+ "</a></div>")
 		if (localStorage.experimental == "true") avatarContainer.insertAdjacentHTML("afterend", "<div id='expDetails'  style='opacity:0.6, margin:1em 0; text-align: center; pointer-events:none; user-select:none'>"
@@ -253,7 +253,7 @@ const lobbies_ = {
 				lobbies_.lobbyProperties.Key = lobbies_.getLobbyKey(lobbies_.lobbyProperties.Private);
 				socket.clientData.lobbyKey = lobbies_.lobbyProperties.Key;
 				let description = lobbies_.lobbyProperties.Private ? (QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
-				if (lobbies_.joined && lobbies_.userAllow) { // report lobby if joined
+				if (lobbies_.joined && lobbies_.userAllow && socket.authenticated) { // report lobby if joined
 					await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key, description);
 				}
 			}
@@ -291,7 +291,7 @@ const lobbies_ = {
 				if (lobbies_.userAllow && !lobbies_.joined) {
 					await socket.searchLobby();
 					setPlaying = setTimeout(async () => {
-						if (!lobbies_.inGame) return;
+						if (!lobbies_.inGame || !socket.authenticated) return;
 						await socket.joinLobby(lobbies_.lobbyProperties.Key);
 						await socket.setLobby(lobbies_.lobbyProperties, lobbies_.lobbyProperties.Key);
 						lobbies_.joined = true;
