@@ -31,14 +31,13 @@ const socket = {
         // get balanced socket port
         let contact = io("https://typo.rip:" + socket.balancerPort);
         let balancedPort = await new Promise((resolve, reject) => {
-            setTimeout(() => contact && resolve(4002), 15000); // if server is not responding, use first port
             contact.on("connect", () => {
                 contact.on("balanced port", (data) => contact = undefined || resolve(data.port));
                 contact.emit("request port", { auth: "member", client: localStorage.client});
             });
         });
         socket.sck = io("https://typo.rip:" + balancedPort.toString());
-        socket.sck.on("connect", async () => {
+        const onConnect = async () => {
             if (socket.sck == null) return;
             console.log("Connected to Ithil socketio server on port " + balancedPort);
             socket.sck.on("clear drop", (data) => {
@@ -51,18 +50,24 @@ const socket = {
                 socket.data.publicData = data.payload.publicData;
             });
             socket.sck.on("disconnect", (reason) => {
+                // handle disconnect reasons different
                 console.log("Disconnected with reason: " + reason);
-                lobbies_.joined = false;
-                
-                // disable socketio-reconnects 
-                socket.sck.removeAllListeners();
-                socket.sck.io._reconnection = false;
-                socket.sck = null;
 
-                // reconnect manually if disconnect not forced
-                if (["ping timeout", "transport close", "transport error"].indexOf(reason) >= 0) {
+                // if probably tempoary disconnect (server crash/restart, internet) enable reconnect without new balanced port
+                if (reason == "transport close" || reason == "ping timeout" || reason == "transport error") {
                     console.log("Trying to reconnect...");
-                    socket.init();
+                    socket.sck.removeAllListeners();
+
+                    socket.sck.on("connect", onConnect);
+                }
+                // if either server or client disconnected on purpose, shutdown and remove listeners
+                else {
+                    lobbies_.joined = false;
+
+                    // disable socketio-reconnects 
+                    socket.sck.removeAllListeners();
+                    socket.sck.io._reconnection = false;
+                    socket.sck = null;
                 }
             });
             socket.sck.on("online sprites", (data) => {
@@ -130,7 +135,9 @@ const socket = {
                 }
             }
             document.addEventListener('visibilitychange', visibilitychangeDisconnect);
-        });
+        }
+
+        socket.sck.on("connect", onConnect);
     },
     disconnect: () => socket.sck.close(),
     searchLobby: async (waiting = false) => {
