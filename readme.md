@@ -27,7 +27,7 @@ Features are located in the **features** directory and are objects, each object 
  * Shows these in Discord
  * Manages bubbles, drops, sprites and events to be shown on skribbl
  
- ##### [Ithil](https://github.com/toobeeh/Ithil-Rebirth)
+ ##### [Ithil-Rebirth](https://github.com/toobeeh/Ithil-Rebirth)
  * Typescript nodejs application
  * Establishes a real-time connection between the palantir server & typo client via socket.io & WebSockets
  * Used for authentification, lobby data loading, drop catching, sprites etc
