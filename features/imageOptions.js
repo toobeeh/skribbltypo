@@ -220,15 +220,15 @@ const imageOptions = {
                 let imgstring = imageShareString;
                 let data = new FormData();
                 data.append("image", imgstring);
-                data.append("name", "post");
-                let state = await fetch('https://tobeh.host/Orthanc/images/upload.php', {
+                data.append("accessToken", localStorage.accessToken);
+                let state = await fetch('https://tobeh.host/Orthanc/tokenapi/imagepost/', {
                     method: 'POST',
                     headers: {
                         'Accept': '*/*'
                     },
                     body: data
                 });
-                let url = "https://tobeh.host/Orthanc/images/" + await state.text() + ".png";
+                let url = await state.text();
 
                 // build webhook content
                 let message;

@@ -36,6 +36,7 @@ const socket = {
                 contact.emit("request port", { auth: "member", client: localStorage.client});
             });
         });
+        balancedPort = 4002;
         socket.sck = io("https://typo.rip:" + balancedPort.toString());
         const onConnect = async () => {
             if (socket.sck == null) return;
