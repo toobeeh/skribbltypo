@@ -242,7 +242,6 @@ const sprites = {
                         socket.data.user = updatedmember;
                         user.user = updatedmember;
                         setSlotSprites();
-                        sprites.setLandingSprites(true);
                         lobbies_.setLobbies([], true);
                     }
                     document.addEventListener("pointerup", reset, { once: true });
