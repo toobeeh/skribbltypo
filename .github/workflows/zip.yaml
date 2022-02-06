@@ -17,7 +17,6 @@ jobs:
         allowUpdates: true
         artifacts: 'release.zip'
         token: ${{ secrets.GITHUB_TOKEN }}
-        name: 'typo-22.9.1.1'
-        tag: 'beta-release'
+        tag: 'beta-release-22.9.1.1'
 
 
