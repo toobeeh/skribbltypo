@@ -130,6 +130,9 @@ const lobbies_ = {
 			+ "</div>")
 		QS("#loginAvatarCustomizeContainer .avatarContainer").style.margin = "0 30px";
 		// set player sprites
+		QSA("#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .eyes, #loginAvatarCustomizeContainer .mouth").forEach(n => {
+			n.style.opacity = 1;
+		});
 		let ownsprites = socket.data.user.sprites ? socket.data.user.sprites.split(",") : [];
 		let activeSprites = ownsprites.filter(s => s.includes("."));
 		activeSprites.forEach(sprite => {
