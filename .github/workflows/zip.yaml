@@ -17,6 +17,6 @@ jobs:
         allowUpdates: true
         artifacts: 'release.zip'
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: 'beta-release-22.9.1.3'
+        tag: 'beta-release-22.9.1.4'
 
 

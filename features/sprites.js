@@ -256,7 +256,7 @@ const sprites = {
             cabin.addEventListener("click", event => {
                 if (event.target.getAttribute("released") == "false") return;
                 slotid = event.target.getAttribute("slotid");
-                if (slotid) {
+                if (slotid && event.target.classList.contains("unlocked")) {
                     const slotNo = parseInt(slotid);
                     const spriteList = elemFromString(`<div style="width:100%; display:flex; flex-wrap:wrap; justify-content:center;"></div>`);
                     spriteList.insertAdjacentHTML("beforeend",
