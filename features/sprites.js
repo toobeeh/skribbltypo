@@ -140,6 +140,158 @@ const sprites = {
         sprites.playerSprites = socket.data.publicData.onlineSprites;
         sprites.onlineScenes = socket.data.publicData.onlineScenes;
     },
+    resetCabin: async (authorized = false) => {
+        const old = QS("#slotsContent");
+        const cabin = old.cloneNode(true)
+        old.replaceWith(cabin);
+        cabin.innerHTML = `
+            <div id="loginRedir">
+                <button class="btn btn-success">Log in with Palantir</button>
+            </div>
+            <div>Slot 1<p></p></div>
+            <div>Slot 2<p></p></div>
+            <div>Slot 3<p></p></div>
+            <div>Slot 4<p></p></div>
+            <div>Slot 5<p></p></div>
+            <div>Slot 6<p></p></div>
+            <div>Slot 7<p></p></div>
+            <div>Slot 8<p></p></div>
+            <div>Slot 9<p></p></div>`;
+
+        if (!authorized) {
+            cabin.classList.add("unauth");
+        }
+        else {
+            // add sprite cabin stuff
+            let user = await socket.getUser();
+            const createSlot = (slot, unlocked = false, caption = false, background = false, id = 0) => {
+                return elemFromString(`<div draggable="true" spriteid="${id}" slotid="${slot}" class="${unlocked ? "unlocked" : ""}" style="background-image:url(${background ?
+                    socket.data.publicData.sprites.find(spt => spt.ID == id).URL : ""})">
+                    Slot ${slot}${caption ? "<p>" + (id > 0 ? "Selected #" + id : "Empty") + "</p>" : ""}</div>`);
+            }
+            const getCombo = () => {
+                let slots = [...QSA("#slotsContent > div:not(#loginRedir)")];
+                slots = slots.map(slot => { return { slot: slots.indexOf(slot) + 1, sprite: slot.getAttribute("spriteid") }; });
+                while (slots[slots.length - 1].sprite == 0) slots.pop();
+                return slots.map(slot => ".".repeat(parseInt(slot.slot)) + slot.sprite)
+                    .join(",");
+            }
+            cabin.classList.remove("unauth");
+            const setSlotSprites = () => {
+                // clean slots
+                QSA("#slotsContent > div:not(#loginRedir)").forEach(slot => slot.remove());
+                // loop through player slots and check if sprite set on slot
+                const activeSprites = user.user.sprites.split(",")
+                    .filter(spt => spt.includes("."))
+                    .map(spt => {
+                        return {
+                            id: spt.replaceAll(".", ""),
+                            slot: spt.split(".").length - 1
+                        }
+                    });
+                for (let slotIndex = 1; slotIndex < 16; slotIndex++) {
+                    const sprite = activeSprites.find(spt => spt.slot == slotIndex);
+                    const id = sprite ? parseInt(sprite.id) : 0;
+                    const background = id > 0;
+                    const unlocked = slotIndex <= user.slots;
+                    cabin.appendChild(createSlot(slotIndex, unlocked, unlocked, background, id));
+                }
+                // make grid draggable
+                const drag = (e) => {
+                    e.preventDefault();
+                    // make preview elem
+                    const preview = createSlot(0, true, false, false, 0);
+                    preview.style.opacity = "0";
+                    e.target.insertAdjacentElement("beforebegin", preview);
+                    // lock element;
+                    const bounds = e.target.getBoundingClientRect();
+                    e.target.style.width = bounds.width + "px";
+                    e.target.style.height = bounds.height + "px";
+                    e.target.style.position = "fixed";
+                    e.target.style.transition = "none";
+                    e.target.style.transform = "translate(-50%, -50%)";
+                    e.target.setAttribute("released", "false");
+                    // move as first child to hover over all children
+                    e.target.parentElement.insertAdjacentElement("afterbegin", e.target);
+                    //listen for mouseup, follow mouse until then
+                    let lastPrevX = 0;
+                    const followMouse = (event) => {
+                        e.target.style.top = event.pageY - document.body.scrollTop + "px";
+                        e.target.style.left = event.pageX + "px";
+                        let hoverDrop = QS("#slotsContent > div:not(#loginRedir):hover");
+                        if (hoverDrop != e.target) {
+                            if (e.target.style.left < lastPrevX) hoverDrop.insertAdjacentElement("beforebegin", preview);
+                            else hoverDrop.insertAdjacentElement("afterend", preview);
+                            lastPrevX = e.target.style.left;
+                        }
+                    }
+                    const reset = async () => {
+                        document.removeEventListener("pointermove", followMouse);
+                        e.target.style.position = "";
+                        e.target.style.transition = "";
+                        e.target.style.transform = "";
+                        e.target.style.width = "";
+                        e.target.style.height = "";
+                        // move to dragged position
+                        QS("#slotsContent > div:not(#loginRedir):hover").insertAdjacentElement("afterend", e.target);
+                        preview.remove();
+                        setTimeout(() => {
+                            e.target.setAttribute("released", "true");
+                        }, 100);
+                        let updatedmember = await socket.setCombo(getCombo());
+                        socket.data.user = updatedmember;
+                        user.user = updatedmember;
+                        setSlotSprites();
+                        sprites.setLandingSprites(true);
+                        lobbies_.setLobbies([], true);
+                    }
+                    document.addEventListener("pointerup", reset, { once: true });
+                    document.addEventListener("pointermove", followMouse);
+                }
+
+                QSA("#slotsContent > div:not(#loginRedir)").forEach(slot => slot.addEventListener("dragstart", drag));
+            }
+
+            setSlotSprites();
+
+            cabin.addEventListener("click", event => {
+                if (event.target.getAttribute("released") == "false") return;
+                slotid = event.target.getAttribute("slotid");
+                if (slotid) {
+                    const slotNo = parseInt(slotid);
+                    const spriteList = elemFromString(`<div style="width:100%; display:flex; flex-wrap:wrap; justify-content:center;"></div>`);
+                    spriteList.insertAdjacentHTML("beforeend",
+                        "<div class='spriteChoice' sprite='0' style='margin:.5em; height:6em; aspect-ratio:1; background-image:none'></div>");
+                    user.user.sprites.split(",").forEach(spt => {
+                        const id = spt.replaceAll(".", "");
+                        const active = spt.includes(".");
+                        if (!active && id > 0) {
+                            spriteList.insertAdjacentHTML("beforeend",
+                                "<div class='spriteChoice' sprite='" + id + "' style='margin:.5em; height:6em; aspect-ratio:1; background-image:url("
+                                + socket.data.publicData.sprites.find(spt => spt.ID == id).URL
+                                + ")'></div>");
+                        }
+                    });
+                    const picker = new Modal(spriteList, () => { }, "Choose a sprite for slot " + slotNo);
+                    spriteList.addEventListener("click", async event => {
+                        const spt = event.target.getAttribute("sprite");
+                        if (spt) {
+                            picker.close();
+                            let updatedmember = await socket.setSlot(slotNo, spt);
+                            socket.data.user = updatedmember;
+                            user.user = updatedmember;
+                            setSlotSprites();
+                            lobbies_.setLobbies([], true);
+                        }
+                    });
+                }
+            });
+        }
+
+        QS("#loginRedir").addEventListener("click", () => {
+            QS("#palantirLogin").dispatchEvent(new Event("click"));
+        });
+    },
     init: async () => {
         // make board behind playerlist so it doesnt hide portions of avatars
         QS("#containerGamePlayers").style.zIndex = "1";
@@ -150,7 +302,6 @@ const sprites = {
             sprites.updateSprites();
         });
         endboardObserver.observe(QS(".gameEndContainerPlayersBest"), { childList: true, attributes: true });
-
     }
 
 };

@@ -51,27 +51,43 @@ const lobbies_ = {
 		let panel = document.querySelector(".login-side-right");
 		let container = document.createElement("div");
 		container.id = "palantirLobbies";
+		container.className = "showLobbies";
 		container.style.cssText = "padding: 0.5em; width:100%;";
 		container.insertAdjacentHTML("afterbegin", `
-		<h3 style="display:flex; justify-content:space-between; margin-bottom:1em;">
-			<p style="font-weight: 700; margin-bottom: 0; color: black"> Discord Lobbies </p>
-			<p id="palantirLogin" style="font-weight: 700; margin-bottom: 0; color: black; opacity: .5; cursor:pointer"> ` + (localStorage.accessToken ? "Logout" : "Login") + ` </p>
+		<h3 style="display:flex; justify-content:space-between; margin-bottom:1em;" class="showLobbies">
+			<p id="lobbiesHeader" style="font-weight: 700; margin-bottom: 0; color: black; cursor:pointer"> Discord Lobbies </p>
+			<p id="slotsHeader" style="font-weight: 700; margin-bottom: 0; color: black; cursor:pointer"> Sprite Cabin </p>
 		</h3>`
 		);
+		QS("#tabUpdate h3 a").innerText = "Typo Info";
+		QS("#tabUpdate h3").insertAdjacentHTML("beforeend", `<span id="palantirLogin" style="font-weight: 700; margin-bottom: 0; color: black; opacity: .5; cursor:pointer; float:right">` + (localStorage.accessToken ? "Palantir Logout" : "Palantir Login") + ` </span>`);
 		let lobbies = document.createElement("div");
+		lobbies.id = "lobbiesContent";
 		lobbies.innerHTML = "Connecting to Palantir...";
 		lobbies.classList.add("updateInfo");
 		container.appendChild(lobbies);
+		container.appendChild(elemFromString(`<div id="slotsContent"></div>`));
 		panel.appendChild(container);
 		panel.classList.add("loginPanelContent");
 		panel.style.cssText = "height: fit-content; width: 400px; flex: 0 1 auto;";
-		container.querySelector("#palantirLogin").addEventListener("click", (event) => {
+
+		container.querySelector("h3").addEventListener("click", (e) => {
+			if (container.classList.contains("showLobbies")) {
+				container.className = "showSlots";
+				sprites.resetCabin(socket.authenticated);
+			}
+			else {
+				container.className = "showLobbies";
+            }
+		});
+
+		QS("#palantirLogin").addEventListener("click", (event) => {
 			let member = null;
 			try {
 				member = JSON.parse(localStorage.member);
 			} catch {}
 			if (member?.UserLogin) {
-				event.target.innerText = "Login";
+				event.target.innerText = "Palantir Login";
 				localStorage.removeItem("member");
 				localStorage.removeItem("accessToken");
 				socket.authenticated = false;
@@ -88,14 +104,14 @@ const lobbies_ = {
 					socket.sck.disconnect();
 					socket.init();
 					lobbies_.setLobbies(false);
-					event.target.innerText = "Logout";
+					event.target.innerText = "Palantir Logout";
 				}, { once: true });
 				window.open('https://tobeh.host/Orthanc/auth/ext/', 'Log in to Palantir', 'height=650,width=500,right=0,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
             }
 		});
 		return lobbies;
 	},
-	setLobbies: (lobbies) => {
+	setLobbies: (lobbies, updateOnlyUser = false) => {
 		if (!lobbies_.lobbyContainer) return;
 		let avatarContainer = document.querySelector("#loginAvatarCustomizeContainer");
 		QS("#expDetails")?.remove();
@@ -133,6 +149,7 @@ const lobbies_ = {
 			clone.classList.add("spriteSlot");
 			clone.classList.remove("special");
 		});
+		if (updateOnlyUser) return;
 		// build lobbies
 		lobbies_.lobbyContainer.innerHTML = "";
 		lobbies.forEach(guild => {

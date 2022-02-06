@@ -5,7 +5,7 @@ let colors = [];
 let resolution;
 let hits = 0;
 let msg = {};
-const frames = 60;
+const frames = 200;
 
 self.addEventListener('message', function (e) {
     let data = e.data;

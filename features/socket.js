@@ -93,7 +93,7 @@ const socket = {
             } catch { }
             let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true);
             if (loginstate.authorized == true) {
-                QS("#palantirLogin").textContent = "Logout";
+                QS("#palantirLogin").textContent = "Palantir Logout";
                 sprites.getSprites();
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
@@ -106,6 +106,7 @@ const socket = {
                 localStorage.removeItem("member");
             }
             document.dispatchEvent(newCustomEvent("palantirLoaded"));
+            sprites.resetCabin(socket.authenticated);
 
             // if already in-game / reconnected after disconnect and ingame, continue reporting
             if (lobbies_.userAllow && lobbies_.inGame) {
@@ -208,5 +209,17 @@ const socket = {
         Object.keys(query).forEach(key => query[key] === undefined && delete query[key])
         let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query}, true, 10000)).drawings;
         return drawings;
+    },
+    getUser: async () => {
+        let user = (await socket.emitEvent("get user", { }, true, 10000));
+        return user;
+    },
+    setCombo: async (combo) => {
+        let user = (await socket.emitEvent("set combo", {combo : combo}, true, 10000)).user;
+        return user;
+    },
+    setSlot: async (slot, sprite) => {
+        let user = (await socket.emitEvent("set slot", { slot: slot, sprite : sprite }, true, 10000)).user;
+        return user;
     }
 }
