@@ -1,21 +1,24 @@
 name: Create Archive
-on: [push]
+on: 
+  push:
+    tags:
+    - 'beta-release'
 jobs:
-  build:  
-    env:
-        RELEASE: typo-release-beta22.9.1.zip
+  build: 
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - name: Archive Release
       uses: thedoctor0/zip-release@master
       with:
-        filename: env.RELEASE
+        filename: release.zip
         exclusions: '*.git* *.xpi changelog.md *.web-extension-id .editorconfig .github/'  
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
-        artifacts: env.RELEASE
+        artifacts: 'release.zip'
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: env.RELEASE
+        name: 'typo-22.9.1'
+
+
