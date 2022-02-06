@@ -10,12 +10,12 @@ jobs:
     - name: Archive Release
       uses: thedoctor0/zip-release@master
       with:
-        filename: $RELEASE
+        filename: env.RELEASE
         exclusions: '*.git* *.xpi changelog.md *.web-extension-id .editorconfig .github/'  
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
-        artifacts: $RELEASE
+        artifacts: env.RELEASE
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: $RELEASE
+        tag: env.RELEASE
