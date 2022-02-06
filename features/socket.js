@@ -215,7 +215,7 @@ const socket = {
         return user;
     },
     setCombo: async (combo) => {
-        let user = (await socket.emitEvent("set combo", {combo : combo}, true, 10000)).user;
+        let user = (await socket.emitEvent("set combo", {combostring : combo}, true, 10000)).user;
         return user;
     },
     setSlot: async (slot, sprite) => {
