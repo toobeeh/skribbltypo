@@ -5,6 +5,7 @@ const translate = {
         'use strict';
 
         if (!translate.hasRunOnce) {
+            // TODO
 
             translate.hasRunOnce = true;
         }
@@ -14,7 +15,9 @@ const translate = {
 
         if (!translate.isInit) {
             translate.runOnce();
-            
+
+            // TODO
+
             translate.isInit = true;
         }
     },
@@ -22,6 +25,7 @@ const translate = {
         'use strict';
 
         if (translate.isInit) {
+            // TODO
 
             translate.isInit = false;
         }
