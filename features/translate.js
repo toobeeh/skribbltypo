@@ -1,11 +1,15 @@
 const translate = {
     isInit: false,
     hasRunOnce: false,
+    observer: new MutationObserver(observerCallback),
+    observerConfig: {
+        childList: true
+    },
     runOnce: () => {
         'use strict';
 
         if (!translate.hasRunOnce) {
-            // TODO
+            // Insert code here
 
             translate.hasRunOnce = true;
         }
@@ -16,7 +20,8 @@ const translate = {
         if (!translate.isInit) {
             translate.runOnce();
 
-            // TODO
+            const boxMessages = document.getElementById('boxMessages');
+            translate.observer.observe(boxMessages, translate.observerConfig);
 
             translate.isInit = true;
         }
@@ -25,9 +30,18 @@ const translate = {
         'use strict';
 
         if (translate.isInit) {
-            // TODO
+            translate.observer.disconnect();
 
             translate.isInit = false;
+        }
+    },
+    observerCallback: (mutations, _observer) => {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList') {
+                for (const node of mutation.addedNodes) {
+                    console.debug(node);
+                }
+            }
         }
     }
 };
