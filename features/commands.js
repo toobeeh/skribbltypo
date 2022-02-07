@@ -92,7 +92,7 @@ const performCommand = (cmd) => {
     else if (cmd.includes(cmd_setSensitivity)) setSensitivity((cmd.replace(cmd_setSensitivity, "")).trim());
     else if (cmd.includes("memberlogin")) login(cmd.replace("memberlogin", "").trim());
     else if (cmd.includes("enable palantir")) {
-        localStorage.userAllow = "true"; 
+        localStorage.userAllow = "true";
         lobbies_.userAllow = true;
         if (lobbies_.inGame && !lobbies_.joined) {
             socket.joinLobby(lobbies_.lobbyProperties.Key);
@@ -128,6 +128,11 @@ const performCommand = (cmd) => {
         localStorage.keybinds = cmd.includes("enable");
         if (cmd.includes("enable")) keybind.init();
         else keybind.destroy();
+    }
+    else if (cmd.includes("enable translate") || cmd.includes("disable translate")) {
+        localStorage.translate = cmd.includes("enable");
+        if (cmd.includes("enable")) translate.init();
+        else translate.destroy();
     }
     else if (cmd.includes("enable chatcommands") || cmd.includes("disable chatcommands")) {
         localStorage.chatcommands = cmd.includes("enable");

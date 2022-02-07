@@ -3,7 +3,8 @@
     {
       "files": [
         "features/gamemode.js",
-        "features/keybinds.js"
+        "features/keybinds.js",
+        "features/translate.js"
       ],
       "options": {
         "singleQuote": true,
