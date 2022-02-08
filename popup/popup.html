@@ -113,13 +113,17 @@
                         <input type="range" class="slider" min="0" max="100" />
                     </div>
 
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="translate">Translate (DE &rarr; EN)</button>
+                    </div>
+
                     <div>
                         <div class="label">Color palettes</div>
                         <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap; place-content:center;" id="palettes">
                             <button type="button" id="originalPalette">Original Palette</button>
                         </div>
                         <div class="flexrow flexrowMenu">
-                            <input type="text" autocomplete="off" style="width:12ex; flex-basis:unset" id="paletteJSON" placeholder="{ ... }" /> 
+                            <input type="text" autocomplete="off" style="width:12ex; flex-basis:unset" id="paletteJSON" placeholder="{ ... }" />
                             <button type="button" class="active" id="enterJSON">Add palette JSON</button>
                         </div>
                     </div>
@@ -129,7 +133,7 @@
             </div>
         </div>
         <br />
-        
+
         <hr class="skribbl" />
 
         <div id="footer" class="flexcol">

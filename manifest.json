@@ -56,6 +56,7 @@
         "features/imageOptions.js",
         "features/gamemode.js",
         "features/keybinds.js",
+        "features/translate.js",
         "content.js"
       ],
       "css": [

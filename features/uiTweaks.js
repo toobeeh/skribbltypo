@@ -224,7 +224,7 @@ const uiTweaks = {
         palettes.forEach(p => addColorPalette(p));
     },
     initLobbyDescriptionForm: () => {
-        // add Description form 
+        // add Description form
         let containerForms = QS(".containerSettings");
         let containerGroup = QS("div");
         containerGroup.classList.add("form-group");
@@ -250,16 +250,16 @@ const uiTweaks = {
     initRicardoSpecial: () => {
         let ricardo = document.createElement("div");
         ricardo.style.cssText = `
-width: 20%; 
-height: 100%; 
-z-index: 0; 
-background-image: url("https://cdn.discordapp.com/attachments/715996980849147968/800431598922235944/ricardo.gif"); 
-background-size: contain; 
-position: absolute; 
-background-repeat: no-repeat; 
-image-rendering: pixelated; 
-left: 0px; bottom: 0px; 
-background-position: center bottom; 
+width: 20%;
+height: 100%;
+z-index: 0;
+background-image: url("https://cdn.discordapp.com/attachments/715996980849147968/800431598922235944/ricardo.gif");
+background-size: contain;
+position: absolute;
+background-repeat: no-repeat;
+image-rendering: pixelated;
+left: 0px; bottom: 0px;
+background-position: center bottom;
 cursor: pointer;
 transition: left 1s ease 0s;`;
         setInterval(() => ricardo.style.left = "80%", 10000);
@@ -274,15 +274,15 @@ transition: left 1s ease 0s;`;
 <div style="position:absolute; z-index:-1;bottom:0; right:0;height:50%;width:20%;background-image:url(https://cdn.discordapp.com/attachments/715996980849147968/800444501796978719/knuckles.gif);background-size:contain;background-opition:bottom right;background-repeat:no-repeat;"></div>
 `;
             popup.style.cssText = `
-position: fixed; 
-background: white; 
-overflow-y: scroll; 
-z-index: 5; 
-width: 50vw; 
+position: fixed;
+background: white;
+overflow-y: scroll;
+z-index: 5;
+width: 50vw;
 height:50vh;
-border-radius: 0.5em; 
-box-shadow: black 1px 1px 9px -2px; 
-display: block; 
+border-radius: 0.5em;
+box-shadow: black 1px 1px 9px -2px;
+display: block;
 left: 25vw;
 top:25vh;
 padding: 1em; `;
@@ -470,7 +470,7 @@ padding: 1em; `;
             };
             //function to check if all filters match - if private, dont check filters
             this.matchAll = (lobbyProperties) => {
-                return lobbyProperties.Private || matchesNames(lobbyProperties.Players) 
+                return lobbyProperties.Private || matchesNames(lobbyProperties.Players)
                     && matchesCount(lobbyProperties.Players)
                     && matchesScore(lobbyProperties.Players)
                     && matchesRound(lobbyProperties.Round)
@@ -574,7 +574,7 @@ padding: 1em; `;
                     if (criteria.length > 0) humanCriterias.push(criteria.join(" & "));
                 }
             });
-            // create search modal 
+            // create search modal
             let searchParamsHuman = (humanCriterias.join("<br>or<br>") != "" ?
                 "Search Criteria:<br>" + humanCriterias.join("<br>or<br>") : "<b>Whoops,</b> You didn't set any filters.");
             let modalCont = elemFromString("<div style='text-align:center'><h4>" + searchParamsHuman + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere to cancel</h4><div>");
@@ -590,7 +590,7 @@ padding: 1em; `;
                     }
                 });
                 let lobby = lobbies_.lobbyProperties;
-                return filters.length <= 0 || filters.some(filter => filter.matchAll(lobby)); 
+                return filters.length <= 0 || filters.some(filter => filter.matchAll(lobby));
             }, () => {
                 leaveLobby(true);
             }, () => {
@@ -607,7 +607,7 @@ padding: 1em; `;
         // Keep freespace, but remove content for for bigger chat window
         const containerFreespace = document.querySelector('#containerFreespace');
         containerFreespace.innerHTML = '';
-        
+
         // Word count next to the word
         const currentWord = document.querySelector('#currentWord');
         const currentWordSize = document.createElement('div');
@@ -625,7 +625,7 @@ padding: 1em; `;
             }
         });
         wordObserver.observe(currentWord, { childList: true, });
-        
+
         // Create tooltips
         // remove original votekick tooltip
         QS("#containerPlayerlist .tooltip-wrapper").setAttribute("data-toggle", "");
@@ -694,11 +694,11 @@ padding: 1em; `;
             socket.data.user.member.Guilds.forEach(guild => servers += "<option value='" + guild.GuildID + "'>" + guild.GuildName + "</option>");
             let modal = new Modal(elemFromString(`<div id="selectrestriction"><h4>Choose in which Discord Servers Palantir is allowed to share the lobby invite link.<br>Your preference is used when you're the owner of a private lobby.<br>You can change it anytime in-game.</h4><br>
                         <input type="radio" id="unrestricted" name="restriction" value="unrestricted" checked>
-                        <label for="unrestricted"> No Restrictions</label><br> 
+                        <label for="unrestricted"> No Restrictions</label><br>
                         <input type="radio" id="restrictserver" name="restriction" value="server">
                         <label for="restrictserver"> Allow a single server: </label> <select>
                         ${servers}
-                        </select><br> 
+                        </select><br>
                         <input type="radio" id="restricted" name="restriction" value="restricted">
                         <label for="restricted"> Allow no one to see the invite</label></div>`), async () => {
                     localStorage.restrictLobby = QS("#selectrestriction input[name=restriction]:checked").value;
@@ -841,7 +841,7 @@ padding: 1em; `;
         document.addEventListener("wheelThicknessSet", wheelThicknessSet);
     },
     initAll: () => {
-        // clear ads for space 
+        // clear ads for space
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
         //document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
         // mel i love you i'd never do this
@@ -876,6 +876,7 @@ padding: 1em; `;
         uiTweaks.initDefaultKeybinds();
         if (localStorage.gamemodes == "true") gamemode.init();
         if (localStorage.keybinds == "true") keybind.init();
+        if (localStorage.translate == "true") translate.init();
         if(Math.random() < 0.1) QS("#inputChat").placeholder = "Typo your guess here...";
     }
 }

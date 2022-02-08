@@ -24,6 +24,7 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "controls" && settings.controls == "true") bt.className = "active";
             if (bt.id == "keybinds" && settings.keybinds == "true") bt.className = "active";
             if (bt.id == "gamemodes" && settings.gamemodes == "true") bt.className = "active";
+            if (bt.id == "translate" && settings.translate == "true") bt.className = "active";
             if (bt.id == "chatcommands" && settings.chatcommands == "true") bt.className = "active";
             if (bt.id == "emojipicker" && settings.emojipicker == "true") bt.className = "active";
             if (bt.id == "drops" && settings.drops == "true") bt.className = "active";
@@ -337,6 +338,7 @@ function toggleActive() {
     if (this.id == "controls") msg += "controls";
     if (this.id == "gamemodes") msg += "gamemodes";
     if (this.id == "keybinds") msg += "keybinds";
+    if (this.id == "translate") msg += "translate";
     if (this.id == "chatcommands") msg += "chatcommands";
     if (this.id == "sizeslider") msg += "sizeslider";
     if (this.id == "zoomdraw") msg += "zoomdraw";
@@ -452,7 +454,7 @@ async function verifyLoginInput() {
     });
     let skribblSettings = JSON.parse(localStorage.skribblSettings);
     skribblSettings.member = JSON.stringify(member);
-    localStorage.skribblSettings = JSON.stringify(skribblSettings); 
+    localStorage.skribblSettings = JSON.stringify(skribblSettings);
     document.querySelector("#loginName").textContent = "Logged in as '" + member.UserName + "'";
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
