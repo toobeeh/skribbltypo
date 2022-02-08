@@ -253,7 +253,21 @@ const sprites = {
 
             setSlotSprites();
 
-            cabin.addEventListener("click", event => {
+            cabin.addEventListener("contextmenu", async (event) => {
+                event.preventDefault();
+                if (event.target.getAttribute("released") == "false") return;
+                slotid = event.target.getAttribute("slotid");
+                if (slotid && event.target.classList.contains("unlocked")) {
+                    const slotNo = parseInt(slotid);
+                    let updatedmember = await socket.setSlot(slotNo, 0);
+                    socket.data.user = updatedmember;
+                    user.user = updatedmember;
+                    setSlotSprites();
+                    lobbies_.setLobbies([], true);
+                }
+            });
+
+            cabin.addEventListener("click", async event => {
                 if (event.target.getAttribute("released") == "false") return;
                 slotid = event.target.getAttribute("slotid");
                 if (slotid && event.target.classList.contains("unlocked")) {
@@ -282,7 +296,7 @@ const sprites = {
                             setSlotSprites();
                             lobbies_.setLobbies([], true);
                         }
-                    });
+                    });                 
                 }
             });
         }

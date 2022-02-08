@@ -413,5 +413,8 @@ const hints = [
     "Click the avatar on the start page to enter the practise mode.",
     "Search for friends or specific lobbies using 'Lobby Fitlers'.",
     "You can get costumes for your avatar using the Palantir Discord bot.",
+    "Use the sprite cabin to quickly create awesome sprite combos.",
+    "Right-click a sprite in the cabin to de-select it.",
+    "Drag-n-drop sprite slots in the cabin to re-oder them.",
     "Learn everything about Palantir <a href='https://typo.rip/#palantir'>on the website.</a>"
 ];
