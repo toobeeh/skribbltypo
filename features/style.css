@@ -267,3 +267,23 @@ input::-webkit-inner-spin-button {
                     color: inherit !important;
                     background-size: 0%;
                 }
+
+/* Translation */
+@keyframes translating {
+  0% {
+    background-color: rgb(255, 240, 158);
+  }
+  50% {
+    background-color: rgb(255, 223, 163);
+  }
+}
+#boxMessages p:nth-child(n).translating {
+  background-color: rgb(255, 240, 158);
+  animation: 1s ease-in-out infinite reverse translating;
+}
+#boxMessages p:nth-child(n).translated {
+  background-color: rgb(231, 250, 231);
+}
+#boxMessages p:nth-child(n).untranslated {
+  background-color: rgb(255, 230, 230);
+}
