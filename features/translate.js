@@ -43,6 +43,8 @@ const translate = {
         }
     },
     observerCallback: (mutations, _observer) => {
+        if (localStorage.getItem('lang') !== 'German') return;
+        
         for (const mutation of mutations) {
             if (mutation.type === 'childList') {
                 for (const node of mutation.addedNodes) {
