@@ -42,9 +42,23 @@ const translate = {
             translate.isInit = false;
         }
     },
-    observerCallback: (mutations, _observer) => {
-        if (localStorage.getItem('lang') !== 'German') return;
-        
+    observerCallback: mutations => {
+        if (localStorage.getItem('lang') !== 'German') {
+            return;
+        }
+        if (!translate.you) {
+            for (const node of document.querySelectorAll('#containerGamePlayers .name')) {
+                if (
+                    node.textContent.slice(-6) === ' (You)' &&
+                    node.attributes.getNamedItem('style').value.indexOf('color: rgb(0, 0, 255);') !=
+                        -1
+                ) {
+                    translate.you = node.textContent.slice(0, -6);
+                    break;
+                }
+            }
+        }
+
         for (const mutation of mutations) {
             if (mutation.type === 'childList') {
                 for (const node of mutation.addedNodes) {
@@ -57,21 +71,6 @@ const translate = {
                     if (node.firstChild.attributes.length != 0) continue;
                     if (!/^.*: $/.test(node.firstChild.innerHTML)) continue;
                     if (node.lastChild.tagName.toLowerCase() != 'span') continue;
-                    if (!translate.you) {
-                        for (const node of document.querySelectorAll(
-                            '#containerGamePlayers .name'
-                        )) {
-                            if (
-                                node.textContent.slice(-6) === ' (You)' &&
-                                node.attributes
-                                    .getNamedItem('style')
-                                    .value.indexOf('color: rgb(0, 0, 255);') != -1
-                            ) {
-                                translate.you = node.textContent.slice(0, -6);
-                                break;
-                            }
-                        }
-                    }
                     if (new RegExp(`^${translate.you}: `).test(node.firstChild.innerHTML)) continue;
 
                     const text = node.lastChild.textContent;
@@ -102,12 +101,12 @@ const translate = {
                                     translate.boxMessages.scrollTop =
                                         translate.boxMessages.scrollHeight;
                                 })
-                                .catch(_error => {
+                                .catch(() => {
                                     node.classList.remove('translating');
                                     node.classList.add('untranslated');
                                 });
                         })
-                        .catch(_error => {
+                        .catch(() => {
                             node.classList.remove('translating');
                             node.classList.add('untranslated');
                         });
