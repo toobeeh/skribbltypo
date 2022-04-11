@@ -48,59 +48,38 @@ const uiTweaks = {
     },
     initWordHint: () => {
         // Add wordcount under input
-        // this is terrible and has to be changed to something modern
-        let chat_cont = document.querySelector("#boxChat");
-        let msg_cont = document.querySelector("#boxMessages");
-        let table = document.createElement("table");
-        let tr = table.insertRow();
-        let td = tr.insertCell();
-        td.innerHTML = "<div id=\"info\"\ style='color:black !important'></div>";
-        table.id = "tableBox";
-        table.style.fontSize = "16px"
-        table.style.width = "15%";
-        table.style.marginLeft = "5px";
-        table.style.marginTop = "5px";
-        table.style.border = "thin stroke"
-        table.style.borderRadius = "7px";
-        table.style.background = "#BAFFAA";
-        table.style.textAlign = "center";
-        table.style.height = "25px";
-        // shrink message container
-        let _height = parseInt(table.style.height.substring(0, table.style.height.length - 2)) + parseInt(table.style.marginTop.substring(0, table.style.marginTop.length - 2)) + 34;
-        // add wordcount if enabled
-        if (localStorage.charBar == "false") {
-            table.style.visibility = "collapse";
-            table.style.position = "absolute";
-            _height = 34;
-        }
-        let style_cont_msg = document.createElement("style");
-        // style_cont_msg.innerHTML = "#boxMessages{height:calc(100% - " + _height + "px);}"
-        style_cont_msg.setAttribute("id", "style_cont_msg");
-        chat_cont.insertBefore(style_cont_msg, msg_cont);
-        QS("#boxChatInput").appendChild(table);
-        QS("#boxChatInput").insertAdjacentHTML("beforeEnd", "</div><div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 5em;background: white;border-radius: 0.5em;'></div>");
-        let input = QS("#inputChat");
-        let word = QS("#currentWord");
+        const input = QS("#inputChat");
+        const hints = QS("#currentWord");
+        let charbar = (input.insertAdjacentHTML("afterend", "<span id='charbar' style='color:black !important' ></span>"), QS("#charbar"));
+        charbar.insertAdjacentHTML("afterend", "<style id='charcountRules'></style>");
+
+        input.insertAdjacentHTML("afterEnd", "<div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 2.5em;background: white;border-radius: 0.5em;'></div>");
         let refreshCharBar = () => {
-            // remove content if clear token is present
-            if (input.value.includes(localStorage.token)) input.value = "";
             // recognize command and call interpreter
-            else if (input.value.includes("--") && localStorage.chatcommands == "true") {
+            if (input.value.includes("--") && localStorage.chatcommands == "true") {
                 performCommand(input.value);
                 input.value = "";
             }
-            QS("#info").innerText = word.innerText.length - input.value.length;
-            if (input.value.length > word.innerText.length
-                || !replaceUmlaute(input.value).toLowerCase().match(new RegExp(word.innerText.substr(0, input.value.length).toLowerCase().replaceAll("_", "[\\w\\d]")))) {
-                QS("#tableBox").style.background = "#ff5c33";
+            QS("#charcountRules").innerHTML = localStorage.charbar == "true" ? ".word-length{display:block !important}" : "#charbar { display: none !important }";
+            if (QS(".containerToolbar")?.style.display == "none") { // show charbar only if guessing
+                let word = hints.innerText;
+                charbar.textContent = word.length - input.value.length;
+                if (input.value.length > word.length
+                    || !replaceUmlaute(input.value).toLowerCase().match(new RegExp(word.substr(0, input.value.length).toLowerCase().replaceAll("_", "[\\w\\d]")))) {
+                    charbar.style.background = "#ff5c33";
+                }
+                else charbar.style.background = "#BAFFAA";
             }
-            else QS("#tableBox").style.background = "#BAFFAA";
+            else {
+                charbar.innerText = " - ";
+                charbar.style.background = "#BAFFAA";
+            }
         }
-
+        refreshCharBar();
         // Add event listener to keyup and process to hints
         input.addEventListener("keyup", refreshCharBar);
         // Add event listener to word mutations
-        (new MutationObserver(refreshCharBar)).observe(QS("#currentWord"), { attributes: true, childList: true });
+        (new MutationObserver(refreshCharBar)).observe(QS("#currentWord"), { attributes: true, childList: true, subtree: true, characterData: true });
     },
     initBackbutton: () => {
         // add back btn
@@ -110,13 +89,13 @@ const uiTweaks = {
         backBtn.id = "restore";
         backBtn.style.display = localStorage.displayBack ? "" : "none";
         backBtn.innerHTML = "<img class='toolIcon' src='" + chrome.extension.getURL("/res/back.gif") + "'>";
-        backBtn.onclick = function () { captureCanvas.restoreDrawing(1); };
+        backBtn.onclick = () => captureCanvas.restoreDrawing(1);
         clearContainer.style.marginLeft = "8px";
         clearContainer.firstChild.classList.add("tool");
         clearContainer.firstChild.style.opacity = "1";
         clearContainer.classList.add("containerTools");
         clearContainer.appendChild(backBtn);
-        toggleBackbutton(localStorage.displayBack == "true", true);
+        backBtn.style.display = localStorage.displayBack == "true" ? "" : "none";
     },
     initRandomColorDice: () => {
         // add random color image

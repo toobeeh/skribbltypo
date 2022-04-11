@@ -72,7 +72,7 @@ chrome.runtime.onMessage.addListener(
                     e.preventDefault();
                     if (contextm == true) {
                         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-                            chrome.tabs.sendMessage(tabs[0].id, "rmpal " + bt.id);
+                            chrome.tabs.sendMessage(tabs[0].id, "rempalette " + bt.id);
                         });
                         bt.remove();
                     }
@@ -96,7 +96,7 @@ function togglePalette(e) {
     [...document.querySelector("#palettes").children].forEach(c => c.classList.remove("active"));
     e.target.classList.add("active");
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, "palette " + this.id);
+        chrome.tabs.sendMessage(tabs[0].id, "usepalette " + this.id);
     });
 }
 
@@ -262,7 +262,7 @@ function setActiveTab(event) {
 
     function setSens() {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-            chrome.tabs.sendMessage(tabs[0].id, "set sens " + this.value);
+            chrome.tabs.sendMessage(tabs[0].id, "sensitivity " + this.value);
         });
     }
 
@@ -275,7 +275,7 @@ function setActiveTab(event) {
 
     function setRandom() {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-            chrome.tabs.sendMessage(tabs[0].id, "set random " + this.value);
+            chrome.tabs.sendMessage(tabs[0].id, "randominterval " + this.value);
         });
     }
 
@@ -294,7 +294,7 @@ function setActiveTab(event) {
 
     function setMarkup() {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-            chrome.tabs.sendMessage(tabs[0].id, "set markup " + hslToHex(this.value, 100, 90));
+            chrome.tabs.sendMessage(tabs[0].id, "markupcolor " + hslToHex(this.value, 100, 90));
         });
     }
 

@@ -21,7 +21,7 @@ const drops = {
         setTimeout(async () => {
             if (drops.currentDrop) {
                 dropElem.style.display = "none";
-                printCmdOutput("drop", "The drop timed out :o", "Whoops...");
+                addChatMessage("Whoops...", "The drop timed out :o");
                 drops.currentDrop = null;
             }
             
@@ -31,8 +31,8 @@ const drops = {
         if (localStorage.drops == "false") return;
         let dropElem = drops.dropContainer;
         let winner = result.caughtPlayer;
-        if (result.claimTicket == drops.currentDrop.claimTicket) printCmdOutput("drop", "You were the fastest and caught the drop!", "Yeee!");
-        else printCmdOutput("drop", winner + " caught the drop before you :(", "Whoops...");
+        if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Yeee!", "You were the fastest and caught the drop!");
+        else addChatMessage("Whoops..", winner + " caught the drop before you :(");
         dropElem.style.display = "none";
         drops.currentDrop = null;
         drops.waitForClear = false;
@@ -43,7 +43,7 @@ const drops = {
         const dropID = data.dropID;
         const ranks = data.ranks;
         const text = ranks.map(r => "- " + r).join("<br>");
-        printCmdOutput("drop", text, "Last drop claim ranking:");
+        addChatMessage("Last drop claim ranking:", text);
     },
     initDropContainer: () => {
         // add drop button

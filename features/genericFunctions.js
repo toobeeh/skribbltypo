@@ -66,7 +66,7 @@ const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackover
         type: 'image/png'
     });
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-    printCmdOutput("Copied to clipboard");
+    addChatMessage("", "Copied to clipboard");
 }
 
 // func to replace umlaute in a string
@@ -208,7 +208,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.controls || override) localStorage.controls = "true";
     if (!localStorage.restrictLobby || override) localStorage.restrictLobby = "";
     if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
-    if (!localStorage.userAllow || override) localStorage.userAllow = "true";
+    if (!localStorage.palantir || override) localStorage.palantir = "true";
     if (!localStorage.login || override) localStorage.login = "";
     if (!localStorage.ownHoly || override) localStorage.ownHoly = "false";
     if (!localStorage.ink || override) localStorage.ink = "true";
@@ -224,7 +224,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.chatcommands || override) localStorage.chatcommands = "true";
     if (!localStorage.vip || override) localStorage.vip = "";
     if (!localStorage.markup || override) localStorage.markup = "false";
-    if (!localStorage.markupColor || override) localStorage.markupColor = "#ffd6cc";
+    if (!localStorage.markupcolor || override) localStorage.markupcolor = "0";
     if (!localStorage.randomColorInterval || override) localStorage.randomColorInterval = 50;
     if (!localStorage.randomColorButton || override) localStorage.randomColorButton = false;
     if (!localStorage.displayBack || override) localStorage.displayBack = false;

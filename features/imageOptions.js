@@ -47,7 +47,7 @@ const imageOptions = {
                 progressBar.innerText += " " + percent + "%";
             }
         }, false);
-        printCmdOutput("render");
+        addChatMessage("Started GIF rendering", "This can take up to about a minute.");
         QS("#boxMessages").appendChild(progressBar);
     },
     initContainer: () => {

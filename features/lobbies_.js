@@ -4,7 +4,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // Initiates lobby search buttons and lobby search events
 // depends on: genericfunctions.js, socket.js
 const lobbies_ = {
-	userAllow: localStorage.userAllow == "true",
+	userAllow: localStorage.palantir == "true",
 	inGame: false,
 	joined: false,
 	lobbyContainer: null,
