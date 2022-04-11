@@ -854,7 +854,13 @@ padding: 1em; `;
         uiTweaks.initQuickReact();
         uiTweaks.initSelectionFormatter();
         uiTweaks.initSizeSlider();
+        uiTweaks.initSideControls();
+        uiTweaks.initLobbyRestriction();
+        uiTweaks.initAccessibility();
+        uiTweaks.initDefaultKeybinds();
         //uiTweaks.initRicardoSpecial();
+
+        // canvas copy
         document.addEventListener("copyToClipboard", async () => {
             if (QS("#screenGame").style.display == "none" || document.getSelection().type == "Range") return;
             let canvas = QS("#canvasGame");
@@ -862,13 +868,11 @@ padding: 1em; `;
             await dataURLtoClipboard(scaled);
             new Toast("Copied image to clipboard.", 1500);
         });
-        uiTweaks.initSideControls();
-        uiTweaks.initLobbyRestriction();
-        uiTweaks.initAccessibility();
+
         // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins
         QS("#overlay").insertAdjacentHTML("beforeBegin",
             "<style>#overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}#overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
-        uiTweaks.initDefaultKeybinds();
+        
         if (localStorage.gamemodes == "true") gamemode.init();
         if (localStorage.keybinds == "true") keybind.init();
         if (localStorage.translate == "true") translate.init();

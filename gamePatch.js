@@ -3708,10 +3708,7 @@
             document.dispatchEvent(new Event("copyToClipboard"));
             return;
         }
-        //else if (t.ctrlKey && t.key.toLowerCase() == "v") {
-        //    document.dispatchEvent(new Event("pasteFromClipboard"));
-        //    return;
-        //}
+
         if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
         let move = () => {
             let prev = lastBrushUp;
@@ -3778,11 +3775,14 @@
     }), document.body.addEventListener("performDrawCommand", function (event) {
         I(event.detail);
     }), n("#inputChat").on("keyup", function (e) {
-        if (e.key == "ArrowUp") {
+        if(e.originalEvent.code == "Escape"){
+            !document.querySelector(".modalBlur") ? (it ? it.emit("canvasClear") : ut.clear()) : 0;
+        }
+        else if (e.key == "ArrowUp") {
             if (logPos <= 0) return;
             n("#inputChat").val(inputLog[--logPos]);
         }
-        if (e.key == "ArrowDown") {
+        else if (e.key == "ArrowDown") {
             if (logPos > inputLog.length - 1) return;
             n("#inputChat").val(inputLog[++logPos]);
         }
