@@ -103,47 +103,57 @@ const getCurrentOrLastDrawer = () => {
     return drawer;
 }
 
-// adds a color palette
-const addColorPalette = (paletteJson) => {
-    let containerColorbox = document.createElement("div");
-    containerColorbox.classList.add("containerColorbox");
-
-    let columns = [];
-    paletteJson.colors.forEach(c => {
-        let index = paletteJson.colors.indexOf(c);
-        if (!columns[Math.floor(index / paletteJson.rowCount)]) columns.push([]);
-        columns[Math.floor(index / paletteJson.rowCount)].push(c);
-    });
-
-    let paletteContainer = document.createElement("div");
-    paletteContainer.id = paletteJson.name;
-
-    if (localStorage.palette == paletteJson.name) document.querySelector(".containerColorbox").style.display = "none";
-    else paletteContainer.style.display = "none";
-
-    paletteContainer.classList.add("containerColorbox");
-    paletteContainer.classList.add("customPalette");
-    paletteContainer.setAttribute("data-toggle", "tooltip");
-    paletteContainer.setAttribute("data-placement", "top");
-    paletteContainer.setAttribute("title", "");
-    paletteContainer.setAttribute("data-original-title", "Select a color");
-
-    columns.forEach(c => {
-        let colorColumn = document.createElement("div");
-        colorColumn.classList.add("containerColorColumn");
-        c.forEach(i => {
-            let colorItem = document.createElement("div");
-            colorItem.classList.add("colorItem");
-            colorItem.setAttribute("data-color", i.index);
-            colorItem.style.background = i.color;
-            colorItem.addEventListener("click", () => document.querySelector("body").dispatchEvent(newCustomEvent("setColor", { detail: i.index })));
-            colorColumn.appendChild(colorItem);
+// applys a color palette
+const setColorPalette = (colorPalette) => {
+    paletteContainer = elemFromString(`<div class="containerColorbox custom" style="cursor:pointer"></div>`);
+    let swatches = [...colorPalette.swatches];
+    while (swatches.length > 0) {
+        const rowElem = elemFromString("<div class='containerColorColumn'></div>");
+        swatches.splice(0, colorPalette.rowCount).forEach(swatch => {
+            rowElem.appendChild(swatch.swatch);
         });
-        paletteContainer.appendChild(colorColumn);
+        paletteContainer.appendChild(rowElem);
+    }
+    paletteContainer.addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
+    if (QS(".containerColorbox.custom")) {
+        QS(".containerColorbox.custom").replaceWith(paletteContainer);
+    }
+    else QS(".containerColorbox").insertAdjacentElement("afterend", paletteContainer);
+    QS(".containerColorbox:not(.custom)").style.display = "none";
+}
+
+const createColorPalette = (paletteObject) => {
+    const palette = {
+        rowCount: 1,
+        name: paletteObject.name,
+        colors: [
+        ],
+        swatches: [
+        ],
+        json: "",
+        activate: () => {
+            setColorPalette(palette);
+        }
+    };
+    palette.rowCount = paletteObject && paletteObject.rowCount ? paletteObject.rowCount : 2;
+    let dummyColorTester = elemFromString("<div style='display:none'></div>");
+    document.body.appendChild(dummyColorTester);
+    paletteObject?.colors?.forEach(color => {
+        if (color.color) {
+            dummyColorTester.style.backgroundColor = color.color;
+            const col = new Color({ rgb: window.getComputedStyle(dummyColorTester).backgroundColor });
+            palette.colors.push({ color: col.hex });
+            const swatch = elemFromString(`<div class="colorItem" style="background:${col.hex}"></div>`);
+            const code = parseInt(col.hex.replace("#",""), 16) + 10000;
+            swatch.addEventListener("click", (e) => {
+                document.body.dispatchEvent(newCustomEvent("setColor", { detail:code }));
+            });
+            palette.swatches.push({ swatch: swatch });
+        }
     });
-    let tools = document.querySelector(".containerTools");
-    tools.parentElement.insertBefore(paletteContainer, tools);
-    return paletteContainer;
+    document.body.removeChild(dummyColorTester);
+    palette.json = JSON.stringify({ rowCount: palette.rowCount, name: palette.name, colors: palette.colors });
+    return palette;
 }
 
 // Creates accessibility tooltip for an element
@@ -226,7 +236,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.markup || override) localStorage.markup = "false";
     if (!localStorage.markupcolor || override) localStorage.markupcolor = "0";
     if (!localStorage.randomColorInterval || override) localStorage.randomColorInterval = 50;
-    if (!localStorage.randomColorButton || override) localStorage.randomColorButton = false;
+    if (!localStorage.randomAndPicker || override) localStorage.randomAndPicker = false;
     if (!localStorage.displayBack || override) localStorage.displayBack = false;
     if (!sessionStorage.lobbySearch || override) sessionStorage.lobbySearch = "false";
     if (!sessionStorage.searchPlayers || override) sessionStorage.searchPlayers = "[]";

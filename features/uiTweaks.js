@@ -4,6 +4,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // adds all smaller ui improvements to skribbl
 // depends on: capture.js, generalFunctions.js, emojis.js
 const uiTweaks = {
+    palettes: [],
     initGameNavigation: () => {
         // Create next button
         let btNext = document.createElement("input");
@@ -97,6 +98,7 @@ const uiTweaks = {
         clearContainer.appendChild(backBtn);
         backBtn.style.display = localStorage.displayBack == "true" ? "" : "none";
     },
+    randomInterval: 0,
     initRandomColorDice: () => {
         // add random color image
         let rand = QS(".colorPreview");
@@ -104,19 +106,23 @@ const uiTweaks = {
         rand.style.justifyContent = "center";
         rand.style.alignItems = "center";
         rand.style.display = "flex";
-        rand.firstChild.display = localStorage.randomColorButton ? "" : "none";
+        rand.firstChild.display = localStorage.randomAndPicker == "true" ? "" : "none";
         rand.firstChild.id = "randomIcon";
+        
         rand.addEventListener("click", function () {
-            let colors = [];
-            [...QSA(".colorItem")].forEach(c => {
-                if (c.parentElement.parentElement.style.display != "none") {
-                    colors.push(Number(c.getAttribute("data-color")));
-                }
-                c.onclick = () => {
-                    document.body.dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: "false" } }));
-                }
-            });
-            document.body.dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: localStorage.randomColorInterval, colors: colors } }));
+            uiTweaks.randomInterval = setInterval(()=>{
+
+                // get all currently available colors
+                let colors = [...QSA(".colorItem")].filter(i => i.offsetParent != null);
+                document.body.dispatchEvent(
+                    newCustomEvent("setColor", { 
+                        detail: {
+                            hex: (new Color({ rgb: colors[Math.floor(Math.random() * colors.length)].style.background})).hex
+                        } 
+                    }
+                ));
+
+            }), Number(localStorage.randomColorInterval);
         });
     },
     initColorPicker: () => {
@@ -197,10 +203,20 @@ const uiTweaks = {
     },
     initColorPalettes: () => {
         // add color palettes
-        QS(".containerColorbox").id = "originalPalette";
-        QS("#buttonClearCanvas").style.height = "48px";
-        let palettes = localStorage.customPalettes ? JSON.parse(localStorage.customPalettes) : [];
-        palettes.forEach(p => addColorPalette(p));
+        palettes = JSON.parse(localStorage.customPalettes).forEach(palette => {
+            uiTweaks.palettes.push(createColorPalette(palette));
+        });
+        // clear random color interval on standard palette click
+        QS(".containerColorbox:not(.custom)").addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
+
+        // add standard palette
+        uiTweaks.palettes.push({
+            name: "originalPalette", activate: () => {
+                [...QSA(".containerColorbox.custom")].forEach(p => p.remove());
+                QS(".containerColorbox:not(.custom)").style.display = "";
+            }
+        });
+        uiTweaks.palettes.find(palette => palette.name == localStorage.palette)?.activate();
     },
     initLobbyDescriptionForm: () => {
         // add Description form

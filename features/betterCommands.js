@@ -216,12 +216,12 @@ const commands = [
             description: "Sets the random color / picker feature.",
             actionBefore: null,
             actionEnable: () => {
-                localStorage.random = "true";
+                localStorage.randomAndPicker = "true";
                 QS("#randomColor").style.display = "";
                 QS("#colPicker").style.display = "";
             },
             actionDisable: () => {
-                localStorage.random = "false";
+                localStorage.randomAndPicker = "false";
                 QS("#randomColor").style.display = "none";
                 QS("#colPicker").style.display = "none";
             },
@@ -410,7 +410,7 @@ const commands = [
             }
         }
     }, {
-        command: "usepalette", // change palettes implementation
+        command: "usepalette", 
         options: {
             type: "action",
             description: "Uses a palette. Argument: palette name",
@@ -422,11 +422,11 @@ const commands = [
                 uiTweaks.palettes.find(palette => palette.name == args)?.activate();
             },
             response: (args) => {
-                return localStorage.palette == args ? "Activated custom palette " + args + "." : "Custom palette not found :(";
+                return localStorage.palette == args ? "Activated custom palette '" + args + "'" : "Custom palette not found :(";
             }
         }
     }, {
-        command: "addpalette", // change palettes implementation
+        command: "addpalette",
         options: {
             type: "action",
             description: "Adds a palette. Argument: palette json",
@@ -442,11 +442,11 @@ const commands = [
                 localStorage.customPalettes = JSON.stringify(palettesSave);
             },
             response: (args) => {
-                return "Added custom palette:" + JSON.parse(args).name;
+                return "Added custom palette: '" + JSON.parse(args).name + "'";
             }
         }
     }, {
-        command: "rempalette", // change palettes implementation
+        command: "rempalette", 
         options: {
             type: "action",
             description: "Removes a palette. Argument: palette name",

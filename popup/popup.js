@@ -73,8 +73,12 @@ chrome.runtime.onMessage.addListener(
                     if (contextm == true) {
                         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
                             chrome.tabs.sendMessage(tabs[0].id, "rempalette " + bt.id);
+                            bt.remove();
+                            if(bt.classList.contains("active")){
+                                chrome.tabs.sendMessage(tabs[0].id, "usepalette originalPalette");
+                                document.querySelector("#palettes #originalPalette").classList.add("active");
+                            }
                         });
-                        bt.remove();
                     }
                     else if(bt.id != "sketchfulPalette") {
                         contextm = true;
@@ -96,7 +100,7 @@ function togglePalette(e) {
     [...document.querySelector("#palettes").children].forEach(c => c.classList.remove("active"));
     e.target.classList.add("active");
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, "usepalette " + this.id);
+        chrome.tabs.sendMessage(tabs[0].id, "usepalette " + e.target.id);
     });
 }
 
@@ -219,7 +223,7 @@ function verifyJSON() {
     obj.name = obj.name.replace(" ", "").trim();
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, "addpal " + JSON.stringify(obj) );
+        chrome.tabs.sendMessage(tabs[0].id, "addpalette " + JSON.stringify(obj) );
     });
     document.querySelector("#paletteJSON").value = "";
 
