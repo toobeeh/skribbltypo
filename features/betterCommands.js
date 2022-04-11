@@ -480,7 +480,7 @@ const commands = [
                     help += `<b>${cmd.command} (${cmd.options.type}):</b> ${cmd.options.description}<br><br>`;
                 });
                 help += "</small></div>";
-                QS("#game-chat .container .content").appendChild(elemFromString(help));
+                QS("#boxMessages").appendChild(elemFromString(help));
             },
             response: (args) => {
                 return "";
