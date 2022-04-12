@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "holy" && settings.ownHoly == "true") bt.className = "active";
             if (bt.id == "charbar" && settings.charBar == "true") bt.className = "active";
             if (bt.id == "backbutton" && settings.displayBack == "true") bt.className = "active";
-            if (bt.id == "randomToggle" && settings.randomColorButton == "true") bt.className = "active";
+            if (bt.id == "randomToggle" && settings.randomAndPicker == "true") bt.className = "active";
             if (bt.id == "palantirToggle" && settings.userAllow == "true") bt.className = "active";
             if (bt.id == "clearcanvas" && settings.keepCanvas == "true") bt.className = "active";
             if (bt.id == "controls" && settings.controls == "true") bt.className = "active";
@@ -39,7 +39,7 @@ chrome.runtime.onMessage.addListener(
         sensSlider.dispatchEvent(new Event('input'));
 
         let markupSlider = document.querySelector("#markupSlider input[type='range']");
-        markupSlider.value = hexToHSL(settings.markupColor).h * 360;
+        markupSlider.value = hexToHSL(settings.markupcolor).h * 360;
         markupSlider.dispatchEvent(new Event('input'));
 
         let randomSlider = document.querySelector("#randomSlider input[type='range']");

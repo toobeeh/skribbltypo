@@ -394,7 +394,7 @@
                     let rgb = document.querySelector("#canvasGame").getContext("2d").getImageData(ut.mouseposPrev.x, ut.mouseposPrev.y, 1, 1).data;
                     // get data color index by rgb value
                     let rgbString = "rgb(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ")";
-                    let item = [...document.querySelectorAll(".colorItem")].find(c => c.style.background == rgbString);
+                    let item = [...document.querySelectorAll(".containerColorbox:not(.custom) .colorItem")].find(c => c.style.background == rgbString);
                     if (!item) {
                         let picker = document.querySelector("#colPicker");
                         picker.style.backgroundColor = rgbString;

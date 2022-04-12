@@ -88,7 +88,7 @@ const uiTweaks = {
         let clearContainer = QS(".containerClearCanvas");
         backBtn.classList.add("tool");
         backBtn.id = "restore";
-        backBtn.style.display = localStorage.displayBack ? "" : "none";
+        backBtn.style.display = localStorage.displayBack == "true" ? "" : "none";
         backBtn.innerHTML = "<img class='toolIcon' src='" + chrome.extension.getURL("/res/back.gif") + "'>";
         backBtn.onclick = () => captureCanvas.restoreDrawing(1);
         clearContainer.style.marginLeft = "8px";
@@ -106,7 +106,7 @@ const uiTweaks = {
         rand.style.justifyContent = "center";
         rand.style.alignItems = "center";
         rand.style.display = "flex";
-        rand.firstChild.display = localStorage.randomAndPicker == "true" ? "" : "none";
+        rand.firstChild.style.display = localStorage.randomAndPicker == "true" ? "" : "none";
         rand.firstChild.id = "randomIcon";
         
         rand.addEventListener("click", function () {
@@ -130,7 +130,7 @@ const uiTweaks = {
         let toolbar = QS(".containerToolbar");
         let picker = document.createElement("div");
         picker.id = "colPicker";
-        picker.style.display = localStorage.randomColorButton == "true" ? "flex" : "none";
+        picker.style.display = localStorage.randomAndPicker == "true" ? "flex" : "none";
         picker.style.justifyContent = "center";
         picker.style.alignItems = "center";
         picker.innerHTML = "<img src='" + chrome.runtime.getURL("res/mag.gif") + "' class='toolIcon'>";
@@ -690,13 +690,13 @@ const uiTweaks = {
             e.bubbles = false;
             e.preventDefault();
             if (e.which == 38) { // up
-                performCommand(cmd_like);
+                performCommand("like");
             }
             else if (e.which == 39) { // right
-                performCommand(cmd_votekick);
+                performCommand("kick");
             }
             else if (e.which == 40) { // down
-                performCommand(cmd_dislike);
+                performCommand("shame");
             }
             chatinput.focus();
         });

@@ -15,8 +15,10 @@ const newCustomEvent = (type, detail = {}) => {
 const markMessage = (newNode) => {
     if (localStorage.markup != "true") return;
     let sender = newNode.innerHTML.slice(newNode.innerHTML.indexOf("<b>"), newNode.innerHTML.indexOf("</b>")).slice(3, -2);
-    if (sender == socket.clientData.playerName || sender != "" && localStorage.vip.split("/").includes(sender))
-        newNode.style.background = localStorage.markupColor;
+    if (sender == socket.clientData.playerName || sender != "" && localStorage.vip.split("/").includes(sender)){
+        newNode.style.background = localStorage.markupcolor + "B0";
+        newNode.classList.add("markedMessage");
+    }
 }
 
 //func to scroll to bottom of message container

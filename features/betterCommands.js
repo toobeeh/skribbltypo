@@ -210,19 +210,19 @@ const commands = [
             }
         }
     }, {
-        command: "random", // change random color implementation
+        command: "random", 
         options: {
             type: "toggle",
             description: "Sets the random color / picker feature.",
             actionBefore: null,
             actionEnable: () => {
                 localStorage.randomAndPicker = "true";
-                QS("#randomColor").style.display = "";
-                QS("#colPicker").style.display = "";
+                QS("#randomIcon").style.display = "";
+                QS("#colPicker").style.display = "flex";
             },
             actionDisable: () => {
                 localStorage.randomAndPicker = "false";
-                QS("#randomColor").style.display = "none";
+                QS("#randomIcon").parentElement.style.display = "none";
                 QS("#colPicker").style.display = "none";
             },
             actionAfter: null,
@@ -402,7 +402,7 @@ const commands = [
         command: "markupcolor", 
         options: {
             type: "action",
-            description: "Sets the markup color. Argument: degree component of HSL (0-360)",
+            description: "Sets the markup color. Argument: hex color code",
             actionBefore: null,
             actionEnable: null,
             actionDisable: null,
@@ -410,8 +410,7 @@ const commands = [
                 localStorage.markupcolor = args;
             },
             response: (args) => {
-                const color = new Color({h:Number(args), s:100, l:90});
-                return "The highlight color for your messages is now " + color.hex + ".";
+                return "The highlight color for your messages is now " + args + ".";
             }
         }
     }, {
@@ -423,7 +422,7 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                args = args < 1 ? 1 : args < 100 ? 100 : args;
+                args = args < 1 ? 1 : args > 100 ? 100 : args;
                 localStorage.sens = args;
             },
             response: (args) => {

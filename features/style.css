@@ -1,3 +1,7 @@
+#sizeslider, #buttonClearCanvas{
+  height: 48px !important;
+}
+
 /* Accessibility */
 #containerFreespace {
   background: none;
