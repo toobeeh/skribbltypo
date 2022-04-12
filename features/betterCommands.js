@@ -19,10 +19,10 @@ const commands = [
             description: "Sets the charbar visibility.",
             actionBefore: null,
             actionEnable: () => {
-                localStorage.charbar = "true";
+                localStorage.charBar = "true";
             },
             actionDisable: () => {
-                localStorage.charbar = "false";
+                localStorage.charBar = "false";
             },
             actionAfter: (args) => {
                 QS("#inputChat").dispatchEvent(new Event("keyup"));
@@ -343,6 +343,25 @@ const commands = [
             }
         }
     }, {
+        command: "back",
+        options: {
+            type: "toggle",
+            description: "Sets the back button (undo) feature.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.displayBack = "true";
+                QS("#restore").style.display = "";
+            },
+            actionDisable: () => {
+                localStorage.displayBack = "false";
+                QS("#restore").style.display = "none";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " size slider.";
+            }
+        }
+    }, {
         command: "kick", 
         options: {
             type: "action",
@@ -362,7 +381,7 @@ const commands = [
             }
         }
     }, {
-        command: "randominterval", // change implementation of random color itnerval
+        command: "randominterval", 
         options: {
             type: "action",
             description: "Sets the random interval. Argument: interval in ms",
@@ -372,13 +391,15 @@ const commands = [
             actionAfter: (args) => {
                 args > 1000 ? args = 1000 : args < 5 ? args = 5 : 1;
                 localStorage.randomColorInterval = args;
+                clearInterval(uiTweaks.randomInterval);
+                QS("#randomIcon")?.click();
             },
             response: (args) => {
                 return "The random color brush interval is now " + args + "ms.";
             }
         }
     }, {
-        command: "markupcolor", // change markup implementation 
+        command: "markupcolor", 
         options: {
             type: "action",
             description: "Sets the markup color. Argument: degree component of HSL (0-360)",

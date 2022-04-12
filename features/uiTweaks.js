@@ -61,7 +61,7 @@ const uiTweaks = {
                 performCommand(input.value);
                 input.value = "";
             }
-            QS("#charcountRules").innerHTML = localStorage.charbar == "true" ? ".word-length{display:block !important}" : "#charbar { display: none !important }";
+            QS("#charcountRules").innerHTML = localStorage.charBar == "true" ? "#wordSize{visibility: auto !important}" : "#charbar { display: none !important } #wordSize{visibility: hidden !important}";
             if (QS(".containerToolbar")?.style.display == "none") { // show charbar only if guessing
                 let word = hints.innerText;
                 charbar.textContent = word.length - input.value.length;
@@ -122,7 +122,7 @@ const uiTweaks = {
                     }
                 ));
 
-            }), Number(localStorage.randomColorInterval);
+            }, Number(localStorage.randomColorInterval));
         });
     },
     initColorPicker: () => {
@@ -241,63 +241,6 @@ const uiTweaks = {
             mutations.forEach(mutation => mutation.addedNodes.forEach(emojis.replaceEmojiContent));
         });
         chatObserver.observe(QS("#boxMessages"), { attributes: false, childList: true });
-    },
-    initRicardoSpecial: () => {
-        let ricardo = document.createElement("div");
-        ricardo.style.cssText = `
-width: 20%;
-height: 100%;
-z-index: 0;
-background-image: url("https://cdn.discordapp.com/attachments/715996980849147968/800431598922235944/ricardo.gif");
-background-size: contain;
-position: absolute;
-background-repeat: no-repeat;
-image-rendering: pixelated;
-left: 0px; bottom: 0px;
-background-position: center bottom;
-cursor: pointer;
-transition: left 1s ease 0s;`;
-        setInterval(() => ricardo.style.left = "80%", 10000);
-        setTimeout(() => { setInterval(() => ricardo.style.left = "0%", 10000); }, 5000);
-        ricardo.addEventListener("click", () => {
-            let popup = document.createElement("div");
-            popup.innerHTML = `
-<h2 class="updateInfo"> I heard you like Memes?</h2><br>
-<span>Great, of course you do. <br><br>You now got the chance to watch the best videos everr and get rewarded with a nice sprite!</span><br>
-<a href="/"><button class="btn btn-info">Nah, take me back to skribbl</button></a><br><br>
-<button class="btn btn-success">Yeah I'm not afraid of the internet and want to spend 15 mins for memes</button><br>
-<div style="position:absolute; z-index:-1;bottom:0; right:0;height:50%;width:20%;background-image:url(https://cdn.discordapp.com/attachments/715996980849147968/800444501796978719/knuckles.gif);background-size:contain;background-opition:bottom right;background-repeat:no-repeat;"></div>
-`;
-            popup.style.cssText = `
-position: fixed;
-background: white;
-overflow-y: scroll;
-z-index: 5;
-width: 50vw;
-height:50vh;
-border-radius: 0.5em;
-box-shadow: black 1px 1px 9px -2px;
-display: block;
-left: 25vw;
-top:25vh;
-padding: 1em; `;
-            popup.querySelector(".btn-success").addEventListener("click", () => {
-                popup.innerHTML = `
-<h2 class="updateInfo"> Goooood.</h2><br>
-<span>Then lets gooo! Watch <a target="_blank" href="https://www.youtube.com/watch?v=O9ZeFoSxA1Y&list=PLfqjJfOuOI5r6QQBgoUtBgNi7aMj3_Yb4&">this random Five-Episode-Series (first 5 videos)</a> that I fell in love with and enjoy the trip.
-<br><br>Afterwards, answer some super-sophisticated questions and about this masterpiece and very likely you'll get rewarded with an exclusive sprite ;))<br>
-<br>Btw, you got 5 mins once you start the form and ONLY got ONE TRY! :O.</span><br>
-<a href="/"><button class="btn btn-info">SOS I'm not ready, take me back to skribbl</button></a><br><br>
-<button class="btn btn-success">START THE QUESTIONS</button><br>
-<div style="position:absolute; z-index:-1;bottom:0; right:0;height:50%;width:20%;background-image:url(https://cdn.discordapp.com/attachments/715996980849147968/800450879689064488/bonk.gif);background-size:contain;background-opition:bottom right;background-repeat:no-repeat;"></div>
-`;
-                popup.querySelector(".btn-success").addEventListener("click", () => {
-                    // questions logic
-                });
-            });
-            document.body.appendChild(popup);
-        });
-        QS("#loginAvatarCustomizeContainer").appendChild(ricardo);
     },
     initSideControls: () => {
         //init new controls div
@@ -607,7 +550,7 @@ padding: 1em; `;
         const currentWord = document.querySelector('#currentWord');
         const currentWordSize = document.createElement('div');
         currentWordSize.id = 'wordSize';
-        if(localStorage.charBar != "true") currentWordSize.style.visibility = "hidden";
+        //if(localStorage.charbar != "true") currentWordSize.style.visibility = "hidden";
         currentWord.parentNode.insertBefore(currentWordSize, currentWord.nextSibling);
         const wordObserver = new MutationObserver(m => {
             let wordCount = currentWord.innerText;
