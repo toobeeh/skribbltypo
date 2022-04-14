@@ -3197,7 +3197,25 @@
                     r = i(Math.floor(t[3]), -n, this.canvas[0].height + n),
                     s = i(Math.floor(t[4]), -n, this.canvas[0].width + n),
                     c = i(Math.floor(t[5]), -n, this.canvas[0].height + n);
+
+                    // create a new canvas where line is drawn to use for clipping
+                let clipCanv = document.createElement("canvas");
+                clipCanv.width = ut.canvas[0].width;
+                clipCanv.height = ut.canvas[0].height;
+
+                clipCanv.getContext("2d").drawImage(ut.canvas[0],0,0);
+
+                // draw line on original (now cleared) canvas
+                ut.canvasCtx.clearRect(0,0, 800, 600);
                 this.plotLine(o, r, s, c, e, 255, 255, 255);
+
+                // put line with clipping on clip canvas
+                clipCanv.getContext("2d").globalCompositeOperation = "destination-out";
+                clipCanv.getContext("2d").drawImage(ut.canvas[0],0,0);
+
+                // put clipped canvas data to actual canvas
+                ut.canvasCtx.clearRect(0,0,800,600);
+                ut.canvasCtx.drawImage(clipCanv,0,0);
                 break;
             case 2:
                 var u = a(this.brush.getColor(t[1])),
@@ -3277,7 +3295,7 @@
             document.dispatchEvent(new CustomEvent("toast", { detail: { text: "Prevented Canvas Clear." }}));
             return;
         }
-        this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height), document.querySelector("body").dispatchEvent(new CustomEvent("logCanvasClear"))
+        this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height), document.querySelector("body").dispatchEvent(new CustomEvent("logCanvasClear"))
     }, Z.prototype.setDrawing = function(t) {
         t ? (this.brush.show(), n(".containerToolbar").show()) : (this.brush.hide(), n(".containerToolbar").hide())
     };

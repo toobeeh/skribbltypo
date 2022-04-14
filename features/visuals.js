@@ -69,6 +69,10 @@ const visuals = {
             let val = options["inputOutlines"] ? options["inputOutlines"].trim() : "";
             style.innerHTML += "input, textarea, .btn, select {border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
         }
+        if (options["canvasBackgroundCheck"] == true) {
+            let val = options["canvasBackground"] ? options["canvasBackground"].trim() : "";
+            style.innerHTML += "#canvasGame {background: " + (val != "" ? val : "white") + " !important} ";
+        }
         if (options["hideFooter"] == true) {
             style.innerHTML += ".login-content .col-xs-12{display:none}";
         }
@@ -171,14 +175,21 @@ const visuals = {
             <input type="checkbox" id='containerBackgroundsCheck'> Change Container Backgrounds 
             <input class='form-control' type='text' id='containerBackgrounds' placeholder='transparent'>
         </label>
-        <label><input type="checkbox" id='inputBackgroundsCheck'> Change Input Backgrounds
+        <label>
+        <input type="checkbox" id='inputBackgroundsCheck'> Change Input Backgrounds
             <input class='form-control' type='text' id='inputBackgrounds' placeholder='transparent'>
         </label>
-        <label><input type="checkbox" id='containerOutlinesCheck'> Container Outlines
+        <label>
+            <input type="checkbox" id='containerOutlinesCheck'> Container Outlines
             <input class='form-control' type='text' id='containerOutlines' placeholder='transparent'>
         </label>
-        <label><input type="checkbox" id='inputOutlinesCheck'> Input Outlines
+        <label>
+            <input type="checkbox" id='inputOutlinesCheck'> Input Outlines
             <input class='form-control' type='text' id='inputOutlines' placeholder='transparent'>
+        </label>
+        <label>
+            <input type="checkbox" id='canvasBackgroundCheck'> Replace Canvas Background
+            <input class='form-control' type='text' id='canvasBackground' placeholder='white'>
         </label>
     </div>
     <br>
