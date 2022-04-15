@@ -579,4 +579,5 @@ const performCommand = (command) => {
 const addChatMessage = (title, content) => {
     QS("#boxMessages").appendChild(
         elemFromString(`<p><b style="color: rgb(57, 117, 206);">${title}</b><br><span style="color: rgb(57, 117, 206);">${content}</span></p>`));
+    scrollMessages();
 }

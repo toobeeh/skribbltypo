@@ -3202,16 +3202,17 @@
                 let clipCanv = document.createElement("canvas");
                 clipCanv.width = ut.canvas[0].width;
                 clipCanv.height = ut.canvas[0].height;
+                let clipCtx = clipCanv.getContext("2d");
 
-                clipCanv.getContext("2d").drawImage(ut.canvas[0],0,0);
+                clipCtx.drawImage(ut.canvas[0],0,0);
 
                 // draw line on original (now cleared) canvas
                 ut.canvasCtx.clearRect(0,0, 800, 600);
                 this.plotLine(o, r, s, c, e, 255, 255, 255);
 
                 // put line with clipping on clip canvas
-                clipCanv.getContext("2d").globalCompositeOperation = "destination-out";
-                clipCanv.getContext("2d").drawImage(ut.canvas[0],0,0);
+                clipCtx.globalCompositeOperation = "destination-out";
+                clipCtx.drawImage(ut.canvas[0],0,0);
 
                 // put clipped canvas data to actual canvas
                 ut.canvasCtx.clearRect(0,0,800,600);
@@ -3233,23 +3234,26 @@
         e >= 0 && e < t.data.length && (t.data[e] = n, t.data[e + 1] = o, t.data[e + 2] = r, t.data[e + 3] = 255)
     }, Z.prototype.getPixel = function(t, e, n) {
         var o = 4 * (n * t.width + e);
-        return o >= 0 && o < t.data.length ? [t.data[o], t.data[o + 1], t.data[o + 2]] : [0, 0, 0]
-    }, Z.prototype.floodFill = function(t, e, n, o, r) {
+        return o >= 0 && o < t.data.length ? [t.data[o], t.data[o + 1], t.data[o + 2], t.data[o + 3]] : [0, 0, 0, 0]
+    }, Z.prototype.floodFill = function(t, e, n, o, r, op = 255) {
         var s = this.canvasCtx.getImageData(0, 0, this.canvas[0].width, this.canvas[0].height),
             i = [
                 [t, e]
             ],
             a = this.getPixel(s, t, e);
-        if (n != a[0] || o != a[1] || r != a[2]) {
+        if (n != a[0] || o != a[1] || r != a[2] || op != a[3]) {
             for (var c = function(t) {
                     var e = s.data[t],
                         i = s.data[t + 1],
                         c = s.data[t + 2];
-                    if (e == n && i == o && c == r) return !1;
+                        opacity = s.data[t + 3];
+
+                    if (e == n && i == o && c == r && op == opacity) return !1;
                     var u = Math.abs(e - a[0]),
                         h = Math.abs(i - a[1]),
-                        l = Math.abs(c - a[2]);
-                    return u < 1 && h < 1 && l < 1
+                        l = Math.abs(c - a[2]),
+                        _o = Math.abs(opacity - a[3]);
+                    return u < 1 && h < 1 && l < 1 && _o < 1
                 }, u = s.height, h = s.width; i.length;) {
                 var l, p, f, d, y, m;
                 for (l = i.pop(), p = l[0], f = l[1], d = 4 * (f * h + p); f-- >= 0 && c(d);) d -= 4 * h;
