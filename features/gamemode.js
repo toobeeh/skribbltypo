@@ -41,7 +41,26 @@ const gamemodes = {
                     // update message blur based on self drawing / guessed or not
                     QS("#boxMessages style#gamemodeDeafRules").innerHTML =
                         (QS("[me].guessedWord") || QS("[me]").querySelector(".drawing:not([style*=none])")) ?
-                        "" : "#boxMessages > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .bubble {display:none !important}";
+                        "" : "#currentWord, .message .content .text, #charbar, #boxMessages > p > span:not(:empty) {backdrop-filter: grayscale(1) blur(4px) opacity(0.8);}";
+                }
+            }
+        }, {
+            name: "Drunk Vision",
+            options: {
+                description: "You draw and guess with a highly blurred canvas.",
+                init: () => {
+                    // add mod stylesheed
+                    QS("#containerCanvas").appendChild(elemFromString(`<style id="drunkvisionRules">div#containerCanvas:after {content: " ";height: 100%;background: transparent;position: absolute;inset: 0;backdrop-filter: blur(20px);pointer-events: none;}</style>`));
+                },
+                initWithAction: true,
+                destroy: () => {
+                    QS("#containerCanvas style#drunkvisionRules")?.remove();
+                },
+                observeSelector: "#containerCanvas",
+                observeOptions: {
+                    attributes: true
+                },
+                observeAction: () => {
                 }
             }
         }, {

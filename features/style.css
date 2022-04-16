@@ -314,6 +314,7 @@ input::-webkit-inner-spin-button {
   min-height: 15%;
   padding: 1em;
   bottom: 1em;
+  user-select: none;
 }
 
 #imageOptions > img {
