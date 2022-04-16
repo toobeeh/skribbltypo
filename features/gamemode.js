@@ -50,7 +50,11 @@ const gamemodes = {
                 description: "You draw and guess with a highly blurred canvas.",
                 init: () => {
                     // add mod stylesheed
-                    QS("#containerCanvas").appendChild(elemFromString(`<style id="drunkvisionRules">div#containerCanvas:after {content: " ";height: 100%;background: transparent;position: absolute;inset: 0;backdrop-filter: blur(20px);pointer-events: none;}</style>`));
+                    QS("#containerCanvas").appendChild(elemFromString(`<style id="drunkvisionRules">
+                        div#containerCanvas:after {z-index: 1; content: " ";height: 100%;background: transparent;position: absolute;inset: 0;backdrop-filter: blur(20px);pointer-events: none;}
+                        #containerCanvas > * {z-index: 2}
+                        #canvasGame {z-index: 0}
+                        </style>`));
                 },
                 initWithAction: true,
                 destroy: () => {
@@ -134,7 +138,7 @@ const gamemodes = {
         }, {
             name: "Monochrome",
             options: {
-                description: "You can only choose between three random color shades.",
+                description: "You can only choose between two random color shades.",
                 init: () => {
                     QS(".containerToolbar").appendChild(elemFromString(`<style id="gamemodeMonochromeRules"></style>`));
                     //brushtools.groups.color.brightness.disable();
@@ -174,11 +178,11 @@ const gamemodes = {
         const modesButton = elemFromString(`<img src="${chrome.runtime.getURL("res/noChallenge.gif")}" id="gameModes" style="cursor: pointer;">`);
         // add gamemode options popup
         const modesPopout = elemFromString(`<div id="gamemodePopup" tabIndex="-1" style="display:none">
-Challenges
-<br><br>
-    <div>
-    </div>
-</div>`);
+        <b>Challenges</b>
+        <br><br>
+        <div>
+        </div>
+        </div>`);
         gamemodes.modesPopout = modesPopout;
         imageOptions.optionsContainer.appendChild(modesPopout);
         imageOptions.optionsContainer.appendChild(modesButton);

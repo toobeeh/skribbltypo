@@ -302,7 +302,7 @@ input::-webkit-inner-spin-button {
   background-color: rgb(255, 230, 230);
 }
 
-#sharePopup, #downloadPopup, #gamemodePopup{
+#sharePopup, #downloadPopup, #gamemodePopup, #saveDrawingPopup{
   position: absolute;
   background: white;
   overflow: hidden;
@@ -313,7 +313,7 @@ input::-webkit-inner-spin-button {
   box-shadow: black 1px 1px 9px -2px;
   min-height: 15%;
   padding: 1em;
-  bottom: 1em;
+  bottom: 4em;
   user-select: none;
 }
 

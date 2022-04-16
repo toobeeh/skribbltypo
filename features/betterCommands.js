@@ -158,7 +158,7 @@ const commands = [
             },
             actionAfter: null,
             response: (state) => {
-                return "Drops " + (state ? "won't show anymore" : "will be visible") + " on the canvas.";
+                return "Drops " + (!state ? "won't show anymore" : "will be visible") + " on the canvas.";
             }
         }
     }, {

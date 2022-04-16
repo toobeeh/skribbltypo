@@ -19,8 +19,8 @@ const imageTools = {
             };
             QS("#popupPasteImage").style.display = sessionStorage.practise == "true" ? "" : "none";
             QS("#saveDrawingPopup").style.display = "block";
-            QS("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
-            imageTools.optionsPopup.children[0].focus();
+            //QS("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+            imageTools.optionsPopup.focus();
             [...document.querySelectorAll(".pasteSaved")].forEach(p => {
                 if (document.querySelector(".containerToolbar").style.display == "none") {
                     p.classList.remove("btn-success");
@@ -39,21 +39,11 @@ const imageTools = {
     initImageOptionsPopup: () => {
         // add image options popup
         let optionsPopup = document.createElement("div");
-        QS("#containerPlayerlist").appendChild(optionsPopup);
-        optionsPopup.style.position = "absolute";
-        optionsPopup.style.background = "white";
-        optionsPopup.style.overflow = "hidden";
-        optionsPopup.style.zIndex = "5";
-        optionsPopup.style.width = "90%";
-        optionsPopup.style.padding = "1em;";
-        optionsPopup.style.borderRadius = ".5em";
-        optionsPopup.style.marginLeft = "5%";
-        optionsPopup.style.boxShadow = "1px 1px 9px -2px black";
+        optionsPopup.insertAdjacentHTML("afterbegin", "<b>Image Tools</b><br><br>");
+        imageOptions.optionsContainer.appendChild(optionsPopup);
         optionsPopup.style.display = "none";
-        optionsPopup.style.minHeight = "15%";
-        optionsPopup.style.padding = "1em";
-        optionsPopup.id = "saveDrawingPopup";
         optionsPopup.tabIndex = "-1";
+        optionsPopup.id = "saveDrawingPopup";
         imageTools.optionsPopup = optionsPopup;
 
         let popupTempSaveCommands = document.createElement("button");

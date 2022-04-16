@@ -100,7 +100,7 @@ const imageOptions = {
         postName.classList.add("form-control");
         postName.style.marginBottom = "0.75em";
         sharePopup.appendChild(postName);
-        postName.outerHTML = "Post image @Discord: <br><br>" + postName.outerHTML;
+        postName.outerHTML = "<b>Post image @Discord: </b><br><br>" + postName.outerHTML;
 
         // image only checkbox
         let imageOnly = document.createElement("div");
@@ -226,7 +226,7 @@ const imageOptions = {
         
         // popup for sharing image
         const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
-        <span>Save Image</span>
+        <b>Save Image</b>
         <br><br><label for="dlQuality">
         <input type="checkbox" id="dlQuality" class="flatUI small">
         <span>High quality</span>

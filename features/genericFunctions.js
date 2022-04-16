@@ -423,10 +423,9 @@ const hints = [
     "Want to share a chat snippet on Discord?<br>Select the messages and click 'Copy chat selection for Discord' to create a nicely formatted chat history.",
     "In practise, you can also paste .png to the skribbl canvas! To do so, click 'Paste Image' in Image Tools.",
     "Click the avatar on the start page to enter the practise mode.",
-    "Search for friends or specific lobbies using 'Lobby Fitlers'.",
+    "Search for friends or specific lobbies using 'Lobby Filters'.",
     "You can get costumes for your avatar using the Palantir Discord bot.",
     "Use the sprite cabin to quickly create awesome sprite combos.",
     "Right-click a sprite in the cabin to de-select it.",
-    "Drag-n-drop sprite slots in the cabin to re-oder them.",
-    "Learn everything about Palantir <a href='https://typo.rip/#palantir'>on the website.</a>"
+    "Drag-n-drop sprite slots in the cabin to re-oder them."
 ];
