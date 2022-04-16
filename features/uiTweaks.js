@@ -5,6 +5,21 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // depends on: capture.js, generalFunctions.js, emojis.js
 const uiTweaks = {
     palettes: [],
+    initTypoModbar: () => {
+
+        // re-organize sidebar for handling popups
+        const newSidebar = elemFromString(`<div id="newSidebar", style="position: relative; display: flex; flex-direction: column;"></div>`);
+
+        // create and add modbar
+        const modbar = elemFromString(`<div id="imageOptions" class="typoModbar"
+            style="height:48px; background: white; border-radius:2px; display: flex; justify-content: space-evenly; align-items: center; margin-top: 8px; margin-right: 8px;"></div>`);
+        
+        const containerPlayers = QS("#containerPlayerlist");
+        containerPlayers.style.height = "100%";
+        containerPlayers.parentElement.insertBefore(newSidebar, containerPlayers);
+        newSidebar.appendChild(containerPlayers);
+        newSidebar.appendChild(modbar);
+    },
     initGameNavigation: () => {
         // Create next button
         let btNext = document.createElement("input");
@@ -110,10 +125,12 @@ const uiTweaks = {
         rand.firstChild.id = "randomIcon";
         
         rand.addEventListener("click", function () {
+            clearInterval(uiTweaks.randomInterval);
             uiTweaks.randomInterval = setInterval(()=>{
 
                 // get all currently available colors
                 let colors = [...QSA(".colorItem")].filter(i => i.offsetParent != null);
+
                 document.body.dispatchEvent(
                     newCustomEvent("setColor", { 
                         detail: {
@@ -783,6 +800,7 @@ const uiTweaks = {
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
         //document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
         // mel i love you i'd never do this
+        uiTweaks.initTypoModbar();
         uiTweaks.initGameNavigation();
         uiTweaks.initWordHint();
         uiTweaks.initBackbutton();
@@ -801,7 +819,6 @@ const uiTweaks = {
         uiTweaks.initLobbyRestriction();
         uiTweaks.initAccessibility();
         uiTweaks.initDefaultKeybinds();
-        //uiTweaks.initRicardoSpecial();
 
         // canvas copy
         document.addEventListener("copyToClipboard", async () => {

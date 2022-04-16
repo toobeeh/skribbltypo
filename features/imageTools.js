@@ -7,13 +7,11 @@ const imageTools = {
     optionsPopup: null,
     initImageOptionsButton: () => {
         // add image options button
-        let optionsButton = document.createElement("button");
-        QS("#containerPlayerlist div.tooltip-wrapper").appendChild(optionsButton);
+        let optionsButton = elemFromString(`<img src="${chrome.runtime.getURL("res/potion.gif")}" id="imageTools" style="cursor: pointer;">`);
+        
+        imageOptions.optionsContainer.appendChild(optionsButton);
         QS("#containerPlayerlist div.tooltip-wrapper").setAttribute("data-original-title", "");
 
-        optionsButton.classList = "btn btn-info btn-block";
-        optionsButton.id = "saveDrawingOptions";
-        optionsButton.innerText = "Image tools";
         optionsButton.addEventListener("click", () => {
             if (!localStorage.imageTools) {
                 alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");

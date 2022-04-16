@@ -58,10 +58,11 @@ if (!STOP_EXECUTION) {
     // initialize modules
     captureCanvas.initListeners(); // init capturing draw ommands and drawings
     imageAgent.initImageAgent(); // init image agent from agent.js
-    imageOptions.initAll(); // init image options from imageOptions.js
-    imageTools.initAll(); // init image tools from imageTools.js
     pressure.initEvents(); // init pressure
     uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
+    imageOptions.initAll(); // init image options from imageOptions.js
+    imageTools.initAll(); // init image tools from imageTools.js
+    gamemodes.setup();
     setTimeout(async () => await emojis.init(), 0); // init emojis
     // sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
     QS("#loginAvatarCustomizeContainer  .avatarContainer").addEventListener("click", showPractise); // add listener to show practise

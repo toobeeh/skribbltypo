@@ -3299,7 +3299,8 @@
             document.dispatchEvent(new CustomEvent("toast", { detail: { text: "Prevented Canvas Clear." }}));
             return;
         }
-        this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height), document.querySelector("body").dispatchEvent(new CustomEvent("logCanvasClear"))
+        let url = this.canvas[0].toDataURL();
+        this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height), document.querySelector("body").dispatchEvent(new CustomEvent("logCanvasClear", {detail: url}))
     }, Z.prototype.setDrawing = function(t) {
         t ? (this.brush.show(), n(".containerToolbar").show()) : (this.brush.hide(), n(".containerToolbar").hide())
     };
@@ -3435,7 +3436,7 @@
             });
             return;
         });
-        e.attr("id", "player" + t.id), e.find(".name").text(t.name + (t.id == this.myID ? " (You)" : "")), t.id == this.myID && e.find(".name").css("color", "blue"), e.find(".drawing").hide(), this.containerGame.append(e), this.containerGamePlayerUpdateScore(t), e.show(), s(e, t.avatar, t.id == this.ownerID, 1)
+        e.attr("id", "player" + t.id), t.id == this.myID && e.attr("me", 1), e.find(".name").text(t.name + (t.id == this.myID ? " (You)" : "")), t.id == this.myID && e.find(".name").css("color", "blue"), e.find(".drawing").hide(), this.containerGame.append(e), this.containerGamePlayerUpdateScore(t), e.show(), s(e, t.avatar, t.id == this.ownerID, 1)
     }, tt.prototype.containerGamePlayerRemove = function(t) {
         this.containerGamePlayerGet(t).remove()
     }, tt.prototype.containerGamePlayersUpdateGuessed = function() {

@@ -46,7 +46,7 @@ const visuals = {
         let color = options["fontColor"] ? options["fontColor"] : "";
         if (color && color != "") {
             style.innerHTML += "*:not(.colorMsg){color:" + color.trim() + " !important}";
-            style.innerHTML += "#emojiPrev span, #sharePopup, .player .text, .wordContainer .word, .modalTitle, .modal-title, .checkbox label {color: black !important}";
+            style.innerHTML += "#emojiPrev span, #sharePopup, #downloadPopup *, .player .text, .wordContainer .word, .modalTitle, .modal-title, .checkbox label {color: black !important}";
         }
         let colorBtns = options["fontColorButtons"] ? options["fontColorButtons"] : "";
         if (colorBtns && colorBtns != "") style.innerHTML += "select, input, .btn{color:" + colorBtns.trim() + " !important}";

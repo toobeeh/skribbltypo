@@ -301,3 +301,26 @@ input::-webkit-inner-spin-button {
 #boxMessages p:nth-child(n).untranslated {
   background-color: rgb(255, 230, 230);
 }
+
+#sharePopup, #downloadPopup, #gamemodePopup{
+  position: absolute;
+  background: white;
+  overflow: hidden;
+  z-index: 5;
+  width: 90%;
+  border-radius: 0.5em;
+  margin-left: 5%;
+  box-shadow: black 1px 1px 9px -2px;
+  min-height: 15%;
+  padding: 1em;
+  bottom: 1em;
+}
+
+#imageOptions > img {
+  transition: all .2s;
+  -webkit-filter: drop-shadow(2px 2px 2px #000000a0);
+  filter: drop-shadow(2px 2px 2px #000000a0);
+}
+#imageOptions > img:hover {
+  transform: translate(0, -.2rem);
+}
