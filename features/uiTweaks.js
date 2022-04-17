@@ -295,56 +295,12 @@ const uiTweaks = {
             + ") center no-repeat;'></div>");
         typroCloud.addEventListener("click", typro.show);
         QS("#controls").append(typroCloud);
-        // add tabletmode
-        let tabletMode = elemFromString("<div id='tabMode' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/tablet.gif")
+        // add brushlab
+        let tabletMode = elemFromString("<div id='brushlab' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+            + chrome.runtime.getURL("/res/brush.gif")
             + ") center no-repeat;'></div>");
         tabletMode.addEventListener("click", () => {
-            let modeNone = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeNone.png")
-                + ")'></div><h4>Disable</h4></div>");
-            modeNone.addEventListener("click", () => performCommand("disable ink "));
-
-            let modeThickness = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeThickness.png")
-                + ")'></div><h4>Size (Absolute)</h4></div>");
-            modeThickness.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode thickness") :
-                performCommand("enable ink") || performCommand("inkmode thickness"));
-
-            let modeRelative = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeThickness.png")
-                + ")'></div><h4>Size (Relative)</h4></div>");
-            modeRelative.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode relative") :
-                performCommand("enable ink") || performCommand("inkmode relative"));
-
-            let modeBrightness = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeBrightness.png")
-                + ")'></div><h4>Brightness</h4></div>");
-            modeBrightness.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode brightness") :
-                performCommand("enable ink") || performCommand("inkmode brightness"));
-
-            let modeDegree = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeDegree.png")
-                + ")'></div><h4>Degree</h4></div>");
-            modeDegree.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode degree") :
-                performCommand("enable ink") || performCommand("inkmode degree"));
-
-            let modeBrightnessDegree = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeBrightnessDegree.png")
-                + ")'></div><h4>Brightness Degree</h4></div>");
-            modeBrightnessDegree.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode degree brightness") :
-                performCommand("enable ink") || performCommand("inkmode degree brightness"));
-
-            let options = elemFromString("<div style='display:flex; gap:3em; flex-wrap: wrap; width:100%; height: min-content; flex-direction:row; justify-content: space-evenly'></div>");
-            options.appendChild(elemFromString("<style>.tabletOption:hover{background:#00000040}.tabletOption{transition: background 0.2s;display:flex; margin:.5em; padding:.5em; flex-direction: column; align-items: center; justify-items: center; background: #00000026; cursor: pointer; border-radius: .5em;}</style>"));
-            options.append(modeNone, modeThickness, modeRelative, modeBrightness, modeDegree, modeBrightnessDegree);
-            let modal = new Modal(options, () => { }, "Select a tablet mode", "50vw", "0px");
-            options.addEventListener("click", () => modal.close());
+            brushtools.showSettings();
         });
         QS("#controls").append(tabletMode);
         // add appearance options
@@ -584,7 +540,7 @@ const uiTweaks = {
         // Create tooltips
         // remove original votekick tooltip
         QS("#containerPlayerlist .tooltip-wrapper").setAttribute("data-toggle", "");
-        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore, #votekickCurrentPlayer, #saveDrawingOptions, #controls [style*="tablet.gif"],#controls [style*="fullscreen.gif"], #controls [style*="cloud.gif"], #controls [style*="visuals.gif"]'));
+        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore, #votekickCurrentPlayer, #saveDrawingOptions, #controls [style*="brush.gif"],#controls [style*="fullscreen.gif"], #controls [style*="cloud.gif"], #controls [style*="visuals.gif"]'));
         tooltips.forEach((v, i, a) => {
             if (v.matches('.colorPreview:not(#colPicker)')) {
                 v.setAttribute('title', 'Color preview (click for magic)');
@@ -602,8 +558,8 @@ const uiTweaks = {
                 v.setAttribute('title', 'Votekick the current player if they are misbehaving');
             } else if (v.matches('#saveDrawingOptions')) {
                 v.setAttribute('title', 'Save the current drawing to re-use it later');
-            } else if (v.matches('#controls [style*="tablet.gif"]')) {
-                v.setAttribute('title', 'Set the graphics tablet pressure mode');
+            } else if (v.matches('#controls [style*="brush.gif"]')) {
+                v.setAttribute('title', 'Choose between various drawing mods');
             } else if (v.matches('#controls [style*="visuals.gif"]')) {
                 v.setAttribute('title', 'Customize how skribbl.io looks like');
             } else if (v.matches('#controls [style*="cloud.gif"]')) {

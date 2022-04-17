@@ -3700,6 +3700,9 @@
             case "F":
                 ut.brush.setTool("fill")
                 break;
+            case "L":
+                document.dispatchEvent(new CustomEvent("openBrushLab"));
+                break;
             case "C":
                 ut.brush.setTool("pipette")
                 break;

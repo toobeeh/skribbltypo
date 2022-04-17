@@ -63,6 +63,7 @@ if (!STOP_EXECUTION) {
     imageOptions.initAll(); // init image options from imageOptions.js
     imageTools.initAll(); // init image tools from imageTools.js
     gamemodes.setup();
+    brushtools.setup();
     setTimeout(async () => await emojis.init(), 0); // init emojis
     // sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
     QS("#loginAvatarCustomizeContainer  .avatarContainer").addEventListener("click", showPractise); // add listener to show practise
