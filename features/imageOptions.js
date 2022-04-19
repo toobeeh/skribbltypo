@@ -137,82 +137,37 @@ const imageOptions = {
         imagePreview.addEventListener("contextmenu", (e) => { e.preventDefault(); navigateImagePreview(1); });
 
         // get webhooks
-        let webhooks = [];
-        if (localStorage.member) JSON.parse(localStorage.member)?.Guilds.forEach(g => { if (g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
+        let webhooks = socket.data.user.webhooks;
 
         // add buttons to post image
         if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
         webhooks.forEach(async (w) => {
             // add share button for image
             let shareImg = document.createElement("button");
-            shareImg.innerHTML = "[" + w.Guild + "] <br>" + w.Name;
+            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == "779435254225698827").GuildName;
+            shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
             shareImg.classList.add("btn", "btn-info", "btn-block");
             shareImg.addEventListener("click", async () => {
+
                 // close popup first to avoid spamming
                 sharePopup.style.display = "none";
-                // upload to orthanc
                 let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
-                let imgstring = imageShareString;
-                let data = new FormData();
-                data.append("image", imgstring);
-                data.append("accessToken", localStorage.accessToken);
-                let state = await fetch('https://tobeh.host/Orthanc/tokenapi/imagepost/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': '*/*'
-                    },
-                    body: data
-                });
-                let url = await state.text();
-
-                // build webhook content
-                let message;
-                let imageOnly =QS("#sendImageOnly").checked;
                 let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS("#inputName").value;
-                if (imageOnly) {
-                    message = JSON.stringify({
-                        username: loginName,
-                        avatar_url:
-                            'https://tobeh.host/Orthanc/images/letterred.png',
-                        content: url
-                    });
-                }
-                else {
-                    let drawer = imageShareStringDrawer;
-                    message = JSON.stringify({
-                        username: "Skribbl Image Post",
-                        avatar_url:
-                            'https://tobeh.host/Orthanc/images/letterred.png',
-                        embeds: [
-                            {
-                                "title": title,
-                                "description": "Posted by " + loginName,
-                                "color": 4368373,
-                                "image": {
-                                    "url": url
-                                },
-                                "footer": {
-                                    "icon_url": "https://cdn.discordapp.com/attachments/334696834322661376/860509383104528425/128CircleFit.png",
-                                    "text": "skribbl typo"
-                                },
-                                "author": {
-                                    "name": "Drawn by " + drawer,
-                                    "url": "https://typo.rip",
-                                    "icon_url": "https://skribbl.io/res/pen.gif"
-                                }
-                            }
-                        ]
-                    })
-                }
 
-                // send webhook
-                await fetch(w.URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: message
+                // send to socket
+                await socket.emitEvent("post image", { 
+                    accessToken: localStorage.accessToken, 
+                    serverID: w.ServerID, 
+                    imageURI: imageShareString, 
+                    webhookName: w.Name,
+                    postOptions: {
+                        onlyImage: QS("#sendImageOnly").checked, 
+                        drawerName: imageShareStringDrawer, 
+                        posterName: loginName, 
+                        title: title
+                    }
                 });
+
                 new Toast("Posted image on Discord.", 2000);
             });
             sharePopup.appendChild(shareImg);
@@ -270,7 +225,6 @@ const imageOptions = {
         //imageOptions.initDownloadGif();
         //imageOptions.initDownloadPicture();
         imageOptions.optionsContainer = QS(".typoModbar");
-        imageOptions.initImagePoster();
         imageOptions.initDownloadOptions();
     }
 }

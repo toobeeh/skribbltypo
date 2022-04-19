@@ -22,6 +22,7 @@ const waitForDocAndPalantir = async () => {
     if (await waitForDocAndPalantir()) {
         await sprites.init(); // init sprites
         drops.initDrops(); // init drops
+        imageOptions.initImagePoster();
         if (localStorage.restrictLobby == "") {
             QS("#restrictLobby").dispatchEvent(new Event("click"));
         }
