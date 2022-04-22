@@ -3199,25 +3199,25 @@
                     c = i(Math.floor(t[5]), -n, this.canvas[0].height + n);
 
                     // create a new canvas where line is drawn to use for clipping
-                let clipCanv = document.createElement("canvas");
-                clipCanv.width = ut.canvas[0].width;
-                clipCanv.height = ut.canvas[0].height;
-                let clipCtx = clipCanv.getContext("2d");
+                    let clipCanv = document.createElement("canvas");
+                    clipCanv.width = ut.canvas[0].width;
+                    clipCanv.height = ut.canvas[0].height;
+                    let clipCtx = clipCanv.getContext("2d");
 
-                clipCtx.drawImage(ut.canvas[0],0,0);
+                    clipCtx.drawImage(ut.canvas[0],0,0);
 
-                // draw line on original (now cleared) canvas
-                ut.canvasCtx.clearRect(0,0, 800, 600);
-                this.plotLine(o, r, s, c, e, 255, 255, 255);
+                    // draw line on original (now cleared) canvas
+                    ut.canvasCtx.clearRect(0,0, 800, 600);
+                    this.plotLine(o, r, s, c, e, 255, 255, 255);
 
-                // put line with clipping on clip canvas
-                clipCtx.globalCompositeOperation = "destination-out";
-                clipCtx.drawImage(ut.canvas[0],0,0);
+                    // put line with clipping on clip canvas
+                    clipCtx.globalCompositeOperation = "destination-out";
+                    clipCtx.drawImage(ut.canvas[0],0,0);
 
-                // put clipped canvas data to actual canvas
-                ut.canvasCtx.clearRect(0,0,800,600);
-                ut.canvasCtx.drawImage(clipCanv,0,0);
-                break;
+                    // put clipped canvas data to actual canvas
+                    ut.canvasCtx.clearRect(0,0,800,600);
+                    ut.canvasCtx.drawImage(clipCanv,0,0);
+                    break;
             case 2:
                 var u = a(this.brush.getColor(t[1])),
                     h = i(Math.floor(t[2]), 0, this.canvas[0].width),

@@ -15,59 +15,6 @@ const stateFromLocalstorage = (modeName, defaultState, stateOverride) => {
 const brushtools = {
     groups: {
         color: {
-            /* rainbow: {
-                name: "Rainbow",
-                description: "The brush color is a rainbow color depending on your pen pressure.",
-                enabled: false,
-                options: {
-				},
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)){
-                        mode.disable();
-                    }
-                    brushtools.groups.color.rainbow.enabled = true;
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                },
-                disable: () => {
-                    brushtools.groups.color.rainbow.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const colors = brushtools.getColorsHue();
-                        const index = Math.round(event.pressure * (colors.length - 1));
-                        const color = colors[index][2].hex;
-                        colcode = parseInt(color.toString().replace("#", ""), 16) + 10000;
-                        if (colcode != 10000 + 16777215) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-					}
-				}
-            },
-            brightness: {
-                name: "Brightness",
-                description: "The brightness of a selected color varies with pen pressure.",
-                enabled: false,
-                options: {
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
-                        mode.disable();
-                    }
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                    brushtools.groups.color.brightness.enabled = true;
-                },
-                disable: () => {
-                    brushtools.groups.color.brightness.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const selected = QS("#color-preview-primary").style.fill;
-                        const matchGroup = brushtools.colorGroups.find(group => group.some(col => col == selected));
-                        const index = Math.round(event.pressure * (matchGroup.length - 1));
-                        const color = new Color({ rgb: matchGroup[index] });
-                        colcode = parseInt(color.hex.toString().replace("#", ""), 16) + 10000;
-                        document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                    }
-                }
-            }, */
             rainbowcircle: {
                 name: "Rainbow Cycle",
                 description: "Cycles through bright rainbow colors, no pen needed.",
@@ -276,6 +223,34 @@ const brushtools = {
                 },
                 sizeElement: null
             },
+            eraser: {
+                name: "Pen Eraser",
+                description: "Enables the pen eraser button.",
+                enabled: stateFromLocalstorage("stroke_eraser", true),
+                options: {
+                },
+                enable: () => {
+                    brushtools.groups.stroke.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, true);
+                },
+                disable: () => {
+                    brushtools.groups.stroke.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, false);
+                },
+                pointermoveCallback: (event) => {
+                    if(event.type == "pointerdown"){
+                        if(event.button == 5) {
+                            document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'e'})); 
+
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", event));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", event));
+
+                            document.addEventListener("pointerup", () => {
+                                document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'b'}));
+                            }, {once: true});
+                        }
+                    }
+                },
+                switched: null
+            },
             dash: {
                 name: "Dash",
                 description: "Draw dashed lines.",
@@ -352,34 +327,6 @@ const brushtools = {
                         }
                     }
                 }
-            },
-            eraser: {
-                name: "Pen Eraser",
-                description: "Enables the pen eraser button.",
-                enabled: stateFromLocalstorage("stroke_eraser", true),
-                options: {
-                },
-                enable: () => {
-                    brushtools.groups.stroke.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, true);
-                },
-                disable: () => {
-                    brushtools.groups.stroke.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, false);
-                },
-                pointermoveCallback: (event) => {
-                    if(event.type == "pointerdown"){
-                        if(event.button == 5) {
-                            document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'e'})); 
-                            
-                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", event));
-                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", event));
-
-                            document.addEventListener("pointerup", () => {
-                                document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'b'}));
-                            }, {once: true});
-                        }
-                    }
-                },
-                switched: null
             }
 		}
     },
