@@ -325,3 +325,32 @@ input::-webkit-inner-spin-button {
 #imageOptions > img:hover {
   transform: translate(0, -.2rem);
 }
+
+#brushmagicSettings{
+  padding: 2em;
+}
+
+#brushmagicSettings > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+               break-inside: avoid;
+  margin-bottom:2em;             
+}
+
+#brushmagicSettings > div > h3 {
+  text-align:enter;
+  font-weight: bold;
+}
+
+#brushmagicSettings .mode{
+  border-top: 1px solid #0000003a;
+  padding-top: 1em;
+}
+
+#brushmagicSettings .mode > label {display: block; font-size: 1.2em; cursor: pointer; user-select: none}
+#brushmagicSettings .mode > span { font-style: italic;}
+#brushmagicSettings .options > label { margin-top: .2em; display: block}
+#brushmagicSettings .options > label > * { margin-left: .5em; }

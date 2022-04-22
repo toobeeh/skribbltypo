@@ -14,6 +14,83 @@ const stateFromLocalstorage = (modeName, defaultState, stateOverride) => {
 
 const brushtools = {
     groups: {
+        tablet: {
+            pressure: {
+                name: "Tablet Pressure",
+                description: "Draw with tablet pressure.",
+                enabled: stateFromLocalstorage("stroke_pressure", true),
+                options: {
+                },
+                enable: () => {
+                    brushtools.groups.tablet.pressure.enabled = stateFromLocalstorage("tablet_pressure", undefined, true);
+                    brushtools.groups.tablet.pressure.sizeElement = QS(".brushSize");
+                },
+                disable: () => {
+                    brushtools.groups.tablet.pressure.enabled = stateFromLocalstorage("tablet_pressure", undefined, false);
+                },
+                pointermoveCallback: (event) => {
+                    if(event.type == "pointerdown"){
+
+                        brushtools.groups.tablet.pressure.setBrushsize(0);
+                    } 
+                    else if(event.type == "pointerup"){
+
+                        brushtools.groups.tablet.pressure.setBrushsize(0);
+                    } 
+                    else if (event.type === "pointermove"){
+                        
+                        if(event.pressure > 0){
+                            brushtools.groups.tablet.pressure.setBrushsize(event.pressure);
+                        }
+                    }
+                },
+                setBrushsize: (pressure) => {
+
+                    const calcSkribblSize = (val) => Number(val) * 36 + 4;
+                    const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
+                    const sensitivity = 100 - Number(localStorage.sens);
+                    const oldVal = Number(brushtools.groups.tablet.pressure.sizeElement.getAttribute("data-size"));
+
+                    let levelled = calcLevelledSize(pressure, sensitivity);
+                    let levelledSkribbl = Math.round(calcSkribblSize(levelled));
+
+                    document.dispatchEvent(newCustomEvent("wheelThicknessSet", { detail: Math.round(levelledSkribbl) }));
+                    brushtools.groups.tablet.pressure.sizeElement.setAttribute("data-size", levelled);
+                    brushtools.groups.tablet.pressure.sizeElement.dispatchEvent(newCustomEvent("click", { pressureSet: true }));
+                    brushtools.groups.tablet.pressure.sizeElement.setAttribute("data-size", oldVal);
+
+                },
+                sizeElement: null
+            },
+            eraser: {
+                name: "Pen Eraser",
+                description: "Enables the pen eraser button.",
+                enabled: stateFromLocalstorage("stroke_eraser", true),
+                options: {
+                },
+                enable: () => {
+                    brushtools.groups.tablet.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, true);
+                },
+                disable: () => {
+                    brushtools.groups.tablet.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, false);
+                },
+                pointermoveCallback: (event) => {
+                    if(event.type == "pointerdown"){
+                        if(event.button == 5) {
+                            document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'e'})); 
+
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", event));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", event));
+
+                            document.addEventListener("pointerup", () => {
+                                document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'b'}));
+                            }, {once: true});
+                        }
+                    }
+                },
+                switched: null
+            }
+        },
         color: {
             rainbowcircle: {
                 name: "Rainbow Cycle",
@@ -55,6 +132,158 @@ const brushtools = {
                             }
                             brushtools.groups.color.rainbowcircle.lastIndex = index;
                             document.body.dispatchEvent(newCustomEvent("setColor", { detail: { hex: "#" + colors[index] } }));
+                        }
+                    }
+                }
+            }
+		},
+        stroke: {
+            dash: {
+                name: "Dash",
+                description: "Draw dashed lines.",
+                enabled: false,
+                options: {
+                    interval: {
+                        val: 10,
+                        type: "num"
+                    }
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
+                        mode.disable();
+                    }
+                    for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.stroke.dash.enabled = true;
+                },
+                disable: () => {
+                    brushtools.groups.stroke.dash.enabled = false;
+                },
+                pointermoveCallback: (event) => {
+                    if (event.pressure > 0) {
+                        if (!brushtools.groups.stroke.dash.wait) {
+                            brushtools.groups.stroke.dash.wait = true;
+                            brushtools.canvas.dispatchEvent(new MouseEvent("mouseup", event));
+                            setTimeout(() => {
+                                brushtools.groups.stroke.dash.wait = false;
+                                if (brushtools.currentDown) brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", event));
+                            }, brushtools.groups.stroke.dash.options.interval.val);
+                        }
+                    }
+                }
+            },
+            tilt: {
+                name: "Tilt",
+                description: "Draw tilted lines.",
+                enabled: false,
+                options: {
+                    density: {
+                        val: 10,
+                        type: "num"
+                    },
+                    tilt: {
+                        val: 5,
+                        type: "num"
+                    }
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
+                        mode.disable();
+                    }
+                    for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.stroke.tilt.enabled = true;
+                },
+                disable: () => {
+                    brushtools.groups.stroke.tilt.enabled = false;
+                },
+                pointermoveCallback: (event) => {
+                    if (event.pressure > 0 ) {
+                        const density = brushtools.groups.stroke.tilt.options.density.val;
+                        const tilt = brushtools.groups.stroke.tilt.options.tilt.val;
+                        const size = 20; //parseInt(QS("#game-toolbar > div.picker > div.size-picker > div.preview > div.size").innerText.replace("px", ""));
+                        for (let i = 1; i < density; i++) {
+                            const offset = event.pressure  * tilt * size;
+                            let clone = new MouseEvent("mousemove", event)
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset - i});
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset - i});
+                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
+                            //brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", event));
+                        }
+                    }
+                }
+            },
+            noise: {
+                name: "Noise",
+                description: "Draw distorted lines. If you're using a pen, the size is affected by pressure.",
+                enabled: false,
+                options: {
+                    density: {
+                        val: 5,
+                        type: "num"
+                    },
+                    size: {
+                        val: 10,
+                        type: "num"
+                    },
+                    direction: {
+                        val: "top",
+                        type: ["top", "bottom", "left", "right", "vertical", "horizontal", "all"]
+                    }
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.stroke.noise.enabled = true;
+                },
+                disable: () => {
+                    brushtools.groups.stroke.noise.enabled = false;
+                },
+                pointermoveCallback: (event) => {
+                    if (event.pressure > 0 ) {
+                        const density = brushtools.groups.stroke.noise.options.density.val;
+                        const direction = brushtools.groups.stroke.noise.options.direction.val;
+                        const size = brushtools.groups.stroke.noise.options.size.val * 10;
+                        const amount = density; 
+                        const offset = event.pressure  * size;
+                        
+                        for (let i = 1; i < amount; i++) {
+                            let vertical = Math.random() * offset * 2 - offset;
+                            let horizontal = Math.random() * offset * 2 - offset;
+
+                            switch(direction){
+                                case "top":
+                                    vertical = -Math.abs(vertical);
+                                    horizontal = horizontal * 0.6;
+                                    break;
+                                case "botttom":
+                                    vertical = Math.abs(vertical);
+                                    horizontal = horizontal * 0.6;
+                                    break;
+                                case "left":
+                                    horizontal = -Math.abs(horizontal);
+                                    vertical = vertical * 0.6;
+                                    break;
+                                case "right":
+                                    horizontal = Math.abs(horizontal);
+                                    vertical = vertical * 0.6;
+                                    break;
+                                case "vertical": 
+                                    horizontal = horizontal * 0.3;
+                                    break;
+                                case "horizontal":
+                                    vertical = vertical * 0.3;
+                                    break;
+                            }
+
+                            let clone = new MouseEvent("mousemove", event);
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX + horizontal});
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY + vertical});
+                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
+                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", event));
                         }
                     }
                 }
@@ -174,161 +403,7 @@ const brushtools = {
                     }
                 }
             }
-        },
-        stroke: {
-            pressure: {
-                name: "Tablet Pressure",
-                description: "Draw with tablet pressure.",
-                enabled: stateFromLocalstorage("stroke_pressure", true),
-                options: {
-                },
-                enable: () => {
-                    brushtools.groups.stroke.pressure.enabled = stateFromLocalstorage("stroke_pressure", undefined, true);
-                    brushtools.groups.stroke.pressure.sizeElement = QS(".brushSize");
-                },
-                disable: () => {
-                    brushtools.groups.stroke.pressure.enabled = stateFromLocalstorage("stroke_pressure", undefined, false);
-                },
-                pointermoveCallback: (event) => {
-                    if(event.type == "pointerdown"){
-
-                        brushtools.groups.stroke.pressure.setBrushsize(0);
-                    } 
-                    else if(event.type == "pointerup"){
-
-                        brushtools.groups.stroke.pressure.setBrushsize(0);
-                    } 
-                    else if (event.type === "pointermove"){
-                        
-                        if(event.pressure > 0){
-                            brushtools.groups.stroke.pressure.setBrushsize(event.pressure);
-                        }
-                    }
-                },
-                setBrushsize: (pressure) => {
-
-                    const calcSkribblSize = (val) => Number(val) * 36 + 4;
-                    const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
-                    const sensitivity = 100 - Number(localStorage.sens);
-                    const oldVal = Number(brushtools.groups.stroke.pressure.sizeElement.getAttribute("data-size"));
-
-                    let levelled = calcLevelledSize(pressure, sensitivity);
-                    let levelledSkribbl = calcSkribblSize(levelled);
-
-                    document.dispatchEvent(newCustomEvent("wheelThicknessSet", { detail: Math.round(levelledSkribbl) }));
-                    brushtools.groups.stroke.pressure.sizeElement.setAttribute("data-size", levelled);
-                    brushtools.groups.stroke.pressure.sizeElement.dispatchEvent(newCustomEvent("click", { pressureSet: true }));
-                    brushtools.groups.stroke.pressure.sizeElement.setAttribute("data-size", oldVal);
-
-                },
-                sizeElement: null
-            },
-            eraser: {
-                name: "Pen Eraser",
-                description: "Enables the pen eraser button.",
-                enabled: stateFromLocalstorage("stroke_eraser", true),
-                options: {
-                },
-                enable: () => {
-                    brushtools.groups.stroke.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, true);
-                },
-                disable: () => {
-                    brushtools.groups.stroke.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, false);
-                },
-                pointermoveCallback: (event) => {
-                    if(event.type == "pointerdown"){
-                        if(event.button == 5) {
-                            document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'e'})); 
-
-                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", event));
-                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", event));
-
-                            document.addEventListener("pointerup", () => {
-                                document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'b'}));
-                            }, {once: true});
-                        }
-                    }
-                },
-                switched: null
-            },
-            dash: {
-                name: "Dash",
-                description: "Draw dashed lines.",
-                enabled: false,
-                options: {
-                    interval: {
-                        val: 10,
-                        type: "num"
-                    }
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
-                        mode.disable();
-                    }
-                    for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
-                        mode.disable();
-                    }
-                    brushtools.groups.stroke.dash.enabled = true;
-                },
-                disable: () => {
-                    brushtools.groups.stroke.dash.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0) {
-                        if (!brushtools.groups.stroke.dash.wait) {
-                            brushtools.groups.stroke.dash.wait = true;
-                            brushtools.canvas.dispatchEvent(new MouseEvent("mouseup", event));
-                            setTimeout(() => {
-                                brushtools.groups.stroke.dash.wait = false;
-                                if (brushtools.currentDown) brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", event));
-                            }, brushtools.groups.stroke.dash.options.interval.val);
-                        }
-                    }
-                }
-            },
-            tilt: {
-                name: "Tilt",
-                description: "Draw tilted lines.",
-                enabled: false,
-                options: {
-                    density: {
-                        val: 10,
-                        type: "num"
-                    },
-                    tilt: {
-                        val: 5,
-                        type: "num"
-                    }
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
-                        mode.disable();
-                    }
-                    for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
-                        mode.disable();
-                    }
-                    brushtools.groups.stroke.tilt.enabled = true;
-                },
-                disable: () => {
-                    brushtools.groups.stroke.tilt.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 ) {
-                        const density = brushtools.groups.stroke.tilt.options.density.val;
-                        const tilt = brushtools.groups.stroke.tilt.options.tilt.val;
-                        const size = 20; //parseInt(QS("#game-toolbar > div.picker > div.size-picker > div.preview > div.size").innerText.replace("px", ""));
-                        for (let i = 1; i < density; i++) {
-                            const offset = event.pressure  * tilt * size;
-                            let clone = new MouseEvent("mousemove", event)
-                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset - i});
-                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset - i});
-                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
-                            //brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", event));
-                        }
-                    }
-                }
-            }
-		}
+        }
     },
     currentDown: false,
     canvas: null,
@@ -364,10 +439,11 @@ const brushtools = {
         });
 
         const settingsContent = elemFromString(`<div id="brushmagicSettings" style="
-                display: grid;
-                grid-column-gap:2em;
-                width: 100%;
-                grid-template-columns: 1fr 1fr 1fr;"></div>`);
+                /* display: grid; */
+                /* grid-column-gap:2em; */
+                /*  width: 100%; */
+                /* grid-template-columns: 1fr 1fr 1fr; */
+                columns: 3"></div>`);
 
         const updateStates = () => {
             for (let [name, group] of Object.entries(brushtools.groups)) {
@@ -379,7 +455,7 @@ const brushtools = {
         }
 
         for (let [name, group] of Object.entries(brushtools.groups)) {
-            const groupContainer = elemFromString(`<div><h3>Adjust ${name}:</h3></div>`);
+            const groupContainer = elemFromString(`<div><h3>${name.charAt(0).toUpperCase() + name.slice(1)} Mods</h3></div>`);
             for (let [name, mode] of Object.entries(group)) {
                 const modeDetails = elemFromString(`<div class="mode">
                 <label>
@@ -418,7 +494,7 @@ const brushtools = {
 
         brushtools.showSettings = () => {
             updateStates();
-            if (!brushtools.modal) brushtools.modal = new Modal(settingsContent, () => { brushtools.modal = null; }, "Brush Laboratory");
+            if (!brushtools.modal) brushtools.modal = new Modal(settingsContent, () => { brushtools.modal = null; }, "Brush Laboratory", "65vw");
             else {
                 brushtools.modal.close();
                 brushtools.modal = null;
