@@ -1,3 +1,17 @@
+const stateFromLocalstorage = (modeName, defaultState, stateOverride) => {
+    let keyname = "brushmagic_" + modeName;
+
+    if(stateOverride === false || stateOverride === true) {
+        localStorage.setItem(keyname, stateOverride);
+        return stateOverride;
+    }
+    else if(!localStorage.getItem(keyname)) {
+        localStorage.setItem(keyname, defaultState);
+        return defaultState;
+    }
+    else return localStorage.getItem(keyname) == "true";
+}
+
 const brushtools = {
     groups: {
         color: {
@@ -74,7 +88,7 @@ const brushtools = {
                     brushtools.groups.color.rainbowcircle.enabled = false;
                 },
                 pointermoveCallback: (event) => {
-                    const colors = ["ef130b", "ff7100", "ffe400", "00cc00", "00ff91", "00b2ff", "231fd3", "a300ba", "d37caa"];
+                    const colors = ["ef130b", "ff7100", "ffe400", "00cc00", "00b2ff", "231fd3", "a300ba", "d37caa"];
                     if (event.pressure > 0) {
                         const interval = parseInt(localStorage.randominterval)
                         if (Date.now() - brushtools.groups.color.rainbowcircle.lastSwitch > interval) {
@@ -215,6 +229,53 @@ const brushtools = {
             }
         },
         stroke: {
+            pressure: {
+                name: "Tablet Pressure",
+                description: "Draw with tablet pressure.",
+                enabled: stateFromLocalstorage("stroke_pressure", true),
+                options: {
+                },
+                enable: () => {
+                    brushtools.groups.stroke.pressure.enabled = stateFromLocalstorage("stroke_pressure", undefined, true);
+                    brushtools.groups.stroke.pressure.sizeElement = QS(".brushSize");
+                },
+                disable: () => {
+                    brushtools.groups.stroke.pressure.enabled = stateFromLocalstorage("stroke_pressure", undefined, false);
+                },
+                pointermoveCallback: (event) => {
+                    if(event.type == "pointerdown"){
+
+                        brushtools.groups.stroke.pressure.setBrushsize(0);
+                    } 
+                    else if(event.type == "pointerup"){
+
+                        brushtools.groups.stroke.pressure.setBrushsize(0);
+                    } 
+                    else if (event.type === "pointermove"){
+                        
+                        if(event.pressure > 0){
+                            brushtools.groups.stroke.pressure.setBrushsize(event.pressure);
+                        }
+                    }
+                },
+                setBrushsize: (pressure) => {
+
+                    const calcSkribblSize = (val) => Number(val) * 36 + 4;
+                    const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
+                    const sensitivity = 100 - Number(localStorage.sens);
+                    const oldVal = Number(brushtools.groups.stroke.pressure.sizeElement.getAttribute("data-size"));
+
+                    let levelled = calcLevelledSize(pressure, sensitivity);
+                    let levelledSkribbl = calcSkribblSize(levelled);
+
+                    document.dispatchEvent(newCustomEvent("wheelThicknessSet", { detail: Math.round(levelledSkribbl) }));
+                    brushtools.groups.stroke.pressure.sizeElement.setAttribute("data-size", levelled);
+                    brushtools.groups.stroke.pressure.sizeElement.dispatchEvent(newCustomEvent("click", { pressureSet: true }));
+                    brushtools.groups.stroke.pressure.sizeElement.setAttribute("data-size", oldVal);
+
+                },
+                sizeElement: null
+            },
             dash: {
                 name: "Dash",
                 description: "Draw dashed lines.",
@@ -291,29 +352,39 @@ const brushtools = {
                         }
                     }
                 }
+            },
+            eraser: {
+                name: "Pen Eraser",
+                description: "Enables the pen eraser button.",
+                enabled: stateFromLocalstorage("stroke_eraser", true),
+                options: {
+                },
+                enable: () => {
+                    brushtools.groups.stroke.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, true);
+                },
+                disable: () => {
+                    brushtools.groups.stroke.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, false);
+                },
+                pointermoveCallback: (event) => {
+                    if(event.type == "pointerdown"){
+                        if(event.button == 5) {
+                            document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'e'})); 
+                            
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", event));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", event));
+
+                            document.addEventListener("pointerup", () => {
+                                document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'b'}));
+                            }, {once: true});
+                        }
+                    }
+                },
+                switched: null
             }
 		}
     },
     currentDown: false,
     canvas: null,
-    getColorsHue: () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
-        .map(col => new Color({ rgb: col.style.backgroundColor }))
-        .map(col => [col.hsl[0], col.hsl[2], col])
-        .sort((a, b) => a[0] - b[0]),
-    getColorsWeighted: () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
-        .map(col => new Color({ rgb: col.style.backgroundColor }))
-        .map(col => [Math.sqrt(0.5 * col.hsl[0] * col.hsl[0] + 0.5 * col.hsl[1] * col.hsl[1] + col.hsl[2] * col.hsl[2]), col])
-        .sort((a, b) => a[0] - b[0]),
-    colorGroups: [
-        ['rgb(255, 255, 255)', 'rgb(210, 210, 210)', 'rgb(168, 168, 168)', 'rgb(126, 126, 126)', 'rgb(80, 80, 80)', 'rgb(0, 0, 0)'],
-        ['rgb(239, 19, 11)', 'rgb(183, 6, 0)', 'rgb(86, 8, 6)'],
-        ['rgb(255, 113, 0)', 'rgb(206, 67, 12)', 'rgb(137, 39, 0)'],
-        ['rgb(255, 228, 0)', 'rgb(232, 162, 0)', 'rgb(163, 103, 0)'],
-        ['rgb(0, 255, 145)', 'rgb(0, 158, 114)', 'rgb(0, 120, 93)', 'rgb(0, 204, 0)', 'rgb(0, 114, 21)', 'rgb(0, 61, 3)'],
-        ['rgb(0, 178, 255)', 'rgb(0, 86, 158)', 'rgb(0, 59, 120)', 'rgb(35, 31, 211)', 'rgb(18, 11, 145)', 'rgb(8, 3, 82)'],
-        ['rgb(211, 124, 170)', 'rgb(167, 85, 116)', 'rgb(118, 48, 75)', 'rgb(163, 0, 186)', 'rgb(108, 0, 135)', 'rgb(65, 0, 81)'],
-        ['rgb(255, 172, 142)', 'rgb(226, 139, 93)', 'rgb(204, 119, 77)', 'rgb(160, 82, 45)', 'rgb(99, 48, 13)', 'rgb(72, 28, 0)']
-    ],
     enable: (modename, state) => {
         for (let [name, group] of Object.entries(brushtools.groups)) {
             for (let [name, mode] of Object.entries(group)) {
@@ -350,6 +421,7 @@ const brushtools = {
                 grid-column-gap:2em;
                 width: 100%;
                 grid-template-columns: 1fr 1fr 1fr;"></div>`);
+
         const updateStates = () => {
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
@@ -407,5 +479,12 @@ const brushtools = {
         }
 
         document.addEventListener("openBrushLab", brushtools.showSettings);
+
+        // enable defaults
+        for (let [name, group] of Object.entries(brushtools.groups)) {
+            for (let [name, mode] of Object.entries(group)) {
+                if(mode.enabled) mode.enable();
+            }
+        }
     }
 };

@@ -58,7 +58,7 @@ if (!STOP_EXECUTION) {
     // initialize modules
     captureCanvas.initListeners(); // init capturing draw ommands and drawings
     imageAgent.initImageAgent(); // init image agent from agent.js
-    pressure.initEvents(); // init pressure
+    //pressure.initEvents(); // init pressure
     uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
     imageOptions.initAll(); // init image options from imageOptions.js
     imageTools.initAll(); // init image tools from imageTools.js
