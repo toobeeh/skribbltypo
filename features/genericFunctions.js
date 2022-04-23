@@ -21,6 +21,27 @@ const markMessage = (newNode) => {
     }
 }
 
+// set the brush size depending on a value from 0-1
+let sizeElement = null;
+const setBrushsize = (pressure, useSens = true) => {
+
+    if(!sizeElement) sizeElement = QS(".brushSize");
+
+    const calcSkribblSize = (val) => Number(val) * 36 + 4;
+    const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
+    const sensitivity = 100 - Number(localStorage.sens);
+    const oldVal = Number(sizeElement.getAttribute("data-size"));
+
+    let levelled = useSens === true ? calcLevelledSize(pressure, sensitivity) : pressure;
+    let levelledSkribbl = Math.round(calcSkribblSize(levelled));
+
+    document.dispatchEvent(newCustomEvent("wheelThicknessSet", { detail: Math.round(levelledSkribbl) }));
+    sizeElement.setAttribute("data-size", levelled);
+    sizeElement.dispatchEvent(newCustomEvent("click", { pressureSet: true }));
+    sizeElement.setAttribute("data-size", oldVal);
+
+}
+
 //func to scroll to bottom of message container
 const scrollMessages = (onlyIfScrolledDown = false) => {
     let box = document.querySelector("#boxMessages");

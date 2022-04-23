@@ -144,7 +144,7 @@ const imageOptions = {
         webhooks.forEach(async (w) => {
             // add share button for image
             let shareImg = document.createElement("button");
-            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == "779435254225698827").GuildName;
+            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
             shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
             shareImg.classList.add("btn", "btn-info", "btn-block");
             shareImg.addEventListener("click", async () => {

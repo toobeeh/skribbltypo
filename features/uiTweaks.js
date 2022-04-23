@@ -742,7 +742,7 @@ const uiTweaks = {
         let sliderRange = slider.querySelector("input");
         sliderRange.addEventListener("input", (e) => {
             label.innerText = e.target.value;
-            pressure.setBrushsize(Number(e.target.value), true);
+            setBrushsize((Number(e.target.value) - 4) / 36, false);
         });
         const wheelThicknessSet = (e) => {
             if (!document.body.contains(slider)) document.removeEventListener("wheelThicknessSet", wheelThicknessSet); // remove listener if slider disabled

@@ -18,61 +18,43 @@ const brushtools = {
             pressure: {
                 name: "Tablet Pressure",
                 description: "Draw with tablet pressure.",
-                enabled: stateFromLocalstorage("stroke_pressure", true),
+                enabled: stateFromLocalstorage("tablet_pressure", true),
                 options: {
                 },
                 enable: () => {
                     brushtools.groups.tablet.pressure.enabled = stateFromLocalstorage("tablet_pressure", undefined, true);
-                    brushtools.groups.tablet.pressure.sizeElement = QS(".brushSize");
                 },
                 disable: () => {
                     brushtools.groups.tablet.pressure.enabled = stateFromLocalstorage("tablet_pressure", undefined, false);
                 },
                 pointermoveCallback: (event) => {
-                    if(event.type == "pointerdown"){
-
-                        brushtools.groups.tablet.pressure.setBrushsize(0);
-                    } 
-                    else if(event.type == "pointerup"){
-
-                        brushtools.groups.tablet.pressure.setBrushsize(0);
-                    } 
-                    else if (event.type === "pointermove"){
-                        
-                        if(event.pressure > 0){
-                            brushtools.groups.tablet.pressure.setBrushsize(event.pressure);
+                    if(event.pointerType == "pen"){
+                        if(event.type == "pointerdown"){
+                           setBrushsize(0);
+                        } 
+                        else if(event.type == "pointerup"){
+                            setBrushsize(0);
+                        } 
+                        else if (event.type === "pointermove"){
+                            
+                            if(event.pressure > 0){
+                                setBrushsize(event.pressure);
+                            }
                         }
                     }
-                },
-                setBrushsize: (pressure) => {
-
-                    const calcSkribblSize = (val) => Number(val) * 36 + 4;
-                    const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
-                    const sensitivity = 100 - Number(localStorage.sens);
-                    const oldVal = Number(brushtools.groups.tablet.pressure.sizeElement.getAttribute("data-size"));
-
-                    let levelled = calcLevelledSize(pressure, sensitivity);
-                    let levelledSkribbl = Math.round(calcSkribblSize(levelled));
-
-                    document.dispatchEvent(newCustomEvent("wheelThicknessSet", { detail: Math.round(levelledSkribbl) }));
-                    brushtools.groups.tablet.pressure.sizeElement.setAttribute("data-size", levelled);
-                    brushtools.groups.tablet.pressure.sizeElement.dispatchEvent(newCustomEvent("click", { pressureSet: true }));
-                    brushtools.groups.tablet.pressure.sizeElement.setAttribute("data-size", oldVal);
-
-                },
-                sizeElement: null
+                }
             },
             eraser: {
                 name: "Pen Eraser",
                 description: "Enables the pen eraser button.",
-                enabled: stateFromLocalstorage("stroke_eraser", true),
+                enabled: stateFromLocalstorage("tablet_eraser", true),
                 options: {
                 },
                 enable: () => {
-                    brushtools.groups.tablet.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, true);
+                    brushtools.groups.tablet.eraser.enabled = stateFromLocalstorage("tablet_eraser", undefined, true);
                 },
                 disable: () => {
-                    brushtools.groups.tablet.eraser.enabled = stateFromLocalstorage("stroke_eraser", undefined, false);
+                    brushtools.groups.tablet.eraser.enabled = stateFromLocalstorage("tablet_eraser", undefined, false);
                 },
                 pointermoveCallback: (event) => {
                     if(event.type == "pointerdown"){
@@ -220,10 +202,6 @@ const brushtools = {
                 description: "Draw distorted lines. If you're using a pen, the size is affected by pressure.",
                 enabled: false,
                 options: {
-                    density: {
-                        val: 5,
-                        type: "num"
-                    },
                     size: {
                         val: 10,
                         type: "num"
@@ -244,7 +222,7 @@ const brushtools = {
                 },
                 pointermoveCallback: (event) => {
                     if (event.pressure > 0 ) {
-                        const density = brushtools.groups.stroke.noise.options.density.val;
+                        const density = 4;
                         const direction = brushtools.groups.stroke.noise.options.direction.val;
                         const size = brushtools.groups.stroke.noise.options.size.val * 10;
                         const amount = density; 
@@ -259,7 +237,7 @@ const brushtools = {
                                     vertical = -Math.abs(vertical);
                                     horizontal = horizontal * 0.6;
                                     break;
-                                case "botttom":
+                                case "bottom":
                                     vertical = Math.abs(vertical);
                                     horizontal = horizontal * 0.6;
                                     break;
