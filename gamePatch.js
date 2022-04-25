@@ -3317,7 +3317,7 @@
         localStorage.brushtool = t, this.tool = t, n(".containerTools .tool").removeClass("toolActive"), n(".containerTools .tool[data-tool='" + t + "']").addClass("toolActive"), this.updateBrushCursor()
     }, Q.prototype.setColor = function(t) {
         this.colorIndex = t,
-            (localStorage.down == "true" && (localStorage.inkMode.includes("brightness") || localStorage.inkMode.includes("degree"))  ? 0 : n(".colorPreview").css("background-color", this.getColor(t))),
+            n(".colorPreview").css("background-color", this.getColor(t)),
             this.updateBrushCursor();
         let picker = document.querySelector("#colPicker");
         if(picker && picker.firstChild) picker.firstChild.setAttribute("data-color", this.getColor(t));
@@ -3818,9 +3818,27 @@
             ut.brush.setColor(e.detail.colors[Math.floor((Math.random() * e.detail.colors.length))]);
         }, e.detail.enable);
     }), document.body.addEventListener("setColor", function (e) {
+        let index = 0;
         if (e.detail.hex)
-            ut.brush.setColor(10000 + Number("0x" + e.detail.hex.substr(1)));
-        else ut.brush.setColor(Number(e.detail))
+        {
+            index = 10000 + Number("0x" + e.detail.hex.substr(1));
+        }
+        else index = Number(e.detail);
+
+        // try to get skribbl color index
+        if(index > 10000){
+
+            for(let skribblColindex = 2; skribblColindex <= 20; skribblColindex++){
+                let skribblRGB = a(ut.brush.getColor(skribblColindex));
+                let setRGB = a(ut.brush.getColor(index));
+                if(skribblRGB.r == setRGB.r && skribblRGB.g == setRGB.g && skribblRGB.b == setRGB.b ){
+                    index = skribblColindex;
+                    break;
+                }
+            }
+        }
+
+        ut.brush.setColor(index);
     }),
     (window.onbeforeunload = (e) => {
         if (sessionStorage.practise == "true") {

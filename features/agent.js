@@ -19,19 +19,19 @@ const imageAgent = {// func to set the image in the agentdiv
         // Probably best - wikimedia: https://commons.wikimedia.org/wiki/Special:MediaSearch?type=bitmap&q= LOL NO SO WEIRD
         // Sooo weird  https://search.aol.com/aol/image;?q=
         // lets give it a try https://www.picsearch.com/index.cgi?q=einhorn
-        let uri = encodeURIComponent('https://www.picsearch.com/index.cgi?q=' + search);
-        let resp = await fetch('https://api.allorigins.win/get?url=' + uri);
-        let html = (await resp.json()).contents;
-        let doc = new DOMParser().parseFromString(html, "text/html");
-        imageAgent.searchImages = doc.images;
+        // nice pakistani https://searchoye.com/search?q=&engine=5#gsc.tab=0&gsc.q=
+        // hehe finally my own scraper: https://typo-agent-scraper.herokuapp.com/param
+        let param = encodeURIComponent(search);
+        let resp = await fetch("https://typo-agent-scraper.herokuapp.com/" + param);
+        imageAgent.searchImages = await resp.json();
         imageAgent.imageIndex = 0;
 
-        if (!imageAgent.searchImages[imageAgent.imageIndex * 2 + 1]) { imageAgent.agent.alt = "Error: No results found :("; imageAgent.agent.src = ""; return; }
+        if (!imageAgent.searchImages[0]) { imageAgent.agent.alt = "Error: No results found :("; imageAgent.agent.src = ""; return; }
         imageAgent.getNextAgentImage();
     },
     getNextAgentImage: () => {
-        if (imageAgent.imageIndex >= imageAgent.searchImages.length) imageAgent.imageIndex = 2;
-        imageAgent.agent.src = imageAgent.searchImages[imageAgent.imageIndex].src;
+        if (imageAgent.imageIndex >= imageAgent.searchImages.length) imageAgent.imageIndex = 0;
+        imageAgent.agent.src = imageAgent.searchImages[imageAgent.imageIndex];
         scrollMessages();
         imageAgent.imageIndex++;
     },

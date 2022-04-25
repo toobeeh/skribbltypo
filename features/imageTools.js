@@ -89,7 +89,6 @@ const imageTools = {
                 captureCanvas.drawOnCanvas(actions);
                 captureCanvas.capturedActions = [...actions];
             });
-            document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
         });
 
         let popupSaveCommands = document.createElement("button");
@@ -157,7 +156,6 @@ const imageTools = {
                 captureCanvas.drawOnCanvas(JSON.parse(actions));
                 captureCanvas.capturedActions = JSON.parse(actions);
             });
-            document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
         };
         popupPasteSavedCommands.addEventListener("click", () => {
             let fileInput = document.createElement('input');
