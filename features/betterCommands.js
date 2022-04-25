@@ -238,11 +238,11 @@ const commands = [
             actionBefore: null,
             actionEnable: () => {
                 localStorage.imageAgent = "true";
-                QS("#imageAgent").style.display = "";
+                QS("#containerAgent").style.display = "flex";
             },
             actionDisable: () => {
                 localStorage.imageAgent = "false";
-                QS("#imageAgent").style.display = "none";
+                QS("#containerAgent").style.display = "none";
             },
             actionAfter: (state) => {
                 scrollMessages();
