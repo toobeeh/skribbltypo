@@ -186,6 +186,155 @@
         if(it) it.reconnect = false;
         disconnect();
     });
+
+    document.addEventListener("fakeSocketdata", e => {
+        const event = e.detail[0];
+        const t = e.detail[1];
+
+        if(event == "drawCommands"){
+            for (var e = 0; e < t.length; e++) I(t[e])
+        }
+        else if(event == "canvasClear"){
+            ut.clear()
+        }
+        else if(event == "lobbyKicked"){
+            var e = st.players.get(t);
+            null != e && (st.chatAddMsg(null, e.name + " was kicked!", G), e.kicked = !0)
+        }
+        else if(event == "chat"){
+            var e = st.players.get(t.id),
+                    n = st.players.get(st.myID),
+                    o = e.id == st.drawingID || e.guessedWord;
+                    n.id != st.drawingID && !n.guessedWord && o || (!e.mute ?
+                        st.chatAddMsg(e, v(t.message), o ? "#7dad3f" : "#000") :
+                        st.chatAddMsg(e, v(t.message), "rgb(0 0 0 / 50%)", t.id))
+        }
+        else if(event == "lobbySpam"){
+            st.chatAddMsg(null, "Spam detected! You're sending too many messages.", G)
+        }
+        else if(event == "restartNotification"){
+            st && st.chatAddMsg(null, "Server will restart in about " + t + " seconds...", N)
+        }
+        else if(event == "lobbyConnected") {
+            document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: t }));
+            if (ut.clear(), E(""), st = new tt(t), st.inGame) {
+                for (var e = 0; e < t.drawCommands.length; e++) I(t.drawCommands[e]);
+                ct.goto("game"), st.drawingID >= 0 && D(st.time)
+            } else ct.goto("lobby")
+        }
+        else if(event == "lobbyVotekickCurrent"){
+            if (st) {
+                var e = st.players.get(t[0]),
+                    n = st.players.get(t[1]);
+                st.chatAddMsg(null, "'" + e.name + "' is voting to kick '" + n.name + "' (" + t[2] + "/" + t[3] + ")", N)
+            }
+        }
+        else if(event == "lobbyState"){
+            switch (parseInt(t[0])) {
+                case $:
+                    d(), D(st.time);
+                    break;
+                case Y:
+                    E("Game will start soon...")
+            }
+        }
+        else if(event == "lobbyGameStart"){
+            st.reset(), E(""), ct.goto("game")
+        }
+        else if(event == "lobbyGameEnd"){
+            var ts = [];
+                st.players.forEach(function(e, n, o) {
+                    t.push(e)
+                }), L({
+                    mode: "endgame",
+                    text: "Result",
+                    players: ts
+                })
+        }
+        else if(event == "lobbyPlayerConnected"){
+            st.addPlayer(t), st.chatAddMsg(null, t.name + " joined.", j), at.playSound("playerJoin")
+        }
+        else if(event == "lobbyPlayerDisconnected"){
+            var e = st.players.get(t);
+                st.removePlayer(e), e.kicked || st.chatAddMsg(null, e.name + " left.", G), at.playSound("playerLeave")
+        }
+        else if(event == "lobbyPlayerGuessedWord") {
+            var e = st.players.get(t);
+            st.setPlayerGuessed(e), st.chatAddMsg(null, e.name + " guessed the word!", _), t == st.myID && st.chatDisable(), at.playSound("playerGuessed")
+        }
+        else if(event == "lobbyGuessClose") {
+            st.chatAddMsg(null, "'" + t + "' is close!", N)
+        }
+        else if(event =="lobbyPlayerDrawing") {
+            var e = st.players.get(t);
+            st.setPlayerDrawing(e.id), st.chatAddMsg(null, e.name + " is drawing now!", O);
+            sessionStorage.lastDrawing = e.name;
+            var n = st.drawingID == st.myID;
+            ut.setDrawing(n), n ? (f(), y()) : (p(), d()), at.playSound("roundStart"), D(st.timeMax), U()
+        }
+        else if(event =="lobbyOwnerChanged") {
+            var e = st.players.get(t);
+            st.setPlayerOwner(e), st.chatAddMsg(null, e.name + " is the owner now!", _)
+        }
+        else if(event == "lobbyRound") {
+            st.round = t, st.updateRound(), L({
+                mode: "text",
+                text: "Round " + (st.round + 1)
+            })
+        }
+        else if(event == "lobbyChooseWord") {
+            if (t.id == st.myID) L({
+                mode: "choosewords",
+                text: "Choose a word",
+                words: t.words
+            });
+            else {
+                L({
+                    mode: "text",
+                    text: st.players.get(t.id).name + " is choosing a word!"
+                })
+            }
+        }
+        else if(event == "lobbyReveal") {
+            sessionStorage.lastWord = t.word;
+            document.querySelector("body").dispatchEvent(new Event("drawingFinished"));
+            A(), st.chatEnable(), st.chatAddMsg(null, "The word was '" + t.word + "'", _);
+            document.querySelector("body").dispatchEvent(new Event("wordRevealed"));
+            for (var e = [], n = !0, o = 0; o < t.scores.length / 2; o++) {
+                var r = t.scores[2 * o],
+                    s = t.scores[2 * o + 1],
+                    i = st.players.get(r);
+                if (i) {
+                    i.guessedWord && (n = !1);
+                    var a = s - i.score;
+                    st.setPlayerScore(i, s, a), e.push(i)
+                }
+            }
+            st.updateRanks(), L({
+                mode: "reveal",
+                text: "The word was: " + t.word,
+                revealReason: X[t.reason],
+                players: e,
+                onshow: function () {
+                    n ? at.playSound("roundEndFailure") : at.playSound("roundEndSuccess")
+                }
+            }), st.setPlayerDrawing(-1), ut.setDrawing(!1), st.playersResetGuessedWord();
+        }
+        else if(event == "lobbyPlayerRateDrawing") {
+            var e = st.players.get(t[0]),
+                n = st.players.get(t[1]),
+                o = t[2];
+            e && st.playerRate(e, o), n && (o > 0 ? n.thumbsUp++ : n.thumbsDown++)
+        }
+        else if("lobbyCurrentWord") {
+            st.players.get(st.myID).guessedWord || E(t)
+        }
+        else if("lobbyTime") {
+            S(t)
+        }
+
+    });
+
     function C(t, e) {
         if (it && it.connected) return;
         at.playSound("playerJoin"), it = io(t, {
@@ -2973,6 +3122,7 @@
                     case r.EVENT:
                     case r.BINARY_EVENT:
                         this.onevent(t);
+                        document.dispatchEvent(new CustomEvent("socketdata", {detail: t.data }));
                         break;
                     case r.ACK:
                     case r.BINARY_ACK:

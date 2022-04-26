@@ -56,6 +56,7 @@ if (!STOP_EXECUTION) {
         window.location.reload();
     }
     // initialize modules
+    lobbyStream.init();
     captureCanvas.initListeners(); // init capturing draw ommands and drawings
     imageAgent.initImageAgent(); // init image agent from agent.js
     //pressure.initEvents(); // init pressure

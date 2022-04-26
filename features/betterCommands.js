@@ -231,7 +231,7 @@ const commands = [
             }
         }
     }, {
-        command: "agent", // change image agent implementation
+        command: "agent", 
         options: {
             type: "toggle",
             description: "Sets the agent feature.",
@@ -411,6 +411,36 @@ const commands = [
             },
             response: (args) => {
                 return "The highlight color for your messages is now " + args + ".";
+            }
+        }
+    }, {
+        command: "stream", 
+        options: {
+            type: "action",
+            description: "Starts a lobby stream",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                lobbyStream.initStream();
+            },
+            response: (args) => {
+                return "Starting lobby stream..";
+            }
+        }
+    }, {
+        command: "spectate", 
+        options: {
+            type: "action",
+            description: "Starts a lobby stream",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                lobbyStream.initSpectate(args);
+            },
+            response: (args) => {
+                return "Connecting to lobby stream..";
             }
         }
     }, {

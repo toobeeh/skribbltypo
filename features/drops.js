@@ -10,7 +10,7 @@ const drops = {
     waitForClear: false,
     fakeboxes: [],
     newDrop: (drop) => {
-        if (localStorage.drops == "false") return;
+        if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
         drops.currentDrop = drop;
         let dropElem = drops.dropContainer;
         if (drop.eventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
@@ -28,7 +28,7 @@ const drops = {
         }, 5000);
     },
     clearDrop: (result) => {
-        if (localStorage.drops == "false") return;
+        if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
         let dropElem = drops.dropContainer;
         let winner = result.caughtPlayer;
         if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Yeee!", "You were the fastest and caught the drop!");
