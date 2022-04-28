@@ -58,7 +58,7 @@
                 if (ut.drawCommands.length > 0) {
                     if (ut.drawCommands.length > 8) {
                         var t = ut.drawCommands.splice(7);
-                        it.emit("drawCommands", ut.drawCommands), ut.drawCommands = t
+                        it.emit("drawCommands", ut.drawCommands), ut.drawCommands = t;
                     } else it.emit("drawCommands", ut.drawCommands), ut.drawCommands = []
                 }
             } else ut.drawCommands.length > 0 && (ut.drawCommands = [])
@@ -243,13 +243,13 @@
         }
         else if(event == "lobbyGameEnd"){
             var ts = [];
-                st.players.forEach(function(e, n, o) {
-                    t.push(e)
-                }), L({
-                    mode: "endgame",
-                    text: "Result",
-                    players: ts
-                })
+            st.players.forEach(function(e, n, o) {
+                ts.push(e)
+            }), L({
+                mode: "endgame",
+                text: "Result",
+                players: ts
+            })
         }
         else if(event == "lobbyPlayerConnected"){
             st.addPlayer(t), st.chatAddMsg(null, t.name + " joined.", j), at.playSound("playerJoin")
@@ -271,6 +271,18 @@
             sessionStorage.lastDrawing = e.name;
             var n = st.drawingID == st.myID;
             ut.setDrawing(n), n ? (f(), y()) : (p(), d()), at.playSound("roundStart"), D(st.timeMax), U()
+        }
+        else if(event == "lobbyLanguage") {
+            st.setLanguage(t)
+        }
+        else if(event == "lobbyRounds") {
+            st.setRounds(t)
+        }
+        else if(event == "lobbyDrawTime") {
+            st.setDrawTime(t)
+        }
+        else if(event == "lobbyCustomWordsExclusive") {
+            st.setCustomWordsExclusive(t)
         }
         else if(event =="lobbyOwnerChanged") {
             var e = st.players.get(t);
@@ -327,7 +339,7 @@
             e && st.playerRate(e, o), n && (o > 0 ? n.thumbsUp++ : n.thumbsDown++)
         }
         else if("lobbyCurrentWord") {
-            st.players.get(st.myID).guessedWord || E(t)
+            st.players.get(st.myID).guessedWord || Number(t) > 0 || E(t)
         }
         else if("lobbyTime") {
             S(t)
@@ -568,6 +580,7 @@
     }
 
     function I(t) {
+        document.dispatchEvent(new CustomEvent("socketdata", {detail: ["drawCommands", [t]] }));
         sessionStorage.getItem('practise') == "true" || st.drawingID == st.myID ? (ut.drawCommands.push(t), ut.performDrawCommand(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }))) : (ut.addDrawCommandReceived(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t })));
     }
 
@@ -3778,7 +3791,7 @@
             var r = 0;
             setInterval(o, 1e3);
             n(this).mousemove(e), n(this).keypress(e), n(this).on("mousedown", e), n(this).on("touchmove", e)
-        }), setInterval(l, 1), n("#rateDrawing .thumbsUp").on("click", function() {
+        }), setInterval(l, 3), n("#rateDrawing .thumbsUp").on("click", function() {
             it && it.emit("rateDrawing", 1), f()
         }), n("#rateDrawing .thumbsDown").on("click", function() {
             it && it.emit("rateDrawing", 0), f()
@@ -3933,6 +3946,7 @@
             document.dispatchEvent(new CustomEvent("toast", { detail: { text: "Prevented Canvas Clear." } }));
             return;
         }
+        document.dispatchEvent(new CustomEvent("socketdata", {detail: ["canvasClear"] }));
         it ? it.emit("canvasClear") : ut.clear()
     }), n(".containerTools .tool").on("click", function () {
         if (this.closest(".containerClearCanvas")) return;

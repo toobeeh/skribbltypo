@@ -19,7 +19,7 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "charbar" && settings.charBar == "true") bt.className = "active";
             if (bt.id == "backbutton" && settings.displayBack == "true") bt.className = "active";
             if (bt.id == "randomToggle" && settings.randomAndPicker == "true") bt.className = "active";
-            if (bt.id == "palantirToggle" && settings.userAllow == "true") bt.className = "active";
+            if (bt.id == "palantirToggle" && settings.palantir == "true") bt.className = "active";
             if (bt.id == "clearcanvas" && settings.keepCanvas == "true") bt.className = "active";
             if (bt.id == "controls" && settings.controls == "true") bt.className = "active";
             if (bt.id == "keybinds" && settings.keybinds == "true") bt.className = "active";

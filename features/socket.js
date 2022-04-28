@@ -154,6 +154,9 @@ const socket = {
         catch (e) { console.log("Error setting search status:" + e.toString()); }
     },
     joinLobby: async (key) => {
+
+        if(lobbyStream.spectating) return;
+
         try {
             await socket.emitEvent("join lobby", { key: key }, true);
         }

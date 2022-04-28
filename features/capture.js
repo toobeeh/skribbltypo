@@ -99,7 +99,7 @@ const captureCanvas = {
                 meta: { 
                     name: sessionStorage.lastWord ? sessionStorage.lastWord : QS("#currentWord").innerText,
                     author: getCurrentOrLastDrawer(),
-                    own: getCurrentOrLastDrawer() == socket.clientData.playerName,
+                    own: getCurrentOrLastDrawer() == socket.clientData.playerName && !lobbyStream.spectating,
                     language: lobbies_.lobbyProperties.Language,
                     private: lobbies_.lobbyProperties.Private,
                     thumbnail: await scaleDataURL(QS("#canvasGame").toDataURL("2d"), QS("#canvasGame").width / 10, QS("#canvasGame").height / 10)

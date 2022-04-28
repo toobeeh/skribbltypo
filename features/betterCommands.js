@@ -59,7 +59,7 @@ const commands = [
             actionEnable: () => {
                 localStorage.palantir = "true";
                 lobbies_.userAllow = true;
-                if (lobbies_.inGame && !lobbies_.joined) {
+                if (lobbies_.inGame && !lobbies_.joined && !lobbyStream.spectating) {
                     socket.joinLobby(lobbies_.lobbyProperties.Key);
                     lobbies_.joined = true;
                 }
