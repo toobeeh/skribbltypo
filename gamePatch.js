@@ -3399,6 +3399,19 @@
         var o = 4 * (n * t.width + e);
         return o >= 0 && o < t.data.length ? [t.data[o], t.data[o + 1], t.data[o + 2], t.data[o + 3]] : [0, 0, 0, 0]
     }, Z.prototype.floodFill = function(t, e, n, o, r, op = 255) {
+
+        
+
+        // fix for lines on canvas that are same as background color (https://cdn.discordapp.com/attachments/963172464467279965/969307261778411660/Ohne_Titel.mp4)
+        // fill also where color is the background color
+        const canvasSolidBack = getComputedStyle(this.canvas[0]).backgroundColor;
+        let cB = [];
+        if(canvasSolidBack.indexOf("rgba") > 0) cB = canvasSolidBack.replace("rgba(","").replace(")","").split(",").map(c => Number(c));
+        else {
+            cB = canvasSolidBack.replace("rgb(","").replace(")","").split(",").map(c => Number(c));
+            cB.push(255);
+        }
+
         var s = this.canvasCtx.getImageData(0, 0, this.canvas[0].width, this.canvas[0].height),
             i = [
                 [t, e]
@@ -3416,7 +3429,11 @@
                         h = Math.abs(i - a[1]),
                         l = Math.abs(c - a[2]),
                         _o = Math.abs(opacity - a[3]);
-                    return u < 1 && h < 1 && l < 1 && _o < 1
+                    var bu = Math.abs(e - cB[0]),
+                        bh = Math.abs(i - cB[1]),
+                        bl = Math.abs(c - cB[2]),
+                        b_o = Math.abs(opacity - cB[3]);
+                    return u < 1 && h < 1 && l < 1 && _o < 1 || bu < 1 && bh < 1 && bl < 1 && b_o < 1
                 }, u = s.height, h = s.width; i.length;) {
                 var l, p, f, d, y, m;
                 for (l = i.pop(), p = l[0], f = l[1], d = 4 * (f * h + p); f-- >= 0 && c(d);) d -= 4 * h;
