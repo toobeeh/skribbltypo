@@ -3403,7 +3403,7 @@
         
 
         // fix for lines on canvas that are same as background color (https://cdn.discordapp.com/attachments/963172464467279965/969307261778411660/Ohne_Titel.mp4)
-        // fill also where color is the background color
+        // fill rules: when filling transparency or color == background: fill transparency and color == background
         const canvasSolidBack = getComputedStyle(this.canvas[0]).backgroundColor;
         let cB = [];
         if(canvasSolidBack.indexOf("rgba") > 0) cB = canvasSolidBack.replace("rgba(","").replace(")","").split(",").map(c => Number(c));
@@ -3417,6 +3417,8 @@
                 [t, e]
             ],
             a = this.getPixel(s, t, e);
+        let bgFill = a[3] == 0 || cB[0] == a[0] && cb[1] == a[1] && cB[2] == a[2] && (cB[3] ? cB[3] == a[3] : true);
+        
         if (n != a[0] || o != a[1] || r != a[2] || op != a[3]) {
             for (var c = function(t) {
                     var e = s.data[t],
@@ -3429,11 +3431,13 @@
                         h = Math.abs(i - a[1]),
                         l = Math.abs(c - a[2]),
                         _o = Math.abs(opacity - a[3]);
+
+                    // difference to background color
                     var bu = Math.abs(e - cB[0]),
                         bh = Math.abs(i - cB[1]),
                         bl = Math.abs(c - cB[2]),
                         b_o = Math.abs(opacity - cB[3]);
-                    return u < 1 && h < 1 && l < 1 && _o < 1 || bu < 1 && bh < 1 && bl < 1 && b_o < 1
+                    return u < 1 && h < 1 && l < 1 && _o < 1 ||  bgFill && bu < 1 && bh < 1 && bl < 1 && b_o < 1 || bgFill && opacity == 0
                 }, u = s.height, h = s.width; i.length;) {
                 var l, p, f, d, y, m;
                 for (l = i.pop(), p = l[0], f = l[1], d = 4 * (f * h + p); f-- >= 0 && c(d);) d -= 4 * h;

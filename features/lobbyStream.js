@@ -114,7 +114,7 @@ const lobbyStream = {
             // change ui things
             lobbyStream.spectateRules = elemFromString(`<style>
 
-                #formChat, .containerToolbar, #votekickCurrentplayer, #brushlab, #restrictLobby, #rateDrawing, .containerSettings .form-group:last-child, #buttonLobbyPlay, .invite-container {display: none !important}
+                #formChat, #modalIdle, .containerToolbar, #votekickCurrentplayer, #brushlab, #restrictLobby, #rateDrawing, .containerSettings .form-group:last-child, #buttonLobbyPlay, .invite-container {display: none !important}
                 div#round:after {content: "in  a lobby stream";margin-left: 2em;font-style: italic;}
                 #canvasGame, #containerBoard {pointer-events: none};
             
