@@ -40,7 +40,32 @@ const lobbyStream = {
 
         lobbyStream.client?.emit("streamdata", data);
     },
+    modal: {},
+    streamSettings: {
+        personalCode: false,
+        autoStart: false,
+        onlyPalantir: false,
+        spectatorWhitelist: "",
+        serverWhitelist: ""
+    },
+    getSettings: () => {
+        lobbyStream.streamSettings.personalCode = lobbyStream.modal.querySelector("#personalCode").checked;
+        lobbyStream.streamSettings.autoStart = lobbyStream.modal.querySelector("#autoStart").checked;
+        lobbyStream.streamSettings.onlyPalantir = lobbyStream.modal.querySelector("#onlyPalantir").checked;
+        lobbyStream.streamSettings.spectatorWhitelist = lobbyStream.modal.querySelector("#spectatorWhitelist").value;
+        lobbyStream.streamSettings.serverWhitelist = lobbyStream.modal.querySelector("#serverWhitelist").value;
 
+        localStorage.setItem("lobbyStream", JSON.stringify(lobbyStream.streamSettings));
+    },
+    setSettings: () => {
+        lobbyStream.streamSettings = JSON.parse(localStorage.getItem("lobbyStream"));
+
+        lobbyStream.modal.querySelector("#personalCode").checked = lobbyStream.streamSettings.personalCode;
+        lobbyStream.modal.querySelector("#autoStart").checked =lobbyStream.streamSettings.autoStart;
+        lobbyStream.modal.querySelector("#onlyPalantir").checked = lobbyStream.streamSettings.onlyPalantir;
+        lobbyStream.modal.querySelector("#spectatorWhitelist").value = lobbyStream.streamSettings.spectatorWhitelist;
+        lobbyStream.modal.querySelector("#serverWhitelist").value = lobbyStream.streamSettings.serverWhitelist;
+    },
     init: () => {
 
         // listen for incoming events
@@ -52,6 +77,92 @@ const lobbyStream = {
             lobbyStream.listeners = [];
             lobbyStream.client = null;
         });
+
+        // build UI
+        // modal
+        const modal = elemFromString(`<div style="text-align:center">
+
+            <h4>
+                Stream a lobby to let friends watch everything that happens in a lobby, as if they were in it.
+            </h4>
+
+            <hr>
+
+            <h3>Join Stream</h3>
+            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 2em; place-content: center; margin-top: 1em;">
+                <span>Enter the stream code:</span>
+                <input id="streamCode" class="form-control" type="text">
+                <input id="joinStream" type="button" class="btn btn-primary" value="Join Stream">
+            </div>
+
+            <hr>
+
+            <h3>Start Stream</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2em; place-content: center; margin-top: 1em;">
+
+                <div>
+                    <input id="startStream" type="button" value="Start the Stream" class="btn btn-success"><br><br>
+                    Once the stream has started, send the stream code to your friends.
+                </div>
+
+                <div>
+                    <h4>Stream Invite Code</h4>
+                    <label style="display:block; cursor: pointer"><input id="personalCode" type="checkbox"> Use personal stream code </label>
+                    If you're logged in with Palantir, you can set a personal stream code.<br>
+                    Set this code with the Bot command ">streamcode" in Discord.
+                </div>
+
+                <div>
+                    <h4>Auto-Start Stream</h4>
+                    <label style="display:block; cursor: pointer"><input id="autoStart"  type="checkbox"> Start stream on lobby join </label>
+                    Selecting this will automatically start a stream whenever you join a lobby. <br>
+                    Useful when you have set a personal stream code and want friends be able to watch all the time.
+                </div>
+
+                <div>
+                    <h4>Spectator Verification</h4>
+                    <label style="display:block; cursor: pointer"><input id="onlyPalantir" type="checkbox"> Let only Palantir users join </label>
+                    Spectators will have to be logged in with Palantir and only can join once per account.
+                </div>
+
+                <div>
+                    <h4>Spectator Whitelist</h4>
+                    <input id="spectatorWhitelist" class="form-control" type="text" placeholder="Spectator Whitelist is disabled">
+                    Only spectators listed here are able to join. They must have logged in with Palantir.<br>
+                    Enter their Discord IDs spearated with an ",".
+                </div>
+
+                <div style="grid-column-span:2">
+                    <h4>Server Whitelist</h4>
+                    <input id="serverWhitelist" class="form-control" type="text" placeholder="Server Whitelist is disabled">
+                    Only spectators that are connected to Palantir on the listed servers can join. <br>
+                    Spectators will have to be logged in with Palantir and only can join once per account. <br>
+                    Enter the Server IDs separated by ",".
+                </div>
+            
+            </div>
+
+        </div>`);
+        lobbyStream.modal = modal;
+
+        // read settings from localstorage
+        lobbyStream.setSettings();
+
+        // save settings to localstorage
+        modal.addEventListener("click", () => {
+            lobbyStream.getSettings();
+        });
+
+        // listen for stream start
+        modal.querySelector("#startStream").addEventListener("click", () => {
+            lobbyStream.initStream();
+        });
+
+        // listen for stream spectate
+        modal.querySelector("#joinStream").addEventListener("click", () => {
+            const code = modal.querySelector("#streamCode").value;
+            lobbyStream.initSpectate(code);
+        });
     },
 
     client: null,
@@ -60,12 +171,19 @@ const lobbyStream = {
 
     initStream: () => {
 
+        const request = {
+            settings: lobbyStream.streamSettings,
+            accessToken: localStorage.accessToken
+        };
+
         // connect to stream server
         const host = io("https://typo-stream.herokuapp.com/");
 
         // when server has accepted connection
         host.on("connect", () => {
             
+            host.on("error", (msg) => { new Toast(msg) });
+
             // get stream id
             let streamID = "";
             host.on("streamstart", data => {
@@ -86,7 +204,7 @@ const lobbyStream = {
             });
 
             // start as streamer
-            host.emit("stream");
+            host.emit("stream", request);
         });
     },
 
@@ -103,13 +221,15 @@ const lobbyStream = {
         // on client connected
         client.on("connect", async () => {
 
+            client.on("error", (msg) => { new Toast(msg) });
+
             // leave lobby and go to practise
             leaveLobby();
             waitMs(100);
             showPractise();
 
             // register as spectator
-            client.emit("spectate", {id: streamID, name: socket.clientData.playerName});
+            client.emit("spectate", {id: streamID, name: socket.clientData.playerName, accessToken: localStorage.accessToken});
             
             // change ui things
             lobbyStream.spectateRules = elemFromString(`<style>

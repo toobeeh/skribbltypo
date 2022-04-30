@@ -422,7 +422,7 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                lobbyStream.initStream();
+                new Modal(lobbyStream.modal, () => { }, "Lobby Stream");
             },
             response: (args) => {
                 return "Starting lobby stream..";
