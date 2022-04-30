@@ -41,7 +41,7 @@ const gamemodes = {
                     // update message blur based on self drawing / guessed or not
                     QS("#boxMessages style#gamemodeDeafRules").innerHTML =
                         (QS("[me].guessedWord") || QS("[me]").querySelector(".drawing:not([style*=none])")) ?
-                        "" : "#currentWord, .message .content .text, #charbar, #boxMessages > p > span:not(:empty) {backdrop-filter: grayscale(1) blur(4px) opacity(0.8);}";
+                        "" : "#currentWord, .message .content .text, #charbar, #boxMessages > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);}";
                 }
             }
         }, {
@@ -54,6 +54,7 @@ const gamemodes = {
                         div#containerCanvas:after {z-index: 1; content: " ";height: 100%;background: transparent;position: absolute;inset: 0;backdrop-filter: blur(20px);pointer-events: none;}
                         #containerCanvas > * {z-index: 2}
                         #canvasGame {z-index: 0}
+                        #newSidebar {z-index:2}
                         </style>`));
                 },
                 initWithAction: true,

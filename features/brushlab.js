@@ -215,6 +215,9 @@ const brushtools = {
                     for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
                         mode.disable();
                     }
+                    for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
+                        mode.disable();
+                    }
                     brushtools.groups.stroke.noise.enabled = true;
                 },
                 disable: () => {

@@ -3897,7 +3897,9 @@
                     document.querySelector(".modalBlur").dispatchEvent(new Event("click"));
                 break;
             case "ESCAPE":
-                !document.querySelector(".modalBlur") ? (it ? it.emit("canvasClear") : ut.clear()) : 0;
+                !document.querySelector(".modalBlur") ? 
+                    ( (document.dispatchEvent(new CustomEvent("socketdata", {detail: ["canvasClear"] })), it) ? it.emit("canvasClear") : ut.clear() ) 
+                    : 0;
         }
     }), ut.canvas.on("mousedown", function (t) {
         switch (t.preventDefault(), t.button + t.ctrlKey) { // + ctrl key when zooming
