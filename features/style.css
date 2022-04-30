@@ -354,3 +354,27 @@ input::-webkit-inner-spin-button {
 #brushmagicSettings .mode > span { font-style: italic;}
 #brushmagicSettings .options > label { margin-top: .2em; display: block}
 #brushmagicSettings .options > label > * { margin-left: .5em; }
+
+
+#modalLobbystream.streaming .joinstream {
+  display:none !important;
+}
+
+#modalLobbystream:not(.streaming) .stopstream {
+  display:none !important;
+}
+
+#modalLobbystream.streaming .startstream div:not(.stopstream) {
+  pointer-events:none;
+  opacity: 0.7;
+}
+
+#modalLobbystream.spectating .startstream {
+  display:none !important;
+}
+
+#modalLobbystream.spectating #joinStream {
+  pointer-events:none;
+  opacity: 0.7;
+}
+

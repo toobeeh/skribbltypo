@@ -80,7 +80,7 @@ const lobbyStream = {
 
         // build UI
         // modal
-        const modal = elemFromString(`<div style="text-align:center">
+        const modal = elemFromString(`<div id="modalLobbystream" style="text-align:center">
 
             <h4>
                 Stream a lobby to let friends watch everything that happens in a lobby, as if they were in it.
@@ -88,20 +88,25 @@ const lobbyStream = {
 
             <hr>
 
-            <h3>Join Stream</h3>
-            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 2em; place-content: center; margin-top: 1em;">
+            <h3 class="joinstream" >Join Stream</h3>
+            <div class="joinstream" style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 2em; place-content: center; margin-top: 1em;">
                 <span>Enter the stream code:</span>
                 <input id="streamCode" class="form-control" type="text">
                 <input id="joinStream" type="button" class="btn btn-primary" value="Join Stream">
             </div>
 
-            <hr>
+            <hr class="joinstream">
 
-            <h3>Start Stream</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2em; place-content: center; margin-top: 1em;">
+            <h3 class="startstream">Start Stream</h3>
+            <div class="startstream" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2em; place-content: center; margin-top: 1em;">
+
+                <div class="stopstream">
+                    <input id="stopStream" type="button" value="Stop the Stream" class="btn btn-danger">
+                    <h4>Stream code: <b id="currentStreamcode"></b></h4>
+                </div>
 
                 <div>
-                    <input id="startStream" type="button" value="Start the Stream" class="btn btn-success"><br><br>
+                    <input id="startStream" type="button" value="Start a Stream" class="btn btn-success"><br><br>
                     Once the stream has started, send the stream code to your friends.
                 </div>
 
@@ -116,7 +121,7 @@ const lobbyStream = {
                     <h4>Auto-Start Stream</h4>
                     <label style="display:block; cursor: pointer"><input id="autoStart"  type="checkbox"> Start stream on lobby join </label>
                     Selecting this will automatically start a stream whenever you join a lobby. <br>
-                    Useful when you have set a personal stream code and want friends be able to watch all the time.
+                    Useful when you have set a personal stream code and want friends to be able to watch all the time.
                 </div>
 
                 <div>
@@ -158,6 +163,11 @@ const lobbyStream = {
             lobbyStream.initStream();
         });
 
+        // listen for stream end
+        modal.querySelector("#stopStream").addEventListener("click", () => {
+            lobbyStream.client.disconnect();
+        });
+
         // listen for stream spectate
         modal.querySelector("#joinStream").addEventListener("click", () => {
             const code = modal.querySelector("#streamCode").value;
@@ -183,6 +193,8 @@ const lobbyStream = {
         host.on("connect", () => {
             
             host.on("error", (msg) => { new Toast(msg) });
+            
+            lobbyStream.modal.classList.add("streaming");
 
             // get stream id
             let streamID = "";
@@ -190,6 +202,7 @@ const lobbyStream = {
 
                 streamID = data;
                 addChatMessage("Stream started!", "Your friends can connect to the id " + streamID);
+                QS("#currentStreamcode").innerText = streamID;
                 
                 lobbyStream.client = host;
 
@@ -205,6 +218,11 @@ const lobbyStream = {
 
             // start as streamer
             host.emit("stream", request);
+
+            host.on("disconnect", () => {
+                lobbyStream.modal.classList.remove("streaming");
+                addChatMessage("Stream stopped.", " ");
+            });
         });
     },
 
@@ -222,6 +240,8 @@ const lobbyStream = {
         client.on("connect", async () => {
 
             client.on("error", (msg) => { new Toast(msg) });
+            
+            lobbyStream.modal.classList.add("spectating");
 
             // leave lobby and go to practise
             leaveLobby();
@@ -260,6 +280,7 @@ const lobbyStream = {
             new TransformStream("The stream was stopped.");
             lobbyStream.spectating = false;
             lobbyStream.spectateRules.remove();
+            lobbyStream.modal.classList.remove("spectating");
             leaveLobby();
         });
     }
