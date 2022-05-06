@@ -3417,7 +3417,7 @@
                 [t, e]
             ],
             a = this.getPixel(s, t, e);
-        let bgFill = a[3] == 0 || cB[0] == a[0] && cb[1] == a[1] && cB[2] == a[2] && (cB[3] ? cB[3] == a[3] : true);
+        let bgFill = a[3] == 0 || cB[0] == a[0] && cB[1] == a[1] && cB[2] == a[2] && (cB[3] ? cB[3] == a[3] : true);
         
         if (n != a[0] || o != a[1] || r != a[2] || op != a[3]) {
             for (var c = function(t) {
@@ -3848,14 +3848,21 @@
     }), n("#formChat").submit(function (t) {
         var e = n("#inputChat"),
             o = e.val();
-        inputLog.push(e.val());
-        logPos = inputLog.length;
-        if (sessionStorage.practise == "true") {
-            e.val("");
-            return !1;
+            inputLog.push(e.val());
+            logPos = inputLog.length;
+
+        while(o.length > 0){
+            let part = o.slice(0,100);
+            o = o.slice(100);
+            if (sessionStorage.practise == "true") {
+                e.val("");
+                return !1;
+            }
+            part && (it ? it.emit("chat", part) : st.chatAddMsg(st.players.get(st.myID), part, "#000"), e.val("")),
+                document.querySelector("#inputChat").dispatchEvent(new Event("input")), !1
         }
-        return o && (it ? it.emit("chat", o) : st.chatAddMsg(st.players.get(st.myID), o, "#000"), e.val("")),
-            document.querySelector("#inputChat").dispatchEvent(new Event("input")), !1
+        return !1;
+        
     }), n("#buttonOpenLobbyCreation").on("click", function() {
         n("#modalCreateLobby").modal("show")
     }), n("#buttonLobbyCreate").on("click", function() {

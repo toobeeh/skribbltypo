@@ -41,7 +41,7 @@ const gamemodes = {
                     // update message blur based on self drawing / guessed or not
                     QS("#boxMessages style#gamemodeDeafRules").innerHTML =
                         (QS("[me].guessedWord") || QS("[me]").querySelector(".drawing:not([style*=none])")) ?
-                        "" : "#currentWord, .message .content .text, #charbar, #boxMessages > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);}";
+                        "" : "#currentWord, .message .content .text, #wordSize, #charbar, #boxMessages > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);}";
                 }
             }
         }, {

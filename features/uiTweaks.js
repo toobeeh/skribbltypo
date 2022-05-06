@@ -789,6 +789,10 @@ const uiTweaks = {
         QS("#overlay").insertAdjacentHTML("beforeBegin",
             "<style>#overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}#overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
         
+        // allow more chat
+        QS("#inputChat").setAttribute("maxlength", 300);
+
+
         if (localStorage.keybinds == "true") keybind.init();
         if (localStorage.translate == "true") translate.init();
         if(Math.random() < 0.1) QS("#inputChat").placeholder = "Typo your guess here...";
