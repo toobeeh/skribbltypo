@@ -86,9 +86,9 @@ let patcher = new MutationObserver((mutations) => {
                     else if (node.classList.contains("updateInfo")) { 
                         node.innerHTML = "<br>Heya, take a cookie! 🍪<br><br>BTW: " + hints[Math.floor((Math.random() * hints.length))];
                         //node.innerHTML += "<br><br> Additional to the march update, some features have rolled out.<br><br> <div class='btn btn-block btn-success'>View the changelog" + (localStorage.lastChangelogview != chrome.runtime.getManifest().version ? " 📢 New!" : "") + "</div>";
-                        node.innerHTML += "<br><br>Data can be used to do pretty cool stuff.";
+                        
+                        node.innerHTML += "<br><br>Learn everything about Typo & Palantir on the <a href='https://typo.rip' role='button'>website</a> or <a href='https://discord.link/typo' role='button'>join the Discord server. </a>";
                         node.innerHTML += "<br> By using Typo, you agree on <a id='typodata' role='button'>how Typo uses data.</a>";
-                        node.innerHTML += "<br><br>Learn everything about Typo & Palantir on the <a href='https://typo.rip' role='button'>website</a> or <a href='https://discord.link/typo' role='button'>join the Discord server.</a>"
                         //let popupChanges = elemFromString(changelogPopup);
                         //node.querySelector("div").addEventListener("click", () => {
                         //    new Modal(popupChanges, () => { }, "Changelog");

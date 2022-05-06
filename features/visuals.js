@@ -96,6 +96,7 @@ const visuals = {
             if (QS("#injectionElems")) QS("#injectionElems").innerHTML = options["injection"];
             else document.body.append(elemFromString("<div id='injectionElems'>" + options["injection"] + "</div>"));
         }
+        else QS("#injectionElems")?.remove();
 
         if (QS("#visualRules")) QS("#visualRules").innerHTML = style.innerHTML;
         else document.head.append(style);
@@ -202,10 +203,10 @@ const visuals = {
         <label><input type="checkbox" id="hideInGameLogo"> Hide logo in-game</label>
         <label><input type="checkbox" id="hideAvatarSprites"> Hide sprites on frontpage</label>
     </div>
-    <!--<div>
+    <div style="display:none">
         <h4>HTML/CSS injection: add HTML to body</h4>
         <input class='form-control' type='text' id='injection' placeholder='<elem></elem> <style>elem { }</style>'>
-    </div>//-->
+    </div>
 </div>`;
         visuals.form = elemFromString(html);
         [...visuals.form.querySelectorAll("input")].forEach(input => {

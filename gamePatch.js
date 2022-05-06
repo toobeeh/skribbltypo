@@ -3914,6 +3914,7 @@
                 ut.brush.down || (ut.brush.setDown(!0), T(t.clientX, t.clientY, !0))
         }
     }),ut.canvas.on("pointerdown", function (t) {
+        return;
         if (t.altKey) {
             let from = { x: lastBrushUp.X, y: lastBrushUp.Y };
             T(t.clientX, t.clientY, !1, from);
@@ -3979,7 +3980,7 @@
         document.dispatchEvent(new CustomEvent("socketdata", {detail: ["canvasClear"] }));
         it ? it.emit("canvasClear") : ut.clear()
     }), n(".containerTools .tool").on("click", function () {
-        if (this.closest(".containerClearCanvas")) return;
+        if (this.closest(".containerClearCanvas") || this.closest(".containerBrushSizes")) return;
         ut.brush.setTool(n(this).data("tool"));
         n(this).data("tool") != "pen" && n(this).data("tool") != "fill" && clearInterval(setColorInterval);
     }), n(".colorItem").on("click", function () {

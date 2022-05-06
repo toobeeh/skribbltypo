@@ -103,7 +103,6 @@ const uiTweaks = {
         let clearContainer = QS(".containerClearCanvas");
         backBtn.classList.add("tool");
         backBtn.id = "restore";
-        backBtn.style.display = localStorage.displayBack == "true" ? "" : "none";
         backBtn.innerHTML = "<img class='toolIcon' src='" + chrome.extension.getURL("/res/back.gif") + "'>";
         backBtn.onclick = () => captureCanvas.restoreDrawing(1);
         clearContainer.style.marginLeft = "8px";
@@ -112,6 +111,17 @@ const uiTweaks = {
         clearContainer.classList.add("containerTools");
         clearContainer.appendChild(backBtn);
         backBtn.style.display = localStorage.displayBack == "true" ? "" : "none";
+    },
+    initBrushlabButton: () => {
+
+        // add btn
+        let labBtn = document.createElement("div");
+        let clearContainer = QS(".containerClearCanvas");
+        labBtn.classList.add("tool");
+        labBtn.id = "brushlabbtn";
+        labBtn.innerHTML = "<img class='toolIcon' src='" + chrome.extension.getURL("/res/brush.gif") + "'>";
+        labBtn.onclick = () => document.dispatchEvent(new Event("openBrushLab"));
+        clearContainer.appendChild(labBtn);
     },
     randomInterval: 0,
     initRandomColorDice: () => {
@@ -295,14 +305,6 @@ const uiTweaks = {
             + ") center no-repeat;'></div>");
         typroCloud.addEventListener("click", typro.show);
         QS("#controls").append(typroCloud);
-        // add brushlab
-        let tabletMode = elemFromString("<div id='brushlab' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/brush.gif")
-            + ") center no-repeat;'></div>");
-        tabletMode.addEventListener("click", () => {
-            brushtools.showSettings();
-        });
-        QS("#controls").append(tabletMode);
         // add appearance options
         let visualsButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/visuals.gif")
@@ -540,7 +542,7 @@ const uiTweaks = {
         // Create tooltips
         // remove original votekick tooltip
         QS("#containerPlayerlist .tooltip-wrapper").setAttribute("data-toggle", "");
-        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore, #votekickCurrentPlayer, #saveDrawingOptions, #controls [style*="brush.gif"],#controls [style*="fullscreen.gif"], #controls [style*="cloud.gif"], #controls [style*="visuals.gif"]'));
+        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore, #votekickCurrentPlayer, #saveDrawingOptions, #controls [style*="fullscreen.gif"], #controls [style*="cloud.gif"], #controls [style*="visuals.gif"]'));
         tooltips.forEach((v, i, a) => {
             if (v.matches('.colorPreview:not(#colPicker)')) {
                 v.setAttribute('title', 'Color preview (click for magic)');
@@ -558,14 +560,12 @@ const uiTweaks = {
                 v.setAttribute('title', 'Votekick the current player if they are misbehaving');
             } else if (v.matches('#saveDrawingOptions')) {
                 v.setAttribute('title', 'Save the current drawing to re-use it later');
-            } else if (v.matches('#controls [style*="brush.gif"]')) {
-                v.setAttribute('title', 'Choose between various drawing mods');
             } else if (v.matches('#controls [style*="visuals.gif"]')) {
                 v.setAttribute('title', 'Customize how skribbl.io looks like');
             } else if (v.matches('#controls [style*="cloud.gif"]')) {
                 v.setAttribute('title', 'Access all images in the cloud');
             } else if(v.matches('#controls [style*="fullscreen.gif"]')) {
-            v.setAttribute('title', 'Toggle fullscreen mode');
+                v.setAttribute('title', 'Toggle fullscreen mode');
             }
             a[i] = buildTooltip(v);
         });
@@ -751,6 +751,123 @@ const uiTweaks = {
         }
         document.addEventListener("wheelThicknessSet", wheelThicknessSet);
     },
+    initStraightLines: () => {
+        // Credits for basic idea of canvas preview to https://greasyfork.org/en/scripts/410108-skribbl-line-tool/code
+        // preview canvas
+        const preview = {
+            canvas: elemFromString(`<canvas style="cursor:crosshair; position:absolute; touch-action:none; inset: 0; z-index:10; opacity:0.5" width="800" height="600"></canvas>`),
+            context: () => preview.canvas.getContext("2d"),
+            gameCanvas: QS("#canvasGame"),
+            use: () => {
+                preview.clear();
+                preview.gameCanvas.insertAdjacentElement("afterend", preview.canvas);
+                preview.gameCanvas.style.pointerEvents = "none";
+            },
+            stop: () => {
+                preview.canvas.remove();
+                preview.gameCanvas.style.pointerEvents = "";
+            },
+            clear: () => preview.context().clearRect(0, 0, 800, 600),
+            line: (x, y, x1, y1, color = "black", size = 5) => {
+                preview.clear();
+                const ctx = preview.context();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x1, y1);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = size;
+                ctx.stroke();
+            }
+        }
+        let straight = false;
+        let lastRelease = 0;
+        let snap = false;
+        let pointerdown = false;
+        let lastDown = [null, null];
+        let lastDownClient = [null, null];
+        const mouseEvent = (type, x, y) => {
+            return new MouseEvent(type, {
+                bubbles: true,
+                clientX: x,
+                clientY: y,
+                button:0
+            });
+        }
+        // get pos when scaled
+        const getRealCoordinates = (x,y) => {
+            const { width, height } = preview.canvas.getBoundingClientRect();
+            x = (800 / width) * x;
+            y = (600 / height) * y;
+            return [x, y];
+        }
+        // listen for shift down
+        document.addEventListener("keydown", (event) => {
+            let state = straight;
+            straight = straight || event.which === 16;
+            if (straight && !state) preview.use();
+            if (straight && !state && Date.now() - lastRelease < 300) snap = true;
+        });
+        document.addEventListener("keyup", (event) => {
+            let state = straight;
+            straight = straight && event.which !== 16;
+            snap = straight && snap;
+            if (!straight && !pointerdown) preview.stop();
+            if (!straight && state) lastRelease = Date.now();
+        });
+        document.addEventListener("keyup", (event) => {
+            let state = straight;
+            straight = straight && event.which !== 16;
+            snap = straight && snap;
+            if (!straight && !pointerdown) preview.stop();
+            if (!straight && state) lastRelease = Date.now();
+        });
+        // get snap end coordinates
+        const snapDestination = (x, y, x1, y1) => {
+            let dx = Math.abs(x - x1);
+            let dy = Math.abs(y - y1);
+            return dx > dy ? [x1, y] : [x, y1];
+        }
+        // listen for pointer events
+        preview.canvas.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            pointerdown = true;
+            if (straight) {
+                lastDownClient = [event.clientX, event.clientY];
+                lastDown = getRealCoordinates(event.offsetX, event.offsetY);
+            }
+        });
+        preview.canvas.addEventListener("pointerup", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            pointerdown = false;
+            if (straight) {
+                preview.clear();
+                lastDown = [null, null];
+                let dest = [event.clientX, event.clientY];
+                if (snap) dest = snapDestination(lastDownClient[0], lastDownClient[1], event.clientX, event.clientY);
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousedown", lastDownClient[0], lastDownClient[1]));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", dest[0], dest[1]));
+            }
+        });
+        preview.canvas.addEventListener("pointermove", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (straight) {
+                const col = QS(".colorPreview:not(#colPicker)").style.backgroundColor;
+                const size = QS("#sizeslider input").value;
+                if (lastDown[0]) {
+                    let real = getRealCoordinates(event.offsetX, event.offsetY);
+                    if (!snap) preview.line(lastDown[0], lastDown[1], real[0], real[1], col, size);
+                    else {
+                        let dest = snapDestination(lastDown[0], lastDown[1], real[0], real[1]);
+                        preview.line(lastDown[0], lastDown[1], dest[0], dest[1], col, size);
+                    }
+                }
+            }
+        });
+    },
     initAll: () => {
         // clear ads for space
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -760,6 +877,7 @@ const uiTweaks = {
         uiTweaks.initGameNavigation();
         uiTweaks.initWordHint();
         uiTweaks.initBackbutton();
+        uiTweaks.initBrushlabButton();
         uiTweaks.initRandomColorDice();
         uiTweaks.initColorPicker();
         uiTweaks.initCanvasZoom();
@@ -775,6 +893,7 @@ const uiTweaks = {
         uiTweaks.initLobbyRestriction();
         uiTweaks.initAccessibility();
         uiTweaks.initDefaultKeybinds();
+        uiTweaks.initStraightLines();
 
         // canvas copy
         document.addEventListener("copyToClipboard", async () => {
