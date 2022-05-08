@@ -42,6 +42,12 @@ const setBrushsize = (pressure, useSens = true) => {
 
 }
 
+const sanitize = text => {
+    let e = document.createElement("div");
+    e.innerHTML = text;
+    return e.textContent;
+}
+
 //func to scroll to bottom of message container
 const scrollMessages = (onlyIfScrolledDown = false) => {
     let box = document.querySelector("#boxMessages");

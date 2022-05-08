@@ -61,10 +61,10 @@ const lobbyStream = {
         lobbyStream.streamSettings = JSON.parse(localStorage.getItem("lobbyStream"));
 
         lobbyStream.modal.querySelector("#personalCode").checked = lobbyStream.streamSettings.personalCode;
-        lobbyStream.modal.querySelector("#streamChat").checked =lobbyStream.streamSettings.chat;
+        lobbyStream.modal.querySelector("#streamChat").checked = lobbyStream.streamSettings.chat;
         lobbyStream.modal.querySelector("#onlyPalantir").checked = lobbyStream.streamSettings.onlyPalantir;
-        lobbyStream.modal.querySelector("#spectatorWhitelist").value = lobbyStream.streamSettings.spectatorWhitelist;
-        lobbyStream.modal.querySelector("#serverWhitelist").value = lobbyStream.streamSettings.serverWhitelist;
+        lobbyStream.modal.querySelector("#spectatorWhitelist").value = lobbyStream.streamSettings.spectatorWhitelist ? lobbyStream.streamSettings.spectatorWhitelist : "";
+        lobbyStream.modal.querySelector("#serverWhitelist").value = lobbyStream.streamSettings.serverWhitelist ? lobbyStream.streamSettings.serverWhitelist : "";
     },
     init: () => {
 
@@ -177,12 +177,22 @@ const lobbyStream = {
             }
         });
 
-        // add streming button
-        const btn = QS("#buttonAvatarCustomizerRandomize").cloneNode();
+        // add streaming button
+        const btn = elemFromString(`<div style="    cursor: pointer;
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            right: 4px;
+            top: 4px;
+            opacity: .6;"
+        >
+        </div>`);
+        btn.id="btnOpenStreamSettings"
         btn.style.bottom = "4px";
         btn.style.top = "unset";
         btn.style.transform = "scale(0.9)";
         btn.style.backgroundImage = "url(" + chrome.runtime.getURL("/res/stream.gif") + ")";
+        btn.remo
         QS("#buttonAvatarCustomizerRandomize").insertAdjacentElement("beforebegin", btn);
         btn.addEventListener("click", lobbyStream.showModal);
 
@@ -192,15 +202,9 @@ const lobbyStream = {
         container.appendChild(streamChat);
         streamChat.id = "boxStreamChat";
         streamChat.style.height = "100%";
-        const sanitize = text => {
-            let e = document.createElement("div");
-            e.innerHTML = text;
-            return e.textContent;
-        }
         lobbyStream.addStreamMessage = (author, message, host = false, system = false) => { 
             if(!system) streamChat.querySelector("#boxMessages").appendChild(elemFromString(`<p> ${host? "[host]" : ""} <b>${sanitize(author)}:</b> ${sanitize(message)}</p>`));
             else streamChat.querySelector("#boxMessages").appendChild(elemFromString(`<p><b>${sanitize(author)}</b> ${sanitize(message)}</p>`));
-
             
             let box = document.querySelector("#boxStreamChat #boxMessages");
             if (Number(getComputedStyle(box).height.replace("px","")) + box.scrollTop - box.scrollHeight < 30) {
@@ -209,6 +213,7 @@ const lobbyStream = {
         }
 
         let streamInput = streamChat.querySelector("input");
+        streamInput.placeholder = "Chat with other stream spectators";
         streamInput.id = "";
         streamInput.parentElement.replaceWith(streamInput);
         streamInput.addEventListener("keydown", e => {
@@ -225,7 +230,7 @@ const lobbyStream = {
 
         // add stream chat toggle
         const switchChat = elemFromString(`<div id="toggleStreamChat">
-            <span>Loby Chat</span> <span>Stream Chat</span>
+            <span>Lobby Chat</span> <span>Stream Chat</span>
         </div>`);
         container.insertAdjacentElement("afterbegin", switchChat);
         switchChat.addEventListener("click", () => container.classList.toggle("stream"));
@@ -272,6 +277,7 @@ const lobbyStream = {
             
             </style>`);
             document.body.appendChild(lobbyStream.spectateRules);
+            document.body.classList.toggle("streamChatEnabled", request.settings.streamChat);
 
             // get stream id
             let streamID = "";
@@ -296,7 +302,11 @@ const lobbyStream = {
             });
 
             host.on("roomdata", data => {
-                document.body.classList.toggle("streamChatEnabled", data.chatEnabled);
+                document.body.classList.toggle("streamChatEnabled", data.settings.chat);
+                const spectators = data.spectators
+                    .map(s => "<span>" + sanitize(s.name) + (s.id.length > 0 ? "<abbr title='Verified Palantir User: " + s.id + "'>✅</abbr>" : "") + "</span>")
+                    .join(", ");
+                if(spectators.length > 0) QS("#boxStreamChat #boxMessages").appendChild(elemFromString(`<p><b>Spectators: </b> ${spectators}</p>`));
                 console.log(data);
             });
 
@@ -311,7 +321,7 @@ const lobbyStream = {
                 document.body.classList.remove("streamChatEnabled");
                 lobbyStream.modal.classList.remove("streaming");
                 addChatMessage("Stream stopped.", " ");
-                lobbyStream.spectateRules.reove();
+                lobbyStream.spectateRules.remove();
             });
         });
     },
@@ -334,6 +344,8 @@ const lobbyStream = {
         client.on("connect", async () => {
 
             client.on("error", (msg) => { new Toast(msg) });
+
+            QS(".modalBlur").click();
             
             lobbyStream.modal.classList.add("spectating");
             document.body.classList.add("streamChatEnabled");
@@ -366,11 +378,15 @@ const lobbyStream = {
 
         // on streamdata 
         client.on("streamdata", data => {
-            document.body.classList.toggle("streamChatEnabled", data.chatEnabled);
             document.dispatchEvent(newCustomEvent("fakeSocketdata", {detail: data}));
         });
 
         client.on("roomdata", data => {
+            document.body.classList.toggle("streamChatEnabled", data.settings.chat);
+            const spectators = data.spectators
+                .map(s => "<span>" + sanitize(s.name) + (s.id.length > 0 ? "<abbr title='Verified Palantir User: " + s.id + "'>✅</abbr>" : "") + "</span>")
+                .join(", ");
+            if(spectators.length > 0) QS("#boxStreamChat #boxMessages").appendChild(elemFromString(`<p><b>Spectators: </b> ${spectators}</p>`));
             console.log(data);
         });
 
@@ -381,7 +397,7 @@ const lobbyStream = {
         // on disconnect
         client.on("disconnect", reason => {
             addChatMessage("The stream was stopped.", "");
-            new TransformStream("The stream was stopped.");
+            new Toast("The stream was stopped.");
             lobbyStream.spectating = false;
             lobbyStream.spectateRules.remove();
             lobbyStream.modal.classList.remove("spectating");

@@ -423,3 +423,6 @@ body.streamChatEnabled #containerChat{
   position: relative;
 }
 
+#btnOpenStreamSettings:hover{
+  opacity:1 !important;
+}
