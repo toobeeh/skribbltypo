@@ -289,6 +289,7 @@ const lobbies_ = {
 			lobbies_.lobbyProperties.Link = e.detail.key != "" ? "https://skribbl.io/?" + e.detail.key : "";
 			lobbies_.lobbyProperties.Round = e.detail.round;
 			if (!lobbies_.inGame) {
+
 				// get own name
 				sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.players[e.detail.players.length-1].name;
 				lobbies_.inGame = true;

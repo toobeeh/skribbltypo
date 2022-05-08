@@ -378,3 +378,48 @@ input::-webkit-inner-spin-button {
   opacity: 0.7;
 }
 
+body:not(.streamChatEnabled) *:is(#toggleStreamChat, #boxStreamChat) {
+  display:none;
+}
+
+body.streamChatEnabled #containerChat:not(.stream) #boxStreamChat {
+  display:none;
+}
+
+body.streamChatEnabled #containerChat.stream #boxChat {
+  display:none;
+}
+
+body.streamChatEnabled #toggleStreamChat{
+  user-select:none;
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 1.2em;
+  padding: .5em;
+  color: black;
+  top:0;
+  left:0;
+  right:0;
+  position:absolute;
+  background:inherit;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+body.streamChatEnabled *:is(#boxChat, #boxStreamChat){
+  padding-top:3em;
+}
+
+body.streamChatEnabled #containerChat:not(.stream) #toggleStreamChat span:last-child{
+  opacity:0.5;
+}
+
+body.streamChatEnabled #containerChat.stream #toggleStreamChat span:first-child{
+  opacity:0.5;
+}
+
+
+body.streamChatEnabled #containerChat{
+  position: relative;
+}
+

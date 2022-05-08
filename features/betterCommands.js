@@ -422,10 +422,10 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                new Modal(lobbyStream.modal, () => { }, "Lobby Stream");
+                lobbyStream.showModal();
             },
             response: (args) => {
-                return "Starting lobby stream..";
+                return "Stream options opened.";
             }
         }
     }, {

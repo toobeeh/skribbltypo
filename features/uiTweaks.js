@@ -803,13 +803,13 @@ const uiTweaks = {
         // listen for shift down
         document.addEventListener("keydown", (event) => {
             let state = straight;
-            straight = straight || event.which === 16;
+            straight = straight || event.shiftKey;
             if (straight && !state) preview.use();
             if (straight && !state && Date.now() - lastRelease < 300) snap = true;
         });
         document.addEventListener("keyup", (event) => {
             let state = straight;
-            straight = straight && event.which !== 16;
+            straight = straight && event.shiftKey;
             snap = straight && snap;
             if (!straight && !pointerdown) preview.stop();
             if (!straight && state) lastRelease = Date.now();
