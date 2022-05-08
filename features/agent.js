@@ -19,39 +19,35 @@ const imageAgent = {// func to set the image in the agentdiv
         // Probably best - wikimedia: https://commons.wikimedia.org/wiki/Special:MediaSearch?type=bitmap&q= LOL NO SO WEIRD
         // Sooo weird  https://search.aol.com/aol/image;?q=
         // lets give it a try https://www.picsearch.com/index.cgi?q=einhorn
-        let uri = encodeURIComponent('https://www.picsearch.com/index.cgi?q=' + search);
-        let resp = await fetch('https://api.allorigins.win/get?url=' + uri);
-        let html = (await resp.json()).contents;
-        let doc = new DOMParser().parseFromString(html, "text/html");
-        imageAgent.searchImages = doc.images;
+        // nice pakistani https://searchoye.com/search?q=&engine=5#gsc.tab=0&gsc.q=
+        // hehe finally my own scraper: https://typo-agent-scraper.herokuapp.com/param
+        let param = encodeURIComponent(search);
+        let resp = await fetch("https://typo-agent-scraper.herokuapp.com/" + param);
+        imageAgent.searchImages = await resp.json();
         imageAgent.imageIndex = 0;
 
-        if (!imageAgent.searchImages[imageAgent.imageIndex * 2 + 1]) { imageAgent.agent.alt = "Error: No results found :("; imageAgent.agent.src = ""; return; }
+        if (!imageAgent.searchImages[0]) { imageAgent.agent.alt = "Error: No results found :("; imageAgent.agent.src = ""; return; }
         imageAgent.getNextAgentImage();
     },
     getNextAgentImage: () => {
-        if (imageAgent.imageIndex >= imageAgent.searchImages.length) imageAgent.imageIndex = 2;
-        imageAgent.agent.src = imageAgent.searchImages[imageAgent.imageIndex].src;
+        if (imageAgent.imageIndex >= imageAgent.searchImages.length) imageAgent.imageIndex = 0;
+        imageAgent.agent.src = imageAgent.searchImages[imageAgent.imageIndex];
         scrollMessages();
         imageAgent.imageIndex++;
     },
     updateImageAgent: () => {
         // func to set imageagentbuttons visible if drawing or opposite
         let word = QS("#currentWord");
-        let div = QS("#agentButtons");
-        if (!div) return;
         // if player isnt drawing
         if (word.innerHTML.includes("_") || word.innerHTML == "" || localStorage.imageAgent == "false") {
-            div.style.display = "none";
-            QS("#containerAgent").setAttribute("class", "");
             QS("#imageAgent").setAttribute("src", "");
             QS("#imageAgent").style.display = "none";
+            QS("#containerAgent").style.display = "none";
             scrollMessages(true);
             return;
         }
-        div.style.display = "block";
         QS("#imageAgent").style.display = "block";
-        QS("#containerAgent").setAttribute("class", "updateInfo collapse in");
+        QS("#containerAgent").style.display = "flex";
         scrollMessages();
     },
     initImageAgent: () => {
@@ -104,7 +100,6 @@ const imageAgent = {// func to set the image in the agentdiv
 
         let agentButtons = document.createElement("div");
         agentButtons.setAttribute("id", "agentButtons");
-        agentButtons.setAttribute("class", "updateInfo collapse in");
         agentButtons.appendChild(flag);
         agentButtons.appendChild(logo);
         agentButtons.appendChild(map);
@@ -115,7 +110,8 @@ const imageAgent = {// func to set the image in the agentdiv
         let containerAgent = document.createElement("div");
         containerAgent.id = "containerAgent";
         containerAgent.appendChild(agentButtons);
-        containerAgent.style = "display:flex;flex-direction:column;align-items:center;";
+        containerAgent.classList.add("updateInfo");
+        containerAgent.style = "display:flex;flex-direction:column;align-items:center;padding: 1em;";
 
         let agentImage = document.createElement("img");
         agentImage.setAttribute("id", "imageAgent");
@@ -124,7 +120,6 @@ const imageAgent = {// func to set the image in the agentdiv
 
         containerAgent.appendChild(agentImage);
         QS("#containerSidebar").insertBefore(containerAgent, QS("#containerSidebar").firstChild);
-        agentButtons.style.display = "none";
         imageAgent.agent = agentImage;
 
         let agentObserver = new MutationObserver(() => {
@@ -132,5 +127,7 @@ const imageAgent = {// func to set the image in the agentdiv
         });
         agentObserver.observe(QS("#currentWord"), { attributes: false, childList: true });
         agentObserver.observe(QS(".containerGame #containerGamePlayers"), { attributes: false, childList: true });
+
+        imageAgent.updateImageAgent();
     }
 }

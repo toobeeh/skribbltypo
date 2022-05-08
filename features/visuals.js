@@ -27,7 +27,7 @@ const visuals = {
             let val = options["containerBackgrounds"] ? options["containerBackgrounds"].trim() : "";
             style.innerHTML += "#containerGamePlayers, #quickreact > span, .lobbyName, .lobbyContent, .tool:not(.toolActive), .brushSize, .loginPanelContent, .gameHeader, #containerChat, #imageOptions {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += ".loginPanelContent {box-shadow: " + (val != "" ? "" : "none") + "}";//0 0 4px 0 rgba(0,0,0,.5)
-            style.innerHTML += "#containerGamePlayers .player, .updateInfo, #boxChat, #boxMessages > p, #loginAvatarCustomizeContainer {background: transparent !important; border: none;}";
+            style.innerHTML += "#containerGamePlayers .player, .updateInfo, #boxChat, #boxMessages > p:not(.markedMessage), #loginAvatarCustomizeContainer {background: transparent !important; border: none;}";
             style.innerHTML += ".guessedWord .rank {color: rgb(86, 206, 39) !important}";
             style.innerHTML += ".guessedWord::after {content: '';position: absolute;inset: 0;border-right: 3px solid #82c669;z-index: -1;box-shadow: inset -55px 0px 50px -50px #82c669;}";
         }
@@ -46,7 +46,7 @@ const visuals = {
         let color = options["fontColor"] ? options["fontColor"] : "";
         if (color && color != "") {
             style.innerHTML += "*:not(.colorMsg){color:" + color.trim() + " !important}";
-            style.innerHTML += "#emojiPrev span, #sharePopup, .player .text, .wordContainer .word, .modalTitle, .modal-title, .checkbox label {color: black !important}";
+            style.innerHTML += "#emojiPrev span, #sharePopup *, #downloadPopup *, #gamemodePopup *, #saveDrawingPopup *, .player .text, .wordContainer .word, .modalTitle, .modal-title, .checkbox label {color: black !important}";
         }
         let colorBtns = options["fontColorButtons"] ? options["fontColorButtons"] : "";
         if (colorBtns && colorBtns != "") style.innerHTML += "select, input, .btn{color:" + colorBtns.trim() + " !important}";
@@ -68,6 +68,10 @@ const visuals = {
         if (options["inputOutlinesCheck"] == true) {
             let val = options["inputOutlines"] ? options["inputOutlines"].trim() : "";
             style.innerHTML += "input, textarea, .btn, select {border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
+        }
+        if (options["canvasBackgroundCheck"] == true) {
+            let val = options["canvasBackground"] ? options["canvasBackground"].trim() : "";
+            style.innerHTML += "#canvasGame {background: " + (val != "" ? val : "white") + " !important} ";
         }
         if (options["hideFooter"] == true) {
             style.innerHTML += ".login-content .col-xs-12{display:none}";
@@ -92,6 +96,7 @@ const visuals = {
             if (QS("#injectionElems")) QS("#injectionElems").innerHTML = options["injection"];
             else document.body.append(elemFromString("<div id='injectionElems'>" + options["injection"] + "</div>"));
         }
+        else QS("#injectionElems")?.remove();
 
         if (QS("#visualRules")) QS("#visualRules").innerHTML = style.innerHTML;
         else document.head.append(style);
@@ -171,14 +176,21 @@ const visuals = {
             <input type="checkbox" id='containerBackgroundsCheck'> Change Container Backgrounds 
             <input class='form-control' type='text' id='containerBackgrounds' placeholder='transparent'>
         </label>
-        <label><input type="checkbox" id='inputBackgroundsCheck'> Change Input Backgrounds
+        <label>
+        <input type="checkbox" id='inputBackgroundsCheck'> Change Input Backgrounds
             <input class='form-control' type='text' id='inputBackgrounds' placeholder='transparent'>
         </label>
-        <label><input type="checkbox" id='containerOutlinesCheck'> Container Outlines
+        <label>
+            <input type="checkbox" id='containerOutlinesCheck'> Container Outlines
             <input class='form-control' type='text' id='containerOutlines' placeholder='transparent'>
         </label>
-        <label><input type="checkbox" id='inputOutlinesCheck'> Input Outlines
+        <label>
+            <input type="checkbox" id='inputOutlinesCheck'> Input Outlines
             <input class='form-control' type='text' id='inputOutlines' placeholder='transparent'>
+        </label>
+        <label>
+            <input type="checkbox" id='canvasBackgroundCheck'> Replace Canvas Background
+            <input class='form-control' type='text' id='canvasBackground' placeholder='white'>
         </label>
     </div>
     <br>
@@ -191,10 +203,10 @@ const visuals = {
         <label><input type="checkbox" id="hideInGameLogo"> Hide logo in-game</label>
         <label><input type="checkbox" id="hideAvatarSprites"> Hide sprites on frontpage</label>
     </div>
-    <!--<div>
+    <div style="display:none">
         <h4>HTML/CSS injection: add HTML to body</h4>
         <input class='form-control' type='text' id='injection' placeholder='<elem></elem> <style>elem { }</style>'>
-    </div>//-->
+    </div>
 </div>`;
         visuals.form = elemFromString(html);
         [...visuals.form.querySelectorAll("input")].forEach(input => {

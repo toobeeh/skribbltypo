@@ -34,7 +34,7 @@ const keybind = {
     runOnce: () => {
         'use strict';
         if (!keybind.hasRunOnce) {
-            keybind.brushColors = document.querySelectorAll('[data-color]');
+            keybind.brushColors = document.querySelectorAll('[data-color]:not(img)');
             keybind.brushSizes = document.querySelectorAll('[data-size]');
             keybind.userPanel = document.querySelector(
                 '#screenLogin > .login-content > .loginPanelContent'

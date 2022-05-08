@@ -4,7 +4,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // Initiates lobby search buttons and lobby search events
 // depends on: genericfunctions.js, socket.js
 const lobbies_ = {
-	userAllow: localStorage.userAllow == "true",
+	userAllow: localStorage.palantir == "true",
 	inGame: false,
 	joined: false,
 	lobbyContainer: null,
@@ -118,7 +118,7 @@ const lobbies_ = {
 		QS("#userDetails")?.remove();
 		QSA("#loginAvatarCustomizeContainer .spriteSlot").forEach(s => s.remove());
 		if (!socket.authenticated == true) {
-			lobbies_.lobbyContainer.innerHTML = "<b>You are not logged in with Palantir. </b><br>Just click the 'Login' button above to login or create a new account. <br><br> To find out what this is, head over to the <a style='font-weight:700; text-decoration:underline; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>You can also get support at the <a style='font-weight:700; color:black;text-decoration:underline; ' href='https://typo.rip/discord'>typo discord server</a><br>";
+			lobbies_.lobbyContainer.innerHTML = "<b>You are not logged in with Palantir. </b><br>Just click the 'Login' button at the left panel to login or create a new account. <br><br> To find out what this is, head over to the <a style='font-weight:700; text-decoration:underline; color:black;' href='https://typo.rip/#palantir'>typo website</a>.<br>You can also get support at the <a style='font-weight:700; color:black;text-decoration:underline; ' href='https://typo.rip/discord'>typo discord server</a><br>";
 			return;
 		}
 		// set player stats
@@ -289,6 +289,7 @@ const lobbies_ = {
 			lobbies_.lobbyProperties.Link = e.detail.key != "" ? "https://skribbl.io/?" + e.detail.key : "";
 			lobbies_.lobbyProperties.Round = e.detail.round;
 			if (!lobbies_.inGame) {
+
 				// get own name
 				sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.players[e.detail.players.length-1].name;
 				lobbies_.inGame = true;

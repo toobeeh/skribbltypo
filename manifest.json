@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & tablet support",
-  "version": "22.9.2",
+  "version": "23.1.0",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
@@ -44,7 +44,8 @@
       "js": [
         "picker/colr_pickr.min.js",
         "color.js",
-        "features/commands.js",
+        "features/lobbyStream.js",
+        "features/betterCommands.js",
         "features/capture.js",
         "features/typro.js",
         "features/drops.js",
@@ -53,6 +54,7 @@
         "features/uiTweaks.js",
         "features/agent.js",
         "features/pressure.js",
+        "features/brushlab.js",
         "features/imageOptions.js",
         "features/gamemode.js",
         "features/keybinds.js",

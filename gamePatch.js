@@ -58,7 +58,7 @@
                 if (ut.drawCommands.length > 0) {
                     if (ut.drawCommands.length > 8) {
                         var t = ut.drawCommands.splice(7);
-                        it.emit("drawCommands", ut.drawCommands), ut.drawCommands = t
+                        it.emit("drawCommands", ut.drawCommands), ut.drawCommands = t;
                     } else it.emit("drawCommands", ut.drawCommands), ut.drawCommands = []
                 }
             } else ut.drawCommands.length > 0 && (ut.drawCommands = [])
@@ -186,6 +186,167 @@
         if(it) it.reconnect = false;
         disconnect();
     });
+
+    document.addEventListener("fakeSocketdata", e => {
+        const event = e.detail[0];
+        const t = e.detail[1];
+
+        if(event == "drawCommands"){
+            for (var e = 0; e < t.length; e++) I(t[e])
+        }
+        else if(event == "canvasClear"){
+            ut.clear()
+        }
+        else if(event == "lobbyKicked"){
+            var e = st.players.get(t);
+            null != e && (st.chatAddMsg(null, e.name + " was kicked!", G), e.kicked = !0)
+        }
+        else if(event == "chat"){
+            var e = st.players.get(t.id),
+                    n = st.players.get(st.myID),
+                    o = e.id == st.drawingID || e.guessedWord;
+                    n.id != st.drawingID && !n.guessedWord && o || (!e.mute ?
+                        st.chatAddMsg(e, v(t.message), o ? "#7dad3f" : "#000") :
+                        st.chatAddMsg(e, v(t.message), "rgb(0 0 0 / 50%)", t.id))
+        }
+        else if(event == "lobbySpam"){
+            st.chatAddMsg(null, "Spam detected! You're sending too many messages.", G)
+        }
+        else if(event == "restartNotification"){
+            st && st.chatAddMsg(null, "Server will restart in about " + t + " seconds...", N)
+        }
+        else if(event == "lobbyConnected") {
+            document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: t }));
+            if (ut.clear(), E(""), st = new tt(t), st.inGame) {
+                for (var e = 0; e < t.drawCommands.length; e++) I(t.drawCommands[e]);
+                ct.goto("game"), st.drawingID >= 0 && D(st.time)
+            } else ct.goto("lobby")
+        }
+        else if(event == "lobbyVotekickCurrent"){
+            if (st) {
+                var e = st.players.get(t[0]),
+                    n = st.players.get(t[1]);
+                st.chatAddMsg(null, "'" + e.name + "' is voting to kick '" + n.name + "' (" + t[2] + "/" + t[3] + ")", N)
+            }
+        }
+        else if(event == "lobbyState"){
+            switch (parseInt(t[0])) {
+                case $:
+                    d(), D(st.time);
+                    break;
+                case Y:
+                    E("Game will start soon...")
+            }
+        }
+        else if(event == "lobbyGameStart"){
+            st.reset(), E(""), ct.goto("game")
+        }
+        else if(event == "lobbyGameEnd"){
+            var ts = [];
+            st.players.forEach(function(e, n, o) {
+                ts.push(e)
+            }), L({
+                mode: "endgame",
+                text: "Result",
+                players: ts
+            })
+        }
+        else if(event == "lobbyPlayerConnected"){
+            st.addPlayer(t), st.chatAddMsg(null, t.name + " joined.", j), at.playSound("playerJoin")
+        }
+        else if(event == "lobbyPlayerDisconnected"){
+            var e = st.players.get(t);
+                st.removePlayer(e), e.kicked || st.chatAddMsg(null, e.name + " left.", G), at.playSound("playerLeave")
+        }
+        else if(event == "lobbyPlayerGuessedWord") {
+            var e = st.players.get(t);
+            st.setPlayerGuessed(e), st.chatAddMsg(null, e.name + " guessed the word!", _), t == st.myID && st.chatDisable(), at.playSound("playerGuessed")
+        }
+        else if(event == "lobbyGuessClose") {
+            st.chatAddMsg(null, "'" + t + "' is close!", N)
+        }
+        else if(event =="lobbyPlayerDrawing") {
+            var e = st.players.get(t);
+            st.setPlayerDrawing(e.id), st.chatAddMsg(null, e.name + " is drawing now!", O);
+            sessionStorage.lastDrawing = e.name;
+            var n = st.drawingID == st.myID;
+            ut.setDrawing(n), n ? (f(), y()) : (p(), d()), at.playSound("roundStart"), D(st.timeMax), U()
+        }
+        else if(event == "lobbyLanguage") {
+            st.setLanguage(t)
+        }
+        else if(event == "lobbyRounds") {
+            st.setRounds(t)
+        }
+        else if(event == "lobbyDrawTime") {
+            st.setDrawTime(t)
+        }
+        else if(event == "lobbyCustomWordsExclusive") {
+            st.setCustomWordsExclusive(t)
+        }
+        else if(event =="lobbyOwnerChanged") {
+            var e = st.players.get(t);
+            st.setPlayerOwner(e), st.chatAddMsg(null, e.name + " is the owner now!", _)
+        }
+        else if(event == "lobbyRound") {
+            st.round = t, st.updateRound(), L({
+                mode: "text",
+                text: "Round " + (st.round + 1)
+            })
+        }
+        else if(event == "lobbyChooseWord") {
+            if (t.id == st.myID) L({
+                mode: "choosewords",
+                text: "Choose a word",
+                words: t.words
+            });
+            else {
+                L({
+                    mode: "text",
+                    text: st.players.get(t.id).name + " is choosing a word!"
+                })
+            }
+        }
+        else if(event == "lobbyReveal") {
+            sessionStorage.lastWord = t.word;
+            document.querySelector("body").dispatchEvent(new Event("drawingFinished"));
+            A(), st.chatEnable(), st.chatAddMsg(null, "The word was '" + t.word + "'", _);
+            document.querySelector("body").dispatchEvent(new Event("wordRevealed"));
+            for (var e = [], n = !0, o = 0; o < t.scores.length / 2; o++) {
+                var r = t.scores[2 * o],
+                    s = t.scores[2 * o + 1],
+                    i = st.players.get(r);
+                if (i) {
+                    i.guessedWord && (n = !1);
+                    var a = s - i.score;
+                    st.setPlayerScore(i, s, a), e.push(i)
+                }
+            }
+            st.updateRanks(), L({
+                mode: "reveal",
+                text: "The word was: " + t.word,
+                revealReason: X[t.reason],
+                players: e,
+                onshow: function () {
+                    n ? at.playSound("roundEndFailure") : at.playSound("roundEndSuccess")
+                }
+            }), st.setPlayerDrawing(-1), ut.setDrawing(!1), st.playersResetGuessedWord();
+        }
+        else if(event == "lobbyPlayerRateDrawing") {
+            var e = st.players.get(t[0]),
+                n = st.players.get(t[1]),
+                o = t[2];
+            e && st.playerRate(e, o), n && (o > 0 ? n.thumbsUp++ : n.thumbsDown++)
+        }
+        else if("lobbyCurrentWord") {
+            st.players.get(st.myID).guessedWord || Number(t) > 0 || E(t)
+        }
+        else if("lobbyTime") {
+            S(t)
+        }
+
+    });
+
     function C(t, e) {
         if (it && it.connected) return;
         at.playSound("playerJoin"), it = io(t, {
@@ -394,7 +555,7 @@
                     let rgb = document.querySelector("#canvasGame").getContext("2d").getImageData(ut.mouseposPrev.x, ut.mouseposPrev.y, 1, 1).data;
                     // get data color index by rgb value
                     let rgbString = "rgb(" + rgb[0] + ", " + rgb[1] + ", " + rgb[2] + ")";
-                    let item = [...document.querySelectorAll(".colorItem")].find(c => c.style.background == rgbString);
+                    let item = [...document.querySelectorAll(".containerColorbox:not(.custom) .colorItem")].find(c => c.style.background == rgbString);
                     if (!item) {
                         let picker = document.querySelector("#colPicker");
                         picker.style.backgroundColor = rgbString;
@@ -419,6 +580,7 @@
     }
 
     function I(t) {
+        document.dispatchEvent(new CustomEvent("socketdata", {detail: ["drawCommands", [t]] }));
         sessionStorage.getItem('practise') == "true" || st.drawingID == st.myID ? (ut.drawCommands.push(t), ut.performDrawCommand(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }))) : (ut.addDrawCommandReceived(t), document.querySelector("body").dispatchEvent(new CustomEvent("logDrawCommand", { detail: t })));
     }
 
@@ -2973,6 +3135,7 @@
                     case r.EVENT:
                     case r.BINARY_EVENT:
                         this.onevent(t);
+                        document.dispatchEvent(new CustomEvent("socketdata", {detail: t.data }));
                         break;
                     case r.ACK:
                     case r.BINARY_ACK:
@@ -3197,8 +3360,27 @@
                     r = i(Math.floor(t[3]), -n, this.canvas[0].height + n),
                     s = i(Math.floor(t[4]), -n, this.canvas[0].width + n),
                     c = i(Math.floor(t[5]), -n, this.canvas[0].height + n);
-                this.plotLine(o, r, s, c, e, 255, 255, 255);
-                break;
+
+                    // create a new canvas where line is drawn to use for clipping
+                    let clipCanv = document.createElement("canvas");
+                    clipCanv.width = ut.canvas[0].width;
+                    clipCanv.height = ut.canvas[0].height;
+                    let clipCtx = clipCanv.getContext("2d");
+
+                    clipCtx.drawImage(ut.canvas[0],0,0);
+
+                    // draw line on original (now cleared) canvas
+                    ut.canvasCtx.clearRect(0,0, 800, 600);
+                    this.plotLine(o, r, s, c, e, 255, 255, 255);
+
+                    // put line with clipping on clip canvas
+                    clipCtx.globalCompositeOperation = "destination-out";
+                    clipCtx.drawImage(ut.canvas[0],0,0);
+
+                    // put clipped canvas data to actual canvas
+                    ut.canvasCtx.clearRect(0,0,800,600);
+                    ut.canvasCtx.drawImage(clipCanv,0,0);
+                    break;
             case 2:
                 var u = a(this.brush.getColor(t[1])),
                     h = i(Math.floor(t[2]), 0, this.canvas[0].width),
@@ -3215,23 +3397,47 @@
         e >= 0 && e < t.data.length && (t.data[e] = n, t.data[e + 1] = o, t.data[e + 2] = r, t.data[e + 3] = 255)
     }, Z.prototype.getPixel = function(t, e, n) {
         var o = 4 * (n * t.width + e);
-        return o >= 0 && o < t.data.length ? [t.data[o], t.data[o + 1], t.data[o + 2]] : [0, 0, 0]
-    }, Z.prototype.floodFill = function(t, e, n, o, r) {
+        return o >= 0 && o < t.data.length ? [t.data[o], t.data[o + 1], t.data[o + 2], t.data[o + 3]] : [0, 0, 0, 0]
+    }, Z.prototype.floodFill = function(t, e, n, o, r, op = 255) {
+
+        
+
+        // fix for lines on canvas that are same as background color (https://cdn.discordapp.com/attachments/963172464467279965/969307261778411660/Ohne_Titel.mp4)
+        // fill rules: when filling transparency or color == background: fill transparency and color == background
+        const canvasSolidBack = getComputedStyle(this.canvas[0]).backgroundColor;
+        let cB = [];
+        if(canvasSolidBack.indexOf("rgba") > 0) cB = canvasSolidBack.replace("rgba(","").replace(")","").split(",").map(c => Number(c));
+        else {
+            cB = canvasSolidBack.replace("rgb(","").replace(")","").split(",").map(c => Number(c));
+            cB.push(255);
+        }
+
         var s = this.canvasCtx.getImageData(0, 0, this.canvas[0].width, this.canvas[0].height),
             i = [
                 [t, e]
             ],
             a = this.getPixel(s, t, e);
-        if (n != a[0] || o != a[1] || r != a[2]) {
+        let bgFill = a[3] == 0 || cB[0] == a[0] && cB[1] == a[1] && cB[2] == a[2] && (cB[3] ? cB[3] == a[3] : true);
+        
+        if (n != a[0] || o != a[1] || r != a[2] || op != a[3]) {
             for (var c = function(t) {
                     var e = s.data[t],
                         i = s.data[t + 1],
                         c = s.data[t + 2];
-                    if (e == n && i == o && c == r) return !1;
+                        opacity = s.data[t + 3];
+
+                    if (e == n && i == o && c == r && op == opacity) return !1;
                     var u = Math.abs(e - a[0]),
                         h = Math.abs(i - a[1]),
-                        l = Math.abs(c - a[2]);
-                    return u < 1 && h < 1 && l < 1
+                        l = Math.abs(c - a[2]),
+                        _o = Math.abs(opacity - a[3]);
+
+                    // difference to background color
+                    var bu = Math.abs(e - cB[0]),
+                        bh = Math.abs(i - cB[1]),
+                        bl = Math.abs(c - cB[2]),
+                        b_o = Math.abs(opacity - cB[3]);
+                    return u < 1 && h < 1 && l < 1 && _o < 1 ||  bgFill && bu < 1 && bh < 1 && bl < 1 && b_o < 1 || bgFill && opacity == 0
                 }, u = s.height, h = s.width; i.length;) {
                 var l, p, f, d, y, m;
                 for (l = i.pop(), p = l[0], f = l[1], d = 4 * (f * h + p); f-- >= 0 && c(d);) d -= 4 * h;
@@ -3277,7 +3483,8 @@
             document.dispatchEvent(new CustomEvent("toast", { detail: { text: "Prevented Canvas Clear." }}));
             return;
         }
-        this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height), document.querySelector("body").dispatchEvent(new CustomEvent("logCanvasClear"))
+        let url = this.canvas[0].toDataURL();
+        this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.clearRect(0, 0, this.canvas[0].width, this.canvas[0].height), document.querySelector("body").dispatchEvent(new CustomEvent("logCanvasClear", {detail: url}))
     }, Z.prototype.setDrawing = function(t) {
         t ? (this.brush.show(), n(".containerToolbar").show()) : (this.brush.hide(), n(".containerToolbar").hide())
     };
@@ -3294,7 +3501,7 @@
         localStorage.brushtool = t, this.tool = t, n(".containerTools .tool").removeClass("toolActive"), n(".containerTools .tool[data-tool='" + t + "']").addClass("toolActive"), this.updateBrushCursor()
     }, Q.prototype.setColor = function(t) {
         this.colorIndex = t,
-            (localStorage.down == "true" && (localStorage.inkMode.includes("brightness") || localStorage.inkMode.includes("degree"))  ? 0 : n(".colorPreview").css("background-color", this.getColor(t))),
+            n(".colorPreview").css("background-color", this.getColor(t)),
             this.updateBrushCursor();
         let picker = document.querySelector("#colPicker");
         if(picker && picker.firstChild) picker.firstChild.setAttribute("data-color", this.getColor(t));
@@ -3413,7 +3620,7 @@
             });
             return;
         });
-        e.attr("id", "player" + t.id), e.find(".name").text(t.name + (t.id == this.myID ? " (You)" : "")), t.id == this.myID && e.find(".name").css("color", "blue"), e.find(".drawing").hide(), this.containerGame.append(e), this.containerGamePlayerUpdateScore(t), e.show(), s(e, t.avatar, t.id == this.ownerID, 1)
+        e.attr("id", "player" + t.id), t.id == this.myID && e.attr("me", 1), e.find(".name").text(t.name + (t.id == this.myID ? " (You)" : "")), t.id == this.myID && e.find(".name").css("color", "blue"), e.find(".drawing").hide(), this.containerGame.append(e), this.containerGamePlayerUpdateScore(t), e.show(), s(e, t.avatar, t.id == this.ownerID, 1)
     }, tt.prototype.containerGamePlayerRemove = function(t) {
         this.containerGamePlayerGet(t).remove()
     }, tt.prototype.containerGamePlayersUpdateGuessed = function() {
@@ -3605,7 +3812,7 @@
             var r = 0;
             setInterval(o, 1e3);
             n(this).mousemove(e), n(this).keypress(e), n(this).on("mousedown", e), n(this).on("touchmove", e)
-        }), setInterval(l, 1), n("#rateDrawing .thumbsUp").on("click", function() {
+        }), setInterval(l, 3), n("#rateDrawing .thumbsUp").on("click", function() {
             it && it.emit("rateDrawing", 1), f()
         }), n("#rateDrawing .thumbsDown").on("click", function() {
             it && it.emit("rateDrawing", 0), f()
@@ -3641,14 +3848,21 @@
     }), n("#formChat").submit(function (t) {
         var e = n("#inputChat"),
             o = e.val();
-        inputLog.push(e.val());
-        logPos = inputLog.length;
-        if (sessionStorage.practise == "true") {
-            e.val("");
-            return !1;
+            inputLog.push(e.val());
+            logPos = inputLog.length;
+
+        while(o.length > 0){
+            let part = o.slice(0,100);
+            o = o.slice(100);
+            if (sessionStorage.practise == "true") {
+                e.val("");
+                return !1;
+            }
+            part && (it ? it.emit("chat", part) : st.chatAddMsg(st.players.get(st.myID), part, "#000"), e.val("")),
+                document.querySelector("#inputChat").dispatchEvent(new Event("input")), !1
         }
-        return o && (it ? it.emit("chat", o) : st.chatAddMsg(st.players.get(st.myID), o, "#000"), e.val("")),
-            document.querySelector("#inputChat").dispatchEvent(new Event("input")), !1
+        return !1;
+        
     }), n("#buttonOpenLobbyCreation").on("click", function() {
         n("#modalCreateLobby").modal("show")
     }), n("#buttonLobbyCreate").on("click", function() {
@@ -3677,6 +3891,9 @@
             case "F":
                 ut.brush.setTool("fill")
                 break;
+            case "L":
+                document.dispatchEvent(new CustomEvent("openBrushLab"));
+                break;
             case "C":
                 ut.brush.setTool("pipette")
                 break;
@@ -3687,7 +3904,9 @@
                     document.querySelector(".modalBlur").dispatchEvent(new Event("click"));
                 break;
             case "ESCAPE":
-                !document.querySelector(".modalBlur") ? (it ? it.emit("canvasClear") : ut.clear()) : 0;
+                !document.querySelector(".modalBlur") ? 
+                    ( (document.dispatchEvent(new CustomEvent("socketdata", {detail: ["canvasClear"] })), it) ? it.emit("canvasClear") : ut.clear() ) 
+                    : 0;
         }
     }), ut.canvas.on("mousedown", function (t) {
         switch (t.preventDefault(), t.button + t.ctrlKey) { // + ctrl key when zooming
@@ -3695,6 +3914,7 @@
                 ut.brush.down || (ut.brush.setDown(!0), T(t.clientX, t.clientY, !0))
         }
     }),ut.canvas.on("pointerdown", function (t) {
+        return;
         if (t.altKey) {
             let from = { x: lastBrushUp.X, y: lastBrushUp.Y };
             T(t.clientX, t.clientY, !1, from);
@@ -3708,10 +3928,7 @@
             document.dispatchEvent(new Event("copyToClipboard"));
             return;
         }
-        //else if (t.ctrlKey && t.key.toLowerCase() == "v") {
-        //    document.dispatchEvent(new Event("pasteFromClipboard"));
-        //    return;
-        //}
+
         if (lastBrushUp.X < 0 || lastBrushUp.Y < 0 || !t.shiftKey || !t.key.includes("Arrow")) return;
         let move = () => {
             let prev = lastBrushUp;
@@ -3760,9 +3977,10 @@
             document.dispatchEvent(new CustomEvent("toast", { detail: { text: "Prevented Canvas Clear." } }));
             return;
         }
+        document.dispatchEvent(new CustomEvent("socketdata", {detail: ["canvasClear"] }));
         it ? it.emit("canvasClear") : ut.clear()
     }), n(".containerTools .tool").on("click", function () {
-        if (this.closest(".containerClearCanvas")) return;
+        if (this.closest(".containerClearCanvas") || this.closest(".containerBrushSizes")) return;
         ut.brush.setTool(n(this).data("tool"));
         n(this).data("tool") != "pen" && n(this).data("tool") != "fill" && clearInterval(setColorInterval);
     }), n(".colorItem").on("click", function () {
@@ -3778,11 +3996,14 @@
     }), document.body.addEventListener("performDrawCommand", function (event) {
         I(event.detail);
     }), n("#inputChat").on("keyup", function (e) {
-        if (e.key == "ArrowUp") {
+        if(e.originalEvent.code == "Escape"){
+            !document.querySelector(".modalBlur") ? (it ? it.emit("canvasClear") : ut.clear()) : 0;
+        }
+        else if (e.key == "ArrowUp") {
             if (logPos <= 0) return;
             n("#inputChat").val(inputLog[--logPos]);
         }
-        if (e.key == "ArrowDown") {
+        else if (e.key == "ArrowDown") {
             if (logPos > inputLog.length - 1) return;
             n("#inputChat").val(inputLog[++logPos]);
         }
@@ -3792,9 +4013,27 @@
             ut.brush.setColor(e.detail.colors[Math.floor((Math.random() * e.detail.colors.length))]);
         }, e.detail.enable);
     }), document.body.addEventListener("setColor", function (e) {
+        let index = 0;
         if (e.detail.hex)
-            ut.brush.setColor(10000 + Number("0x" + e.detail.hex.substr(1)));
-        else ut.brush.setColor(Number(e.detail))
+        {
+            index = 10000 + Number("0x" + e.detail.hex.substr(1));
+        }
+        else index = Number(e.detail);
+
+        // try to get skribbl color index
+        if(index > 10000){
+
+            for(let skribblColindex = 2; skribblColindex <= 20; skribblColindex++){
+                let skribblRGB = a(ut.brush.getColor(skribblColindex));
+                let setRGB = a(ut.brush.getColor(index));
+                if(skribblRGB.r == setRGB.r && skribblRGB.g == setRGB.g && skribblRGB.b == setRGB.b ){
+                    index = skribblColindex;
+                    break;
+                }
+            }
+        }
+
+        ut.brush.setColor(index);
     }),
     (window.onbeforeunload = (e) => {
         if (sessionStorage.practise == "true") {

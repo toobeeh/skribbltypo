@@ -7,13 +7,11 @@ const imageTools = {
     optionsPopup: null,
     initImageOptionsButton: () => {
         // add image options button
-        let optionsButton = document.createElement("button");
-        QS("#containerPlayerlist div.tooltip-wrapper").appendChild(optionsButton);
+        let optionsButton = elemFromString(`<img src="${chrome.runtime.getURL("res/potion.gif")}" id="imageTools" style="cursor: pointer;">`);
+        
+        imageOptions.optionsContainer.appendChild(optionsButton);
         QS("#containerPlayerlist div.tooltip-wrapper").setAttribute("data-original-title", "");
 
-        optionsButton.classList = "btn btn-info btn-block";
-        optionsButton.id = "saveDrawingOptions";
-        optionsButton.innerText = "Image tools";
         optionsButton.addEventListener("click", () => {
             if (!localStorage.imageTools) {
                 alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
@@ -21,8 +19,8 @@ const imageTools = {
             };
             QS("#popupPasteImage").style.display = sessionStorage.practise == "true" ? "" : "none";
             QS("#saveDrawingPopup").style.display = "block";
-            QS("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
-            imageTools.optionsPopup.children[0].focus();
+            //QS("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
+            imageTools.optionsPopup.focus();
             [...document.querySelectorAll(".pasteSaved")].forEach(p => {
                 if (document.querySelector(".containerToolbar").style.display == "none") {
                     p.classList.remove("btn-success");
@@ -41,21 +39,11 @@ const imageTools = {
     initImageOptionsPopup: () => {
         // add image options popup
         let optionsPopup = document.createElement("div");
-        QS("#containerPlayerlist").appendChild(optionsPopup);
-        optionsPopup.style.position = "absolute";
-        optionsPopup.style.background = "white";
-        optionsPopup.style.overflow = "hidden";
-        optionsPopup.style.zIndex = "5";
-        optionsPopup.style.width = "90%";
-        optionsPopup.style.padding = "1em;";
-        optionsPopup.style.borderRadius = ".5em";
-        optionsPopup.style.marginLeft = "5%";
-        optionsPopup.style.boxShadow = "1px 1px 9px -2px black";
+        optionsPopup.insertAdjacentHTML("afterbegin", "<b>Image Tools</b><br><br>");
+        imageOptions.optionsContainer.appendChild(optionsPopup);
         optionsPopup.style.display = "none";
-        optionsPopup.style.minHeight = "15%";
-        optionsPopup.style.padding = "1em";
-        optionsPopup.id = "saveDrawingPopup";
         optionsPopup.tabIndex = "-1";
+        optionsPopup.id = "saveDrawingPopup";
         imageTools.optionsPopup = optionsPopup;
 
         let popupTempSaveCommands = document.createElement("button");
@@ -101,7 +89,6 @@ const imageTools = {
                 captureCanvas.drawOnCanvas(actions);
                 captureCanvas.capturedActions = [...actions];
             });
-            document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
         });
 
         let popupSaveCommands = document.createElement("button");
@@ -169,7 +156,6 @@ const imageTools = {
                 captureCanvas.drawOnCanvas(JSON.parse(actions));
                 captureCanvas.capturedActions = JSON.parse(actions);
             });
-            document.querySelector("#saveDrawingPopup").style.top = "calc(100% - 2em - " + document.querySelector("#saveDrawingPopup").offsetHeight + "px)";
         };
         popupPasteSavedCommands.addEventListener("click", () => {
             let fileInput = document.createElement('input');

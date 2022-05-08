@@ -4,6 +4,22 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // adds all smaller ui improvements to skribbl
 // depends on: capture.js, generalFunctions.js, emojis.js
 const uiTweaks = {
+    palettes: [],
+    initTypoModbar: () => {
+
+        // re-organize sidebar for handling popups
+        const newSidebar = elemFromString(`<div id="newSidebar", style="position: relative; display: flex; flex-direction: column;"></div>`);
+
+        // create and add modbar
+        const modbar = elemFromString(`<div id="imageOptions" class="typoModbar"
+            style="height:48px; background: white; border-radius:2px; display: flex; justify-content: space-evenly; align-items: center; margin-top: 8px; margin-right: 8px;"></div>`);
+        
+        const containerPlayers = QS("#containerPlayerlist");
+        containerPlayers.style.height = "100%";
+        containerPlayers.parentElement.insertBefore(newSidebar, containerPlayers);
+        newSidebar.appendChild(containerPlayers);
+        newSidebar.appendChild(modbar);
+    },
     initGameNavigation: () => {
         // Create next button
         let btNext = document.createElement("input");
@@ -48,59 +64,38 @@ const uiTweaks = {
     },
     initWordHint: () => {
         // Add wordcount under input
-        // this is terrible and has to be changed to something modern
-        let chat_cont = document.querySelector("#boxChat");
-        let msg_cont = document.querySelector("#boxMessages");
-        let table = document.createElement("table");
-        let tr = table.insertRow();
-        let td = tr.insertCell();
-        td.innerHTML = "<div id=\"info\"\ style='color:black !important'></div>";
-        table.id = "tableBox";
-        table.style.fontSize = "16px"
-        table.style.width = "15%";
-        table.style.marginLeft = "5px";
-        table.style.marginTop = "5px";
-        table.style.border = "thin stroke"
-        table.style.borderRadius = "7px";
-        table.style.background = "#BAFFAA";
-        table.style.textAlign = "center";
-        table.style.height = "25px";
-        // shrink message container
-        let _height = parseInt(table.style.height.substring(0, table.style.height.length - 2)) + parseInt(table.style.marginTop.substring(0, table.style.marginTop.length - 2)) + 34;
-        // add wordcount if enabled
-        if (localStorage.charBar == "false") {
-            table.style.visibility = "collapse";
-            table.style.position = "absolute";
-            _height = 34;
-        }
-        let style_cont_msg = document.createElement("style");
-        // style_cont_msg.innerHTML = "#boxMessages{height:calc(100% - " + _height + "px);}"
-        style_cont_msg.setAttribute("id", "style_cont_msg");
-        chat_cont.insertBefore(style_cont_msg, msg_cont);
-        QS("#boxChatInput").appendChild(table);
-        QS("#boxChatInput").insertAdjacentHTML("beforeEnd", "</div><div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 5em;background: white;border-radius: 0.5em;'></div>");
-        let input = QS("#inputChat");
-        let word = QS("#currentWord");
+        const input = QS("#inputChat");
+        const hints = QS("#currentWord");
+        let charbar = (input.insertAdjacentHTML("afterend", "<span id='charbar' style='color:black !important' ></span>"), QS("#charbar"));
+        charbar.insertAdjacentHTML("afterend", "<style id='charcountRules'></style>");
+
+        input.insertAdjacentHTML("afterEnd", "<div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 2.5em;background: white;border-radius: 0.5em;'></div>");
         let refreshCharBar = () => {
-            // remove content if clear token is present
-            if (input.value.includes(localStorage.token)) input.value = "";
             // recognize command and call interpreter
-            else if (input.value.includes("--") && localStorage.chatcommands == "true") {
+            if (input.value.includes("--") && localStorage.chatcommands == "true") {
                 performCommand(input.value);
                 input.value = "";
             }
-            QS("#info").innerText = word.innerText.length - input.value.length;
-            if (input.value.length > word.innerText.length
-                || !replaceUmlaute(input.value).toLowerCase().match(new RegExp(word.innerText.substr(0, input.value.length).toLowerCase().replaceAll("_", "[\\w\\d]")))) {
-                QS("#tableBox").style.background = "#ff5c33";
+            QS("#charcountRules").innerHTML = localStorage.charBar == "true" ? "#wordSize{visibility: auto !important}" : "#charbar { display: none !important } #wordSize{visibility: hidden !important}";
+            if (QS(".containerToolbar")?.style.display == "none") { // show charbar only if guessing
+                let word = hints.innerText;
+                charbar.textContent = word.length - input.value.length;
+                if (input.value.length > word.length
+                    || !replaceUmlaute(input.value).toLowerCase().match(new RegExp(word.substr(0, input.value.length).toLowerCase().replaceAll("_", "[\\w\\d]")))) {
+                    charbar.style.background = "#ff5c33";
+                }
+                else charbar.style.background = "#BAFFAA";
             }
-            else QS("#tableBox").style.background = "#BAFFAA";
+            else {
+                charbar.innerText = " - ";
+                charbar.style.background = "#BAFFAA";
+            }
         }
-
+        refreshCharBar();
         // Add event listener to keyup and process to hints
         input.addEventListener("keyup", refreshCharBar);
         // Add event listener to word mutations
-        (new MutationObserver(refreshCharBar)).observe(QS("#currentWord"), { attributes: true, childList: true });
+        (new MutationObserver(refreshCharBar)).observe(QS("#currentWord"), { attributes: true, childList: true, subtree: true, characterData: true });
     },
     initBackbutton: () => {
         // add back btn
@@ -108,16 +103,27 @@ const uiTweaks = {
         let clearContainer = QS(".containerClearCanvas");
         backBtn.classList.add("tool");
         backBtn.id = "restore";
-        backBtn.style.display = localStorage.displayBack ? "" : "none";
         backBtn.innerHTML = "<img class='toolIcon' src='" + chrome.extension.getURL("/res/back.gif") + "'>";
-        backBtn.onclick = function () { captureCanvas.restoreDrawing(1); };
+        backBtn.onclick = () => captureCanvas.restoreDrawing(1);
         clearContainer.style.marginLeft = "8px";
         clearContainer.firstChild.classList.add("tool");
         clearContainer.firstChild.style.opacity = "1";
         clearContainer.classList.add("containerTools");
         clearContainer.appendChild(backBtn);
-        toggleBackbutton(localStorage.displayBack == "true", true);
+        backBtn.style.display = localStorage.displayBack == "true" ? "" : "none";
     },
+    initBrushlabButton: () => {
+
+        // add btn
+        let labBtn = document.createElement("div");
+        let clearContainer = QS(".containerClearCanvas");
+        labBtn.classList.add("tool");
+        labBtn.id = "brushlabbtn";
+        labBtn.innerHTML = "<img class='toolIcon' src='" + chrome.extension.getURL("/res/brush.gif") + "'>";
+        labBtn.onclick = () => document.dispatchEvent(new Event("openBrushLab"));
+        clearContainer.appendChild(labBtn);
+    },
+    randomInterval: 0,
     initRandomColorDice: () => {
         // add random color image
         let rand = QS(".colorPreview");
@@ -125,19 +131,25 @@ const uiTweaks = {
         rand.style.justifyContent = "center";
         rand.style.alignItems = "center";
         rand.style.display = "flex";
-        rand.firstChild.display = localStorage.randomColorButton ? "" : "none";
+        rand.firstChild.style.display = localStorage.randomAndPicker == "true" ? "" : "none";
         rand.firstChild.id = "randomIcon";
+        
         rand.addEventListener("click", function () {
-            let colors = [];
-            [...QSA(".colorItem")].forEach(c => {
-                if (c.parentElement.parentElement.style.display != "none") {
-                    colors.push(Number(c.getAttribute("data-color")));
-                }
-                c.onclick = () => {
-                    document.body.dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: "false" } }));
-                }
-            });
-            document.body.dispatchEvent(newCustomEvent("setRandomColor", { detail: { enable: localStorage.randomColorInterval, colors: colors } }));
+            clearInterval(uiTweaks.randomInterval);
+            uiTweaks.randomInterval = setInterval(()=>{
+
+                // get all currently available colors
+                let colors = [...QSA(".colorItem")].filter(i => i.offsetParent != null);
+
+                document.body.dispatchEvent(
+                    newCustomEvent("setColor", { 
+                        detail: {
+                            hex: (new Color({ rgb: colors[Math.floor(Math.random() * colors.length)].style.background})).hex
+                        } 
+                    }
+                ));
+
+            }, Number(localStorage.randomColorInterval));
         });
     },
     initColorPicker: () => {
@@ -145,7 +157,7 @@ const uiTweaks = {
         let toolbar = QS(".containerToolbar");
         let picker = document.createElement("div");
         picker.id = "colPicker";
-        picker.style.display = localStorage.randomColorButton == "true" ? "flex" : "none";
+        picker.style.display = localStorage.randomAndPicker == "true" ? "flex" : "none";
         picker.style.justifyContent = "center";
         picker.style.alignItems = "center";
         picker.innerHTML = "<img src='" + chrome.runtime.getURL("res/mag.gif") + "' class='toolIcon'>";
@@ -218,10 +230,20 @@ const uiTweaks = {
     },
     initColorPalettes: () => {
         // add color palettes
-        QS(".containerColorbox").id = "originalPalette";
-        QS("#buttonClearCanvas").style.height = "48px";
-        let palettes = localStorage.customPalettes ? JSON.parse(localStorage.customPalettes) : [];
-        palettes.forEach(p => addColorPalette(p));
+        palettes = JSON.parse(localStorage.customPalettes).forEach(palette => {
+            uiTweaks.palettes.push(createColorPalette(palette));
+        });
+        // clear random color interval on standard palette click
+        QS(".containerColorbox:not(.custom)").addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
+
+        // add standard palette
+        uiTweaks.palettes.push({
+            name: "originalPalette", activate: () => {
+                [...QSA(".containerColorbox.custom")].forEach(p => p.remove());
+                QS(".containerColorbox:not(.custom)").style.display = "";
+            }
+        });
+        uiTweaks.palettes.find(palette => palette.name == localStorage.palette)?.activate();
     },
     initLobbyDescriptionForm: () => {
         // add Description form
@@ -246,63 +268,6 @@ const uiTweaks = {
             mutations.forEach(mutation => mutation.addedNodes.forEach(emojis.replaceEmojiContent));
         });
         chatObserver.observe(QS("#boxMessages"), { attributes: false, childList: true });
-    },
-    initRicardoSpecial: () => {
-        let ricardo = document.createElement("div");
-        ricardo.style.cssText = `
-width: 20%;
-height: 100%;
-z-index: 0;
-background-image: url("https://cdn.discordapp.com/attachments/715996980849147968/800431598922235944/ricardo.gif");
-background-size: contain;
-position: absolute;
-background-repeat: no-repeat;
-image-rendering: pixelated;
-left: 0px; bottom: 0px;
-background-position: center bottom;
-cursor: pointer;
-transition: left 1s ease 0s;`;
-        setInterval(() => ricardo.style.left = "80%", 10000);
-        setTimeout(() => { setInterval(() => ricardo.style.left = "0%", 10000); }, 5000);
-        ricardo.addEventListener("click", () => {
-            let popup = document.createElement("div");
-            popup.innerHTML = `
-<h2 class="updateInfo"> I heard you like Memes?</h2><br>
-<span>Great, of course you do. <br><br>You now got the chance to watch the best videos everr and get rewarded with a nice sprite!</span><br>
-<a href="/"><button class="btn btn-info">Nah, take me back to skribbl</button></a><br><br>
-<button class="btn btn-success">Yeah I'm not afraid of the internet and want to spend 15 mins for memes</button><br>
-<div style="position:absolute; z-index:-1;bottom:0; right:0;height:50%;width:20%;background-image:url(https://cdn.discordapp.com/attachments/715996980849147968/800444501796978719/knuckles.gif);background-size:contain;background-opition:bottom right;background-repeat:no-repeat;"></div>
-`;
-            popup.style.cssText = `
-position: fixed;
-background: white;
-overflow-y: scroll;
-z-index: 5;
-width: 50vw;
-height:50vh;
-border-radius: 0.5em;
-box-shadow: black 1px 1px 9px -2px;
-display: block;
-left: 25vw;
-top:25vh;
-padding: 1em; `;
-            popup.querySelector(".btn-success").addEventListener("click", () => {
-                popup.innerHTML = `
-<h2 class="updateInfo"> Goooood.</h2><br>
-<span>Then lets gooo! Watch <a target="_blank" href="https://www.youtube.com/watch?v=O9ZeFoSxA1Y&list=PLfqjJfOuOI5r6QQBgoUtBgNi7aMj3_Yb4&">this random Five-Episode-Series (first 5 videos)</a> that I fell in love with and enjoy the trip.
-<br><br>Afterwards, answer some super-sophisticated questions and about this masterpiece and very likely you'll get rewarded with an exclusive sprite ;))<br>
-<br>Btw, you got 5 mins once you start the form and ONLY got ONE TRY! :O.</span><br>
-<a href="/"><button class="btn btn-info">SOS I'm not ready, take me back to skribbl</button></a><br><br>
-<button class="btn btn-success">START THE QUESTIONS</button><br>
-<div style="position:absolute; z-index:-1;bottom:0; right:0;height:50%;width:20%;background-image:url(https://cdn.discordapp.com/attachments/715996980849147968/800450879689064488/bonk.gif);background-size:contain;background-opition:bottom right;background-repeat:no-repeat;"></div>
-`;
-                popup.querySelector(".btn-success").addEventListener("click", () => {
-                    // questions logic
-                });
-            });
-            document.body.appendChild(popup);
-        });
-        QS("#loginAvatarCustomizeContainer").appendChild(ricardo);
     },
     initSideControls: () => {
         //init new controls div
@@ -340,58 +305,6 @@ padding: 1em; `;
             + ") center no-repeat;'></div>");
         typroCloud.addEventListener("click", typro.show);
         QS("#controls").append(typroCloud);
-        // add tabletmode
-        let tabletMode = elemFromString("<div id='tabMode' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/tablet.gif")
-            + ") center no-repeat;'></div>");
-        tabletMode.addEventListener("click", () => {
-            let modeNone = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeNone.png")
-                + ")'></div><h4>Disable</h4></div>");
-            modeNone.addEventListener("click", () => performCommand("disable ink "));
-
-            let modeThickness = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeThickness.png")
-                + ")'></div><h4>Size (Absolute)</h4></div>");
-            modeThickness.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode thickness") :
-                performCommand("enable ink") || performCommand("inkmode thickness"));
-
-            let modeRelative = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeThickness.png")
-                + ")'></div><h4>Size (Relative)</h4></div>");
-            modeRelative.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode relative") :
-                performCommand("enable ink") || performCommand("inkmode relative"));
-
-            let modeBrightness = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeBrightness.png")
-                + ")'></div><h4>Brightness</h4></div>");
-            modeBrightness.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode brightness") :
-                performCommand("enable ink") || performCommand("inkmode brightness"));
-
-            let modeDegree = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeDegree.png")
-                + ")'></div><h4>Degree</h4></div>");
-            modeDegree.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode degree") :
-                performCommand("enable ink") || performCommand("inkmode degree"));
-
-            let modeBrightnessDegree = elemFromString("<div class='tabletOption'><div style='width:99px; height:48px; background: center no-repeat url("
-                + chrome.runtime.getURL("/res/modeBrightnessDegree.png")
-                + ")'></div><h4>Brightness Degree</h4></div>");
-            modeBrightnessDegree.addEventListener("click", () => localStorage.ink == "true" ?
-                performCommand("inkmode degree brightness") :
-                performCommand("enable ink") || performCommand("inkmode degree brightness"));
-
-            let options = elemFromString("<div style='display:flex; gap:3em; flex-wrap: wrap; width:100%; height: min-content; flex-direction:row; justify-content: space-evenly'></div>");
-            options.appendChild(elemFromString("<style>.tabletOption:hover{background:#00000040}.tabletOption{transition: background 0.2s;display:flex; margin:.5em; padding:.5em; flex-direction: column; align-items: center; justify-items: center; background: #00000026; cursor: pointer; border-radius: .5em;}</style>"));
-            options.append(modeNone, modeThickness, modeRelative, modeBrightness, modeDegree, modeBrightnessDegree);
-            let modal = new Modal(options, () => { }, "Select a tablet mode", "50vw", "0px");
-            options.addEventListener("click", () => modal.close());
-        });
-        QS("#controls").append(tabletMode);
         // add appearance options
         let visualsButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/visuals.gif")
@@ -612,7 +525,7 @@ padding: 1em; `;
         const currentWord = document.querySelector('#currentWord');
         const currentWordSize = document.createElement('div');
         currentWordSize.id = 'wordSize';
-        if(localStorage.charBar != "true") currentWordSize.style.visibility = "hidden";
+        //if(localStorage.charbar != "true") currentWordSize.style.visibility = "hidden";
         currentWord.parentNode.insertBefore(currentWordSize, currentWord.nextSibling);
         const wordObserver = new MutationObserver(m => {
             let wordCount = currentWord.innerText;
@@ -629,7 +542,7 @@ padding: 1em; `;
         // Create tooltips
         // remove original votekick tooltip
         QS("#containerPlayerlist .tooltip-wrapper").setAttribute("data-toggle", "");
-        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore, #votekickCurrentPlayer, #saveDrawingOptions, #controls [style*="tablet.gif"],#controls [style*="fullscreen.gif"], #controls [style*="cloud.gif"], #controls [style*="visuals.gif"]'));
+        const tooltips = Array.from(document.querySelectorAll('[data-toggle="tooltip"], .colorPreview, #restore, #votekickCurrentPlayer, #saveDrawingOptions, #controls [style*="fullscreen.gif"], #controls [style*="cloud.gif"], #controls [style*="visuals.gif"]'));
         tooltips.forEach((v, i, a) => {
             if (v.matches('.colorPreview:not(#colPicker)')) {
                 v.setAttribute('title', 'Color preview (click for magic)');
@@ -647,14 +560,12 @@ padding: 1em; `;
                 v.setAttribute('title', 'Votekick the current player if they are misbehaving');
             } else if (v.matches('#saveDrawingOptions')) {
                 v.setAttribute('title', 'Save the current drawing to re-use it later');
-            } else if (v.matches('#controls [style*="tablet.gif"]')) {
-                v.setAttribute('title', 'Set the graphics tablet pressure mode');
             } else if (v.matches('#controls [style*="visuals.gif"]')) {
                 v.setAttribute('title', 'Customize how skribbl.io looks like');
             } else if (v.matches('#controls [style*="cloud.gif"]')) {
                 v.setAttribute('title', 'Access all images in the cloud');
             } else if(v.matches('#controls [style*="fullscreen.gif"]')) {
-            v.setAttribute('title', 'Toggle fullscreen mode');
+                v.setAttribute('title', 'Toggle fullscreen mode');
             }
             a[i] = buildTooltip(v);
         });
@@ -752,13 +663,13 @@ padding: 1em; `;
             e.bubbles = false;
             e.preventDefault();
             if (e.which == 38) { // up
-                performCommand(cmd_like);
+                performCommand("like");
             }
             else if (e.which == 39) { // right
-                performCommand(cmd_votekick);
+                performCommand("kick");
             }
             else if (e.which == 40) { // down
-                performCommand(cmd_dislike);
+                performCommand("shame");
             }
             chatinput.focus();
         });
@@ -831,7 +742,7 @@ padding: 1em; `;
         let sliderRange = slider.querySelector("input");
         sliderRange.addEventListener("input", (e) => {
             label.innerText = e.target.value;
-            pressure.setBrushsize(Number(e.target.value), true);
+            setBrushsize((Number(e.target.value) - 4) / 36, false);
         });
         const wheelThicknessSet = (e) => {
             if (!document.body.contains(slider)) document.removeEventListener("wheelThicknessSet", wheelThicknessSet); // remove listener if slider disabled
@@ -840,14 +751,133 @@ padding: 1em; `;
         }
         document.addEventListener("wheelThicknessSet", wheelThicknessSet);
     },
+    initStraightLines: () => {
+        // Credits for basic idea of canvas preview to https://greasyfork.org/en/scripts/410108-skribbl-line-tool/code
+        // preview canvas
+        const preview = {
+            canvas: elemFromString(`<canvas style="cursor:crosshair; position:absolute; touch-action:none; inset: 0; z-index:10; opacity:0.5" width="800" height="600"></canvas>`),
+            context: () => preview.canvas.getContext("2d"),
+            gameCanvas: QS("#canvasGame"),
+            use: () => {
+                preview.clear();
+                preview.gameCanvas.insertAdjacentElement("afterend", preview.canvas);
+                preview.gameCanvas.style.pointerEvents = "none";
+            },
+            stop: () => {
+                preview.canvas.remove();
+                preview.gameCanvas.style.pointerEvents = "";
+            },
+            clear: () => preview.context().clearRect(0, 0, 800, 600),
+            line: (x, y, x1, y1, color = "black", size = 5) => {
+                preview.clear();
+                const ctx = preview.context();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x1, y1);
+                ctx.strokeStyle = color;
+                ctx.lineWidth = size;
+                ctx.stroke();
+            }
+        }
+        let straight = false;
+        let lastRelease = 0;
+        let snap = false;
+        let pointerdown = false;
+        let lastDown = [null, null];
+        let lastDownClient = [null, null];
+        const mouseEvent = (type, x, y) => {
+            return new MouseEvent(type, {
+                bubbles: true,
+                clientX: x,
+                clientY: y,
+                button:0
+            });
+        }
+        // get pos when scaled
+        const getRealCoordinates = (x,y) => {
+            const { width, height } = preview.canvas.getBoundingClientRect();
+            x = (800 / width) * x;
+            y = (600 / height) * y;
+            return [x, y];
+        }
+        // listen for shift down
+        document.addEventListener("keydown", (event) => {
+            let state = straight;
+            straight = straight || event.shiftKey;
+            if (straight && !state) preview.use();
+            if (straight && !state && Date.now() - lastRelease < 300) snap = true;
+        });
+        document.addEventListener("keyup", (event) => {
+            let state = straight;
+            straight = straight && event.shiftKey;
+            snap = straight && snap;
+            if (!straight && !pointerdown) preview.stop();
+            if (!straight && state) lastRelease = Date.now();
+        });
+        document.addEventListener("keyup", (event) => {
+            let state = straight;
+            straight = straight && event.which !== 16;
+            snap = straight && snap;
+            if (!straight && !pointerdown) preview.stop();
+            if (!straight && state) lastRelease = Date.now();
+        });
+        // get snap end coordinates
+        const snapDestination = (x, y, x1, y1) => {
+            let dx = Math.abs(x - x1);
+            let dy = Math.abs(y - y1);
+            return dx > dy ? [x1, y] : [x, y1];
+        }
+        // listen for pointer events
+        preview.canvas.addEventListener("pointerdown", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            pointerdown = true;
+            if (straight) {
+                lastDownClient = [event.clientX, event.clientY];
+                lastDown = getRealCoordinates(event.offsetX, event.offsetY);
+            }
+        });
+        preview.canvas.addEventListener("pointerup", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            pointerdown = false;
+            if (straight) {
+                preview.clear();
+                lastDown = [null, null];
+                let dest = [event.clientX, event.clientY];
+                if (snap) dest = snapDestination(lastDownClient[0], lastDownClient[1], event.clientX, event.clientY);
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousedown", lastDownClient[0], lastDownClient[1]));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", dest[0], dest[1]));
+            }
+        });
+        preview.canvas.addEventListener("pointermove", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (straight) {
+                const col = QS(".colorPreview:not(#colPicker)").style.backgroundColor;
+                const size = QS("#sizeslider input").value;
+                if (lastDown[0]) {
+                    let real = getRealCoordinates(event.offsetX, event.offsetY);
+                    if (!snap) preview.line(lastDown[0], lastDown[1], real[0], real[1], col, size);
+                    else {
+                        let dest = snapDestination(lastDown[0], lastDown[1], real[0], real[1]);
+                        preview.line(lastDown[0], lastDown[1], dest[0], dest[1], col, size);
+                    }
+                }
+            }
+        });
+    },
     initAll: () => {
         // clear ads for space
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
         //document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
         // mel i love you i'd never do this
+        uiTweaks.initTypoModbar();
         uiTweaks.initGameNavigation();
         uiTweaks.initWordHint();
         uiTweaks.initBackbutton();
+        uiTweaks.initBrushlabButton();
         uiTweaks.initRandomColorDice();
         uiTweaks.initColorPicker();
         uiTweaks.initCanvasZoom();
@@ -859,7 +889,13 @@ padding: 1em; `;
         uiTweaks.initQuickReact();
         uiTweaks.initSelectionFormatter();
         uiTweaks.initSizeSlider();
-        //uiTweaks.initRicardoSpecial();
+        uiTweaks.initSideControls();
+        uiTweaks.initLobbyRestriction();
+        uiTweaks.initAccessibility();
+        uiTweaks.initDefaultKeybinds();
+        uiTweaks.initStraightLines();
+
+        // canvas copy
         document.addEventListener("copyToClipboard", async () => {
             if (QS("#screenGame").style.display == "none" || document.getSelection().type == "Range") return;
             let canvas = QS("#canvasGame");
@@ -867,14 +903,15 @@ padding: 1em; `;
             await dataURLtoClipboard(scaled);
             new Toast("Copied image to clipboard.", 1500);
         });
-        uiTweaks.initSideControls();
-        uiTweaks.initLobbyRestriction();
-        uiTweaks.initAccessibility();
+
         // add bar that indicates left word choose time; class is added and removed in gamejs when choosing begins
         QS("#overlay").insertAdjacentHTML("beforeBegin",
             "<style>#overlay::after {content: '';position: absolute;top: 0;left: 0;width: 100%;}#overlay.countdown::after{background: lightgreen;height: .5em;transition: width 15s linear;width: 0;}</style>");
-        uiTweaks.initDefaultKeybinds();
-        if (localStorage.gamemodes == "true") gamemode.init();
+        
+        // allow more chat
+        QS("#inputChat").setAttribute("maxlength", 300);
+
+
         if (localStorage.keybinds == "true") keybind.init();
         if (localStorage.translate == "true") translate.init();
         if(Math.random() < 0.1) QS("#inputChat").placeholder = "Typo your guess here...";

@@ -1,3 +1,7 @@
+#sizeslider, #buttonClearCanvas{
+  height: 48px !important;
+}
+
 /* Accessibility */
 #containerFreespace {
   background: none;
@@ -40,6 +44,16 @@ input::-webkit-inner-spin-button {
 /* Character counter */
 #boxChatInput {
   display: flex;
+}
+#formChat {
+  display: flex;
+}
+#charbar{
+  flex-grow:1;
+  padding: 0.2em 1em;
+  margin: 0.2em 1em;
+  border-radius:.2em;
+  margin-right: 0;
 }
 #formChat {
   width: 100%;
@@ -286,4 +300,129 @@ input::-webkit-inner-spin-button {
 }
 #boxMessages p:nth-child(n).untranslated {
   background-color: rgb(255, 230, 230);
+}
+
+#sharePopup, #downloadPopup, #gamemodePopup, #saveDrawingPopup{
+  position: absolute;
+  background: white;
+  overflow: hidden;
+  z-index: 5;
+  width: 90%;
+  border-radius: 0.5em;
+  margin-left: 5%;
+  box-shadow: black 1px 1px 9px -2px;
+  min-height: 15%;
+  padding: 1em;
+  bottom: 4em;
+  user-select: none;
+}
+
+#imageOptions > img {
+  transition: all .2s;
+  -webkit-filter: drop-shadow(2px 2px 2px #000000a0);
+  filter: drop-shadow(2px 2px 2px #000000a0);
+}
+#imageOptions > img:hover {
+  transform: translate(0, -.2rem);
+}
+
+#brushmagicSettings{
+  padding: 2em;
+}
+
+#brushmagicSettings > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+               break-inside: avoid;
+  margin-bottom:2em;             
+}
+
+#brushmagicSettings > div > h3 {
+  text-align:enter;
+  font-weight: bold;
+}
+
+#brushmagicSettings .mode{
+  border-top: 1px solid #0000003a;
+  padding-top: 1em;
+}
+
+#brushmagicSettings .mode > label {display: block; font-size: 1.2em; cursor: pointer; user-select: none}
+#brushmagicSettings .mode > span { font-style: italic;}
+#brushmagicSettings .options > label { margin-top: .2em; display: block}
+#brushmagicSettings .options > label > * { margin-left: .5em; }
+
+
+#modalLobbystream.streaming .joinstream {
+  display:none !important;
+}
+
+#modalLobbystream:not(.streaming) .stopstream {
+  display:none !important;
+}
+
+#modalLobbystream.streaming .startstream div:not(.stopstream) {
+  pointer-events:none;
+  opacity: 0.7;
+}
+
+#modalLobbystream.spectating .startstream {
+  display:none !important;
+}
+
+#modalLobbystream.spectating #joinStream {
+  pointer-events:none;
+  opacity: 0.7;
+}
+
+body:not(.streamChatEnabled) *:is(#toggleStreamChat, #boxStreamChat) {
+  display:none;
+}
+
+body.streamChatEnabled #containerChat:not(.stream) #boxStreamChat {
+  display:none;
+}
+
+body.streamChatEnabled #containerChat.stream #boxChat {
+  display:none;
+}
+
+body.streamChatEnabled #toggleStreamChat{
+  user-select:none;
+  display: flex;
+  justify-content: space-evenly;
+  font-size: 1.2em;
+  padding: .5em;
+  color: black;
+  top:0;
+  left:0;
+  right:0;
+  position:absolute;
+  background:inherit;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+body.streamChatEnabled *:is(#boxChat, #boxStreamChat){
+  padding-top:3em;
+}
+
+body.streamChatEnabled #containerChat:not(.stream) #toggleStreamChat span:last-child{
+  opacity:0.5;
+}
+
+body.streamChatEnabled #containerChat.stream #toggleStreamChat span:first-child{
+  opacity:0.5;
+}
+
+
+body.streamChatEnabled #containerChat{
+  position: relative;
+}
+
+#btnOpenStreamSettings:hover{
+  opacity:1 !important;
 }

@@ -28,7 +28,7 @@ const imageOptions = {
             if (e.data.download) {
                 progressBar.innerText = String.fromCodePoint("0x1F7E9").repeat(10) + " Done!";
                 let templink = document.createElement("a");
-                templink.download = filename;
+                templink.download = filename + ".gif";
                 templink.href = e.data.download;
                 templink.click();
             }
@@ -47,33 +47,8 @@ const imageOptions = {
                 progressBar.innerText += " " + percent + "%";
             }
         }, false);
-        printCmdOutput("render");
+        addChatMessage("Started GIF rendering", "This can take up to about a minute.");
         QS("#boxMessages").appendChild(progressBar);
-    },
-    initContainer: () => {
-        // add options container and re-organize sidebar for handling popups
-        let newSidebar = document.createElement("div");
-        newSidebar.id = "newSidebar";
-        newSidebar.style.cssText = "position: relative; display: flex; flex-direction: column;";
-
-        let optionsContainer = document.createElement("div");
-        optionsContainer.id = "imageOptions";
-        optionsContainer.style.height = "48px";
-        optionsContainer.style.background = "white";
-        optionsContainer.style.borderRadius = "2px";
-        optionsContainer.style.display = "flex";
-        optionsContainer.style.justifyContent = "space-evenly";
-        optionsContainer.style.alignItems = "baseline";
-        optionsContainer.style.marginTop = "8px";
-        optionsContainer.style.marginRight = "8px";
-
-        let containerPlayers = QS("#containerPlayerlist");
-        containerPlayers.style.height = "100%";
-        containerPlayers.parentElement.insertBefore(newSidebar, containerPlayers);
-        newSidebar.appendChild(containerPlayers);
-        newSidebar.appendChild(optionsContainer);
-
-        imageOptions.optionsContainer = optionsContainer;
     },
     downloadDataURL: async (url, name = "") => {
         let scale = Number(localStorage.qualityScale) ? Number(localStorage.qualityScale) : 1;
@@ -87,53 +62,13 @@ const imageOptions = {
             document.querySelector("#canvasGame").height * scale);
         d.dispatchEvent(e);
     },
-    initDownloadPicture: () => {
-        // add DL button for images
-        let download = document.createElement("img");
-        download.src = "https://media.giphy.com/media/RLKYVelNK5bP3yc8LJ/giphy.gif";
-        download.style.cursor = "pointer";
-        download.id = "downloadImage";
-        download.addEventListener("click", async () => {
-            await imageOptions.downloadDataURL(document.querySelector("#canvasGame").toDataURL("image/png;base64"));
-        });
-        imageOptions.optionsContainer.appendChild(download);
-    },
-    initDownloadGif: () => {
-        // add DL button for gif
-        let downloadGif = document.createElement("img");
-        downloadGif.src = chrome.runtime.getURL("res/gif.gif");
-        downloadGif.style.cursor = "pointer";
-        downloadGif.id = "downloadGif";
-        downloadGif.addEventListener("click", () => {
-            let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
-            e.initMouseEvent("click", true, true, window,
-                0, 0, 0, 0, 0, false, false, false,
-                false, 0, null);
-            d.download = "skribbl" + document.querySelector("#currentWord").textContent + (drawer ? drawer : "");
-            d.href = document.querySelector("#canvasGame").toDataURL("image/png;base64");
-            imageOptions.drawCommandsToGif(d.download);
-        });
-        imageOptions.optionsContainer.appendChild(downloadGif);
-    },
     initImagePoster: () => {
         // popup for sharing image
         let sharePopup = document.createElement("div");
-        sharePopup.style.position = "absolute";
-        sharePopup.style.background = "white";
-        sharePopup.style.overflow = "hidden";
-        sharePopup.style.zIndex = "5";
-        sharePopup.style.width = "90%";
-        sharePopup.style.padding = "1em;";
-        sharePopup.style.borderRadius = ".5em";
-        sharePopup.style.marginLeft = "5%";
-        sharePopup.style.boxShadow = "1px 1px 9px -2px black";
         sharePopup.style.display = "none";
-        sharePopup.style.minHeight = "15%";
-        sharePopup.style.padding = "1em";
-        sharePopup.style.bottom = "1em";
         sharePopup.id = "sharePopup";
         sharePopup.tabIndex = "-1";
-        imageOptions.optionsContainer.appendChild(sharePopup);
+        QS(".typoModbar").appendChild(sharePopup);
 
         // btn to open share popup
         let shareButton = document.createElement("img");
@@ -155,7 +90,7 @@ const imageOptions = {
             sharePopup.focus();
             QS("#postNameInput").value = QS("#currentWord").innerText + QS("#wordSize").innerText;
         });
-        imageOptions.optionsContainer.appendChild(shareButton);
+        QS(".typoModbar").appendChild(shareButton);
 
         // input field 
         let postName = document.createElement("input");
@@ -165,7 +100,7 @@ const imageOptions = {
         postName.classList.add("form-control");
         postName.style.marginBottom = "0.75em";
         sharePopup.appendChild(postName);
-        postName.outerHTML = "Post image @Discord: <br><br>" + postName.outerHTML;
+        postName.outerHTML = "<b>Post image @Discord: </b><br><br>" + postName.outerHTML;
 
         // image only checkbox
         let imageOnly = document.createElement("div");
@@ -202,92 +137,94 @@ const imageOptions = {
         imagePreview.addEventListener("contextmenu", (e) => { e.preventDefault(); navigateImagePreview(1); });
 
         // get webhooks
-        let webhooks = [];
-        if (localStorage.member) JSON.parse(localStorage.member)?.Guilds.forEach(g => { if (g.Webhooks) g.Webhooks.forEach(w => webhooks.push(w)) });
+        let webhooks = socket.data.user.webhooks;
 
         // add buttons to post image
         if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
         webhooks.forEach(async (w) => {
             // add share button for image
             let shareImg = document.createElement("button");
-            shareImg.innerHTML = "[" + w.Guild + "] <br>" + w.Name;
+            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
+            shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
             shareImg.classList.add("btn", "btn-info", "btn-block");
             shareImg.addEventListener("click", async () => {
+
                 // close popup first to avoid spamming
                 sharePopup.style.display = "none";
-                // upload to orthanc
                 let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
-                let imgstring = imageShareString;
-                let data = new FormData();
-                data.append("image", imgstring);
-                data.append("accessToken", localStorage.accessToken);
-                let state = await fetch('https://tobeh.host/Orthanc/tokenapi/imagepost/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': '*/*'
-                    },
-                    body: data
-                });
-                let url = await state.text();
-
-                // build webhook content
-                let message;
-                let imageOnly =QS("#sendImageOnly").checked;
                 let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS("#inputName").value;
-                if (imageOnly) {
-                    message = JSON.stringify({
-                        username: loginName,
-                        avatar_url:
-                            'https://tobeh.host/Orthanc/images/letterred.png',
-                        content: url
-                    });
-                }
-                else {
-                    let drawer = imageShareStringDrawer;
-                    message = JSON.stringify({
-                        username: "Skribbl Image Post",
-                        avatar_url:
-                            'https://tobeh.host/Orthanc/images/letterred.png',
-                        embeds: [
-                            {
-                                "title": title,
-                                "description": "Posted by " + loginName,
-                                "color": 4368373,
-                                "image": {
-                                    "url": url
-                                },
-                                "footer": {
-                                    "icon_url": "https://cdn.discordapp.com/attachments/334696834322661376/860509383104528425/128CircleFit.png",
-                                    "text": "skribbl typo"
-                                },
-                                "author": {
-                                    "name": "Drawn by " + drawer,
-                                    "url": "https://typo.rip",
-                                    "icon_url": "https://skribbl.io/res/pen.gif"
-                                }
-                            }
-                        ]
-                    })
-                }
 
-                // send webhook
-                await fetch(w.URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: message
+                // send to socket
+                await socket.emitEvent("post image", { 
+                    accessToken: localStorage.accessToken, 
+                    serverID: w.ServerID, 
+                    imageURI: imageShareString, 
+                    webhookName: w.Name,
+                    postOptions: {
+                        onlyImage: QS("#sendImageOnly").checked, 
+                        drawerName: imageShareStringDrawer, 
+                        posterName: loginName, 
+                        title: title
+                    }
                 });
+
                 new Toast("Posted image on Discord.", 2000);
             });
             sharePopup.appendChild(shareImg);
         });
         Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
     },
+    initDownloadOptions: () => {
+
+        // add DL button for gif
+        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;">`);
+        
+        // popup for sharing image
+        const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
+        <b>Save Image</b>
+        <br><br><label for="dlQuality">
+        <input type="checkbox" id="dlQuality" class="flatUI small">
+        <span>High quality</span>
+        </label><br><br>
+        <button class="btn btn-primary" id="dlPng" >As PNG</button><br><br>
+        <button class="btn btn-info" id="dlGif" >As GIF</button><br><br>
+        <button class="btn btn-info" id="saveCloud">In Typo Cloud</button>
+        </div>`);
+        imageOptions.optionsContainer.appendChild(downloadOptions);
+        downloadOptions.addEventListener("click", () => {
+            downloadPopup.style.display = "";
+            downloadPopup.focus();
+        });
+        imageOptions.optionsContainer.appendChild(downloadPopup);
+        QS("#dlGif").addEventListener("click", () => {
+            imageOptions.drawCommandsToGif("skribbl-" + document.querySelector("#currentWord").textContent + "-by-" + getCurrentOrLastDrawer());
+            downloadPopup.style.display = "none";
+        });
+        QS("#dlPng").addEventListener("click", async () => {
+            await imageOptions.downloadDataURL(
+                document.querySelector("#canvasGame").toDataURL("image/png;base64"),
+                "skribbl-" + document.querySelector("#currentWord").textContent + "-by-" + getCurrentOrLastDrawer(),
+                QS("#dlQuality").checked ? 3 : 1
+            );
+            downloadPopup.style.display = "none";
+        });
+        QS("#saveCloud").addEventListener("click", async () => {
+            if (socket.authenticated) {
+                document.body.dispatchEvent(newCustomEvent("drawingFinished"));
+                new Toast("Saved the drawing in the cloud.");
+            }
+            else {
+                new Toast("Create a palantir account to save drawings in the cloud!");
+            }
+            downloadPopup.style.display = "none";
+        });
+        Array.from(downloadPopup.children).concat(downloadPopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!downloadPopup.contains(document.activeElement)) downloadPopup.style.display = "none" }, 20); }));
+
+    },
     initAll: () => {
-        imageOptions.initContainer();
-        imageOptions.initDownloadGif();
-        imageOptions.initDownloadPicture();
-        imageOptions.initImagePoster();
+        //imageOptions.initDownloadGif();
+        //imageOptions.initDownloadPicture();
+        imageOptions.optionsContainer = QS(".typoModbar");
+        imageOptions.initDownloadOptions();
     }
 }

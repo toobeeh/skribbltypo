@@ -18,8 +18,8 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "holy" && settings.ownHoly == "true") bt.className = "active";
             if (bt.id == "charbar" && settings.charBar == "true") bt.className = "active";
             if (bt.id == "backbutton" && settings.displayBack == "true") bt.className = "active";
-            if (bt.id == "randomToggle" && settings.randomColorButton == "true") bt.className = "active";
-            if (bt.id == "palantirToggle" && settings.userAllow == "true") bt.className = "active";
+            if (bt.id == "randomToggle" && settings.randomAndPicker == "true") bt.className = "active";
+            if (bt.id == "palantirToggle" && settings.palantir == "true") bt.className = "active";
             if (bt.id == "clearcanvas" && settings.keepCanvas == "true") bt.className = "active";
             if (bt.id == "controls" && settings.controls == "true") bt.className = "active";
             if (bt.id == "keybinds" && settings.keybinds == "true") bt.className = "active";
@@ -39,7 +39,7 @@ chrome.runtime.onMessage.addListener(
         sensSlider.dispatchEvent(new Event('input'));
 
         let markupSlider = document.querySelector("#markupSlider input[type='range']");
-        markupSlider.value = hexToHSL(settings.markupColor).h * 360;
+        markupSlider.value = hexToHSL(settings.markupcolor).h * 360;
         markupSlider.dispatchEvent(new Event('input'));
 
         let randomSlider = document.querySelector("#randomSlider input[type='range']");
@@ -72,9 +72,13 @@ chrome.runtime.onMessage.addListener(
                     e.preventDefault();
                     if (contextm == true) {
                         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-                            chrome.tabs.sendMessage(tabs[0].id, "rmpal " + bt.id);
+                            chrome.tabs.sendMessage(tabs[0].id, "rempalette " + bt.id);
+                            bt.remove();
+                            if(bt.classList.contains("active")){
+                                chrome.tabs.sendMessage(tabs[0].id, "usepalette originalPalette");
+                                document.querySelector("#palettes #originalPalette").classList.add("active");
+                            }
                         });
-                        bt.remove();
                     }
                     else if(bt.id != "sketchfulPalette") {
                         contextm = true;
@@ -96,7 +100,7 @@ function togglePalette(e) {
     [...document.querySelector("#palettes").children].forEach(c => c.classList.remove("active"));
     e.target.classList.add("active");
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, "palette " + this.id);
+        chrome.tabs.sendMessage(tabs[0].id, "usepalette " + e.target.id);
     });
 }
 
@@ -219,7 +223,7 @@ function verifyJSON() {
     obj.name = obj.name.replace(" ", "").trim();
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, "addpal " + JSON.stringify(obj) );
+        chrome.tabs.sendMessage(tabs[0].id, "addpalette " + JSON.stringify(obj) );
     });
     document.querySelector("#paletteJSON").value = "";
 
@@ -262,7 +266,7 @@ function setActiveTab(event) {
 
     function setSens() {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-            chrome.tabs.sendMessage(tabs[0].id, "set sens " + this.value);
+            chrome.tabs.sendMessage(tabs[0].id, "sensitivity " + this.value);
         });
     }
 
@@ -275,7 +279,7 @@ function setActiveTab(event) {
 
     function setRandom() {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-            chrome.tabs.sendMessage(tabs[0].id, "set random " + this.value);
+            chrome.tabs.sendMessage(tabs[0].id, "randominterval " + this.value);
         });
     }
 
@@ -294,7 +298,7 @@ function setActiveTab(event) {
 
     function setMarkup() {
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-            chrome.tabs.sendMessage(tabs[0].id, "set markup " + hslToHex(this.value, 100, 90));
+            chrome.tabs.sendMessage(tabs[0].id, "markupcolor " + hslToHex(this.value, 100, 90));
         });
     }
 

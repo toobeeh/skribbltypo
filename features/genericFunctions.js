@@ -15,8 +15,37 @@ const newCustomEvent = (type, detail = {}) => {
 const markMessage = (newNode) => {
     if (localStorage.markup != "true") return;
     let sender = newNode.innerHTML.slice(newNode.innerHTML.indexOf("<b>"), newNode.innerHTML.indexOf("</b>")).slice(3, -2);
-    if (sender == socket.clientData.playerName || sender != "" && localStorage.vip.split("/").includes(sender))
-        newNode.style.background = localStorage.markupColor;
+    if (sender == socket.clientData.playerName || sender != "" && localStorage.vip.split("/").includes(sender)){
+        newNode.style.background = localStorage.markupcolor + "B0";
+        newNode.classList.add("markedMessage");
+    }
+}
+
+// set the brush size depending on a value from 0-1
+let sizeElement = null;
+const setBrushsize = (pressure, useSens = true) => {
+
+    if(!sizeElement) sizeElement = QS(".brushSize");
+
+    const calcSkribblSize = (val) => Number(val) * 36 + 4;
+    const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
+    const sensitivity = 100 - Number(localStorage.sens);
+    const oldVal = Number(sizeElement.getAttribute("data-size"));
+
+    let levelled = useSens === true ? calcLevelledSize(pressure, sensitivity) : pressure;
+    let levelledSkribbl = Math.round(calcSkribblSize(levelled));
+
+    document.dispatchEvent(newCustomEvent("wheelThicknessSet", { detail: Math.round(levelledSkribbl) }));
+    sizeElement.setAttribute("data-size", levelled);
+    sizeElement.dispatchEvent(newCustomEvent("click", { pressureSet: true }));
+    sizeElement.setAttribute("data-size", oldVal);
+
+}
+
+const sanitize = text => {
+    let e = document.createElement("div");
+    e.innerHTML = text;
+    return e.textContent;
 }
 
 //func to scroll to bottom of message container
@@ -66,7 +95,7 @@ const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackover
         type: 'image/png'
     });
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-    printCmdOutput("Copied to clipboard");
+    addChatMessage("", "Copied to clipboard");
 }
 
 // func to replace umlaute in a string
@@ -103,47 +132,57 @@ const getCurrentOrLastDrawer = () => {
     return drawer;
 }
 
-// adds a color palette
-const addColorPalette = (paletteJson) => {
-    let containerColorbox = document.createElement("div");
-    containerColorbox.classList.add("containerColorbox");
-
-    let columns = [];
-    paletteJson.colors.forEach(c => {
-        let index = paletteJson.colors.indexOf(c);
-        if (!columns[Math.floor(index / paletteJson.rowCount)]) columns.push([]);
-        columns[Math.floor(index / paletteJson.rowCount)].push(c);
-    });
-
-    let paletteContainer = document.createElement("div");
-    paletteContainer.id = paletteJson.name;
-
-    if (localStorage.palette == paletteJson.name) document.querySelector(".containerColorbox").style.display = "none";
-    else paletteContainer.style.display = "none";
-
-    paletteContainer.classList.add("containerColorbox");
-    paletteContainer.classList.add("customPalette");
-    paletteContainer.setAttribute("data-toggle", "tooltip");
-    paletteContainer.setAttribute("data-placement", "top");
-    paletteContainer.setAttribute("title", "");
-    paletteContainer.setAttribute("data-original-title", "Select a color");
-
-    columns.forEach(c => {
-        let colorColumn = document.createElement("div");
-        colorColumn.classList.add("containerColorColumn");
-        c.forEach(i => {
-            let colorItem = document.createElement("div");
-            colorItem.classList.add("colorItem");
-            colorItem.setAttribute("data-color", i.index);
-            colorItem.style.background = i.color;
-            colorItem.addEventListener("click", () => document.querySelector("body").dispatchEvent(newCustomEvent("setColor", { detail: i.index })));
-            colorColumn.appendChild(colorItem);
+// applys a color palette
+const setColorPalette = (colorPalette) => {
+    paletteContainer = elemFromString(`<div class="containerColorbox custom" style="cursor:pointer"></div>`);
+    let swatches = [...colorPalette.swatches];
+    while (swatches.length > 0) {
+        const rowElem = elemFromString("<div class='containerColorColumn'></div>");
+        swatches.splice(0, colorPalette.rowCount).forEach(swatch => {
+            rowElem.appendChild(swatch.swatch);
         });
-        paletteContainer.appendChild(colorColumn);
+        paletteContainer.appendChild(rowElem);
+    }
+    paletteContainer.addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
+    if (QS(".containerColorbox.custom")) {
+        QS(".containerColorbox.custom").replaceWith(paletteContainer);
+    }
+    else QS(".containerColorbox").insertAdjacentElement("afterend", paletteContainer);
+    QS(".containerColorbox:not(.custom)").style.display = "none";
+}
+
+const createColorPalette = (paletteObject) => {
+    const palette = {
+        rowCount: 1,
+        name: paletteObject.name,
+        colors: [
+        ],
+        swatches: [
+        ],
+        json: "",
+        activate: () => {
+            setColorPalette(palette);
+        }
+    };
+    palette.rowCount = paletteObject && paletteObject.rowCount ? paletteObject.rowCount : 2;
+    let dummyColorTester = elemFromString("<div style='display:none'></div>");
+    document.body.appendChild(dummyColorTester);
+    paletteObject?.colors?.forEach(color => {
+        if (color.color) {
+            dummyColorTester.style.backgroundColor = color.color;
+            const col = new Color({ rgb: window.getComputedStyle(dummyColorTester).backgroundColor });
+            palette.colors.push({ color: col.hex });
+            const swatch = elemFromString(`<div class="colorItem" style="background:${col.hex}"></div>`);
+            const code = parseInt(col.hex.replace("#",""), 16) + 10000;
+            swatch.addEventListener("click", (e) => {
+                document.body.dispatchEvent(newCustomEvent("setColor", { detail:code }));
+            });
+            palette.swatches.push({ swatch: swatch });
+        }
     });
-    let tools = document.querySelector(".containerTools");
-    tools.parentElement.insertBefore(paletteContainer, tools);
-    return paletteContainer;
+    document.body.removeChild(dummyColorTester);
+    palette.json = JSON.stringify({ rowCount: palette.rowCount, name: palette.name, colors: palette.colors });
+    return palette;
 }
 
 // Creates accessibility tooltip for an element
@@ -208,7 +247,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.controls || override) localStorage.controls = "true";
     if (!localStorage.restrictLobby || override) localStorage.restrictLobby = "";
     if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
-    if (!localStorage.userAllow || override) localStorage.userAllow = "true";
+    if (!localStorage.palantir || override) localStorage.palantir = "true";
     if (!localStorage.login || override) localStorage.login = "";
     if (!localStorage.ownHoly || override) localStorage.ownHoly = "false";
     if (!localStorage.ink || override) localStorage.ink = "true";
@@ -224,12 +263,13 @@ const setDefaults = (override = false) => {
     if (!localStorage.chatcommands || override) localStorage.chatcommands = "true";
     if (!localStorage.vip || override) localStorage.vip = "";
     if (!localStorage.markup || override) localStorage.markup = "false";
-    if (!localStorage.markupColor || override) localStorage.markupColor = "#ffd6cc";
+    if (!localStorage.markupcolor || override) localStorage.markupcolor = "0";
     if (!localStorage.randomColorInterval || override) localStorage.randomColorInterval = 50;
-    if (!localStorage.randomColorButton || override) localStorage.randomColorButton = false;
+    if (!localStorage.randomAndPicker || override) localStorage.randomAndPicker = false;
     if (!localStorage.displayBack || override) localStorage.displayBack = false;
     if (!sessionStorage.lobbySearch || override) sessionStorage.lobbySearch = "false";
     if (!sessionStorage.searchPlayers || override) sessionStorage.searchPlayers = "[]";
+    if (!localStorage.lobbyStream || override) localStorage.lobbyStream = "{}";
     if (!sessionStorage.skipDeadLobbies || override) sessionStorage.skipDeadLobbies = "false";
     if (!localStorage.palette || override) localStorage.palette = "originalPalette";
     if (!localStorage.customPalettes || override) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
@@ -388,21 +428,24 @@ const hints = [
     "Click a lobby button to search for a lobby automatically.<br>The search will pause until there are free slots.",
     "Click the letter icon to share the current image directly to any of your discord servers.",
     "To manage your palantir account & connected servers, go to <a href='https://typo.rip#u/'>your account page</a>.",
-    "To save a practise drawing in Typo Cloud Gallery, click 'Save current' in 'ImageTools'.",
+    "To save a practice drawing in Typo Cloud Gallery, click 'Save current' in 'ImageTools'.",
     "Use emojis in the chat! To send one, type :emoji-name:",
     "Use kick-- like-- shame-- to quickly kick, like or dislike without having to grab your mouse.",
     "Remove drawings from ImageTools by right-clicking them.",
     "Remove themes by right-clicking them.",
     "SPAMGUESS!!!1! - oh wait, you didn't click the input field. <br>Click TAB to quickly select the chatbox.",
     "Mute players by clicking their name. A red name is a muted player.",
-    "Create masterpieces with the Don't Clear mode - the canvas won't be cleared after your turn.<br>This is fun on custom rounds!",
+    "Create masterpieces with the Don't Clear challenge - the canvas won't be cleared after your turn.<br>This is fun on custom rounds!",
+    "Get artsy with the monochrome challenge - you can only select between a pair of colors!",
+    "If you're feeling pro, try the one shot challenge. You have only one try to guess.",
+    "With the deaf guess challenge, you can't see other's guesses (or typos) in the chat.",
+    "To practise word blank spamming, use the blind guess challenge!",
+    "Already bored of all your 10k scores? Click the star icon and try out some challenges!",
     "Press STRG+C to copy the current drawing to the clipboard.",
-    "Press T to quickly open the tablet options.",
     "To set a custom font, go to <a href='https://fonts.google.com/'>Google Fonts</a>, select a font and copy the bold text in the input field in the visual options.",
     "Click the magnifier icon to use a color picker! All Typo users can see the colors.",
     "Precision Work? Use the zoom feature!<br> [STRG + Click] to zoom to point, any number to set zoom level and leave with [STRG + Click].",
     "If you like the extension, tell others about it or rate it on the chrome store! <3",
-    "Skribbl is too easy? Try the game modes deaf, one shot & blind!",
     "Remove a lobby filter by right-clicking it",
     "The filters for Round, Player Count and Average Score accept modifiers like + and -.",
     "If you enter multiple player names for a filter, the filter matches at anyone of these.",
@@ -411,10 +454,14 @@ const hints = [
     "Want to share a chat snippet on Discord?<br>Select the messages and click 'Copy chat selection for Discord' to create a nicely formatted chat history.",
     "In practise, you can also paste .png to the skribbl canvas! To do so, click 'Paste Image' in Image Tools.",
     "Click the avatar on the start page to enter the practise mode.",
-    "Search for friends or specific lobbies using 'Lobby Fitlers'.",
+    "Search for friends or specific lobbies using 'Lobby Filters'.",
     "You can get costumes for your avatar using the Palantir Discord bot.",
     "Use the sprite cabin to quickly create awesome sprite combos.",
     "Right-click a sprite in the cabin to de-select it.",
     "Drag-n-drop sprite slots in the cabin to re-oder them.",
-    "Learn everything about Palantir <a href='https://typo.rip/#palantir'>on the website.</a>"
+    "Try out awesome brush and color mods using the brush lab! Open it with the magic brush icon when it's your turn to draw.",
+    "The brushmode 'mandala' and 'sculpt' allow you to draw fancy mirrored shapes",
+    "Activate tablet pressure in the brush lab.",
+    "Try out the brush lab to draw rainbow color lines.",
+    "With the brush lab, you can select different brush strokes to create artsy ceffects."
 ];
