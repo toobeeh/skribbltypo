@@ -19,6 +19,7 @@ const brushtools = {
                 name: "Tablet Pressure",
                 description: "Draw with tablet pressure.",
                 enabled: stateFromLocalstorage("tablet_pressure", true),
+                lastUpdate: 0,
                 options: {
                 },
                 enable: () => {
@@ -29,6 +30,11 @@ const brushtools = {
                 },
                 pointermoveCallback: (event) => {
                     if(event.pointerType == "pen"){
+
+                        let now = Date.now();
+                        if(now - brushtools.groups.tablet.pressure.lastUpdate < 25) return;
+                        brushtools.groups.tablet.pressure.lastUpdate = now;
+
                         if(event.type == "pointerdown"){
                            setBrushsize(0);
                         } 
@@ -61,8 +67,8 @@ const brushtools = {
                         if(event.button == 5) {
                             document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'e'})); 
 
-                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", event));
-                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", event));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("mouseup", event));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("mousedown", event));
 
                             document.addEventListener("pointerup", () => {
                                 document.dispatchEvent(new KeyboardEvent('keydown', {'key': 'b'}));

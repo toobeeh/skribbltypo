@@ -463,5 +463,6 @@ const hints = [
     "The brushmode 'mandala' and 'sculpt' allow you to draw fancy mirrored shapes",
     "Activate tablet pressure in the brush lab.",
     "Try out the brush lab to draw rainbow color lines.",
-    "With the brush lab, you can select different brush strokes to create artsy ceffects."
+    "With the brush lab, you can select different brush strokes to create artsy ceffects.",
+    "Stream your lobby to let your friends spectate as if they were in your lobby!<br> Check out the Twitch icon next to the avatar picker."
 ];
