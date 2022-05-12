@@ -82,7 +82,7 @@ const imageOptions = {
                 alert("The shown image will be shared to one of the displayed discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
                 localStorage.hintShareImage = "true";
             }
-            imageShareString = QS("#canvasGame").toDataURL("image/png;base64");
+            imageShareString =canvasToDataURL();
             imageShareStringDrawer = getCurrentOrLastDrawer();
             QS("#shareImagePreview").src = imageShareString;
             QS("#shareImagePreview").setAttribute("imageIndex", -1);
@@ -202,7 +202,7 @@ const imageOptions = {
         });
         QS("#dlPng").addEventListener("click", async () => {
             await imageOptions.downloadDataURL(
-                document.querySelector("#canvasGame").toDataURL("image/png;base64"),
+                canvasToDataURL(),
                 "skribbl-" + document.querySelector("#currentWord").textContent + "-by-" + getCurrentOrLastDrawer(),
                 QS("#dlQuality").checked ? 3 : 1
             );

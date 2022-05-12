@@ -311,6 +311,12 @@ const uiTweaks = {
             + ") center no-repeat;'></div>");
         visualsButton.addEventListener("click", visuals.show);
         QS("#controls").append(visualsButton);
+        // add brushlab button
+        let brushlabButton = elemFromString("<div id='brushlabbtnside' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+            + chrome.runtime.getURL("/res/brush.gif")
+            + ") center no-repeat;'></div>");
+        brushlabButton.addEventListener("click", () => document.dispatchEvent(new Event("openBrushLab")));
+        QS("#controls").append(brushlabButton);
     },
     initLobbyChat: () => {
         // show chat in lobby idle
@@ -716,40 +722,45 @@ const uiTweaks = {
         QS("#containerChat").appendChild(popup);
     },
     initSizeSlider: () => {
-        if (QS("#sizeslider") || localStorage.sizeslider == "false") return;
-        let slider = elemFromString(`<div id="sizeslider" class="containerTools" style="
-    position: absolute;
-    inset: 0;
-    "><div class="tool" style="
-    position: absolute;
-    display: flex;
-    place-content: center;
-    width: 100%;
-    height: 100%;
-    flex-direction: column;
-    padding: .5em;
-    "><span style="
-    text-align: center;
-    margin: .5em;
-">Thickness: <label>5</label></span><input type="range" value="4" min="4" max="40" step="1">
-<style>div.containerBrushSizes > div.brushSize {
-    visibility: hidden;
-    pointer-events: none;
-    cursor: unset;
-    } .containerBrushSizes{position:relative} #sizeslider input{cursor:pointer}</style></div></div>`);
-        QS(".containerBrushSizes").appendChild(slider);
-        let label = slider.querySelector("label");
-        let sliderRange = slider.querySelector("input");
-        sliderRange.addEventListener("input", (e) => {
-            label.innerText = e.target.value;
-            setBrushsize((Number(e.target.value) - 4) / 36, false);
-        });
-        const wheelThicknessSet = (e) => {
-            if (!document.body.contains(slider)) document.removeEventListener("wheelThicknessSet", wheelThicknessSet); // remove listener if slider disabled
-            label.innerText = e.detail;
-            sliderRange.value = e.detail;
+        if (!QS("#sizeslider")){
+            
+            let slider = elemFromString(`<div id="sizeslider" class="containerTools" style="
+                position: absolute;
+                inset: 0;
+                "><div class="tool" style="
+                position: absolute;
+                display: flex;
+                place-content: center;
+                width: 100%;
+                height: 100%;
+                flex-direction: column;
+                padding: .5em;
+                "><span style="
+                text-align: center;
+                margin: .5em;
+            ">Thickness: <label>5</label></span><input type="range" value="4" min="4" max="40" step="1">
+            <style>div.containerBrushSizes.sizeslider > div.brushSize {
+                visibility: hidden;
+                pointer-events: none;
+                cursor: unset;
+                } .containerBrushSizes.sizeslider{position:relative} #sizeslider input{cursor:pointer} 
+                div.containerBrushSizes:not(.sizeslider) #sizeslider{display:none}
+                </style></div></div>`);
+            QS(".containerBrushSizes").appendChild(slider);
+            let label = slider.querySelector("label");
+            let sliderRange = slider.querySelector("input");
+            sliderRange.addEventListener("input", (e) => {
+                label.innerText = e.target.value;
+                setBrushsize((Number(e.target.value) - 4) / 36, false);
+            });
+            const wheelThicknessSet = (e) => {
+                if (!document.body.contains(slider)) document.removeEventListener("wheelThicknessSet", wheelThicknessSet); // remove listener if slider disabled
+                label.innerText = e.detail;
+                sliderRange.value = e.detail;
+            }
+            document.addEventListener("wheelThicknessSet", wheelThicknessSet);
         }
-        document.addEventListener("wheelThicknessSet", wheelThicknessSet);
+        QS(".containerBrushSizes").classList.toggle("sizeslider", localStorage.sizeslider == "true");
     },
     initStraightLines: () => {
         // Credits for basic idea of canvas preview to https://greasyfork.org/en/scripts/410108-skribbl-line-tool/code
@@ -781,7 +792,9 @@ const uiTweaks = {
         }
         let straight = false;
         let lastRelease = 0;
+        let left = true;
         let snap = false;
+        let connect = false;
         let pointerdown = false;
         let lastDown = [null, null];
         let lastDownClient = [null, null];
@@ -803,22 +816,16 @@ const uiTweaks = {
         // listen for shift down
         document.addEventListener("keydown", (event) => {
             let state = straight;
-            straight = straight || event.shiftKey;
+            straight = (straight || event.altKey) && event.target.tagName != "INPUT";
             if (straight && !state) preview.use();
             if (straight && !state && Date.now() - lastRelease < 300) snap = true;
+            if(straight && event.code == "KeyX"); // TODO add conenct mode,
         });
         document.addEventListener("keyup", (event) => {
             let state = straight;
-            straight = straight && event.shiftKey;
+            straight = straight && event.altKey;
             snap = straight && snap;
-            if (!straight && !pointerdown) preview.stop();
-            if (!straight && state) lastRelease = Date.now();
-        });
-        document.addEventListener("keyup", (event) => {
-            let state = straight;
-            straight = straight && event.which !== 16;
-            snap = straight && snap;
-            if (!straight && !pointerdown) preview.stop();
+            if (!straight && !pointerdown || !straight && left) preview.stop();
             if (!straight && state) lastRelease = Date.now();
         });
         // get snap end coordinates
@@ -837,15 +844,22 @@ const uiTweaks = {
                 lastDown = getRealCoordinates(event.offsetX, event.offsetY);
             }
         });
-        preview.canvas.addEventListener("pointerup", (event) => {
-            event.preventDefault();
-            event.stopPropagation();
+        preview.canvas.addEventListener("pointerleave", (event) => {
+            left = true;
+        });
+        preview.canvas.addEventListener("pointerenter", (event) => {
+            left = false;
+        });
+        document.addEventListener("pointerup", (event) => {
             pointerdown = false;
+
             if (straight) {
+                event.preventDefault();
+                event.stopPropagation();
                 preview.clear();
                 lastDown = [null, null];
                 let dest = [event.clientX, event.clientY];
-                if (snap) dest = snapDestination(lastDownClient[0], lastDownClient[1], event.clientX, event.clientY);
+                if (snap) dest = snapDestination(lastDownClient[0], lastDownClient[1], dest[0], dest[1]);
                 preview.gameCanvas.dispatchEvent(mouseEvent("mousedown", lastDownClient[0], lastDownClient[1]));
                 preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", dest[0], dest[1]));
                 preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", dest[0], dest[1]));
@@ -899,7 +913,7 @@ const uiTweaks = {
         document.addEventListener("copyToClipboard", async () => {
             if (QS("#screenGame").style.display == "none" || document.getSelection().type == "Range") return;
             let canvas = QS("#canvasGame");
-            let scaled = await scaleDataURL(canvas.toDataURL(), canvas.width * localStorage.qualityScale, canvas.height * localStorage.qualityScale);
+            let scaled = await scaleDataURL(canvasToDataURL(), canvas.width * localStorage.qualityScale, canvas.height * localStorage.qualityScale);
             await dataURLtoClipboard(scaled);
             new Toast("Copied image to clipboard.", 1500);
         });

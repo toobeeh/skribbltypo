@@ -88,6 +88,12 @@ const visuals = {
         if (options["hideAvatarLogo"] == true) {
             style.innerHTML += "#logoAvatarContainer{display:none }";
         }
+        if (options["hideBrushlab"] == true) {
+            style.innerHTML += "#brushlabbtn{display:none }";
+        }
+        else {
+            style.innerHTML += "#brushlabbtnside{display:none }";
+        }
         if (options["hideAvatarSprites"] == true) {
             style.innerHTML += ".spriteSlot{display:none }";
             style.innerHTML += "#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .mouth, #loginAvatarCustomizeContainer .eyes {opacity: 1 !important}";
@@ -202,6 +208,7 @@ const visuals = {
         <label><input type="checkbox" id="hideAvatarLogo"> Hide avatars beyond logo</label>
         <label><input type="checkbox" id="hideInGameLogo"> Hide logo in-game</label>
         <label><input type="checkbox" id="hideAvatarSprites"> Hide sprites on frontpage</label>
+        <label><input type="checkbox" id="hideBrushlab"> Show Brushlab at the side controls instead</label>
     </div>
     <div style="display:none">
         <h4>HTML/CSS injection: add HTML to body</h4>

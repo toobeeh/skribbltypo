@@ -97,8 +97,8 @@ const gamemodes = {
                         if (lastDrawingIndex < 0) lastDrawingIndex = 0;
                         chat = chat.substr(lastDrawingIndex);
                         const selfName = QS("[me] .name").innerText.replace("(You)", "").trim();
-                        let regHasGuessed = new RegExp("is drawing now!</span>.*(?:>" + selfName + ": <\/b>)", "g");
-                        let regIsRevealed = new RegExp(/is drawing now!<\/b >.*;\\">The word was/g);
+                        let regHasGuessed = new RegExp("(is drawing now!</span>)?.*(?:>" + selfName + ": <\/b>)", "g");
+                        let regIsRevealed = new RegExp(/(is drawing now!<\/span>)?.*">The word was/g);
                         if (regHasGuessed.test(chat) && !regIsRevealed.test(chat)) {
                             // you guessed already & word is not revealed!
                             QS("#inputChat").disabled = true;

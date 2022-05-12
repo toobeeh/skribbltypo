@@ -335,7 +335,7 @@ const commands = [
             },
             actionDisable: () => {
                 localStorage.sizeslider = "false";
-                QS("#sizeslider").remove();
+                uiTweaks.initSizeSlider();
             },
             actionAfter: null,
             response: (state) => {

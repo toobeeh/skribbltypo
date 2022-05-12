@@ -68,6 +68,21 @@ const waitMs = async (timeMs) => {
     });
 };
 
+const canvasToDataURL= () => {
+    const canvas = QS("#canvasGame");
+    if(canvas){
+        const cv = document.createElement("canvas");
+        cv.width = canvas.width;
+        cv.height = canvas.height;
+        ctx = cv.getContext("2d");
+        ctx.fillStyle = getComputedStyle(canvas).backgroundColor;
+        ctx.fillRect(0,0,cv.width, cv.height);
+        ctx.drawImage(canvas,0,0);
+        return cv.toDataURL();
+    }
+    else return "";
+}
+
 const scaleDataURL = async (url, width, height) => {
     return new Promise((resolve, reject) => {
         let source = new Image();

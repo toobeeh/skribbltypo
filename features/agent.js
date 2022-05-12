@@ -23,7 +23,7 @@ const imageAgent = {// func to set the image in the agentdiv
         // hehe finally my own scraper: https://typo-agent-scraper.herokuapp.com/param
         let param = encodeURIComponent(search);
         let resp = await fetch("https://typo-agent-scraper.herokuapp.com/" + param);
-        imageAgent.searchImages = await resp.json();
+        imageAgent.searchImages = (await resp.json()).slice(2);
         imageAgent.imageIndex = 0;
 
         if (!imageAgent.searchImages[0]) { imageAgent.agent.alt = "Error: No results found :("; imageAgent.agent.src = ""; return; }

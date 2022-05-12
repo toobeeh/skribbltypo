@@ -90,7 +90,7 @@ const captureCanvas = {
         // puts the image data in array to be displayable in the image share popup
         document.body.addEventListener("drawingFinished", async () => {
             captureCanvas.capturedDrawings.push({
-                drawing: QS("#canvasGame").toDataURL("2d"),
+                drawing: canvasToDataURL(),
                 drawer: getCurrentOrLastDrawer(),
                 word: QS("#currentWord").innerText,
                 hint: QS("#wordSize").innerText
@@ -102,10 +102,10 @@ const captureCanvas = {
                     own: getCurrentOrLastDrawer() == socket.clientData.playerName && !lobbyStream.spectating,
                     language: lobbies_.lobbyProperties.Language,
                     private: lobbies_.lobbyProperties.Private,
-                    thumbnail: await scaleDataURL(QS("#canvasGame").toDataURL("2d"), QS("#canvasGame").width / 10, QS("#canvasGame").height / 10)
+                    thumbnail: await scaleDataURL(canvasToDataURL(), QS("#canvasGame").width / 10, QS("#canvasGame").height / 10)
                 },
                 commands: captureCanvas.getCapturedActions(),
-                uri: QS("#canvasGame").toDataURL()
+                uri: canvasToDataURL()
             }, true, 5000)
         });
         QS("#canvasGame").addEventListener("pointerup", captureCanvas.pushCaptured);
