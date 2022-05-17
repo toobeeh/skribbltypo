@@ -3812,7 +3812,7 @@
             var r = 0;
             setInterval(o, 1e3);
             n(this).mousemove(e), n(this).keypress(e), n(this).on("mousedown", e), n(this).on("touchmove", e)
-        }), setInterval(l, 3), n("#rateDrawing .thumbsUp").on("click", function() {
+        }), setInterval(l, 1), n("#rateDrawing .thumbsUp").on("click", function() {
             it && it.emit("rateDrawing", 1), f()
         }), n("#rateDrawing .thumbsDown").on("click", function() {
             it && it.emit("rateDrawing", 0), f()
