@@ -22,7 +22,10 @@ const imageAgent = {// func to set the image in the agentdiv
         // nice pakistani https://searchoye.com/search?q=&engine=5#gsc.tab=0&gsc.q=
         // hehe finally my own scraper: https://typo-agent-scraper.herokuapp.com/param
         let param = encodeURIComponent(search);
-        let resp = await fetch("https://typo-agent-scraper.herokuapp.com/" + param);
+
+        const server = (new Date()).getDate() < 16 ? "https://typo-agent-scraper.herokuapp.com/" : "https://typo-agent-scraper-m1.herokuapp.com/";
+
+        let resp = await fetch(server + param);
         imageAgent.searchImages = (await resp.json()).slice(2);
         imageAgent.imageIndex = 0;
 

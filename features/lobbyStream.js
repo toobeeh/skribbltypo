@@ -261,7 +261,8 @@ const lobbyStream = {
         };
 
         // connect to stream server
-        const host = io("https://typo-stream.herokuapp.com/");
+        const server = (new Date()).getDate() < 16 ? "https://typo-stream.herokuapp.com/" : "https://typo-stream-m1.herokuapp.com/";
+        const host = io(server);
 
         // when server has accepted connection
         host.on("connect", () => {
@@ -332,7 +333,8 @@ const lobbyStream = {
         document.querySelector("#boxStreamChat #boxMessages").innerHTML = "";
 
         // connect to stream server
-        const client = io("https://typo-stream.herokuapp.com/");
+        const server = (new Date()).getDate() < 16 ? "https://typo-stream.herokuapp.com/" : "https://typo-stream-m1.herokuapp.com/";
+        const client = io(server);
 
         // on stream message events
         client.on("message", data => {
