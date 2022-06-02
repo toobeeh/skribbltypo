@@ -33,19 +33,17 @@ const drops = {
         let dropElem = drops.dropContainer;
         let winner = result.caughtPlayer;
         if(result.leagueWeight > 0){
-            if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Damn boi", "You caught a league drop with " + Math.round(Number(result.leagueWeight)) + "% rating!");
+            if (result.claimTicket == drops.currentDrop.claimTicket) {
+                addChatMessage("Nice one!", "You caught a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+            }
             else {
-                addChatMessage("", winner + "claimed a league drop.");
-                dropElem.style.display = "none";
-                drops.currentDrop = null;
-                drops.waitForClear = false;
+                addChatMessage("", winner + " claimed a " + result.leagueWeight + "% rated league drop.");
             }
         }
         else {
             if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Yeee!", "You were the fastest and caught the drop!");
             else addChatMessage("Whoops..", winner + " caught the drop before you :(");
             dropElem.style.display = "none";
-            drops.currentDrop = null;
             drops.waitForClear = false;
         }
         
@@ -55,6 +53,7 @@ const drops = {
         const dropID = data.dropID;
         const ranks = data.ranks;
         const text = ranks.map(r => "- " + r).join("<br>");
+        drops.currentDrop = null;
         addChatMessage("Last drop claim ranking:", text);
     },
     initDropContainer: () => {
