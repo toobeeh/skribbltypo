@@ -28,14 +28,26 @@ const drops = {
         }, 5000);
     },
     clearDrop: (result) => {
+        //console.log(result);
         if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
         let dropElem = drops.dropContainer;
         let winner = result.caughtPlayer;
-        if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Yeee!", "You were the fastest and caught the drop!");
-        else addChatMessage("Whoops..", winner + " caught the drop before you :(");
-        dropElem.style.display = "none";
-        drops.currentDrop = null;
-        drops.waitForClear = false;
+        if(result.leagueWeight > 0){
+            if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Damn boi", "You caught a league drop with " + Math.round(Number(result.leagueWeight)) + "% rating!");
+            else {
+                addChatMessage("", winner + "claimed a league drop.");
+                dropElem.style.display = "none";
+                drops.currentDrop = null;
+                drops.waitForClear = false;
+            }
+        }
+        else {
+            if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Yeee!", "You were the fastest and caught the drop!");
+            else addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            dropElem.style.display = "none";
+            drops.currentDrop = null;
+            drops.waitForClear = false;
+        }
         
     },
     rankDrop: (data) => {
