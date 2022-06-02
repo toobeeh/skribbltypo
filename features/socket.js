@@ -206,7 +206,7 @@ const socket = {
                 timedOut: timeout,
                 claimTicket: drop.claimTicket,
                 claimDetails: claimDetails
-            }, true);
+            }, false);
             return true;
         }
         catch (e) {

@@ -6,8 +6,8 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 const drops = {
     eventDrops: [],
     currentDrop: null,
+    claimedDrop: false,
     dropContainer: null,
-    waitForClear: false,
     fakeboxes: [],
     newDrop: (drop) => {
         if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
@@ -20,9 +20,10 @@ const drops = {
         //hide drop after 5s and emit timeout
         setTimeout(async () => {
             if (drops.currentDrop) {
-                dropElem.style.display = "none";
                 addChatMessage("Whoops...", "The drop timed out :o");
                 drops.currentDrop = null;
+                drops.claimedDrop = false;
+                dropElem.style.display = "none";
             }
             
         }, 5000);
@@ -37,16 +38,15 @@ const drops = {
                 addChatMessage("Nice one!", "You caught a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
             }
             else {
-                addChatMessage("", winner + " claimed a " + result.leagueWeight + "% rated league drop.");
+                addChatMessage("", winner + " claimed a " +  Math.round(Number(result.leagueWeight)) + "% rated league drop.");
             }
         }
         else {
-            if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Yeee!", "You were the fastest and caught the drop!");
-            else addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Yeee!", "You were the fastest to catch the drop!");
+            else if(!drops.claimedDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            else addChatMessage("", winner + " caught the regular drop.");
             dropElem.style.display = "none";
-            drops.waitForClear = false;
         }
-        
     },
     rankDrop: (data) => {
         if (localStorage.drops == "false") return;
@@ -54,6 +54,8 @@ const drops = {
         const ranks = data.ranks;
         const text = ranks.map(r => "- " + r).join("<br>");
         drops.currentDrop = null;
+        drops.claimedDrop = false;
+        drops.dropContainer.style.display = "none";
         addChatMessage("Last drop claim ranking:", text);
     },
     initDropContainer: () => {
@@ -91,8 +93,8 @@ const drops = {
             }
             if (dropContainer.style.display == "none") return;
             dropContainer.style.display = "none";
+            drops.claimedDrop = true;
             let result = await socket.claimDrop(drops.currentDrop);
-            drops.currentDrop = null;
         });
         document.querySelector("#containerCanvas").appendChild(dropContainer);
     },
