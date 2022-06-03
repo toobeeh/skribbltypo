@@ -6,6 +6,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 const drops = {
     eventDrops: [],
     currentDrop: null,
+    caughtLeagueDrop: false,
     claimedDrop: false,
     dropContainer: null,
     fakeboxes: [],
@@ -19,7 +20,7 @@ const drops = {
         dropElem.style.left = Math.round(8 + Math.random() * 784) + "px";
         //hide drop after 5s and emit timeout
         setTimeout(async () => {
-            if (drops.currentDrop) {
+            if (drops.currentDrop && !drops.claimedDrop) {
                 addChatMessage("Whoops...", "The drop timed out :o");
                 drops.currentDrop = null;
                 drops.claimedDrop = false;
@@ -36,14 +37,18 @@ const drops = {
         if(result.leagueWeight > 0){
             if (result.claimTicket == drops.currentDrop.claimTicket) {
                 addChatMessage("Nice one!", "You caught a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+                drops.caughtLeagueDrop = true;
             }
             else {
                 addChatMessage("", winner + " claimed a " +  Math.round(Number(result.leagueWeight)) + "% rated league drop.");
             }
         }
         else {
-            if (result.claimTicket == drops.currentDrop.claimTicket) addChatMessage("Yeee!", "You were the fastest to catch the drop!");
-            else if(!drops.claimedDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            if (result.claimTicket == drops.currentDrop.claimTicket) {
+                addChatMessage("Yeee!", "You were the fastest to catch the drop!");
+                drops.selfCaught = true;
+            }
+            else if(!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
             else addChatMessage("", winner + " caught the regular drop.");
             dropElem.style.display = "none";
         }
@@ -55,6 +60,7 @@ const drops = {
         const text = ranks.map(r => "- " + r).join("<br>");
         drops.currentDrop = null;
         drops.claimedDrop = false;
+        drops.caughtLeagueDrop = false;
         drops.dropContainer.style.display = "none";
         addChatMessage("Last drop claim ranking:", text);
     },
