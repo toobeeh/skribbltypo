@@ -91,6 +91,7 @@ const brushtools = {
                     for (let [name, mode] of Object.entries(brushtools.groups.color)) {
                         mode.disable();
                     }
+                    localStorage.setItem("rainbowCycleInterval", "64");
                     brushtools.groups.color.rainbowcircle.lastSwitch = 0;
                     brushtools.groups.color.rainbowcircle.lastIndex = 0;
                     brushtools.groups.color.rainbowcircle.direction = 1;
@@ -100,28 +101,20 @@ const brushtools = {
                 disable: () => {
                     brushtools.groups.color.rainbowcircle.enabled = false;
                 },
-                pointermoveCallback: (event) => {
+                pointermoveCallback: () => {
                     const colors = ["ef130b", "ff7100", "ffe400", "00cc00", "00b2ff", "231fd3", "a300ba", "d37caa"];
-                    if (event.pressure > 0) {
-                        const interval = parseInt(localStorage.randominterval)
-                        if (Date.now() - brushtools.groups.color.rainbowcircle.lastSwitch > interval) {
-                            brushtools.groups.color.rainbowcircle.lastSwitch = Date.now();
-                            let index = brushtools.groups.color.rainbowcircle.lastIndex;
-                            if (brushtools.groups.color.rainbowcircle.direction > 0) {
-                                if (++index >= colors.length) {
-                                    brushtools.groups.color.rainbowcircle.direction *= -1;
-                                    index = colors.length - 1;
-                                }
-                            }
-                            else {
-                                if (--index < 0) {
-                                    brushtools.groups.color.rainbowcircle.direction *= -1;
-                                    index = 1;
-                                }
-                            }
-                            brushtools.groups.color.rainbowcircle.lastIndex = index;
-                            document.body.dispatchEvent(newCustomEvent("setColor", { detail: { hex: "#" + colors[index] } }));
-                        }
+                    const interval = parseInt(localStorage.getItem("rainbowCycleInterval"));
+                    if (Date.now() - brushtools.groups.color.rainbowcircle.lastSwitch > interval) {
+                        brushtools.groups.color.rainbowcircle.lastSwitch = Date.now();
+                        let index = brushtools.groups.color.rainbowcircle.lastIndex;
+                        if (brushtools.groups.color.rainbowcircle.direction > 0 
+                            && index + 1 >= colors.length ||
+                            brushtools.groups.color.rainbowcircle.direction < 0 
+                            && index - 1 < 0 )
+                            brushtools.groups.color.rainbowcircle.direction *= -1;
+                        index += brushtools.groups.color.rainbowcircle.direction;
+                        brushtools.groups.color.rainbowcircle.lastIndex = index;
+                        document.body.dispatchEvent(newCustomEvent("setColor", { detail: { hex: "#" + colors[index] } }));
                     }
                 }
             }
