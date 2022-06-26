@@ -135,7 +135,7 @@ const sprites = {
         sprites.updateScenes();
     },
     getSprites: () => {
-        sprites.availableSprites = socket.data.publicData.sprites;
+        sprites.availableSprites = socket.data.publicData.sprites.sort(s => s.ID);
         sprites.availableScenes = socket.data.publicData.scenes;
         sprites.playerSprites = socket.data.publicData.onlineSprites;
         sprites.onlineScenes = socket.data.publicData.onlineScenes;

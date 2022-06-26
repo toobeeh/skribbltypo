@@ -40,7 +40,7 @@ const drops = {
                 drops.caughtLeagueDrop = true;
             }
             else {
-                addChatMessage("", winner + " claimed a " +  Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+                if(localStorage.dropmsgs == "true") addChatMessage("", winner + " claimed a " +  Math.round(Number(result.leagueWeight)) + "% rated league drop.");
             }
         }
         else {
@@ -62,7 +62,7 @@ const drops = {
         drops.claimedDrop = false;
         drops.caughtLeagueDrop = false;
         drops.dropContainer.style.display = "none";
-        addChatMessage("Last drop claim ranking:", text);
+        if(localStorage.dropmsgs == "true") addChatMessage("Last drop claim ranking:", text);
     },
     initDropContainer: () => {
         // add drop button

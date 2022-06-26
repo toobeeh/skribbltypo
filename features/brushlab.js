@@ -32,7 +32,7 @@ const brushtools = {
                     if(event.pointerType == "pen"){
 
                         let now = Date.now();
-                        if(now - brushtools.groups.tablet.pressure.lastUpdate < 25) return;
+                        if(now - brushtools.groups.tablet.pressure.lastUpdate < 5) return;
                         brushtools.groups.tablet.pressure.lastUpdate = now;
 
                         if(event.type == "pointerdown"){
@@ -43,7 +43,7 @@ const brushtools = {
                         } 
                         else if (event.type === "pointermove"){
                             
-                            if(event.pressure > 0){
+                            if(event.pressure >= 0){
                                 setBrushsize(event.pressure);
                             }
                         }
@@ -103,14 +103,14 @@ const brushtools = {
                 pointermoveCallback: (event) => {
                     const colors = ["ef130b", "ff7100", "ffe400", "00cc00", "00b2ff", "231fd3", "a300ba", "d37caa"];
                     if (event.pressure > 0) {
-                        const interval = parseInt(localStorage.randominterval)
+                        const interval = parseInt(localStorage.randomColorInterval)
                         if (Date.now() - brushtools.groups.color.rainbowcircle.lastSwitch > interval) {
                             brushtools.groups.color.rainbowcircle.lastSwitch = Date.now();
                             let index = brushtools.groups.color.rainbowcircle.lastIndex;
                             if (brushtools.groups.color.rainbowcircle.direction > 0) {
                                 if (++index >= colors.length) {
                                     brushtools.groups.color.rainbowcircle.direction *= -1;
-                                    index = colors.length - 1;
+                                    index = colors.length - 2;
                                 }
                             }
                             else {
@@ -120,6 +120,7 @@ const brushtools = {
                                 }
                             }
                             brushtools.groups.color.rainbowcircle.lastIndex = index;
+                            console.log("#" + colors[index]);
                             document.body.dispatchEvent(newCustomEvent("setColor", { detail: { hex: "#" + colors[index] } }));
                         }
                     }

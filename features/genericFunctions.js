@@ -229,6 +229,7 @@ const leaveLobby = (next = false) => {
     if (next && sessionStorage.practise != "true") {
         QS("#screenLogin").style.display = "none";
         let join = async () => {
+            await waitMs(300);
             document.removeEventListener("disconnectedSocket", join);
             let joined = false;
             document.addEventListener("initJoin", () => joined = true);
@@ -273,6 +274,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.sizeslider || override) localStorage.sizeslider = "false";
     if (!localStorage.emojipicker || override) localStorage.emojipicker = "true";
     if (!localStorage.drops || override) localStorage.drops = "true";
+    if (!localStorage.dropmsgs || override) localStorage.dropmsgs = "true";
     if (!localStorage.zoomdraw || override) localStorage.zoomdraw = "true";
     if (!localStorage.quickreact || override) localStorage.quickreact = "true";
     if (!localStorage.chatcommands || override) localStorage.chatcommands = "true";

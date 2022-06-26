@@ -98,14 +98,23 @@ const lobbies_ = {
 			else {
 				localStorage.removeItem("member");
 				localStorage.removeItem("accessToken");
-				window.addEventListener("message", async msg => {
-					// save access token
-					localStorage.accessToken = msg.data.accessToken;
-					socket.sck.disconnect();
-					socket.init();
-					lobbies_.setLobbies(false);
-					event.target.innerText = "Palantir Logout";
-				}, { once: true });
+
+				const listenOnce = () => {
+					window.addEventListener("message", async msg => {
+
+						if(!msg.data || !msg.data.accessToken || msg.data.accessToken == "") listenOnce();
+						else {
+							// save access token
+							localStorage.accessToken = msg.data.accessToken;
+							socket.sck.disconnect();
+							socket.init();
+							lobbies_.setLobbies(false);
+							event.target.innerText = "Palantir Logout";
+						}
+					}, { once: true });
+				}
+				listenOnce();
+				
 				window.open('https://tobeh.host/Orthanc/auth/ext/', 'Log in to Palantir', 'height=650,width=500,right=0,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
             }
 		});

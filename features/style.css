@@ -261,7 +261,7 @@ input::-webkit-inner-spin-button {
             }
 
             #slotsContent > div:not(#loginRedir).unlocked, .spriteChoice {
-                background-color: #80808014;
+                background-color: rgba(128, 128, 128, 0.18);
                 cursor: pointer;
                 transform: scale(1);
                 transition: all .2s;

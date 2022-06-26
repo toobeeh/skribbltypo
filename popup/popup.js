@@ -28,6 +28,7 @@ chrome.runtime.onMessage.addListener(
             if (bt.id == "chatcommands" && settings.chatcommands == "true") bt.className = "active";
             if (bt.id == "emojipicker" && settings.emojipicker == "true") bt.className = "active";
             if (bt.id == "drops" && settings.drops == "true") bt.className = "active";
+            if (bt.id == "dropmsgs" && settings.dropmsgs == "true") bt.className = "active";
             if (bt.id == "zoomdraw" && settings.zoomdraw == "true") bt.className = "active";
             if (bt.id == "sizeslider" && settings.sizeslider == "true") bt.className = "active";
             if (bt.id == "quickreact" && settings.quickreact == "true") bt.className = "active";
@@ -348,6 +349,7 @@ function toggleActive() {
     if (this.id == "zoomdraw") msg += "zoomdraw";
     if (this.id == "quickreact") msg += "quickreact";
     if (this.id == "drops") msg += "drops";
+    if (this.id == "dropmsgs") msg += "dropmsgs";
     if (this.id == "emojipicker") msg += "emojipicker";
 
     chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {

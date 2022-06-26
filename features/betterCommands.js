@@ -162,6 +162,23 @@ const commands = [
             }
         }
     }, {
+        command: "dropmsgs",
+        options: {
+            type: "toggle",
+            description: "Sets visibility of the drop message of others.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.dropmsgs = "true";
+            },
+            actionDisable: () => {
+                localStorage.dropmsgs = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return "Drop messages of others " + (!state ? "won't show anymore" : "will be visible") + " in the chat.";
+            }
+        }
+    }, {
         command: "zoomdraw",
         options: {
             type: "toggle",
