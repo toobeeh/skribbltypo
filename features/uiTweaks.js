@@ -421,6 +421,7 @@ const uiTweaks = {
         QS("#game-chat").appendChild(popup);
     },
     initToolsMod: (enable = true) => {
+        return; // disable for now
         if (enable) QS("#game-toolbar").classList.add("typomod");
         else QS("#game-toolbar").classList.remove("typomod");
     },
