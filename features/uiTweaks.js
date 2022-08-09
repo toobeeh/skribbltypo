@@ -22,7 +22,7 @@ const uiTweaks = {
         let lobbyControls = elemFromString(`<div id="lobby-nav"></div>`);
         lobbyControls.appendChild(btExit);
         lobbyControls.appendChild(btNext);
-        QS("#game-chat").appendChild(lobbyControls);
+        QS("#game-bar").appendChild(lobbyControls);
     },
     initWordHint: () => {
         // Add wordcount under input

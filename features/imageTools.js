@@ -7,7 +7,7 @@ let imageTools = {
     optionsPopup: null,
     initImageOptionsButton: () => {
         // add image options button
-        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/potion.gif")}" id="imgTools" style="cursor: pointer;">`);
+        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/potion.gif")}" id="imgTools" style="cursor: pointer;" data-typo-tooltip="Image Tools" data-tooltipdir="N">`);
         imageOptions.optionsContainer.appendChild(toolsIcon);
 
         toolsIcon.addEventListener("click", () => {
