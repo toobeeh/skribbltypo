@@ -8,9 +8,10 @@ let imageAgent = {// func to set the image in the agentdiv
     agent: undefined,
     setAgentSource: async (searchCriteria, exclusive = false) => {
         let word = getCurrentWordOrHint();
-        let search = (exclusive ? "" : word + " ") + searchCriteria;
+        let search = (exclusive ? "" : word + "+") + searchCriteria;
         search = replaceUmlaute(search);
-        imageAgent.agent.src = chrome.runtime.getURL("res/load.gif");
+        imageAgent.agent.src = "/res/load.gif";
+
         // Search engines with CORS bypass:
         // Google, duckduckgo etc detect bot usage -> unusable
         // Not working after few requests due to bot detection or smth:     https://yandex.com/images/search?text=hello%20kitty
@@ -18,19 +19,23 @@ let imageAgent = {// func to set the image in the agentdiv
         // Probably best - wikimedia: https://commons.wikimedia.org/wiki/Special:MediaSearch?type=bitmap&q= LOL NO SO WEIRD
         // Sooo weird  https://search.aol.com/aol/image;?q=
         // lets give it a try https://www.picsearch.com/index.cgi?q=einhorn
-        let uri = encodeURIComponent('https://www.picsearch.com/index.cgi?q=' + search);
-        let resp = await fetch('https://api.allorigins.win/get?url=' + uri);
-        let html = (await resp.json()).contents;
-        let doc = new DOMParser().parseFromString(html, "text/html");
-        imageAgent.searchImages = doc.images;
+        // nice pakistani https://searchoye.com/search?q=&engine=5#gsc.tab=0&gsc.q=
+        // hehe finally my own scraper: https://typo-agent-scraper.herokuapp.com/param
+        let param = encodeURIComponent(search);
+
+        const server = (window.location.hostname.split(".")[0] == "pbt" ? "https://api.allorigins.win/raw?url=" : "") + ((new Date()).getDate() < 16 ? "https://typo-agent-scraper.herokuapp.com/" : "https://typo-agent-scraper-m1.herokuapp.com/");
+
+        let resp = await fetch(server + param);
+        results = await resp.json();
+        imageAgent.searchImages = (results).slice(2);
         imageAgent.imageIndex = 0;
 
-        if (!imageAgent.searchImages[imageAgent.imageIndex * 2 + 1]) { imageAgent.agent.alt = "Error: No results found :("; imageAgent.agent.src = ""; return; }
+        if (!imageAgent.searchImages[0]) { imageAgent.agent.alt = "Error: No results found :("; imageAgent.agent.src = ""; return; }
         imageAgent.getNextAgentImage();
     },
     getNextAgentImage: () => {
-        if (imageAgent.imageIndex >= imageAgent.searchImages.length) imageAgent.imageIndex = 2;
-        imageAgent.agent.src = imageAgent.searchImages[imageAgent.imageIndex].src;
+        if (imageAgent.imageIndex >= imageAgent.searchImages.length) imageAgent.imageIndex = 0;
+        imageAgent.agent.src = imageAgent.searchImages[imageAgent.imageIndex];
         scrollMessages();
         imageAgent.imageIndex++;
     },
