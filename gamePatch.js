@@ -79,16 +79,17 @@
             document.addEventListener("performDrawCommand", (e) => {
                 Xe.push(e.detail); // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
                 Lt(It(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
-            });
-            document.addEventListener("addTypoTooltips", () => {
+                     });
+                document.addEventListener("addTypoTooltips", () => {
                 [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
                     elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
                     elem.removeAttribute("data-typo-tooltip");
-                    elem.addEventListener("mouseenter", (e) => ke(e.target));
-                    elem.addEventListener("mouseleave", (e) => we());
+                    elem.addEventListener("mouseenter", (e) => ke(e.target)); // IDENTIFY: x(e.target): 
+                    elem.addEventListener("mouseleave", (e) => we()); // IDENTIFY: (e) => x(): 
+ 
                 });
-            });
-        })(),
+});        
+})(),
         hexToRgb: (hex) => {
             let arrBuff = new ArrayBuffer(4);
             let vw = new DataView(arrBuff);
@@ -99,7 +100,6 @@
         rgbToHex: (r, g, b) => {
             return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
         }
-
     }
     // TYPOEND
     const t = ["B", "F"],

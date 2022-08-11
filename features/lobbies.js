@@ -91,7 +91,7 @@ const lobbies = {
 		// on lobby join
 		document.addEventListener("lobbyConnected", async (e) => {
 			lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
-			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = " + e.detail.settings[1] +"]").innerText;
+			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = '" + e.detail.settings[0] +"']").innerText;
 			lobbies.lobbyProperties.Private = e.detail.owner >= 0 ? true : false;
 			lobbies.lobbyProperties.Link = "https://skribbl.io/?" + e.detail.id;
 			lobbies.lobbyProperties.Key = e.detail.id;

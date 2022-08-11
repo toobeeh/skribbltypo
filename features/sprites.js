@@ -118,7 +118,7 @@ const sprites = {
     setLandingSprites: (authenticated = false) => {
         QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
         if (authenticated) {
-            let ownsprites = socket.data.user.sprites.split(",");
+            let ownsprites = socket.data.user.sprites.toString().split(",");
             let activeSprites = ownsprites.filter(s => s.includes("."));
             QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
                 n.style.opacity = activeSprites.some(spt => sprites.isSpecial(spt.replaceAll(".", ""))) ? 0 : 1;
@@ -181,7 +181,7 @@ const sprites = {
                 // clean slots
                 QSA("#cabinSlots > div:not(#loginRedir)").forEach(slot => slot.remove());
                 // loop through player slots and check if sprite set on slot
-                const activeSprites = user.user.sprites.split(",")
+                const activeSprites = user.user.sprites.toString().split(",")
                     .filter(spt => spt.includes("."))
                     .map(spt => {
                         return {
@@ -262,7 +262,7 @@ const sprites = {
                     const spriteList = elemFromString(`<div style="width:100%; display:flex; flex-wrap:wrap; justify-content:center;"></div>`);
                     spriteList.insertAdjacentHTML("beforeend",
                         "<div class='spriteChoice' sprite='0' style='margin:.5em; height:6em; aspect-ratio:1; background-image:none'></div>");
-                    user.user.sprites.split(",").forEach(spt => {
+                    user.user.sprites.toString().split(",").forEach(spt => {
                         const id = spt.replaceAll(".", "");
                         const active = spt.includes(".");
                         if (!active && id > 0) {
