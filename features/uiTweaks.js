@@ -197,6 +197,22 @@ const uiTweaks = {
 </div>`);
         customwords.insertAdjacentElement("afterend", input);
     },
+    initLobbyChat: () => {
+        const chat = QS("#game-chat");
+        const settings = QS("#game-room .settings");
+        const board = QS("#game-board");
+
+        let roomObserver = new MutationObserver(function (mutations) {
+            if(chat.classList.contains("room")) {
+                settings.insertAdjacentElement("afterend", chat);
+            }
+            else {
+                board.insertAdjacentElement("afterend", chat);
+            }
+        });
+        roomObserver.observe(chat, { attributes: true, childList: false });
+
+    },
     initMarkMessages: () => {
         // Observer for chat mutations and emoji replacement
         let chatObserver = new MutationObserver(function (mutations) {
@@ -665,6 +681,7 @@ const uiTweaks = {
         uiTweaks.initChooseCountdown();
         uiTweaks.initStraightLines();
         uiTweaks.initPenPointer();
+        uiTweaks.initLobbyChat();
         // random easteregg
         if(Math.random() < 0.1) QS("#game-chat .container form input").placeholder = "Typo your guess here...";
     }

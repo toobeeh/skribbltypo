@@ -549,3 +549,16 @@
     background-image:var(--typobrush) !important;
 }
 
+#game-room .container #game-chat {
+    display: flex;
+    margin-right: 16px;
+    border-radius: 3px;
+    margin-bottom: 0;
+    --COLOR_CHAT_BG_ALT: #ffffff10;
+}
+
+#game-room .container #game-chat .container {
+    background-color: var(--COLOR_PANEL_BG);
+    margin: 0;
+}
+
