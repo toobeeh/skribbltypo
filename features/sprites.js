@@ -142,7 +142,7 @@ const sprites = {
             });
         }
     },
-    resetCabin: (authorized = false) => {
+    resetCabin: async (authorized = false) => {
         const cabin = QS("#cabinSlots");
         cabin.innerHTML = `
             <div id="loginRedir">
@@ -163,6 +163,7 @@ const sprites = {
         }
         else {
             // add sprite cabin stuff
+            let user = await socket.getUser();
             const createSlot = (slot, unlocked = false, caption = false, background = false, id = 0) => {
                 return elemFromString(`<div draggable="true" spriteid="${id}" slotid="${slot}" class="${unlocked ? "unlocked" : ""}" style="background-image:url(${background ?
                     socket.data.publicData.sprites.find(spt => spt.ID == id).URL : ""})">
@@ -180,7 +181,7 @@ const sprites = {
                 // clean slots
                 QSA("#cabinSlots > div:not(#loginRedir)").forEach(slot => slot.remove());
                 // loop through player slots and check if sprite set on slot
-                const activeSprites = socket.data.user.sprites.split(",")
+                const activeSprites = user.user.sprites.split(",")
                     .filter(spt => spt.includes("."))
                     .map(spt => {
                         return {
@@ -188,11 +189,11 @@ const sprites = {
                             slot: spt.split(".").length - 1
                         }
                     });
-                for (let slotIndex = 1; slotIndex <= socket.data.user.slots || slotIndex < 9; slotIndex++) {
+                for (let slotIndex = 1; slotIndex <= user.slots || slotIndex < 16; slotIndex++) {
                     const sprite = activeSprites.find(spt => spt.slot == slotIndex);
                     const id = sprite ? parseInt(sprite.id) : 0;
                     const background = id > 0;
-                    const unlocked = slotIndex <= socket.data.user.slots;
+                    const unlocked = slotIndex <= user.slots;
                     cabin.appendChild(createSlot(slotIndex, unlocked, unlocked, background, id));
                 }
                 // make grid draggable
@@ -238,6 +239,7 @@ const sprites = {
                             e.target.setAttribute("released", "true");
                         }, 100);
                         let updatedmember = await socket.setSpriteCombo(getCombo());
+                        user.user = updatedmember;
                         socket.data.user = updatedmember;
                         setSlotSprites();
                         sprites.setLandingSprites(true);
@@ -260,7 +262,7 @@ const sprites = {
                     const spriteList = elemFromString(`<div style="width:100%; display:flex; flex-wrap:wrap; justify-content:center;"></div>`);
                     spriteList.insertAdjacentHTML("beforeend",
                         "<div class='spriteChoice' sprite='0' style='margin:.5em; height:6em; aspect-ratio:1; background-image:none'></div>");
-                    socket.data.user.sprites.split(",").forEach(spt => {
+                    user.user.sprites.split(",").forEach(spt => {
                         const id = spt.replaceAll(".", "");
                         const active = spt.includes(".");
                         if (!active && id > 0) {
@@ -276,6 +278,7 @@ const sprites = {
                         if (spt) {
                             picker.close();
                             let updatedmember = await socket.setSpriteSlot(slotNo, spt);
+                            user.user = updatedmember;
                             socket.data.user = updatedmember;
                             setSlotSprites();
                             sprites.setLandingSprites(true);

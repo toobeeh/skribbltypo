@@ -211,7 +211,7 @@ const uiTweaks = {
         QS("#controls").style.cssText = "z-index: 50;position: fixed;display: flex; flex-direction:column; left: 9px; top: 9px";
         QS("#controls").style.display = localStorage.controls == "true" ? "flex" : "none";
         // add fullscreen btn
-        let fulls = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+        let fulls = elemFromString("<div data-typo-tooltip='Fullscreen' data-tooltipdir='E'  style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/fullscreen.gif")
             + ") center no-repeat;'></div>");
         fulls.addEventListener("click", () => {
@@ -235,14 +235,14 @@ const uiTweaks = {
         QS("#controls").append(fulls);
 
         // add typro
-        let typroCloud = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+        let typroCloud = elemFromString("<div data-typo-tooltip='Typo Cloud' data-tooltipdir='E'  style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/cloud.gif")
             + ") center no-repeat;'></div>");
         typroCloud.addEventListener("click", typro.show);
         QS("#controls").append(typroCloud);
 
         // add appearance options
-        let visualsButton = elemFromString("<div style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
+        let visualsButton = elemFromString("<div data-typo-tooltip='Themes' data-tooltipdir='E' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
             + chrome.runtime.getURL("/res/visuals.gif")
             + ") center no-repeat;'></div>");
         visualsButton.addEventListener("click", visuals.show);
@@ -254,6 +254,8 @@ const uiTweaks = {
         //    + ") center no-repeat;'></div>");
         //brushmagicButton.addEventListener("click", brushtools.showSettings);
         //QS("#controls").append(brushmagicButton);
+
+        document.dispatchEvent(new Event("addTypoTooltips"));
     },
     initDefaultKeybinds: () => {
         const chatInput = QS('#game-chat .container form input');

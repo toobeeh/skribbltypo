@@ -163,6 +163,10 @@ const socket = {
         let user = (await socket.emitEvent("set slot", { slot: slot, sprite: sprite }, true, 10000)).user;
         return user;
     },
+    getUser: async () => {
+        let user = (await socket.emitEvent("get user", { }, true, 10000));
+        return user;
+    },
     setSpriteCombo: async (combostring) => {
         let user = (await socket.emitEvent("set combo", { combostring: combostring }, true, 10000)).user;
         return user;

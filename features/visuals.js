@@ -135,7 +135,7 @@ const visuals = {
             visuals.applyOptions(options);
             localStorage.visualOptions = JSON.stringify(options);
         };
-        new Modal(visuals.form, onclose, "Visual Settings");
+        new Modal(visuals.form, onclose, "Skribbl Themes");
     },
     loadOptions: (options) => {
         [...visuals.form.querySelectorAll("input")].forEach(input => {

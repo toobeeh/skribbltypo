@@ -148,7 +148,7 @@ const gamemodes = {
     modesPopout: null,
     setup: () => {
         // add gamemodes button
-        const modesButton = elemFromString(`<img src="${chrome.runtime.getURL("res/noChallenge.gif")}" id="gameModes" style="cursor: pointer;">`);
+        const modesButton = elemFromString(`<img src="${chrome.runtime.getURL("res/noChallenge.gif")}" id="gameModes" style="cursor: pointer;"  data-typo-tooltip="Challenges" data-tooltipdir="N">`);
         // add gamemode options popup
         const modesPopout = elemFromString(`<div id="gamemodePopup" tabIndex="-1" style="display:none">
 Challenges

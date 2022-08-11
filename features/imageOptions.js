@@ -73,7 +73,7 @@ let imageOptions = {
     },
     initDownloadOptions: () => {
         // add DL button for gif
-        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;">`);
+        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
         // popup for sharing image
         const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
     Save Image<br><br><label for="sendImageOnly">
@@ -139,7 +139,7 @@ let imageOptions = {
         // btn to open share popup
         let imageShareString;
         let imageShareStringDrawer;
-        let shareButton = elemFromString(`<img src="${chrome.runtime.getURL("res/letter.gif")}" id="shareImg" style="cursor: pointer;">`);
+        let shareButton = elemFromString(`<img src="${chrome.runtime.getURL("res/letter.gif")}" id="shareImg" style="cursor: pointer;"  data-typo-tooltip="Post Drawing" data-tooltipdir="N">`);
         shareButton.addEventListener("click", () => {
             if (!localStorage.hintShareImage) {
                 alert("The shown image will be posted to one of the displayed Discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
