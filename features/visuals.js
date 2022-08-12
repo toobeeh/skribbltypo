@@ -117,6 +117,7 @@ const visuals = {
         }
         if (options["hideAvatarSprites"] == true) {
             style.innerHTML += ".avatar-customizer .spriteSlot{display:none }";
+            style.innerHTML += ".avatar-customizer {background-image: unset !important }";
             style.innerHTML += ".avatar-customizer .color, .avatar-customizer .mouth, .avatar-customizer .eyes {opacity: 1 !important}";
         }
         if (options["injection"] && options["injection"] != "") {

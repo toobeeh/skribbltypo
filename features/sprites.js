@@ -80,6 +80,27 @@ const sprites = {
             
         });
     },
+    updateScenes: () => {
+        const playerlist = QS("#game-players");
+        let scenesCSS = elemFromString("<style id='scenesRules'></style>");
+
+        sprites.onlineScenes.forEach(scene => {
+            if (scene.LobbyKey == socket.clientData.lobbyKey) {
+                scenesCSS.innerHTML += `
+                #game-players div.player[playerid='${scene.LobbyPlayerID}'] {
+                    background-image: url(${sprites.availableScenes.find(av => av.ID == scene.Sprite).URL}) !important;
+                    background-size: auto 100% !important;
+                    background-position: center center !important;
+                    background-repeat: no-repeat !important;
+                }
+                #game-players div.player.guessedWord[playerid='${scene.LobbyPlayerID}'] *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
+                #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
+            }
+        });
+
+        QS("#scenesRules")?.remove();
+        playerlist.insertAdjacentElement("afterbegin", scenesCSS);
+    },
     updateEndboardSprites: () => { // show sprites on endboard
         let endboardAvatars = QSA(".overlay-content .result .rank-name");
         sprites.lobbyPlayers.forEach(player => {
@@ -110,10 +131,13 @@ const sprites = {
         sprites.getSprites();
         sprites.getPlayerList();
         sprites.updateSprites();
+        sprites.updateScenes();
     },
     getSprites: () => {
         sprites.availableSprites = socket.data.publicData.sprites;
         sprites.playerSprites = socket.data.publicData.onlineSprites;
+        sprites.availableScenes = socket.data.publicData.scenes;
+        sprites.onlineScenes = socket.data.publicData.onlineScenes;
     },
     setLandingSprites: (authenticated = false) => {
         QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
@@ -135,6 +159,19 @@ const sprites = {
                 clone.classList.add("spriteSlot");
                 clone.classList.remove("special");
             });
+            
+            let container = QS(".avatar-customizer");
+            let scene = socket.data.user.scenes.toString().split(",").filter(s => s[0] == ".")[0];
+            if(scene != undefined){
+                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".",""))).URL;
+                container.style.cssText=`    
+                    background-repeat: no-repeat;
+                    background-image: url(${url});
+                    background-size: cover;
+                    background-position: center;
+                `;
+            }
+            else container.style.cssText=``;
         }
         else {
             QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
