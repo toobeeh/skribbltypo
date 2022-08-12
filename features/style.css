@@ -549,7 +549,7 @@
     background-image:var(--typobrush) !important;
 }
 
-#game-room .container #game-chat {
+#game-room .container #game-chat.room {
     display: flex;
     margin-right: 16px;
     border-radius: 3px;

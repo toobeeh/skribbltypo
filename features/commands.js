@@ -181,6 +181,23 @@ const commands = [
             }
         }
     }, {
+        command: "dropmsgs",
+        options: {
+            type: "toggle",
+            description: "Sets visibility of the drop message of others.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.dropmsgs = "true";
+            },
+            actionDisable: () => {
+                localStorage.dropmsgs = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return "Drop messages of others " + (!state ? "won't show anymore" : "will be visible") + " in the chat.";
+            }
+        }
+    }, {
         command: "zoomdraw",
         options: {
             type: "toggle",
@@ -535,5 +552,5 @@ const performCommand = (command) => {
 
 const addChatMessage = (title, content) => {
     QS("#game-chat .container .content").appendChild(
-        elemFromString(`<p><b style="color: rgb(57, 117, 206);">${title}</b><br><span style="color: rgb(57, 117, 206);">${content}</span></p>`));
+        elemFromString(`<p>${ title != "" ? `<b style="color: rgb(57, 117, 206);">${title}</b><br>` : "" }<span style="color: rgb(57, 117, 206);">${content}</span></p>`));
 }

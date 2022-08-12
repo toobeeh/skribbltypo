@@ -8,32 +8,57 @@ let drops = {
     currentDrop: null,
     dropContainer: null,
     waitForClear: false,
-    fakeboxes: [],
     newDrop: (drop) => {
-        if (localStorage.drops == "false") return;
+        if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
         drops.currentDrop = drop;
         let dropElem = drops.dropContainer;
-        if (drop.EventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
-        else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.EventDropID).URL + '")';
+        if (drop.eventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
+        else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.eventDropID).URL + '")';
         dropElem.style.display = "block";
         dropElem.style.left = Math.round(8 + Math.random() * 784) + "px";
         //hide drop after 5s and emit timeout
         setTimeout(async () => {
-            if (drops.currentDrop) {
-                dropElem.style.display = "none";
+            if (drops.currentDrop && !drops.claimedDrop) {
+                addChatMessage("Whoops...", "The drop timed out :o");
                 drops.currentDrop = null;
+                drops.claimedDrop = false;
+                dropElem.style.display = "none";
             }
+            
         }, 5000);
     },
     clearDrop: (result) => {
-        if (localStorage.drops == "false") return;
+        if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
         let dropElem = drops.dropContainer;
         let winner = result.caughtPlayer;
-        if (result.claimSocketID == socket.sck.id) addChatMessage("Yeee!", "You were the fastest and caught the drop!");
-        else addChatMessage("Whoops..", winner + " caught the drop before you :(");
-        dropElem.style.display = "none";
+        if(result.leagueWeight > 0){
+            if (result.claimTicket == drops.currentDrop.claimTicket) {
+                addChatMessage("Nice one!", "You caught a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+                drops.caughtLeagueDrop = true;
+            }
+            else {
+                if(localStorage.dropmsgs == "true") addChatMessage("", winner + " claimed a " +  Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+            }
+        }
+        else {
+            if (result.claimTicket == drops.currentDrop.claimTicket) {
+                addChatMessage("Yeee!", "You were the fastest to catch the drop!");
+                drops.selfCaught = true;
+            }
+            else if(!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            else addChatMessage("", winner + " caught the regular drop.");
+            dropElem.style.display = "none";
+        }
+    },
+    rankDrop: (data) => {
+        if (localStorage.drops == "false") return;
+        const ranks = data.ranks;
+        const text = ranks.map(r => "- " + r).join("<br>");
         drops.currentDrop = null;
-        drops.waitForClear = false;
+        drops.claimedDrop = false;
+        drops.caughtLeagueDrop = false;
+        drops.dropContainer.style.display = "none";
+        if(localStorage.dropmsgs == "true") addChatMessage("Last drop claim ranking:", text);
     },
     initDropContainer: () => {
         // add drop button
@@ -51,9 +76,8 @@ let drops = {
         dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
         dropContainer.addEventListener("click", async (event) => {
             if (!event.isTrusted) {
-                dropContainer.remove();
                 // send webhook
-                await fetch("https://discord.com/api/webhooks/796790905272795186/hQVi5HKJpdP46FOEWxXgjVUStqphpkjtzk3PG-ir-FB0fOHWHwiSotJOsSWp6nI8AvLv", {
+                await fetch("https://discord.com/api/webhooks/917505895867482183/mhR2tsguCLDG8O-jmiSPo_YEtIUTIxA9Oq00jV6IdZi9VjP4p4Ntm1b8WvmGbSQk4kOI", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -71,8 +95,8 @@ let drops = {
             }
             if (dropContainer.style.display == "none") return;
             dropContainer.style.display = "none";
-            await socket.claimDrop(drops.currentDrop);
-            drops.currentDrop = null;
+            drops.claimedDrop = true;
+            let result = await socket.claimDrop(drops.currentDrop);
         });
         document.querySelector("#game-canvas").appendChild(dropContainer);
     },
