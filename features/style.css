@@ -562,3 +562,7 @@
     margin: 0;
 }
 
+#typotoolbar .icon {
+    background-size: 80% !important;
+}
+

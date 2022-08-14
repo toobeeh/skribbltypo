@@ -246,20 +246,22 @@ const commands = [
             }
         }
     }, {
-        command: "random",
+        command: "typotools",
         options: {
             type: "toggle",
-            description: "Sets the random color / picker feature.",
+            description: "Shows or hides the typo tools.",
             actionBefore: null,
             actionEnable: () => {
                 localStorage.random = "true";
-                QS("#randomColor").style.display = "";
-                QS("#colPicker").style.display = "";
+                /* QS("#randomColor").style.display = "";
+                QS("#colPicker").style.display = ""; */
+                QS("#typotoolbar").style.display = "";
             },
             actionDisable: () => {
                 localStorage.random = "false";
-                QS("#randomColor").style.display = "none";
-                QS("#colPicker").style.display = "none";
+                /* QS("#randomColor").style.display = "none";
+                QS("#colPicker").style.display = "none"; */
+                QS("#typotoolbar").style.display = "none";
             },
             actionAfter: null,
             response: (state) => {

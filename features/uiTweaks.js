@@ -64,8 +64,8 @@ const uiTweaks = {
         const rand = elemFromString(`<div id="randomColor" class="tool clickable">
 <div class="icon" style="background-image: url(img/randomize.gif); background-size:90%;">
 </div></div>`);
-        rand.style.display = localStorage.random == "true" ? "" : "none";
-        QS(".tools-container .tools").insertAdjacentElement("beforeEnd", rand);
+        //rand.style.display = localStorage.random == "true" ? "" : "none";
+        QS("#typotoolbar").insertAdjacentElement("beforeEnd", rand);
         QS(".colors:not(.custom)").addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
         uiTweaks.randomInterval = 0;
         rand.addEventListener("click", function () {
@@ -79,11 +79,11 @@ const uiTweaks = {
     },
     initColorPicker: () => {
         // color picker
-        let toolbar = QS(".tools-container .tools");
+        let toolbar = QS("#typotoolbar");
         let picker = elemFromString(`<div id="colPicker" class="tool clickable">
 <div class="icon" style="background-image: url(${chrome.runtime.getURL("res/mag.gif")});">
 </div></div>`);
-        picker.style.display = localStorage.random == "true" ? "" : "none";
+        //picker.style.display = localStorage.random == "true" ? "" : "none";
         toolbar.insertAdjacentElement("beforeend", picker);
         const pickr = Pickr.create({
             el: picker,
@@ -657,6 +657,20 @@ const uiTweaks = {
             sprites.resetCabin(false);
         }
     },
+    initTypoTools: () => {
+        const container = elemFromString(`<div id="typotoolbar" class="tools" style="
+            position: absolute;
+            left: calc(100% + 15px);
+            height: 100%;
+        "></div>`);
+        QS(".tools-container").appendChild(container);
+        container.parentElement.parentElement.style.position="relative";
+        container.style.display = localStorage.random == "true" ? "" : "none";
+
+        // move tools
+        container.appendChild(QS(`.tool[data-tooltip="Lab"]`));
+
+    },
     initAll: () => {
         // clear ads for space 
         //document.querySelectorAll(".adsbygoogle").forEach(a => a.style.display = "none");
@@ -664,6 +678,7 @@ const uiTweaks = {
         // mel i love you i would never do this
         uiTweaks.initGameNavigation();
         uiTweaks.initToolsMod(localStorage.typotoolbar == "true");
+        uiTweaks.initTypoTools();
         uiTweaks.initWordHint();
         uiTweaks.initRandomColorDice();
         uiTweaks.initClipboardCopy();
