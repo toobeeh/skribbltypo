@@ -22,6 +22,7 @@ const waitForDocAndPalantir = async () => {
     if (await waitForDocAndPalantir()) {
         await sprites.init(); // init sprites
         drops.initDrops(); // init drops
+        imageOptions.initImagePoster();
         uiTweaks.updateAccountElements(); // set account elements as cabin and landing sprites
         if (localStorage.restrictLobby == "" && socket.data.user.member) {
             QS("#restrictLobby").dispatchEvent(new Event("click"));

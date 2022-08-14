@@ -17,8 +17,8 @@ let typro = {
                 let container = document.createElement("div");
                 container.id = drawing.id;
 
-                container.classList.add(drawing.meta.name.replaceAll(" ", "_"));
-                container.classList.add(drawing.meta.author.replaceAll(" ", "_"));
+                container.classList.add(JSON.stringify(drawing.meta.name).replaceAll(" ", "_"));
+                container.classList.add(JSON.stringify(drawing.meta.author).replaceAll(" ", "_"));
                 let date = (new Date(drawing.meta.date)).toISOString().split("T")[0];
                 container.classList.add(date);
                 if (drawing.meta.own == true) container.classList.add("own");
