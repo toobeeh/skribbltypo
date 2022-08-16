@@ -566,3 +566,12 @@
     background-size: 80% !important;
 }
 
+#panelgrid > div:nth-child(2) > div.avatar-customizer > div.container {
+  cursor:pointer;
+  transition: 0.2s all
+}
+
+#panelgrid > div:nth-child(2) > div.avatar-customizer > div.container:hover{
+  transform:scale(95%)
+}
+

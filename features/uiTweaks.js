@@ -61,7 +61,7 @@ const uiTweaks = {
     },
     initRandomColorDice: () => {
         // add random color image
-        const rand = elemFromString(`<div id="randomColor" class="tool clickable">
+        const rand = elemFromString(`<div id="randomColor" class="tool clickable" data-typo-tooltip='Random Colors' data-tooltipdir='N'>
 <div class="icon" style="background-image: url(img/randomize.gif); background-size:90%;">
 </div></div>`);
         //rand.style.display = localStorage.random == "true" ? "" : "none";
@@ -80,7 +80,7 @@ const uiTweaks = {
     initColorPicker: () => {
         // color picker
         let toolbar = QS("#typotoolbar");
-        let picker = elemFromString(`<div id="colPicker" class="tool clickable">
+        let picker = elemFromString(`<div id="colPicker" class="tool clickable" data-typo-tooltip='Color Picker' data-tooltipdir='N'>
 <div class="icon" style="background-image: url(${chrome.runtime.getURL("res/mag.gif")});">
 </div></div>`);
         //picker.style.display = localStorage.random == "true" ? "" : "none";
@@ -130,33 +130,33 @@ const uiTweaks = {
             canvasGame.style.left = "";
             document.removeEventListener("keydown", changeZoom);
             zoomActive = false;
-            document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
+           // document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
         }
         let toggleZoom = (event, skipctrl = false) => {
             if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
                 event.preventDefault();
-                if (!zoomActive && !QS("#game-toolbar").classList.contains("hidden")) {
+                if (skipctrl || !zoomActive && !QS("#game-toolbar").classList.contains("hidden")) {
                     zoomActive = true;
                     const zoom = Number(sessionStorage.zoom) > 1 ? Number(sessionStorage.zoom) : 3;
                     // refresh brush cursor
                     canvasGame.setAttribute("data-zoom", zoom);
-                    document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
+                    //document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
                     // get current height and set to parent
                     let bRect = canvasGame.getBoundingClientRect();
-                    canvasGame.parentElement.style.height = bRect.height + "px";
-                    canvasGame.parentElement.style.width = bRect.width + "px";
+                    canvasGame.parentElement.style.height = /* bRect.height + */ "600px";
+                    canvasGame.parentElement.style.width = /* bRect.width + */ "800px";
                     canvasGame.parentElement.style.boxShadow = "black 0px 0px 25px 5px";
                     // zoom canvas
                     canvasGame.style.width = (zoom * 100) + "%";
                     // get position offset
                     canvasGame.style.position = "relative";
-                    canvasGame.style.top = "-" + ((event.offsetY * zoom) - (bRect.height / 2)) + "px";
-                    canvasGame.style.left = "-" + ((event.offsetX * zoom) - (bRect.width / 2)) + "px";
+                    canvasGame.style.top = "-" + ((event.offsetY * zoom) - (600 / 2)) + "px";
+                    canvasGame.style.left = "-" + ((event.offsetX * zoom) - (800 / 2)) + "px";
                     changeZoom = (e) => {
                         if (Number(e.key) > 1 && Number(e.key) <= 9) {
                             sessionStorage.zoom = e.key;
-                            toggleZoom(event);
-                            toggleZoom(event);
+                            toggleZoom(event, true);
+                            //toggleZoom(event);
                         }
                     }
                     document.addEventListener("keydown", changeZoom);
@@ -504,7 +504,7 @@ const uiTweaks = {
         // Credits for basic idea of canvas preview to https://greasyfork.org/en/scripts/410108-skribbl-line-tool/code
         // preview canvas
         const preview = {
-            canvas: elemFromString(`<canvas style="position:absolute; touch-action:none; inset: 0; z-index:10; opacity:0.5" width="800" height="600"></canvas>`),
+            canvas: elemFromString(`<canvas style="position:absolute; cursor:crosshair; touch-action:none; inset: 0; z-index:10; opacity:0.5" width="800" height="600"></canvas>`),
             context: () => preview.canvas.getContext("2d"),
             gameCanvas: QS("#game canvas"),
             use: () => {
@@ -534,6 +534,7 @@ const uiTweaks = {
         let pointerdown = false;
         let lastDown = [null, null];
         let lastDownClient = [null, null];
+        let lastDirectClient = [null, null];
         const mouseEvent = (type, x, y) => {
             return new MouseEvent(type, {
                 bubbles: true,
@@ -562,6 +563,7 @@ const uiTweaks = {
             snap = straight && snap;
             if (!straight && !pointerdown) preview.stop();
             if (!straight && state) lastRelease = Date.now();
+            if(!straight) lastDirectClient = [null, null];
         });
         document.addEventListener("keyup", (event) => {
             let state = straight;
@@ -605,7 +607,7 @@ const uiTweaks = {
             event.stopPropagation();
             if (straight) {
                 const col = QS("#color-preview-primary").style.fill;
-                const size = QS("#game-toolbar > div.picker > div.size-picker > div.preview > div.size").innerText.replace("px", "");
+                const size = [4,14,30,40][[...QSA(".size")].findIndex(size => size.classList.contains("selected"))]
                 if (lastDown[0]) {
                     let real = getRealCoordinates(event.offsetX, event.offsetY);
                     if (!snap) preview.line(lastDown[0], lastDown[1], real[0], real[1], col, size);
@@ -616,6 +618,16 @@ const uiTweaks = {
                 }
             }
         });
+        preview.canvas.addEventListener("contextmenu", (event) => {
+            event.preventDefault();
+            if(straight && lastDirectClient[0] != null){
+                let dest = [event.clientX, event.clientY];
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousedown", lastDirectClient[0], lastDirectClient[1]));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", dest[0], dest[1]));
+            }
+            lastDirectClient = [event.clientX, event.clientY];
+        })
     },
     initPenPointer: () => {
         const canvas = QS("#game-canvas canvas");
