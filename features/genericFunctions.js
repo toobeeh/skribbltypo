@@ -146,7 +146,7 @@ const setColorPalette = (colorPalette) => {
     paletteContainer = elemFromString(`<div class="colors custom"></div>`);
     let swatches = [...colorPalette.swatches];
     while (swatches.length > 0) {
-        const rowElem = elemFromString("<div class='mid'></div>");
+        const rowElem = elemFromString("<div class='top'></div>");
         swatches.splice(0, colorPalette.rowCount).forEach(swatch => {
             rowElem.appendChild(swatch.swatch);
         });
@@ -181,7 +181,7 @@ const createColorPalette = (paletteObject) => {
             dummyColorTester.style.backgroundColor = color.color;
             const col = new Color({ rgb: window.getComputedStyle(dummyColorTester).backgroundColor });
             palette.colors.push({ color: col.hex });
-            const swatch = elemFromString(`<div class="item"><div class="inner" style="background-color:${col.hex}"></div></div>`);
+            const swatch = elemFromString(`<div class="color" style="background-color:${col.hex}"></div>`);
             const code = parseInt(col.hex.replace("#",""), 16) + 10000;
             swatch.addEventListener("mousedown", (e) => {
                 document.dispatchEvent(newCustomEvent("setColor", { detail: { code: code, secondary: e.button === 2 } }));
