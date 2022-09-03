@@ -7,7 +7,7 @@
             "replacements": [
                 {
                     "source": "##CONTNAMEIN##",
-                    "target": "hints \\.container\"\\)],\\n \\s+?([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.container-name-lang input\""
+                    "target": "hints \\.container\"\\)], ([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.container-name-lang input\""
                 },
                 {
                     "source": "##SETTINGS##",
@@ -35,7 +35,7 @@
                 },
                 {
                     "source": "##COLORS##",
-                    "target": "([a-zA-Z0-9&_\\-$]+) = \\[\\s+?\\[255, 255, 255\\],\\s+?\\[0, 0, 0\\],"
+                    "target": "([a-zA-Z0-9&_\\-$]+) = \\[\\[255, 255, 255\\], \\[0, 0, 0\\],"
                 },
                 {
                     "source": "##SECFILL##",
@@ -47,7 +47,7 @@
                 },
                 {
                     "source": "##PUSHCMD##",
-                    "target": "\\.querySelector\\(\"#game-canvas canvas\"\\),\\s+?[^}]+?getContext[^}]+?([a-zA-Z0-9&_\\-$]+) = \\[\\],"
+                    "target": "\\.querySelector\\(\"#game-canvas canvas\"\\)\\)\\s+?, [^\\.]+?\\.getContext\\(\"2d\"\\)\\s+?, ([a-zA-Z0-9&_\\-$]+) = \\[\\]"
                 },
                 {
                     "source": "##PERFOUTER##",
@@ -59,17 +59,17 @@
                 },
                 {
                     "source": "##SHWOTOOLTIP##",
-                    "target": "function ([a-zA-Z0-9&_\\-$]+)\\(e\\) \\{[^}]+?[a-zA-Z0-9&_\\-$]+\\(\\)[^}]+?\\.dataset\\.tooltip,"
+                    "target": "function ([a-zA-Z0-9&_\\-$]+)\\(e\\) \\{[^}]+?[a-zA-Z0-9&_\\-$]+\\(\\)[^}]+?\\.dataset\\.tooltip"
                 },
                 {
                     "source": "##HIDETOOLTIP##",
-                    "target": "function [a-zA-Z0-9&_\\-$]+\\(e\\) \\{[^}]+?([a-zA-Z0-9&_\\-$]+)\\(\\)[^}]+?\\.dataset\\.tooltip,"
+                    "target": "function [a-zA-Z0-9&_\\-$]+\\(e\\) \\{[^}]+?([a-zA-Z0-9&_\\-$]+)\\(\\)[^}]+?\\.dataset\\.tooltip"
                 }
             ],
             "injections": [
                 {
-                    "position": "(Combination\"];)\\n \\s+?const [a-zA-Z0-9&_\\-$]+ = \\[\"B\", \"F\"]",
-                    "code": "// TYPOMOD \n    // desc: create re-useable functions\n    const typo = {\n        createFakeUser: (id = 0, name = \"\", avatar = [], score = 0, guessed = false) => {\n            // IDENTIFY x.value.split: #home .container-name-lang input -> ##CONTNAMEIN##\n            // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> ##SETTINGS##\n            return { id: id, name: name.length != 0 ? name : (##CONTNAMEIN##.value.split(\"#\")[0] != \"\" ? ##CONTNAMEIN##.value.split(\"#\")[0] : \"Dummy\"), avatar: avatar.length == 0 ? ##SETTINGS##.avatar : avatar, score: score, guessed: guessed };\n        },\n        createFakeLobbyData: (\n            settings = [\"PRACTISE\", \"en\", 1, 8, 80, 3, 3, 2, 0, false],\n            id = \"FAKE\",\n            me = 0,\n            owner = 0,\n            users = [],\n            state = { id: 4, time: 999, data: { id: 0, word: \"Anything\" } }) => {\n            if (users.length == 0) users = [typo.createFakeUser()];\n            return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };\n        },\n        disconnect: undefined,\n        lastConnect: 0,\n        initListeners: (() => {\n            document.addEventListener(\"joinLobby\", (e) => {\n                let timeoutdiff = Date.now() - typo.lastConnect;\n                Xn(true);\n                setTimeout(() => {\n                    typo.lastConnect = Date.now();\n                    ##BTNPLAY##.dispatchEvent(new Event(\"click\")); // IDENTIFY x.dispatchEvent: querySelector(\"#home .panel .button-play\") -> BTNPLAY\n                    ##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1   \n                    ##JOINLOBBY##(e.detail?.join ? e.detail.join : \"\"); // IDENTIFY x(e.det..): ? \"id=\" + -> JOINLOBBY\n                    ##LOADING##(false); // IDENTIFY x(false): querySelector(\"#load\").style.display -> LOADING\n                    document.dispatchEvent(new Event(\"joinedLobby\"));\n                }, timeoutdiff < 3000 ? 3000 - timeoutdiff : 0);\n            });\n            document.addEventListener(\"leaveLobby\", () => {\n                if (typo.disconnect) typo.disconnect();\n                else ##GOHOME##() | document.dispatchEvent(new Event(\"leftLobby\")); // IDENTIFY x(): querySelector(\"#home\").style.display = \"\" -> GOHOME\n            });\n            document.addEventListener(\"setColor\", (e) => {\n                let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, \"0\"));\n                let match = ##COLORS##.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS\n                let code = match >= 0 ? match : e.detail.code;\n                if (e.detail.secondary) ##SECFILL##(code); // IDENTIFY x(e.detail.code): querySelector(\"#color-preview-secondary\").style.fill -> SECFILL\n                else ##PRIMFILL##(code); // IDENTIFY x(e.detail.code): querySelector(\"#color-preview-primary\").style.fill -> PRIMFILL\n            });\n            document.addEventListener(\"performDrawCommand\", (e) => {\n                ##PUSHCMD##.push(e.detail); // IDENTIFY x.push(e.detail): .getContext(\"2d\"), x = [] -> PUSHCMD\n                ##PERFOUTER##(##PERFINNER##(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER\n                     });\n                document.addEventListener(\"addTypoTooltips\", () => {\n                [...document.querySelectorAll(\"[data-typo-tooltip]\")].forEach(elem => {\n                    elem.setAttribute(\"data-tooltip\", elem.getAttribute(\"data-typo-tooltip\"));\n                    elem.removeAttribute(\"data-typo-tooltip\");\n                    elem.addEventListener(\"mouseenter\", (e) => ##SHWOTOOLTIP##(e.target)); // IDENTIFY: x(e.target): \n                    elem.addEventListener(\"mouseleave\", (e) => ##HIDETOOLTIP##()); // IDENTIFY: (e) => x(): \n \n                });\n});        \n})(),\n        hexToRgb: (hex) => {\n            let arrBuff = new ArrayBuffer(4);\n            let vw = new DataView(arrBuff);\n            vw.setUint32(0, parseInt(hex, 16), false);\n            let arrByte = new Uint8Array(arrBuff);\n            return [arrByte[1], arrByte[2], arrByte[3]];\n        },\n        rgbToHex: (r, g, b) => {\n            return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);\n        }\n    }\n    // TYPOEND"
+                    "position": "(COMBINATION: 2\n\\s+?})",
+                    "code": "// TYPOMOD \n    // desc: create re-useable functions\n    , typo = {\n        createFakeUser: (id = 0, name = \"\", avatar = [], score = 0, guessed = false) => {\n            // IDENTIFY x.value.split: #home .container-name-lang input -> ##CONTNAMEIN##\n            // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> ##SETTINGS##\n            return { id: id, name: name.length != 0 ? name : (##CONTNAMEIN##.value.split(\"#\")[0] != \"\" ? ##CONTNAMEIN##.value.split(\"#\")[0] : \"Dummy\"), avatar: avatar.length == 0 ? ##SETTINGS##.avatar : avatar, score: score, guessed: guessed };\n        },\n        createFakeLobbyData: (\n            settings = [\"PRACTISE\", \"en\", 1, 8, 80, 3, 3, 2, 0, false],\n            id = \"FAKE\",\n            me = 0,\n            owner = 0,\n            users = [],\n            state = { id: 4, time: 999, data: { id: 0, word: \"Anything\" } }) => {\n            if (users.length == 0) users = [typo.createFakeUser()];\n            return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };\n        },\n        disconnect: undefined,\n        lastConnect: 0,\n        initListeners: (() => {\n            document.addEventListener(\"joinLobby\", (e) => {\n                let timeoutdiff = Date.now() - typo.lastConnect;\n                Xn(true);\n                setTimeout(() => {\n                    typo.lastConnect = Date.now();\n                    ##BTNPLAY##.dispatchEvent(new Event(\"click\")); // IDENTIFY x.dispatchEvent: querySelector(\"#home .panel .button-play\") -> BTNPLAY\n                    ##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1   \n                    //##JOINLOBBY##(e.detail?.join ? e.detail.join : \"\"); // IDENTIFY x(e.det..): ? \"id=\" + -> JOINLOBBY\n                    ##LOADING##(false); // IDENTIFY x(false): querySelector(\"#load\").style.display -> LOADING\n                    document.dispatchEvent(new Event(\"joinedLobby\"));\n                }, timeoutdiff < 3000 ? 3000 - timeoutdiff : 0);\n            });\n            document.addEventListener(\"leaveLobby\", () => {\n                if (typo.disconnect) typo.disconnect();\n                else ##GOHOME##() | document.dispatchEvent(new Event(\"leftLobby\")); // IDENTIFY x(): querySelector(\"#home\").style.display = \"\" -> GOHOME\n            });\n            document.addEventListener(\"setColor\", (e) => {\n                let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, \"0\"));\n                let match = ##COLORS##.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS\n                let code = match >= 0 ? match : e.detail.code;\n                if (e.detail.secondary) ##SECFILL##(code); // IDENTIFY x(e.detail.code): querySelector(\"#color-preview-secondary\").style.fill -> SECFILL\n                else ##PRIMFILL##(code); // IDENTIFY x(e.detail.code): querySelector(\"#color-preview-primary\").style.fill -> PRIMFILL\n            });\n            document.addEventListener(\"performDrawCommand\", (e) => {\n                ##PUSHCMD##.push(e.detail); // IDENTIFY x.push(e.detail): .getContext(\"2d\"), x = [] -> PUSHCMD\n                ##PERFOUTER##(##PERFINNER##(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER\n                     });\n                document.addEventListener(\"addTypoTooltips\", () => {\n                [...document.querySelectorAll(\"[data-typo-tooltip]\")].forEach(elem => {\n                    elem.setAttribute(\"data-tooltip\", elem.getAttribute(\"data-typo-tooltip\"));\n                    elem.removeAttribute(\"data-typo-tooltip\");\n                    elem.addEventListener(\"mouseenter\", (e) => ##SHWOTOOLTIP##(e.target)); // IDENTIFY: x(e.target): \n                    elem.addEventListener(\"mouseleave\", (e) => ##HIDETOOLTIP##()); // IDENTIFY: (e) => x(): \n \n                });\n});        \n})(),\n        hexToRgb: (hex) => {\n            let arrBuff = new ArrayBuffer(4);\n            let vw = new DataView(arrBuff);\n            vw.setUint32(0, parseInt(hex, 16), false);\n            let arrByte = new Uint8Array(arrBuff);\n            return [arrByte[1], arrByte[2], arrByte[3]];\n        },\n        rgbToHex: (r, g, b) => {\n            return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);\n        }\n    }\n    // TYPOEND"
                 }
             ]
         },
@@ -86,7 +86,7 @@
                 },
                 {
                     "source": "##COLORS##",
-                    "target": "([a-zA-Z0-9&_\\-$]+) = \\[\\s+?\\[255, 255, 255\\],\\s+?\\[0, 0, 0\\],"
+                    "target": "([a-zA-Z0-9&_\\-$]+) = \\[\\[255, 255, 255\\], \\[0, 0, 0\\],"
                 },
                 {
                     "source": "##COLORCODE##",
@@ -233,15 +233,15 @@
                 },
                 {
                     "source": "##COLR##",
-                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?),\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
+                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
                 },
                 {
                     "source": "##COLG##",
-                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - ([a-zA-Z0-9&_\\-$]+?),\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
+                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - ([a-zA-Z0-9&_\\-$]+?)\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
                 },
                 {
                     "source": "##COLB##",
-                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - ([a-zA-Z0-9&_\\-$])+?;"
+                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - ([a-zA-Z0-9&_\\-$])+?;"
                 }
             ],
             "injections": [
@@ -301,12 +301,12 @@
             "replacements": [
                 {
                     "source": "##EVENT##",
-                    "target": "var [a-zA-Z0-9&_\\-$]+? = ([a-zA-Z0-9&_\\-$]+?)\\.id,\\s+?[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.data;\\s+switch"
+                    "target": "var [a-zA-Z0-9&_\\-$]+? = ([a-zA-Z0-9&_\\-$]+?)\\.id\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.data;\\s+switch"
                 }
             ],
             "injections": [
                 {
-                    "position": "(var [a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.id,\\s+?[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.data;\\s+switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)",
+                    "position": "(var [a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.id\\s+?,\\s+?[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.data;\\s+switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)",
                     "code": "/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent(\"lobbyConnected\", { detail: ##EVENT##.data }));\n                /* TYPOEND*/"
                 }
             ]
@@ -316,12 +316,12 @@
             "replacements": [
                 {
                     "source": "##PLAYER##",
-                    "target": "([a-zA-Z0-9&_\\-$]+?)\\.avatar\\);"
+                    "target": "([a-zA-Z0-9&_\\-$]+?)\\.avatar\\)\\);"
                 }
             ],
             "injections": [
                 {
-                    "position": "([a-zA-Z0-9&_\\-$]+?\\.avatar\\);)",
+                    "position": "([a-zA-Z0-9&_\\-$]+?\\.avatar\\)\\);)",
                     "code": "/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute(\"playerid\", ##PLAYER##.id);\n        /* TYPOEND */"
                 }
             ]
