@@ -115,11 +115,12 @@ const gamemodes = {
         }, {
             name: "Monochrome",
             options: {
-                description: "You can only choose between three random color shades.",
+                description: "You can only choose between shades of a random color.",
                 init: () => {
                     QS("#game-toolbar").appendChild(elemFromString(`<style id="gamemodeMonochromeRules"></style>`));
-                    brushtools.groups.color.brightness.disable();
-                    brushtools.groups.color.rainbow.disable();
+                    //brushtools.groups.color.brightness.disable();
+                    //brushtools.groups.color.rainbow.disable();
+                    brushtools.groups.color.rainbowcircle.disable()
                 },
                 initWithAction: true,
                 destroy: () => {
@@ -131,16 +132,16 @@ const gamemodes = {
                     attributes: true
                 },
                 observeAction: () => {
-                    const itemWidth = getComputedStyle(QS("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div")).width;
-                    const itemCount = QS("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div").children.length;
+                    const itemWidth = getComputedStyle(QS("#game-toolbar > div.color-picker > div.colors:not([style*=none]) > div > div")).width;
+                    const itemCount = QS("#game-toolbar > div.color-picker > div.colors:not([style*=none]) > div").children.length;
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
                     QS("#randomColor").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                        `#game-toolbar > div.picker > div.color-picker > div.colors > div > div.item:not(:nth-child(${randomIndex}))
+                        `#game-toolbar > div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
                             {display:none;}
-                         #colPicker{display:none;}
-                         #game-toolbar > div.picker > div.color-picker > div.colors > div > div.item:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
+                         #colPicker, #randomColor{display:none;}
+                         #game-toolbar > div.color-picker > div.colors > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
                 }
             }
         }
