@@ -1,4 +1,4 @@
-﻿!function(u, s, c, Y) {
+﻿!function(u, s, c, P) {
     const H = 26
       , U = 57
       , F = 51
@@ -8,8 +8,8 @@
       , _ = 2
       , V = 0
       , Z = 1
-      , j = 2
-      , X = 3
+      , X = 2
+      , j = 3
       , J = 4
       , Q = 5
       , ee = 6
@@ -58,7 +58,7 @@
                 setTimeout(() => {
                     typo.lastConnect = Date.now();
                     Fn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
-                    En = !1 // IDENTIFY: x:  = !1   
+                    Rn = !1 // IDENTIFY: x:  = !1   
                     //##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
                     Gn(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
                     document.dispatchEvent(new Event("joinedLobby"));
@@ -72,19 +72,19 @@
                 let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
                 let match = Lt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS
                 let code = match >= 0 ? match : e.detail.code;
-                if (e.detail.secondary) zt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
+                if (e.detail.secondary) Yt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
                 else Ot(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
             });
             document.addEventListener("performDrawCommand", (e) => {
                 C.push(e.detail); // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
-                _t(Xt(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
+                _t(jt(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
                      });
                 document.addEventListener("addTypoTooltips", () => {
                 [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
                     elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
                     elem.removeAttribute("data-typo-tooltip");
-                    elem.addEventListener("mouseenter", (e) => Pe(e.target)); // IDENTIFY: x(e.target): 
-                    elem.addEventListener("mouseleave", (e) => Ye()); // IDENTIFY: (e) => x(): 
+                    elem.addEventListener("mouseenter", (e) => ze(e.target)); // IDENTIFY: x(e.target): 
+                    elem.addEventListener("mouseleave", (e) => Pe()); // IDENTIFY: (e) => x(): 
  
                 });
 });        
@@ -112,10 +112,6 @@
         } catch (e) {}
     var d = [];
     function se(t) {
-/* TYPOMOD 
-         log draw commands */
-        document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }));
-        /* TYPOEND */
         for (let e = 0; e < d.length; e++)
             if (d[e].name == t)
                 return d[e]
@@ -140,13 +136,12 @@
             },
             d.push(i);
             var l = b("key", i.name);
-            je(l, "text"),
+            Xe(l, "text"),
             i.listing.appendChild(l);
             let e = s.createElement("input");
             e.value = i.key,
             i.listing.appendChild(e),
             v(e, "keydown", function(t) {
-                console.log(t.key);
                 var n = t.key;
                 for (let e = 0; e < d.length; e++)
                     if (d[e].key == n)
@@ -339,8 +334,8 @@
             {
                 Ce.textContent = "";
                 let e = r.querySelector(".buttons")
-                  , t = (e.style.display = a.id == I ? "none" : "flex",
-                e.querySelector(".button-pair").style.display = I == R ? "flex" : "none",
+                  , t = (e.style.display = a.id == E ? "none" : "flex",
+                e.querySelector(".button-pair").style.display = E == I ? "flex" : "none",
                 e.querySelector("button.report").style.display = a.reported ? "none" : "",
                 xe(a.muted),
                 r.querySelector(".report-menu").style.display = "none",
@@ -351,11 +346,11 @@
          desc: set ID to player to identify */
         a.element.setAttribute("playerid", a.id);
         /* TYPOEND */
-                fe(n, R == a.id),
+                fe(n, I == a.id),
                 n.style.width = "96px",
                 n.style.height = "96px",
                 t.appendChild(n),
-                t.appendChild(b("name", a.id == I ? k("$ (You)", a.name) : a.name))
+                t.appendChild(b("name", a.id == E ? k("$ (You)", a.name) : a.name))
             }
             break;
         case we:
@@ -411,9 +406,9 @@
       , $e = s.querySelector("#game-chat form input")
       , De = s.querySelector("#game-chat .content");
     const Ae = 0;
-    const Ie = 2
-      , Re = 3
-      , Ee = 4
+    const Ee = 2
+      , Ie = 3
+      , Re = 4
       , Te = 5
       , Ne = 6
       , We = 7
@@ -439,15 +434,14 @@
         return o
     }
     let y = void 0
-      , ze = void 0;
-    function Pe(e) {
-        Ye();
-        var t = (ze = e).dataset.tooltip
-          , n = e.dataset.tooltipdir || "N";
-        (y = b("tooltip")).classList.add(n),
-        y.appendChild(b("tooltip-arrow")),
-        y.appendChild(b("tooltip-content", k(t)));
-        let a = !1
+      , Ye = void 0;
+    function ze(e) {
+        Pe();
+        var t = (Ye = e).dataset.tooltip;
+        let n = e.dataset.tooltipdir || "N"
+          , a = ((y = b("tooltip")).appendChild(b("tooltip-arrow")),
+        y.appendChild(b("tooltip-content", k(t))),
+        !1)
           , o = e;
         for (; o; ) {
             if ("fixed" == u.getComputedStyle(o).position) {
@@ -458,6 +452,7 @@
         }
         y.style.position = a ? "fixed" : "absolute";
         t = e.getBoundingClientRect();
+        "E" == (n = "W" == (n = "S" == (n = "N" == n && t.top - u.scrollY < 48 ? "S" : n) && t.bottom - u.scrollY > s.documentElement.clientHeight - 48 ? "N" : n) && t.left - u.scrollX < 48 ? "E" : n) && t.right - u.scrollX > s.documentElement.clientWidth - 48 && (n = "W");
         let r = t.left
           , i = t.top;
         "N" == n && (r = (t.left + t.right) / 2),
@@ -468,14 +463,15 @@
         "W" == n && (i = (t.top + t.bottom) / 2),
         a || (r += u.scrollX,
         i += u.scrollY),
+        y.classList.add(n),
         y.style.left = r + "px",
         y.style.top = i + "px",
         s.body.appendChild(y)
     }
-    function Ye() {
+    function Pe() {
         y && (y.remove(),
         y = void 0,
-        ze = void 0)
+        Ye = void 0)
     }
     const He = [{
         code: "en",
@@ -663,11 +659,11 @@
         }
         return a
     }
-    function je(t, n) {
+    function Xe(t, n) {
         if ("children" == n)
             for (let e = 0; e < t.children.length; e++) {
                 var a = t.children[e].dataset.translate;
-                je(t.children[e], null == a ? "text" : a)
+                Xe(t.children[e], null == a ? "text" : a)
             }
         else {
             let e = "";
@@ -680,7 +676,7 @@
             console.log(t))
         }
     }
-    function Xe() {
+    function je() {
         var n = _e[l.displayLang];
         for (let t = 0; t < Ve.length; t++) {
             let e = Ve[t];
@@ -855,10 +851,10 @@
         r.dataset.tooltip = i,
         r.dataset.tooltipdir = l,
         v(r, "mouseenter", function(e) {
-            Pe(e.target)
+            ze(e.target)
         }),
         v(r, "mouseleave", function(e) {
-            Ye()
+            Pe()
         }),
         t.isAction ? (n.addEventListener("click", function(e) {
             Nt(this.toolIndex)
@@ -921,12 +917,12 @@
         graphic: "clear.gif",
         action: Zt
     })
-, /*TYPOMOD DESC: add action for colorswitch*/ ut(2, {
+/*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*ut(2, {
         isAction: !0,
         name: "Switcher",
         graphic: "",
         action: ()=>{document.dispatchEvent(new Event("toggleColor"));}
-    }) /*TYPOEND*/
+    })*/ /*TYPOEND*/
 , /*TYPOMOD DESC: add action for brushlab*/ ut(3, {
         isAction: !0,
         name: "Lab",
@@ -950,7 +946,7 @@
     kt.getContext("2d"));
     function wt() {
         var t = ht[qt].cursor;
-        if (N.id == J && E == I) {
+        if (N.id == J && R == E) {
             if (qt == et) {
                 var n, a, o = kt.width, r = $t;
                 if (r <= 0)
@@ -991,20 +987,20 @@ let e = xt < 10000 ? Lt[xt] : typo.hexToRgb((xt - 10000).toString(16).padStart(6
       , $t = 0
       , Dt = -1
       , At = [];
-    function It(e) {
+    function Et(e) {
         return 20 + (e - at) / (ot - at) * 80
     }
     for (let n = 0; n < rt.length; n++) {
         let e = b("size clickable")
           , t = b("icon");
-        t.style.backgroundSize = It(rt[n]) + "%",
+        t.style.backgroundSize = Et(rt[n]) + "%",
         e.appendChild(t),
         ct.appendChild(e),
         v(e, "click", function(e) {
             var t = n;
             Tt((t = At[t]).element),
-            Et(t.size),
-            Yt()
+            Rt(t.size),
+            Pt()
         }),
         At.push({
             id: n,
@@ -1013,15 +1009,15 @@ let e = xt < 10000 ? Lt[xt] : typo.hexToRgb((xt - 10000).toString(16).padStart(6
             elementIcon: t
         })
     }
-    var Rt = [b("top"), b("bottom")];
+    var It = [b("top"), b("bottom")];
     for (let e = 0; e < Lt.length / 2; e++)
-        Rt[0].appendChild(Ht(2 * e)),
-        Rt[1].appendChild(Ht(2 * e + 1)),
+        It[0].appendChild(Ht(2 * e)),
+        It[1].appendChild(Ht(2 * e + 1)),
         s.querySelector("#game-toolbar .colors-mobile .top").appendChild(Ht(2 * e)),
         s.querySelector("#game-toolbar .colors-mobile .bottom").appendChild(Ht(2 * e + 1));
-    for (let e = 0; e < Rt.length; e++)
-        dt.appendChild(Rt[e]);
-    function Et(e) {
+    for (let e = 0; e < It.length; e++)
+        dt.appendChild(It[e]);
+    function Rt(e) {
         $t = L(e, at, ot);
         let n = At[At.length - 1]
           , a = n.size;
@@ -1034,7 +1030,7 @@ let e = xt < 10000 ? Lt[xt] : typo.hexToRgb((xt - 10000).toString(16).padStart(6
             e.element.classList.remove("selected")
         }
         n.element.classList.add("selected"),
-        w.querySelector(".size-preview .icon").style.backgroundSize = It($t) + "%",
+        w.querySelector(".size-preview .icon").style.backgroundSize = Et($t) + "%",
         wt()
     }
     function Tt(e) {
@@ -1061,19 +1057,19 @@ e > 10000 ? Ut(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ut(Lt
         s.querySelector("#game-toolbar .color-picker-mobile .preview").style.backgroundColor = t,
         wt()
     }
-    function zt(e) {
+    function Yt(e) {
         var t =
 e > 10000 ? Ut(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ut(Lt[e]);
         Mt = e,
         s.querySelector("#color-preview-secondary").style.fill = t,
         wt()
     }
-    function Pt() {
+    function zt() {
         var e = xt;
         Ot(Mt),
-        zt(e)
+        Yt(e)
     }
-    function Yt() {
+    function Pt() {
         ct.classList.remove("open")
     }
     function Ht(e) {
@@ -1099,7 +1095,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     }
     function Bt(e) {
         if (C = C.slice(0, e),
-        !(I != E && mt < e)) {
+        !(E != R && mt < e)) {
 /* TYPOMOD
         desc: replace draw commands because of redo*/        const keepCommands = C;
         /* TYPOEND*/
@@ -1112,7 +1108,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 ft.putImageData(n.data, n.bounds[1], n.bounds[2])
             }
             for (t = yt.length * Gt; t < C.length; t++)
-                _t(Xt(C[t]), C[t]);
+                _t(jt(C[t]), C[t]);
             gt = Math.min(C.length, gt),
             mt = Math.min(C.length, mt)
         
@@ -1157,15 +1153,15 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             id: qa
         })
     }
-    function jt(e) {
+    function Xt(e) {
 /* TYPOMOD 
          log draw commands */
-        document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: t }));
+        document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }));
         /* TYPOEND */
         C.push(e),
-        I == E && _t(Xt(e))
+        E == R && _t(jt(e))
     }
-    function Xt(e) {
+    function jt(e) {
         let t = [0, 0, q.width, q.height];
         switch (e[0]) {
         case Je:
@@ -1298,7 +1294,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     }),
     v("#game-toolbar .colors * .color", "mousedown", function(e) {
         var t = this.colorIndex;
-        0 == e.button ? (e.altKey ? zt : Ot)(t) : 2 == e.button && zt(t)
+        0 == e.button ? (e.altKey ? Yt : Ot)(t) : 2 == e.button && Yt(t)
     }),
     v("#game-toolbar .colors-mobile * .color", "mousedown", function(e) {
         Ot(this.colorIndex),
@@ -1308,11 +1304,11 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         e.preventDefault();
         e = -e.deltaY || e.wheelDeltaY,
         e = Math.sign(e);
-        Et($t + 2 * e)
+        Rt($t + 2 * e)
     }),
-    ce("Swap", "S", "Swap the primary and secondary color.", Pt),
+    ce("Swap", "S", "Swap the primary and secondary color.", zt),
     v(w.querySelector(".color-picker .preview"), "click", function(e) {
-        Pt()
+        zt()
     }),
     v(w.querySelector(".color-picker-mobile .preview"), "click", function(e) {
         w.querySelector(".colors-mobile").classList.toggle("open")
@@ -1320,7 +1316,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     v(st, "click", function(e) {
         ct.classList.toggle("open")
     }),
-    v(s, "keypress", function(e) {
+    v(s, "keyup", function(e) {
         if ("Enter" == e.code)
             return $e.focus(),
             0;
@@ -1352,7 +1348,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
 /* TYPOMOD 
      desc: add event handlers for typo features */
     v(".avatar-customizer .container", "pointerdown", () => {
-        jn(typo.createFakeLobbyData());}); 
+        Xn(typo.createFakeLobbyData());}); 
     /* TYPOEND */
     var tn = null;
     function nn(e, t, n, a) {
@@ -1403,7 +1399,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         Dt = -1)
     }
     function sn(n) {
-        if (N.id == J && E == I && -1 != Dt) {
+        if (N.id == J && R == E && -1 != Dt) {
             var a = 0 == Dt ? xt : Mt;
             let t = null;
             if (n) {
@@ -1434,7 +1430,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                     [Qe, r, l, s])
                 }
                 if (qt == tt)
-                    return (0 == Dt ? Ot : zt)(n),
+                    return (0 == Dt ? Ot : Yt)(n),
                     void Wt(Ct)
             }
             if (qt == et) {
@@ -1448,13 +1444,13 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 o = x[1],
                 [Je, r, l, s, n, a, o])
             }
-            null != t && jt(t)
+            null != t && Xt(t)
         }
         var o, r, l, s
     }
     setInterval(()=>{
         var e, t;
-        r && N.id == J && E == I && 0 < C.length - gt && (e = gt + 8,
+        r && N.id == J && R == E && 0 < C.length - gt && (e = gt + 8,
         t = C.slice(gt, e),
         r.emit("data", {
             id: Ca,
@@ -1464,7 +1460,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     }
     , 50),
     setInterval(function() {
-        r && N.id == J && E != I && mt < C.length && (_t(Xt(C[mt]), C[mt]),
+        r && N.id == J && R != E && mt < C.length && (_t(jt(C[mt]), C[mt]),
         mt++)
     }, 3);
     var cn = s.querySelector("#game-canvas .overlay")
@@ -1511,7 +1507,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         for (var e = 0; e < dn.children.length; e++)
             dn.children[e].classList.remove("show");
         switch (l.id) {
-        case j:
+        case X:
             yn($),
             $.textContent = k("Round $", l.data + 1);
             break;
@@ -1543,7 +1539,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 var o = l.data.scores[a + 0]
                   , r = (l.data.scores[a + 1],
                 l.data.scores[a + 2]);
-                (c = P(o)) && n.push({
+                (c = z(o)) && n.push({
                     name: c.name,
                     score: r
                 })
@@ -1570,7 +1566,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 let r = [[], [], [], []];
                 for (let e = 0; e < l.data.length; e++) {
                     var u = {
-                        player: P(l.data[e][0]),
+                        player: z(l.data[e][0]),
                         rank: l.data[e][1],
                         title: l.data[e][2]
                     };
@@ -1623,7 +1619,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 D.querySelector(".winner-name").textContent = "",
                 D.querySelector(".winner-text").textContent = k("Nobody won!");
             break;
-        case X:
+        case j:
             if (l.data.words)
                 if (yn($),
                 yn(un),
@@ -1669,7 +1665,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 }
             else {
                 yn($);
-                var y = (c = P(l.data.id)) ? c.name : k("User");
+                var y = (c = z(l.data.id)) ? c.name : k("User");
                 $.textContent = k("$ is choosing a word!", y)
             }
         }
@@ -1741,14 +1737,14 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     }
     ,
     V;
-    var r, A = [], I = 0, R = -1, E = -1, T = [], N = {
+    var r, A = [], E = 0, I = -1, R = -1, T = [], N = {
         id: -1,
         time: 0,
         data: 0
-    }, $n = -1, Dn = 0, An = void 0, In = new Ln, W = void 0, Rn = !1, En = !1, Tn = s.querySelector("#game-container"), Nn = s.querySelector("#game-room"), O = s.querySelector("#game-players"), Wn = s.querySelector("#game-chat"), st = (s.querySelector("#game-board"),
-    s.querySelector("#game-info")), On = s.querySelector("#game-bar"), zn = O.querySelector(".list"), Pn = O.querySelector(".footer"), Yn = s.querySelector("#game-round"), z = [s.querySelector("#game-word .description"), s.querySelector("#game-word .word"), s.querySelector("#game-word .hints .container")], Hn = s.querySelector("#home .container-name-lang input"), Un = s.querySelector("#home .container-name-lang select"), Fn = s.querySelector("#home .panel .button-play"), Bn = s.querySelector("#home .panel .button-create");
+    }, $n = -1, Dn = 0, An = void 0, En = new Ln, W = void 0, In = !1, Rn = !1, Tn = s.querySelector("#game-container"), Nn = s.querySelector("#game-room"), O = s.querySelector("#game-players"), Wn = s.querySelector("#game-chat"), st = (s.querySelector("#game-board"),
+    s.querySelector("#game-info")), On = s.querySelector("#game-bar"), Yn = O.querySelector(".list"), zn = O.querySelector(".footer"), Pn = s.querySelector("#game-round"), Y = [s.querySelector("#game-word .description"), s.querySelector("#game-word .word"), s.querySelector("#game-word .hints .container")], Hn = s.querySelector("#home .container-name-lang input"), Un = s.querySelector("#home .container-name-lang select"), Fn = s.querySelector("#home .panel .button-play"), Bn = s.querySelector("#home .panel .button-create");
     function Gn(e) {
-        Rn = e,
+        In = e,
         s.querySelector("#load").style.display = e ? "block" : "none"
     }
     function Kn(e, t, n, a) {
@@ -1809,10 +1805,10 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             t()
     }
     function Zn(e, t, n) {
-        In.context.resume(),
+        En.context.resume(),
         r && oa();
         let a = 0;
-        (r = Y(e, {
+        (r = P(e, {
             closeOnBeforeunload: !1
         })).on("connect", function() {
 /* TYPOMOD
@@ -1889,25 +1885,25 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         }
         )
     }
-    function jn(e) {
+    function Xn(e) {
         var t;
-        In.playSound(wn),
+        En.playSound(wn),
         Wt(et, !0),
-        Et(12),
+        Rt(12),
         Ot(1),
-        zt(0),
+        Yt(0),
         Vt(!0),
         S(De),
         s.querySelector("#home").style.display = "none",
         s.querySelector("#game").style.display = "flex",
-        I = e.me,
+        E = e.me,
         $n = e.type,
         An = e.id,
         s.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id,
         t = e.settings,
         T = t,
-        Xn(),
-        S(zn),
+        jn(),
+        S(Yn),
         A = [];
         for (var n = 0; n < e.users.length; n++)
             Aa(e.users[n], !1);
@@ -1916,14 +1912,14 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         Qn(e.round),
         ca(e.owner),
         ta(e.state, !0),
-        En || ((adsbygoogle = u.adsbygoogle || []).push({}),
+        Rn || ((adsbygoogle = u.adsbygoogle || []).push({}),
         (adsbygoogle = u.adsbygoogle || []).push({}),
-        En = !0)
+        Rn = !0)
     }
-    function Xn() {
+    function jn() {
         Qn(Dn);
-        for (var e, t = 0; t < Ya.length; t++) {
-            var n = Ya[t];
+        for (var e, t = 0; t < Pa.length; t++) {
+            var n = Pa[t];
             n.index && (e = T[(n = n).index],
             "checkbox" == n.element.type ? n.element.checked = !!e : n.element.value = e)
         }
@@ -1937,18 +1933,18 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 val: t
             }
         }),
-        Xn()
+        jn()
     }
     function Qn(e) {
         Dn = e,
-        Yn.textContent = k("Round $ of $", [Dn + 1, T[oe.ROUNDS]])
+        Pn.textContent = k("Round $ of $", [Dn + 1, T[oe.ROUNDS]])
     }
     function ea() {
         for (let e = 0; e < A.length; e++)
             A[e].score = 0;
         for (let e = 0; e < A.length; e++)
+            Ya(A[e], !1),
             za(A[e], !1),
-            Pa(A[e], !1),
             Wa(A[e])
     }
     function ta(a, e) {
@@ -1985,9 +1981,9 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             Ba.textContent = Ka;
             var e = -1;
             N.id == J && (e = Ua),
-            N.id == X && (e = Fa),
+            N.id == j && (e = Fa),
             Ba.style.animationName = Ka < e ? Ka % 2 == 0 ? "rot_left" : "rot_right" : "none",
-            Ka < e && In.playSound(xn),
+            Ka < e && En.playSound(xn),
             Ka <= 0 && _a()
         }, 1e3),
         w.classList.add("hidden"),
@@ -2007,15 +2003,15 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         O.parentNode.removeChild(O),
         Tn.prepend(O),
         O.classList.remove("room")),
-        a.id == j && (Qn(a.data),
+        a.id == X && (Qn(a.data),
         0 == a.data && ea()),
         a.id == Q) {
-            I != E && sa(a.data.word);
+            E != R && sa(a.data.word);
             for (var o = 0; o < a.data.scores.length; o += 3) {
                 var r = a.data.scores[o + 0]
                   , i = a.data.scores[o + 1]
                   , r = (a.data.scores[o + 2],
-                P(r));
+                z(r));
                 r && (r.score = i)
             }
             Oa();
@@ -2024,40 +2020,40 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                     l = !1;
                     break
                 }
-            l ? In.playSound(kn) : In.playSound(Sn),
-            m(k("The word was '$'", a.data.word), "", g(Ee), !0)
+            l ? En.playSound(kn) : En.playSound(Sn),
+            m(k("The word was '$'", a.data.word), "", g(Re), !0)
 /* TYPOMOD
              desc: log finished drawing */
             ;document.dispatchEvent(new CustomEvent("drawingFinished", { detail: a.data.word }));
             /* TYPOEND */
         } else
-            a.id != J && (z[0].textContent = k("WAITING"),
-            z[0].classList.add("waiting"),
-            z[1].style.display = "none",
-            z[2].style.display = "none");
+            a.id != J && (Y[0].textContent = k("WAITING"),
+            Y[0].classList.add("waiting"),
+            Y[1].style.display = "none",
+            Y[2].style.display = "none");
         if (a.id == J) {
-            if (E = a.data.id,
-            In.playSound(bn),
+            if (R = a.data.id,
+            En.playSound(bn),
             Vt(!0),
             a.data.drawCommands && (C = a.data.drawCommands),
-            m(k("$ is drawing now!", P(E).name), "", g(Re), !0),
+            m(k("$ is drawing now!", z(R).name), "", g(Ie), !0),
             !e)
                 for (o = 0; o < A.length; o++)
-                    za(A[o], !1);
-            z[0].classList.remove("waiting"),
-            E == I ? (n = a.data.word,
-            z[0].textContent = k("DRAW THIS"),
-            z[1].style.display = "",
-            z[2].style.display = "none",
-            z[1].textContent = n,
+                    Ya(A[o], !1);
+            Y[0].classList.remove("waiting"),
+            R == E ? (n = a.data.word,
+            Y[0].textContent = k("DRAW THIS"),
+            Y[1].style.display = "",
+            Y[2].style.display = "none",
+            Y[1].textContent = n,
             w.classList.remove("hidden"),
             wt()) : (aa(!0),
             ia(a.data.word, !1),
             la(a.data.hints))
         } else {
-            E = -1;
+            R = -1;
             for (o = 0; o < A.length; o++)
-                za(A[o], !1)
+                Ya(A[o], !1)
         }
         if (a.id == ee && 0 < a.data.length) {
             let t = []
@@ -2065,14 +2061,14 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             for (let e = 0; e < a.data.length; e++) {
                 var s = a.data[e][0]
                   , c = a.data[e][1]
-                  , s = P(s);
+                  , s = z(s);
                 s && 0 == c && (n = s.score,
                 t.push(s.name))
             }
             1 == t.length ? m(k("$ won with a score of $!", [t[0], n]), "", g(Ne), !0) : 1 < t.length && m(k("$ and $ won with a score of $!", [t.slice(0, -1).join(", "), t[t.length - 1], n]), "", g(Ne), !0)
         }
         for (o = 0; o < A.length; o++)
-            Pa(A[o], A[o].id == E);
+            za(A[o], A[o].id == R);
         Na()
     }
     function na(e) {
@@ -2093,15 +2089,15 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         A = [],
         T = [],
         N = {
-            id: E = R = -1,
-            time: I = 0,
+            id: R = I = -1,
+            time: E = 0,
             data: 0
         },
         s.querySelector("#home").style.display = "",
         s.querySelector("#game").style.display = "none"
     }
     function ra(e) {
-        r && r.connected && N.id == X && r.emit("data", {
+        r && r.connected && N.id == j && r.emit("data", {
             id: wa,
             data: e
         })
@@ -2112,18 +2108,18 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             n += t[e];
         var a = !e && 1 == T[oe.WORDMODE];
         a && (n = 3),
-        z[0].textContent = k(a ? "WORD HIDDEN" : "GUESS THIS"),
-        z[1].style.display = "none",
-        z[2].style.display = "",
-        S(z[2]),
-        z[2].hints = [];
+        Y[0].textContent = k(a ? "WORD HIDDEN" : "GUESS THIS"),
+        Y[1].style.display = "none",
+        Y[2].style.display = "",
+        S(Y[2]),
+        Y[2].hints = [];
         for (var o = 0; o < n; o++)
-            z[2].hints[o] = b("hint", a ? "?" : "_"),
-            z[2].appendChild(z[2].hints[o]);
-        a || z[2].appendChild(b("word-length", t.join(" ")))
+            Y[2].hints[o] = b("hint", a ? "?" : "_"),
+            Y[2].appendChild(Y[2].hints[o]);
+        a || Y[2].appendChild(b("word-length", t.join(" ")))
     }
     function la(e) {
-        for (var t = z[2].hints, n = 0; n < e.length; n++) {
+        for (var t = Y[2].hints, n = 0; n < e.length; n++) {
             var a = e[n][0]
               , o = e[n][1];
             t[a].textContent = o,
@@ -2131,23 +2127,23 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         }
     }
     function sa(e) {
-        (!z[2].hints || z[2].hints.length < e.length) && ia([e.length], !0);
+        (!Y[2].hints || Y[2].hints.length < e.length) && ia([e.length], !0);
         for (var t = [], n = 0; n < e.length; n++)
             t.push([n, e.charAt(n)]);
         la(t)
     }
     function ca(e) {
-        R = e;
+        I = e;
         for (var t = 0; t < A.length; t++)
-            fe(A[t].element, A[t].id == R),
-            Ea(A[t], 0, A[t].id == R);
-        var n = I != R;
+            fe(A[t].element, A[t].id == I),
+            Ra(A[t], 0, A[t].id == I);
+        var n = E != I;
         s.querySelector("#start-game").disabled = n;
-        for (var a = 0; a < Ya.length; a++) {
-            let e = Ya[a];
+        for (var a = 0; a < Pa.length; a++) {
+            let e = Pa[a];
             e.element.disabled = n
         }
-        e = P(R);
+        e = z(I);
         e && m(k("$ is now the room owner!", e.name), "", g(Ne), !0)
     }
     adplayer = null,
@@ -2196,7 +2192,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                  desc: send lobbydata*/
                 document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: e.data }));
                 /* TYPOEND*/
-            jn(n);
+            Xn(n);
             break;
         case ga:
             ta(n);
@@ -2211,8 +2207,8 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             Ka = n;
             break;
         case da:
-            m(k("$ joined the room!", Aa(n, !0).name), "", g(Ee), !0),
-            In.playSound(wn);
+            m(k("$ joined the room!", Aa(n, !0).name), "", g(Re), !0),
+            En.playSound(wn);
             break;
         case ua:
             var a = function(e) {
@@ -2237,42 +2233,42 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                     return k("$ has been banned!", t)
                 }
             }(n.reason, a.name), "", g(Te), !0),
-            In.playSound(Cn),
+            En.playSound(Cn),
             n.reason != ne && n.reason != ae || Vt(!0));
             break;
         case ha:
-            var a = P(n[0])
-              , o = P(n[1])
+            var a = z(n[0])
+              , o = z(n[1])
               , r = n[2]
               , i = n[3];
-            a && o && m(k("$ is voting to kick $ ($/$)", [a.name, o.name, r, i]), "", g(Ie), !0);
+            a && o && m(k("$ is voting to kick $ ($/$)", [a.name, o.name, r, i]), "", g(Ee), !0);
             break;
         case ba:
-            a = P(n.id);
+            a = z(n.id);
             if (a) {
-                let e = m(k("$ guessed the word!", a.name), "", g(Ee), !0);
+                let e = m(k("$ guessed the word!", a.name), "", g(Re), !0);
                 e.classList.add("guessed"),
-                za(a, !0),
-                In.playSound(qn),
-                n.id == I && sa(n.word)
+                Ya(a, !0),
+                En.playSound(qn),
+                n.id == E && sa(n.word)
             }
             break;
         case pa:
-            o = P(n.id);
+            o = z(n.id);
             o && (r = o,
             i = 0 == n.vote ? "thumbsdown.gif" : "thumbsup.gif",
             (a = b("icon")).style.backgroundImage = "url(/img/" + i + ")",
-            Ra(r, a),
-            n.vote ? m(k("$ liked the drawing!", o.name), "", g(Ee), !0) : m(k("$ disliked the drawing!", o.name), "", g(Te), !0));
+            Ia(r, a),
+            n.vote ? m(k("$ liked the drawing!", o.name), "", g(Re), !0) : m(k("$ disliked the drawing!", o.name), "", g(Te), !0));
             break;
         case ka:
             ca(n);
             break;
         case Sa:
-            m(k("$ is close!", n), "", g(Ie), !0);
+            m(k("$ is close!", n), "", g(Ee), !0);
             break;
         case Ma:
-            Ia(P(n.id), n.msg);
+            Ea(z(n.id), n.msg);
             break;
         case $a:
             m(k("Spam detected! You're sending messages too quickly."), "", g(Te), !0);
@@ -2288,7 +2284,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             break;
         case Ca:
             for (var l = 0; l < n.length; l++)
-                jt(n[l]);
+                Xt(n[l]);
             break;
         case qa:
             Vt(!0);
@@ -2300,7 +2296,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             return void console.log("Unimplemented data packed received with id " + t)
         }
     }
-    function P(e) {
+    function z(e) {
         for (var t = 0; t < A.length; t++) {
             var n = A[t];
             if (n.id == e)
@@ -2324,10 +2320,10 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             bubble: void 0
         }
           , e = (A.push(n),
-        n.id == I ? k("$ (You)", n.name) : n.name)
+        n.id == E ? k("$ (You)", n.name) : n.name)
           , a = b("info")
           , e = b("name", e)
-          , o = (n.id == I && e.classList.add("me"),
+          , o = (n.id == E && e.classList.add("me"),
         a.appendChild(e),
         a.appendChild(b("rank", "#" + n.rank)),
         a.appendChild(b("score", k("$ points", n.score))),
@@ -2336,7 +2332,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
           , e = (n.element.drawing = b("drawing"),
         o.appendChild(n.element.drawing),
         n.element.appendChild(o),
-        zn.appendChild(n.element),
+        Yn.appendChild(n.element),
         v(n.element, "click", function() {
             W = n,
             f(h, n)
@@ -2352,17 +2348,17 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         e.appendChild(r),
         n.element.appendChild(e),
         n.element.icons = [a, r],
-        za(n, n.guessed),
+        Ya(n, n.guessed),
         t && Na(),
         n
     }
-    function Ia(e, t) {
+    function Ea(e, t) {
         var n;
-        e.muted || (n = e.id == E || e.guessed,
-        I != E && !P(I).guessed && n || (Ra(e, b("text", t)),
+        e.muted || (n = e.id == R || e.guessed,
+        E != R && !z(E).guessed && n || (Ia(e, b("text", t)),
         m(e.name, t, g(n ? We : Ae))))
     }
-    function Ra(e, t) {
+    function Ia(e, t) {
         e.bubble && (clearTimeout(e.bubble.timeout),
         e.bubble.remove(),
         e.bubble = void 0);
@@ -2378,16 +2374,16 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             e.bubble = void 0
         }, 1500)
     }
-    function Ea(e, t, n) {
+    function Ra(e, t, n) {
         n ? e.element.icons[t].classList.add("visible") : e.element.icons[t].classList.remove("visible")
     }
     var Ta = void 0;
     function Na() {
         var e = N.id == te
           , t = e ? 112 : 48
-          , n = Math.max(t, zn.clientHeight);
+          , n = Math.max(t, Yn.clientHeight);
         let a = Math.floor(n / t);
-        e && (n = Math.floor(zn.clientWidth / 96),
+        e && (n = Math.floor(Yn.clientWidth / 96),
         a *= n);
         t = Math.ceil(A.length / a);
         for (let e = 0; e < A.length; e++)
@@ -2395,7 +2391,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         e = s.querySelectorAll("#game-players .player-amount b");
         e[0].textContent = A.length,
         e[1].textContent = T[oe.SLOTS],
-        null == Ta ? Ta = ge(Pn, t, [O], function(e, n, t) {
+        null == Ta ? Ta = ge(zn, t, [O], function(e, n, t) {
             let a = [];
             for (let t = 0; t < A.length; t++) {
                 let e = A[t];
@@ -2437,13 +2433,13 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         for (var e = 0; e < A.length; e++)
             Wa(A[e])
     }
-    function za(e, t) {
+    function Ya(e, t) {
         (e.guessed = t) ? e.element.classList.add("guessed") : e.element.classList.remove("guessed")
     }
-    function Pa(e, t) {
+    function za(e, t) {
         e.element.drawing.style.display = t ? "block" : "none"
     }
-    var Ya = [];
+    var Pa = [];
     {
         let e = Nn.querySelectorAll('*[id^="item-"]');
         for (var Ha = 0; Ha < e.length; Ha++) {
@@ -2452,7 +2448,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 element: e[Ha],
                 index: e[Ha].dataset.setting
             };
-            Ya.push(t),
+            Pa.push(t),
             v(t.element, "change", function() {
                 let e = this.value;
                 "checkbox" == this.type && (e = this.checked ? 1 : 0),
@@ -2469,13 +2465,13 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         Ga && (clearInterval(Ga),
         Ga = null)
     }
-    var Va, Za = s.querySelector("#tutorial"), ja = Za.querySelectorAll(".page"), Xa = ge(Za, ja.length, [Za.querySelector(".pages")], function(e, t, n) {
+    var Va, Za = s.querySelector("#tutorial"), Xa = Za.querySelectorAll(".page"), ja = ge(Za, Xa.length, [Za.querySelector(".pages")], function(e, t, n) {
         n && clearInterval(Ja);
-        for (let e = 0; e < ja.length; e++)
-            ja[e].classList.remove("active");
-        ja[t].classList.add("active")
+        for (let e = 0; e < Xa.length; e++)
+            Xa[e].classList.remove("active");
+        Xa[t].classList.add("active")
     }), Ja = setInterval(function() {
-        Xa.selected < 4 ? ye(Xa, Xa.selected + 1, !1) : ye(Xa, 0, !1)
+        ja.selected < 4 ? ye(ja, ja.selected + 1, !1) : ye(ja, 0, !1)
     }, 3500), Qa = s.querySelector("#setting-bar"), eo = s.querySelector("#audio"), to = s.querySelector("#lightbulb");
     function no() {
         Qa.classList.remove("open")
@@ -2486,10 +2482,10 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     function oo() {
         eo.dataset.tooltip = l.audioMute ? "Unmute audio" : "Mute audio",
         to.dataset.tooltip = l.dark ? "Turn the lights on" : "Turn the lights off",
-        y && (y.querySelector(".tooltip-content").textContent = k(ze.dataset.tooltip))
+        y && (y.querySelector(".tooltip-content").textContent = k(Ye.dataset.tooltip))
     }
     function ro() {
-        m(k("Copied room link to clipboard!"), "", g(Ie), !0);
+        m(k("Copied room link to clipboard!"), "", g(Ee), !0);
         var e = "https://skribbl.io/?" + An;
         if (navigator.clipboard)
             navigator.clipboard.writeText(e).then(function() {
@@ -2523,7 +2519,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         r && r.connected ? r.emit("data", {
             id: Ma,
             data: e
-        }) : Ia(P(I), e)
+        }) : Ea(z(E), e)
     }
     v(Qa.querySelector(".icon"), "click", function() {
         ao(eo, l.audioMute),
@@ -2557,7 +2553,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     ,
     v([s, q], "mousedown touchstart", function(e) {
         Qa.contains(e.target) || no(),
-        s.querySelector("#game-toolbar .sizes").contains(e.target) || Yt()
+        s.querySelector("#game-toolbar .sizes").contains(e.target) || Pt()
     }),
     v(u, "resize", Na),
     v([Hn, Un], "change", t),
@@ -2567,7 +2563,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         o = "",
         n = n.split("?"),
         t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o,
-        Rn || (e = "" != t ? "id=" + t : "lang=" + Un.value,
+        In || (e = "" != t ? "id=" + t : "lang=" + Un.value,
         Me(),
         Gn(!0),
         Vn(function() {
@@ -2578,7 +2574,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         }))
     }),
     v(Bn, "click", function() {
-        Rn || (Me(),
+        In || (Me(),
         Gn(!0),
         Vn(function() {
             Kn(location.origin + ":3000/play", "lang=" + Un.value, function(e) {
@@ -2613,28 +2609,28 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     v(s.querySelector("#copy-invite"), "click", ro),
     v(p[h].querySelector("button.kick"), "click", function() {
         Me(),
-        null != W && W.id != I && I == R && r && r.emit("data", {
+        null != W && W.id != E && E == I && r && r.emit("data", {
             id: 3,
             data: W.id
         })
     }),
     v(p[h].querySelector("button.ban"), "click", function() {
         Me(),
-        null != W && W.id != I && I == R && r && r.emit("data", {
+        null != W && W.id != E && E == I && r && r.emit("data", {
             id: 4,
             data: W.id
         })
     }),
     v(p[h].querySelector("button.votekick"), "click", function() {
         Me(),
-        null != W && W.id != I && r && (W.id == R ? m(k("You can not votekick the lobby owner!"), "", g(Te), !0) : r.emit("data", {
+        null != W && W.id != E && r && (W.id == I ? m(k("You can not votekick the lobby owner!"), "", g(Te), !0) : r.emit("data", {
             id: ha,
             data: W.id
         }))
     }),
     v(p[h].querySelector("button.mute"), "click", function() {
-        null != W && W.id != I && (W.muted = !W.muted,
-        Ea(W, 1, W.muted),
+        null != W && W.id != E && (W.muted = !W.muted,
+        Ra(W, 1, W.muted),
         W.muted ? m(k("You muted '$'!", W.name), "", g(Te), !0) : m(k("You unmuted '$'!", W.name), "", g(Te), !0),
         r && r.emit("data", {
             id: 7,
@@ -2654,7 +2650,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         p[h].querySelector("#report-reason-toxic").checked && (e |= 1),
         p[h].querySelector("#report-reason-spam").checked && (e |= 2),
         p[h].querySelector("#report-reason-bot").checked && (e |= 4),
-        0 < e && (null != W && W.id != I && (W.reported = !0,
+        0 < e && (null != W && W.id != E && (W.reported = !0,
         r && r.emit("data", {
             id: 6,
             data: {
@@ -2662,13 +2658,13 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 reasons: e
             }
         }),
-        m(k("Your report for '$' has been sent!", W.name), "", g(Ie), !0)),
+        m(k("Your report for '$' has been sent!", W.name), "", g(Ee), !0)),
         Me())
     }),
     v(p[ke].querySelector("#select-display-language"), "change", function(e) {
         l.displayLang = e.target.value,
         t(),
-        Xe()
+        je()
     }),
     v(p[ke].querySelector("#select-pressure-sensitivity"), "change", function(e) {
         l.pressureSensitivity = e.target.value,
@@ -2718,19 +2714,19 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     var so = s.querySelectorAll("[data-translate]");
     for (let e = 0; e < so.length; e++) {
         var co = so[e];
-        je(co, co.dataset.translate)
+        Xe(co, co.dataset.translate)
     }
     function uo(e) {
         Va.parts[e].classList.remove("bounce"),
         Va.parts[e].offsetWidth,
         Va.parts[e].classList.add("bounce")
     }
-    Xe(),
+    je(),
     v(Bn = s.querySelectorAll("[data-tooltip]"), "mouseenter", function(e) {
-        Pe(e.target)
+        ze(e.target)
     }),
     v(Bn, "mouseleave", function(e) {
-        Ye()
+        Pe()
     }),
     Fn = (st = s.querySelector("#home .avatar-customizer")).querySelector(".container"),
     Za = st.querySelectorAll(".arrows.left .arrow"),

@@ -1,7 +1,7 @@
 const brushtools = {
     groups: {
         color: {
-            rainbow: {
+            /*rainbow: {
                 name: "Rainbow",
                 description: "The brush color is a rainbow color depending on your pen pressure.",
                 enabled: false,
@@ -53,7 +53,7 @@ const brushtools = {
                         document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
                     }
                 }
-            },
+            },*/
             rainbowcircle: {
                 name: "Rainbow Cycle",
                 description: "Cycles through bright rainbow colors, no pen needed.",
@@ -291,6 +291,78 @@ const brushtools = {
                         }
                     }
                 }
+            },
+            noise: {
+                name: "Noise",
+                description: "Draw distorted lines. If you're using a pen, the size is affected by pressure.",
+                enabled: false,
+                options: {
+                    size: {
+                        val: 10,
+                        type: "num"
+                    },
+                    direction: {
+                        val: "top",
+                        type: ["top", "bottom", "left", "right", "vertical", "horizontal", "all"]
+                    }
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.mirror)) {
+                        mode.disable();
+                    }
+                    for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.stroke.noise.enabled = true;
+                },
+                disable: () => {
+                    brushtools.groups.stroke.noise.enabled = false;
+                },
+                pointermoveCallback: (event) => {
+                    if (event.pressure > 0 ) {
+                        const density = 4;
+                        const direction = brushtools.groups.stroke.noise.options.direction.val;
+                        const size = brushtools.groups.stroke.noise.options.size.val * 10;
+                        const amount = density; 
+                        const offset = event.pressure  * size;
+                        
+                        for (let i = 1; i < amount; i++) {
+                            let vertical = Math.random() * offset * 2 - offset;
+                            let horizontal = Math.random() * offset * 2 - offset;
+
+                            switch(direction){
+                                case "top":
+                                    vertical = -Math.abs(vertical);
+                                    horizontal = horizontal * 0.6;
+                                    break;
+                                case "bottom":
+                                    vertical = Math.abs(vertical);
+                                    horizontal = horizontal * 0.6;
+                                    break;
+                                case "left":
+                                    horizontal = -Math.abs(horizontal);
+                                    vertical = vertical * 0.6;
+                                    break;
+                                case "right":
+                                    horizontal = Math.abs(horizontal);
+                                    vertical = vertical * 0.6;
+                                    break;
+                                case "vertical": 
+                                    horizontal = horizontal * 0.3;
+                                    break;
+                                case "horizontal":
+                                    vertical = vertical * 0.3;
+                                    break;
+                            }
+
+                            let clone = new MouseEvent("mousemove", event);
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX + horizontal});
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY + vertical});
+                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
+                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", event));
+                        }
+                    }
+                }
             }
 		}
     },
@@ -367,7 +439,7 @@ const brushtools = {
                     <input id="brushmagicToggle${name}" type="checkbox" class="flatUI"></input>
                     <span>${mode.name}</span>
                 </label>
-                <span>${mode.description}</span>
+                <span style="font-style:italic">${mode.description}</span>
                 </div>`);
                 modeDetails.querySelector("input").addEventListener("input", (event) => {
                     if (event.target.checked) mode.enable();
@@ -399,7 +471,7 @@ const brushtools = {
 
         brushtools.showSettings = () => {
             updateStates();
-            if (!brushtools.modal) brushtools.modal = new Modal(settingsContent, () => { }, "Brush Laboratory");
+            if (!brushtools.modal) brushtools.modal = new Modal(settingsContent, () => { brushtools.modal = null; }, "Brush Laboratory");
             else {
                 brushtools.modal.close();
                 brushtools.modal = null;

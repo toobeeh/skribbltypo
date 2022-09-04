@@ -233,7 +233,14 @@
     background: #e2e2e2 !important;
     padding:.5em;
     /*box-shadow: #00000091 0px 2px 2px 0px;*/
-} .flatUI:hover, .flatUI:focus, .flatUI:active {
+}
+input[type=checkbox].flatUI:focus{
+    border-bottom: 0px
+}
+ input[type=checkbox].flatUI:checked::before{
+    opacity: 0
+ }
+ .flatUI:hover, .flatUI:focus, .flatUI:active {
         background: #d4d4d4 !important;
     } .flatUI.orange {
         background: #ffbf1f !important;

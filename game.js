@@ -1,1 +1,2624 @@
-﻿!function (u, c, n, a) { const s = "#CCCC00", d = "#3975CE", h = "#56CE27", f = "#CE4F0A", o = "#ffa844", p = d, l = 18, i = 52, g = 49, t = [l, i, g]; const y = ["Everyone guessed the word!", "Time is up!", "The drawer left the game!", "The drawer received too many thumbs down!", "The drawer has been kicked!"], v = 0, S = 1, b = 2, k = 3, m = 4, C = 5, w = 6, q = 7; const r = 1, x = 2, M = [" left the room!", " has been kicked!", " has been banned!"], L = { NAME: 0, LANG: 1, PUBLIC: 2, SLOTS: 3, DRAWTIME: 4, ROUNDS: 5, WORDCOUNT: 6, HINTCOUNT: 7, WORDMODE: 8, CUSTOMWORDSONLY: 9 }; var I = { avatar: [Math.round(100 * Math.random()) % l, Math.round(100 * Math.random()) % i, Math.round(100 * Math.random()) % g], audio_mute: 0, filterChat: !0 }; function D(e, t) { e = n.getItem(e); return null == e ? t : e } function A() { u.localStorageAvailable && (n.setItem("name", wn.value), n.setItem("lang", qn.value), n.setItem("audio", I.audio_mute ? 1 : 0), n.setItem("ava", JSON.stringify(I.avatar)), console.log("Settings saved.")) } function E(e, t, n) { var a, o = e; "string" == typeof e ? o = c.querySelectorAll(e) : "[object Array]" !== (a = Object.prototype.toString.call(e)) && "[object NodeList]" !== a && "[object HTMLCollection]" !== a && (o = [e]); for (var r = t.split(" "), l = 0; l < o.length; l++)for (var i = 0; i < r.length; i++)o[l].addEventListener(r[i], n) } function T(e, t) { for (var n = c.createElement("div"), a = e.split(" "), o = 0; o < a.length; o++)n.classList.add(a[o]); return void 0 !== t && (n.textContent = t), n } function N(e) { return parseFloat(getComputedStyle(e, null).width.replace("px", "")) } function O(e) { for (; e.firstChild;)e.removeChild(e.firstChild) } function R(e, t, n) { var a = T("avatar"), o = T("color"), r = T("eyes"), l = T("mouth"), i = T("special"), c = T("owner"); return c.style.display = n ? "block" : "none", a.appendChild(o), a.appendChild(r), a.appendChild(l), a.appendChild(i), a.appendChild(c), a.parts = [o, r, l], Y(a, e, t || 48), a } function Y(e, t, n) { function a(e, t, n, a) { var o = -t % n * 100, n = 100 * -Math.floor(t / n); e.style.backgroundPosition = o + "% " + n + "%" } var o = t[0] % l, r = t[1] % i, n = t[2] % g, t = t[3]; a(e.querySelector(".color"), o, 10), a(e.querySelector(".eyes"), r, 10), a(e.querySelector(".mouth"), n, 10); e = e.querySelector(".special"); 0 <= t ? (e.style.display = "", a(e, t, 10)) : e.style.display = "none" } function F(e, t) { e.querySelector(".owner").style.display = t ? "block" : "none" } function U(e, t, n, a) { let o = { element: T("dots"), dots: [], selected: 0, change: a }; return e.appendChild(o.element), n.push(o.element), E(n, "DOMMouseScroll wheel", function (e) { var t; 1 < o.dots.length && (t = -e.deltaY || e.wheelDeltaY, t = Math.sign(t), _(o, Math.min(o.dots.length - 1, Math.max(0, o.selected - t)), !0)), e.preventDefault(), e.stopPropagation() }), P(o, t), o } function P(n, e) { O(n.element), n.dots = []; for (let t = 0; t < e; t++) { let e = T("dot"); e.appendChild(T("inner")), E(e, "click", function () { _(n, t, !0) }), n.element.appendChild(e), n.dots.push(e) } _(n, n.selected, !1) } function _(t, e, n) { if (0 <= e && e < t.dots.length) { t.selected = e; for (let e = 0; e < t.dots.length; e++)t.dots[e].classList.remove("active"); t.dots[e].classList.add("active"), t.change(t, e, n) } } const j = 0, H = 1, W = 2, z = 3; const X = 5; var B = c.querySelector("#modal"), G = B.querySelector(".title .text"), J = B.querySelector(".content"), K = []; function V(e) { K[j].querySelector(".buttons button.mute").textContent = e ? "Unmute" : "Mute" } function Z(e, t) { B.style.display = "block"; for (var n = 0; n < K.length; n++)K[n].style.display = "none"; switch (K[e].style.display = "flex", e) { case H: G.textContent = "Something went wrong!", K[H].querySelector(".message").textContent = t; break; case W: G.textContent = "Disconnected!", K[W].querySelector(".message").textContent = t; break; case j: G.textContent = ""; var a = K[j].querySelector(".buttons"); a.style.display = t.id == sn ? "none" : "flex", a.querySelector(".button-pair").style.display = sn == dn ? "flex" : "none", V(t.muted); var o = J.querySelector(".player"); O(o); a = R(t.avatar, 96); F(a, dn == t.id), a.style.width = "96px", a.style.height = "96px", o.appendChild(a), o.appendChild(T("name", t.id == sn ? t.name + " (You)" : t.name)); break; case z: G.textContent = "Rooms", oe(t); break; case z: G.textContent = t.name; break; case X: G.textContent = "Settings" } } K[j] = B.querySelector(".container-player"), K[H] = B.querySelector(".container-info"), K[W] = B.querySelector(".container-info"), K[z] = B.querySelector(".container-rooms"), K[4] = B.querySelector(".container-room"), K[X] = B.querySelector(".container-settings"); var $ = [], Q = [], ee = 0, te = 0, ne = K[z].querySelector(".rooms"), e = K[z].querySelector(".footer"), ae = K[z].querySelector(".dots"); function oe(t) { $ = [], O(ne), O(ae); for (let e = te = ee = 0; e < t.length; e++)!function (e) { console.log(e.settings[L.SLOTS]); let t = T("room"); t.appendChild(T("name", e.settings[L.NAME])), t.appendChild(T("slots", e.users + "/" + e.settings[L.SLOTS])), t.appendChild(T("round", 0 < e.round ? e.round : "Not started")), t.appendChild(T("settings", e.settings[L.DRAWTIME] + "s")), ne.appendChild(t), $.push({ element: t, page: 0, data: e }), E(t, "click", function () { An(e.id) }) }(t[e]); !function () { K[z].querySelector(".desc"); if (0 < $.length) { let n = 0, a = 0; for (let t = 0; t < $.length; t++) { let e = $[t]; e.page = a, n++, 10 <= n && (a++, n = 0) } if (ee = a + Math.ceil(n / 10), Q = [], 1 < ee) { ae.style.display = "", O(ae); for (let e = 0; e < ee; e++) { var t = T("dot"); ae.appendChild(t), E(t, "click", function () { re(e) }), Q.push(t) } re(te) } else ae.style.display = "none" } else ne.textContent = "No rooms found :(" }() } function re(e) { te = e; for (let t = 0; t < $.length; t++) { let e = $[t]; e.element.style.display = e.page == te ? "" : "none" } for (let e = 0; e < Q.length; e++)Q[e].classList.remove("active"); Q[e].classList.add("active") } function le() { B.style.display = "none" } E([ne, e], "DOMMouseScroll wheel", function (e) { var t; 1 < ee && (t = -e.deltaY || e.wheelDeltaY, t = Math.sign(t), re(Math.min(ee - 1, Math.max(0, te - t)))), e.preventDefault() }), E(u, "click", function (e) { e.target == B && le() }), E([B.querySelector(".close"), K[H].querySelector("button.ok")], "click", le); var ie = c.querySelector("#game-chat form"), ce = c.querySelector("#game-chat form input"), se = c.querySelector("#game-chat .content"); const de = ["neger", "negro", "nigger", "nigga", "cunt", "fuck", "fucker", "fucking", "fucked", "fucktard", "kill", "rape", "cock", "dick", "asshole", "slut", "whore", "semen", "fag", "faggot", "retard", "retarded", "arsch", "arschloch", "hurensohn", "fotze", "muschi", "schlampe", "pisser", "missgeburt", "nutte", "nuttensohn", "hundesohn", "hure", "ficker", "ficken", "fick", "spast", "spasti", "spastiker", "hailhitler", "heilhitler", "sieghail", "siegheil", "nazi"], ue = [["i", "î", "1", "!", "|"], ["e", "3", "€", "³"], ["a", "4", "@"], ["o", "ö", "0"], ["g", "q"], ["s", "$"]]; function he(e) { for (var t, n, a = e.toLocaleLowerCase("en-US"), o = 0; o < ue.length; o++)for (var r = ue[o], l = 1; l < r.length; l++)t = r[l], n = r[0], a = a.split(t).join(n); for (var a = a.replace(/[^A-Z^a-z0-9^가-힣]/g, "*"), i = "", c = [], o = 0; o < a.length; o++) { var s = a.charAt(o); "*" != s && (i += s, c.push(o)) } for (o = 0; o < de.length; o++)for (var d = de[o], u = -1; -1 != (u = i.indexOf(d, u + 1));) { var h = c[u], f = c[u + d.length - 1], p = d.length, p = "*".repeat(p); e = e.slice(0, h) + p + e.slice(f + 1) } return e } function fe(e, t, n, a) { var o = c.createElement("p"), r = c.createElement("b"); r.textContent = a ? e : e + ": ", r.style.color = n, o.appendChild(r); r = c.createElement("span"); r.textContent = t, r.style.color = n, o.appendChild(r); r = se.scrollHeight - se.scrollTop - se.clientHeight <= 20; se.appendChild(o), r && (se.scrollTop = se.scrollHeight + 100) } const pe = 0, ge = 1; const me = 0, ye = 1, ve = 2; const Se = 4, be = 40; var ke, Ce = c.querySelector("#game-toolbar"), we = Ce.querySelectorAll(".tools-container .tools")[0], qe = Ce.querySelectorAll(".tools-container .tools")[1], xe = (ke = Ce.querySelector(".tool")).parentElement.removeChild(ke); function Me(e, t, n) { var a = xe.cloneNode(!0); a.toolIndex = t, a.querySelector(".icon").style.backgroundImage = "url(/img/" + n.graphic + ")", a.querySelector(".key").textContent = n.hotkey; n.id = t, n.element = a, e ? (a.addEventListener("click", function (e) { lt(this.toolIndex) }), qe.appendChild(a), Ie[t] = n) : (a.addEventListener("click", function (e) { it(this.toolIndex) }), we.appendChild(a), Le[t] = n) } var Le = []; Me(!1, me, { name: "Brush", hotkey: "B", graphic: "pen.gif", cursor: 0 }), Me(!1, ye, { name: "Pick", hotkey: "V", graphic: "pick.gif", cursor: "url(/img/pick_cur.png) 7 36, default" }), Me(!1, ve, { name: "Fill", hotkey: "F", graphic: "fill.gif", cursor: "url(/img/fill_cur.png) 7 38, default" }); var Ie = []; Me(!0, 0, { name: "Undo", hotkey: "U", graphic: "undo.gif", action: function () { !function () { { var e; 0 < Ye.length && (Ye.pop(), 0 < Ye.length ? (pt(e = Ye[Ye.length - 1]), ln && ln.emit("data", { id: la, data: e })) : St()) } }() } }), Me(!0, 1, { name: "Clear", hotkey: "C", graphic: "clear.gif", action: function () { St() } }); var De = c.querySelector("#game-canvas canvas"), Ae = De.getContext("2d"), Ee = [], Te = 0, Ne = 0, Oe = [], Re = [0, 9999, 9999, 0, 0], Ye = [], Fe = [0, 0], Ue = [0, 0], Pe = 0, _e = c.createElement("canvas"); _e.width = be + 2, _e.height = be + 2; var je = _e.getContext("2d"); function He() { var e = Le[ze].cursor; if (fn.id == m && un == sn) { if (ze == me) { var t = _e.width, n = Je; if (n <= 0) return; je.clearRect(0, 0, t, t), je.fillStyle = ht(Ge[Xe]), je.beginPath(), je.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), je.fill(), je.strokeStyle = "#FFF", je.beginPath(), je.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), je.stroke(), je.strokeStyle = "#000", je.beginPath(), je.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), je.stroke(); t = t / 2, e = "url(" + _e.toDataURL() + ")" + t + " " + t + ", default" } } else e = "default"; De.style.cursor = e } for (var We = 0, ze = 0, Xe = 0, Be = 0, Ge = [[255, 255, 255], [80, 80, 80], [0, 0, 0], [210, 210, 210], [168, 168, 168], [126, 126, 126], [239, 19, 11], [183, 6, 0], [86, 8, 6], [255, 113, 0], [206, 67, 12], [137, 39, 0], [255, 228, 0], [232, 162, 0], [163, 103, 0], [0, 204, 0], [0, 114, 21], [0, 61, 3], [0, 255, 145], [0, 158, 114], [0, 120, 93], [0, 178, 255], [0, 86, 158], [0, 59, 120], [35, 31, 211], [18, 11, 145], [8, 3, 82], [163, 0, 186], [108, 0, 135], [65, 0, 81], [211, 124, 170], [167, 85, 116], [118, 48, 75], [255, 172, 142], [226, 139, 93], [204, 119, 77], [160, 82, 45], [99, 48, 13], [72, 28, 0]], Je = 0, Ke = -1, Ve = [], Ze = 6, $e = 0; $e < Ze; $e++) { var Qe = $e / (Ze - 1), et = 11 + 32 * (1 - Qe), tt = (Se, be, Se, c.createElement("div")); tt.classList.add("size"); Qe = c.createElement("div"); Qe.classList.add("icon"), Qe.style.borderRadius = "100%", Qe.style.left = et + "%", Qe.style.right = et + "%", Qe.style.top = et + "%", Qe.style.bottom = et + "%", tt.appendChild(Qe), c.querySelector("#game-toolbar .color-picker .sizes").appendChild(tt), Ve.push([tt, Qe]) } function nt(e) { for (var t = 0; t < Ze; t++)Ve[t][1].style.backgroundColor = e } function at() { var e = (Je - Se) / (be - Se), t = N(Ce.querySelector(".slider .track")), n = N(Ce.querySelector(".slider")), n = ((n - t) / 2 + e * t) / n; Ce.querySelector(".slider .knob").style.left = 100 * e + "%", Ce.querySelector(".slider .bar-fill").style.width = 100 * n + "%"; e = Ce.querySelector(".color-picker .preview .graphic .brush"), n = Je + 10; e.style.width = n + "px", e.style.height = n + "px", Ce.querySelector(".color-picker .preview .size").textContent = Je + "px" } function ot(e) { Je = Ct(e, Se, be), at(), He() } function rt(e) { e.classList.remove("clicked"), e.offsetWidth, e.classList.add("clicked") } function lt(e) { rt(Ie[e].element), Ie[e].action() } function it(e, t) { rt(Le[e].element), e == ze && !t || (Le[We = ze].element.classList.remove("selected"), Le[e].element.classList.add("selected"), ze = e, He()) } function ct(e) { var t = ht(Ge[e]); nt(t), Xe = e, c.querySelector("#color-preview-primary").style.fill = t, He() } function st(e) { var t = ht(Ge[e]); nt(t), Be = e, c.querySelector("#color-preview-secondary").style.fill = t, He() } function dt() { Ce.querySelector(".color-picker .brushmenu").classList.remove("open"), Ce.querySelector(".color-picker .preview").classList.remove("open") } for ($e = 0; $e < Ge.length / 3; $e++)Ce.querySelector(".top").appendChild(ut(3 * $e)), Ce.querySelector(".mid").appendChild(ut(3 * $e + 1)), Ce.querySelector(".bottom").appendChild(ut(3 * $e + 2)); function ut(e) { var t = T("item"), n = T("inner"); return n.style.backgroundColor = ht(Ge[e]), t.appendChild(n), t.colorIndex = e, t } function ht(e) { return "rgb(" + e[0] + "," + e[1] + "," + e[2] + ")" } function ft(e) { e = Ct(e, 0, Ge.length), e = Ge[e]; return { r: e[0], g: e[1], b: e[2] } } function pt(e) { if (Ee = Ee.slice(0, e), !(sn != un && Ne < e)) { Re = mt(); e = Math.floor(Ee.length / gt); console.log("canvas cache is: " + Oe.length), console.log("keeping: " + e), Oe = Oe.slice(0, e), xt(), console.log("applied " + Oe.length + " cached canvas imgs."); for (var t = 0; t < Oe.length; t++) { var n = Oe[t]; Ae.putImageData(n.data, n.bounds[1], n.bounds[2]) } e = Oe.length * gt; console.log("redrawn " + (Ee.length - e) + " drawCommands"); for (t = e; t < Ee.length; t++)yt(kt(Ee[t])); Te = Math.min(Ee.length, Te), Ne = Math.min(Ee.length, Ne) } } const gt = 100; function mt() { return [0, 9999, 9999, 0, 0] } function yt(e) { var t, n, a, o; Re[0] += 1, Re[1] = Math.min(Re[1], e[0]), Re[2] = Math.min(Re[2], e[1]), Re[3] = Math.max(Re[3], e[2]), Re[4] = Math.max(Re[4], e[3]), Re[0] >= gt && (t = Re[1], n = Re[2], a = Re[3], o = Re[4], e = Ae.getImageData(t, n, a - t, o - n), Oe.push({ data: e, bounds: Re }), Re = mt(), console.log("stashed image data with bounds of " + t + ", " + n + ", " + a + ", " + o + " (" + (a - t) + "x" + (o - n) + "px)")) } function vt(e) { return (e || 0 < Ee.length || 0 < Ye.length || 0 < Te || 0 < Ne) && (Ee = [], Ye = [], Te = Ne = 0, Re = mt(), Oe = [], xt(), 1) } function St() { vt() && ln && ln.emit("data", { id: ra }) } function bt(e) { Ee.push(e), sn == un && yt(kt(e)) } function kt(e) { var t = [0, 0, De.width, De.height]; switch (e[0]) { case pe: var n = Ct(Math.floor(e[2]), Se, be), a = Math.floor(Math.ceil(n / 2)), o = Ct(Math.floor(e[3]), -a, De.width + a), r = Ct(Math.floor(e[4]), -a, De.height + a), l = Ct(Math.floor(e[5]), -a, De.width + a), i = Ct(Math.floor(e[6]), -a, De.height + a), c = ft(e[1]); t[0] = Ct(o - a, 0, De.width), t[1] = Ct(r - a, 0, De.height), t[2] = Ct(l + a, 0, De.width), t[3] = Ct(i + a, 0, De.height), qt(o, r, l, i, n, c.r, c.g, c.b); break; case ge: c = ft(e[1]); !function (e, t, a, o, r) { var l = Ae.getImageData(0, 0, De.width, De.height), n = [[e, t]], i = function (e, t, n) { t = 4 * (n * e.width + t); return 0 <= t && t < e.data.length ? [e.data[t], e.data[1 + t], e.data[2 + t]] : [0, 0, 0] }(l, e, t); if (a != i[0] || o != i[1] || r != i[2]) { function c(e) { var t = l.data[e], n = l.data[e + 1], e = l.data[e + 2]; if (t == a && n == o && e == r) return !1; t = Math.abs(t - i[0]), n = Math.abs(n - i[1]), e = Math.abs(e - i[2]); return t < 1 && n < 1 && e < 1 } for (var s, d, u, h, f, p, g = l.height, m = l.width; n.length;) { for (s = n.pop(), d = s[0], u = s[1], h = 4 * (u * m + d); 0 <= u-- && c(h);)h -= 4 * m; for (h += 4 * m, ++u, p = f = !1; u++ < g - 1 && c(h);)wt(l, h, a, o, r), 0 < d && (c(h - 4) ? f || (n.push([d - 1, u]), f = !0) : f = f && !1), d < m - 1 && (c(h + 4) ? p || (n.push([d + 1, u]), p = !0) : p = p && !1), h += 4 * m } Ae.putImageData(l, 0, 0) } }(Ct(Math.floor(e[2]), 0, De.width), Ct(Math.floor(e[3]), 0, De.height), c.r, c.g, c.b) }return t } function Ct(e, t, n) { return e < t ? t : n < e ? n : e } function wt(e, t, n, a, o) { 0 <= t && t < e.data.length && (e.data[t] = n, e.data[t + 1] = a, e.data[t + 2] = o, e.data[t + 3] = 255) } function qt(e, t, n, a, o, r, l, i) { var c = Math.floor(o / 2), s = c * c, d = Math.min(e, n) - c, u = Math.min(t, a) - c, h = Math.max(e, n) + c, o = Math.max(t, a) + c; e -= d, t -= u, n -= d, a -= u; function f(e, t) { for (var n = -c; n <= c; n++)for (var a, o = -c; o <= c; o++)n * n + o * o < s && (0 <= (a = 4 * ((t + o) * p.width + e + n)) && a < p.data.length && (p.data[a] = r, p.data[1 + a] = l, p.data[2 + a] = i, p.data[3 + a] = 255)) } var p = Ae.getImageData(d, u, h - d, o - u); if (e == n && t == a) f(e, t); else { f(e, t), f(n, a); var g = Math.abs(n - e), m = Math.abs(a - t), y = e < n ? 1 : -1, v = t < a ? 1 : -1, S = g - m; for (Math.floor(Math.max(0, c - 10) / 5); e != n || t != a;) { var b = S << 1; -m < b && (S -= m, e += y), b < g && (S += g, t += v), f(e, t) } } Ae.putImageData(p, d, u) } function xt() { Ae.fillStyle = "#FFF", Ae.fillRect(0, 0, De.width, De.height) } var Mt = !1; function Lt(e) { var t = c.querySelector("#game-toolbar .slider .track").getBoundingClientRect(); ot(Se + Math.round(Ct((e - t.left) / t.width, 0, 1) * (be - Se))) } E("#game-toolbar .slider", "mousedown", function (e) { 0 == e.button && (Mt = !0, Lt(e.clientX)) }), E("#game-toolbar .slider", "touchstart", function (e) { Mt = !0, Lt(e.touches[0].clientX) }), E(Ce, "contextmenu", function (e) { return e.preventDefault(), !1 }), E("#game-toolbar .color-picker .colors * .item", "mousedown", function (e) { var t = this.colorIndex; 0 == e.button ? (e.altKey ? st : ct)(t) : 2 == e.button && st(t) }); var It = Ce.querySelector(".color-picker .preview"), Dt = Ce.querySelector(".color-picker .brushmenu"); E([De, It, Dt], "DOMMouseScroll wheel", function (e) { e.preventDefault(); e = -e.deltaY || e.wheelDeltaY, e = Math.sign(e); ot(Je + 4 * e) }), E(It, "click", function (e) { this.classList.contains("open") ? dt() : (Ce.querySelector(".color-picker .brushmenu").classList.add("open"), Ce.querySelector(".color-picker .preview").classList.add("open"), at()) }), E([c, De], "mousedown touchstart", function (e) { e.target != It && (Dt.contains(e.target) || dt()) }), E(c, "keypress", function (e) { if ("Enter" == e.code) return ce.focus(), 0; if ("input" == c.activeElement.tagName.toLowerCase() || "textarea" == c.activeElement.tagName.toLowerCase() || -1 != Ke) return 0; for (var t = 0; t < Le.length; t++)if (Le[t].hotkey.toLowerCase() == e.key) return it(Le[t].id), e.preventDefault(), 0; for (t = 0; t < Ie.length; t++)if (Ie[t].hotkey.toLowerCase() == e.key) return lt(Ie[t].id), e.preventDefault(), 0 }), E(c, "touchmove", function (e) { Mt && Lt(e.touches[0].clientX) }), E(c, "touchend touchcancel", function (e) { Mt = !1 }), E(De, "contextmenu", function (e) { return e.preventDefault(), !1 }), E(De, "mousedown", function (e) { e.preventDefault(), 0 != e.button && 2 != e.button || -1 != Ke || Rt(e.button, e.clientX, e.clientY, !0, -1) }), E(c, "mouseup", function (e) { e.preventDefault(), Yt(e.button), Mt = !1 }), E(c, "mousemove", function (e) { Ot(e.clientX, e.clientY, !1, -1), Mt && Lt(e.clientX) }); var At = null; function Et(e, t, n, a) { var o = De.getBoundingClientRect(), e = Math.floor((e - o.left) / o.width * De.width), o = Math.floor((t - o.top) / o.height * De.height); a ? (Pe = n, Ue[0] = Fe[0] = e, Ue[1] = Fe[1] = o) : (Ue[0] = Fe[0], Ue[1] = Fe[1], Pe = n, Fe[0] = e, Fe[1] = o) } E(De, "touchstart", function (e) { e.preventDefault(); e = e.changedTouches; 0 < e.length && null == At && (At = e[0].identitfier, Rt(0, e[0].clientX, e[0].clientY, !0, e[0].force)) }), E(De, "touchend touchcancel", function (e) { e.preventDefault(), Yt(Ke) }), E(De, "touchmove", function (e) { e.preventDefault(); for (var t = e.changedTouches, n = 0; n < t.length; n++)if (t[n].identitfier == At) { Ot(t[n].clientX, t[n].clientY, !1, t[n].force); break } }); var Tt = !1, Nt = 0; setInterval(function () { Tt && (Ft(!1), Tt = !1) }, 1e3 / 90); function Ot(e, t, n, a) { Tt || (Tt = !0, Et(e, t, a, n)) } function Rt(e, t, n, a, o) { Ee.length, Ke = e, Et(t, n, o, a), Ft(!0) } function Yt(e) { -1 == e || 0 != e && 2 != e || Ke != e || (Nt = Ee.length, Ye.push(Nt), At = null, Ke = -1) } function Ft(e) { if (fn.id == m && un == sn && -1 != Ke) { var t = 0 == Ke ? Xe : Be, n = null; if (e && (ze == ve && (o = t, r = Fe[0], l = Fe[1], n = [ge, o, r, l]), ze == ye)) { var a = function (e, t) { for (var n = (t = Ae.getImageData(e, t, 1, 1)).data[0], a = t.data[1], o = t.data[2], r = 0; r < Ge.length; r++) { var l = Ge[r], i = l[0] - n, c = l[1] - a, l = l[2] - o; if (0 == i && 0 == c && 0 == l) return r } return r }(Fe[0], Fe[1]); return (0 == Ke ? ct : st)(a), void it(We) } ze == me && (e = Je, 0 <= Pe && (e = (Je - Se) * Ct(Pe, 0, 1) + Se), o = t, r = e, l = Ue[0], a = Ue[1], t = Fe[0], e = Fe[1], n = [pe, o, r, l, a, t, e]), null != n && bt(n) } var o, r, l } setInterval(() => { var e, t; ln && fn.id == m && un == sn && 0 < Ee.length - Te && (t = Ee.slice(Te, e = Te + 8), ln.emit("data", { id: oa, data: t }), Te = Math.min(e, Ee.length)) }, 50), setInterval(function () { ln && fn.id == m && un != sn && Ne < Ee.length && (yt(kt(Ee[Ne])), Ne++) }, 3); var Ut = c.querySelector("#game-canvas .overlay"), Pt = c.querySelector("#game-canvas .overlay-content"), _t = c.querySelector("#game-canvas .overlay-content .text"), jt = c.querySelector("#game-canvas .overlay-content .words"), Ht = c.querySelector("#game-canvas .overlay-content .reveal"), Wt = c.querySelector("#game-canvas .overlay-content .result"), zt = -100, Xt = 0, Bt = void 0; function Gt(e, r, l) { let i = zt, c = Xt, s = e.top - i, d = e.opacity - c; if (Math.abs(s) < .001 && Math.abs(d) < .001) l && l(); else { let a = void 0, o = 0; Bt = u.requestAnimationFrame(function e(t) { null == a && (a = t); var n = t - a; a = t, o = Math.min(o + n, r); t = o / r, n = (n = t) < .5 ? .5 * function (e, t) { return e * e * ((t + 1) * e - t) }(2 * n, 1.2 * 1.5) : .5 * (function (e, t) { return e * e * ((t + 1) * e + t) }(2 * n - 2, 1.2 * 1.5) + 2), t = t * t * (3 - 2 * t); zt = i + s * n, Xt = c + d * t, Pt.style.top = zt + "%", Ut.style.opacity = Xt, o == r ? l && l() : Bt = u.requestAnimationFrame(e) }) } } function Jt(e) { e.classList.add("show") } function Kt(e) { e.classList.remove("show") } function Vt(t) { switch (!function () { for (var e = 0; e < Pt.children.length; e++)Kt(Pt.children[e]) }(), t.id) { case b: Jt(_t), _t.textContent = "Round " + (t.data + 1); break; case v: Jt(_t), _t.textContent = "Waiting for players..."; break; case S: Jt(_t), _t.textContent = "Game starting in a few seconds..."; break; case C: Jt(Ht), Ht.querySelector("p span.word").textContent = t.data.word, Ht.querySelector(".reason").textContent = y[t.data.reason]; var e = Ht.querySelector(".player-container"); O(e); for (var n = [], a = 0; a < t.data.scores.length; a += 3) { var o = t.data.scores[a + 0], r = (t.data.scores[a + 1], t.data.scores[a + 2]); (c = da(o)) && n.push({ name: c.name, score: r }) } n.sort(function (e, t) { return t.score - e.score }); for (a = 0; a < n.length; a++) { var i = T("player"), c = n[a]; i.appendChild(T("name", c.name)); var s = T("score", (0 < c.score ? "+" : "") + c.score); c.score <= 0 && s.classList.add("zero"), i.appendChild(s), e.appendChild(i) } break; case w: Jt(Wt); let l = [Wt.querySelector(".podest-1"), Wt.querySelector(".podest-2"), Wt.querySelector(".podest-3"), Wt.querySelector(".ranks")]; for (let e = 0; e < 4; e++)O(l[e]); if (0 < t.data.length) { let r = [[], [], [], []]; for (let e = 0; e < t.data.length; e++) { var d = { player: da(t.data[e][0]), rank: t.data[e][1], title: t.data[e][2] }; d.player && r[Math.min(d.rank, 3)].push(d) } for (let o = 0; o < 3; o++) { let a = r[o]; if (0 < a.length) { var u = a.map(function (e) { return e.player.name }).join(", "), h = a[0].player.score; let e = l[o]; e.appendChild(T("rank-place", "#" + (o + 1))), e.appendChild(T("rank-name", u)), e.appendChild(T("rank-score", h + " points")); let n = T("avatar-container"); e.appendChild(n), 0 == o && n.appendChild(T("trophy")); for (let t = 0; t < a.length; t++) { let e = R(a[t].player.avatar, 96, 0 == o); e.style.width = "96px", e.style.height = "96px", e.style.left = 16 * -(a.length - 1) + 32 * t + "px", 0 == o && (e.classList.add("winner"), e.style.animationDelay = -2.35 * t + "s"), n.appendChild(e) } } } var f = Math.min(5, r[3].length); for (let n = 0; n < f; n++) { var p = r[3][n]; let e = T("rank"), t = R(p.player.avatar, 48, !1); t.style.width = "48px", t.style.height = "48px", e.appendChild(t), e.appendChild(T("rank-name", "#" + (p.rank + 1) + " " + p.player.name)), e.appendChild(T("rank-score", p.player.score + " points")), l[3].appendChild(e) } 0 < r[0].length ? (m = r[0].map(function (e) { return e.player.name }).join(", "), Wt.querySelector(".winner-name").textContent = 0 < r[0].length ? m : "<user left>", Wt.querySelector(".winner-text").textContent = 1 == r[0].length ? " is the winner!" : " are the winners!") : (Wt.querySelector(".winner-name").textContent = "", Wt.querySelector(".winner-text").textContent = "Nobody won!") } else Wt.querySelector(".winner-name").textContent = "", Wt.querySelector(".winner-text").textContent = "Nobody won!"; break; case k: if (t.data.words) { Jt(_t), Jt(jt), _t.textContent = "Choose a word", O(jt); for (a = 0; a < t.data.words.length; a++) { var g = T("word", t.data.words[a]); g.index = a, E(g, "click", function () { var e; e = this.index, ln && ln.connected && fn.id == k && ln.emit("data", { id: aa, data: e }) }), jt.appendChild(g) } } else { Jt(_t); var m = (c = da(t.data.id)) ? c.name : "User"; _t.textContent = m + " is choosing a word!" } } } const Zt = 0, $t = 1, Qt = 2, en = 3, tn = 4, nn = 5, an = 6; function on(e, t) { this.url = t, this.buffer = null, this.loaded = !1; var n = this, a = new XMLHttpRequest; a.open("GET", t, !0), a.responseType = "arraybuffer", a.onload = function () { e.context.decodeAudioData(a.response, function (e) { n.buffer = e, n.loaded = !0 }, function (e) { console.log("Failed loading audio from url '" + t + "'") }) }, a.send() } var rn = function () { this.context = null, this.sounds = new Map, u.addEventListener("load", this.load.bind(this), !1) }; rn.prototype.addSound = function (e, t) { this.sounds.set(e, new on(this, t)) }, rn.prototype.loadSounds = function () { this.addSound(Zt, "/audio/roundStart.ogg"), this.addSound($t, "/audio/roundEndSuccess.ogg"), this.addSound(Qt, "/audio/roundEndFailure.ogg"), this.addSound(en, "/audio/join.ogg"), this.addSound(tn, "/audio/leave.ogg"), this.addSound(nn, "/audio/playerGuessed.ogg"), this.addSound(an, "/audio/tick.ogg") }, rn.prototype.playSound = function (e) { var t, n; null != this.context && ("running" == this.context.state ? null == this.context || I.audio_mute || !this.sounds.has(e) || (t = this.sounds.get(e)).loaded && ((n = this.context.createBufferSource()).buffer = t.buffer, n.connect(this.context.destination), n.start(0)) : this.context.resume().then(() => { this.playSound(e) })) }, rn.prototype.load = function () { try { u.AudioContext = u.AudioContext || u.webkitAudioContext, this.context = new AudioContext } catch (e) { return console.log("Error creating AudioContext."), void (this.context = null) } this.loadSounds() }; v; var ln, cn = [], sn = 0, dn = -1, un = -1, hn = [], fn = { id: -1, time: 0, data: 0 }, pn = new rn, gn = void 0, mn = c.querySelector("#game-room"), yn = c.querySelector("#game-players"), vn = c.querySelector("#game-board"), Sn = yn.querySelector(".list"), bn = yn.querySelector(".footer"), kn = [c.querySelector("#game-round .round-current"), c.querySelector("#game-round .round-max")], Cn = [c.querySelector("#game-word .description"), c.querySelector("#game-word .word"), c.querySelector("#game-word .hints .container")], wn = c.querySelector("#home .container-name-lang input"), qn = c.querySelector("#home .container-name-lang select"), xn = c.querySelector("#home .panel .button-play"), Mn = c.querySelector("#home .panel .button-create"), e = c.querySelector("#home .panel .button-rooms"); function Ln(e) { c.querySelector("#load").style.display = e ? "block" : "none" } function In(e, t, n, a) { var o, r; o = e, e = t, r = function (e, t) { switch (e) { case 200: return void n({ success: !0, data: t }); case 503: case 0: a && Z(H, "Servers are currently undergoing maintenance!\n\rPlease try again later!"); break; default: a && Z(H, "An unknown error occurred (" + e + ")\n\rPlease try again later!") }n({ success: !1, error: e }) }, (t = new XMLHttpRequest).onreadystatechange = function () { 4 == this.readyState && (console.log(this.responseText), r(this.status, this.response)) }, t.open("POST", o, !0), t.setRequestHeader("Content-type", "application/x-www-form-urlencoded"), t.send(e) } function Dn(e, t) { pn.context.resume(), ln && ln.disconnect(); let n = 0; (ln = a(e)).on("connect", function () { ln.on("joinerr", function (e) { _n(), Z(H, function (e) { switch (e) { case 1: return "Room not found!"; case 2: return "Room is full!"; case 3: return "You are on a kick cooldown!"; case 4: return "You are banned from this room!"; default: return "An unknown error (" + e + ") occured! " } }(e)) }), ln.on("data", sa); var e = wn.value.split("#"), e = { join: t, name: e[0], lang: qn.value, code: e[1], avatar: I.avatar }; ln.emit("login", e) }), ln.on("reason", function (e) { n = e }), ln.on("disconnect", function () { switch (n) { case r: Z(W, "You have been kicked!"); break; case x: Z(W, "You have been banned!") }_n() }), ln.on("connect_error", e => { _n(), Z(H, e.message) }) } function An(e) { e = "" != e ? "id=" + e : "lang=" + qn.value; le(), Ln(!0), In(location.origin + ":3000/play", e, function (e) { Ln(!1), e.success && Dn((e = e.data.split(","))[0], e[1]) }) } function En(e) { let n = [], a = e.split(","); var t = parseInt(a.shift()); if (0 < t) { var o = (a.length - 1) / t; for (let e = 0; e < t; e++) { var r = e * o; let t = []; for (let e = 0; e < 10; e++)t.push(a[r + e + 3]); n.push({ id: a[r], users: a[1 + r], round: a[2 + r], settings: t }) } } return n } function Tn() { var e = K[z].querySelector(".filter select.lang").value, t = K[z].querySelector(".filter select.type").value; In(location.origin + ":3000/rooms", "lang=" + e + "&type=" + t, function (e) { e.success && oe(En(e.data)) }) } function Nn(e) { var t; pn.playSound(en), it(me, !0), ot(28), ct(2), st(0), vt(!0), O(se), c.querySelector("#home").style.display = "none", c.querySelector("#game").style.display = "flex", sn = e.me, c.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id, t = e.settings, hn = t, On(), O(Sn), cn = []; for (var n = 0; n < e.users.length; n++)ua(e.users[n], !1); ma(), va(), zn(e.owner), Fn(e.state, !0) } function On() { c.querySelector("#game-room .lobby-name").textContent = hn[L.NAME], kn[1].textContent = hn[L.ROUNDS]; for (var e, t = 0; t < ka.length; t++) { var n = ka[t]; n.index && (n = hn[(e = n).index], "checkbox" == e.element.type ? e.element.checked = !!n : e.element.value = n) } } function Rn(e, t, n) { hn[e] = t, n && ln && ln.emit("data", { id: Zn, data: { id: e, val: t } }), On() } function Yn() { for (let e = 0; e < cn.length; e++)cn[e].score = 0; for (let e = 0; e < cn.length; e++)Sa(cn[e], !1), ba(cn[e], !1), ya(cn[e]) } function Fn(e, t) { var n, a; if (n = fn = e, null != Bt && (u.cancelAnimationFrame(Bt), Bt = void 0), n.id == m || n.id == q ? Gt({ top: -100, opacity: 0 }, 700, function () { Ut.classList.remove("show") }) : Ut.classList.contains("show") ? Gt({ top: -100, opacity: 1 }, 700, function () { Vt(n), Gt({ top: 0, opacity: 1 }, 700) }) : (Ut.classList.add("show"), Vt(n), Gt({ top: 0, opacity: 1 }, 700)), a = e.time, La(), Ma = a, qa.textContent = Ma, xa = setInterval(function () { Ma = Math.max(0, Ma - 1), qa.textContent = Ma; var e = -1; fn.id == m && (e = Ca), fn.id == k && (e = wa), qa.style.animationName = Ma < e ? Ma % 2 == 0 ? "rot_left" : "rot_right" : "none", Ma < e && pn.playSound(an), Ma <= 0 && La() }, 1e3), Ce.classList.add("hidden"), He(), Pn(!1), e.id == q ? (Yn(), mn.style.display = "flex", vn.style.display = "none", yn.classList.add("room")) : (mn.style.display = "none", vn.style.display = "", yn.classList.remove("room")), ma(), e.id == b && (kn[0].textContent = e.data + 1, 0 == e.data && Yn()), e.id == C) { sn != un && Wn(e.data.word); for (var o = 0; o < e.data.scores.length; o += 3) { var r = e.data.scores[o + 0], l = e.data.scores[o + 1], r = (e.data.scores[o + 2], da(r)); r && (r.score = l) } va(); for (var i = !0, o = 0; o < cn.length; o++)if (cn[o].guessed) { i = !1; break } i ? pn.playSound(Qt) : pn.playSound($t), fe("The word was '" + e.data.word + "'", "", p, !0) } else e.id != m && (Cn[0].textContent = "WAITING", Cn[0].classList.add("waiting"), Cn[1].style.display = "none", Cn[2].style.display = "none"); if (e.id == m) { if (un = e.data.id, pn.playSound(Zt), vt(!0), e.data.drawCommands && (Ee = e.data.drawCommands), fe(da(un).name + " is drawing now!", "", d, !0), !t) for (o = 0; o < cn.length; o++)Sa(cn[o], !1); Cn[0].classList.remove("waiting"), un == sn ? (t = e.data.word, Cn[0].textContent = "DRAW THIS", Cn[1].style.display = "", Cn[2].style.display = "none", Cn[1].textContent = t, Ce.classList.remove("hidden"), He()) : (Pn(!0), jn(e.data.word), Hn(e.data.hints)) } else { un = -1; for (o = 0; o < cn.length; o++)Sa(cn[o], !1) } for (o = 0; o < cn.length; o++)ba(cn[o], cn[o].id == un) } function Un(e) { ln && ln.connected && fn.id == m && (ln.emit("data", { id: Jn, data: e }), Pn(!1)) } function Pn(e) { c.querySelector("#game-rate").style.display = e ? "" : "none" } function _n() { ln && ln.close(), ln = void 0, vt(), La(), cn = [], hn = [], fn = { id: un = dn = -1, time: sn = 0, data: 0 }, c.querySelector("#home").style.display = "", c.querySelector("#game").style.display = "none" } function jn(e) { var t = 0 == e; Cn[0].textContent = t ? "WORD HIDDEN" : "GUESS THIS", Cn[1].style.display = "none", Cn[2].style.display = "", O(Cn[2]), Cn[2].hints = [], t && (e = 3); for (var n = 0; n < e; n++)Cn[2].hints[n] = T("hint", t ? "?" : "_"), Cn[2].appendChild(Cn[2].hints[n]); t || Cn[2].appendChild(T("word-length", e)) } function Hn(e) { for (var t = Cn[2].hints, n = 0; n < e.length; n++) { var a = e[n][0], o = e[n][1]; t[a].textContent = o, t[a].classList.add("uncover") } } function Wn(e) { (!Cn[2].hints || Cn[2].hints.length < e.length) && jn(e.length); for (var t = [], n = 0; n < e.length; n++)t.push([n, e.charAt(n)]); Hn(t) } function zn(e) { dn = e; for (var t = 0; t < cn.length; t++)F(cn[t].element, cn[t].id == dn), pa(cn[t], 0, cn[t].id == dn); !function (t) { for (var n = 0; n < ka.length; n++) { let e = ka[n]; e.element.disabled = t } }(sn != dn); e = da(dn); e && fe(e.name + " is now the lobby owner!", "", o, !0) } E(K[z].querySelectorAll(".filter select"), "change", Tn), E(K[z].querySelector("button.refresh"), "click", Tn); const Xn = 1, Bn = 2, Gn = 5, Jn = 8, Kn = 10, Vn = 11, Zn = 12, $n = 13, Qn = 14, ea = 15, ta = 16, na = 17, aa = 18, oa = 19, ra = 20, la = 21; const ia = 30; const ca = 32; function sa(e) { var t = e.id, n = e.data; switch (t) { case Kn: Nn(n); break; case Vn: Fn(n); break; case Zn: Rn(n.id, n.val, !1); break; case $n: Hn(n); break; case Qn: Ma = n; break; case Xn: fe(ua(n, !0).name + " joined the room!", "", h, !0), pn.playSound(en); break; case Bn: var a = function (e) { for (var t = 0; t < cn.length; t++) { var n = cn[t]; if (n.id == e) return cn.splice(t, 1), n.element.remove(), va(), ma(), n } return }(n.id); a && (fe(a.name + M[n.reason], "", f, !0), pn.playSound(tn)); break; case Gn: var a = da(n[0]), o = da(n[1]), r = n[2], l = n[3]; a && o && fe("'" + a.name + "' is voting to kick '" + o.name + "' (" + r + "/" + l + ")", "", s, !0); break; case ea: var i = da(n.id); i && (fe(i.name + " guessed the word!", "", h, !0), Sa(i, !0), pn.playSound(nn), n.id == sn && Wn(n.word)); break; case Jn: o = da(n.id); o && (r = o, l = 0 == n.vote ? "thumbsdown.gif" : "thumbsup.gif", (i = T("icon")).style.backgroundImage = "url(/img/" + l + ")", fa(r, i), n.vote ? fe(o.name + " liked the drawing!", "", h, !0) : fe(o.name + " disliked the drawing!", "", f, !0)); break; case na: zn(n); break; case ta: fe("'" + n + " is close!", "", s, !0); break; case ia: ha(da(n.id), n.msg); break; case ca: fe("Spam detected! You're sending messages too quickly.", "", f, !0); break; case oa: for (var c = 0; c < n.length; c++)bt(n[c]); break; case ra: vt(!0); break; case la: pt(n); break; default: return void console.log("Unimplemented data packed received with id " + t) } } function da(e) { for (var t = 0; t < cn.length; t++) { var n = cn[t]; if (n.id == e) return n } } function ua(e, t) { var n = { id: e.id, name: e.name, avatar: e.avatar, score: e.score, guessed: e.guessed, rank: 0, muted: !1, votekick: !1, reported: !1, page: 0, element: T("player"), bubble: void 0 }; cn.push(n), I.filterChat && n.id != sn && he(n.name.slice()) != n.name && (n.name = "user"); var a = n.id == sn ? n.name + " (You)" : n.name, o = T("info"), e = T("name", a); n.id == sn && e.classList.add("me"), o.appendChild(e), o.appendChild(T("rank", "#" + n.rank)), o.appendChild(T("score", n.score + " points")), n.element.appendChild(o); a = R(n.avatar); n.element.drawing = T("drawing"), a.appendChild(n.element.drawing), n.element.appendChild(a), Sn.appendChild(n.element), E(n.element, "click", function () { gn = n, Z(j, n) }); e = T("icons"), o = T("icon owner"), a = T("icon muted"); return e.appendChild(o), e.appendChild(a), n.element.appendChild(e), n.element.icons = [o, a], Sa(n, n.guessed), t && ma(), n } function ha(e, t) { var n; e.muted || (n = e.id == un || e.guessed, sn != un && !da(sn).guessed && n || (t = he(t), fa(e, T("text", t)), fe(e.name, t, n ? "#7dad3f" : "#000"))) } function fa(e, t) { e.bubble && (clearTimeout(e.bubble.timeout), e.bubble.remove(), e.bubble = void 0); var n = T("bubble"), a = T("content"); a.appendChild(t), n.appendChild(T("arrow")), n.appendChild(a), e.element.appendChild(n), e.bubble = n, e.bubble.timeout = setTimeout(function () { e.bubble.remove(), e.bubble = void 0 }, 1500) } function pa(e, t, n) { n ? e.element.icons[t].classList.add("visible") : e.element.icons[t].classList.remove("visible") } var ga = void 0; function ma() { var e = fn.id == q, t = e ? 112 : 48, n = Math.max(t, Sn.clientHeight); let a = Math.floor(n / t); e && (a *= 4); t = Math.ceil(cn.length / a); for (let e = 0; e < cn.length; e++)cn[e].page = Math.floor(e / a); e = c.querySelectorAll("#game-players .player-amount b"); e[0].textContent = cn.length, e[1].textContent = hn[L.SLOTS], null == ga ? ga = U(bn, t, [yn], function (e, n, t) { let a = []; for (let t = 0; t < cn.length; t++) { let e = cn[t]; var o = e.page == n; e.element.style.display = o ? "" : "none", o && a.push(e.element) } if (0 < a.length) { for (let t = 0; t < a.length; t++) { let e = a[t]; e.classList.remove("first"), e.classList.remove("last"), t % 2 == 0 ? e.classList.remove("odd") : e.classList.add("odd") } a[0].classList.add("first"), a[a.length - 1].classList.add("last") } }) : P(ga, t), ga.element.style.display = 1 < t ? "" : "none" } function ya(t) { let n = 1; for (let e = 0; e < cn.length; e++) { var a = cn[e]; a.id != t.id && t.score < a.score && n++ } t.rank = n, t.element.querySelector(".score").textContent = t.score + " points"; let e = t.element.querySelector(".rank"); e.textContent = "#" + n, e.classList.remove("first"), e.classList.remove("second"), e.classList.remove("third"), 1 == n && e.classList.add("first"), 2 == n && e.classList.add("second"), 3 == n && e.classList.add("third") } function va() { for (var e = 0; e < cn.length; e++)ya(cn[e]) } function Sa(e, t) { (e.guessed = t) ? e.element.classList.add("guessed") : e.element.classList.remove("guessed") } function ba(e, t) { e.element.drawing.style.display = t ? "block" : "none" } var ka = []; !function () { for (var e = mn.querySelectorAll('*[id^="item-"]'), n = 0; n < e.length; n++) { let t = { id: e[n].id.replace("item-settings-", ""), element: e[n], index: e[n].dataset.setting }; ka.push(t), E(t.element, "change", function () { var e = "checkbox" == this.type ? this.checked : this.value; console.log("lobby setting " + t.id + " changed to " + e), null != t.index && Rn(t.index, e, !0) }) } }(); const Ca = 10, wa = 4; var qa = c.querySelector("#game-clock"), xa = null, Ma = 0; function La() { xa && (clearInterval(xa), xa = null) } var Ia, Da, Aa, Ea, Ta, rn = c.querySelector("#tutorial"), Na = rn.querySelectorAll(".page"), Oa = U(rn, Na.length, [rn.querySelector(".pages")], function (e, t, n) { n && clearInterval(Ra); for (let e = 0; e < Na.length; e++)Na[e].classList.remove("active"); Na[t].classList.add("active") }), Ra = setInterval(function () { Oa.selected < 4 ? _(Oa, Oa.selected + 1, !0) : _(Oa, 0, !0) }, 3500); function Ya(e) { Ta.parts[e].classList.remove("bounce"), Ta.parts[e].offsetWidth, Ta.parts[e].classList.add("bounce") } E(u, "resize", ma), E([wn, qn], "change", A), E(xn, "click", function () { var e, t, n; An((e = u.location.href, n = "", e = e.split("?"), n = 1 < e.length ? (n = "" + e[1]).substring(0, t) : n)) }), E(e, "click", function () { K[z].querySelector(".filter select.lang").value = qn.value; var e = K[z].querySelector(".filter select.type").value; In(location.origin + ":3000/rooms", "lang=" + qn.value + "&type=" + e, function (e) { e.success && Z(z, En(e.data)) }) }), E(Mn, "click", function () { le(), Ln(!0), In(location.origin + ":3000/create", "lang=" + qn.value, function (e) { Ln(!1), e.success && Dn((e = e.data.split(","))[0], e[1]) }) }), E(c.querySelector("#game-rate .like"), "click", function () { Un(1) }), E(c.querySelector("#game-rate .dislike"), "click", function () { Un(0) }), E(c.querySelector("#start-game"), "click", function () { if (ln) { let t = c.querySelector("#item-settings-customwords").value.split(","), e = ""; if (5 <= t.length) { for (let e = 0; e < t.length; e++)t[e] = t[e].trim(); e = t.join(",") } ln.emit("data", { id: 22, data: e }) } }), E(c.querySelector("#copy-invite"), "click", function () { c.querySelector("#input-invite").select(); try { var e = c.execCommand("copy") ? "successful" : "unsuccessful"; console.log("Copying link was " + e) } catch (e) { console.log("Unable to copy link " + e) } }), E(K[j].querySelector("button.kick"), "click", function () { le(), null != gn && gn.id != sn && sn == dn && ln && ln.emit("data", { id: 3, data: gn.id }) }), E(K[j].querySelector("button.ban"), "click", function () { le(), null != gn && gn.id != sn && sn == dn && ln && ln.emit("data", { id: 4, data: gn.id }) }), E(K[j].querySelector("button.votekick"), "click", function () { le(), null != gn && gn.id != sn && ln && ln.emit("data", { id: Gn, data: gn.id }) }), E(K[j].querySelector("button.mute"), "click", function () { null != gn && gn.id != sn && (gn.muted = !gn.muted, pa(gn, 1, gn.muted), gn.muted ? fe("You muted '" + gn.name + "'!", "", f, !0) : fe("You unmuted '" + gn.name + "'!", "", f, !0), ln && ln.emit("data", { id: 7, data: gn.id }), V(gn.muted)) }), E(K[j].querySelector("button.report"), "click", function () { ln && null != gn && gn.id != sn && ln.emit("data", { id: 6, data: gn.id }) }), E(ie, "submit", function (e) { return e.preventDefault(), ce.value && (ln && ln.connected ? ln.emit("data", { id: ia, data: ce.value }) : ha(da(sn), ce.value)), ie.reset(), !1 }), function () { if (!u.localStorageAvailable) { var e = !1; if (void 0 !== n) try { n.setItem("feature_test", "yes"), "yes" === n.getItem("feature_test") && (n.removeItem("feature_test"), e = !0) } catch (e) { } u.localStorageAvailable = e } u.localStorageAvailable ? (wn.value = D("name", ""), qn.value = function (e) { for (var t = c.querySelectorAll("#home .panel .container-name-lang select option"), n = 0; n < t.length; n++)if (e.startsWith(t[n].value)) return t[n].value; return "en" }(D("lang", navigator.language)), I.audio_mute = 1 == D("audio", 0) ? 1 : 0, (e = n.getItem("ava")) && (I.avatar = JSON.parse(e)), console.log("Settings loaded.")) : console.log("Settings not loaded. LocalStorage unavailable.") }(), Ia = (Ea = c.querySelector("#home .avatar-customizer")).querySelector(".container"), Da = Ea.querySelectorAll(".arrows.left .arrow"), Aa = Ea.querySelectorAll(".arrows.right .arrow"), Ea = Ea.querySelectorAll(".randomize"), (Ta = R(I.avatar, 96)).classList.add("fit"), Ia.appendChild(Ta), E(Da, "click", function () { var e = parseInt(this.dataset.avatarIndex); --I.avatar[e], I.avatar[e] < 0 && (I.avatar[e] = t[e] - 1), Ya(e), Y(Ta, I.avatar, 96), A() }), E(Aa, "click", function () { var e = parseInt(this.dataset.avatarIndex); I.avatar[e] += 1, I.avatar[e] >= t[e] && (I.avatar[e] = 0), Ya(e), Y(Ta, I.avatar, 96), A() }), E(Ea, "click", function () { I.avatar[0] = Math.floor(Math.random() * t[0]), I.avatar[1] = Math.floor(Math.random() * t[1]), I.avatar[2] = Math.floor(Math.random() * t[2]), Ya(1), Ya(2), Y(Ta, I.avatar, 96), A() }), function () { Math.round(8 * Math.random()); for (var e = c.querySelector("#home .logo-big .avatar-container"), t = 0; t < 8; t++) { var n = [0, 0, 0, 0]; n[0] = t, n[1] = Math.round(100 * Math.random()) % i, n[2] = Math.round(100 * Math.random()) % g, n[3] = 1e3 * Math.random() < 70 ? Math.round(+Math.random()) : -1; n = R(n, 48); e.append(n) } }() }(window, document, localStorage, io);
+﻿!function(u, s, c, Y) {
+    const H = 26
+      , U = 57
+      , F = 51
+      , B = [H, U, F]
+      , G = 0
+      , K = 1
+      , _ = 2
+      , V = 0
+      , Z = 1
+      , j = 2
+      , X = 3
+      , J = 4
+      , Q = 5
+      , ee = 6
+      , te = 7;
+    const ne = 1
+      , ae = 2
+      , oe = {
+        LANG: 0,
+        SLOTS: 1,
+        DRAWTIME: 2,
+        ROUNDS: 3,
+        WORDCOUNT: 4,
+        HINTCOUNT: 5,
+        WORDMODE: 6,
+        CUSTOMWORDSONLY: 7
+    }
+      , re = {
+        NORMAL: 0,
+        HIDDEN: 1,
+        COMBINATION: 2
+    }
+      , ie = ["Normal", "Hidden", "Combination"]
+      , le = ["English", "German", "Bulgarian", "Czech", "Danish", "Dutch", "Finnish", "French", "Estonian", "Greek", "Hebrew", "Hungarian", "Italian", "Japanese", "Korean", "Latvian", "Macedonian", "Norwegian", "Portuguese", "Polish", "Romanian", "Russian", "Serbian", "Slovakian", "Spanish", "Swedish", "Tagalog", "Turkish"];
+    if (u.localStorageAvailable = !1,
+    void 0 !== c)
+        try {
+            c.setItem("feature_test", "yes"),
+            "yes" === c.getItem("feature_test") && (c.removeItem("feature_test"),
+            u.localStorageAvailable = !0)
+        } catch (e) {}
+    var d = [];
+    function se(t) {
+        for (let e = 0; e < d.length; e++)
+            if (d[e].name == t)
+                return d[e]
+    }
+    function ce(t, n, a, e, o) {
+        var r = n;
+        u.localStorageAvailable && (l = c.getItem("hotkey_" + t)) && (n = l);
+        let i = se(t);
+        if (i)
+            i.key = n,
+            i.def = r,
+            i.desc = a;
+        else {
+            i = {
+                name: t,
+                desc: a,
+                key: n,
+                def: r,
+                listing: b("item"),
+                changed: [],
+                cb: []
+            },
+            d.push(i);
+            var l = b("key", i.name);
+            je(l, "text"),
+            i.listing.appendChild(l);
+            let e = s.createElement("input");
+            e.value = i.key,
+            i.listing.appendChild(e),
+            v(e, "keydown", function(t) {
+                console.log(t.key);
+                var n = t.key;
+                for (let e = 0; e < d.length; e++)
+                    if (d[e].key == n)
+                        return void t.preventDefault();
+                e.value = n,
+                i.key = n;
+                for (let e = 0; e < i.changed.length; e++)
+                    i.changed[e](i);
+                return de(),
+                t.preventDefault(),
+                !1
+            }),
+            p[ke].querySelector("#hotkey-list").appendChild(i.listing)
+        }
+        e && i.cb.push(e),
+        o && i.changed.push(o)
+    }
+    function de() {
+        if (u.localStorageAvailable)
+            for (let e = 0; e < d.length; e++)
+                u.localStorage.setItem("hotkey_" + d[e].name, d[e].key)
+    }
+    var l = {
+        avatar: [Math.round(100 * Math.random()) % H, Math.round(100 * Math.random()) % U, Math.round(100 * Math.random()) % F, -1],
+        audioMute: 0,
+        dark: 0,
+        filterChat: 1,
+        pressureSensitivity: 1,
+        displayLang: "en",
+        chatDeleteQuota: 100
+    };
+    function e(e, t) {
+        e = c.getItem(e);
+        return null == e ? t : e
+    }
+    function t() {
+        u.localStorageAvailable ? (c.setItem("name", Hn.value),
+        c.setItem("lang", Un.value),
+        c.setItem("displaylang", l.displayLang),
+        c.setItem("audio", 1 == l.audioMute ? 1 : 0),
+        c.setItem("dark", 1 == l.dark ? 1 : 0),
+        c.setItem("filter", 1 == l.filterChat ? 1 : 0),
+        c.setItem("pressure", 1 == l.pressureSensitivity ? 1 : 0),
+        c.setItem("ava", JSON.stringify(l.avatar)),
+        c.setItem("keyboard", Ge.value),
+        c.setItem("keyboardlayout", Ke.value),
+        console.log("Settings saved.")) : console.log("Settings not saved. LocalStorage unavailable.")
+    }
+    function a(e) {
+        l.dark = e ? 1 : 0,
+        s.documentElement.dataset.theme = l.dark ? "dark" : ""
+    }
+    function v(e, t, n) {
+        for (var a, o = e, r = ("string" == typeof e ? o = s.querySelectorAll(e) : "[object Array]" !== (a = Object.prototype.toString.call(e)) && "[object NodeList]" !== a && "[object HTMLCollection]" !== a && (o = [e]),
+        t.split(" ")), i = 0; i < o.length; i++)
+            for (var l = 0; l < r.length; l++)
+                o[i].addEventListener(r[l], n)
+    }
+    function b(e, t) {
+        let n = s.createElement("div");
+        if (void 0 !== e)
+            for (var a = e.split(" "), o = 0; o < a.length; o++)
+                n.classList.add(a[o]);
+        return void 0 !== t && (n.textContent = t),
+        n
+    }
+    function ue(e, t, n) {
+        let a = s.createElement(e);
+        if (void 0 !== t)
+            for (var o = t.split(" "), r = 0; r < o.length; r++)
+                a.classList.add(o[r]);
+        return void 0 !== n && (a.textContent = n),
+        a
+    }
+    function S(e) {
+        for (; e.firstChild; )
+            e.removeChild(e.firstChild)
+    }
+    function he(e, t, n) {
+        var a = b("avatar")
+          , o = b("color")
+          , r = b("eyes")
+          , i = b("mouth")
+          , l = b("special")
+          , s = b("owner");
+        return s.style.display = n ? "block" : "none",
+        a.appendChild(o),
+        a.appendChild(r),
+        a.appendChild(i),
+        a.appendChild(l),
+        a.appendChild(s),
+        a.parts = [o, r, i],
+        pe(a, e),
+        a
+    }
+    function pe(e, t) {
+        function n(e, t, n, a) {
+            var o = -t % n * 100
+              , t = 100 * -Math.floor(t / n);
+            e.style.backgroundPosition = o + "% " + t + "%"
+        }
+        var a = t[0] % H
+          , o = t[1] % U
+          , r = t[2] % F
+          , t = t[3]
+          , a = (n(e.querySelector(".color"), a, 10),
+        n(e.querySelector(".eyes"), o, 10),
+        n(e.querySelector(".mouth"), r, 10),
+        e.querySelector(".special"));
+        0 <= t ? (a.style.display = "",
+        n(a, t, 10)) : a.style.display = "none"
+    }
+    function fe(e, t) {
+        e.querySelector(".owner").style.display = t ? "block" : "none"
+    }
+    function ge(e, t, n, a) {
+        let o = {
+            element: b("dots"),
+            dots: [],
+            selected: 0,
+            change: a
+        };
+        return e.appendChild(o.element),
+        n.push(o.element),
+        v(n, "DOMMouseScroll wheel", function(e) {
+            var t;
+            1 < o.dots.length && (t = -e.deltaY || e.wheelDeltaY,
+            t = Math.sign(t),
+            ye(o, Math.min(o.dots.length - 1, Math.max(0, o.selected - t)), !0)),
+            e.preventDefault(),
+            e.stopPropagation()
+        }),
+        me(o, t),
+        o
+    }
+    function me(n, e) {
+        S(n.element),
+        n.dots = [];
+        for (let t = 0; t < e; t++) {
+            let e = b("dot");
+            e.appendChild(b("inner")),
+            v(e, "click", function() {
+                ye(n, t, !0)
+            }),
+            n.element.appendChild(e),
+            n.dots.push(e)
+        }
+        n.selected < 0 && (n.selected = 0),
+        n.selected >= e && (n.selected = e - 1),
+        ye(n, n.selected, !1)
+    }
+    function ye(t, e, n) {
+        if (0 <= e && e < t.dots.length) {
+            t.selected = e;
+            for (let e = 0; e < t.dots.length; e++)
+                t.dots[e].classList.remove("active");
+            t.dots[e].classList.add("active"),
+            t.change(t, e, n)
+        }
+    }
+    const h = 0
+      , ve = 1
+      , be = 2
+      , Se = 3
+      , ke = 4
+      , we = 5;
+    var n = s.querySelector("#modal")
+      , Ce = n.querySelector(".title .text")
+      , qe = n.querySelector(".content")
+      , p = [];
+    function xe(e) {
+        p[h].querySelector(".buttons button.mute").textContent = k(e ? "Unmute" : "Mute")
+    }
+    function f(e, a) {
+        n.style.display = "block";
+        for (var t = 0; t < p.length; t++)
+            p[t].style.display = "none";
+        p[e].style.display = "flex";
+        let r = p[e];
+        switch (e) {
+        case ve:
+            Ce.textContent = k("Something went wrong!"),
+            r.querySelector(".message").textContent = a;
+            break;
+        case be:
+            Ce.textContent = k("Disconnected!"),
+            r.querySelector(".message").textContent = a;
+            break;
+        case h:
+            {
+                Ce.textContent = "";
+                let e = r.querySelector(".buttons")
+                  , t = (e.style.display = a.id == I ? "none" : "flex",
+                e.querySelector(".button-pair").style.display = I == R ? "flex" : "none",
+                e.querySelector("button.report").style.display = a.reported ? "none" : "",
+                xe(a.muted),
+                r.querySelector(".report-menu").style.display = "none",
+                qe.querySelector(".player"))
+                  , n = (S(t),
+                he(a.avatar));
+                fe(n, R == a.id),
+                n.style.width = "96px",
+                n.style.height = "96px",
+                t.appendChild(n),
+                t.appendChild(b("name", a.id == I ? k("$ (You)", a.name) : a.name))
+            }
+            break;
+        case we:
+            Ce.textContent = k("Rooms"),
+            roomsUpdate(a);
+            break;
+        case Se:
+            {
+                Ce.textContent = 0 == $n ? "Public Room" : "Private Room",
+                S(r);
+                var i = ["Language", "Players", "Drawtime", "Rounds", "Word count", "Hint count", "Word mode", "Custom words only"];
+                let o = b("settings");
+                for (let a = 0; a < T.length; a++) {
+                    let e = b("setting")
+                      , t = ue("img", "icon")
+                      , n = (t.src = "/img/setting_" + a + ".gif",
+                    e.appendChild(t),
+                    e.appendChild(ue("span", "name", i[a] + ":")),
+                    T[a]);
+                    a == oe.CUSTOMWORDSONLY && (n = n ? "Yes" : "No"),
+                    a == oe.SLOTS && (n = A.length + "/" + n),
+                    a == oe.LANG && (n = le[n]),
+                    a == oe.WORDMODE && (n = ie[n]),
+                    a == oe.DRAWTIME && (n += "s"),
+                    e.appendChild(ue("span", "value", n)),
+                    o.appendChild(e)
+                }
+                r.appendChild(o);
+                let e = s.querySelector("#game-invite").cloneNode(!0);
+                v(e.querySelector("#copy-invite"), "click", ro),
+                r.appendChild(e)
+            }
+            break;
+        case ke:
+            Ce.textContent = k("Settings"),
+            r.querySelector("#select-display-language").value = l.displayLang,
+            r.querySelector("#select-pressure-sensitivity").value = l.pressureSensitivity
+        }
+    }
+    function Me() {
+        n.style.display = "none"
+    }
+    p[h] = n.querySelector(".container-player"),
+    p[ve] = n.querySelector(".container-info"),
+    p[be] = n.querySelector(".container-info"),
+    p[Se] = n.querySelector(".container-room"),
+    p[ke] = n.querySelector(".container-settings"),
+    v(u, "click", function(e) {
+        e.target == n && Me()
+    }),
+    v([n.querySelector(".close"), p[ve].querySelector("button.ok")], "click", Me);
+    var Le = s.querySelector("#game-chat form")
+      , $e = s.querySelector("#game-chat form input")
+      , De = s.querySelector("#game-chat .content");
+    const Ae = 0;
+    const Ie = 2
+      , Re = 3
+      , Ee = 4
+      , Te = 5
+      , Ne = 6
+      , We = 7
+      , Oe = ["BASE", "GUESSED", "CLOSE", "DRAWING", "JOIN", "LEAVE", "OWNER", "GUESSCHAT"];
+    function g(e) {
+        return "var(--COLOR_CHAT_TEXT_" + Oe[e] + ")"
+    }
+    function m(e, t, n, a) {
+        var o = s.createElement("p")
+          , r = s.createElement("b")
+          , a = (r.textContent = a ? e : e + ": ",
+        o.appendChild(r),
+        o.style.color = n,
+        s.createElement("span"))
+          , e = (a.textContent = t,
+        o.appendChild(a),
+        De.scrollHeight - De.scrollTop - De.clientHeight <= 20);
+        if (De.appendChild(o),
+        e && (De.scrollTop = De.scrollHeight + 100),
+        0 < l.chatDeleteQuota)
+            for (; De.childElementCount > l.chatDeleteQuota; )
+                De.firstElementChild.remove();
+        return o
+    }
+    let y = void 0
+      , ze = void 0;
+    function Pe(e) {
+        Ye();
+        var t = (ze = e).dataset.tooltip
+          , n = e.dataset.tooltipdir || "N";
+        (y = b("tooltip")).classList.add(n),
+        y.appendChild(b("tooltip-arrow")),
+        y.appendChild(b("tooltip-content", k(t)));
+        let a = !1
+          , o = e;
+        for (; o; ) {
+            if ("fixed" == u.getComputedStyle(o).position) {
+                a = !0;
+                break
+            }
+            o = o.parentElement
+        }
+        y.style.position = a ? "fixed" : "absolute";
+        t = e.getBoundingClientRect();
+        let r = t.left
+          , i = t.top;
+        "N" == n && (r = (t.left + t.right) / 2),
+        "S" == n && (r = (t.left + t.right) / 2,
+        i = t.bottom),
+        "E" == n && (r = t.right,
+        i = (t.top + t.bottom) / 2),
+        "W" == n && (i = (t.top + t.bottom) / 2),
+        a || (r += u.scrollX,
+        i += u.scrollY),
+        y.style.left = r + "px",
+        y.style.top = i + "px",
+        s.body.appendChild(y)
+    }
+    function Ye() {
+        y && (y.remove(),
+        y = void 0,
+        ze = void 0)
+    }
+    const He = [{
+        code: "en",
+        name: "English",
+        layout: [["Q", "W", "E", "R", "T", "Y", "U", "I", "O"], ["A", "S", "D", "F", "G", "H", "J", "K", "L"], ["Z", "X", "C", "V", "B", "N", "M"]]
+    }, {
+        code: "fr",
+        name: "French",
+        layout: [["A", "Z", "E", "R", "T", "Y", "U", "I", "O", "P"], ["Q", "S", "D", "F", "G", "H", "J", "K", "L", "M"], ["W", "X", "C", "V", "B", "N", "É", "È", "Ç", "À"]]
+    }, {
+        code: "de",
+        name: "German",
+        layout: [["Q", "W", "E", "R", "T", "Z", "U", "I", "O", "Ü"], ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ö", "Ä"], ["Y", "X", "C", "V", "B", "N", "M"]]
+    }, {
+        code: "tr",
+        name: "Turkish",
+        layout: [["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "Ğ", "Ü"], ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ş", "İ"], ["Z", "X", "C", "V", "B", "N", "M", "Ö", "Ç"]]
+    }, {
+        code: "ru",
+        name: "Russian",
+        layout: [["Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ъ"], ["Ф", "Ы", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", "Э"], ["Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю", "Ё"]]
+    }, {
+        code: "es",
+        name: "Spanish",
+        layout: [["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"], ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"], ["Z", "X", "C", "V", "B", "N", "M"]]
+    }];
+    var Ue = {
+        elements: {
+            main: s.querySelector("#game-keyboard"),
+            input: s.querySelector("#game-keyboard .input"),
+            rows: s.querySelector("#game-keyboard .keys"),
+            caps: 0,
+            keys: []
+        },
+        lang: 0,
+        input: "",
+        caps: !1,
+        keys: [],
+        rows: [],
+        columns: 0,
+        getKeyLowercase: function(e) {
+            return e.toLocaleLowerCase(this.lang)
+        },
+        getKeyUppercase: function(e) {
+            return e.toLocaleUpperCase(this.lang)
+        },
+        init: function(e) {
+            this.lang = e.code,
+            this.caps = !1,
+            this.columns = 0,
+            this.elements.keys = [],
+            S(this.elements.rows);
+            var n = e.layout;
+            let o = this;
+            function a(e, n, t) {
+                let a = ue("button", "key");
+                if (Fe.has(n)) {
+                    let t = Fe.get(n);
+                    a.classList.add(t.class),
+                    a.appendChild(ue("span", "material-icons", t.icon)),
+                    v(a, "click", function(e) {
+                        t.callback(o)
+                    })
+                } else
+                    a.textContent = o.getKeyLowercase(n),
+                    v(a, "click", function(e) {
+                        o.inputAdd(n)
+                    }),
+                    o.elements.keys.push(a);
+                return t ? e.insertBefore(a, e.firstChild) : e.appendChild(a),
+                a
+            }
+            let r = 0;
+            for (let t = 0; t < n.length; t++) {
+                r = o.addRow();
+                for (let e = 0; e < n[t].length; e++) {
+                    var i = n[t][e];
+                    a(r, i)
+                }
+            }
+            this.elements.caps = a(r, "caps", !0),
+            a(r, "backspace"),
+            r = o.addRow();
+            var t = ["-", "space", ",", ".", "enter"];
+            for (let e = 0; e < t.length; e++)
+                a(r, t[e])
+        },
+        addRow: function() {
+            var e = b("row");
+            return this.elements.rows.appendChild(e),
+            this.rows.push(e),
+            e
+        },
+        inputChanged: function() {
+            Ue.elements.input.textContent = Ue.input
+        },
+        inputAdd: function(e) {
+            this.input += this.caps ? this.getKeyUppercase(e) : this.getKeyLowercase(e),
+            this.inputChanged(),
+            this.caps && this.toggleCaps()
+        },
+        enter: function() {
+            0 < this.input.length && (lo(this.input),
+            this.input = "",
+            this.inputChanged())
+        },
+        toggleCaps: function() {
+            this.caps = !this.caps;
+            for (let t = 0; t < this.elements.keys.length; t++) {
+                let e = this.elements.keys[t];
+                e.textContent = this.caps ? this.getKeyUppercase(e.textContent) : this.getKeyLowercase(e.textContent)
+            }
+            this.elements.caps.classList.toggle("enabled", this.caps)
+        }
+    };
+    const Fe = new Map;
+    function Be() {
+        1 == Ge.value ? s.documentElement.dataset.mobileKeyboard = "" : delete s.documentElement.dataset.mobileKeyboard
+    }
+    Fe.set("backspace", {
+        class: "wide",
+        icon: "backspace",
+        callback: function(e) {
+            0 < e.input.length && (e.input = e.input.slice(0, -1),
+            e.inputChanged())
+        }
+    }),
+    Fe.set("caps", {
+        class: "wide",
+        icon: "keyboard_capslock",
+        callback: function(e) {
+            e.toggleCaps()
+        }
+    }),
+    Fe.set("enter", {
+        class: "wide",
+        icon: "keyboard_return",
+        callback: function(e) {
+            e.enter()
+        }
+    }),
+    Fe.set("space", {
+        class: "extra-wide",
+        icon: "space_bar",
+        callback: function(e) {
+            e.input += " ",
+            e.inputChanged()
+        }
+    }),
+    Ue.init(He[0]);
+    var Ge = s.querySelector("#select-mobile-keyboard-enabled")
+      , Ke = s.querySelector("#select-mobile-keyboard-layout");
+    for (let t = 0; t < He.length; t++) {
+        let e = ue("option");
+        e.textContent = He[t].name,
+        e.value = He[t].code,
+        Ke.appendChild(e)
+    }
+    v(Ke, "change", function(e) {
+        let t = void 0;
+        for (let e = 0; e < He.length; e++)
+            He[e].code == this.value && (t = He[e]);
+        null != t && Ue.init(t)
+    }),
+    v([Ge, Ke], "change", function(e) {
+        t(),
+        Be()
+    });
+    let _e = {}
+      , Ve = [];
+    function Ze(e, t) {
+        e = e[t];
+        return null != e && "" != e ? e : t
+    }
+    function k(t, n) {
+        var e = Ze(_e[l.displayLang], t);
+        e == t ? console.log("No translation found for: " + t) : t = e;
+        let a = ""
+          , o = 0;
+        Array.isArray(n) || (n = [n]);
+        for (let e = 0; e < t.length; e++) {
+            var r = t.charAt(e);
+            "$" == r ? (a += n[o],
+            o++) : a += r
+        }
+        return a
+    }
+    function je(t, n) {
+        if ("children" == n)
+            for (let e = 0; e < t.children.length; e++) {
+                var a = t.children[e].dataset.translate;
+                je(t.children[e], null == a ? "text" : a)
+            }
+        else {
+            let e = "";
+            "text" == n && (e = t.textContent),
+            0 < (e = "placeholder" == n ? t.placeholder : e).length ? Ve.push({
+                key: e,
+                element: t,
+                type: n
+            }) : (console.log("Empty key passed to translate with!"),
+            console.log(t))
+        }
+    }
+    function Xe() {
+        var n = _e[l.displayLang];
+        for (let t = 0; t < Ve.length; t++) {
+            let e = Ve[t];
+            var a = Ze(n, e.key);
+            "text" == e.type && (e.element.textContent = a),
+            "placeholder" == e.type && (e.element.placeholder = a)
+        }
+    }
+    _e.en = {},
+    _e.de = {
+        "You have been kicked!": "Du wurdest gekickt!",
+        "You have been banned!": "Du wurdest gebannt!",
+        "You muted '$'!": "Du hast '$' stummgeschalten!",
+        "You unmuted '$'!": "Du hast die Stummschaltung für '$' aufgehoben!",
+        "You are on a kick cooldown!": "Du bist noch in der Kick Abklingzeit!",
+        "You are banned from this room!": "Du bist von diesem Raum gebannt!",
+        "You need at least 2 players to start the game!": "Du brauchst mind. 2 Spieler um das Spiel zu starten!",
+        "Server restarting in about $ seconds!": "Server Neustart in ungefähr $ Sekunden!",
+        "Spam detected! You're sending messages too quickly.": "Spam erkannt! Du sendest Nachrichten zu schnell.",
+        "You can not votekick the lobby owner!": "Du kannst den Raumbesitzer nicht kicken!",
+        "The word was '$'": "Das Wort war '$'",
+        "$ is drawing now!": "$ zeichnet nun!",
+        "$ is now the room owner!": "$ ist nun der Raumeigentümer!",
+        "$ is voting to kick $ ($/$)": "$ möchte $ kicken ($/$)!",
+        "$ joined the room!": "$ ist dem Raum beigetreten!",
+        "$ left the room!": "$ hat den Raum verlassen!",
+        "$ has been kicked!": "$ wurde gekickt!",
+        "$ has been banned!": "$ wurde gebannt!",
+        "$ guessed the word!": "$ hat das Wort erraten!",
+        "$ liked the drawing!": "$ mag die Zeichnung!",
+        "$ disliked the drawing!": "$ mag die Zeichnung nicht!",
+        "$ is close!": "$ ist nah dran!",
+        "$ is choosing a word!": "$ wählt ein Wort!",
+        "$ won with a score of $!": "$ hat mit einem Punktestand von $ gewonnen!",
+        "$ and $ won with a score of $!": "$ und $ haben mit einem Punktestand von $ gewonnen!",
+        WAITING: "WARTEN",
+        "DRAW THIS": "ZEICHNE",
+        "WORD HIDDEN": "WORT VERSTECKT",
+        "GUESS THIS": "RATE",
+        "$ (You)": "$ (Du)",
+        "$ points": "$ Punkte",
+        "Room not found!": "Raum nicht gefunden!",
+        "Room is full!": "Raum ist voll!",
+        "No rooms found!": "Keine Räume gefunden!",
+        "An unknown error ('$')": "Unbekannter Fehler ('$')",
+        "Something went wrong!": "Etwas ist schief gelaufen!",
+        "Disconnected!": "Verbindung getrennt!",
+        "Connection lost!": "Verbindung verloren!",
+        "Servers are currently undergoing maintenance!": "Server werden derzeit gewartet",
+        "Please try again later!": "Bitte versuch es später noch einmal!",
+        "An unknown error occurred ('$')": "Ein unbekannter Fehler ist aufgetreten ('$')",
+        Unmute: "Stumm. aufheben",
+        Mute: "Stummschalten",
+        Rooms: "Räume",
+        Settings: "Einstellungen",
+        "Not started": "Nicht gestartet",
+        Round: "Runde",
+        Rounds: "Runden",
+        "Round $": "Runde $",
+        "Round $ of $": "Runde $ von $",
+        "Waiting for players...": "Auf Spieler warten...",
+        "Game starting in a few seconds...": "Das Spiel beginnt in wenigen Sekunden...",
+        "is the winner!": "hat gewonnen!",
+        "are the winners!": "haben gewonnen!",
+        "Nobody won!": "Niemand hat gewonnen!",
+        "Choose a word": "Wähle ein Wort",
+        "The word was": "Das Wort war",
+        User: "Spieler",
+        Play: "Spielen",
+        "Create Room": "Raum erstellen",
+        "View Rooms": "Räume ansehen",
+        "How to play": "Wie gespielt wird",
+        About: "Über",
+        News: "Neuigkeiten",
+        "When it's your turn, choose a word you want to draw!": "Wähle ein Wort, das du zeichnen willst, wenn du dran bist!",
+        "Try to draw your choosen word! No spelling!": "Versuche nun dein Wort zu zeichnen. Kein Schreiben!",
+        "Let other players try to guess your drawn word!": "Lass andere Mitspieler dein gezeichnetes Wort erraten!",
+        "When it's not your turn, try to guess what other players are drawing!": "Wenn du nicht dran bist mit Zeichnen, versuche die Zeichnungen anderer zu erraten!",
+        "Score the most points and be crowned the winner at the end!": "Sammel die meisten Punkte und werde zum Gewinner!",
+        "is a free online multiplayer drawing and guessing pictionary game.": "ist ein kostenloses Mehrspieler-Zeichnen und Raten- / Montagsmaler-Spiel.",
+        "A normal game consists of a few rounds, where every round a player has to draw their chosen word and others have to guess it to gain points!": "Ein normales Spiel besteht aus drei Runden, in welcher jeder Spieler sein gewähltes Wort zeichnen muss, während die Anderen es für Punkte erraten müssen!",
+        "The person with the most points at the end of the game, will then be crowned as the winner!": "Die Person mit dem höchsten Punktestand am Ende des Spiels wird als Sieger gekrönt!",
+        "Have fun!": "Viel Spaß!",
+        "Invite your friends!": "Lad deine Freunde ein!",
+        Copy: "Kopieren",
+        "Hover over me to see the Invite link!": "Einladungslink hier anschauen!",
+        "Click to copy the link to this room!": "Klicke um den Einladungslink zu kopieren!",
+        Visibility: "Sichtbarkeit",
+        Name: "Name",
+        Players: "Spieler",
+        Drawtime: "Zeit",
+        Language: "Sprache",
+        "Word Mode": "Wort-Modus",
+        "Word Count ": "Wort-Anzahl",
+        Hints: "Hinweise",
+        "Custom words": "Eigene Wörter",
+        "Minimum of 10 words. 1-32 characters per word! 10000 characters maximum. Separated by a , (comma)": "Minimum von 10 Wörtern. 1-32 Buchstaben pro Wort. 10000 Buchstaben maximal. Getrennt durch ein , (Komma)",
+        "Use custom words only": "Nur eigene Wörter benutzen",
+        "Start!": "Starten!",
+        All: "Alle",
+        Custom: "Benutzerdefiniert",
+        Public: "Öffentlich",
+        Private: "Privat",
+        Mode: "Modus",
+        Normal: "Normal",
+        Hidden: "Versteckt",
+        Combination: "Kombination",
+        "Please select the reasons for your report": "Bitte wählen Sie die Gründe für Ihre Meldung",
+        "Inappropriate Messages / Drawings": "Unangemessene Nachrichten / Zeichnungen",
+        Spam: "Spam",
+        "Botting / Cheating": "Botting / Cheating",
+        "Your report for '$' has been sent!": "Deine Meldung für '$' wurde abgesendet!",
+        "Enter your name": "Gib dein Namen ein",
+        "Filter rooms by name here...": "Suche nach Räume hier...",
+        "Type your guess here...": "Rate das gesuchte Wort hier...",
+        "Everyone guessed the word!": "Jeder hat das Wort erraten!",
+        "The drawer left the game!": "Der Zeichner hat das Spiel verlassen!",
+        "Time is up!": "Die Zeit ist abgelaufen!",
+        Kick: "Kicken",
+        Ban: "Bannen",
+        Votekick: "Votekicken",
+        Report: "Melden",
+        "Randomize your Avatar!": "Zufälliger Avatar!",
+        Brush: "Stift",
+        Colorpick: "Pipette",
+        Fill: "Füllen",
+        Undo: "Rückgängig",
+        Clear: "Löschen",
+        "Mute audio": "Stummschalten",
+        "Unmute audio": "Stumm. aufheben",
+        "Turn the lights off": "Lichter ausmachen",
+        "Turn the lights on": "Lichter anmachen",
+        "Hotkeys & Misc.": "Tastenkürzel & Sonstiges",
+        Hotkeys: "Tastenkürzel",
+        Miscellaneous: "Sonstiges",
+        "Display Language": "Anzeigesprache",
+        "Filter bad words in chat": "Schlechte Wörter im Chat filtern",
+        "Brush Pressure Sensitivity": "Stiftdruckempfindlichkeit",
+        Reset: "Zurücksetzen",
+        "Reset hotkeys to default": "Tastenkürzel zurücksetzen",
+        On: "An",
+        Off: "Aus"
+    };
+    const Je = 0
+      , Qe = 1;
+    const et = 0
+      , tt = 2
+      , nt = 1;
+    const at = 4
+      , ot = 40;
+    var rt = [4, 10, 20, 32, 40]
+      , w = s.querySelector("#game-toolbar")
+      , it = w.querySelector(".tools-container .tools")
+      , lt = w.querySelector(".tools-container .actions")
+      , st = s.querySelector("#game-toolbar .sizes .size-preview")
+      , ct = s.querySelector("#game-toolbar .sizes .container")
+      , dt = s.querySelector("#game-toolbar .colors");
+    function ut(e, t) {
+        let n = b("tool clickable")
+          , a = (n.appendChild(b("icon")),
+        n.appendChild(b("key")),
+        t)
+          , o = (a.id = e,
+        (a.element = n).toolIndex = e,
+        n.querySelector(".icon").style.backgroundImage = "url(/img/" + t.graphic + ")",
+        n.querySelector(".key"));
+        var r, i, l;
+        o.textContent = t.keydef,
+        r = n,
+        i = t.name,
+        l = "S",
+        r.dataset.tooltip = i,
+        r.dataset.tooltipdir = l,
+        v(r, "mouseenter", function(e) {
+            Pe(e.target)
+        }),
+        v(r, "mouseleave", function(e) {
+            Ye()
+        }),
+        t.isAction ? (n.addEventListener("click", function(e) {
+            Nt(this.toolIndex)
+        }),
+        lt.appendChild(n),
+        pt[e] = a,
+        ce(t.name, t.keydef, "", function() {
+            Nt(e)
+        }, function(e) {
+            o.textContent = e.key
+        })) : (n.addEventListener("click", function(e) {
+            Wt(this.toolIndex)
+        }),
+        it.appendChild(n),
+        ht[e] = a,
+        ce(t.name, t.keydef, "", function() {
+            Wt(a.id)
+        }, function(e) {
+            o.textContent = e.key
+        })),
+        t.hide && (n.style.display = "none")
+    }
+    var ht = []
+      , pt = (ut(et, {
+        isAction: !1,
+        name: "Brush",
+        keydef: "B",
+        graphic: "pen.gif",
+        cursor: 0
+    }),
+    ut(nt, {
+        isAction: !1,
+        name: "Fill",
+        keydef: "F",
+        graphic: "fill.gif",
+        cursor: "url(/img/fill_cur.png) 7 38, default"
+    }),
+    [])
+      , q = (ut(0, {
+        isAction: !0,
+        name: "Undo",
+        keydef: "U",
+        graphic: "undo.gif",
+        action: function() {
+            {
+                var e;
+                0 < vt.length && (vt.pop(),
+                0 < vt.length ? (Bt(e = vt[vt.length - 1]),
+                r && r.emit("data", {
+                    id: xa,
+                    data: e
+                })) : Zt())
+            }
+        }
+    }),
+    ut(1, {
+        isAction: !0,
+        name: "Clear",
+        keydef: "C",
+        graphic: "clear.gif",
+        action: Zt
+    }),
+    s.querySelector("#game-canvas canvas"))
+      , ft = q.getContext("2d")
+      , C = []
+      , gt = 0
+      , mt = 0
+      , yt = []
+      , o = [0, 9999, 9999, 0, 0]
+      , vt = []
+      , x = [0, 0]
+      , bt = [0, 0]
+      , St = 0
+      , kt = s.createElement("canvas")
+      , M = (kt.width = ot + 2,
+    kt.height = ot + 2,
+    kt.getContext("2d"));
+    function wt() {
+        var t = ht[qt].cursor;
+        if (N.id == J && E == I) {
+            if (qt == et) {
+                var n, a, o = kt.width, r = $t;
+                if (r <= 0)
+                    return;
+                M.clearRect(0, 0, o, o);
+                let e = Lt[xt];
+                1 == l.dark && (i = Math.floor(.75 * e[0]),
+                n = Math.floor(.75 * e[1]),
+                a = Math.floor(.75 * e[2]),
+                e = [i, n, a]),
+                M.fillStyle = Ut(e),
+                M.beginPath(),
+                M.arc(o / 2, o / 2, r / 2 - 1, 0, 2 * Math.PI),
+                M.fill(),
+                M.strokeStyle = "#FFF",
+                M.beginPath(),
+                M.arc(o / 2, o / 2, r / 2 - 1, 0, 2 * Math.PI),
+                M.stroke(),
+                M.strokeStyle = "#000",
+                M.beginPath(),
+                M.arc(o / 2, o / 2, r / 2, 0, 2 * Math.PI),
+                M.stroke();
+                var i = o / 2
+                  , t = "url(" + kt.toDataURL() + ")" + i + " " + i + ", default"
+            }
+        } else
+            t = "default";
+        q.style.cursor = t
+    }
+    var Ct = 0
+      , qt = 0
+      , xt = 0
+      , Mt = 0
+      , Lt = [[255, 255, 255], [0, 0, 0], [193, 193, 193], [80, 80, 80], [239, 19, 11], [116, 11, 7], [255, 113, 0], [194, 56, 0], [255, 228, 0], [232, 162, 0], [0, 204, 0], [0, 70, 25], [0, 255, 145], [0, 120, 93], [0, 178, 255], [0, 86, 158], [35, 31, 211], [14, 8, 101], [163, 0, 186], [85, 0, 105], [223, 105, 167], [135, 53, 84], [255, 172, 142], [204, 119, 77], [160, 82, 45], [99, 48, 13]]
+      , $t = 0
+      , Dt = -1
+      , At = [];
+    function It(e) {
+        return 20 + (e - at) / (ot - at) * 80
+    }
+    for (let n = 0; n < rt.length; n++) {
+        let e = b("size clickable")
+          , t = b("icon");
+        t.style.backgroundSize = It(rt[n]) + "%",
+        e.appendChild(t),
+        ct.appendChild(e),
+        v(e, "click", function(e) {
+            var t = n;
+            Tt((t = At[t]).element),
+            Et(t.size),
+            Yt()
+        }),
+        At.push({
+            id: n,
+            size: rt[n],
+            element: e,
+            elementIcon: t
+        })
+    }
+    var Rt = [b("top"), b("bottom")];
+    for (let e = 0; e < Lt.length / 2; e++)
+        Rt[0].appendChild(Ht(2 * e)),
+        Rt[1].appendChild(Ht(2 * e + 1)),
+        s.querySelector("#game-toolbar .colors-mobile .top").appendChild(Ht(2 * e)),
+        s.querySelector("#game-toolbar .colors-mobile .bottom").appendChild(Ht(2 * e + 1));
+    for (let e = 0; e < Rt.length; e++)
+        dt.appendChild(Rt[e]);
+    function Et(e) {
+        $t = L(e, at, ot);
+        let n = At[At.length - 1]
+          , a = n.size;
+        for (let t = 0; t < At.length; t++) {
+            let e = At[t];
+            var o = Math.abs($t - e.size);
+            o <= a && (a = o,
+            n = e,
+            t),
+            e.element.classList.remove("selected")
+        }
+        n.element.classList.add("selected"),
+        w.querySelector(".size-preview .icon").style.backgroundSize = It($t) + "%",
+        wt()
+    }
+    function Tt(e) {
+        e.classList.remove("clicked"),
+        e.offsetWidth,
+        e.classList.add("clicked")
+    }
+    function Nt(e) {
+        Tt(pt[e].element),
+        pt[e].action()
+    }
+    function Wt(e, t) {
+        Tt(ht[e].element),
+        e == qt && !t || (ht[Ct = qt].element.classList.remove("selected"),
+        ht[e].element.classList.add("selected"),
+        qt = e,
+        wt())
+    }
+    function Ot(e) {
+        var t = Ut(Lt[e]);
+        xt = e,
+        s.querySelector("#color-preview-primary").style.fill = t,
+        s.querySelector("#game-toolbar .color-picker-mobile .preview").style.backgroundColor = t,
+        wt()
+    }
+    function zt(e) {
+        var t = Ut(Lt[e]);
+        Mt = e,
+        s.querySelector("#color-preview-secondary").style.fill = t,
+        wt()
+    }
+    function Pt() {
+        var e = xt;
+        Ot(Mt),
+        zt(e)
+    }
+    function Yt() {
+        ct.classList.remove("open")
+    }
+    function Ht(e) {
+        let t = b("color");
+        return t.style.backgroundColor = Ut(Lt[e]),
+        t.colorIndex = e,
+        t
+    }
+    function Ut(e) {
+        return "rgb(" + e[0] + "," + e[1] + "," + e[2] + ")"
+    }
+    function Ft(e) {
+        e = L(e, 0, Lt.length),
+        e = Lt[e];
+        return {
+            r: e[0],
+            g: e[1],
+            b: e[2]
+        }
+    }
+    function Bt(e) {
+        if (C = C.slice(0, e),
+        !(I != E && mt < e)) {
+            o = Kt();
+            e = Math.floor(C.length / Gt);
+            yt = yt.slice(0, e),
+            en();
+            for (var t = 0; t < yt.length; t++) {
+                var n = yt[t];
+                ft.putImageData(n.data, n.bounds[1], n.bounds[2])
+            }
+            for (t = yt.length * Gt; t < C.length; t++)
+                _t(Xt(C[t]), C[t]);
+            gt = Math.min(C.length, gt),
+            mt = Math.min(C.length, mt)
+        }
+    }
+    const Gt = 200;
+    function Kt() {
+        return [0, 9999, 9999, 0, 0]
+    }
+    function _t(e) {
+        var t, n, a;
+        o[0] += 1,
+        o[1] = Math.min(o[1], e[0]),
+        o[2] = Math.min(o[2], e[1]),
+        o[3] = Math.max(o[3], e[2]),
+        o[4] = Math.max(o[4], e[3]),
+        o[0] >= Gt && (e = o[1],
+        t = o[2],
+        a = o[3],
+        n = o[4],
+        a = ft.getImageData(e, t, a - e, n - t),
+        yt.push({
+            data: a,
+            bounds: o
+        }),
+        o = Kt())
+    }
+    function Vt(e) {
+        return (e || 0 < C.length || 0 < vt.length || 0 < gt || 0 < mt) && (C = [],
+        vt = [],
+        gt = mt = 0,
+        o = Kt(),
+        yt = [],
+        en(),
+        1)
+    }
+    function Zt() {
+        Vt() && r && r.emit("data", {
+            id: qa
+        })
+    }
+    function jt(e) {
+        C.push(e),
+        I == E && _t(Xt(e))
+    }
+    function Xt(e) {
+        let t = [0, 0, q.width, q.height];
+        switch (e[0]) {
+        case Je:
+            var n = L(Math.floor(e[2]), at, ot)
+              , a = Math.floor(Math.ceil(n / 2))
+              , o = L(Math.floor(e[3]), -a, q.width + a)
+              , r = L(Math.floor(e[4]), -a, q.height + a)
+              , i = L(Math.floor(e[5]), -a, q.width + a)
+              , l = L(Math.floor(e[6]), -a, q.height + a)
+              , s = Ft(e[1]);
+            t[0] = L(o - a, 0, q.width),
+            t[1] = L(r - a, 0, q.height),
+            t[2] = L(i + a, 0, q.width),
+            t[3] = L(l + a, 0, q.height),
+            Qt(o, r, i, l, n, s.r, s.g, s.b);
+            break;
+        case Qe:
+            var s = Ft(e[1])
+              , a = L(Math.floor(e[2]), 0, q.width)
+              , o = L(Math.floor(e[3]), 0, q.height)
+              , r = a
+              , i = o
+              , c = s.r
+              , d = s.g
+              , u = s.b
+              , h = ft.getImageData(0, 0, q.width, q.height)
+              , p = [[r, i]]
+              , f = function(e, t, n) {
+                n = 4 * (n * e.width + t);
+                return 0 <= n && n < e.data.length ? [e.data[n], e.data[1 + n], e.data[2 + n]] : [0, 0, 0]
+            }(h, r, i);
+            if (c != f[0] || d != f[1] || u != f[2]) {
+                function g(e) {
+                    var t = h.data[e]
+                      , n = h.data[e + 1]
+                      , e = h.data[e + 2];
+                    if (t == c && n == d && e == u)
+                        return !1;
+                    t = Math.abs(t - f[0]),
+                    n = Math.abs(n - f[1]),
+                    e = Math.abs(e - f[2]);
+                    return t < 1 && n < 1 && e < 1
+                }
+                for (var m, y, v, b, S, k, w = h.height, C = h.width; p.length; ) {
+                    for (m = p.pop(),
+                    y = m[0],
+                    v = m[1],
+                    b = 4 * (v * C + y); 0 <= v-- && g(b); )
+                        b -= 4 * C;
+                    for (b += 4 * C,
+                    ++v,
+                    k = S = !1; v++ < w - 1 && g(b); )
+                        Jt(h, b, c, d, u),
+                        0 < y && (g(b - 4) ? S || (p.push([y - 1, v]),
+                        S = !0) : S = S && !1),
+                        y < C - 1 && (g(b + 4) ? k || (p.push([y + 1, v]),
+                        k = !0) : k = k && !1),
+                        b += 4 * C
+                }
+                ft.putImageData(h, 0, 0)
+            }
+        }
+        return t
+    }
+    function L(e, t, n) {
+        return e < t ? t : n < e ? n : e
+    }
+    function Jt(e, t, n, a, o) {
+        0 <= t && t < e.data.length && (e.data[t] = n,
+        e.data[t + 1] = a,
+        e.data[t + 2] = o,
+        e.data[t + 3] = 255)
+    }
+    function Qt(e, t, n, a, o, r, i, l) {
+        function s(e, t) {
+            for (var n = -c; n <= c; n++)
+                for (var a, o = -c; o <= c; o++)
+                    n * n + o * o < d && (0 <= (a = 4 * ((t + o) * f.width + e + n)) && a < f.data.length && (f.data[a] = r,
+                    f.data[1 + a] = i,
+                    f.data[2 + a] = l,
+                    f.data[3 + a] = 255))
+        }
+        var c = Math.floor(o / 2)
+          , d = c * c
+          , o = Math.min(e, n) - c
+          , u = Math.min(t, a) - c
+          , h = Math.max(e, n) + c
+          , p = Math.max(t, a) + c
+          , f = (e -= o,
+        t -= u,
+        n -= o,
+        a -= u,
+        ft.getImageData(o, u, h - o, p - u));
+        if (e == n && t == a)
+            s(e, t);
+        else {
+            s(e, t),
+            s(n, a);
+            var g = Math.abs(n - e)
+              , m = Math.abs(a - t)
+              , y = e < n ? 1 : -1
+              , v = t < a ? 1 : -1
+              , b = g - m;
+            for (Math.floor(Math.max(0, c - 10) / 5); e != n || t != a; ) {
+                var S = b << 1;
+                -m < S && (b -= m,
+                e += y),
+                S < g && (b += g,
+                t += v),
+                s(e, t)
+            }
+        }
+        ft.putImageData(f, o, u)
+    }
+    function en() {
+        ft.fillStyle = "#FFF",
+        ft.fillRect(0, 0, q.width, q.height)
+    }
+    v(w, "contextmenu", function(e) {
+        return e.preventDefault(),
+        !1
+    }),
+    v("#game-toolbar .colors * .color", "mousedown", function(e) {
+        var t = this.colorIndex;
+        0 == e.button ? (e.altKey ? zt : Ot)(t) : 2 == e.button && zt(t)
+    }),
+    v("#game-toolbar .colors-mobile * .color", "mousedown", function(e) {
+        Ot(this.colorIndex),
+        w.querySelector(".colors-mobile").classList.remove("open")
+    }),
+    v([q], "DOMMouseScroll wheel", function(e) {
+        e.preventDefault();
+        e = -e.deltaY || e.wheelDeltaY,
+        e = Math.sign(e);
+        Et($t + 2 * e)
+    }),
+    ce("Swap", "S", "Swap the primary and secondary color.", Pt),
+    v(w.querySelector(".color-picker .preview"), "click", function(e) {
+        Pt()
+    }),
+    v(w.querySelector(".color-picker-mobile .preview"), "click", function(e) {
+        w.querySelector(".colors-mobile").classList.toggle("open")
+    }),
+    v(st, "click", function(e) {
+        ct.classList.toggle("open")
+    }),
+    v(s, "keypress", function(e) {
+        if ("Enter" == e.code)
+            return $e.focus(),
+            0;
+        if ("input" == s.activeElement.tagName.toLowerCase() || "textarea" == s.activeElement.tagName.toLowerCase() || -1 != Dt)
+            return 0;
+        var n = e.key.toLowerCase().replace("key", "");
+        for (let t = 0; t < d.length; t++)
+            if (d[t].key.toLowerCase() == n) {
+                for (let e = 0; e < d[t].cb.length; e++)
+                    d[t].cb[e](d[t]);
+                return void e.preventDefault()
+            }
+    }),
+    v(q, "contextmenu", function(e) {
+        return e.preventDefault(),
+        !1
+    }),
+    v(q, "mousedown", function(e) {
+        e.preventDefault(),
+        0 != e.button && 2 != e.button || -1 != Dt || rn(e.button, e.clientX, e.clientY, !0, -1)
+    }),
+    v(s, "mouseup", function(e) {
+        e.preventDefault(),
+        ln(e.button)
+    }),
+    v(s, "mousemove", function(e) {
+        on(e.clientX, e.clientY, !1, -1)
+    });
+    var tn = null;
+    function nn(e, t, n, a) {
+        var o = q.getBoundingClientRect()
+          , e = Math.floor((e - o.left) / o.width * q.width)
+          , t = Math.floor((t - o.top) / o.height * q.height);
+        a ? (St = n,
+        bt[0] = x[0] = e,
+        bt[1] = x[1] = t) : (bt[0] = x[0],
+        bt[1] = x[1],
+        St = n,
+        x[0] = e,
+        x[1] = t)
+    }
+    v(q, "touchstart", function(e) {
+        e.preventDefault();
+        e = e.changedTouches;
+        0 < e.length && null == tn && (tn = e[0].identitfier,
+        rn(0, e[0].clientX, e[0].clientY, !0, e[0].force))
+    }),
+    v(q, "touchend touchcancel", function(e) {
+        e.preventDefault(),
+        ln(Dt)
+    }),
+    v(q, "touchmove", function(e) {
+        e.preventDefault();
+        for (var t = e.changedTouches, n = 0; n < t.length; n++)
+            if (t[n].identitfier == tn) {
+                on(t[n].clientX, t[n].clientY, !1, t[n].force);
+                break
+            }
+    });
+    var an = 0;
+    function on(e, t, n, a) {
+        nn(e, t, a = l.pressureSensitivity ? a : -1, n),
+        sn(!1)
+    }
+    function rn(e, t, n, a, o) {
+        C.length,
+        Dt = e,
+        nn(t, n, o, a),
+        sn(!0)
+    }
+    function ln(e) {
+        -1 == e || 0 != e && 2 != e || Dt != e || (an != C.length && (an = C.length,
+        vt.push(an)),
+        tn = null,
+        Dt = -1)
+    }
+    function sn(n) {
+        if (N.id == J && E == I && -1 != Dt) {
+            var a = 0 == Dt ? xt : Mt;
+            let t = null;
+            if (n) {
+                n = function(e, t) {
+                    var n = (e = ft.getImageData(e, t, 1, 1)).data[0]
+                      , a = e.data[1]
+                      , o = e.data[2];
+                    for (let e = 0; e < Lt.length; e++) {
+                        var r = Lt[e]
+                          , l = r[0] - n
+                          , s = r[1] - a
+                          , r = r[2] - o;
+                        if (0 == l && 0 == s && 0 == r)
+                            return e
+                    }
+                    return i
+                }(x[0], x[1]);
+                if (qt == nt) {
+                    if (n == a)
+                        return;
+                    t = (r = a,
+                    l = x[0],
+                    s = x[1],
+                    [Qe, r, l, s])
+                }
+                if (qt == tt)
+                    return (0 == Dt ? Ot : zt)(n),
+                    void Wt(Ct)
+            }
+            if (qt == et) {
+                let e = $t;
+                0 <= St && (e = (e - at) * L(St, 0, 1) + at),
+                t = (r = a,
+                l = e,
+                s = bt[0],
+                n = bt[1],
+                a = x[0],
+                o = x[1],
+                [Je, r, l, s, n, a, o])
+            }
+            null != t && jt(t)
+        }
+        var o, r, l, s
+    }
+    setInterval(()=>{
+        var e, t;
+        r && N.id == J && E == I && 0 < C.length - gt && (e = gt + 8,
+        t = C.slice(gt, e),
+        r.emit("data", {
+            id: Ca,
+            data: t
+        }),
+        gt = Math.min(e, C.length))
+    }
+    , 50),
+    setInterval(function() {
+        r && N.id == J && E != I && mt < C.length && (_t(Xt(C[mt]), C[mt]),
+        mt++)
+    }, 3);
+    var cn = s.querySelector("#game-canvas .overlay")
+      , dn = s.querySelector("#game-canvas .overlay-content")
+      , $ = s.querySelector("#game-canvas .overlay-content .text")
+      , un = s.querySelector("#game-canvas .overlay-content .words")
+      , hn = s.querySelector("#game-canvas .overlay-content .reveal")
+      , D = s.querySelector("#game-canvas .overlay-content .result")
+      , pn = -100
+      , fn = 0
+      , gn = void 0;
+    function mn(e, r, i) {
+        let l = pn
+          , s = fn
+          , c = e.top - l
+          , d = e.opacity - s;
+        if (Math.abs(c) < .001 && Math.abs(d) < .001)
+            i && i();
+        else {
+            let a = void 0
+              , o = 0;
+            gn = u.requestAnimationFrame(function e(t) {
+                var n = t - (a = null == a ? t : a)
+                  , t = (a = t,
+                (o = Math.min(o + n, r)) / r)
+                  , n = (n = t) < .5 ? .5 * function(e, t) {
+                    return e * e * ((t + 1) * e - t)
+                }(2 * n, 1.2 * 1.5) : .5 * (function(e, t) {
+                    return e * e * ((t + 1) * e + t)
+                }(2 * n - 2, 1.2 * 1.5) + 2)
+                  , t = t * t * (3 - 2 * t);
+                pn = l + c * n,
+                fn = s + d * t,
+                dn.style.top = pn + "%",
+                cn.style.opacity = fn,
+                o == r ? i && i() : gn = u.requestAnimationFrame(e)
+            })
+        }
+    }
+    function yn(e) {
+        e.classList.add("show")
+    }
+    function vn(l) {
+        for (var e = 0; e < dn.children.length; e++)
+            dn.children[e].classList.remove("show");
+        switch (l.id) {
+        case j:
+            yn($),
+            $.textContent = k("Round $", l.data + 1);
+            break;
+        case V:
+            yn($),
+            $.textContent = k("Waiting for players...");
+            break;
+        case Z:
+            yn($),
+            $.textContent = k("Game starting in a few seconds...");
+            break;
+        case Q:
+            yn(hn),
+            hn.querySelector("p span.word").textContent = l.data.word,
+            hn.querySelector(".reason").textContent = function(e) {
+                switch (e) {
+                case G:
+                    return k("Everyone guessed the word!");
+                case _:
+                    return k("The drawer left the game!");
+                case K:
+                    return k("Time is up!");
+                default:
+                    return "Error!"
+                }
+            }(l.data.reason);
+            for (var t = hn.querySelector(".player-container"), n = (S(t),
+            []), a = 0; a < l.data.scores.length; a += 3) {
+                var o = l.data.scores[a + 0]
+                  , r = (l.data.scores[a + 1],
+                l.data.scores[a + 2]);
+                (c = P(o)) && n.push({
+                    name: c.name,
+                    score: r
+                })
+            }
+            n.sort(function(e, t) {
+                return t.score - e.score
+            });
+            for (a = 0; a < n.length; a++) {
+                var s = b("player")
+                  , c = n[a]
+                  , d = (s.appendChild(b("name", c.name)),
+                b("score", (0 < c.score ? "+" : "") + c.score));
+                c.score <= 0 && d.classList.add("zero"),
+                s.appendChild(d),
+                t.appendChild(s)
+            }
+            break;
+        case ee:
+            yn(D);
+            let i = [D.querySelector(".podest-1"), D.querySelector(".podest-2"), D.querySelector(".podest-3"), D.querySelector(".ranks")];
+            for (let e = 0; e < 4; e++)
+                S(i[e]);
+            if (0 < l.data.length) {
+                let r = [[], [], [], []];
+                for (let e = 0; e < l.data.length; e++) {
+                    var u = {
+                        player: P(l.data[e][0]),
+                        rank: l.data[e][1],
+                        title: l.data[e][2]
+                    };
+                    u.player && r[Math.min(u.rank, 3)].push(u)
+                }
+                for (let o = 0; o < 3; o++) {
+                    let a = r[o];
+                    if (0 < a.length) {
+                        var h = a.map(function(e) {
+                            return e.player.name
+                        }).join(", ")
+                          , p = a[0].player.score;
+                        let e = i[o]
+                          , n = (e.appendChild(b("rank-place", "#" + (o + 1))),
+                        e.appendChild(b("rank-name", h)),
+                        e.appendChild(b("rank-score", k("$ points", p))),
+                        b("avatar-container"));
+                        e.appendChild(n),
+                        0 == o && n.appendChild(b("trophy"));
+                        for (let t = 0; t < a.length; t++) {
+                            let e = he(a[t].player.avatar, 0, 0 == o);
+                            e.style.width = "96px",
+                            e.style.height = "96px",
+                            e.style.left = 16 * -(a.length - 1) + 32 * t + "px",
+                            0 == o && (e.classList.add("winner"),
+                            e.style.animationDelay = -2.35 * t + "s"),
+                            n.appendChild(e)
+                        }
+                    }
+                }
+                var f = Math.min(5, r[3].length);
+                for (let n = 0; n < f; n++) {
+                    var g = r[3][n];
+                    let e = b("rank")
+                      , t = he(g.player.avatar, 0, !1);
+                    t.style.width = "48px",
+                    t.style.height = "48px",
+                    e.appendChild(t),
+                    e.appendChild(b("rank-name", "#" + (g.rank + 1) + " " + g.player.name)),
+                    e.appendChild(b("rank-score", k("$ points", g.player.score))),
+                    i[3].appendChild(e)
+                }
+                0 < r[0].length ? (y = r[0].map(function(e) {
+                    return e.player.name
+                }).join(", "),
+                D.querySelector(".winner-name").textContent = 0 < r[0].length ? y : "<user left>",
+                D.querySelector(".winner-text").textContent = " " + (1 == r[0].length ? k("is the winner!") : k("are the winners!"))) : (D.querySelector(".winner-name").textContent = "",
+                D.querySelector(".winner-text").textContent = k("Nobody won!"))
+            } else
+                D.querySelector(".winner-name").textContent = "",
+                D.querySelector(".winner-text").textContent = k("Nobody won!");
+            break;
+        case X:
+            if (l.data.words)
+                if (yn($),
+                yn(un),
+                S(un),
+                T[oe.WORDMODE] == re.COMBINATION) {
+                    $.textContent = k("Choose the first word");
+                    let a = l.data.words.length / 2
+                      , o = []
+                      , r = []
+                      , i = 0;
+                    for (let n = 0; n < a; n++) {
+                        let e = b("word", l.data.words[n])
+                          , t = (e.index = n,
+                        b("word", l.data.words[n + a]));
+                        t.index = n,
+                        t.style.display = "none",
+                        t.style.animationDelay = .03 * n + "s",
+                        o.push(e),
+                        r.push(t),
+                        v(e, "click", function() {
+                            i = this.index;
+                            for (let e = 0; e < a; e++)
+                                o[e].style.display = "none",
+                                r[e].style.display = "";
+                            $.textContent = k("Choose the second word")
+                        }),
+                        v(t, "click", function() {
+                            ra([i, this.index])
+                        }),
+                        un.appendChild(e),
+                        un.appendChild(t)
+                    }
+                } else {
+                    $.textContent = k("Choose a word");
+                    for (a = 0; a < l.data.words.length; a++) {
+                        var m = b("word", l.data.words[a]);
+                        m.index = a,
+                        v(m, "click", function() {
+                            ra(this.index)
+                        }),
+                        un.appendChild(m)
+                    }
+                }
+            else {
+                yn($);
+                var y = (c = P(l.data.id)) ? c.name : k("User");
+                $.textContent = k("$ is choosing a word!", y)
+            }
+        }
+    }
+    const bn = 0
+      , Sn = 1
+      , kn = 2
+      , wn = 3
+      , Cn = 4
+      , qn = 5
+      , xn = 6;
+    function Mn(e, t) {
+        this.url = t,
+        this.buffer = null,
+        this.loaded = !1;
+        var n = this
+          , a = new XMLHttpRequest;
+        a.open("GET", t, !0),
+        a.responseType = "arraybuffer",
+        a.onload = function() {
+            e.context.decodeAudioData(a.response, function(e) {
+                n.buffer = e,
+                n.loaded = !0
+            }, function(e) {
+                console.log("Failed loading audio from url '" + t + "'")
+            })
+        }
+        ,
+        a.send()
+    }
+    function Ln() {
+        this.context = null,
+        this.sounds = new Map,
+        u.addEventListener("load", this.load.bind(this), !1)
+    }
+    Ln.prototype.addSound = function(e, t) {
+        this.sounds.set(e, new Mn(this,t))
+    }
+    ,
+    Ln.prototype.loadSounds = function() {
+        this.addSound(bn, "/audio/roundStart.ogg"),
+        this.addSound(Sn, "/audio/roundEndSuccess.ogg"),
+        this.addSound(kn, "/audio/roundEndFailure.ogg"),
+        this.addSound(wn, "/audio/join.ogg"),
+        this.addSound(Cn, "/audio/leave.ogg"),
+        this.addSound(qn, "/audio/playerGuessed.ogg"),
+        this.addSound(xn, "/audio/tick.ogg")
+    }
+    ,
+    Ln.prototype.playSound = function(e) {
+        var t, n;
+        null != this.context && ("running" != this.context.state ? this.context.resume().then(()=>{
+            this.playSound(e)
+        }
+        ) : null != this.context && !l.audioMute && this.sounds.has(e) && (t = this.sounds.get(e)).loaded && ((n = this.context.createBufferSource()).buffer = t.buffer,
+        n.connect(this.context.destination),
+        n.start(0)))
+    }
+    ,
+    Ln.prototype.load = function() {
+        try {
+            u.AudioContext = u.AudioContext || u.webkitAudioContext,
+            this.context = new AudioContext
+        } catch (e) {
+            return console.log("Error creating AudioContext."),
+            void (this.context = null)
+        }
+        this.loadSounds()
+    }
+    ,
+    V;
+    var r, A = [], I = 0, R = -1, E = -1, T = [], N = {
+        id: -1,
+        time: 0,
+        data: 0
+    }, $n = -1, Dn = 0, An = void 0, In = new Ln, W = void 0, Rn = !1, En = !1, Tn = s.querySelector("#game-container"), Nn = s.querySelector("#game-room"), O = s.querySelector("#game-players"), Wn = s.querySelector("#game-chat"), st = (s.querySelector("#game-board"),
+    s.querySelector("#game-info")), On = s.querySelector("#game-bar"), zn = O.querySelector(".list"), Pn = O.querySelector(".footer"), Yn = s.querySelector("#game-round"), z = [s.querySelector("#game-word .description"), s.querySelector("#game-word .word"), s.querySelector("#game-word .hints .container")], Hn = s.querySelector("#home .container-name-lang input"), Un = s.querySelector("#home .container-name-lang select"), Fn = s.querySelector("#home .panel .button-play"), Bn = s.querySelector("#home .panel .button-create");
+    function Gn(e) {
+        Rn = e,
+        s.querySelector("#load").style.display = e ? "block" : "none"
+    }
+    function Kn(e, t, n, a) {
+        var o, r;
+        e = e,
+        t = t,
+        o = function(e, t) {
+            switch (e) {
+            case 200:
+                return void n({
+                    success: !0,
+                    data: t
+                });
+            case 503:
+            case 0:
+                a && f(ve, k("Servers are currently undergoing maintenance!") + "\n\r" + k("Please try again later!"));
+                break;
+            default:
+                a && f(ve, k("An unknown error occurred ('$')", e) + "\n\r" + k("Please try again later!"))
+            }
+            n({
+                success: !1,
+                error: e
+            })
+        }
+        ,
+        (r = new XMLHttpRequest).onreadystatechange = function() {
+            4 == this.readyState && o(this.status, this.response)
+        }
+        ,
+        r.open("POST", e, !0),
+        r.setRequestHeader("Content-type", "application/x-www-form-urlencoded"),
+        r.send(t)
+    }
+    var _n = null;
+    function Vn(t) {
+        let n = !1;
+        if (u.localStorageAvailable) {
+            let e = c.getItem("lastAd")
+              , t = new Date;
+            var a;
+            c.setItem("lastAd", t.toString()),
+            null == e ? e = t : (e = new Date(Date.parse(e)),
+            a = Math.abs(e - t),
+            n = 1 <= a / 1e3 / 60)
+        }
+        if (n)
+            try {
+                aiptag && adplayer && void 0 !== adplayer && null !== adplayer && "undefined" !== adplayer ? (_n = t,
+                aiptag.cmd.player.push(function() {
+                    adplayer.startPreRoll()
+                })) : t()
+            } catch (e) {
+                console.log(e),
+                t()
+            }
+        else
+            t()
+    }
+    function Zn(e, t, n) {
+        In.context.resume(),
+        r && oa();
+        let a = 0;
+        (r = Y(e, {
+            closeOnBeforeunload: !1
+        })).on("connect", function() {
+            Gn(!1),
+            r.on("joinerr", function(e) {
+                oa(),
+                f(ve, function(e) {
+                    switch (e) {
+                    case 1:
+                        return k("Room not found!");
+                    case 2:
+                        return k("Room is full!");
+                    case 3:
+                        return k("You are on a kick cooldown!");
+                    case 4:
+                        return k("You are banned from this room!");
+                    default:
+                        return k("An unknown error ('$') occured!", e)
+                    }
+                }(e))
+            }),
+            r.on("data", Da);
+            var e = Hn.value.split("#")
+              , e = {
+                join: t,
+                create: n ? 1 : 0,
+                name: e[0],
+                lang: Un.value,
+                code: e[1],
+                avatar: l.avatar
+            };
+            r.emit("login", e)
+        }),
+        r.on("reason", function(e) {
+            a = e
+        }),
+        r.on("disconnect", function() {
+            switch (a) {
+            case ne:
+                f(be, k("You have been kicked!"));
+                break;
+            case ae:
+                f(be, k("You have been banned!"));
+                break;
+            default:
+                f(be, k("Connection lost!"))
+            }
+            oa()
+        }),
+        r.on("connect_error", e=>{
+            oa(),
+            Gn(!1),
+            f(ve, e.message)
+        }
+        )
+    }
+    function jn(e) {
+        var t;
+        In.playSound(wn),
+        Wt(et, !0),
+        Et(12),
+        Ot(1),
+        zt(0),
+        Vt(!0),
+        S(De),
+        s.querySelector("#home").style.display = "none",
+        s.querySelector("#game").style.display = "flex",
+        I = e.me,
+        $n = e.type,
+        An = e.id,
+        s.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id,
+        t = e.settings,
+        T = t,
+        Xn(),
+        S(zn),
+        A = [];
+        for (var n = 0; n < e.users.length; n++)
+            Aa(e.users[n], !1);
+        Na(),
+        Oa(),
+        Qn(e.round),
+        ca(e.owner),
+        ta(e.state, !0),
+        En || ((adsbygoogle = u.adsbygoogle || []).push({}),
+        (adsbygoogle = u.adsbygoogle || []).push({}),
+        En = !0)
+    }
+    function Xn() {
+        Qn(Dn);
+        for (var e, t = 0; t < Ya.length; t++) {
+            var n = Ya[t];
+            n.index && (e = T[(n = n).index],
+            "checkbox" == n.element.type ? n.element.checked = !!e : n.element.value = e)
+        }
+    }
+    function Jn(e, t, n) {
+        T[e] = t,
+        n && r && r.emit("data", {
+            id: ma,
+            data: {
+                id: e,
+                val: t
+            }
+        }),
+        Xn()
+    }
+    function Qn(e) {
+        Dn = e,
+        Yn.textContent = k("Round $ of $", [Dn + 1, T[oe.ROUNDS]])
+    }
+    function ea() {
+        for (let e = 0; e < A.length; e++)
+            A[e].score = 0;
+        for (let e = 0; e < A.length; e++)
+            za(A[e], !1),
+            Pa(A[e], !1),
+            Wa(A[e])
+    }
+    function ta(a, e) {
+        var t, n;
+        if (t = N = a,
+        null != gn && (u.cancelAnimationFrame(gn),
+        gn = void 0),
+        t.id == J || t.id == te ? mn({
+            top: -100,
+            opacity: 0
+        }, 600, function() {
+            cn.classList.remove("show")
+        }) : cn.classList.contains("show") ? mn({
+            top: -100,
+            opacity: 1
+        }, 600, function() {
+            vn(t),
+            mn({
+                top: 0,
+                opacity: 1
+            }, 600)
+        }) : (cn.classList.add("show"),
+        vn(t),
+        mn({
+            top: 0,
+            opacity: 1
+        }, 600)),
+        n = a.time,
+        _a(),
+        Ka = n,
+        Ba.textContent = Ka,
+        Ga = setInterval(function() {
+            Ka = Math.max(0, Ka - 1),
+            Ba.textContent = Ka;
+            var e = -1;
+            N.id == J && (e = Ua),
+            N.id == X && (e = Fa),
+            Ba.style.animationName = Ka < e ? Ka % 2 == 0 ? "rot_left" : "rot_right" : "none",
+            Ka < e && In.playSound(xn),
+            Ka <= 0 && _a()
+        }, 1e3),
+        w.classList.add("hidden"),
+        wt(),
+        aa(!1),
+        a.id == te ? (ea(),
+        Nn.style.display = "flex",
+        Tn.style.display = "none",
+        On.style.display = "none",
+        Wn.classList.add("room"),
+        O.parentNode.removeChild(O),
+        Nn.querySelector(".container .players").appendChild(O),
+        O.classList.add("room")) : (Nn.style.display = "none",
+        Tn.style.display = "",
+        On.style.display = "",
+        Wn.classList.remove("room"),
+        O.parentNode.removeChild(O),
+        Tn.prepend(O),
+        O.classList.remove("room")),
+        a.id == j && (Qn(a.data),
+        0 == a.data && ea()),
+        a.id == Q) {
+            I != E && sa(a.data.word);
+            for (var o = 0; o < a.data.scores.length; o += 3) {
+                var r = a.data.scores[o + 0]
+                  , i = a.data.scores[o + 1]
+                  , r = (a.data.scores[o + 2],
+                P(r));
+                r && (r.score = i)
+            }
+            Oa();
+            for (var l = !0, o = 0; o < A.length; o++)
+                if (A[o].guessed) {
+                    l = !1;
+                    break
+                }
+            l ? In.playSound(kn) : In.playSound(Sn),
+            m(k("The word was '$'", a.data.word), "", g(Ee), !0)
+        } else
+            a.id != J && (z[0].textContent = k("WAITING"),
+            z[0].classList.add("waiting"),
+            z[1].style.display = "none",
+            z[2].style.display = "none");
+        if (a.id == J) {
+            if (E = a.data.id,
+            In.playSound(bn),
+            Vt(!0),
+            a.data.drawCommands && (C = a.data.drawCommands),
+            m(k("$ is drawing now!", P(E).name), "", g(Re), !0),
+            !e)
+                for (o = 0; o < A.length; o++)
+                    za(A[o], !1);
+            z[0].classList.remove("waiting"),
+            E == I ? (n = a.data.word,
+            z[0].textContent = k("DRAW THIS"),
+            z[1].style.display = "",
+            z[2].style.display = "none",
+            z[1].textContent = n,
+            w.classList.remove("hidden"),
+            wt()) : (aa(!0),
+            ia(a.data.word, !1),
+            la(a.data.hints))
+        } else {
+            E = -1;
+            for (o = 0; o < A.length; o++)
+                za(A[o], !1)
+        }
+        if (a.id == ee && 0 < a.data.length) {
+            let t = []
+              , n = 0;
+            for (let e = 0; e < a.data.length; e++) {
+                var s = a.data[e][0]
+                  , c = a.data[e][1]
+                  , s = P(s);
+                s && 0 == c && (n = s.score,
+                t.push(s.name))
+            }
+            1 == t.length ? m(k("$ won with a score of $!", [t[0], n]), "", g(Ne), !0) : 1 < t.length && m(k("$ and $ won with a score of $!", [t.slice(0, -1).join(", "), t[t.length - 1], n]), "", g(Ne), !0)
+        }
+        for (o = 0; o < A.length; o++)
+            Pa(A[o], A[o].id == E);
+        Na()
+    }
+    function na(e) {
+        r && r.connected && N.id == J && (r.emit("data", {
+            id: pa,
+            data: e
+        }),
+        aa(!1))
+    }
+    function aa(e) {
+        s.querySelector("#game-rate").style.display = e ? "" : "none"
+    }
+    function oa() {
+        r && r.close(),
+        r = void 0,
+        Vt(),
+        _a(),
+        A = [],
+        T = [],
+        N = {
+            id: E = R = -1,
+            time: I = 0,
+            data: 0
+        },
+        s.querySelector("#home").style.display = "",
+        s.querySelector("#game").style.display = "none"
+    }
+    function ra(e) {
+        r && r.connected && N.id == X && r.emit("data", {
+            id: wa,
+            data: e
+        })
+    }
+    function ia(t, e) {
+        let n = t.length - 1;
+        for (let e = 0; e < t.length; e++)
+            n += t[e];
+        var a = !e && 1 == T[oe.WORDMODE];
+        a && (n = 3),
+        z[0].textContent = k(a ? "WORD HIDDEN" : "GUESS THIS"),
+        z[1].style.display = "none",
+        z[2].style.display = "",
+        S(z[2]),
+        z[2].hints = [];
+        for (var o = 0; o < n; o++)
+            z[2].hints[o] = b("hint", a ? "?" : "_"),
+            z[2].appendChild(z[2].hints[o]);
+        a || z[2].appendChild(b("word-length", t.join(" ")))
+    }
+    function la(e) {
+        for (var t = z[2].hints, n = 0; n < e.length; n++) {
+            var a = e[n][0]
+              , o = e[n][1];
+            t[a].textContent = o,
+            t[a].classList.add("uncover")
+        }
+    }
+    function sa(e) {
+        (!z[2].hints || z[2].hints.length < e.length) && ia([e.length], !0);
+        for (var t = [], n = 0; n < e.length; n++)
+            t.push([n, e.charAt(n)]);
+        la(t)
+    }
+    function ca(e) {
+        R = e;
+        for (var t = 0; t < A.length; t++)
+            fe(A[t].element, A[t].id == R),
+            Ea(A[t], 0, A[t].id == R);
+        var n = I != R;
+        s.querySelector("#start-game").disabled = n;
+        for (var a = 0; a < Ya.length; a++) {
+            let e = Ya[a];
+            e.element.disabled = n
+        }
+        e = P(R);
+        e && m(k("$ is now the room owner!", e.name), "", g(Ne), !0)
+    }
+    adplayer = null,
+    aiptag.cmd.player.push(function() {
+        console.log("ad player loaded"),
+        adplayer = new aipPlayer({
+            AD_WIDTH: 960,
+            AD_HEIGHT: 540,
+            AD_FULLSCREEN: !1,
+            AD_CENTERPLAYER: !0,
+            LOADING_TEXT: "loading advertisement",
+            PREROLL_ELEM: function() {
+                return s.getElementById("preroll")
+            },
+            AIP_COMPLETE: function(e) {
+                _n()
+            },
+            AIP_REMOVE: function() {}
+        })
+    });
+    const da = 1
+      , ua = 2
+      , ha = 5
+      , pa = 8
+      , fa = 10
+      , ga = 11
+      , ma = 12
+      , ya = 13
+      , va = 14
+      , ba = 15
+      , Sa = 16
+      , ka = 17
+      , wa = 18
+      , Ca = 19
+      , qa = 20
+      , xa = 21;
+    const Ma = 30
+      , La = 31
+      , $a = 32;
+    function Da(e) {
+        var t = e.id
+          , n = e.data;
+        switch (t) {
+        case fa:
+            jn(n);
+            break;
+        case ga:
+            ta(n);
+            break;
+        case ma:
+            Jn(n.id, n.val, !1);
+            break;
+        case ya:
+            la(n);
+            break;
+        case va:
+            Ka = n;
+            break;
+        case da:
+            m(k("$ joined the room!", Aa(n, !0).name), "", g(Ee), !0),
+            In.playSound(wn);
+            break;
+        case ua:
+            var a = function(e) {
+                for (var t = 0; t < A.length; t++) {
+                    var n = A[t];
+                    if (n.id == e)
+                        return A.splice(t, 1),
+                        n.element.remove(),
+                        Oa(),
+                        Na(),
+                        n
+                }
+                return
+            }(n.id);
+            a && (m(function(e, t) {
+                switch (e) {
+                default:
+                    return k("$ left the room!", t);
+                case ne:
+                    return k("$ has been kicked!", t);
+                case ae:
+                    return k("$ has been banned!", t)
+                }
+            }(n.reason, a.name), "", g(Te), !0),
+            In.playSound(Cn),
+            n.reason != ne && n.reason != ae || Vt(!0));
+            break;
+        case ha:
+            var a = P(n[0])
+              , o = P(n[1])
+              , r = n[2]
+              , i = n[3];
+            a && o && m(k("$ is voting to kick $ ($/$)", [a.name, o.name, r, i]), "", g(Ie), !0);
+            break;
+        case ba:
+            a = P(n.id);
+            if (a) {
+                let e = m(k("$ guessed the word!", a.name), "", g(Ee), !0);
+                e.classList.add("guessed"),
+                za(a, !0),
+                In.playSound(qn),
+                n.id == I && sa(n.word)
+            }
+            break;
+        case pa:
+            o = P(n.id);
+            o && (r = o,
+            i = 0 == n.vote ? "thumbsdown.gif" : "thumbsup.gif",
+            (a = b("icon")).style.backgroundImage = "url(/img/" + i + ")",
+            Ra(r, a),
+            n.vote ? m(k("$ liked the drawing!", o.name), "", g(Ee), !0) : m(k("$ disliked the drawing!", o.name), "", g(Te), !0));
+            break;
+        case ka:
+            ca(n);
+            break;
+        case Sa:
+            m(k("$ is close!", n), "", g(Ie), !0);
+            break;
+        case Ma:
+            Ia(P(n.id), n.msg);
+            break;
+        case $a:
+            m(k("Spam detected! You're sending messages too quickly."), "", g(Te), !0);
+            break;
+        case La:
+            switch (n.id) {
+            case 0:
+                m(k("You need at least 2 players to start the game!"), "", g(Te), !0);
+                break;
+            case 100:
+                m(k("Server restarting in about $ seconds!", n.data), "", g(Te), !0)
+            }
+            break;
+        case Ca:
+            for (var l = 0; l < n.length; l++)
+                jt(n[l]);
+            break;
+        case qa:
+            Vt(!0);
+            break;
+        case xa:
+            Bt(n);
+            break;
+        default:
+            return void console.log("Unimplemented data packed received with id " + t)
+        }
+    }
+    function P(e) {
+        for (var t = 0; t < A.length; t++) {
+            var n = A[t];
+            if (n.id == e)
+                return n
+        }
+    }
+    function Aa(e, t) {
+        var n = {
+            id: e.id,
+            flags: e.flags,
+            name: e.name,
+            avatar: e.avatar,
+            score: e.score,
+            guessed: e.guessed,
+            rank: 0,
+            muted: !1,
+            votekick: !1,
+            reported: !1,
+            page: 0,
+            element: b("player"),
+            bubble: void 0
+        }
+          , e = (A.push(n),
+        n.id == I ? k("$ (You)", n.name) : n.name)
+          , a = b("info")
+          , e = b("name", e)
+          , o = (n.id == I && e.classList.add("me"),
+        a.appendChild(e),
+        a.appendChild(b("rank", "#" + n.rank)),
+        a.appendChild(b("score", k("$ points", n.score))),
+        n.element.appendChild(a),
+        he(n.avatar))
+          , e = (n.element.drawing = b("drawing"),
+        o.appendChild(n.element.drawing),
+        n.element.appendChild(o),
+        zn.appendChild(n.element),
+        v(n.element, "click", function() {
+            W = n,
+            f(h, n)
+        }),
+        4 == (4 & n.flags) && (n.interval = setInterval(function() {
+            n.avatar[0] = (n.avatar[0] + 1) % B[0],
+            pe(o, n.avatar)
+        }, 250)),
+        b("icons"))
+          , a = b("icon owner")
+          , r = b("icon muted");
+        return e.appendChild(a),
+        e.appendChild(r),
+        n.element.appendChild(e),
+        n.element.icons = [a, r],
+        za(n, n.guessed),
+        t && Na(),
+        n
+    }
+    function Ia(e, t) {
+        var n;
+        e.muted || (n = e.id == E || e.guessed,
+        I != E && !P(I).guessed && n || (Ra(e, b("text", t)),
+        m(e.name, t, g(n ? We : Ae))))
+    }
+    function Ra(e, t) {
+        e.bubble && (clearTimeout(e.bubble.timeout),
+        e.bubble.remove(),
+        e.bubble = void 0);
+        var n = b("bubble")
+          , a = b("content");
+        a.appendChild(t),
+        n.appendChild(b("arrow")),
+        n.appendChild(a),
+        e.element.appendChild(n),
+        e.bubble = n,
+        e.bubble.timeout = setTimeout(function() {
+            e.bubble.remove(),
+            e.bubble = void 0
+        }, 1500)
+    }
+    function Ea(e, t, n) {
+        n ? e.element.icons[t].classList.add("visible") : e.element.icons[t].classList.remove("visible")
+    }
+    var Ta = void 0;
+    function Na() {
+        var e = N.id == te
+          , t = e ? 112 : 48
+          , n = Math.max(t, zn.clientHeight);
+        let a = Math.floor(n / t);
+        e && (n = Math.floor(zn.clientWidth / 96),
+        a *= n);
+        t = Math.ceil(A.length / a);
+        for (let e = 0; e < A.length; e++)
+            A[e].page = Math.floor(e / a);
+        e = s.querySelectorAll("#game-players .player-amount b");
+        e[0].textContent = A.length,
+        e[1].textContent = T[oe.SLOTS],
+        null == Ta ? Ta = ge(Pn, t, [O], function(e, n, t) {
+            let a = [];
+            for (let t = 0; t < A.length; t++) {
+                let e = A[t];
+                var o = e.page == n;
+                e.element.style.display = o ? "" : "none",
+                o && a.push(e.element)
+            }
+            if (0 < a.length) {
+                for (let t = 0; t < a.length; t++) {
+                    let e = a[t];
+                    e.classList.remove("first"),
+                    e.classList.remove("last"),
+                    t % 2 == 0 ? e.classList.remove("odd") : e.classList.add("odd")
+                }
+                a[0].classList.add("first"),
+                a[a.length - 1].classList.add("last")
+            }
+        }) : me(Ta, t),
+        Ta.element.style.display = 1 < t ? "" : "none"
+    }
+    function Wa(t) {
+        let n = 1;
+        for (let e = 0; e < A.length; e++) {
+            var a = A[e];
+            a.id != t.id && t.score < a.score && n++
+        }
+        t.rank = n,
+        t.element.querySelector(".score").textContent = k("$ points", t.score);
+        let e = t.element.querySelector(".rank");
+        e.textContent = "#" + n,
+        e.classList.remove("first"),
+        e.classList.remove("second"),
+        e.classList.remove("third"),
+        1 == n && e.classList.add("first"),
+        2 == n && e.classList.add("second"),
+        3 == n && e.classList.add("third")
+    }
+    function Oa() {
+        for (var e = 0; e < A.length; e++)
+            Wa(A[e])
+    }
+    function za(e, t) {
+        (e.guessed = t) ? e.element.classList.add("guessed") : e.element.classList.remove("guessed")
+    }
+    function Pa(e, t) {
+        e.element.drawing.style.display = t ? "block" : "none"
+    }
+    var Ya = [];
+    {
+        let e = Nn.querySelectorAll('*[id^="item-"]');
+        for (var Ha = 0; Ha < e.length; Ha++) {
+            let t = {
+                id: e[Ha].id.replace("item-settings-", ""),
+                element: e[Ha],
+                index: e[Ha].dataset.setting
+            };
+            Ya.push(t),
+            v(t.element, "change", function() {
+                let e = this.value;
+                "checkbox" == this.type && (e = this.checked ? 1 : 0),
+                null != t.index && Jn(t.index, e, !0)
+            })
+        }
+    }
+    const Ua = 10
+      , Fa = 4;
+    var Ba = s.querySelector("#game-clock")
+      , Ga = null
+      , Ka = 0;
+    function _a() {
+        Ga && (clearInterval(Ga),
+        Ga = null)
+    }
+    var Va, Za = s.querySelector("#tutorial"), ja = Za.querySelectorAll(".page"), Xa = ge(Za, ja.length, [Za.querySelector(".pages")], function(e, t, n) {
+        n && clearInterval(Ja);
+        for (let e = 0; e < ja.length; e++)
+            ja[e].classList.remove("active");
+        ja[t].classList.add("active")
+    }), Ja = setInterval(function() {
+        Xa.selected < 4 ? ye(Xa, Xa.selected + 1, !1) : ye(Xa, 0, !1)
+    }, 3500), Qa = s.querySelector("#setting-bar"), eo = s.querySelector("#audio"), to = s.querySelector("#lightbulb");
+    function no() {
+        Qa.classList.remove("open")
+    }
+    function ao(e, t) {
+        t ? e.classList.add("off") : e.classList.remove("off")
+    }
+    function oo() {
+        eo.dataset.tooltip = l.audioMute ? "Unmute audio" : "Mute audio",
+        to.dataset.tooltip = l.dark ? "Turn the lights on" : "Turn the lights off",
+        y && (y.querySelector(".tooltip-content").textContent = k(ze.dataset.tooltip))
+    }
+    function ro() {
+        m(k("Copied room link to clipboard!"), "", g(Ie), !0);
+        var e = "https://skribbl.io/?" + An;
+        if (navigator.clipboard)
+            navigator.clipboard.writeText(e).then(function() {
+                console.log("Async: Copying to clipboard was successful!")
+            }, function(e) {
+                console.error("Async: Could not copy text: ", e)
+            });
+        else {
+            var t = s.createElement("textarea");
+            t.value = e,
+            t.style.top = "0",
+            t.style.left = "0",
+            t.style.position = "fixed",
+            s.body.appendChild(t),
+            t.select(),
+            t.focus();
+            try {
+                var n = s.execCommand("copy");
+                console.log("Copying link was " + (n ? "successful" : "unsuccessful"))
+            } catch (e) {
+                console.log("Unable to copy link " + e)
+            }
+            s.body.removeChild(t)
+        }
+    }
+    function io(e) {
+        let t = Le.querySelector(".characters");
+        0 == (t.textContent = e) ? t.classList.remove("visible") : t.classList.add("visible")
+    }
+    function lo(e) {
+        r && r.connected ? r.emit("data", {
+            id: Ma,
+            data: e
+        }) : Ia(P(I), e)
+    }
+    v(Qa.querySelector(".icon"), "click", function() {
+        ao(eo, l.audioMute),
+        ao(to, l.dark),
+        oo(),
+        Qa.classList.contains("open") ? no() : Qa.classList.add("open")
+    }),
+    v("#audio", "click", function(e) {
+        l.audioMute = !l.audioMute,
+        ao(eo, l.audioMute),
+        oo(),
+        t()
+    }),
+    v("#lightbulb", "click", function(e) {
+        a(!l.dark),
+        ao(to, l.dark),
+        oo(),
+        t()
+    }),
+    v("#hotkeys", "click", function(e) {
+        no(),
+        f(ke)
+    }),
+    u.onbeforeunload = function(e) {
+        return r ? k("Are you sure you want to leave?") : void 0
+    }
+    ,
+    u.onunload = function() {
+        r && oa()
+    }
+    ,
+    v([s, q], "mousedown touchstart", function(e) {
+        Qa.contains(e.target) || no(),
+        s.querySelector("#game-toolbar .sizes").contains(e.target) || Yt()
+    }),
+    v(u, "resize", Na),
+    v([Hn, Un], "change", t),
+    v(Fn, "click", function() {
+        var t, e, n, a, o;
+        n = u.location.href,
+        o = "",
+        n = n.split("?"),
+        t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o,
+        Rn || (e = "" != t ? "id=" + t : "lang=" + Un.value,
+        Me(),
+        Gn(!0),
+        Vn(function() {
+            Kn(location.origin + ":3000/play", e, function(e) {
+                Gn(!1),
+                e.success && Zn(e.data, t)
+            }, !0)
+        }))
+    }),
+    v(Bn, "click", function() {
+        Rn || (Me(),
+        Gn(!0),
+        Vn(function() {
+            Kn(location.origin + ":3000/play", "lang=" + Un.value, function(e) {
+                e.success ? Zn(e.data, 0, 1) : Gn(!1)
+            }, !0)
+        }))
+    }),
+    v(s.querySelector("#game-rate .like"), "click", function() {
+        na(1)
+    }),
+    v(s.querySelector("#game-rate .dislike"), "click", function() {
+        na(0)
+    }),
+    v(st, "click", function() {
+        f(Se)
+    }),
+    v(s.querySelector("#start-game"), "click", function() {
+        if (r) {
+            let t = s.querySelector("#item-settings-customwords").value.split(",")
+              , e = "";
+            if (5 <= t.length) {
+                for (let e = 0; e < t.length; e++)
+                    t[e] = t[e].trim();
+                e = t.join(",")
+            }
+            r.emit("data", {
+                id: 22,
+                data: e
+            })
+        }
+    }),
+    v(s.querySelector("#copy-invite"), "click", ro),
+    v(p[h].querySelector("button.kick"), "click", function() {
+        Me(),
+        null != W && W.id != I && I == R && r && r.emit("data", {
+            id: 3,
+            data: W.id
+        })
+    }),
+    v(p[h].querySelector("button.ban"), "click", function() {
+        Me(),
+        null != W && W.id != I && I == R && r && r.emit("data", {
+            id: 4,
+            data: W.id
+        })
+    }),
+    v(p[h].querySelector("button.votekick"), "click", function() {
+        Me(),
+        null != W && W.id != I && r && (W.id == R ? m(k("You can not votekick the lobby owner!"), "", g(Te), !0) : r.emit("data", {
+            id: ha,
+            data: W.id
+        }))
+    }),
+    v(p[h].querySelector("button.mute"), "click", function() {
+        null != W && W.id != I && (W.muted = !W.muted,
+        Ea(W, 1, W.muted),
+        W.muted ? m(k("You muted '$'!", W.name), "", g(Te), !0) : m(k("You unmuted '$'!", W.name), "", g(Te), !0),
+        r && r.emit("data", {
+            id: 7,
+            data: W.id
+        }),
+        xe(W.muted))
+    }),
+    v(p[h].querySelector("button.report"), "click", function() {
+        p[h].querySelector(".buttons").style.display = "none",
+        p[h].querySelector(".report-menu").style.display = "";
+        let t = p[h].querySelectorAll(".report-menu input");
+        for (let e = 0; e < t.length; e++)
+            t[e].checked = !1
+    }),
+    v(p[h].querySelector("button#report-send"), "click", function() {
+        let e = 0;
+        p[h].querySelector("#report-reason-toxic").checked && (e |= 1),
+        p[h].querySelector("#report-reason-spam").checked && (e |= 2),
+        p[h].querySelector("#report-reason-bot").checked && (e |= 4),
+        0 < e && (null != W && W.id != I && (W.reported = !0,
+        r && r.emit("data", {
+            id: 6,
+            data: {
+                id: W.id,
+                reasons: e
+            }
+        }),
+        m(k("Your report for '$' has been sent!", W.name), "", g(Ie), !0)),
+        Me())
+    }),
+    v(p[ke].querySelector("#select-display-language"), "change", function(e) {
+        l.displayLang = e.target.value,
+        t(),
+        Xe()
+    }),
+    v(p[ke].querySelector("#select-pressure-sensitivity"), "change", function(e) {
+        l.pressureSensitivity = e.target.value,
+        t()
+    }),
+    v(p[ke].querySelector("button.reset"), "click", function() {
+        for (let e = 0; e < d.length; e++)
+            d[e].key = d[e].def;
+        de()
+    }),
+    v(s.querySelector("#game-keyboard button.settings"), "click", function(e) {
+        f(ke)
+    }),
+    v($e, "focusin focus", function(e) {
+        e.preventDefault()
+    }),
+    v($e, "input", function(e) {
+        io($e.value.length)
+    }),
+    v(Le, "submit", function(e) {
+        return e.preventDefault(),
+        $e.value && lo($e.value),
+        Le.reset(),
+        io(0),
+        !1
+    }),
+    u.localStorageAvailable ? (Hn.value = e("name", ""),
+    Un.value = function(t) {
+        var n = s.querySelectorAll("#home .panel .container-name-lang select option");
+        for (let e = 0; e < n.length; e++)
+            if (n[e].value == t)
+                return n[e].value;
+        return 0
+    }(e("lang", 0)),
+    l.displayLang = e("displaylang", "en"),
+    l.audioMute = 1 == parseInt(e("audio", 0)) ? 1 : 0,
+    l.filterChat = 1 == parseInt(e("filter", 1)) ? 1 : 0,
+    l.pressureSensitivity = 1 == parseInt(e("pressure", 1)) ? 1 : 0,
+    l.avatar = (Za = "ava",
+    Fn = l.avatar,
+    null == (Za = c.getItem(Za)) ? Fn : JSON.parse(Za)),
+    Ge.value = e("keyboard", 1),
+    Ke.value = e("keyboardlayout", "en"),
+    Be(),
+    a(1 == parseInt(e("dark", 0)) ? 1 : 0),
+    console.log("Settings loaded.")) : console.log("Settings not loaded. LocalStorage unavailable.");
+    var so = s.querySelectorAll("[data-translate]");
+    for (let e = 0; e < so.length; e++) {
+        var co = so[e];
+        je(co, co.dataset.translate)
+    }
+    function uo(e) {
+        Va.parts[e].classList.remove("bounce"),
+        Va.parts[e].offsetWidth,
+        Va.parts[e].classList.add("bounce")
+    }
+    Xe(),
+    v(Bn = s.querySelectorAll("[data-tooltip]"), "mouseenter", function(e) {
+        Pe(e.target)
+    }),
+    v(Bn, "mouseleave", function(e) {
+        Ye()
+    }),
+    Fn = (st = s.querySelector("#home .avatar-customizer")).querySelector(".container"),
+    Za = st.querySelectorAll(".arrows.left .arrow"),
+    Bn = st.querySelectorAll(".arrows.right .arrow"),
+    st = st.querySelectorAll(".randomize"),
+    (Va = he(l.avatar)).classList.add("fit"),
+    Fn.appendChild(Va),
+    v(Za, "click", function() {
+        var e = parseInt(this.dataset.avatarIndex);
+        --l.avatar[e],
+        l.avatar[e] < 0 && (l.avatar[e] = B[e] - 1),
+        uo(e),
+        pe(Va, l.avatar),
+        t()
+    }),
+    v(Bn, "click", function() {
+        var e = parseInt(this.dataset.avatarIndex);
+        l.avatar[e] += 1,
+        l.avatar[e] >= B[e] && (l.avatar[e] = 0),
+        uo(e),
+        pe(Va, l.avatar),
+        t()
+    }),
+    v(st, "click", function() {
+        l.avatar[0] = Math.floor(Math.random() * B[0]),
+        l.avatar[1] = Math.floor(Math.random() * B[1]),
+        l.avatar[2] = Math.floor(Math.random() * B[2]),
+        uo(1),
+        uo(2),
+        pe(Va, l.avatar),
+        t()
+    });
+    {
+        var ho = Math.round(8 * Math.random());
+        let t = s.querySelector("#home .logo-big .avatar-container");
+        for (var po = 0; po < 8; po++) {
+            let e = [0, 0, 0, -1];
+            e[0] = po,
+            e[1] = Math.round(100 * Math.random()) % U,
+            e[2] = Math.round(100 * Math.random()) % F,
+            1e3 * Math.random() < 10 && (e[3] = Math.floor(20 * Math.random()));
+            var fo = he(e, 0, ho == po);
+            t.append(fo)
+        }
+    }
+}(window, document, localStorage, io);

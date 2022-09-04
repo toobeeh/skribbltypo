@@ -56,7 +56,7 @@ Image tools
             optionsPopup.querySelector("#itoolsButtons").appendChild(btn);
             btn.addEventListener("click", () => {
                 if (QS("#itoolsClearBefore").checked)
-                    QS(".tools .tool div.icon[style*='clear.gif']").parentElement.dispatchEvent(new Event("click"));
+                    QS("div.icon[style*='/img/clear.gif']").parentElement.dispatchEvent(new Event("click"));
                 captureCanvas.drawOnCanvas(commands);
             });
             let removeToggle = 0;

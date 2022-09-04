@@ -181,12 +181,12 @@
             "replacements": [
                 {
                     "source": "##COMMAND##",
-                    "target": "function [a-zA-Z0-9&_\\-$]+?\\(([a-zA-Z0-9&_\\-$]+?)\\) {[\\s\\S]+?\\.push\\([a-zA-Z0-9&_\\-$]+\\),\\s+[a-zA-Z0-9&_\\-$]+ == [a-zA-Z0-9&_\\-$]+ && "
+                    "target": "(e)"
                 }
             ],
             "injections": [
                 {
-                    "position": "(function [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\) {)[\\s\\S]+?\\.push\\([a-zA-Z0-9&_\\-$]+\\),\\s+[a-zA-Z0-9&_\\-$]+ == [a-zA-Z0-9&_\\-$]+ && ",
+                    "position": "(function [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\) {)\\s+?[a-zA-Z0-9&_\\-$]+\\.push\\([a-zA-Z0-9&_\\-$]+\\),\\s+[a-zA-Z0-9&_\\-$]+ == [a-zA-Z0-9&_\\-$]+ && [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\)\\)",
                     "code": "/* TYPOMOD \n         log draw commands */\n        document.dispatchEvent(new CustomEvent(\"logDrawCommand\", { detail: ##COMMAND## }));\n        /* TYPOEND */"
                 }
             ]
@@ -341,7 +341,7 @@
                 },
                 {
                     "position": "(isAction: !0,[^}]+Clear[^}]+}\\))",
-                    "code": ", /*TYPOMOD DESC: add action for colorswitch*/ ##ADDACTION##(2, {\n        isAction: !0,\n        name: \"Switcher\",\n        graphic: \"\",\n        action: ()=>{document.dispatchEvent(new Event(\"toggleColor\"));}\n    }) /*TYPOEND*/"
+                    "code": "/*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*##ADDACTION##(2, {\n        isAction: !0,\n        name: \"Switcher\",\n        graphic: \"\",\n        action: ()=>{document.dispatchEvent(new Event(\"toggleColor\"));}\n    })*/ /*TYPOEND*/"
                 },
                 {
                     "position": "(const [^\\]]+[^\\[]+\\[\"U\", \"C\")",
