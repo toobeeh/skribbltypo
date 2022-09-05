@@ -51,7 +51,7 @@ const markMessage = (newNode) => {
 const scrollMessages = (onlyIfScrolledDown = false) => {
     let box = document.querySelector("#game-chat .content");
     if (!onlyIfScrolledDown ||  Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 30) {
-        box.scrollTop = box.scrollHeight;
+        box.lastChild.scrollIntoView(false)
     }
 }
 
@@ -101,13 +101,12 @@ const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackover
 const replaceUmlaute = (str) => {
     // umlaute which have to be replaced
     const umlautMap = {
-        '\u00dc': 'UE',
-        '\u00c4': 'AE',
-        '\u00d6': 'OE',
-        '\u00fc': 'ue',
-        '\u00e4': 'ae',
-        '\u00f6': 'oe',
-        '\u00df': 'ss',
+        '\u00dc': 'u',
+        '\u00c4': 'a',
+        '\u00d6': 'o',
+        '\u00fc': 'u',
+        '\u00e4': 'a',
+        '\u00f6': 'o'
     }
     return str
         .replace(/[\u00dc|\u00c4|\u00d6][a-z]/g, (a) => {

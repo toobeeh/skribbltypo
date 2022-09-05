@@ -291,6 +291,20 @@ const sprites = {
 
             setSlotSprites();
 
+            cabin.addEventListener("contextmenu", async (event) => {
+                event.preventDefault();
+                if (event.target.getAttribute("released") == "false") return;
+                slotid = event.target.getAttribute("slotid");
+                if (slotid && event.target.classList.contains("unlocked")) {
+                    const slotNo = parseInt(slotid);
+                    let updatedmember = await socket.setSpriteSlot(slotNo, 0);
+                    socket.data.user = updatedmember;
+                    user.user = updatedmember;
+                    setSlotSprites();
+                    sprites.setLandingSprites(true);
+                }
+            });
+
             cabin.addEventListener("click", event => {
                 if (event.target.getAttribute("released") == "false") return;
                 slotid = event.target.getAttribute("slotid");

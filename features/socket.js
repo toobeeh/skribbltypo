@@ -62,7 +62,7 @@ const socket = {
                 }
                 // if either server or client disconnected on purpose, shutdown and remove listeners
                 else {
-                    lobbies_.joined = false;
+                    lobbies.joined = false;
 
                     // disable socketio-reconnects 
                     socket.sck.removeAllListeners();

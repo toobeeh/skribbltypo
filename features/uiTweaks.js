@@ -28,17 +28,20 @@ const uiTweaks = {
         // Add wordcount under input
         const input = QS("#game-chat .container form input");
         const hints = QS("#game-word .hints .container");
-        let charbar = (input.insertAdjacentHTML("afterend", "<span id='charbar' style='color:black' ></span>"), QS("#charbar"));
-        charbar.insertAdjacentHTML("afterend", "<style id='charcountRules'></style>");
+        const characters = QS("#game-chat .characters");
+        
+        /* let charbar = (input.insertAdjacentHTML("afterend", "<span id='charbar' style='color:black' ></span>"), QS("#charbar"));
+        charbar.insertAdjacentHTML("afterend", "<style id='charcountRules'></style>"); */
 
         input.insertAdjacentHTML("afterEnd", "<div id=\"emojiPrev\"\ style='z-index: 10; display:none; padding: .5em;box-shadow: black 1px 1px 9px -2px;position: absolute;bottom: 2.5em;background: white;border-radius: 0.5em;'></div>");
+
         let refreshCharBar = () => {
             // recognize command and call interpreter
             if (input.value.includes("--") && localStorage.chatcommands == "true") {
                 performCommand(input.value);
                 input.value = "";
             }
-            QS("#charcountRules").innerHTML = localStorage.charbar == "true" ? ".word-length{display:block !important}" : "#charbar { display: none !important }";
+            /* QS("#charcountRules").innerHTML = localStorage.charbar == "true" ? ".word-length{display:block !important}" : "#charbar { display: none !important }";
             if (hints.querySelector(".word-length") && hints.querySelector(".word-length").parentElement.style.display != "none") { // show charbar only if guessing
                 let word = hints.textContent.replace(hints.querySelector(".word-length").innerText, "");
                 charbar.textContent = word.length - input.value.length;
@@ -51,6 +54,20 @@ const uiTweaks = {
             else {
                 charbar.innerText = " - ";
                 charbar.style.background = "#BAFFAA";
+            } */
+            if(localStorage.charbar != "true"){
+                characters.style.cssText = "";
+            }
+            else if(hints.querySelector(".word-length") && hints.querySelector(".word-length").parentElement.style.display != "none"){
+                let word = hints.textContent.replace(hints.querySelector(".word-length").innerText, "");
+                if (input.value.length > word.length
+                    || !replaceUmlaute(input.value).toLowerCase().match(new RegExp(replaceUmlaute(word.substr(0, input.value.length).toLowerCase().replaceAll("_", "[\\w\\d]"))))) {
+                    characters.style.cssText = "color: red; transform: scale(120%)";
+                }
+                else characters.style.cssText = "";
+            }
+            else {
+                characters.style.cssText = "";
             }
         }
         refreshCharBar();
@@ -204,10 +221,10 @@ const uiTweaks = {
 
         let roomObserver = new MutationObserver(function (mutations) {
             if(chat.classList.contains("room")) {
-                settings.insertAdjacentElement("afterend", chat);
+                if(settings.parentElement != chat.parentElement) settings.insertAdjacentElement("afterend", chat);
             }
             else {
-                board.insertAdjacentElement("afterend", chat);
+                if(board.parentElement != chat.parentElement) board.insertAdjacentElement("afterend", chat);
             }
         });
         roomObserver.observe(chat, { attributes: true, childList: false });

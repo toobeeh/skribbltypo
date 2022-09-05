@@ -72,7 +72,7 @@ const emojis = {
           
         }
         // if scrolled very down, scroll to view full emoji height
-        if (Math.floor(node.parentElement.scrollHeight - node.parentElement.scrollTop) <= node.parentElement.clientHeight + 30) {
+        if (matches.length > 0 && Math.floor(node.parentElement.scrollHeight - node.parentElement.scrollTop) <= node.parentElement.clientHeight + 30) {
             scrollMessages();
         }
     }
