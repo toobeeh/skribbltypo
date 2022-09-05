@@ -342,10 +342,6 @@
                 qe.querySelector(".player"))
                   , n = (S(t),
                 he(a.avatar));
-/* TYPOMOD
-         desc: set ID to player to identify */
-        a.element.setAttribute("playerid", a.id);
-        /* TYPOEND */
                 fe(n, I == a.id),
                 n.style.width = "96px",
                 n.style.height = "96px",
@@ -1417,7 +1413,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                     }
 /* TYPOMOD
                      desc: if color is not in array, convert to custom color */
-                    e = parseInt(typo.rgbToHex(n, a, o), 16) + 10000;
+                    return e = parseInt(typo.rgbToHex(n, a, o), 16) + 10000;
                     /* TYPOEND */
                     return i
                 }(x[0], x[1]);
@@ -2341,6 +2337,10 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             n.avatar[0] = (n.avatar[0] + 1) % B[0],
             pe(o, n.avatar)
         }, 250)),
+/* TYPOMOD
+         desc: set ID to player to identify */
+        n.element.setAttribute("playerid", n.id),
+        /* TYPOEND */
         b("icons"))
           , a = b("icon owner")
           , r = b("icon muted");

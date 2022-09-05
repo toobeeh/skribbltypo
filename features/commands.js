@@ -252,13 +252,13 @@ const commands = [
             description: "Shows or hides the typo tools.",
             actionBefore: null,
             actionEnable: () => {
-                localStorage.random = "true";
+                localStorage.typotools = "true";
                 /* QS("#randomColor").style.display = "";
                 QS("#colPicker").style.display = ""; */
                 QS("#typotoolbar").style.display = "";
             },
             actionDisable: () => {
-                localStorage.random = "false";
+                localStorage.typotools = "false";
                 /* QS("#randomColor").style.display = "none";
                 QS("#colPicker").style.display = "none"; */
                 QS("#typotoolbar").style.display = "none";

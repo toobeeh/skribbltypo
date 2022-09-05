@@ -71,7 +71,7 @@ const uiTweaks = {
         rand.addEventListener("click", function () {
             clearInterval(uiTweaks.randomInterval);
             let nthChild = rand.getAttribute("data-monochrome");
-            let items = [...QSA(".colors:not([style*=display]) .item" + (nthChild ? ":nth-child(" + nthChild + ")" : "" ))];
+            let items = [...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : "" ))];
             uiTweaks.randomInterval = setInterval(() => {
                 items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new MouseEvent("mousedown", { button: 0, altKey: false }));
             }, Number(localStorage.randominterval));
@@ -314,9 +314,9 @@ const uiTweaks = {
         });
     },
     initLobbyRestriction: () => {
-        let timer = QS("#game-clock");
-        let restrict = elemFromString("<div id='restrictLobby' style='position:absolute;left:60px;bottom:5px;z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
-        timer.parentElement.insertBefore(restrict, timer);
+        let controls = QS("#controls");
+        let restrict = elemFromString("<div id='restrictLobby' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
+        controls.append(restrict);
         let updateIcon = () => {
             if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/unrestricted.gif") + ")";
             else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/restricted.gif") + ")";
@@ -677,7 +677,7 @@ const uiTweaks = {
         "></div>`);
         QS(".tools-container").appendChild(container);
         container.parentElement.parentElement.style.position="relative";
-        container.style.display = localStorage.random == "true" ? "" : "none";
+        container.style.display = localStorage.typotools == "true" ? "" : "none";
 
         // move tools
         container.appendChild(QS(`.tool[data-tooltip="Lab"]`));
@@ -699,10 +699,10 @@ const uiTweaks = {
         uiTweaks.initColorPalettes();
         uiTweaks.initLobbyDescriptionForm();
         uiTweaks.initMarkMessages();
-        uiTweaks.initLobbyRestriction();
         uiTweaks.initQuickReact();
         uiTweaks.initSelectionFormatter();
         uiTweaks.initSideControls();
+        uiTweaks.initLobbyRestriction();
         uiTweaks.initDefaultKeybinds();
         uiTweaks.initChatRecall();
         uiTweaks.initChooseCountdown();

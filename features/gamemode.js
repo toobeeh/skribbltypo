@@ -140,7 +140,7 @@ const gamemodes = {
                         QS(".name.me").closest(".player").querySelector(".drawing[style*=block]") ?
                         `#game-toolbar > div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
                             {display:none;}
-                         #colPicker, #randomColor{display:none;}
+                         #colPicker{display:none;}
                          #game-toolbar > div.color-picker > div.colors > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
                 }
             }

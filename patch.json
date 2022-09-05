@@ -247,7 +247,7 @@
             "injections": [
                 {
                     "position": "(if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[^}]+?})",
-                    "code": "/* TYPOMOD\n                     desc: if color is not in array, convert to custom color */\n                    ##COL## = parseInt(typo.rgbToHex(##COLR##, ##COLG##, ##COLB##), 16) + 10000;\n                    /* TYPOEND */"
+                    "code": "/* TYPOMOD\n                     desc: if color is not in array, convert to custom color */\n                    return ##COL## = parseInt(typo.rgbToHex(##COLR##, ##COLG##, ##COLB##), 16) + 10000;\n                    /* TYPOEND */"
                 }
             ]
         },
@@ -316,13 +316,13 @@
             "replacements": [
                 {
                     "source": "##PLAYER##",
-                    "target": "([a-zA-Z0-9&_\\-$]+?)\\.avatar\\)\\);"
+                    "target": "([a-zA-Z0-9&_\\-$]+?)\\.avatar\\)\\s+}, 250\\)\\),"
                 }
             ],
             "injections": [
                 {
-                    "position": "([a-zA-Z0-9&_\\-$]+?\\.avatar\\)\\);)",
-                    "code": "/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute(\"playerid\", ##PLAYER##.id);\n        /* TYPOEND */"
+                    "position": "([a-zA-Z0-9&_\\-$]+?\\.avatar\\)\\s+}, 250\\)\\),)",
+                    "code": "/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute(\"playerid\", ##PLAYER##.id),\n        /* TYPOEND */"
                 }
             ]
         },

@@ -304,7 +304,7 @@ const sprites = {
                         const active = spt.includes(".");
                         if (!active && id > 0) {
                             spriteList.insertAdjacentHTML("beforeend",
-                                "<div class='spriteChoice' sprite='" + id + "' style='margin:.5em; height:6em; aspect-ratio:1; background-image:url("
+                                "<div class='spriteChoice' sprite='" + id + "' style='order: " + id + ";margin:.5em; height:6em; aspect-ratio:1; background-image:url("
                                 + socket.data.publicData.sprites.find(spt => spt.ID == id).URL
                                 + ")'></div>");
                         }
