@@ -42,10 +42,18 @@ const sprites = {
         sprites.lobbyPlayers = players;
     },
     updateSprites: () => { // compare lobbyplayers with onlinesprites and set sprite if matching
+
+        // get shifts for this lobby
+        let shifts = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "shift");
+
         sprites.lobbyPlayers.forEach(player => {
             let playerSlots = [];
             sprites.playerSprites.forEach(sprite => {
-                if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) playerSlots.push({ sprite: sprite.Sprite, slot: sprite.Slot });
+                if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) playerSlots.push({ 
+                    sprite: sprite.Sprite, 
+                    slot: sprite.Slot,
+                    shift: shifts.find(shift => shift.LobbyPlayerID == player.lobbyPlayerID && sprite.Slot == shift.Slot)
+                });
             });
             
             if (playerSlots.length > 0) {
@@ -68,7 +76,8 @@ const sprites = {
                         spriteContainer.classList.add("special");
                         spriteContainer.classList.add("typoSpecialSlot");
                         spriteContainer.style.zIndex = slot.slot;
-                        spriteContainer.style.backgroundImage = "url(" + spriteUrl + ")";
+                        spriteContainer.style.backgroundImage = slot.shift ? "url(https://tobeh.host/modulateSprite.php?url=" + spriteUrl + "&hue=" + slot.shift.ItemID + ")" : "url(" + spriteUrl + ")";
+
                         player.avatarContainer.appendChild(spriteContainer);
                         // set style depending on listing
                         if (spriteContainer.closest("#containerLobbyPlayers")) spriteContainer.style.backgroundSize = "contain";

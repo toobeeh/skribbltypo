@@ -426,3 +426,12 @@ body.streamChatEnabled #containerChat{
 #btnOpenStreamSettings:hover{
   opacity:1 !important;
 }
+
+#panelgrid > div:nth-child(2) > div.avatar-customizer > div.container {
+  cursor:pointer;
+  transition: 0.2s all
+}
+
+#panelgrid > div:nth-child(2) > div.avatar-customizer > div.container:hover{
+  transform:scale(95%)
+}
