@@ -143,11 +143,14 @@ const lobbies_ = {
 			n.style.opacity = 1;
 		});
 		let ownsprites = socket.data.user.sprites ? socket.data.user.sprites.split(",") : [];
+		let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
 		let activeSprites = ownsprites.filter(s => s.includes("."));
 		activeSprites.forEach(sprite => {
 			let slot = sprite.split(".").length - 1;
 			let id = sprite.replaceAll(".", "");
 			let url = sprites.getSpriteURL(id);
+			let shift = shifts.find(s=> s[0] == id);
+			if(shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
 			if (sprites.isSpecial(id)) {
 				QSA("#loginAvatarCustomizeContainer .color, #loginAvatarCustomizeContainer .eyes, #loginAvatarCustomizeContainer .mouth").forEach(n => {
 					n.style.opacity = 0;
