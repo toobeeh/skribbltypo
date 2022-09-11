@@ -497,7 +497,7 @@ input[type=checkbox].flatUI:focus{
     padding: 1em;
     /*background-color: white;*/
     background-color: rgb(3 34 140 / 75%);
-    backdrop-filter: blur(4px);
+    /* backdrop-filter: blur(4px); */
     color: white;
     border-radius: 1em;
     box-shadow: black 1px 1px 9px -2px;

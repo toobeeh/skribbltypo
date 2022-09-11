@@ -108,8 +108,8 @@ Image tools
                     let reader = new FileReader();
                     reader.readAsText(file);
                     reader.onload = readerEvent => {
-                        actions = readerEvent.target.result;
-                        imageTools.addSKD(actions, file.name);
+                        actions = JSON.parse(readerEvent.target.result);
+                        addPasteCommandsButton(actions, file.name);
                     }
 
                 }
