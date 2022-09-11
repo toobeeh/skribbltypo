@@ -496,7 +496,7 @@ input[type=checkbox].flatUI:focus{
 } .modalContainer {
     padding: 1em;
     /*background-color: white;*/
-    background-color: rgb(3 34 140 / 75%);
+    background-color: rgb(3 34 140 / 90%);
     /* backdrop-filter: blur(4px); */
     color: white;
     border-radius: 1em;

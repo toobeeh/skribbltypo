@@ -280,7 +280,7 @@ const brushtools = {
                     if (event.pressure > 0 ) {
                         const density = brushtools.groups.stroke.tilt.options.density.val;
                         const tilt = brushtools.groups.stroke.tilt.options.tilt.val;
-                        const size = parseInt(QS("#game-toolbar > div.picker > div.size-picker > div.preview > div.size").innerText.replace("px", ""));
+                        const size = ([...document.querySelectorAll(".size.clickable")].findIndex(s => s.classList.contains("selected")) + 5) * 5
                         for (let i = 1; i < density; i++) {
                             const offset = event.pressure  * tilt * size;
                             let clone = new MouseEvent("mousemove", event)
