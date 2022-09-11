@@ -38,10 +38,18 @@ const sprites = {
         sprites.lobbyPlayers = players;
     },
     updateSprites: () => { // compare lobbyplayers with onlinesprites and set sprite if matching
+
+        // get shifts for this lobby
+        let shifts = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "shift");
+
         sprites.lobbyPlayers.forEach(player => {
             let playerSlots = [];
             sprites.playerSprites.forEach(sprite => {
-                if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) playerSlots.push({ sprite: sprite.Sprite, slot: sprite.Slot });
+                if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) playerSlots.push({ 
+                    sprite: sprite.Sprite, 
+                    slot: sprite.Slot ,
+                    shift: shifts.find(shift => shift.LobbyPlayerID == player.lobbyPlayerID && sprite.Slot == shift.Slot)
+                });
             });
             
             if (playerSlots.length > 0) {
@@ -64,7 +72,7 @@ const sprites = {
                         spriteContainer.classList.add("special");
                         spriteContainer.classList.add("typoSpecialSlot");
                         spriteContainer.style.zIndex = slot.slot;
-                        spriteContainer.style.backgroundImage = "url(" + spriteUrl + ")";
+                        spriteContainer.style.backgroundImage = slot.shift ? "url(https://tobeh.host/modulateSprite.php?url=" + spriteUrl + "&hue=" + slot.shift.ItemID + ")" : "url(" + spriteUrl + ")";
                         player.avatarContainer.appendChild(spriteContainer);
                         // set style depending on listing
                         if (spriteContainer.closest("#containerLobbyPlayers")) spriteContainer.style.backgroundSize = "contain";
@@ -139,10 +147,18 @@ const sprites = {
         sprites.availableScenes = socket.data.publicData.scenes;
         sprites.onlineScenes = socket.data.publicData.onlineScenes;
     },
+    getOwnSpriteUrlShifted: (id) => {
+        let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
+        let url = sprites.getSpriteURL(id);
+        let shift = shifts.find(s=> s[0] == id);
+        if(shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
+        return url;
+    },
     setLandingSprites: (authenticated = false) => {
         QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
         if (authenticated) {
             let ownsprites = socket.data.user.sprites.toString().split(",");
+            let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
             let activeSprites = ownsprites.filter(s => s.includes("."));
             QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
                 n.style.opacity = activeSprites.some(spt => sprites.isSpecial(spt.replaceAll(".", ""))) ? 0 : 1;
@@ -150,7 +166,7 @@ const sprites = {
             activeSprites.forEach(sprite => {
                 let slot = sprite.split(".").length - 1;
                 let id = sprite.replaceAll(".", "");
-                let url = sprites.getSpriteURL(id);
+                let url = sprites.getOwnSpriteUrlShifted(id);
                 let specialContainer = QS(".avatar-customizer .special");
                 let clone = specialContainer.cloneNode(true);
                 specialContainer.parentElement.appendChild(clone);
@@ -203,7 +219,7 @@ const sprites = {
             let user = await socket.getUser();
             const createSlot = (slot, unlocked = false, caption = false, background = false, id = 0) => {
                 return elemFromString(`<div draggable="true" spriteid="${id}" slotid="${slot}" class="${unlocked ? "unlocked" : ""}" style="background-image:url(${background ?
-                    socket.data.publicData.sprites.find(spt => spt.ID == id).URL : ""})">
+                    sprites.getOwnSpriteUrlShifted(id) : ""})">
                     Slot ${slot}${caption ? "<p>" + (id > 0 ? "Selected #" + id : "Empty") + "</p>" : ""}</div>`);
             }
             const getCombo = () => {
@@ -319,7 +335,7 @@ const sprites = {
                         if (!active && id > 0) {
                             spriteList.insertAdjacentHTML("beforeend",
                                 "<div class='spriteChoice' sprite='" + id + "' style='order: " + id + ";margin:.5em; height:6em; aspect-ratio:1; background-image:url("
-                                + socket.data.publicData.sprites.find(spt => spt.ID == id).URL
+                                + sprites.getOwnSpriteUrlShifted(id)
                                 + ")'></div>");
                         }
                     });

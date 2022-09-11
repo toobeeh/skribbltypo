@@ -73,6 +73,7 @@ const socket = {
             socket.sck.on("online sprites", (data) => {
                 socket.data.publicData.onlineSprites = data.payload.onlineSprites;
                 socket.data.publicData.onlineScenes = data.payload.onlineScenes;
+                socket.data.publicData.onlineItems = data.payload.onlineItems;
             });
             let updateTimeout = null;
             socket.sck.on("active lobbies", (data) => {
