@@ -22,6 +22,9 @@
 #panel-right, #panel-left{
     display:none !important;
 }
+.filterDisabled{
+    opacity: 0.5
+}
 
 :is(#rightPanelContent,#leftPanelContent) h2 span:first-child {
     user-select:none;
@@ -43,27 +46,30 @@
     pointer-events: none;
 } #rightPanelContent.lobbies #cabinSlots {
     display:none;
-} #rightPanelContent.cabin #discordLobbies {
+} #rightPanelContent.cabin #lobbyBoard {
     display: none;
-} #rightPanelContent.lobbies #discordLobbies {
+} #rightPanelContent.lobbies #lobbyBoard {
+    justify-content:space-between;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap:1em;
     -ms-overflow-style: none; /* for Internet Explorer, Edge */
     scrollbar-width: none; /* for Firefox */
     overflow-y: scroll;
     height: 100%;
     align-content: flex-start;
-} #discordLobbies::-webkit-scrollbar {
+} #lobbyBoard::-webkit-scrollbar {
     display: none; /* for Chrome, Safari, and Opera */
+} #lobbyBoard #discordLobbies, #lobbyBoard #lobbyFilters{
+    dispaly:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
 } #rightPanelContent.cabin h2 span:last-child {
     opacity: 0.5;
     cursor: pointer;
 } #rightPanelContent.cabin h2 span:first-child {
     opacity: 1;
     pointer-events: none;
-} #rightPanelContent.cabin #discordLobbies {
-    display: none;
 } #typoUserInfo {
     padding: 1em;
     background: inherit;

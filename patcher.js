@@ -107,7 +107,12 @@ let patcher = new MutationObserver((mutations) => {
                      const rightCard = elemFromString(`<div class='panel patched' >
                         <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="rightPanelContent" class="lobbies">
                             <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
-                            <div id="discordLobbies"></div>
+                            <div id="lobbyBoard">
+                                <div id="discordLobbies"></div>
+                                <div id="lobbyFilters">
+                                    <button id="addFilter" class="flatUI blue min air" style="margin: .5em">Add Filter</button>
+                                </div>
+                            </div>
                             <div id="cabinSlots" class="unauth">
                                 <div id="loginRedir"><button class="flatUI air min blue">Log in with Palantir</button></div>
                                 <div>Slot 1<p></p></div>

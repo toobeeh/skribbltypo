@@ -91,35 +91,51 @@ const lobbies = {
 		// on lobby join
 		document.addEventListener("lobbyConnected", async (e) => {
 			lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
+
+			// fill in basic lobby props 
 			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = '" + e.detail.settings[0] +"']").innerText;
 			lobbies.lobbyProperties.Private = e.detail.owner >= 0 ? true : false;
 			lobbies.lobbyProperties.Link = "https://skribbl.io/?" + e.detail.id;
 			lobbies.lobbyProperties.Key = e.detail.id;
 			lobbies.lobbyProperties.Round = 0;
-			if (!lobbies.inGame) {
-				// get own name
-				sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.users[e.detail.users.length-1].name;
-				lobbies.inGame = true;
-				// get initialplayers for search check and report
-				lobbies.lobbyProperties.Players = [];
-				e.detail.users.forEach(p => {
-					let add = {
-						Name: p.name,
-						Score: p.score,
-						Drawing: false,
-						LobbyPlayerID: p.id,
-						Sender: false
-					};
-					if (add.Name == socket.clientData.playerName) add.Sender = true; 
-					lobbies.lobbyProperties.Players.push(add);
-				});
-				lobbies.lobbyProperties.Key = e.detail.id;
-				// set as searching with timeout for report
-				if (lobbies.userAllow && !lobbies.joined) {
-					await socket.joinLobby(lobbies.lobbyProperties.Key);
-					await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
-					lobbies.joined = true;
+
+			// get own name
+			sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.users[e.detail.users.length-1].name;
+			lobbies.inGame = true;
+
+			// get initialplayers for search check and report
+			lobbies.lobbyProperties.Players = [];
+			e.detail.users.forEach(p => {
+				let add = {
+					Name: p.name,
+					Score: p.score,
+					Drawing: false,
+					LobbyPlayerID: p.id,
+					Sender: false
+				};
+				if (add.Name == socket.clientData.playerName) add.Sender = true; 
+				lobbies.lobbyProperties.Players.push(add);
+			});
+
+			// generate lobby key by hashed link
+			lobbies.lobbyProperties.Key = genMatchHash(e.detail.id);
+
+			// check if lobby search is running and criteria is met
+			if(search.searchData.searching){
+				if(search.searchData.check()){
+					search.searchData.ended();
 				}
+				else {
+					setTimeout(()=>search.searchData.proceed(),500);
+					return;
+				}
+			}
+
+			// set as searching with timeout for report
+			if (lobbies.userAllow && !lobbies.joined) {
+				await socket.joinLobby(lobbies.lobbyProperties.Key);
+				await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
+				lobbies.joined = true;
 			}
 		});
 		// on lobby leave / login show

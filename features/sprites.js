@@ -158,7 +158,6 @@ const sprites = {
         QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
         if (authenticated) {
             let ownsprites = socket.data.user.sprites.toString().split(",");
-            let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
             let activeSprites = ownsprites.filter(s => s.includes("."));
             QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
                 n.style.opacity = activeSprites.some(spt => sprites.isSpecial(spt.replaceAll(".", ""))) ? 0 : 1;

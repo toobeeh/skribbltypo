@@ -72,6 +72,7 @@ brushtools.setup();
 //pressure.initEvents(); // init pressure
 document.dispatchEvent(new Event("addTypoTooltips"));
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
+search.setup();
 setTimeout(async () => await emojis.init(), 0); // init emojis
 // sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
 

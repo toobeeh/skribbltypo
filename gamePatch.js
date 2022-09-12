@@ -34,6 +34,7 @@
 // TYPOMOD 
     // desc: create re-useable functions
     , typo = {
+        joinFn: undefined,
         createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
             // IDENTIFY x.value.split: #home .container-name-lang input -> Hn
             // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> l
@@ -50,19 +51,20 @@
             return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };
         },
         disconnect: undefined,
-        lastConnect: 0,
+        lastConnect: undefined,
         initListeners: (() => {
             document.addEventListener("joinLobby", (e) => {
+                if(!typo.lastConnect) typo.lastConnect = Date.now();
                 let timeoutdiff = Date.now() - typo.lastConnect;
-                Xn(true);
+                //Xn(false);
+                //Gn(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
                 setTimeout(() => {
                     typo.lastConnect = Date.now();
-                    Fn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
-                    Rn = !1 // IDENTIFY: x:  = !1   
-                    //##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
-                    Gn(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
+                    //document.querySelector(".button-play").dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
+                    //Rn = !1 // IDENTIFY: x:  = !1   
+                    typo.joinFn();//##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
                     document.dispatchEvent(new Event("joinedLobby"));
-                }, timeoutdiff < 3000 ? 3000 - timeoutdiff : 0);
+                }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
             });
             document.addEventListener("leaveLobby", () => {
                 if (typo.disconnect) typo.disconnect();
@@ -2608,7 +2610,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     }),
     v(u, "resize", Na),
     v([Hn, Un], "change", t),
-    v(Fn, "click", function() {
+    v(Fn, "click",typo.joinFn = function() {
         var t, e, n, a, o;
         n = u.location.href,
         o = "",
