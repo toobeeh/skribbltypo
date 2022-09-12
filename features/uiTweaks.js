@@ -90,7 +90,7 @@ const uiTweaks = {
             let nthChild = rand.getAttribute("data-monochrome");
             let items = [...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : "" ))];
             uiTweaks.randomInterval = setInterval(() => {
-                items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new MouseEvent("mousedown", { button: 0, altKey: false }));
+                items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
             }, Number(localStorage.randominterval));
         });
     },
@@ -552,12 +552,14 @@ const uiTweaks = {
         let lastDown = [null, null];
         let lastDownClient = [null, null];
         let lastDirectClient = [null, null];
-        const mouseEvent = (type, x, y) => {
-            return new MouseEvent(type, {
+        const pointerEvent = (type, x, y, pressure = 0.5) => {
+            return new PointerEvent(type, {
                 bubbles: true,
                 clientX: x,
                 clientY: y,
-                button:0
+                button:0,
+                pressure:pressure,
+                pointerType: "mouse"
             });
         }
         // get pos when scaled
@@ -614,9 +616,9 @@ const uiTweaks = {
                 lastDown = [null, null];
                 let dest = [event.clientX, event.clientY];
                 if (snap) dest = snapDestination(lastDownClient[0], lastDownClient[1], event.clientX, event.clientY);
-                preview.gameCanvas.dispatchEvent(mouseEvent("mousedown", lastDownClient[0], lastDownClient[1]));
-                preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", dest[0], dest[1]));
-                preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", lastDownClient[0], lastDownClient[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", dest[0], dest[1]));
             }
         });
         preview.canvas.addEventListener("pointermove", (event) => {
@@ -639,9 +641,9 @@ const uiTweaks = {
             event.preventDefault();
             if(straight && lastDirectClient[0] != null){
                 let dest = [event.clientX, event.clientY];
-                preview.gameCanvas.dispatchEvent(mouseEvent("mousedown", lastDirectClient[0], lastDirectClient[1]));
-                preview.gameCanvas.dispatchEvent(mouseEvent("mousemove", dest[0], dest[1]));
-                preview.gameCanvas.dispatchEvent(mouseEvent("mouseup", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", lastDirectClient[0], lastDirectClient[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", dest[0], dest[1]));
             }
             lastDirectClient = [event.clientX, event.clientY];
         })

@@ -127,19 +127,16 @@ const brushtools = {
                     brushtools.groups.mirror.mandala.enabled = false;
                 },
                 pointermoveCallback: (event) => {
-                    if (event.pressure > 0) {
-                        if (event.type == "pointerdown") {
-                            brushtools.groups.mirror.mandala.lastDownPos = [event.offsetX, event.offsetY];
-                            brushtools.canvas.addEventListener("pointerup", () => {
-                                brushtools.groups.mirror.mandala.lastDownPos = [];
-                                brushtools.groups.mirror.mandala.lastEvent = null;
-                                brushtools.groups.mirror.mandala.lastClone = null;
-                            }, { once: true });
-                        }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (event.pressure > 0 && !event.ctrlKey) {
+
                         const mirror = brushtools.groups.mirror.mandala.options.axis.val;
                         const point = brushtools.groups.mirror.mandala.options.mirrorpoint.val;
                         const lastDown = brushtools.groups.mirror.mandala.lastDownPos;
-                        let clone = new MouseEvent("mousemove", event)
+                        let clone = new PointerEvent("pointermove", event)
+                        clone = Object.defineProperty(clone, "button", { value: 0 });
                         const canvasRect = brushtools.canvas.getBoundingClientRect();
                         const sculptX = point == "Center" ? canvasRect.width - event.offsetX : lastDown[0] - ((lastDown[0] - event.offsetX) * -1);
                         const sculptY = point == "Center" ? canvasRect.height - event.offsetY : lastDown[1] - ((lastDown[1] - event.offsetY) * -1);
@@ -149,12 +146,8 @@ const brushtools = {
                         let lastEvent = brushtools.groups.mirror.mandala.lastEvent;
                         let lastClone = brushtools.groups.mirror.mandala.lastClone;
 
-                        brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", lastEvent ? lastEvent : event));
-                        brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", event));
-                        brushtools.canvas.dispatchEvent(new MouseEvent("mouseup", event));
-                        brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", lastClone ? lastClone : clone));
-                        brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
-                        brushtools.canvas.dispatchEvent(new MouseEvent("mouseup", clone));
+                        brushtools.line(lastEvent ? lastEvent : event, event, event.pressure);
+                        brushtools.line(lastClone ? lastClone : clone, clone, event.pressure);
 
                         brushtools.groups.mirror.mandala.lastEvent = event;
                         brushtools.groups.mirror.mandala.lastClone = clone;
@@ -192,24 +185,25 @@ const brushtools = {
                     brushtools.groups.mirror.sculpt.enabled = false;
                 },
                 pointermoveCallback: (event) => {
+
+                    event.preventDefault();
+                    event.stopPropagation();
                     if (event.pressure > 0 && !event.ctrlKey) {
                         if (event.type == "pointerdown") {
                             brushtools.groups.mirror.sculpt.lastDownPos = [event.offsetX, event.offsetY];
-                            brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", event));
                         }
                         const mirror = brushtools.groups.mirror.sculpt.options.axis.val;
                         const point = brushtools.groups.mirror.sculpt.options.mirrorpoint.val;
                         const lastDown = brushtools.groups.mirror.sculpt.lastDownPos;
-                        let clone = new MouseEvent("mousemove", event)
+
+                        let clone = new PointerEvent("pointermove", event)
                         const canvasRect = brushtools.canvas.getBoundingClientRect();
                         const sculptX = point == "Center" ? canvasRect.width - event.offsetX : lastDown[0] - ((lastDown[0] - event.offsetX) * -1);
                         const sculptY = point == "Center" ? canvasRect.height - event.offsetY : lastDown[1] - ((lastDown[1] - event.offsetY) * -1);
                         if (mirror.indexOf("X") >= 0) clone = Object.defineProperty(clone, "clientX", { value: canvasRect.left + sculptX });
                         if (mirror.indexOf("Y") >= 0) clone = Object.defineProperty(clone, "clientY", { value: canvasRect.top + sculptY });
-                        brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
-                        if (event.type == "pointerdown") {
-                            brushtools.canvas.dispatchEvent(new MouseEvent("mouseup", clone));
-                        }
+
+                        brushtools.line(event, clone);
                     }
                 }
             }
@@ -239,13 +233,22 @@ const brushtools = {
                 },
                 pointermoveCallback: (event) => {
                     if (event.pressure > 0) {
+                        event.preventDefault();
+                        event.stopPropagation();
                         if (!brushtools.groups.stroke.dash.wait) {
                             brushtools.groups.stroke.dash.wait = true;
-                            brushtools.canvas.dispatchEvent(new MouseEvent("mouseup", event));
+                            let clone = new PointerEvent("pointerdown", event);
+                            clone = Object.defineProperty(clone, "button", { value: 0 });
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", clone));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", clone));
                             setTimeout(() => {
                                 brushtools.groups.stroke.dash.wait = false;
-                                if (brushtools.currentDown) brushtools.canvas.dispatchEvent(new MouseEvent("mousedown", event));
                             }, brushtools.groups.stroke.dash.options.interval.val);
+                        }
+                        else {
+                            let clone = new PointerEvent("pointermove", event);
+                            clone = Object.defineProperty(clone, "pressure", { value: 0 });
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", clone));
                         }
                     }
                 }
@@ -280,14 +283,12 @@ const brushtools = {
                     if (event.pressure > 0 ) {
                         const density = brushtools.groups.stroke.tilt.options.density.val;
                         const tilt = brushtools.groups.stroke.tilt.options.tilt.val;
-                        const size = ([...document.querySelectorAll(".size.clickable")].findIndex(s => s.classList.contains("selected")) + 5) * 5
                         for (let i = 1; i < density; i++) {
-                            const offset = event.pressure  * tilt * size;
-                            let clone = new MouseEvent("mousemove", event)
+                            const offset = event.pressure  * tilt;
+                            let clone = new PointerEvent("pointermove", event)
                             clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset - i});
                             clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset - i});
-                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
-                            //brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", event));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", clone));
                         }
                     }
                 }
@@ -355,16 +356,27 @@ const brushtools = {
                                     break;
                             }
 
-                            let clone = new MouseEvent("mousemove", event);
+                            let clone = new PointerEvent("pointermove", event);
                             clone = Object.defineProperty(clone, "clientX", { value: event.clientX + horizontal});
                             clone = Object.defineProperty(clone, "clientY", { value: event.clientY + vertical});
-                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", clone));
-                            brushtools.canvas.dispatchEvent(new MouseEvent("mousemove", event));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", clone));
+                            brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", event));
                         }
                     }
                 }
             }
 		}
+    },
+    line: (eventFrom, eventTo) => {
+        //let down = Object.defineProperty(eventFrom, "pressure", { value: pressure });
+        let down = Object.defineProperty(eventFrom, "button", { value: 0 });
+
+        //let up = Object.defineProperty(eventTo, "pressure", { value: pressure });
+        let up = Object.defineProperty(eventTo, "button", { value: 0 });
+
+        brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", down));
+        brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", up));
+        brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", up));
     },
     currentDown: false,
     canvas: null,
@@ -401,6 +413,7 @@ const brushtools = {
     setup: () => {
         brushtools.canvas = QS("#game-canvas canvas");
         brushtools.canvas.addEventListener("pointerdown", (event) => {
+            if(!event.isTrusted) return;
             brushtools.currentDown = true;
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
@@ -408,8 +421,12 @@ const brushtools = {
                 }
             }
         });
-        brushtools.canvas.addEventListener("pointerup", () => brushtools.currentDown = false);
+        brushtools.canvas.addEventListener("pointerup", (event) => {
+            if(!event.isTrusted) return;
+            brushtools.currentDown = false;
+        });
         brushtools.canvas.addEventListener("pointermove", (event) => {
+            if(!event.isTrusted) return;
             for (let [name, group] of Object.entries(brushtools.groups)){
                 for (let [name, mode] of Object.entries(group)) {
                     if (mode.enabled) mode.pointermoveCallback(event);

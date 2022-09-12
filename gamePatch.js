@@ -1374,7 +1374,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             }
     }),
     v(s, "pointermove", function(e) {
-        switch (e.preventDefault(),
+        switch (
         e.pointerType) {
         case "mouse":
             an(e.clientX, e.clientY, !1, -1);
@@ -1399,7 +1399,6 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         0 != e.button && 2 != e.button || -1 != L || on(e.button, e.clientX, e.clientY, !0, -1)
     }),
     v(s, "mouseup", function(e) {
-        e.preventDefault(),
         rn(e.button)
     }),
     v(s, "mousemove", function(e) {
@@ -1546,6 +1545,11 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     function mn(e) {
         e.classList.add("show")
     }
+/* TYPOMOD 
+     desc: add event handlers for typo features */
+    v(".avatar-customizer .container", "pointerdown", () => {
+        Zn(typo.createFakeLobbyData());}); 
+    /* TYPOEND */
     function yn(l) {
         for (var e = 0; e < cn.children.length; e++)
             cn.children[e].classList.remove("show");
@@ -1590,11 +1594,6 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             n.sort(function(e, t) {
                 return t.score - e.score
             });
-/* TYPOMOD 
-     desc: add event handlers for typo features */
-    v(".avatar-customizer .container", "pointerdown", () => {
-        Zn(typo.createFakeLobbyData());}); 
-    /* TYPOEND */
             for (a = 0; a < n.length; a++) {
                 var s = b("player")
                   , c = n[a]
