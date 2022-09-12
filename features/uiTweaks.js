@@ -726,6 +726,9 @@ const uiTweaks = {
         uiTweaks.initStraightLines();
         uiTweaks.initPenPointer();
         uiTweaks.initLobbyChat();
+
+        QS("#game-chat > div.container > form > input[type=text]").setAttribute("maxlength", 300);
+
         // random easteregg
         if(Math.random() < 0.1) QS("#game-chat .container form input").placeholder = "Typo your guess here...";
     }

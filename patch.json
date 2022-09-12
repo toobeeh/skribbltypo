@@ -55,7 +55,7 @@
                 },
                 {
                     "source": "##PERFINNER##",
-                    "target": "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?Math\\.floor\\(Math.ceil"
+                    "target": "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?\\[0, 0, [a-zA-Z0-9&_\\-$]+\\.width, [a-zA-Z0-9&_\\-$]+\\.height\\]"
                 },
                 {
                     "source": "##SHWOTOOLTIP##",
@@ -186,8 +186,8 @@
             ],
             "injections": [
                 {
-                    "position": "(function [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\) {)\\s+?[a-zA-Z0-9&_\\-$]+\\.push\\([a-zA-Z0-9&_\\-$]+\\),\\s+[a-zA-Z0-9&_\\-$]+ == [a-zA-Z0-9&_\\-$]+ && [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\)\\)",
-                    "code": "/* TYPOMOD \n         log draw commands */\n        document.dispatchEvent(new CustomEvent(\"logDrawCommand\", { detail: ##COMMAND## }));\n        /* TYPOEND */"
+                    "position": "(IGNORED COMMAND OUT OF CANVAS BOUNDS\"\\) :)",
+                    "code": "/* TYPOMOD \n         log draw commands */\n        document.dispatchEvent(new CustomEvent(\"logDrawCommand\", { detail: ##COMMAND## })) & \n        /* TYPOEND */"
                 }
             ]
         },
@@ -323,6 +323,21 @@
                 {
                     "position": "([a-zA-Z0-9&_\\-$]+?\\.avatar\\)\\s+}, 250\\)\\),)",
                     "code": "/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute(\"playerid\", ##PLAYER##.id),\n        /* TYPOEND */"
+                }
+            ]
+        },
+        {
+            "name": "Add message length splits",
+            "replacements": [
+                {
+                    "source": "##INPUT##",
+                    "target": "([a-zA-Z0-9&_\\-$]+)\\.value && [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\.value\\),\\s+[a-zA-Z0-9&_\\-$]+\\.reset"
+                }
+            ],
+            "injections": [
+                {
+                    "position": "(\"submit\", function\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+return [a-zA-Z0-9&_\\-$]+\\.preventDefault",
+                    "code": "const input = ##INPUT##; let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event(\"submit\"));},180);"
                 }
             ]
         },
