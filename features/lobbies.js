@@ -44,10 +44,10 @@ const lobbies = {
 					player => player.Sender
 						&& !onlinePlayers.some(onlineplayer => onlineplayer.id == player.ID)
 						&& onlinePlayers.push({
-							id: player.ID, name: player.Name, key: lobby.Key
+							id: player.ID, name: player.Name, key: lobby.Key, link: lobby.Link, players: lobby.Players.length
 						}))));
 		let playerButtons = "";
-		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
+		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" link="${player.link}" class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
 			if (socket.authenticated) container.innerHTML = playerButtons;
@@ -61,10 +61,12 @@ const lobbies = {
         }
 		container.addEventListener("click", e => {
 			let key = e.target.getAttribute("lobby");
-			if (key) {
-				document.dispatchEvent(newCustomEvent("joinLobby", { detail: { join: key } }));
-				if (key.length > 10) new Toast("This lobby probably is invalid or on old skribbl :/");
-            }
+			let link = e.target.getAttribute("link")?.split("?")[1];
+			if(link){
+				if (link.length > 10) new Toast("This lobby probably is invalid or on old skribbl :/");
+				else document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+			}
+			else new Toast("This lobby probably is invalid or on old skribbl :/");
 		});
 		QS("#discordLobbies").replaceWith(container);
 	},
@@ -95,8 +97,11 @@ const lobbies = {
 			// fill in basic lobby props 
 			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = '" + e.detail.settings[0] +"']").innerText;
 			lobbies.lobbyProperties.Private = e.detail.owner >= 0 ? true : false;
-			lobbies.lobbyProperties.Link = "https://skribbl.io/?" + e.detail.id;
-			lobbies.lobbyProperties.Key = e.detail.id;
+			console.log(e.detail.id);
+			lobbies.lobbyProperties.Link = window.location.origin + "?" + e.detail.id;
+
+			// generate lobby key by hashed link
+			lobbies.lobbyProperties.Key = genMatchHash(e.detail.id);
 			lobbies.lobbyProperties.Round = 0;
 
 			// get own name
@@ -117,8 +122,6 @@ const lobbies = {
 				lobbies.lobbyProperties.Players.push(add);
 			});
 
-			// generate lobby key by hashed link
-			lobbies.lobbyProperties.Key = genMatchHash(e.detail.id);
 
 			// check if lobby search is running and criteria is met
 			if(search.searchData.searching){

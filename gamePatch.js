@@ -59,8 +59,8 @@
                     typo.lastConnect = Date.now();
                     //Bn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
                     //Rn = !1 // IDENTIFY: x:  = !1   
-                    ////##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
-                    typo.joinLobby()//Kn(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
+                    if(e.detail) window.history.pushState({path:window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
+                    typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//Kn(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
                     document.dispatchEvent(new Event("joinedLobby"));
                 }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
             });

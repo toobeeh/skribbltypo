@@ -73,7 +73,7 @@ const markMessage = (newNode) => {
 
 //func to scroll to bottom of message container
 const scrollMessages = (onlyIfScrolledDown = false) => {
-    let box = document.querySelector("#game-chat .content");
+    let box = document.querySelector(".chat-content");
     if (!onlyIfScrolledDown ||  Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 30) {
         box.lastChild.scrollIntoView(false)
     }

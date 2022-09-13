@@ -553,6 +553,6 @@ const performCommand = (command) => {
 }
 
 const addChatMessage = (title, content) => {
-    QS("#game-chat .container .content").appendChild(
+    QS(".chat-content").appendChild(
         elemFromString(`<p>${ title != "" ? `<b style="color: rgb(57, 117, 206);">${title}</b><br>` : "" }<span style="color: rgb(57, 117, 206);">${content}</span></p>`));
 }

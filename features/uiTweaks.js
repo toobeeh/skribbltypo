@@ -26,7 +26,7 @@ const uiTweaks = {
     },
     initWordHint: () => {
         // Add wordcount under input
-        const input = QS("#game-chat .container form input");
+        const input = QS("#game-chat .chat-container form input");
         const hints = QS("#game-word .hints .container");
         const characters = QS("#game-chat .characters");
         
@@ -215,6 +215,7 @@ const uiTweaks = {
         customwords.insertAdjacentElement("afterend", input);
     },
     initLobbyChat: () => {
+        return; // not needed anymore
         const chat = QS("#game-chat");
         const settings = QS("#game-room .settings");
         const board = QS("#game-board");
@@ -236,7 +237,7 @@ const uiTweaks = {
             mutations.forEach(mutation => mutation.addedNodes.forEach(markMessage));
             mutations.forEach(mutation => mutation.addedNodes.forEach(emojis.replaceEmojiContent));
         });
-        chatObserver.observe(QS("#game-chat .content"), { attributes: false, childList: true });
+        chatObserver.observe(QS(".chat-content"), { attributes: false, childList: true });
     },
     initSideControls: () => {
         //init new controls div
@@ -389,8 +390,8 @@ const uiTweaks = {
         }
     </style>
     <span>⬅️Close</span><span>⬆️Like</span><span>⬇️Shame</span><span>➡️Kick</span></div>`);
-        QS("#game-chat > .container").appendChild(react);
-        let chatinput = QS("#game-chat .container input");
+        QS("#game-chat > .chat-container").appendChild(react);
+        let chatinput = QS("#game-chat .chat-container input");
         chatinput.addEventListener("keyup", (e) => {
             if (localStorage.quickreact == "true" && e.which == 17 && chatinput.value == "" && react.style.display == "none") {
                 react.style.display = "flex";
@@ -470,7 +471,7 @@ const uiTweaks = {
         });
     },
     initChatRecall: () => {
-        const input = QS("#game-chat .container form input");
+        const input = QS("#game-chat .chat-container form input");
         let history = [];
         let lookup = [];
         // Add event listener to keyup and process to hints
@@ -729,9 +730,9 @@ const uiTweaks = {
         uiTweaks.initPenPointer();
         uiTweaks.initLobbyChat();
 
-        QS("#game-chat > div.container > form > input[type=text]").setAttribute("maxlength", 300);
+        QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
 
         // random easteregg
-        if(Math.random() < 0.1) QS("#game-chat .container form input").placeholder = "Typo your guess here...";
+        if(Math.random() < 0.1) QS("#game-chat .chat-container form input").placeholder = "Typo your guess here...";
     }
 }
