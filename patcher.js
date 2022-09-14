@@ -30,11 +30,6 @@ const waitForDocAndPalantir = async () => {
     }
     else alert("Error connecting to Palantir :/");
 })().catch(console.error);
-// init socket
-setTimeout(async () => {
-    lobbies.init();
-    await socket.init();
-}, 0);
 
 visuals.init(); //init visual options popup
 
@@ -135,6 +130,12 @@ let patcher = new MutationObserver((mutations) => {
                          event.target.closest("#rightPanelContent").classList.toggle("cabin");
                          event.target.closest("#rightPanelContent").classList.toggle("lobbies");
                      });
+
+                     // init socket
+                    setTimeout(async () => {
+                        lobbies.init();
+                        await socket.init();
+                    }, 0);
                  }
             });
         });
