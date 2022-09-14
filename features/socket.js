@@ -92,7 +92,7 @@ const socket = {
                 login = JSON.parse(localStorage.member).UserLogin;
                 accessToken = false;
             } catch { }
-            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true);
+            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 5000);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
