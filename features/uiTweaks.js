@@ -258,7 +258,13 @@ const uiTweaks = {
                     return;
                 }
                 document.documentElement.requestFullscreen();
-                document.head.insertAdjacentHTML("beforeEnd", "<style id='fullscreenRules'>div#game-board{flex-grow:1}#controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} #game-board:{flex-grow: 1 !important} #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} .logo-small{display:none !important}  *::-webkit-scrollbar{display:none}</style>");
+                document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
+                    div#game-board, #game-container{flex-grow:1}
+                    #game-wrapper{width:100%; padding:5em}
+                    #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
+                    #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
+                    .logo-small{display:none !important}  
+                    *::-webkit-scrollbar{display:none}</style>`);
             }
         });
         document.addEventListener("fullscreenchange", () => {
@@ -432,7 +438,7 @@ const uiTweaks = {
     box-shadow: black 0px 2px 7px;
 ">Copy chat selection for Discord</div>`);
         popup.style.display = "none";
-        const chatbox = QS("#game-chat > .container" );
+        const chatbox = QS("#game-chat > .chat-container" );
         popup.addEventListener("pointerdown", () => {
             let chat = document.getSelection().toString();
             chat = chat.replace(/(\n)(?=.*? guessed the word!)/g, "+ ")

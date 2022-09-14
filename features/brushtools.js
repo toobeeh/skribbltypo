@@ -1,3 +1,17 @@
+const stateFromLocalstorage = (modeName, defaultState, stateOverride = undefined) => {
+    let keyname = "brushmagic_" + modeName;
+
+    if(stateOverride === false || stateOverride != undefined) {
+        localStorage.setItem(keyname, JSON.stringify(stateOverride));
+        return stateOverride;
+    }
+    else if(!localStorage.getItem(keyname)) {
+        localStorage.setItem(keyname, JSON.stringify(defaultState));
+        return defaultState;
+    }
+    else return JSON.parse(localStorage.getItem(keyname));
+}
+
 const brushtools = {
     groups: {
         color: {
@@ -57,7 +71,7 @@ const brushtools = {
             rainbowcircle: {
                 name: "Rainbow Cycle",
                 description: "Cycles through bright rainbow colors, no pen needed.",
-                enabled: false,
+                enabled: stateFromLocalstorage("color.rainbowcircle", false),
                 options: {
                 },
                 enable: () => {
@@ -67,11 +81,11 @@ const brushtools = {
                     brushtools.groups.color.rainbowcircle.lastSwitch = 0;
                     brushtools.groups.color.rainbowcircle.lastIndex = 0;
                     brushtools.groups.color.rainbowcircle.direction = 1;
-                    brushtools.groups.color.rainbowcircle.enabled = true;
+                    brushtools.groups.color.rainbowcircle.enabled = stateFromLocalstorage("color.rainbowcircle", undefined, true);
                     gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
                 },
                 disable: () => {
-                    brushtools.groups.color.rainbowcircle.enabled = false;
+                    brushtools.groups.color.rainbowcircle.enabled = stateFromLocalstorage("color.rainbowcircle", undefined, false);
                 },
                 pointermoveCallback: (event) => {
                     const colors = ["ef130b", "ff7100", "ffe400", "00cc00", "00ff91", "00b2ff", "231fd3", "a300ba", "d37caa"];
@@ -103,15 +117,17 @@ const brushtools = {
             mandala: {
                 name: "Mandala",
                 description: "The brush is mirrored on either the X-axis, Y-axis or both.",
-                enabled: false,
+                enabled: stateFromLocalstorage("mirror.mandala", false),
                 options: {
                     axis: {
-                        val: "X",
-                        type: ["X", "XY", "Y"]
+                        val: stateFromLocalstorage("mirror.mandala.options.axis", "X"),
+                        type: ["X", "XY", "Y"],
+                        save: value => stateFromLocalstorage("mirror.mandala.options.axis", undefined, value)
                     },
                     mirrorpoint: {
-                        val: "Center",
-                        type: ["Center", "Click"]
+                        val: stateFromLocalstorage("mirror.mandala.options.mirrorpoint", "Center"),
+                        type: ["Center", "Click"],
+                        save: value => stateFromLocalstorage("mirror.mandala.options.mirrorpoint", undefined, value)
                     }
                 },
                 enable: () => {
@@ -121,16 +137,20 @@ const brushtools = {
                     for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
                         mode.disable();
                     }
-                    brushtools.groups.mirror.mandala.enabled = true;
+                    brushtools.groups.mirror.mandala.enabled = stateFromLocalstorage("mirror.mandala", undefined, true);
                 },
                 disable: () => {
-                    brushtools.groups.mirror.mandala.enabled = false;
+                    brushtools.groups.mirror.mandala.enabled = stateFromLocalstorage("mirror.mandala", undefined, false);
                 },
                 pointermoveCallback: (event) => {
 
                     event.preventDefault();
                     event.stopPropagation();
                     if (event.pressure > 0 && !event.ctrlKey) {
+
+                        if (event.type == "pointerdown") {
+                            brushtools.groups.mirror.mandala.lastDownPos = [event.offsetX, event.offsetY];
+                        }
 
                         const mirror = brushtools.groups.mirror.mandala.options.axis.val;
                         const point = brushtools.groups.mirror.mandala.options.mirrorpoint.val;
@@ -161,15 +181,17 @@ const brushtools = {
             sculpt: {
                 name: "Sculpt",
                 description: "Creates sculptures mirrored on either the X-axis, Y-axis or both.",
-                enabled: false,
+                enabled: stateFromLocalstorage("mirror.sculpt", false),
                 options: {
                     axis: {
-                        val: "X",
-                        type: ["X", "XY", "Y"]
+                        val: stateFromLocalstorage("mirror.sculpt.options.axis", "X"),
+                        type: ["X", "XY", "Y"],
+                        save: value => stateFromLocalstorage("mirror.sculpt.options.axis", undefined, value)
                     },
                     mirrorpoint: {
-                        val: "Center",
-                        type: ["Center", "Click"]
+                        val: stateFromLocalstorage("mirror.sculpt.options.mirrorpoint", "Center"),
+                        type: ["Center", "Click"],
+                        save: value => stateFromLocalstorage("mirror.sculpt.options.mirrorpoint", undefined, value)
                     }
                 },
                 enable: () => {
@@ -179,10 +201,10 @@ const brushtools = {
                     for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
                         mode.disable();
                     }
-                    brushtools.groups.mirror.sculpt.enabled = true;
+                    brushtools.groups.mirror.sculpt.enabled = stateFromLocalstorage("mirror.sculpt", undefined, true);
                 },
                 disable: () => {
-                    brushtools.groups.mirror.sculpt.enabled = false;
+                    brushtools.groups.mirror.sculpt.enabled = stateFromLocalstorage("mirror.sculpt", undefined, false);
                 },
                 pointermoveCallback: (event) => {
 
@@ -212,11 +234,12 @@ const brushtools = {
             dash: {
                 name: "Dash",
                 description: "Draw dashed lines.",
-                enabled: false,
+                enabled: stateFromLocalstorage("stroke.dash", false),
                 options: {
                     interval: {
-                        val: 10,
-                        type: "num"
+                        val: stateFromLocalstorage("stroke.dash.options.interval", 10),
+                        type: "num",
+                        save: value => stateFromLocalstorage("stroke.dash.options.interval", undefined, value)
                     }
                 },
                 enable: () => {
@@ -226,10 +249,10 @@ const brushtools = {
                     for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
                         mode.disable();
                     }
-                    brushtools.groups.stroke.dash.enabled = true;
+                    brushtools.groups.stroke.dash.enabled = stateFromLocalstorage("stroke.dash", undefined, true);
                 },
                 disable: () => {
-                    brushtools.groups.stroke.dash.enabled = false;
+                    brushtools.groups.stroke.dash.enabled = stateFromLocalstorage("stroke.dash", undefined, false);
                 },
                 pointermoveCallback: (event) => {
                     if (event.pressure > 0) {
@@ -256,15 +279,17 @@ const brushtools = {
             tilt: {
                 name: "Tilt",
                 description: "Draw tilted lines.",
-                enabled: false,
+                enabled: stateFromLocalstorage("stroke.tilt", false),
                 options: {
                     density: {
-                        val: 10,
-                        type: "num"
+                        val: stateFromLocalstorage("stroke.tilt.options.density", 5),
+                        type: "num",
+                        save: value => stateFromLocalstorage("stroke.tilt.options.density", undefined, value)
                     },
                     tilt: {
-                        val: 5,
-                        type: "num"
+                        val: stateFromLocalstorage("stroke.tilt.options.tilt", 5),
+                        type: "num",
+                        save: value => stateFromLocalstorage("stroke.tilt.options.tilt", undefined, value)
                     }
                 },
                 enable: () => {
@@ -274,10 +299,10 @@ const brushtools = {
                     for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
                         mode.disable();
                     }
-                    brushtools.groups.stroke.tilt.enabled = true;
+                    brushtools.groups.stroke.tilt.enabled = stateFromLocalstorage("stroke.tilt", undefined, true);
                 },
                 disable: () => {
-                    brushtools.groups.stroke.tilt.enabled = false;
+                    brushtools.groups.stroke.tilt.enabled = stateFromLocalstorage("stroke.tilt", undefined, false);
                 },
                 pointermoveCallback: (event) => {
                     if (event.pressure > 0 ) {
@@ -296,15 +321,17 @@ const brushtools = {
             noise: {
                 name: "Noise",
                 description: "Draw distorted lines. If you're using a pen, the size is affected by pressure.",
-                enabled: false,
+                enabled: stateFromLocalstorage("stroke.noise", false),
                 options: {
                     size: {
-                        val: 10,
-                        type: "num"
+                        val: stateFromLocalstorage("stroke.noise.options.size", 10),
+                        type: "num",
+                        save: value => stateFromLocalstorage("stroke.noise.options.size", undefined, value)
                     },
                     direction: {
-                        val: "top",
-                        type: ["top", "bottom", "left", "right", "vertical", "horizontal", "all"]
+                        val: stateFromLocalstorage("stroke.noise.options.direction", "top"),
+                        type: ["top", "bottom", "left", "right", "vertical", "horizontal", "all"],
+                        save: value => stateFromLocalstorage("stroke.noise.options.direction", undefined, value)
                     }
                 },
                 enable: () => {
@@ -314,10 +341,10 @@ const brushtools = {
                     for (let [name, mode] of Object.entries(brushtools.groups.stroke)) {
                         mode.disable();
                     }
-                    brushtools.groups.stroke.noise.enabled = true;
+                    brushtools.groups.stroke.noise.enabled = stateFromLocalstorage("stroke.noise", undefined, true);
                 },
                 disable: () => {
-                    brushtools.groups.stroke.noise.enabled = false;
+                    brushtools.groups.stroke.noise.enabled = stateFromLocalstorage("stroke.noise", undefined, false);
                 },
                 pointermoveCallback: (event) => {
                     if (event.pressure > 0 ) {
@@ -439,6 +466,7 @@ const brushtools = {
                 grid-column-gap:2em;
                 width: 100%;
                 grid-template-columns: 1fr 1fr 1fr;"></div>`);
+
         const updateStates = () => {
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
@@ -470,15 +498,18 @@ const brushtools = {
                         modeOptions.appendChild(optionElem);
                         optionElem.querySelector("input").addEventListener("input", event => {
                             option.val = parseInt(event.target.value);
+                            if(option.save) option.save(option.val);
                         });
                     }
                     else if (typeof (option) == "object") {
-                        const optionElem = elemFromString(`<label>Set ${name}:<select value="${option.val}">${option.type.map(opt => "<option value="+opt+">" + opt + "</option>").join("")}</select></label>`);
+                        const optionElem = elemFromString(`<label>Set ${name}:<select value="${option.val}">${option.type.map(opt => "<option value="+opt+" " + (option.val == opt ? "selected" : "") + ">" + opt + "</option>").join("")}</select></label>`);
                         modeOptions.appendChild(optionElem);
                         optionElem.querySelector("select").addEventListener("input", event => {
-                            option.val =event.target.value;
+                            option.val = event.target.value;
+                            if(option.save) option.save(option.val);
                         });
 					}
+
                 }
                 modeDetails.appendChild(modeOptions);
                 groupContainer.appendChild(modeDetails);

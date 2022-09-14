@@ -41,7 +41,7 @@ const gamemodes = {
                     // update message blur based on self drawing / guessed or not
                     QS("#game-chat .container style#gamemodeDeafRules").innerHTML =
                         (QS(".name.me").closest(".player.guessed")) || QS(".name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                        "" : "#game-chat .container .content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .bubble {display:none !important}";
+                        "" : "#game-chat .container .content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .bubble {display:none !important} .characters{color:black !important}";
                 }
             }
         }, {
