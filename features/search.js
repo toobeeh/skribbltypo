@@ -208,14 +208,26 @@ const search = {
         // create search modal
         let searchParamsHuman = (humanCriterias.join("<br>or<br>") != "" ?
             "Search Criteria:<br>" + humanCriterias.join("<br>or<br>") : "<b>Whoops,</b> You didn't set any filters.");
-        let modalCont = elemFromString("<div style='text-align:center'><h4>" + searchParamsHuman + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere to cancel</h4><div>");
+        let modalCont = elemFromString("<div style='text-align:center'><details><summary style='cursor:pointer; user-select:none''><b>Lobby Search Information</b></summary>While this popup is opened, typo jumps through lobbies and searches for one that matches you filters.<br>Due to skribbl limitations, typo can only join once in two seconds.</details><h4>" + searchParamsHuman + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere out to cancel</h4><div>");
         let modal = new Modal(modalCont, () => {
             search.searchData.searching = false;
+            QS("#searchRules")?.remove();
+            document.dispatchEvent(newCustomEvent("abortJoin"));
+            leaveLobby();
         }, "Searching for filter match:", "40vw", "15em");
 
         let skippedPlayers = [];
 
         search.setSearch(() => {
+            
+            // search rules
+            if(!QS("#searchRules")) {
+                let rules = document.body.appendChild(elemFromString`<style id="searchRules">
+                    #home{ display:flex !important}
+                    #game{ display:none !important}
+                    #load{ display:none !important}
+                </style>`);
+            }
             lobbies.lobbyProperties.Players.forEach(p => {
                 if (skippedPlayers.indexOf(p.Name) < 0 && p.Name != socket.clientData.playerName) {
                     skippedPlayers.push(p.Name);
@@ -232,6 +244,7 @@ const search = {
                 check: undefined, proceed: undefined, ended: undefined
             };
             modal.close();
+            QS("#searchRules")?.remove();
         });
     },
     searchData: {

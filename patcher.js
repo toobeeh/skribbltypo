@@ -72,7 +72,7 @@ let patcher = new MutationObserver((mutations) => {
                     
                  }
                  if (node.classList && node.classList.contains("button-play")) {
-                     node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'>Connecting to Typo server...</div>");
+                     node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
                  }
                  if (node.parentElement?.classList.contains("panels") && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
                      const panelGrid = elemFromString("<div id='panelgrid'></div>");

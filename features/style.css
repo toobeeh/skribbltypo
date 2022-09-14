@@ -589,3 +589,31 @@ input[type=checkbox].flatUI:focus{
   transform:scale(95%)
 }
 
+
+@keyframes bounceload {
+    from {
+        transform:scale(0.5)
+    }
+    to {
+        transform:translateX(-40%) scale(1.5)
+    }
+}
+
+bounceload {
+    display: inline-block;
+    height: 1.5em;
+    aspect-ratio: 1;
+    background-image: url(/img/size.gif);
+    background-size: 1em;
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: scale(1.5);
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+    animation: bounceload .5s infinite;
+    animation-direction: alternate;
+    animation-timing-function: ease-in-out;
+    transform-origin: center;
+    margin-right: .5em;
+    margin-left:.5em;
+    margin-bottom:-.4em;
+}

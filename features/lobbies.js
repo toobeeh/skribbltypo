@@ -57,16 +57,16 @@ const lobbies = {
 			}
 		}
 		else {
-			container.innerHTML = "Connecting to Typo server...";
+			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
         }
 		container.addEventListener("click", e => {
 			let key = e.target.getAttribute("lobby");
 			let link = e.target.getAttribute("link")?.split("?")[1];
 			if(link){
-				if (link.length > 10) new Toast("This lobby probably is invalid or on old skribbl :/");
+				if (link.length > 10) new Toast("This lobby is probably invalid or on old skribbl :/");
 				else document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
 			}
-			else new Toast("This lobby probably is invalid or on old skribbl :/");
+			else new Toast("This lobby is probably invalid or on old skribbl :/");
 		});
 		QS("#discordLobbies").replaceWith(container);
 	},
@@ -127,9 +127,10 @@ const lobbies = {
 			if(search.searchData.searching){
 				if(search.searchData.check()){
 					search.searchData.ended();
+					QS("#searchRules")?.remove();
 				}
 				else {
-					setTimeout(()=>search.searchData.proceed(),500);
+					search.searchData.proceed();
 					return;
 				}
 			}

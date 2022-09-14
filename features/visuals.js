@@ -40,27 +40,27 @@ const visuals = {
             let val = options["ingameContainerBackgrounds"] ? options["ingameContainerBackgrounds"].trim() : "";
             style.innerHTML += "#game-bar, .clickable,  #game-room .settings, #game-room .players,   .tooltip .tooltip-content, #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar div.color-picker div.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .list .player, #game-players .list .player.odd {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#game-players .list .player.odd{background-image: linear-gradient(0, " + (val != "" ? val : "transparent") + ", " + (val != "" ? val : "transparent") + ");}";
-            style.innerHTML += "#game-chat .content {background:none}";
-            style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; } ";
+            style.innerHTML += "#game-chat .chat-content {background:none}";
+            style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; --COLOR_CHAT_BG_BASE: " + val + " !important; } ";
             style.innerHTML += "#game-players div.list div.player div.bubble div.arrow{border-right-color:" + val + "} #game-players div.list div.player div.bubble div.content{background-color:" + val + "}";
-            style.innerHTML += "#game-chat .container .content p:nth-child(even) {background-color: #ffffff20;}";
+            style.innerHTML += "#game-chat .chat-container .chat-content p:nth-child(even) {background-color: #ffffff20;}";
         }
 
         if (options["containerOutlinesCheck"] == true) {
             let val = options["containerOutlines"] ? options["containerOutlines"].trim() : "";
-            style.innerHTML += "#game-bar,  #game-room .settings, #game-room .players,   #imageAgent, #modal .box, #home .panel, .modalContainer, #game-chat .container, #game-players .list .player, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#game-bar,  #game-room .settings, #game-room .players,   #imageAgent, #modal .box, #home .panel, .modalContainer, #game-chat .chat-container, #game-players .list .player, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
         }
 
         if (options["containerImages"] && options["containerImages"].trim() != "")
         {
-            style.innerHTML += "#game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat .container, #game-players .list  {background-image: url(" + options["containerImages"].trim() + ") !important}";
+            style.innerHTML += "#game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat .chat-container, #game-players .list  {background-image: url(" + options["containerImages"].trim() + ") !important}";
             style.innerHTML += "#game-players .list {background:none !important}";
         }
         // font color
         let color = options["fontColor"] ? options["fontColor"] : "";
         if (color && color != "") {
-            style.innerHTML += "#home .bottom .footer .notice, * {color:" + color.trim() + "}";
-            style.innerHTML += "input[type=checkbox].flatUI, #game-chat .container form input, input[type=text].flatUI, #home .bottom .footer .section-container .section{color:unset}"
+            style.innerHTML += "#home .bottom .footer .notice, *:not(.chat-content *) {color:" + color.trim() + "}";
+            style.innerHTML += "input[type=checkbox].flatUI, #game-chat .chat-container form input, input[type=text].flatUI, #home .bottom .footer .section-container .section{color:unset}"
         }
         // font color of everything in-game 
         if (!options["ingameFontColor"] && options["fontColor"]) {
@@ -71,14 +71,14 @@ const visuals = {
         }
         let ingamecolor = options["ingameFontColor"] ? options["ingameFontColor"] : "";
         if (ingamecolor && ingamecolor != "") {
-            style.innerHTML += "#game-chat > div.container > div.content > p *:not([style*='rgb(125, 173, 63)']):not([style*='rgb(206, 79, 10)']):not([style*='rgb(204, 204, 0)']) {color:" + ingamecolor.trim() + " !important}";
-            style.innerHTML += "#game * {color:" + ingamecolor.trim() + "}";
+            style.innerHTML += ":root{ --COLOR_CHAT_TEXT_BASE:" + ingamecolor.trim() + " !important}";
+            style.innerHTML += "#game *:not(.chat-content *) {color:" + ingamecolor.trim() + "}";
             style.innerHTML += "div#game-toolbar.typomod div.tools-container div.tools div.tool div.key, #game-word .description, #game-round .round-max, #game-round span, #game-players .player-amount b:nth-child(4), #game-players .player-amount span {color:" + ingamecolor.trim() + "; filter: brightness(0.8);}";
         }
         // font color of buttons / inputs
         let colorBtns = options["fontColorButtons"] ? options["fontColorButtons"] : "";
         if (colorBtns && colorBtns != "") style.innerHTML += "select, input, button, textarea {color:" + colorBtns.trim() + "}";
-        if (ingamecolor || color || colorBtns) style.innerHTML += "#game-clock{color:black}";
+        if (ingamecolor || color || colorBtns) style.innerHTML += "#game-clock{color:black !important}";
         let font = options["fontStyle"] ? options["fontStyle"] : "";
         if (font && font != "") {
             [...QSA(".fontImport")].forEach(s => s.remove());
@@ -110,7 +110,7 @@ const visuals = {
             style.innerHTML += "#home .socials {opacity:0}";
         }
         if (options["hideInGameLogo"] == true) {
-            style.innerHTML += "#game .logo-small{display:none}";
+            style.innerHTML += "#game .logo-small{display:none} #game{margin-top:2em}";
         }
         if (options["hideAvatarLogo"] == true) {
             style.innerHTML += "#home .logo-big .avatar-container {display:none }";
