@@ -86,7 +86,7 @@ let patcher = new MutationObserver((mutations) => {
                                 <br>${hints[Math.floor(Math.random() * hints.length)]}
                             </div>
                             <div style="display: grid; grid-template-columns: 50% 50%;">
-                                <typosocial media="discord"><a target="_blank" href='https://discord.link/typo'>Typo Discord</a></typosocial>
+                                <typosocial media="discord"><a target="_blank" href='https://typo.rip/discord'>Typo Discord</a></typosocial>
                                 <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a></typosocial>
                                 <typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a></typosocial>
                                 <typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial>

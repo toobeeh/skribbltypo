@@ -52,7 +52,7 @@ let imageOptions = {
             }
         }, false);
         //printCmdOutput("render");
-        QS("#game-chat .container .content").appendChild(progressBar);
+        QS("#game-chat .chat-container .chat-content").appendChild(progressBar);
     },
     initContainer: () => {
         // new imageoptions container on the right side

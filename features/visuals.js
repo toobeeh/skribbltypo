@@ -43,7 +43,7 @@ const visuals = {
             style.innerHTML += "#game-chat .chat-content {background:none}";
             style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; --COLOR_CHAT_BG_BASE: " + val + " !important; } ";
             style.innerHTML += "#game-players div.list div.player div.bubble div.arrow{border-right-color:" + val + "} #game-players div.list div.player div.bubble div.content{background-color:" + val + "}";
-            style.innerHTML += "#game-chat .chat-container .chat-content p:nth-child(even) {background-color: #ffffff20;}";
+            style.innerHTML += "#game-chat .chat-container .chat-content p:nth-child(even), #game-chat .chat-container .chat-content p.guessed:nth-child(even) {background-color: #ffffff20;} #game-chat .chat-container .chat-content p.guessed:nth-child(odd){background-color:transparent}";
         }
 
         if (options["containerOutlinesCheck"] == true) {

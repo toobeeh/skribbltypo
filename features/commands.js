@@ -491,7 +491,7 @@ const commands = [
                     help += `<b>${cmd.command} (${cmd.options.type}):</b> ${cmd.options.description}<br><br>`;
                 });
                 help += "</small></div>";
-                QS("#game-chat .container .content").appendChild(elemFromString(help));
+                QS("#game-chat .chat-container .chat-content").appendChild(elemFromString(help));
             },
             response: (args) => {
                 return "";
@@ -540,13 +540,13 @@ const performCommand = (command) => {
             if (cmd.options.actionAfter) cmd.options.actionAfter(args);
             const response = cmd.options.response(cmd.options.type == "toggle" ? toggle : args);
             // print output
-            QS("#game-chat .container .content").appendChild(
+            QS("#game-chat .chat-container .chat-content").appendChild(
                 elemFromString(`<p><b style="color: rgb(57, 117, 206);">Command: ${cmd.command}</b><br><span style="color: rgb(57, 117, 206);">${response}</span></p>`));
         }
     });
     if (!match) {
         // print error - no matching command 
-        QS("#game-chat .container .content").appendChild(
+        QS("#game-chat .chat-container .chat-content").appendChild(
             elemFromString(`<p><b style="color: rgb(57, 117, 206);">Command failed: ${command}</b><br><span style="color: rgb(57, 117, 206);">Not found :(</span></p>`));
     }
     scrollMessages();

@@ -734,7 +734,6 @@ const uiTweaks = {
         uiTweaks.initChooseCountdown();
         uiTweaks.initStraightLines();
         uiTweaks.initPenPointer();
-        uiTweaks.initLobbyChat();
 
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
 
