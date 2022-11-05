@@ -167,9 +167,13 @@ const getCurrentWordOrHint = () => {
 // adds a color palette
 const setColorPalette = (colorPalette) => {
     paletteContainer = elemFromString(`<div class="colors custom"></div>`);
+    paletteContainer.style.width=colorPalette.rowCount * 24 + "px";
     let swatches = [...colorPalette.swatches];
+    rowTop = 0;
     while (swatches.length > 0) {
-        const rowElem = elemFromString("<div class='top'></div>");
+        const rowElem = elemFromString("<div class='top' style='position:absolute'></div>");
+        rowElem.style.top = rowTop + "px";
+        rowTop += 24;
         swatches.splice(0, colorPalette.rowCount).forEach(swatch => {
             rowElem.appendChild(swatch.swatch);
         });

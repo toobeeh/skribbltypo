@@ -25,7 +25,7 @@ const commands = [
                 localStorage.charbar = "false";
             },
             actionAfter: (args) => {
-                QS("#game-chat .container form input").dispatchEvent(new Event("keyup"));
+                QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup"));
             },
             response: (state) => {
                 return (state ? "Enabled" : "Disabled") + " char count.";

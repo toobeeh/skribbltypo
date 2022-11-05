@@ -56,7 +56,7 @@ const uiTweaks = {
                 charbar.style.background = "#BAFFAA";
             } */
             if(localStorage.charbar != "true"){
-                characters.style.cssText = "";
+                characters.style.cssText = "display:none";
             }
             else if(hints.querySelector(".word-length") && hints.querySelector(".word-length").parentElement.style.display != "none"){
                 let word = hints.textContent.replace(hints.querySelector(".word-length").innerText, "");
@@ -259,7 +259,7 @@ const uiTweaks = {
                 document.documentElement.requestFullscreen();
                 document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
                     div#game-board, #game-container{flex-grow:1}
-                    #game-wrapper{width:100%; padding:5em}
+                    #game-wrapper{width:100%; padding:1em}
                     #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
                     #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
                     .logo-small{display:none !important}  

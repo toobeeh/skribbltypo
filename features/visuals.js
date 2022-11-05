@@ -110,7 +110,7 @@ const visuals = {
             style.innerHTML += "#home .socials {opacity:0}";
         }
         if (options["hideInGameLogo"] == true) {
-            style.innerHTML += "#game .logo-small{display:none} #game{margin-top:2em}";
+            style.innerHTML += "#game #game-logo{display:none} #game{margin-top:2em}";
         }
         if (options["hideAvatarLogo"] == true) {
             style.innerHTML += "#home .logo-big .avatar-container {display:none }";
@@ -230,7 +230,7 @@ const visuals = {
     <div style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 1em;grid-row-gap: 1em; margin: 0 1em;">
         <label><input type="checkbox" class="flatUI" id="hideFooter"> <span>Hide credits, contact & TOS on frontpage</span></label>
         <label><input type="checkbox" class="flatUI" id="hideTypoInfo"> <span> Hide palantir stats</span></label>
-        <label><input type="checkbox" class="flatUI" id="hideDiscord"> <span> Hide Discord banner</span></label>
+        <label style="display:none"><input type="checkbox" class="flatUI" id="hideDiscord"> <span> Hide Discord banner</span></label>
         <label><input type="checkbox" class="flatUI" id="hideAvatarLogo"> <span> Hide avatars beyond logo</span></label>
         <label><input type="checkbox" class="flatUI" id="hideInGameLogo"> <span> Hide logo in-game</span></label>
         <label><input type="checkbox" class="flatUI" id="hideAvatarSprites"> <span> Hide sprites on frontpage</span></label>
