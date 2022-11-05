@@ -74,6 +74,15 @@ if (!STOP_EXECUTION) {
     QS("a[href='https://twitter.com/ticedev']").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 }
 else {
-    new Toast("Typo has been deactivated tempoary due to Skribbl update compatibilities.", 2000);
-    localStorage.typoincompatibility = "";
+    //new Toast("Welcome to the new Skribbl update! Typo will be updated soon and activated automatically. Have fun!", 5000);
+    if (!document.body.innerText.includes("Fresh paint")) localStorage.typoincompatibility = "";
+    document.querySelector(".button-create").insertAdjacentHTML("afterend", `<div style="
+    color: white;
+    font-size: small;
+    background: rgba(0,0,0,.1);
+    padding: .5em;
+    margin: .5em;
+    border-radius: .5em;
+"><span>Welcome to the new skribbl update! 🥳<br>Typo is deactivated until everything is up-to-date. <br>It will reactivate automatically soon 💚
+</span></div>`);
 }
