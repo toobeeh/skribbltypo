@@ -371,7 +371,7 @@ const commands = [
                 let kickPlayer = QS("div[playerid='" + args + "']");
                 if (!kickPlayer) kickPlayer = QS(".player .drawing[style*='block'").closest(".player");
                 if(kickPlayer) document.dispatchEvent(newCustomEvent("socketEmit", { detail: { id: 5, data: parseInt(kickPlayer.getAttribute("playerid")) } }));
-                return kickPlayer ? "Executed kick for " + kickPlayer.querySelector(".name").textContent.replace("(You)","").trim() : "No-one to kick :(";
+                return kickPlayer ? "Executed kick for " + kickPlayer.querySelector(".player-name").textContent.replace("(You)","").trim() : "No-one to kick :(";
             }
         }
     }, {

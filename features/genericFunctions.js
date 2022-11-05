@@ -146,7 +146,7 @@ const replaceUmlaute = (str) => {
 const getCurrentOrLastDrawer = () => {
     let drawer = "Unknown";
     if (QS(".avatar .drawing[style*=block]"))
-        drawer = QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".name").textContent.replace("(You)", "").trim();
+        drawer = QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".player-name").textContent.replace("(You)", "").trim();
     else {
         try {
             drawer = (new RegExp(">([^>]+?) is drawing now!<\/b>", "g")).exec(QS("#game-chat .content").innerHTML).pop();

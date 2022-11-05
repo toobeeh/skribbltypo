@@ -17,7 +17,7 @@ const gamemodes = {
                 },
                 observeAction: () => {
                     // update opacity based on self drawing or not
-                    QS("#game-canvas canvas").style.opacity = QS(".name.me").closest(".player").querySelector(".drawing[style*=block]") ? 1 : 0;
+                    QS("#game-canvas canvas").style.opacity = QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ? 1 : 0;
                 }
             }
         }, {
@@ -40,7 +40,7 @@ const gamemodes = {
                 observeAction: () => {
                     // update message blur based on self drawing / guessed or not
                     QS("#game-chat .container style#gamemodeDeafRules").innerHTML =
-                        (QS(".name.me").closest(".player.guessed")) || QS(".name.me").closest(".player").querySelector(".drawing[style*=block]") ?
+                        (QS(".player-name.me").closest(".player.guessed")) || QS(".palyer-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
                         "" : "#game-chat .container .content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .bubble {display:none !important} .characters{color:black !important}";
                 }
             }
@@ -60,8 +60,8 @@ const gamemodes = {
                 },
                 observeAction: () => {
                     const someoneDrawing = QS(".drawing[style*=block]") ? true : false;
-                    const selfDrawing = QS(".name.me").closest(".player").querySelector(".drawing[style*=block]") ? true : false;
-                    const selfGuessed = QS(".name.me").closest(".player.guessed");
+                    const selfDrawing = QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ? true : false;
+                    const selfGuessed = QS(".player-name.me").closest(".player.guessed");
                     if (selfDrawing || selfGuessed || !someoneDrawing) {
                         // everything fine, you can type
                         QS("#game-chat .container form input").disabled = false;
@@ -72,7 +72,7 @@ const gamemodes = {
                         let lastDrawingIndex = chat.lastIndexOf("is drawing now!</b>");
                         if (lastDrawingIndex < 0) lastDrawingIndex = 0;
                         chat = chat.substr(lastDrawingIndex);
-                        const selfName = QS(".name.me").innerText.replace("(You)", "").trim();
+                        const selfName = QS(".player-name.me").innerText.replace("(You)", "").trim();
                         let regHasGuessed = new RegExp("is drawing now!</b>.*(?:>" + selfName + ": <\/b>)", "g");
                         let regIsRevealed = new RegExp(/is drawing now!<\/b >.*;\\">The word was/g);
                         if (regHasGuessed.test(chat) && !regIsRevealed.test(chat)) {
@@ -137,7 +137,7 @@ const gamemodes = {
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
                     QS("#randomColor").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
-                        QS(".name.me").closest(".player").querySelector(".drawing[style*=block]") ?
+                        QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
                         `#game-toolbar > div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
                             {display:none;}
                          #colPicker{display:none;}

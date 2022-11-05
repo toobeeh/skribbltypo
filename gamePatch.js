@@ -52,9 +52,11 @@
         disconnect: undefined,
         lastConnect: 0,
         initListeners: (() => {
-            let abort=false; document.addEventListener("abortJoin", () => abort = true); document.addEventListener("joinLobby", (e) => {
-                let timeoutdiff = Date.now() - typo.lastConnect;
+            let abort=false; document.addEventListener("abortJoin", () => {abort = true; typo.lastConnect = 0;}); document.addEventListener("joinLobby", (e) => {
+                abort=false;
+                let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
                 //Xn(true);
+                console.log(timeoutdiff < 1800 ? 1800 - timeoutdiff : 0, timeoutdiff);
                 setTimeout(() => {
                     if(abort) return; typo.lastConnect = Date.now();
                     //Hn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY

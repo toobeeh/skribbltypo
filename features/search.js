@@ -208,7 +208,7 @@ const search = {
         // create search modal
         let searchParamsHuman = (humanCriterias.join("<br>or<br>") != "" ?
             "Search Criteria:<br>" + humanCriterias.join("<br>or<br>") : "<b>Whoops,</b> You didn't set any filters.");
-        let modalCont = elemFromString("<div style='text-align:center'><details><summary style='cursor:pointer; user-select:none''><b>Lobby Search Information</b></summary>While this popup is opened, typo jumps through lobbies and searches for one that matches you filters.<br>Due to skribbl limitations, typo can only join once in two seconds.</details><h4>" + searchParamsHuman + "</h4><span id='skippedPlayers'>Skipped:<br></span><br><h4>Click anywhere out to cancel</h4><div>");
+        let modalCont = elemFromString("<div style='text-align:center'><details><summary style='cursor:pointer; user-select:none''><b>Lobby Search Information</b></summary>While this popup is opened, typo jumps through lobbies and searches for one that matches you filters.<br>Due to skribbl limitations, typo can only join once in two seconds.</details><h4>" + searchParamsHuman + "</h4><span id='skippedPlayers'>Skipped players:<br></span><br><span id='jumpsSearch'></span><br><h4>Click anywhere out to cancel</h4><div>");
         let modal = new Modal(modalCont, () => {
             search.searchData.searching = false;
             QS("#searchRules")?.remove();
@@ -217,6 +217,7 @@ const search = {
         }, "Searching for filter match:", "40vw", "15em");
 
         let skippedPlayers = [];
+        let jumps=0;
 
         search.setSearch(() => {
             
@@ -229,9 +230,10 @@ const search = {
                 </style>`);
             }
             lobbies.lobbyProperties.Players.forEach(p => {
+                modalCont.querySelector("#jumpsSearch").textContent = "Skipped lobbies: " + ++jumps;
                 if (skippedPlayers.indexOf(p.Name) < 0 && p.Name != socket.clientData.playerName) {
                     skippedPlayers.push(p.Name);
-                    modalCont.querySelector("#skippedPlayers").innerHTML += " [" + p.Name + "] <wbr>";
+                    modalCont.querySelector("#skippedPlayers").innerHTML += " [" + p.Name + "] <wbr> ";
                 }
             });
             let lobby = lobbies.lobbyProperties;

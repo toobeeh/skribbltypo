@@ -622,6 +622,6 @@ bounceload {
     height:calc(28% - var(--BORDER_GAP) * 4) !important;
 }
 
-.player { height: 54px !important}
-.player-avatar-container { top: 3px !important; right: 3px !important;}
-.player-info{width: 90% !important;}
+.player-avatar-container > .player { height: 54px !important}
+.player-avatar-container > .player-avatar-container { top: 3px !important; right: 3px !important;}
+.player-avatar-container > .player-info{width: 90% !important;}
