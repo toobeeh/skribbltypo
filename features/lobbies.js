@@ -23,17 +23,17 @@ const lobbies = {
 		let players = [];
 		[...QSA("#game-players .player")].forEach(player => {
 			players.push({
-				Name: player.querySelector(".name").textContent.replace("(You)", "").trim(),
-				Score: player.querySelector(".score").textContent.replace("points", "").trim(),
+				Name: player.querySelector(".player-name").textContent.replace("(You)", "").trim(),
+				Score: player.querySelector(".player-score").textContent.replace("points", "").trim(),
 				Drawing: (player.querySelector(".drawing").style.display != "none"),
-				Sender: player.querySelector(".name").textContent.includes("(You)"),
+				Sender: player.querySelector(".player-name").textContent.includes("(You)"),
 				LobbyPlayerID: player.getAttribute("playerid")
 			});
 		});
 		return players;
 	},
 	getTriggerElements: () => {
-		return [QS("#game-round"), QS("#game-players .list"), [...QSA(".avatar .drawing")]].flat();
+		return [QS("#game-round"), QS("#game-players .players-list"), [...QSA(".avatar .drawing")]].flat();
 	},
 	setLobbyContainer: () => {
 		// get online players with lobby links

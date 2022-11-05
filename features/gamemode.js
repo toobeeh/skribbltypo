@@ -10,7 +10,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-canvas canvas").style.opacity = 1;
                 },
-                observeSelector: "#game-players .list",
+                observeSelector: "#game-players .players-list",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -32,7 +32,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-chat .container style#gamemodeDeafRules")?.remove()
                 },
-                observeSelector: "#game-players .list",
+                observeSelector: "#game-players .players-list",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -91,7 +91,7 @@ const gamemodes = {
             options: {
                 description: "The canvas won't clear - you draw over the previous images!",
                 init: () => {
-                    QS(".tool .icon[style*='/img/undo.gif']").closest(".tools").style.cssText = "pointer-events:none;opacity:.5;";
+                    QS(".toolbar-group-actions").style.cssText = "pointer-events:none;opacity:.5;";
                     this.restoreCanvas = (event) => {
                         const img = new Image;
                         img.onload = () => QS("#game-canvas canvas").getContext("2d").drawImage(img,0,0);
@@ -101,7 +101,7 @@ const gamemodes = {
                 },
                 initWithAction: false,
                 destroy: () => {
-                    QS(".tool .icon[style*='/img/undo.gif']").closest(".tools").style.cssText = "";
+                    QS(".toolbar-group-actions").style.cssText = "";
                     document.removeEventListener("logCanvasClear", this.restoreCanvas);
                 },
                 observeSelector: "#game-canvas canvas",

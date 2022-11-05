@@ -617,3 +617,11 @@ bounceload {
     margin-left:.5em;
     margin-bottom:-.4em;
 }
+
+#game-canvas .room .game-room-group.customwords{
+    height:calc(28% - var(--BORDER_GAP) * 4) !important;
+}
+
+.player { height: 54px !important}
+.player-avatar-container { top: 3px !important; right: 3px !important;}
+.player-info{width: 90% !important;}

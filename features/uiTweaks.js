@@ -206,13 +206,12 @@ const uiTweaks = {
     },
     initLobbyDescriptionForm: () => {
         // add Description form 
-        let customwords = QS(".group.customwords");
-        const input = elemFromString(`<div class="group" style="flex:0">
-<div class="name">Palantir Description</div>
-<textarea style="height:3em" id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="dankest lobby EVER"></textarea>
-<div class="description"> Add a lobby description which shows up in Palantir</div>
+        let customwords = QS(".game-room-group.customwords");
+        const input = elemFromString(`<div class="game-room-group" style="height:10%">
+<div class="game-room-name">Palantir Description</div>
+<textarea style="" id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="Add a description that will show up in the Palantir bot"></textarea>
 </div>`);
-        customwords.insertAdjacentElement("afterend", input);
+        customwords.insertAdjacentElement("beforebegin", input);
     },
     initLobbyChat: () => {
         return; // not needed anymore
@@ -241,7 +240,7 @@ const uiTweaks = {
     },
     initSideControls: () => {
         //init new controls div
-        QS("#setting-bar").insertAdjacentElement("beforebegin", elemFromString("<div id='controls'></div>"));
+        document.body.appendChild(elemFromString("<div id='controls'></div>"));
         QS("#controls").style.cssText = "z-index: 50;position: fixed;display: flex; flex-direction:column; left: 9px; top: 9px";
         QS("#controls").style.display = localStorage.controls == "true" ? "flex" : "none";
         // add fullscreen btn
@@ -696,12 +695,12 @@ const uiTweaks = {
         }
     },
     initTypoTools: () => {
-        const container = elemFromString(`<div id="typotoolbar" class="tools" style="
+        const container = elemFromString(`<div id="typotoolbar" class="toolbar-group-tools" style="
             position: absolute;
-            left: calc(100% + 15px);
+            left: calc(100% + 5px);
             height: 100%;
         "></div>`);
-        QS(".tools-container").appendChild(container);
+        QS("#game-toolbar").appendChild(container);
         container.parentElement.parentElement.style.position="relative";
         container.style.display = localStorage.typotools == "true" ? "" : "none";
 

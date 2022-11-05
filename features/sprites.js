@@ -24,14 +24,14 @@ const sprites = {
     },
     getPlayerList: () => { //get the lobby player list and store in lobbyPlayers
         let players = [];
-        let playerContainer = QS("#game-players .list");
+        let playerContainer = QS("#game-players .players-list");
         //let playerContainerLobby = QS("#containerLobbyPlayers");, ...playerContainerLobby.querySelectorAll(".lobbyPlayer")
         [...playerContainer.querySelectorAll(".player")].forEach(p => {
             let psc = new sprites.PlayerSpriteContainer(
                 lobbies.lobbyProperties.Key,
                 p.getAttribute("playerid"),
                 p.querySelector(".avatar"), 
-                p.querySelector(".name").innerText.replace("(You)", "").trim()
+                p.querySelector(".player-name").innerText.replace("(You)", "").trim()
             )
             players.push(psc);
         });
@@ -77,8 +77,8 @@ const sprites = {
                         // set style depending on listing
                         if (spriteContainer.closest("#containerLobbyPlayers")) spriteContainer.style.backgroundSize = "contain";
                         else {
-                            spriteContainer.parentElement.parentElement.style.height = "60px";
-                            spriteContainer.parentElement.style.top = "5px";
+                            //spriteContainer.parentElement.parentElement.style.height = "60px";
+                            //spriteContainer.parentElement.style.top = "5px";
                         } 
                     }
                 });
@@ -101,8 +101,8 @@ const sprites = {
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
                 }
-                #game-players div.player.guessedWord[playerid='${scene.LobbyPlayerID}'] *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
-                #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.rank, .score, .name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
+                #game-players div.player.guessedWord[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
+                #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
         });
 
@@ -359,7 +359,7 @@ const sprites = {
     },
     init: async () => {
         // make board behind playerlist so it doesnt hide portions of avatars
-        QS("#game-players .list").style.zIndex = "1";
+        QS("#game-players .players-list").style.zIndex = "1";
         // polling for sprites, observer does not make sense since sprites take a few seconds to be activated
         setInterval(sprites.refreshCallback, 2000);
         let endboardObserver = new MutationObserver(() => { // mutation observer for game end result
