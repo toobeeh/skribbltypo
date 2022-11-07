@@ -343,17 +343,19 @@ const hints = [
 
 const changelogRawHTML =
     `<div style="width: 100%">
-<h2>October - The new skribbl.. and typo!</h2>
-The first huge skribbl update is here, and typo also had massive changes to keep it working.
+<h2>November - A year later... new skribbl update!</h2>
+The first huge skribbl update is finally here, after being discarded a year earlier.<br>
+Many typo features that were planned to be released in Oct 2021 got rolled out during 2022 on old skribbl - like brush lab, gamemodes and the sprite cabin. <br>
+Additional to that, there has been put a loooot of work in compatibility. <br>
+A few things that have changed:
 <ul>
-<li>Removed all lobby-search or lobby-filter related </li>
-<li>Removed now skribbl-supported drawing tools like pipette, pressure thickness and redo.</li>
-<li>Removed a bunch of other now supported features like lobby chat, mute, winner message, etc</li>
-<li>Added many new and improved challenges</li>
-<li>Added the brush laboratory for brush tools</li>
-<li>Added the sprite cabin to make sprite selecting easy</li>
-<li>Really, really much redesign and compatibility work</li>
+<li>New lobby join  board</li>
+<li>New lobby filter access</li>
+<li>Features like mute, undo, word count, pressure sensitivity, lobby creation chat have been removed from typo because skribbl has them built-in </li>
+<li>Lobby streaming has been removed</li>
+<li>Color pipette is not available yet</li>
 </ul>
+If you miss any features from the old typo, hit me up - i might have just forgotten to add it!<br>
 <hr>
 <h2>Aaaaand some August-fixes</h2>
 <ul>

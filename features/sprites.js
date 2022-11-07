@@ -77,8 +77,8 @@ const sprites = {
                         // set style depending on listing
                         if (spriteContainer.closest("#containerLobbyPlayers")) spriteContainer.style.backgroundSize = "contain";
                         else {
-                            //spriteContainer.parentElement.parentElement.style.height = "60px";
-                            //spriteContainer.parentElement.style.top = "5px";
+                            spriteContainer.parentElement.parentElement.parentElement.style.height = "56px";
+                            spriteContainer.parentElement.parentElement.style.top = "3px";
                         } 
                     }
                 });

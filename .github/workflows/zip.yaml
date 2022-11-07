@@ -1,19 +1,20 @@
 name: Create Archive
-on: [push]
+on: 
+  [push]
 jobs:
-  build:
+  build: 
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
     - name: Archive Release
       uses: thedoctor0/zip-release@master
       with:
-        filename: 'typo-release-store23.1.2.zip'
+        filename: release.zip
         exclusions: '*.git* *.xpi changelog.md *.web-extension-id .editorconfig .github/'  
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
-        artifacts: "typo-release-store23.1.2.zip"
+        artifacts: 'release.zip'
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: "typo-release-store23.1.2"
+        tag: 'store-release-24.0.31'

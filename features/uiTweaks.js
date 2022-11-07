@@ -314,14 +314,14 @@ const uiTweaks = {
                 let removeIDs = (event) => {
                     if (event.key == "AltGraph") {
                         document.removeEventListener("keyup", removeIDs);
-                        QSA(".list .player").forEach(player => {
-                            player.querySelector(".icons span")?.remove();
+                        QSA(".players-list .player").forEach(player => {
+                            player.querySelector(".player-icons span")?.remove();
                         });
                     }
                 }
                 document.addEventListener("keyup", removeIDs);
-                QSA(".list .player").forEach(player => {
-                    if(!player.querySelector(".icons span")) player.querySelector(".icons").insertAdjacentHTML("afterbegin","<span>#" + player.getAttribute("playerid") + " </span>");
+                QSA(".players-list .player").forEach(player => {
+                    if(!player.querySelector(".player-icons span")) player.querySelector(".player-icons").insertAdjacentHTML("afterbegin","<span style='color:inherit'>#" + player.getAttribute("playerid") + " </span>");
                 });
                 return;
             }

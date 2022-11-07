@@ -81,7 +81,7 @@ let patcher = new MutationObserver((mutations) => {
                      const leftCard = elemFromString(`<div class='panel patched' > 
                         <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                             <h2><span> Changelog</span><span>Typo News </span></h2>
-                            <span>Hello there!</span><span>Skribbl update - Typo work still in progress (: Please let me know if any features are misbehaving or missing.</span>
+                            <span>Hello there!</span><span>Enjoy the new skribbl update!<br> Check out the typo changelog and let me know if any typo features are misbehaving or missing.</span>
                             <div class="panel" style="width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
                                 <br>${hints[Math.floor(Math.random() * hints.length)]}
                             </div>
