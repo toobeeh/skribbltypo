@@ -17,6 +17,9 @@ const emojis = {
         QS("#emojiPrev").style.overflowY = "auto";
         // show emoji preview on chat type
         const input = QS("#game-chat form input");
+        input.closest("form").addEventListener("submit", ()=>{
+            QS("#emojiPrev").style.display = "none";
+        });
         input.addEventListener("input", (e) => {
             let val = input.value;
             let lastsplit = val.indexOf(":") >= 0 ? val.split(":").pop() : "";

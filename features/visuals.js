@@ -21,7 +21,7 @@ const visuals = {
 
         let urlLogo = options["urlLogo"] ? options["urlLogo"].trim() : "";
         if (QS("div.logo-big img")) QS("div.logo-big img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
-        if (QS("div.logo-small img")) QS("div.logo-small img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
+        if (QS("#game #game-logo img")) QS("#game #game-logo img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
         
         if (options["containerBackgroundsCheck"] == true) {
             let val = options["containerBackgrounds"] ? options["containerBackgrounds"].trim() : "";

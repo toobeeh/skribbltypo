@@ -20,6 +20,7 @@ let drops = {
         setTimeout(async () => {
             if (drops.currentDrop && !drops.claimedDrop) {
                 addChatMessage("Whoops...", "The drop timed out :o");
+                scrollMessages(true);
                 drops.currentDrop = null;
                 drops.claimedDrop = false;
                 dropElem.style.display = "none";
@@ -34,19 +35,23 @@ let drops = {
         if(result.leagueWeight > 0){
             if (result.claimTicket == drops.currentDrop.claimTicket) {
                 addChatMessage("Nice one!", "You caught a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+                scrollMessages(true);
                 drops.caughtLeagueDrop = true;
             }
             else {
                 if(localStorage.dropmsgs == "true") addChatMessage("", winner + " claimed a " +  Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+                scrollMessages(true);
             }
         }
         else {
             if (result.claimTicket == drops.currentDrop.claimTicket) {
                 addChatMessage("Yeee!", "You were the fastest to catch the drop!");
+                scrollMessages(true);
                 drops.selfCaught = true;
             }
             else if(!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
             else addChatMessage("", winner + " caught the regular drop.");
+            scrollMessages(true);
             dropElem.style.display = "none";
         }
     },
@@ -58,7 +63,10 @@ let drops = {
         drops.claimedDrop = false;
         drops.caughtLeagueDrop = false;
         drops.dropContainer.style.display = "none";
-        if(localStorage.dropmsgs == "true") addChatMessage("Last drop claim ranking:", text);
+        if(localStorage.dropmsgs == "true") {
+            addChatMessage("Last drop claim ranking:", text);    
+            scrollMessages(true);
+        }
     },
     initDropContainer: () => {
         // add drop button
