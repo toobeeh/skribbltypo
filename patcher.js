@@ -1,6 +1,24 @@
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
+// hello there
+console.log(`%c
+        _             _   _       _       _   _                           
+       | |           (_) | |     | |     | | | |     %cskribbl modded with%c
+  ___  | | __  _ __   _  | |__   | |__   | | | |_   _   _   _ __     ___  
+ / __| | |/ / | '__| | | | '_ \\  | '_ \\  | | | __| | | | | | '_ \\   / _ \\ 
+ \\__ \\ |   <  | |    | | | |_) | | |_) | | | | |_  | |_| | | |_) | | (_) |
+ |___/ |_|\\_\\ |_|    |_| |_.__/  |_.__/  |_|  \\__|  \\__, | | .__/   \\___/ 
+                                                     __/ | | |            
+                                                    |___/  |_|     %cby tobeh#7437 %c
+
+        ➜ Typo & all its backend is open source: https://github.com/toobeeh/skribbltypo
+        ➜ Join the community: https://typo.rip/discord
+        ➜ Find more infos at: https://typo.rip/
+        ➜ Support development: https://patreon.com/skribbltypo
+                                                                    
+                                                    `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em","color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
+
 // execute inits when both DOM and palantir are loaded
 const waitForDocAndPalantir = async () => {
     let palantirReady = false;
@@ -59,7 +77,7 @@ let patcher = new MutationObserver((mutations) => {
                         }
                     }
                 }
-                if (node.tagName == "SCRIPT" && console.log(node.src) && node.src.includes("game.js")) {
+                if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {
                     // block game.js
                     node.type = "javascript/blocked"; // block for chrome
                     node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true });
@@ -140,4 +158,4 @@ let patcher = new MutationObserver((mutations) => {
             });
         });
 });
-patcher.observe(document, { attributes: false, childList: true, subtree: true });
+patcher.observe(document.documentElement, { attributes: false, childList: true, subtree: true });

@@ -706,7 +706,7 @@ const uiTweaks = {
         container.style.display = localStorage.typotools == "true" ? "" : "none";
 
         // move tools
-        container.appendChild(QS(`.tool[data-tooltip="Lab"]`));
+        setTimeout(()=>container.appendChild(QS(`.tool[data-tooltip="Lab"]`)),200);
 
     },
     initAll: () => {
