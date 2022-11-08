@@ -380,6 +380,7 @@ const uiTweaks = {
         width: 100%;
         border-radius: .5em;
         margin-right: .5em;
+        margin-top: .5em;
         cursor: not-allowed;
         user-select: none;
         display:none;

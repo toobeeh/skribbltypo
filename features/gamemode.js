@@ -26,11 +26,11 @@ const gamemodes = {
                 description: "Every chat input is blurred and you can't see hints.",
                 init: () => {
                     // add mod stylesheed
-                    QS("#game-chat .container ").appendChild(elemFromString(`<style id="gamemodeDeafRules"></style>`));
+                    QS("#game-chat .chat-container ").appendChild(elemFromString(`<style id="gamemodeDeafRules"></style>`));
                 },
                 initWithAction: true,
                 destroy: () => {
-                    QS("#game-chat .container style#gamemodeDeafRules")?.remove()
+                    QS("#game-chat .chat-container style#gamemodeDeafRules")?.remove()
                 },
                 observeSelector: "#game-players .players-list",
                 observeOptions: {
@@ -39,9 +39,9 @@ const gamemodes = {
                 },
                 observeAction: () => {
                     // update message blur based on self drawing / guessed or not
-                    QS("#game-chat .container style#gamemodeDeafRules").innerHTML =
-                        (QS(".player-name.me").closest(".player.guessed")) || QS(".palyer-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                        "" : "#game-chat .container .content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .bubble {display:none !important} .characters{color:black !important}";
+                    QS("#game-chat .chat-container style#gamemodeDeafRules").innerHTML =
+                        (QS(".player-name.me").closest(".player.guessed")) || QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
+                        "" : "#game-chat .chat-container .chat-content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .bubble {display:none !important} .characters{color:black !important}";
                 }
             }
         }, {
@@ -52,9 +52,9 @@ const gamemodes = {
                 },
                 initWithAction: true,
                 destroy: () => {
-                    QS("#game-chat .container form input").disabled = false;
+                    QS("#game-chat .chat-container form input").disabled = false;
                 },
-                observeSelector: "#game-chat .container .content",
+                observeSelector: "#game-chat .chat-container .chat-content",
                 observeOptions: {
                     childList: true
                 },
@@ -64,24 +64,24 @@ const gamemodes = {
                     const selfGuessed = QS(".player-name.me").closest(".player.guessed");
                     if (selfDrawing || selfGuessed || !someoneDrawing) {
                         // everything fine, you can type
-                        QS("#game-chat .container form input").disabled = false;
+                        QS("#game-chat .chat-container form input").disabled = false;
                     }
                     else {
-                        let chat = QS("#game-chat .container .content").innerHTML;
+                        let chat = QS("#game-chat .chat-container .chat-content").innerHTML;
                         // if someone else is drawing
                         let lastDrawingIndex = chat.lastIndexOf("is drawing now!</b>");
                         if (lastDrawingIndex < 0) lastDrawingIndex = 0;
                         chat = chat.substr(lastDrawingIndex);
                         const selfName = QS(".player-name.me").innerText.replace("(You)", "").trim();
-                        let regHasGuessed = new RegExp("is drawing now!</b>.*(?:>" + selfName + ": <\/b>)", "g");
-                        let regIsRevealed = new RegExp(/is drawing now!<\/b >.*;\\">The word was/g);
+                        let regHasGuessed = new RegExp("is drawing now!</b>[\\s\\S]*(?:>" + selfName + ": </b>)", "g");
+                        let regIsRevealed = new RegExp(/is drawing now!<\/b >[\s\S]*;\\">The word was/g);
                         if (regHasGuessed.test(chat) && !regIsRevealed.test(chat)) {
                             // you guessed already & word is not revealed!
-                            QS("#game-chat .container form input").disabled = true;
+                            QS("#game-chat .chat-container form input").disabled = true;
                         }
                         else {
                             // you guessed, but word was revealed. u lost anyway :)
-                            QS("#game-chat .container form input").disabled = false;
+                            QS("#game-chat .chat-container form input").disabled = false;
                         }
                     }
                 }

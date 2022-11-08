@@ -40,14 +40,14 @@
             return { id: id, name: name.length != 0 ? name : (Yn.value.split("#")[0] != "" ? Yn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? l.avatar : avatar, score: score, guessed: guessed };
         },
         createFakeLobbyData: (
-            settings = ["PRACTISE", "en", 1, 8, 80, 3, 3, 2, 0, false],
+            settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
             id = "FAKE",
             me = 0,
             owner = 0,
             users = [],
             state = { id: 4, time: 999, data: { id: 0, word: "Anything" } }) => {
             if (users.length == 0) users = [typo.createFakeUser()];
-            return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };
+            return { settings: settings, round:0, id: id, me: me, owner: owner, users: users, state: state };
         },
         disconnect: undefined,
         lastConnect: 0,

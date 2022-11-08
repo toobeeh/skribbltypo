@@ -59,7 +59,7 @@ let patcher = new MutationObserver((mutations) => {
                         }
                     }
                 }
-                if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {
+                if (node.tagName == "SCRIPT" && console.log(node.src) && node.src.includes("game.js")) {
                     // block game.js
                     node.type = "javascript/blocked"; // block for chrome
                     node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true });

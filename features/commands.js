@@ -177,7 +177,7 @@ const commands = [
             },
             actionAfter: null,
             response: (state) => {
-                return "Drops " + (state ? "won't show anymore" : "will be visible") + " on the canvas.";
+                return "Drops " + (!state ? "won't show anymore" : "will be visible") + " on the canvas.";
             }
         }
     }, {
@@ -553,6 +553,9 @@ const performCommand = (command) => {
 }
 
 const addChatMessage = (title, content) => {
-    QS(".chat-content").appendChild(
+    let box = document.querySelector(".chat-content");
+    let scroll = Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 30;
+    box.appendChild(
         elemFromString(`<p>${ title != "" ? `<b style="color: rgb(57, 117, 206);">${title}</b><br>` : "" }<span style="color: rgb(57, 117, 206);">${content}</span></p>`));
+    if(scroll) scrollMessages();
 }
