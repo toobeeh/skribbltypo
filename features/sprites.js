@@ -101,7 +101,7 @@ const sprites = {
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
                 }
-                #game-players div.player.guessedWord[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
+                #game-players div.player.guessed[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
         });
@@ -113,7 +113,7 @@ const sprites = {
         let endboardAvatars = QSA(".overlay-content .result .rank-name");
         sprites.lobbyPlayers.forEach(player => {
             let avatarContainer = null;
-            endboardAvatars.forEach(a => { if (a.innerText == player.name) avatarContainer = a.parentElement.querySelector(".avatar"); });
+            endboardAvatars.forEach(a => { if (a.innerText == player.name) avatarContainer = a.closest(".podests") ? a.parentElement.parentElement.querySelector(".avatar") : a.parentElement.querySelector(".avatar"); });
             if (avatarContainer != null) {
                 // remove all existent special slots on avatar
                 [...avatarContainer.parentElement.querySelectorAll(".typoSpecialSlot")].forEach(slot => slot.remove());

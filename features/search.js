@@ -184,7 +184,7 @@ const search = {
         });
 
         // start search on play button
-        QS(".button-play").addEventListener("click", () => {
+        QS(".button-play").addEventListener("click", (e) => {
             // if filters enabled
             if (JSON.parse(localStorage.addedFilters).some(filter => filter.active)) search.startFilterSearch();
         });
@@ -210,6 +210,7 @@ const search = {
             "Search Criteria:<br>" + humanCriterias.join("<br>or<br>") : "<b>Whoops,</b> You didn't set any filters.");
         let modalCont = elemFromString("<div style='text-align:center'><details><summary style='cursor:pointer; user-select:none''><b>Lobby Search Information</b></summary>While this popup is opened, typo jumps through lobbies and searches for one that matches you filters.<br>Due to skribbl limitations, typo can only join once in two seconds.</details><h4>" + searchParamsHuman + "</h4><span id='skippedPlayers'>Skipped players:<br></span><br><span id='jumpsSearch'></span><br><h4>Click anywhere out to cancel</h4><div>");
         let modal = new Modal(modalCont, () => {
+            if(!search.searchData.searching) return;
             search.searchData.searching = false;
             QS("#searchRules")?.remove();
             document.dispatchEvent(newCustomEvent("abortJoin"));
@@ -229,8 +230,8 @@ const search = {
                     #load{ display:none !important}
                 </style>`);
             }
+            modalCont.querySelector("#jumpsSearch").textContent = "Skipped lobbies: " + ++jumps;
             lobbies.lobbyProperties.Players.forEach(p => {
-                modalCont.querySelector("#jumpsSearch").textContent = "Skipped lobbies: " + ++jumps;
                 if (skippedPlayers.indexOf(p.Name) < 0 && p.Name != socket.clientData.playerName) {
                     skippedPlayers.push(p.Name);
                     modalCont.querySelector("#skippedPlayers").innerHTML += " [" + p.Name + "] <wbr> ";

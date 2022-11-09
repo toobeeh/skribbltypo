@@ -676,8 +676,8 @@ const uiTweaks = {
                 + socket.data.user.member.UserName + "</small><small id='ptrManage'>Manage</small><small id='ptrLogout'>Logout</small></div><br>";
             QS("#typoUserInfo").innerHTML += "<div style='display:flex; justify-content:space-between; width:100%;'><span>🔮 Bubbles: "
                 + socket.data.user.bubbles + "</span><span>💧 Drops: " + socket.data.user.drops + "</span></div>";
-            if (localStorage.experimental == "true") QS("#typoUserInfo").innerText.insertAdjacentHTML("beforeend",
-                + "<br>Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri);
+            if (localStorage.experimental == "true") QS("#typoUserInfo").insertAdjacentHTML("beforeend",
+                "<br>Typo v" + chrome.runtime.getManifest().version + " connected@ " + socket.sck.io.uri);
             QS("#typoUserInfo #ptrManage").addEventListener("click", () => window.open("https://typo.rip#u"));
             QS("#typoUserInfo #ptrLogout").addEventListener("click", logout);
 
@@ -736,6 +736,10 @@ const uiTweaks = {
         uiTweaks.initPenPointer();
 
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
+
+        document.addEventListener("keydown", e => {
+            if(e.key == "Tab") QS(".chat-container input").focus(); 
+        });
 
         // random easteregg
         if(Math.random() < 0.1) QS("#game-chat .chat-container form input").placeholder = "Typo your guess here...";

@@ -47,16 +47,14 @@
             users = [],
             state = { id: 4, time: 999, data: { id: 0, word: "Anything" } }) => {
             if (users.length == 0) users = [typo.createFakeUser()];
-            return { settings: settings, round:0, id: id, me: me, owner: owner, users: users, state: state };
+            return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };
         },
         disconnect: undefined,
         lastConnect: 0,
         initListeners: (() => {
-            let abort=false; document.addEventListener("abortJoin", () => {abort = true; typo.lastConnect = 0;}); document.addEventListener("joinLobby", (e) => {
-                abort=false;
-                let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
+            let abort=false; document.addEventListener("abortJoin", () => abort = true); document.addEventListener("joinLobby", (e) => {
+                abort=false;let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
                 //Xn(true);
-                console.log(timeoutdiff < 1800 ? 1800 - timeoutdiff : 0, timeoutdiff);
                 setTimeout(() => {
                     if(abort) return; typo.lastConnect = Date.now();
                     //Hn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
@@ -1409,7 +1407,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         0 != e.button && 2 != e.button || -1 != Lt || an(e.button, e.clientX, e.clientY, !0, -1)
     }),
     y(s, "mouseup", function(e) {
-        e,
+        e.preventDefault(),
         on(e.button)
     }),
     y(s, "mousemove", function(e) {
@@ -1999,14 +1997,21 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         A = [];
         for (var n = 0; n < e.users.length; n++)
             Da(e.users[n], !1);
-        Ia(),
+        if (Ia(),
         Na(),
         jn(e.round),
         la(e.owner),
         Qn(e.state, !0),
-        Rn || ((adsbygoogle = u.adsbygoogle || []).push({}),
-        (adsbygoogle = u.adsbygoogle || []).push({}),
-        Rn = !0)
+        !Rn) {
+            try {
+                (adsbygoogle = u.adsbygoogle || []).push({}),
+                (adsbygoogle = u.adsbygoogle || []).push({})
+            } catch (e) {
+                console.log("google ad request failed"),
+                console.log(e)
+            }
+            Rn = !0
+        }
     }
     function Xn() {
         jn($n);
@@ -2314,7 +2319,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 }
             }(n.reason, a.name), "", S(Re), !0),
             O.playSound(wn),
-            n.reason != ne && n.reason != ae || Kt(!0));
+            (n.id == T && n.reason == ne || n.reason == ae) && Kt(!0));
             break;
         case da:
             var a = Y(n[0])
@@ -2629,7 +2634,8 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     y(Hn, "click",
 typo.joinLobby = function() {
         var t, e, n, a, o;
-        n = u.location.href,
+        n = u.location.href
+,typo.lastConnect = Date.now(),
         o = "",
         n = n.split("?"),
         t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o,

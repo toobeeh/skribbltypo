@@ -626,6 +626,6 @@ bounceload {
 .player-avatar-container > .player-avatar-container { top: 3px !important; right: 3px !important;}
 .player-avatar-container > .player-info{width: 90% !important;}
 
-/* .bottom{margin-top:2em;} */
+#home > .bottom{margin-top:2em;} 
 
 .player-score {margin-top:.5em !important}

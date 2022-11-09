@@ -48,6 +48,7 @@ const lobbies = {
 						}))));
 		let playerButtons = "";
 		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" link="${player.link}" class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
+		if(playerButtons=="") playerButtons = "<span>None of your friends are online :(</span>";
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
 			if (socket.authenticated) container.innerHTML = playerButtons;
@@ -61,6 +62,7 @@ const lobbies = {
         }
 		container.addEventListener("click", e => {
 			let key = e.target.getAttribute("lobby");
+			if(!key) return;
 			let link = e.target.getAttribute("link")?.split("?")[1];
 			if(link){
 				if (link.length > 10) new Toast("This lobby is probably invalid or on old skribbl :/");
@@ -102,7 +104,7 @@ const lobbies = {
 
 			// generate lobby key by hashed link
 			lobbies.lobbyProperties.Key = genMatchHash(e.detail.id);
-			lobbies.lobbyProperties.Round = 0;
+			lobbies.lobbyProperties.Round = e.detail.round+1;
 
 			// get own name
 			sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.users[e.detail.users.length-1].name;
