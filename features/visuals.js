@@ -20,7 +20,10 @@ const visuals = {
         }
 
         let urlLogo = options["urlLogo"] ? options["urlLogo"].trim() : "";
-        if (QS("div.logo-big img")) QS("div.logo-big img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
+        if (QS("div.logo-big img")){
+            QS("div.logo-big img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
+            style.innerHTML+=`div.logo-big img {max-height:20vh}`;
+        } 
         if (QS("#game #game-logo img")) QS("#game #game-logo img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
         
         if (options["containerBackgroundsCheck"] == true) {
