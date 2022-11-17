@@ -406,7 +406,7 @@ const commands = [
             }
         }
     }, {
-        command: "sensitivity",
+        command: "sens",
         options: {
             type: "action",
             description: "Sets the pressure sensitivity. Argument: sensitivity",
@@ -414,7 +414,7 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                localStorage.sensitivity = args;
+                localStorage.sens = args;
             },
             response: (args) => {
                 return "Tablet pressure sensitivity is now at " + args + "%.";
@@ -511,6 +511,21 @@ const commands = [
             },
             response: (args) => {
                 return "";
+            }
+        }
+    }, {
+        command: "newvision",
+        options: {
+            type: "action",
+            description: "Open a new image overlay.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: () => {
+                new Vision();
+            },
+            response: (args) => {
+                return "Overlay opened.";
             }
         }
     }

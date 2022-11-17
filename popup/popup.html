@@ -64,7 +64,7 @@
                     </div>
                     <div class="flexrow flexrowMenu">
                         <button type="button" id="drops">Drops</button>
-                        <!--<button type="button" id="gamemodes">Game Modes</button>-->
+                        <button type="button" id="typoink">Typo Pressure</button>
                         <button type="button" id="controls">Controls</button>
                     </div>
                     <div class="flexrow flexrowMenu">
@@ -94,6 +94,13 @@
                 <br />
                 <br />
                 <div class="flexcol">
+
+                    <div class="label">Tablet sensitivity  </div>
+                    <div class="sliderBox" id="sens">
+                        <span class="sliderBar"><span class="sliderFill"></span></span>
+                        <input type="range" class="slider" min="0" max="100" />
+                    </div>
+
                     <div class="label">Random interval </div>
                     <div class="sliderBox" id="randominterval">
                         <span class="sliderBar"><span class="sliderFill"></span></span>
@@ -116,7 +123,7 @@
                         <div class="label">Color palettes</div>
                         <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap; place-content:center;" id="palettes">
                             <button type="button" id="palette_originalPalette">Original Palette</button>
-                            <button type="button" id="palette_oldSkribbl">Old Skribbl</button>
+                            <!-- <button type="button" id="palette_oldSkribbl">Old Skribbl</button> -->
                         </div>
                         <div class="flexrow flexrowMenu">
                             <input type="text" autocomplete="off" style="width:12ex; flex-basis:unset" id="paletteJSON" placeholder="{ ... }" /> 

@@ -297,18 +297,25 @@ const uiTweaks = {
         document.dispatchEvent(new Event("addTypoTooltips"));
     },
     initDefaultKeybinds: () => {
-        const chatInput = QS('#game-chat .container form input');
+        const chatInput = QS('.chat-container input');
         let lastColorSwitch = 0;
         document.addEventListener('keydown', e => {
-            if (!document.activeElement.matches("input[type='text']")) {
+            if (!document.activeElement.matches(".chat-container input")) {
                 // Focus chat
                 if (e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
                     e.preventDefault();
                     chatInput.focus();
                     return;
                 }
+
+                // size shortcuts
+                else {
+                    let sizes = [...QSA(".container .size")];
+                    let ind = Number(e.key);
+                    if(ind > 0 && ind < 6) sizes[ind-1].click();
+                }
             }
-            else if (document.activeElement.id == "inputChat" && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
+            else if (document.activeElement.matches(".chat-container input") && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
 
             if (e.key === 'AltGraph' && !(e.altKey || e.ctrlKey || e.shiftKey)) {// Show player IDs
                 let removeIDs = (event) => {
@@ -736,10 +743,6 @@ const uiTweaks = {
         uiTweaks.initPenPointer();
 
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
-
-        document.addEventListener("keydown", e => {
-            if(e.key == "Tab") QS(".chat-container input").focus(); 
-        });
 
         // random easteregg
         if(Math.random() < 0.1) QS("#game-chat .chat-container form input").placeholder = "Typo your guess here...";

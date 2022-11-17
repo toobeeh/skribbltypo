@@ -338,11 +338,20 @@ const hints = [
     "Want to share a chat snippet on Discord?<br>Select the messages and click 'Copy chat selection for Discord' to create a nicely formatted chat history.",
     "In practise, you can also paste .png to the skribbl canvas! To do so, click 'Paste Image' in Image Tools.",
     "To draw without time limit, click the avatar on the landing page!",
-    "Want to kick someone without grapping your mouse? Type 'kick--' to kick the current drawer or 'kick [id]--' to kick a player by their id! View IDs by pressing AltGr."
+    "Want to kick someone without grapping your mouse? Type 'kick--' to kick the current drawer or 'kick [id]--' to kick a player by their id! View IDs by pressing AltGr.",
+    "Enable Typo-Pressure in the settings popup to draw in a beautiful full-size-range!",
+    "Use the keys 1-5 to quickly set your brush size.",
+    "Enable Typo-Pressure in the settings popup to draw in a beautiful full-size-range!.",
+    "Disable Typo-Panels in the visual settings to get a more vanilla look.",
+    "Type 'newvision--' to view an image over the canvas as template!"
 ];
 
 const changelogRawHTML =
     `<div style="width: 100%">
+<h2>Smol additional update</h2>
+Typo pressure is back! Use it as before with customizable sensitivity instead skribbl's pressure.<br>
+The keys 1-5 can now be used to quickly select a brush size. Vision overlay, waiting for free slots in lobbies and some general improvements & bugfixes have been added.<br>
+Tool shortcuts are also now trigggered by key-down, not key-up to keep the pace!<br>
 <h2>November - A year later... new skribbl update!</h2>
 The first huge skribbl update is finally here, after being discarded a year earlier.<br>
 Many typo features that were planned to be released in Oct 2021 got rolled out during 2022 on old skribbl - like brush lab, gamemodes and the sprite cabin. <br>

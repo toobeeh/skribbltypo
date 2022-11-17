@@ -176,7 +176,7 @@ const sprites = {
             });
             
             let container = QS(".avatar-customizer");
-            let scene = socket.data.user.scenes.toString().split(",").filter(s => s[0] == ".")[0];
+            let scene = socket.data.user.scenes ? socket.data.user.scenes.toString().split(",").filter(s => s[0] == ".")[0] : undefined;
             if(scene != undefined){
                 let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".",""))).URL;
                 container.style.cssText=`    

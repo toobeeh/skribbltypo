@@ -629,3 +629,77 @@ bounceload {
 #home > .bottom{margin-top:2em;} 
 
 .player-score {margin-top:.5em !important}
+
+.visionFrame {
+    border: 2px solid black;
+    position: fixed;
+    width: 50vw;
+    height: 50vh;
+    top: 25vh;
+    display: grid;
+    left: 25vw;
+    grid-template-columns: 4px auto 4px;
+    grid-template-rows: 4em auto 4px;
+    border-radius: 8px;
+    z-index: 2000;
+    pointer-events: none;
+    cursor: grab;
+    box-shadow: rgb(0 0 0) 0px 0px 0px 2px inset, rgb(255 255 255 / 50%) 0px 0px 3px -1px;
+    min-height:10em;
+    min-width:10em;
+}
+.visionContent {
+    grid-row-start: 2;
+    grid-column-start: 2;
+    opacity:.5;
+    pointer-events:all;
+    background-position:center center;
+    background-size:contain;
+    background-repeat:no-repeat;
+    cursor:unset;
+    width:100%;
+    height:100%;
+}
+.visionFrame.ghost .visionContent {
+    pointer-events: none;
+}
+.visionFrame:not(.iframe) iframe.visionContent{display:none;}
+.visionFrame.iframe div.visionContent{display:none;}
+.visionBorder {
+    background: black;
+    pointer-events:all;
+}
+.visionBorder.rightResize{
+    cursor:e-resize;
+    grid-column-start:3;
+}
+    .visionBorder.bottomResize {
+        cursor: s-resize;
+        grid-column-start: 2;
+        grid-row-start: 3;
+    }
+    .visionBorder.allResize {
+        cursor: nwse-resize;
+        grid-column-start: 3;
+        grid-row-start: 3;
+    }
+.visionHead{
+    position:relative;
+    grid-row-start:1;
+    grid-column-start:1;
+    grid-column-end:4;
+    background:black;
+    pointer-events:all;
+    padding:.5em;
+}
+.visionControl{
+    position:absolute;
+    top:.5em;
+    right:.5em;
+    color:red;
+    font-size:1.5em;
+    cursor:pointer;
+}
+    .visionHead input:is([type=text], [type=range]){
+    width:50%;
+}

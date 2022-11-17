@@ -118,6 +118,9 @@ const visuals = {
         if (options["hideAvatarLogo"] == true) {
             style.innerHTML += "#home .logo-big .avatar-container {display:none }";
         }
+        if (options["hideTypoPanels"] == true) {
+            style.innerHTML += "#panelgrid .panel:is(:first-child, :last-child) {display:none } #panelgrid{grid-template-columns: 100% !important}";
+        }
         if (options["hideAvatarSprites"] == true) {
             style.innerHTML += ".avatar-customizer .spriteSlot{display:none }";
             style.innerHTML += ".avatar-customizer {background-image: unset !important }";
@@ -237,6 +240,7 @@ const visuals = {
         <label><input type="checkbox" class="flatUI" id="hideAvatarLogo"> <span> Hide avatars beyond logo</span></label>
         <label><input type="checkbox" class="flatUI" id="hideInGameLogo"> <span> Hide logo in-game</span></label>
         <label><input type="checkbox" class="flatUI" id="hideAvatarSprites"> <span> Hide sprites on frontpage</span></label>
+        <label><input type="checkbox" class="flatUI" id="hideTypoPanels"> <span> Hide typo panels (news, lobbies, cabin)</span></label>
     </div>
     <div>
         <h4>HTML/CSS injection: add HTML to body</h4>

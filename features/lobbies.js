@@ -44,10 +44,10 @@ const lobbies = {
 					player => player.Sender
 						&& !onlinePlayers.some(onlineplayer => onlineplayer.id == player.ID)
 						&& onlinePlayers.push({
-							id: player.ID, name: player.Name, key: lobby.Key, link: lobby.Link, players: lobby.Players.length
+							id: player.ID, name: player.Name, key: lobby.Key, link: lobby.Link, players: lobby.Players.length, private: lobby.Private
 						}))));
 		let playerButtons = "";
-		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" link="${player.link}" class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
+		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" link="${player.link}" slots=${player.players} private=${player.private} class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
 		if(playerButtons=="") playerButtons = "<span>None of your friends are online :(</span>";
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
@@ -62,11 +62,46 @@ const lobbies = {
         }
 		container.addEventListener("click", e => {
 			let key = e.target.getAttribute("lobby");
+			let players = e.target.getAttribute("slots");
+			let private = e.target.getAttribute("private");
+			let name = e.target.innerText;
 			if(!key) return;
 			let link = e.target.getAttribute("link")?.split("?")[1];
 			if(link){
 				if (link.length > 10) new Toast("This lobby is probably invalid or on old skribbl :/");
-				else document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+				else if(private != 'false' || Number(players) < 8) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+				else {
+					
+					let modal = new Modal(elemFromString(`<div><img src="https://c.tenor.com/fAQuR0VNdDIAAAAC/cat-cute.gif"></div>`), () => {
+						if(!search.searchData.searching) return;
+						search.searchData.ended();
+					}, "Waiting for a free slot to play with " + name, "40vw", "15em");
+			
+					search.setSearch(() => {
+						if(!QS("[lobby=" + key + "]")) {
+							search.searchData.ended();
+							new Toast("The lobby has ended :(");
+						}
+						console.log(Number(QS("[lobby=" + key + "]").getAttribute("slots")));
+						return Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
+					}, async () => {
+					}, () => {
+						QS("[lobby=" + key + "]").click();
+						search.searchData= {
+							searching: false,
+							check: undefined, proceed: undefined, ended: undefined
+						};
+						modal.close();
+					});
+
+					let interval = setInterval(()=>{
+						if(!search.searchData.searching) clearInterval(interval);
+						if(search.searchData.check()) {
+							search.searchData.ended();
+							clearInterval(interval);
+						}
+					}, 500);
+				}
 			}
 			else new Toast("This lobby is probably invalid or on old skribbl :/");
 		});
