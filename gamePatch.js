@@ -1518,9 +1518,8 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             }
             if (Ct == je) {
                 let e = Lt;
-                0 <= vt && (e = (e - et) * E(
-typo.press =vt, 0, 1) + et);
-if(typo.press && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(typo.press, sensitivity); e = Math.round(calcSkribblSize(levelled));}
+                0 <= vt && (e = (e - et) * E(vt, 0, 1) + et);
+if(0 <= vt && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(vt, sensitivity); e = Math.round(calcSkribblSize(levelled));}
                 var o = Math.ceil(.5 * e)
                   , r = E(Math.floor(yt[0]), -o, q.width + o)
                   , l = E(Math.floor(yt[1]), -o, q.height + o)

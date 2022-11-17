@@ -297,11 +297,9 @@ const commands = [
             actionBefore: null,
             actionEnable: () => {
                 localStorage.typoink = "true";
-                QS("#tabMode").style.display = "";
             },
             actionDisable: () => {
                 localStorage.typoink = "false";
-                QS("#tabMode").style.display = "none";
             },
             actionAfter: null,
             response: (state) => {

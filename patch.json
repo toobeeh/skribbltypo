@@ -400,16 +400,16 @@
                 {
                     "source": "##TYPOSIZE##",
                     "target": "var o = Math.ceil\\(\\.5 \\* (e)\\)"
+                },
+                {
+                    "source": "##PRESSURE##",
+                    "target": "[a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+), 0, 1\\)"
                 }
             ],
             "injections": [
                 {
                     "position": "([a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+, 0, 1\\)[^;]+;)",
-                    "code": "if(typo.press && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(typo.press, sensitivity); ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));}"
-                },
-                {
-                    "position": "[a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+), 0, 1\\)",
-                    "code": "typo.press ="
+                    "code": "if(0 <= ##PRESSURE## && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(##PRESSURE##, sensitivity); ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));}"
                 }
             ]
         }
