@@ -9,7 +9,7 @@ let drops = {
     dropContainer: null,
     waitForClear: false,
     newDrop: (drop) => {
-        if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
+        if (localStorage.drops == "false" || sessionStorage.inStream == "true" || !lobbies.joined) return;
         drops.currentDrop = drop;
         let dropElem = drops.dropContainer;
         if (drop.eventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';

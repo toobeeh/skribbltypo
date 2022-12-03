@@ -622,13 +622,13 @@ bounceload {
     height:calc(28% - var(--BORDER_GAP) * 4) !important;
 }
 
-.player-avatar-container > .player { height: 54px !important}
+/* .player-avatar-container > .player { height: 54px !important}
 .player-avatar-container > .player-avatar-container { top: 3px !important; right: 3px !important;}
 .player-avatar-container > .player-info{width: 90% !important;}
 
-#home > .bottom{margin-top:2em;} 
+.player-score {margin-top:.5em !important} */
 
-.player-score {margin-top:.5em !important}
+#home > .bottom{margin-top:2em;} 
 
 .visionFrame {
     border: 2px solid black;
@@ -702,4 +702,67 @@ bounceload {
 }
     .visionHead input:is([type=text], [type=range]){
     width:50%;
+}
+:root{
+    --PLAYERS_PER_PAGE: 8 !important;
+}
+
+#game #game-players .players-list .player.typo {
+    height: 60px !important;
+    display:flex;
+    flex-direction:column;
+}
+
+#game #game-players .players-list .player.typo .player-avatar-container{
+    place-items: center;
+    position:absolute;
+    right:0;
+    height:100%;
+    top:0;
+    bottom:0;
+    display:grid;
+}
+
+#game #game-players .players-list .player.typo .player-avatar-container .avatar{
+    position:absolute;
+    width:48px;
+    height: 48px;
+}
+
+#game #game-players .players-list .player.typo .player-info {
+    position:unset;
+    display:grid;
+    place-items:center;
+    grid-template-columns: 1fr 4fr;
+    grid-template-rows: 1fr 1fr;
+    width: calc(100% - 48px - 3px);
+    gap: 4px;
+}
+
+#game #game-players .players-list .player.typo .player-info .player-name {
+    position:unset;
+    grid-column: 2;
+    grid-row:1;
+    align-self: end;
+}
+
+#game #game-players .players-list .player.typo .player-info .player-rank {
+    position:unset;
+    grid-row: 1/-1;
+}
+
+#game #game-players .players-list .player.typo .player-info .player-score {
+    position:unset;
+    grid-column: 2;
+    align-self: start;
+}
+
+#game #game-players .players-list .player.typo .player-icons {
+    position:absolute;
+    padding-left: 4px;
+}
+
+#game #game-players .players-list .player.typo .player-icons .icon {
+    height:18px;
+    width:18px
 }

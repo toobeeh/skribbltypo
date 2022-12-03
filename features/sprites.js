@@ -45,14 +45,17 @@ const sprites = {
         sprites.lobbyPlayers.forEach(player => {
             let playerSlots = [];
             sprites.playerSprites.forEach(sprite => {
-                if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) playerSlots.push({ 
-                    sprite: sprite.Sprite, 
-                    slot: sprite.Slot ,
-                    shift: shifts.find(shift => shift.LobbyPlayerID == player.lobbyPlayerID && sprite.Slot == shift.Slot)
-                });
+                if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) {
+                        playerSlots.push({ 
+                        sprite: sprite.Sprite, 
+                        slot: sprite.Slot ,
+                        shift: shifts.find(shift => shift.LobbyPlayerID == player.lobbyPlayerID && sprite.Slot == shift.Slot)
+                    });
+                }
             });
             
             if (playerSlots.length > 0) {
+                player.avatarContainer.parentElement.parentElement.classList.toggle("typo", true);
                 // check if existent slots are set to 0
                 [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => {
                     if (!playerSlots.some(slot => existentSlot.classList.contains("specialSlot" + slot.slot))) existentSlot.remove();
@@ -84,7 +87,10 @@ const sprites = {
                 });
             }
             // else remove all existent slots
-            else [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove()); 
+            else{
+                [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove()); 
+                player.avatarContainer.parentElement.parentElement.classList.toggle("typo", false);
+            } 
             
         });
     },

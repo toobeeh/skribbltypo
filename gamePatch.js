@@ -62,7 +62,7 @@
                     if(e.detail) window.history.pushState({path:window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
                     typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//Kn(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
                     document.dispatchEvent(new Event("joinedLobby"));
-                }, timeoutdiff < 1800 ? 1800 - timeoutdiff : 0);
+                }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
             });
             document.addEventListener("leaveLobby", () => {
                 if (typo.disconnect) typo.disconnect();
