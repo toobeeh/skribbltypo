@@ -10,7 +10,7 @@ let imageAgent = {// func to set the image in the agentdiv
         let word = getCurrentWordOrHint();
         let search = (exclusive ? "" : word + "+") + searchCriteria;
         search = replaceUmlaute(search);
-        imageAgent.agent.src = "/res/load.gif";
+        imageAgent.agent.src = "https://cdn.discordapp.com/attachments/1031284926596796526/1052264435739271188/load.gif";
 
         // Search engines with CORS bypass:
         // Google, duckduckgo etc detect bot usage -> unusable
@@ -23,7 +23,7 @@ let imageAgent = {// func to set the image in the agentdiv
         // hehe finally my own scraper: https://typo-agent-scraper.herokuapp.com/param
         let param = encodeURIComponent(search);
 
-        const server = (window.location.hostname.split(".")[0] == "pbt" ? "https://api.allorigins.win/raw?url=" : "") + ((new Date()).getDate() < 16 ? "https://typo-agent-scraper.herokuapp.com/" : "https://typo-agent-scraper-m1.herokuapp.com/");
+        const server = "https://typo-agent.onrender.com/"
 
         let resp = await fetch(server + param);
         results = await resp.json();

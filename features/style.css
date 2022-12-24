@@ -744,6 +744,8 @@ bounceload {
     grid-column: 2;
     grid-row:1;
     align-self: end;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 #game #game-players .players-list .player.typo .player-info .player-rank {
@@ -765,4 +767,9 @@ bounceload {
 #game #game-players .players-list .player.typo .player-icons .icon {
     height:18px;
     width:18px
+}
+
+
+#game-rate{
+    z-index: 10 !important;
 }

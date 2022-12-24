@@ -99,17 +99,17 @@ const commands = [
         command: "clr",
         options: {
             type: "action",
-            description: "Deletes the last 50 messages.",
+            description: "Deletes all but the last 50 messages.",
             actionBefore: null,
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                let elems = [...QSA("#game-chat .container .content > *")];
+                let elems = [...QSA("#game-chat .chat-container .chat-content > *")];
                 if (elems.length > 50) elems = elems.slice(0, -50);
                 elems.forEach(elem => elem.remove());
             },
             response: (args) => {
-                return "Removed last 50 messages, if existent.";
+                return "Removed all but the last 50 messages.";
             }
         }
     }, {

@@ -11,11 +11,11 @@
                 },
                 {
                     "source": "##SETTINGS##",
-                    "target": "let ([a-zA-Z0-9&_\\-$]+) = {\\s+avatar: \\[Math.round\\(100 \\* Math.random\\(\\)\\) %"
+                    "target": "var ([a-zA-Z0-9&_\\-$]+) = {\\s+avatar: \\[Math.round\\(100 \\* Math.random\\(\\)\\) %"
                 },
                 {
                     "source": "##BTNPLAY##",
-                    "target": "var ([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.panel \\.button-play\"\\)"
+                    "target": "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.panel \\.button-play\"\\)"
                 },
                 {
                     "source": "##LOADING##",

@@ -186,7 +186,7 @@ let imageOptions = {
         let webhooks = socket.data.user.webhooks;
 
         // add buttons to post image
-        if (webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
+        if (!webhooks || webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
         webhooks.forEach(async (w) => {
             // add share button for image
             let shareImg = document.createElement("button");
