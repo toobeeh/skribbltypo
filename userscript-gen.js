@@ -25,10 +25,10 @@ const addToStyle = (text, name) => {
 /* add typo scripts and css */
 mainfest.content_scripts.forEach(script => {
     if(script.matches.some(url => url.includes("skribbl"))) {
-        script.js?.forEach(js => 
+        if(script.js) script.js.forEach(js => 
             addToBundle(fs.readFileSync("./" + js), js, script.run_at == "document_idle")
         );
-        script.css?.forEach(css => 
+        if(script.css) script.css.forEach(css => 
             addToStyle(fs.readFileSync("./" + css), css)
         );
     } 
