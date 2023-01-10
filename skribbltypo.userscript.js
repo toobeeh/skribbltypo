@@ -5,6 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo. Limited support
 // @version 24.1.3
+// @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
 // @run-at document-start
