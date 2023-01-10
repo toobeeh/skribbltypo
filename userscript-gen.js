@@ -40,7 +40,8 @@ let bundle = `
 // @name skribbltypo 
 // @website https://typo.rip
 // @author tobeh#7437
-// @description Userscript version of skribbltypo. Limited support
+// @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
+// @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
 // @version ${mainfest.version}.${Date.now()}
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
@@ -52,13 +53,11 @@ let bundle = `
 const chrome = {
     extension: {
         getURL: (url) => {
-            console.log(url);
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         }
     },
     runtime: {
         getURL: (url) => {
-            console.log(url);
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
