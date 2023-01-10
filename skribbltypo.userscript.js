@@ -4,7 +4,7 @@
 // @website https://typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo. Limited support
-// @version 24.1.3.1673349099146
+// @version 24.1.3.1673363318034
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -25,13 +25,14 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "0.0.1"};
+            return {version: "24.1.3 usrsc"};
         },
         onMessage: {
-            addListener: (l) => {
-                console.log("Listener not supported in typo userscript version");
+            addListener: (callback) => {
+                window.addEventListener("message", msg => callback(msg.data));
             }
-        }
+        },
+        sendMessage: undefined
     }
 }
 
@@ -3725,6 +3726,225 @@ patcher.observe(document.documentElement, { attributes: false, childList: true, 
 
     /* wait until dom loaded */
     await loaded;
+
+    /* init popup polyfill */
+    const popupHTML = `﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="popup.css">
+    <script src="jquery.js"></script>
+    <style id="sliderThumbColorStyle"></style>
+</head>
+<body>
+    <div class="flexcol">
+        <h1>Typo Dashboard</h1>
+        <div class="tabSelection flexrow skribbl sketchful">
+            <div class="tabTitle tabActive skribbl" id="tabDashboard">Feature - Toggles</div>
+            <div style="display:none" class="tabTitle" id="tabDiscord">Discord / Palantir</div>
+            <div class="tabTitle skribbl" id="tabAdvanced">Advanced</div>
+        </div>
+        <div class="tabContent skribbl sketchful">
+            <div id="palantirSettings" class="sketchful skribbl">
+                <br />
+                <br />
+                <div id="sketchfulInfo" class="sketchful">
+                    <div id="sketchfulLogin" class="label back"></div>
+                    <div class="flexrow flexrowMenu" style="flex-wrap:wrap" id="sketchfulGuilds">
+                        <div class="label">No servers added! <br />Enter a server token on skribbl.</div>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="palantirToggleSketchful">Discord Bot Status</button>
+                    </div>
+                </div>
+                <div id="login" class="skribbl">
+                    <div id="loginHead" class="label back">Enter your login:</div>
+                    <div class="flexrow flexrowMenu">
+                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="loginEnter" placeholder="12345678" />
+                        <button type="button" class="active" id="loginSubmit">Login</button>
+                    </div>
+                </div>
+
+                <div id="server" class="skribbl" style="display:none">
+                    <div id="loginName" class="label">Tobeh#7437</div>
+                    <div class="label back">Connected Discord Servers</div><br />
+
+                    <div class="flexrow flexrowMenu" style="flex-wrap:wrap" id="authGuilds">
+                        <div class="label">No servers added! Enter a server token below</div>
+                    </div>
+                    <br />
+                    <div class="flexrow flexrowMenu">
+                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="observeToken" placeholder="12345678" />
+                        <button type="button" class="active" id="verifyToken">Verify & Add Server</button>
+                    </div>
+                    <br />
+                </div>
+                <br />
+                <br />
+
+            </div>
+
+            <div id="mainSettings" class="skribbl">
+                <br />
+                <br />
+                <div class="flexcol">
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="agent">ImageAgent</button>
+                        <button type="button" id="markup">Markup</button>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="drops">Drops</button>
+                        <button type="button" id="typoink">Typo Pressure</button>
+                        <button type="button" id="controls">Controls</button>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <!--<button type="button" id="backbutton">Back-Button</button>-->
+                        <button type="button" id="charbar">Char Count</button>
+                        <button type="button" id="emojipicker">Emojis</button>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="zoomdraw">Zoom Draw</button>
+                        <button type="button" id="dropmsgs">Drop Statistics</button>
+                        <!--<button type="button" id="sizeslider">Size Slider</button>-->
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="typotools">Typo Tools</button>
+                        <button type="button" id="chatcommands">Chat Commands</button>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="quickreact">Quickreact by CTRL</button>
+                        <button type="button" id="palantir">Discord Status</button>
+                    </div>
+                </div>
+                <br />
+                <br />
+            </div>
+
+            <div id="advancedSettings" class="skribbl">
+                <br />
+                <br />
+                <div class="flexcol">
+
+                    <div class="label">Tablet sensitivity  </div>
+                    <div class="sliderBox" id="sens">
+                        <span class="sliderBar"><span class="sliderFill"></span></span>
+                        <input type="range" class="slider" min="0" max="100" />
+                    </div>
+
+                    <div class="label">Random interval </div>
+                    <div class="sliderBox" id="randominterval">
+                        <span class="sliderBar"><span class="sliderFill"></span></span>
+                        <input type="range" class="slider" min="10" max="500" />
+                    </div>
+
+                    <div class="label">Markup color  </div>
+                    <div class="sliderBox" id="markupcolor">
+                        <span class="sliderBar"><span class="sliderFill"></span></span>
+                        <input type="range" class="slider" min="0" max="357" />
+                    </div>
+
+                    <div style="display:none" class="label">Tablet sensitivity  </div>
+                    <div  style="display:none" class="sliderBox" id="sensitivity">
+                        <span class="sliderBar"><span class="sliderFill"></span></span>
+                        <input type="range" class="slider" min="0" max="100" />
+                    </div>
+
+                    <div>
+                        <div class="label">Color palettes</div>
+                        <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap; place-content:center;" id="palettes">
+                            <button type="button" id="palette_originalPalette">Original Palette</button>
+                            <!-- <button type="button" id="palette_oldSkribbl">Old Skribbl</button> -->
+                        </div>
+                        <div class="flexrow flexrowMenu">
+                            <input type="text" autocomplete="off" style="width:12ex; flex-basis:unset" id="paletteJSON" placeholder="{ ... }" /> 
+                            <button type="button" class="active" id="enterJSON">Add palette JSON</button>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <br />
+            </div>
+        </div>
+        <br />
+        
+        <hr class="skribbl" />
+
+        <div id="footer" class="flexcol">
+            <div class="flexrow flexrowMenu">
+                <button type="button" class="active" id="help">How-To</button>
+                <button id="dc">
+                    <div id="credits">
+                        tobeh#7437
+                    </div>
+                </button>
+            </div>
+        </div>
+    <script src="popup.js"></script>
+</body>
+</html>
+`;
+    const popupDoc = document.createElement("html");
+
+    /* parse doc and add new base uri + polyfill for tabs api */
+    popupDoc.innerHTML = popupHTML;
+    popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
+        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/popup/" />'
+    );
+    popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
+        `<script>
+            window.chrome = {
+                runtime: {
+                    onMessage: {
+                        addListener: (callback) => {
+                            window.addEventListener("message", msg => callback(msg.data, {tab:{id:0}}));
+                        }
+                    }
+                },
+                tabs: {
+                    query: (a,b) => {
+                        b([
+                            {id: "0", url: "https://skribbl.io/"}
+                        ]);
+                    },
+                    sendMessage: (id, msg) => {
+                        window.parent.postMessage(msg, "*");
+                    }
+                }
+            }
+        </script>`
+    );
+
+    /* create show popup function */
+    window.openTypoPopup = () => {
+        window.typoPopupOpened = true;
+        const frame = document.createElement("iframe");
+        frame.style.border = "none";
+        frame.style.height = "100vh";
+        frame.style.width = "min(25em, 100vw)";
+        frame.srcdoc = popupDoc.innerHTML;
+        document.querySelector("#typoPopupPolyfill").append(frame);
+    
+        /* apply message polyfill */
+        chrome.runtime.sendMessage = (msg) => {
+            frame.contentWindow.postMessage(msg);
+        }
+
+        window.closeTypoPopup = () => {
+            window.typoPopupOpened = false;
+            frame.remove();
+        }
+    }
+
+    /* create popup toggle  */
+    document.body.insertAdjacentHTML("afterbegin", `
+    
+        <div style="position:fixed; right:0; top:0; display:flex; flex-direction:row; z-index:10000" id="typoPopupPolyfill">
+            <div onclick="window.typoPopupOpened === true ? window.closeTypoPopup() : window.openTypoPopup()" style="cursor:pointer; border-bottom-left-radius: 0.5em; height: 2.5em; aspect-ratio: 1; background-color:#9daff0a3; background-image: url('https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128CircleFit.png'); background-size: contain;">
+            </div>
+        <div>
+    
+    `);
+    
 
     /* bundle post dom exec */
     // #content picker/colr_pickr.min.js
