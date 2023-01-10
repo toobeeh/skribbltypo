@@ -42,6 +42,7 @@ let bundle = `
 // @author tobeh#7437
 // @description Userscript version of skribbltypo. Limited support
 // @version ${mainfest.version}
+// @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
 // @run-at document-start
