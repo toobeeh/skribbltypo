@@ -62,13 +62,14 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "0.0.1"};
+            return {version: "${mainfest.version} usrsc"};
         },
         onMessage: {
-            addListener: (l) => {
-                console.log("Listener not supported in typo userscript version");
+            addListener: (callback) => {
+                window.addEventListener("message", msg => callback(msg.data));
             }
-        }
+        },
+        sendMessage: undefined
     }
 }
 
@@ -95,6 +96,71 @@ const execTypo = async () => {
 
     /* wait until dom loaded */
     await loaded;
+
+    /* init popup polyfill */
+    const popupHTML = \`${fs.readFileSync("./popup/popup.html")}\`;
+    const popupDoc = document.createElement("html");
+
+    /* parse doc and add new base uri + polyfill for tabs api */
+    popupDoc.innerHTML = popupHTML;
+    popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
+        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/popup/" />'
+    );
+    popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
+        \`<script>
+            window.chrome = {
+                runtime: {
+                    onMessage: {
+                        addListener: (callback) => {
+                            window.addEventListener("message", msg => callback(msg.data, {tab:{id:0}}));
+                        }
+                    }
+                },
+                tabs: {
+                    query: (a,b) => {
+                        b([
+                            {id: "0", url: "https://skribbl.io/"}
+                        ]);
+                    },
+                    sendMessage: (id, msg) => {
+                        window.parent.postMessage(msg, "*");
+                    }
+                }
+            }
+        </script>\`
+    );
+
+    /* create show popup function */
+    window.openTypoPopup = () => {
+        window.typoPopupOpened = true;
+        const frame = document.createElement("iframe");
+        frame.style.border = "none";
+        frame.style.height = "100vh";
+        frame.style.width = "min(25em, 100vw)";
+        frame.srcdoc = popupDoc.innerHTML;
+        document.querySelector("#typoPopupPolyfill").append(frame);
+    
+        /* apply message polyfill */
+        chrome.runtime.sendMessage = (msg) => {
+            frame.contentWindow.postMessage(msg);
+        }
+
+        window.closeTypoPopup = () => {
+            window.typoPopupOpened = false;
+            frame.remove();
+        }
+    }
+
+    /* create popup toggle  */
+    document.body.insertAdjacentHTML("afterbegin", \`
+    
+        <div style="position:fixed; right:0; top:0; display:flex; flex-direction:row; z-index:10000" id="typoPopupPolyfill">
+            <div onclick="window.typoPopupOpened === true ? window.closeTypoPopup() : window.openTypoPopup()" style="cursor:pointer; border-bottom-left-radius: 0.5em; height: 2.5em; aspect-ratio: 1; background-color:#9daff0a3; background-image: url('https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128CircleFit.png'); background-size: contain;">
+            </div>
+        <div>
+    
+    \`);
+    
 
     /* bundle post dom exec */
     ${bundle_end}
