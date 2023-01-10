@@ -4,7 +4,7 @@
 // @website https://typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo. Limited support
-// @version 24.1.3.1673347406541
+// @version 24.1.3.1673349099146
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -36,7 +36,19 @@ const chrome = {
 }
 
 
-document.body.insertAdjacentHTML("afterbegin", `<style>﻿#game-chat{
+
+/* async typo setup for same-context of differently timed executions */
+const execTypo = async () => {
+
+    /* dom content load promise */
+    const loaded = new Promise((resolve, reject) => {
+        document.addEventListener("DOMContentLoaded", () => {
+            resolve();
+        });
+    });
+
+    /* bundle styles */
+    document.body.insertAdjacentHTML("afterbegin", `<style>﻿#game-chat{
     position:relative;
 }
     #game-bar #lobby-nav {
@@ -1216,7 +1228,9 @@ bounceload {
 
 
 </style>`);
-// #content color.js
+
+    /* bundle pre dom exec */
+    // #content color.js
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
@@ -2899,6 +2913,1407 @@ document.addEventListener('keydown', async (event) => {
     }   
 });
 
+// #content features/socket.js
+!function (t, e) { "object" == typeof exports && "object" == typeof module ? module.exports = e() : "function" == typeof define && define.amd ? define([], e) : "object" == typeof exports ? exports.io = e() : t.io = e() }("undefined" != typeof self ? self : "undefined" != typeof window ? window : "undefined" != typeof global ? global : Function("return this")(), (function () { return function (t) { var e = {}; function n(r) { if (e[r]) return e[r].exports; var o = e[r] = { i: r, l: !1, exports: {} }; return t[r].call(o.exports, o, o.exports, n), o.l = !0, o.exports } return n.m = t, n.c = e, n.d = function (t, e, r) { n.o(t, e) || Object.defineProperty(t, e, { enumerable: !0, get: r }) }, n.r = function (t) { "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(t, "__esModule", { value: !0 }) }, n.t = function (t, e) { if (1 & e && (t = n(t)), 8 & e) return t; if (4 & e && "object" == typeof t && t && t.__esModule) return t; var r = Object.create(null); if (n.r(r), Object.defineProperty(r, "default", { enumerable: !0, value: t }), 2 & e && "string" != typeof t) for (var o in t) n.d(r, o, function (e) { return t[e] }.bind(null, o)); return r }, n.n = function (t) { var e = t && t.__esModule ? function () { return t.default } : function () { return t }; return n.d(e, "a", e), e }, n.o = function (t, e) { return Object.prototype.hasOwnProperty.call(t, e) }, n.p = "", n(n.s = 18) }([function (t, e, n) { function r(t) { if (t) return function (t) { for (var e in r.prototype) t[e] = r.prototype[e]; return t }(t) } t.exports = r, r.prototype.on = r.prototype.addEventListener = function (t, e) { return this._callbacks = this._callbacks || {}, (this._callbacks["$" + t] = this._callbacks["$" + t] || []).push(e), this }, r.prototype.once = function (t, e) { function n() { this.off(t, n), e.apply(this, arguments) } return n.fn = e, this.on(t, n), this }, r.prototype.off = r.prototype.removeListener = r.prototype.removeAllListeners = r.prototype.removeEventListener = function (t, e) { if (this._callbacks = this._callbacks || {}, 0 == arguments.length) return this._callbacks = {}, this; var n, r = this._callbacks["$" + t]; if (!r) return this; if (1 == arguments.length) return delete this._callbacks["$" + t], this; for (var o = 0; o < r.length; o++)if ((n = r[o]) === e || n.fn === e) { r.splice(o, 1); break } return 0 === r.length && delete this._callbacks["$" + t], this }, r.prototype.emit = function (t) { this._callbacks = this._callbacks || {}; for (var e = new Array(arguments.length - 1), n = this._callbacks["$" + t], r = 1; r < arguments.length; r++)e[r - 1] = arguments[r]; if (n) { r = 0; for (var o = (n = n.slice(0)).length; r < o; ++r)n[r].apply(this, e) } return this }, r.prototype.listeners = function (t) { return this._callbacks = this._callbacks || {}, this._callbacks["$" + t] || [] }, r.prototype.hasListeners = function (t) { return !!this.listeners(t).length } }, function (t, e, n) { var r = n(24), o = n(25), i = String.fromCharCode(30); t.exports = { protocol: 4, encodePacket: r, encodePayload: function (t, e) { var n = t.length, o = new Array(n), s = 0; t.forEach((function (t, c) { r(t, !1, (function (t) { o[c] = t, ++s === n && e(o.join(i)) })) })) }, decodePacket: o, decodePayload: function (t, e) { for (var n = t.split(i), r = [], s = 0; s < n.length; s++) { var c = o(n[s], e); if (r.push(c), "error" === c.type) break } return r } } }, function (t, e) { t.exports = "undefined" != typeof self ? self : "undefined" != typeof window ? window : Function("return this")() }, function (t, e, n) { var r = n(22), o = n(2); t.exports = function (t) { var e = t.xdomain, n = t.xscheme, i = t.enablesXDR; try { if ("undefined" != typeof XMLHttpRequest && (!e || r)) return new XMLHttpRequest } catch (t) { } try { if ("undefined" != typeof XDomainRequest && !n && i) return new XDomainRequest } catch (t) { } if (!e) try { return new (o[["Active"].concat("Object").join("X")])("Microsoft.XMLHTTP") } catch (t) { } } }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function i(t, e) { return (i = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function s(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = a(t); if (e) { var o = a(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return c(this, n) } } function c(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function a(t) { return (a = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var u = n(1), f = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && i(t, e) }(a, t); var e, n, r, c = s(a); function a(t) { var e; return function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, a), (e = c.call(this)).opts = t, e.query = t.query, e.readyState = "", e.socket = t.socket, e } return e = a, (n = [{ key: "onError", value: function (t, e) { var n = new Error(t); return n.type = "TransportError", n.description = e, this.emit("error", n), this } }, { key: "open", value: function () { return "closed" !== this.readyState && "" !== this.readyState || (this.readyState = "opening", this.doOpen()), this } }, { key: "close", value: function () { return "opening" !== this.readyState && "open" !== this.readyState || (this.doClose(), this.onClose()), this } }, { key: "send", value: function (t) { if ("open" !== this.readyState) throw new Error("Transport not open"); this.write(t) } }, { key: "onOpen", value: function () { this.readyState = "open", this.writable = !0, this.emit("open") } }, { key: "onData", value: function (t) { var e = u.decodePacket(t, this.socket.binaryType); this.onPacket(e) } }, { key: "onPacket", value: function (t) { this.emit("packet", t) } }, { key: "onClose", value: function () { this.readyState = "closed", this.emit("close") } }]) && o(e.prototype, n), r && o(e, r), a }(n(0)); t.exports = f }, function (t, e) { e.encode = function (t) { var e = ""; for (var n in t) t.hasOwnProperty(n) && (e.length && (e += "&"), e += encodeURIComponent(n) + "=" + encodeURIComponent(t[n])); return e }, e.decode = function (t) { for (var e = {}, n = t.split("&"), r = 0, o = n.length; r < o; r++) { var i = n[r].split("="); e[decodeURIComponent(i[0])] = decodeURIComponent(i[1]) } return e } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e, n) { return (o = "undefined" != typeof Reflect && Reflect.get ? Reflect.get : function (t, e, n) { var r = function (t, e) { for (; !Object.prototype.hasOwnProperty.call(t, e) && null !== (t = a(t));); return t }(t, e); if (r) { var o = Object.getOwnPropertyDescriptor(r, e); return o.get ? o.get.call(n) : o.value } })(t, e, n || t) } function i(t, e) { return (i = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function s(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = a(t); if (e) { var o = a(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return c(this, n) } } function c(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function a(t) { return (a = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } function u(t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") } function f(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function p(t, e, n) { return e && f(t.prototype, e), n && f(t, n), t } Object.defineProperty(e, "__esModule", { value: !0 }), e.Decoder = e.Encoder = e.PacketType = e.protocol = void 0; var l, h = n(0), y = n(30), d = n(15); e.protocol = 5, function (t) { t[t.CONNECT = 0] = "CONNECT", t[t.DISCONNECT = 1] = "DISCONNECT", t[t.EVENT = 2] = "EVENT", t[t.ACK = 3] = "ACK", t[t.CONNECT_ERROR = 4] = "CONNECT_ERROR", t[t.BINARY_EVENT = 5] = "BINARY_EVENT", t[t.BINARY_ACK = 6] = "BINARY_ACK" }(l = e.PacketType || (e.PacketType = {})); var v = function () { function t() { u(this, t) } return p(t, [{ key: "encode", value: function (t) { return t.type !== l.EVENT && t.type !== l.ACK || !d.hasBinary(t) ? [this.encodeAsString(t)] : (t.type = t.type === l.EVENT ? l.BINARY_EVENT : l.BINARY_ACK, this.encodeAsBinary(t)) } }, { key: "encodeAsString", value: function (t) { var e = "" + t.type; return t.type !== l.BINARY_EVENT && t.type !== l.BINARY_ACK || (e += t.attachments + "-"), t.nsp && "/" !== t.nsp && (e += t.nsp + ","), null != t.id && (e += t.id), null != t.data && (e += JSON.stringify(t.data)), e } }, { key: "encodeAsBinary", value: function (t) { var e = y.deconstructPacket(t), n = this.encodeAsString(e.packet), r = e.buffers; return r.unshift(n), r } }]), t }(); e.Encoder = v; var b = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && i(t, e) }(n, t); var e = s(n); function n() { return u(this, n), e.call(this) } return p(n, [{ key: "add", value: function (t) { var e; if ("string" == typeof t) (e = this.decodeString(t)).type === l.BINARY_EVENT || e.type === l.BINARY_ACK ? (this.reconstructor = new m(e), 0 === e.attachments && o(a(n.prototype), "emit", this).call(this, "decoded", e)) : o(a(n.prototype), "emit", this).call(this, "decoded", e); else { if (!d.isBinary(t) && !t.base64) throw new Error("Unknown type: " + t); if (!this.reconstructor) throw new Error("got binary data when not reconstructing a packet"); (e = this.reconstructor.takeBinaryData(t)) && (this.reconstructor = null, o(a(n.prototype), "emit", this).call(this, "decoded", e)) } } }, { key: "decodeString", value: function (t) { var e = 0, r = { type: Number(t.charAt(0)) }; if (void 0 === l[r.type]) throw new Error("unknown packet type " + r.type); if (r.type === l.BINARY_EVENT || r.type === l.BINARY_ACK) { for (var o = e + 1; "-" !== t.charAt(++e) && e != t.length;); var i = t.substring(o, e); if (i != Number(i) || "-" !== t.charAt(e)) throw new Error("Illegal attachments"); r.attachments = Number(i) } if ("/" === t.charAt(e + 1)) { for (var s = e + 1; ++e;) { if ("," === t.charAt(e)) break; if (e === t.length) break } r.nsp = t.substring(s, e) } else r.nsp = "/"; var c = t.charAt(e + 1); if ("" !== c && Number(c) == c) { for (var a = e + 1; ++e;) { var u = t.charAt(e); if (null == u || Number(u) != u) { --e; break } if (e === t.length) break } r.id = Number(t.substring(a, e + 1)) } if (t.charAt(++e)) { var f = function (t) { try { return JSON.parse(t) } catch (t) { return !1 } }(t.substr(e)); if (!n.isPayloadValid(r.type, f)) throw new Error("invalid payload"); r.data = f } return r } }, { key: "destroy", value: function () { this.reconstructor && this.reconstructor.finishedReconstruction() } }], [{ key: "isPayloadValid", value: function (t, e) { switch (t) { case l.CONNECT: return "object" === r(e); case l.DISCONNECT: return void 0 === e; case l.CONNECT_ERROR: return "string" == typeof e || "object" === r(e); case l.EVENT: case l.BINARY_EVENT: return Array.isArray(e) && "string" == typeof e[0]; case l.ACK: case l.BINARY_ACK: return Array.isArray(e) } } }]), n }(h); e.Decoder = b; var m = function () { function t(e) { u(this, t), this.packet = e, this.buffers = [], this.reconPack = e } return p(t, [{ key: "takeBinaryData", value: function (t) { if (this.buffers.push(t), this.buffers.length === this.reconPack.attachments) { var e = y.reconstructPacket(this.reconPack, this.buffers); return this.finishedReconstruction(), e } return null } }, { key: "finishedReconstruction", value: function () { this.reconPack = null, this.buffers = [] } }]), t }() }, function (t, e) { var n = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/, r = ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"]; t.exports = function (t) { var e = t, o = t.indexOf("["), i = t.indexOf("]"); -1 != o && -1 != i && (t = t.substring(0, o) + t.substring(o, i).replace(/:/g, ";") + t.substring(i, t.length)); for (var s, c, a = n.exec(t || ""), u = {}, f = 14; f--;)u[r[f]] = a[f] || ""; return -1 != o && -1 != i && (u.source = e, u.host = u.host.substring(1, u.host.length - 1).replace(/;/g, ":"), u.authority = u.authority.replace("[", "").replace("]", "").replace(/;/g, ":"), u.ipv6uri = !0), u.pathNames = function (t, e) { var n = e.replace(/\/{2,9}/g, "/").split("/"); "/" != e.substr(0, 1) && 0 !== e.length || n.splice(0, 1); "/" == e.substr(e.length - 1, 1) && n.splice(n.length - 1, 1); return n }(0, u.path), u.queryKey = (s = u.query, c = {}, s.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, (function (t, e, n) { e && (c[e] = n) })), c), u } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function i(t, e, n) { return (i = "undefined" != typeof Reflect && Reflect.get ? Reflect.get : function (t, e, n) { var r = function (t, e) { for (; !Object.prototype.hasOwnProperty.call(t, e) && null !== (t = u(t));); return t }(t, e); if (r) { var o = Object.getOwnPropertyDescriptor(r, e); return o.get ? o.get.call(n) : o.value } })(t, e, n || t) } function s(t, e) { return (s = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function c(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = u(t); if (e) { var o = u(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return a(this, n) } } function a(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function u(t) { return (u = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.Manager = void 0; var f = n(20), p = n(14), l = n(0), h = n(6), y = n(16), d = n(17), v = n(31), b = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && s(t, e) }(b, t); var e, n, a, l = c(b); function b(t, e) { var n; !function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, b), (n = l.call(this)).nsps = {}, n.subs = [], n.connecting = [], t && "object" === r(t) && (e = t, t = void 0), (e = e || {}).path = e.path || "/socket.io", n.opts = e, n.reconnection(!1 !== e.reconnection), n.reconnectionAttempts(e.reconnectionAttempts || 1 / 0), n.reconnectionDelay(e.reconnectionDelay || 1e3), n.reconnectionDelayMax(e.reconnectionDelayMax || 5e3), n.randomizationFactor(e.randomizationFactor || .5), n.backoff = new v({ min: n.reconnectionDelay(), max: n.reconnectionDelayMax(), jitter: n.randomizationFactor() }), n.timeout(null == e.timeout ? 2e4 : e.timeout), n._readyState = "closed", n.uri = t; var o = e.parser || h; return n.encoder = new o.Encoder, n.decoder = new o.Decoder, n._autoConnect = !1 !== e.autoConnect, n._autoConnect && n.open(), n } return e = b, (n = [{ key: "reconnection", value: function (t) { return arguments.length ? (this._reconnection = !!t, this) : this._reconnection } }, { key: "reconnectionAttempts", value: function (t) { return void 0 === t ? this._reconnectionAttempts : (this._reconnectionAttempts = t, this) } }, { key: "reconnectionDelay", value: function (t) { return void 0 === t ? this._reconnectionDelay : (this._reconnectionDelay = t, this.backoff && this.backoff.setMin(t), this) } }, { key: "randomizationFactor", value: function (t) { return void 0 === t ? this._randomizationFactor : (this._randomizationFactor = t, this.backoff && this.backoff.setJitter(t), this) } }, { key: "reconnectionDelayMax", value: function (t) { return void 0 === t ? this._reconnectionDelayMax : (this._reconnectionDelayMax = t, this.backoff && this.backoff.setMax(t), this) } }, { key: "timeout", value: function (t) { return arguments.length ? (this._timeout = t, this) : this._timeout } }, { key: "maybeReconnectOnOpen", value: function () { !this._reconnecting && this._reconnection && 0 === this.backoff.attempts && this.reconnect() } }, { key: "open", value: function (t) { var e = this; if (~this._readyState.indexOf("open")) return this; this.engine = f(this.uri, this.opts); var n = this.engine, r = this; this._readyState = "opening", this.skipReconnect = !1; var o = y.on(n, "open", (function () { r.onopen(), t && t() })), s = y.on(n, "error", (function (n) { r.cleanup(), r._readyState = "closed", i(u(b.prototype), "emit", e).call(e, "error", n), t ? t(n) : r.maybeReconnectOnOpen() })); if (!1 !== this._timeout) { var c = this._timeout; 0 === c && o.destroy(); var a = setTimeout((function () { o.destroy(), n.close(), n.emit("error", new Error("timeout")) }), c); this.subs.push({ destroy: function () { clearTimeout(a) } }) } return this.subs.push(o), this.subs.push(s), this } }, { key: "connect", value: function (t) { return this.open(t) } }, { key: "onopen", value: function () { this.cleanup(), this._readyState = "open", i(u(b.prototype), "emit", this).call(this, "open"); var t = this.engine; this.subs.push(y.on(t, "data", d(this, "ondata"))), this.subs.push(y.on(t, "ping", d(this, "onping"))), this.subs.push(y.on(t, "error", d(this, "onerror"))), this.subs.push(y.on(t, "close", d(this, "onclose"))), this.subs.push(y.on(this.decoder, "decoded", d(this, "ondecoded"))) } }, { key: "onping", value: function () { i(u(b.prototype), "emit", this).call(this, "ping") } }, { key: "ondata", value: function (t) { this.decoder.add(t) } }, { key: "ondecoded", value: function (t) { i(u(b.prototype), "emit", this).call(this, "packet", t) } }, { key: "onerror", value: function (t) { i(u(b.prototype), "emit", this).call(this, "error", t) } }, { key: "socket", value: function (t, e) { var n = this.nsps[t]; if (!n) { n = new p.Socket(this, t, e), this.nsps[t] = n; var r = this; n.on("connecting", o), this._autoConnect && o() } function o() { ~r.connecting.indexOf(n) || r.connecting.push(n) } return n } }, { key: "_destroy", value: function (t) { var e = this.connecting.indexOf(t); ~e && this.connecting.splice(e, 1), this.connecting.length || this._close() } }, { key: "_packet", value: function (t) { t.query && 0 === t.type && (t.nsp += "?" + t.query); for (var e = this.encoder.encode(t), n = 0; n < e.length; n++)this.engine.write(e[n], t.options) } }, { key: "cleanup", value: function () { for (var t = this.subs.length, e = 0; e < t; e++)this.subs.shift().destroy(); this.decoder.destroy() } }, { key: "_close", value: function () { this.skipReconnect = !0, this._reconnecting = !1, "opening" === this._readyState && this.cleanup(), this.backoff.reset(), this._readyState = "closed", this.engine && this.engine.close() } }, { key: "disconnect", value: function () { return this._close() } }, { key: "onclose", value: function (t) { this.cleanup(), this.backoff.reset(), this._readyState = "closed", i(u(b.prototype), "emit", this).call(this, "close", t), this._reconnection && !this.skipReconnect && this.reconnect() } }, { key: "reconnect", value: function () { var t = this; if (this._reconnecting || this.skipReconnect) return this; var e = this; if (this.backoff.attempts >= this._reconnectionAttempts) this.backoff.reset(), i(u(b.prototype), "emit", this).call(this, "reconnect_failed"), this._reconnecting = !1; else { var n = this.backoff.duration(); this._reconnecting = !0; var r = setTimeout((function () { e.skipReconnect || (i(u(b.prototype), "emit", t).call(t, "reconnect_attempt", e.backoff.attempts), e.skipReconnect || e.open((function (n) { n ? (e._reconnecting = !1, e.reconnect(), i(u(b.prototype), "emit", t).call(t, "reconnect_error", n)) : e.onreconnect() }))) }), n); this.subs.push({ destroy: function () { clearTimeout(r) } }) } } }, { key: "onreconnect", value: function () { var t = this.backoff.attempts; this._reconnecting = !1, this.backoff.reset(), i(u(b.prototype), "emit", this).call(this, "reconnect", t) } }]) && o(e.prototype, n), a && o(e, a), b }(l); e.Manager = b }, function (t, e, n) { var r = n(3), o = n(23), i = n(27), s = n(28); e.polling = function (t) { var e = !1, n = !1, s = !1 !== t.jsonp; if ("undefined" != typeof location) { var c = "https:" === location.protocol, a = location.port; a || (a = c ? 443 : 80), e = t.hostname !== location.hostname || a !== t.port, n = t.secure !== c } if (t.xdomain = e, t.xscheme = n, "open" in new r(t) && !t.forceJSONP) return new o(t); if (!s) throw new Error("JSONP disabled"); return new i(t) }, e.websocket = s }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") } function i(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function s(t, e) { return (s = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function c(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = u(t); if (e) { var o = u(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return a(this, n) } } function a(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function u(t) { return (u = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var f = n(4), p = n(5), l = n(1), h = n(12), y = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && s(t, e) }(u, t); var e, n, r, a = c(u); function u() { return o(this, u), a.apply(this, arguments) } return e = u, (n = [{ key: "doOpen", value: function () { this.poll() } }, { key: "pause", value: function (t) { var e = this; function n() { e.readyState = "paused", t() } if (this.readyState = "pausing", this.polling || !this.writable) { var r = 0; this.polling && (r++ , this.once("pollComplete", (function () { --r || n() }))), this.writable || (r++ , this.once("drain", (function () { --r || n() }))) } else n() } }, { key: "poll", value: function () { this.polling = !0, this.doPoll(), this.emit("poll") } }, { key: "onData", value: function (t) { var e = this; l.decodePayload(t, this.socket.binaryType).forEach((function (t, n, r) { if ("opening" === e.readyState && e.onOpen(), "close" === t.type) return e.onClose(), !1; e.onPacket(t) })), "closed" !== this.readyState && (this.polling = !1, this.emit("pollComplete"), "open" === this.readyState && this.poll()) } }, { key: "doClose", value: function () { var t = this; function e() { t.write([{ type: "close" }]) } "open" === this.readyState ? e() : this.once("open", e) } }, { key: "write", value: function (t) { var e = this; this.writable = !1, l.encodePayload(t, (function (t) { e.doWrite(t, (function () { e.writable = !0, e.emit("drain") })) })) } }, { key: "uri", value: function () { var t = this.query || {}, e = this.opts.secure ? "https" : "http", n = ""; return !1 !== this.opts.timestampRequests && (t[this.opts.timestampParam] = h()), this.supportsBinary || t.sid || (t.b64 = 1), t = p.encode(t), this.opts.port && ("https" === e && 443 !== Number(this.opts.port) || "http" === e && 80 !== Number(this.opts.port)) && (n = ":" + this.opts.port), t.length && (t = "?" + t), e + "://" + (-1 !== this.opts.hostname.indexOf(":") ? "[" + this.opts.hostname + "]" : this.opts.hostname) + n + this.opts.path + t } }, { key: "name", get: function () { return "polling" } }]) && i(e.prototype, n), r && i(e, r), u }(f); t.exports = y }, function (t, e) { var n = Object.create(null); n.open = "0", n.close = "1", n.ping = "2", n.pong = "3", n.message = "4", n.upgrade = "5", n.noop = "6"; var r = Object.create(null); Object.keys(n).forEach((function (t) { r[n[t]] = t })); t.exports = { PACKET_TYPES: n, PACKET_TYPES_REVERSE: r, ERROR_PACKET: { type: "error", data: "parser error" } } }, function (t, e, n) { "use strict"; var r, o = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_".split(""), i = {}, s = 0, c = 0; function a(t) { var e = ""; do { e = o[t % 64] + e, t = Math.floor(t / 64) } while (t > 0); return e } function u() { var t = a(+new Date); return t !== r ? (s = 0, r = t) : t + "." + a(s++) } for (; c < 64; c++)i[o[c]] = c; u.encode = a, u.decode = function (t) { var e = 0; for (c = 0; c < t.length; c++)e = 64 * e + i[t.charAt(c)]; return e }, t.exports = u }, function (t, e) { t.exports.pick = function (t) { for (var e = arguments.length, n = new Array(e > 1 ? e - 1 : 0), r = 1; r < e; r++)n[r - 1] = arguments[r]; return n.reduce((function (e, n) { return e[n] = t[n], e }), {}) } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { var n; if ("undefined" == typeof Symbol || null == t[Symbol.iterator]) { if (Array.isArray(t) || (n = function (t, e) { if (!t) return; if ("string" == typeof t) return i(t, e); var n = Object.prototype.toString.call(t).slice(8, -1); "Object" === n && t.constructor && (n = t.constructor.name); if ("Map" === n || "Set" === n) return Array.from(t); if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return i(t, e) }(t)) || e && t && "number" == typeof t.length) { n && (t = n); var r = 0, o = function () { }; return { s: o, n: function () { return r >= t.length ? { done: !0 } : { done: !1, value: t[r++] } }, e: function (t) { throw t }, f: o } } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.") } var s, c = !0, a = !1; return { s: function () { n = t[Symbol.iterator]() }, n: function () { var t = n.next(); return c = t.done, t }, e: function (t) { a = !0, s = t }, f: function () { try { c || null == n.return || n.return() } finally { if (a) throw s } } } } function i(t, e) { (null == e || e > t.length) && (e = t.length); for (var n = 0, r = new Array(e); n < e; n++)r[n] = t[n]; return r } function s(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function c(t, e, n) { return (c = "undefined" != typeof Reflect && Reflect.get ? Reflect.get : function (t, e, n) { var r = function (t, e) { for (; !Object.prototype.hasOwnProperty.call(t, e) && null !== (t = p(t));); return t }(t, e); if (r) { var o = Object.getOwnPropertyDescriptor(r, e); return o.get ? o.get.call(n) : o.value } })(t, e, n || t) } function a(t, e) { return (a = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function u(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = p(t); if (e) { var o = p(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return f(this, n) } } function f(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function p(t) { return (p = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.Socket = void 0; var l = n(6), h = n(0), y = n(16), d = n(17), v = { connect: 1, connect_error: 1, disconnect: 1, disconnecting: 1, newListener: 1, removeListener: 1 }, b = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && a(t, e) }(f, t); var e, n, r, i = u(f); function f(t, e, n) { var r; return function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, f), (r = i.call(this)).ids = 0, r.acks = {}, r.receiveBuffer = [], r.sendBuffer = [], r.flags = {}, r.io = t, r.nsp = e, r.ids = 0, r.acks = {}, r.receiveBuffer = [], r.sendBuffer = [], r.connected = !1, r.disconnected = !0, r.flags = {}, n && n.auth && (r.auth = n.auth), r.io._autoConnect && r.open(), r } return e = f, (n = [{ key: "subEvents", value: function () { if (!this.subs) { var t = this.io; this.subs = [y.on(t, "open", d(this, "onopen")), y.on(t, "packet", d(this, "onpacket")), y.on(t, "close", d(this, "onclose"))] } } }, { key: "connect", value: function () { return this.connected || (this.subEvents(), this.io._reconnecting || this.io.open(), "open" === this.io._readyState && this.onopen()), this } }, { key: "open", value: function () { return this.connect() } }, { key: "send", value: function () { for (var t = arguments.length, e = new Array(t), n = 0; n < t; n++)e[n] = arguments[n]; return e.unshift("message"), this.emit.apply(this, e), this } }, { key: "emit", value: function (t) { if (v.hasOwnProperty(t)) throw new Error('"' + t + '" is a reserved event name'); for (var e = arguments.length, n = new Array(e > 1 ? e - 1 : 0), r = 1; r < e; r++)n[r - 1] = arguments[r]; n.unshift(t); var o = { type: l.PacketType.EVENT, data: n, options: {} }; o.options.compress = !1 !== this.flags.compress, "function" == typeof n[n.length - 1] && (this.acks[this.ids] = n.pop(), o.id = this.ids++); var i = this.io.engine && this.io.engine.transport && this.io.engine.transport.writable, s = this.flags.volatile && (!i || !this.connected); return s || (this.connected ? this.packet(o) : this.sendBuffer.push(o)), this.flags = {}, this } }, { key: "packet", value: function (t) { t.nsp = this.nsp, this.io._packet(t) } }, { key: "onopen", value: function () { var t = this; "function" == typeof this.auth ? this.auth((function (e) { t.packet({ type: l.PacketType.CONNECT, data: e }) })) : this.packet({ type: l.PacketType.CONNECT, data: this.auth }) } }, { key: "onclose", value: function (t) { this.connected = !1, this.disconnected = !0, delete this.id, c(p(f.prototype), "emit", this).call(this, "disconnect", t) } }, { key: "onpacket", value: function (t) { if (t.nsp === this.nsp) switch (t.type) { case l.PacketType.CONNECT: var e = t.data.sid; this.onconnect(e); break; case l.PacketType.EVENT: case l.PacketType.BINARY_EVENT: this.onevent(t); break; case l.PacketType.ACK: case l.PacketType.BINARY_ACK: this.onack(t); break; case l.PacketType.DISCONNECT: this.ondisconnect(); break; case l.PacketType.CONNECT_ERROR: var n = new Error(t.data.message); n.data = t.data.data, c(p(f.prototype), "emit", this).call(this, "connect_error", n) } } }, { key: "onevent", value: function (t) { var e = t.data || []; null != t.id && e.push(this.ack(t.id)), this.connected ? this.emitEvent(e) : this.receiveBuffer.push(e) } }, { key: "emitEvent", value: function (t) { if (this._anyListeners && this._anyListeners.length) { var e, n = o(this._anyListeners.slice()); try { for (n.s(); !(e = n.n()).done;)e.value.apply(this, t) } catch (t) { n.e(t) } finally { n.f() } } c(p(f.prototype), "emit", this).apply(this, t) } }, { key: "ack", value: function (t) { var e = this, n = !1; return function () { if (!n) { n = !0; for (var r = arguments.length, o = new Array(r), i = 0; i < r; i++)o[i] = arguments[i]; e.packet({ type: l.PacketType.ACK, id: t, data: o }) } } } }, { key: "onack", value: function (t) { var e = this.acks[t.id]; "function" == typeof e && (e.apply(this, t.data), delete this.acks[t.id]) } }, { key: "onconnect", value: function (t) { this.id = t, this.connected = !0, this.disconnected = !1, c(p(f.prototype), "emit", this).call(this, "connect"), this.emitBuffered() } }, { key: "emitBuffered", value: function () { for (var t = 0; t < this.receiveBuffer.length; t++)this.emitEvent(this.receiveBuffer[t]); this.receiveBuffer = []; for (var e = 0; e < this.sendBuffer.length; e++)this.packet(this.sendBuffer[e]); this.sendBuffer = [] } }, { key: "ondisconnect", value: function () { this.destroy(), this.onclose("io server disconnect") } }, { key: "destroy", value: function () { if (this.subs) { for (var t = 0; t < this.subs.length; t++)this.subs[t].destroy(); this.subs = null } this.io._destroy(this) } }, { key: "disconnect", value: function () { return this.connected && this.packet({ type: l.PacketType.DISCONNECT }), this.destroy(), this.connected && this.onclose("io client disconnect"), this } }, { key: "close", value: function () { return this.disconnect() } }, { key: "compress", value: function (t) { return this.flags.compress = t, this } }, { key: "onAny", value: function (t) { return this._anyListeners = this._anyListeners || [], this._anyListeners.push(t), this } }, { key: "prependAny", value: function (t) { return this._anyListeners = this._anyListeners || [], this._anyListeners.unshift(t), this } }, { key: "offAny", value: function (t) { if (!this._anyListeners) return this; if (t) { for (var e = this._anyListeners, n = 0; n < e.length; n++)if (t === e[n]) return e.splice(n, 1), this } else this._anyListeners = []; return this } }, { key: "listenersAny", value: function () { return this._anyListeners || [] } }, { key: "volatile", get: function () { return this.flags.volatile = !0, this } }]) && s(e.prototype, n), r && s(e, r), f }(h); e.Socket = b }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.hasBinary = e.isBinary = void 0; var o = "function" == typeof ArrayBuffer, i = Object.prototype.toString, s = "function" == typeof Blob || "undefined" != typeof Blob && "[object BlobConstructor]" === i.call(Blob), c = "function" == typeof File || "undefined" != typeof File && "[object FileConstructor]" === i.call(File); function a(t) { return o && (t instanceof ArrayBuffer || function (t) { return "function" == typeof ArrayBuffer.isView ? ArrayBuffer.isView(t) : t.buffer instanceof ArrayBuffer }(t)) || s && t instanceof Blob || c && t instanceof File } e.isBinary = a, e.hasBinary = function t(e, n) { if (!e || "object" !== r(e)) return !1; if (Array.isArray(e)) { for (var o = 0, i = e.length; o < i; o++)if (t(e[o])) return !0; return !1 } if (a(e)) return !0; if (e.toJSON && "function" == typeof e.toJSON && 1 === arguments.length) return t(e.toJSON(), !0); for (var s in e) if (Object.prototype.hasOwnProperty.call(e, s) && t(e[s])) return !0; return !1 } }, function (t, e, n) { "use strict"; Object.defineProperty(e, "__esModule", { value: !0 }), e.on = void 0, e.on = function (t, e, n) { return t.on(e, n), { destroy: function () { t.removeListener(e, n) } } } }, function (t, e) { var n = [].slice; t.exports = function (t, e) { if ("string" == typeof e && (e = t[e]), "function" != typeof e) throw new Error("bind() requires a function"); var r = n.call(arguments, 2); return function () { return e.apply(t, r.concat(n.call(arguments))) } } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.Socket = e.io = e.Manager = e.protocol = void 0; var o = n(19), i = n(8), s = n(14); Object.defineProperty(e, "Socket", { enumerable: !0, get: function () { return s.Socket } }), t.exports = e = a; var c = e.managers = {}; function a(t, e) { "object" === r(t) && (e = t, t = void 0), e = e || {}; var n, s = o.url(t), a = s.source, u = s.id, f = s.path, p = c[u] && f in c[u].nsps; return e.forceNew || e["force new connection"] || !1 === e.multiplex || p ? n = new i.Manager(a, e) : (c[u] || (c[u] = new i.Manager(a, e)), n = c[u]), s.query && !e.query && (e.query = s.query), n.socket(s.path, e) } e.io = a; var u = n(6); Object.defineProperty(e, "protocol", { enumerable: !0, get: function () { return u.protocol } }), e.connect = a; var f = n(8); Object.defineProperty(e, "Manager", { enumerable: !0, get: function () { return f.Manager } }) }, function (t, e, n) { "use strict"; Object.defineProperty(e, "__esModule", { value: !0 }), e.url = void 0; var r = n(7); e.url = function (t, e) { var n = t; e = e || "undefined" != typeof location && location, null == t && (t = e.protocol + "//" + e.host), "string" == typeof t && ("/" === t.charAt(0) && (t = "/" === t.charAt(1) ? e.protocol + t : e.host + t), /^(https?|wss?):\/\//.test(t) || (t = void 0 !== e ? e.protocol + "//" + t : "https://" + t), n = r(t)), n.port || (/^(http|ws)$/.test(n.protocol) ? n.port = "80" : /^(http|ws)s$/.test(n.protocol) && (n.port = "443")), n.path = n.path || "/"; var o = -1 !== n.host.indexOf(":") ? "[" + n.host + "]" : n.host; return n.id = n.protocol + "://" + o + ":" + n.port, n.href = n.protocol + "://" + o + (e && e.port === n.port ? "" : ":" + n.port), n } }, function (t, e, n) { var r = n(21); t.exports = function (t, e) { return new r(t, e) }, t.exports.Socket = r, t.exports.protocol = r.protocol, t.exports.Transport = n(4), t.exports.transports = n(9), t.exports.parser = n(1) }, function (t, e, n) { function r() { return (r = Object.assign || function (t) { for (var e = 1; e < arguments.length; e++) { var n = arguments[e]; for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (t[r] = n[r]) } return t }).apply(this, arguments) } function o(t) { return (o = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function i(t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") } function s(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function c(t, e) { return (c = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function a(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = f(t); if (e) { var o = f(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return u(this, n) } } function u(t, e) { return !e || "object" !== o(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function f(t) { return (f = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var p = n(9), l = n(0), h = n(1), y = n(7), d = n(5), v = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && c(t, e) }(l, t); var e, n, u, f = a(l); function l(t) { var e, n = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {}; return i(this, l), e = f.call(this), t && "object" === o(t) && (n = t, t = null), t ? (t = y(t), n.hostname = t.host, n.secure = "https" === t.protocol || "wss" === t.protocol, n.port = t.port, t.query && (n.query = t.query)) : n.host && (n.hostname = y(n.host).host), e.secure = null != n.secure ? n.secure : "undefined" != typeof location && "https:" === location.protocol, n.hostname && !n.port && (n.port = e.secure ? "443" : "80"), e.hostname = n.hostname || ("undefined" != typeof location ? location.hostname : "localhost"), e.port = n.port || ("undefined" != typeof location && location.port ? location.port : e.secure ? 443 : 80), e.transports = n.transports || ["polling", "websocket"], e.readyState = "", e.writeBuffer = [], e.prevBufferLen = 0, e.opts = r({ path: "/engine.io", agent: !1, upgrade: !0, jsonp: !0, timestampParam: "t", policyPort: 843, rememberUpgrade: !1, rejectUnauthorized: !0, perMessageDeflate: { threshold: 1024 }, transportOptions: {} }, n), e.opts.path = e.opts.path.replace(/\/$/, "") + "/", "string" == typeof e.opts.query && (e.opts.query = d.decode(e.opts.query)), e.id = null, e.upgrades = null, e.pingInterval = null, e.pingTimeout = null, e.pingTimeoutTimer = null, e.open(), e } return e = l, (n = [{ key: "createTransport", value: function (t) { var e = function (t) { var e = {}; for (var n in t) t.hasOwnProperty(n) && (e[n] = t[n]); return e }(this.opts.query); e.EIO = h.protocol, e.transport = t, this.id && (e.sid = this.id); var n = r({}, this.opts.transportOptions[t], this.opts, { query: e, socket: this, hostname: this.hostname, secure: this.secure, port: this.port }); return new p[t](n) } }, { key: "open", value: function () { var t; if (this.opts.rememberUpgrade && l.priorWebsocketSuccess && -1 !== this.transports.indexOf("websocket")) t = "websocket"; else { if (0 === this.transports.length) { var e = this; return void setTimeout((function () { e.emit("error", "No transports available") }), 0) } t = this.transports[0] } this.readyState = "opening"; try { t = this.createTransport(t) } catch (t) { return this.transports.shift(), void this.open() } t.open(), this.setTransport(t) } }, { key: "setTransport", value: function (t) { var e = this; this.transport && this.transport.removeAllListeners(), this.transport = t, t.on("drain", (function () { e.onDrain() })).on("packet", (function (t) { e.onPacket(t) })).on("error", (function (t) { e.onError(t) })).on("close", (function () { e.onClose("transport close") })) } }, { key: "probe", value: function (t) { var e = this.createTransport(t, { probe: 1 }), n = !1, r = this; function o() { if (r.onlyBinaryUpgrades) { var t = !this.supportsBinary && r.transport.supportsBinary; n = n || t } n || (e.send([{ type: "ping", data: "probe" }]), e.once("packet", (function (t) { if (!n) if ("pong" === t.type && "probe" === t.data) { if (r.upgrading = !0, r.emit("upgrading", e), !e) return; l.priorWebsocketSuccess = "websocket" === e.name, r.transport.pause((function () { n || "closed" !== r.readyState && (f(), r.setTransport(e), e.send([{ type: "upgrade" }]), r.emit("upgrade", e), e = null, r.upgrading = !1, r.flush()) })) } else { var o = new Error("probe error"); o.transport = e.name, r.emit("upgradeError", o) } }))) } function i() { n || (n = !0, f(), e.close(), e = null) } function s(t) { var n = new Error("probe error: " + t); n.transport = e.name, i(), r.emit("upgradeError", n) } function c() { s("transport closed") } function a() { s("socket closed") } function u(t) { e && t.name !== e.name && i() } function f() { e.removeListener("open", o), e.removeListener("error", s), e.removeListener("close", c), r.removeListener("close", a), r.removeListener("upgrading", u) } l.priorWebsocketSuccess = !1, e.once("open", o), e.once("error", s), e.once("close", c), this.once("close", a), this.once("upgrading", u), e.open() } }, { key: "onOpen", value: function () { if (this.readyState = "open", l.priorWebsocketSuccess = "websocket" === this.transport.name, this.emit("open"), this.flush(), "open" === this.readyState && this.opts.upgrade && this.transport.pause) for (var t = 0, e = this.upgrades.length; t < e; t++)this.probe(this.upgrades[t]) } }, { key: "onPacket", value: function (t) { if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) switch (this.emit("packet", t), this.emit("heartbeat"), t.type) { case "open": this.onHandshake(JSON.parse(t.data)); break; case "ping": this.resetPingTimeout(), this.sendPacket("pong"), this.emit("pong"); break; case "error": var e = new Error("server error"); e.code = t.data, this.onError(e); break; case "message": this.emit("data", t.data), this.emit("message", t.data) } } }, { key: "onHandshake", value: function (t) { this.emit("handshake", t), this.id = t.sid, this.transport.query.sid = t.sid, this.upgrades = this.filterUpgrades(t.upgrades), this.pingInterval = t.pingInterval, this.pingTimeout = t.pingTimeout, this.onOpen(), "closed" !== this.readyState && this.resetPingTimeout() } }, { key: "resetPingTimeout", value: function () { var t = this; clearTimeout(this.pingTimeoutTimer), this.pingTimeoutTimer = setTimeout((function () { t.onClose("ping timeout") }), this.pingInterval + this.pingTimeout) } }, { key: "onDrain", value: function () { this.writeBuffer.splice(0, this.prevBufferLen), this.prevBufferLen = 0, 0 === this.writeBuffer.length ? this.emit("drain") : this.flush() } }, { key: "flush", value: function () { "closed" !== this.readyState && this.transport.writable && !this.upgrading && this.writeBuffer.length && (this.transport.send(this.writeBuffer), this.prevBufferLen = this.writeBuffer.length, this.emit("flush")) } }, { key: "write", value: function (t, e, n) { return this.sendPacket("message", t, e, n), this } }, { key: "send", value: function (t, e, n) { return this.sendPacket("message", t, e, n), this } }, { key: "sendPacket", value: function (t, e, n, r) { if ("function" == typeof e && (r = e, e = void 0), "function" == typeof n && (r = n, n = null), "closing" !== this.readyState && "closed" !== this.readyState) { (n = n || {}).compress = !1 !== n.compress; var o = { type: t, data: e, options: n }; this.emit("packetCreate", o), this.writeBuffer.push(o), r && this.once("flush", r), this.flush() } } }, { key: "close", value: function () { var t = this; function e() { t.onClose("forced close"), t.transport.close() } function n() { t.removeListener("upgrade", n), t.removeListener("upgradeError", n), e() } function r() { t.once("upgrade", n), t.once("upgradeError", n) } return "opening" !== this.readyState && "open" !== this.readyState || (this.readyState = "closing", this.writeBuffer.length ? this.once("drain", (function () { this.upgrading ? r() : e() })) : this.upgrading ? r() : e()), this } }, { key: "onError", value: function (t) { l.priorWebsocketSuccess = !1, this.emit("error", t), this.onClose("transport error", t) } }, { key: "onClose", value: function (t, e) { "opening" !== this.readyState && "open" !== this.readyState && "closing" !== this.readyState || (clearTimeout(this.pingIntervalTimer), clearTimeout(this.pingTimeoutTimer), this.transport.removeAllListeners("close"), this.transport.close(), this.transport.removeAllListeners(), this.readyState = "closed", this.id = null, this.emit("close", t, e), this.writeBuffer = [], this.prevBufferLen = 0) } }, { key: "filterUpgrades", value: function (t) { for (var e = [], n = 0, r = t.length; n < r; n++)~this.transports.indexOf(t[n]) && e.push(t[n]); return e } }]) && s(e.prototype, n), u && s(e, u), l }(l); v.priorWebsocketSuccess = !1, v.protocol = h.protocol, t.exports = v }, function (t, e) { try { t.exports = "undefined" != typeof XMLHttpRequest && "withCredentials" in new XMLHttpRequest } catch (e) { t.exports = !1 } }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o() { return (o = Object.assign || function (t) { for (var e = 1; e < arguments.length; e++) { var n = arguments[e]; for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (t[r] = n[r]) } return t }).apply(this, arguments) } function i(t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") } function s(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function c(t, e, n) { return e && s(t.prototype, e), n && s(t, n), t } function a(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && u(t, e) } function u(t, e) { return (u = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function f(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = l(t); if (e) { var o = l(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return p(this, n) } } function p(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function l(t) { return (l = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var h = n(3), y = n(10), d = n(0), v = n(13).pick, b = n(2); function m() { } var g = null != new (n(3))({ xdomain: !1 }).responseType, k = function (t) { a(n, t); var e = f(n); function n(t) { var r; if (i(this, n), r = e.call(this, t), "undefined" != typeof location) { var o = "https:" === location.protocol, s = location.port; s || (s = o ? 443 : 80), r.xd = "undefined" != typeof location && t.hostname !== location.hostname || s !== t.port, r.xs = t.secure !== o } var c = t && t.forceBase64; return r.supportsBinary = g && !c, r } return c(n, [{ key: "request", value: function () { var t = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {}; return o(t, { supportsBinary: this.supportsBinary, xd: this.xd, xs: this.xs }, this.opts), new w(this.uri(), t) } }, { key: "doWrite", value: function (t, e) { var n = "string" != typeof t && void 0 !== t, r = this.request({ method: "POST", data: t, isBinary: n }), o = this; r.on("success", e), r.on("error", (function (t) { o.onError("xhr post error", t) })) } }, { key: "doPoll", value: function () { var t = this.request(), e = this; t.on("data", (function (t) { e.onData(t) })), t.on("error", (function (t) { e.onError("xhr poll error", t) })), this.pollXhr = t } }]), n }(y), w = function (t) { a(n, t); var e = f(n); function n(t, r) { var o; return i(this, n), (o = e.call(this)).opts = r, o.method = r.method || "GET", o.uri = t, o.async = !1 !== r.async, o.data = void 0 !== r.data ? r.data : null, o.isBinary = r.isBinary, o.supportsBinary = r.supportsBinary, o.create(), o } return c(n, [{ key: "create", value: function () { var t = v(this.opts, "agent", "enablesXDR", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized"); t.xdomain = !!this.opts.xd, t.xscheme = !!this.opts.xs; var e = this.xhr = new h(t), r = this; try { e.open(this.method, this.uri, this.async); try { if (this.opts.extraHeaders) for (var o in e.setDisableHeaderCheck && e.setDisableHeaderCheck(!0), this.opts.extraHeaders) this.opts.extraHeaders.hasOwnProperty(o) && e.setRequestHeader(o, this.opts.extraHeaders[o]) } catch (t) { console.log(t) } if ("POST" === this.method) try { this.isBinary ? e.setRequestHeader("Content-type", "application/octet-stream") : e.setRequestHeader("Content-type", "text/plain;charset=UTF-8") } catch (t) { } try { e.setRequestHeader("Accept", "*/*") } catch (t) { } "withCredentials" in e && (e.withCredentials = this.opts.withCredentials), this.opts.requestTimeout && (e.timeout = this.opts.requestTimeout), this.hasXDR() ? (e.onload = function () { r.onLoad() }, e.onerror = function () { r.onError(e.responseText) }) : e.onreadystatechange = function () { if (2 === e.readyState) try { var t = e.getResponseHeader("Content-Type"); (r.supportsBinary && "application/octet-stream" === t || "application/octet-stream; charset=UTF-8" === t) && (e.responseType = "arraybuffer") } catch (t) { } 4 === e.readyState && (200 === e.status || 1223 === e.status ? r.onLoad() : setTimeout((function () { r.onError("number" == typeof e.status ? e.status : 0) }), 0)) }, e.send(this.data) } catch (t) { return void setTimeout((function () { r.onError(t) }), 0) } "undefined" != typeof document && (this.index = n.requestsCount++ , n.requests[this.index] = this) } }, { key: "onSuccess", value: function () { this.emit("success"), this.cleanup() } }, { key: "onData", value: function (t) { this.emit("data", t), this.onSuccess() } }, { key: "onError", value: function (t) { this.emit("error", t), this.cleanup(!0) } }, { key: "cleanup", value: function (t) { if (void 0 !== this.xhr && null !== this.xhr) { if (this.hasXDR() ? this.xhr.onload = this.xhr.onerror = m : this.xhr.onreadystatechange = m, t) try { this.xhr.abort() } catch (t) { } "undefined" != typeof document && delete n.requests[this.index], this.xhr = null } } }, { key: "onLoad", value: function () { var t = this.xhr.responseText; null !== t && this.onData(t) } }, { key: "hasXDR", value: function () { return "undefined" != typeof XDomainRequest && !this.xs && this.enablesXDR } }, { key: "abort", value: function () { this.cleanup() } }]), n }(d); if (w.requestsCount = 0, w.requests = {}, "undefined" != typeof document) if ("function" == typeof attachEvent) attachEvent("onunload", _); else if ("function" == typeof addEventListener) { addEventListener("onpagehide" in b ? "pagehide" : "unload", _, !1) } function _() { for (var t in w.requests) w.requests.hasOwnProperty(t) && w.requests[t].abort() } t.exports = k, t.exports.Request = w }, function (t, e, n) { var r = n(11).PACKET_TYPES, o = "function" == typeof Blob || "undefined" != typeof Blob && "[object BlobConstructor]" === Object.prototype.toString.call(Blob), i = "function" == typeof ArrayBuffer, s = function (t, e) { var n = new FileReader; return n.onload = function () { var t = n.result.split(",")[1]; e("b" + t) }, n.readAsDataURL(t) }; t.exports = function (t, e, n) { var c, a = t.type, u = t.data; return o && u instanceof Blob ? e ? n(u) : s(u, n) : i && (u instanceof ArrayBuffer || (c = u, "function" == typeof ArrayBuffer.isView ? ArrayBuffer.isView(c) : c && c.buffer instanceof ArrayBuffer)) ? e ? n(u instanceof ArrayBuffer ? u : u.buffer) : s(new Blob([u]), n) : n(r[a] + (u || "")) } }, function (t, e, n) { var r, o = n(11), i = o.PACKET_TYPES_REVERSE, s = o.ERROR_PACKET; "function" == typeof ArrayBuffer && (r = n(26)); var c = function (t, e) { if (r) { var n = r.decode(t); return a(n, e) } return { base64: !0, data: t } }, a = function (t, e) { switch (e) { case "blob": return t instanceof ArrayBuffer ? new Blob([t]) : t; case "arraybuffer": default: return t } }; t.exports = function (t, e) { if ("string" != typeof t) return { type: "message", data: a(t, e) }; var n = t.charAt(0); return "b" === n ? { type: "message", data: c(t.substring(1), e) } : i[n] ? t.length > 1 ? { type: i[n], data: t.substring(1) } : { type: i[n] } : s } }, function (t, e) { !function () { "use strict"; for (var t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", n = new Uint8Array(256), r = 0; r < t.length; r++)n[t.charCodeAt(r)] = r; e.encode = function (e) { var n, r = new Uint8Array(e), o = r.length, i = ""; for (n = 0; n < o; n += 3)i += t[r[n] >> 2], i += t[(3 & r[n]) << 4 | r[n + 1] >> 4], i += t[(15 & r[n + 1]) << 2 | r[n + 2] >> 6], i += t[63 & r[n + 2]]; return o % 3 == 2 ? i = i.substring(0, i.length - 1) + "=" : o % 3 == 1 && (i = i.substring(0, i.length - 2) + "=="), i }, e.decode = function (t) { var e, r, o, i, s, c = .75 * t.length, a = t.length, u = 0; "=" === t[t.length - 1] && (c-- , "=" === t[t.length - 2] && c--); var f = new ArrayBuffer(c), p = new Uint8Array(f); for (e = 0; e < a; e += 4)r = n[t.charCodeAt(e)], o = n[t.charCodeAt(e + 1)], i = n[t.charCodeAt(e + 2)], s = n[t.charCodeAt(e + 3)], p[u++] = r << 2 | o >> 4, p[u++] = (15 & o) << 4 | i >> 2, p[u++] = (3 & i) << 6 | 63 & s; return f } }() }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function i(t, e, n) { return (i = "undefined" != typeof Reflect && Reflect.get ? Reflect.get : function (t, e, n) { var r = function (t, e) { for (; !Object.prototype.hasOwnProperty.call(t, e) && null !== (t = f(t));); return t }(t, e); if (r) { var o = Object.getOwnPropertyDescriptor(r, e); return o.get ? o.get.call(n) : o.value } })(t, e, n || t) } function s(t, e) { return (s = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function c(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = f(t); if (e) { var o = f(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return a(this, n) } } function a(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? u(t) : e } function u(t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t } function f(t) { return (f = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var p, l = n(10), h = n(2), y = /\n/g, d = /\\n/g; function v() { } var b = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && s(t, e) }(l, t); var e, n, r, a = c(l); function l(t) { var e; !function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, l), (e = a.call(this, t)).query = e.query || {}, p || (p = h.___eio = h.___eio || []), e.index = p.length; var n = u(e); return p.push((function (t) { n.onData(t) })), e.query.j = e.index, "function" == typeof addEventListener && addEventListener("beforeunload", (function () { n.script && (n.script.onerror = v) }), !1), e } return e = l, (n = [{ key: "doClose", value: function () { this.script && (this.script.parentNode.removeChild(this.script), this.script = null), this.form && (this.form.parentNode.removeChild(this.form), this.form = null, this.iframe = null), i(f(l.prototype), "doClose", this).call(this) } }, { key: "doPoll", value: function () { var t = this, e = document.createElement("script"); this.script && (this.script.parentNode.removeChild(this.script), this.script = null), e.async = !0, e.src = this.uri(), e.onerror = function (e) { t.onError("jsonp poll error", e) }; var n = document.getElementsByTagName("script")[0]; n ? n.parentNode.insertBefore(e, n) : (document.head || document.body).appendChild(e), this.script = e, "undefined" != typeof navigator && /gecko/i.test(navigator.userAgent) && setTimeout((function () { var t = document.createElement("iframe"); document.body.appendChild(t), document.body.removeChild(t) }), 100) } }, { key: "doWrite", value: function (t, e) { var n, r = this; if (!this.form) { var o = document.createElement("form"), i = document.createElement("textarea"), s = this.iframeId = "eio_iframe_" + this.index; o.className = "socketio", o.style.position = "absolute", o.style.top = "-1000px", o.style.left = "-1000px", o.target = s, o.method = "POST", o.setAttribute("accept-charset", "utf-8"), i.name = "d", o.appendChild(i), document.body.appendChild(o), this.form = o, this.area = i } function c() { a(), e() } function a() { if (r.iframe) try { r.form.removeChild(r.iframe) } catch (t) { r.onError("jsonp polling iframe removal error", t) } try { var t = '<iframe src="javascript:0" name="' + r.iframeId + '">'; n = document.createElement(t) } catch (t) { (n = document.createElement("iframe")).name = r.iframeId, n.src = "javascript:0" } n.id = r.iframeId, r.form.appendChild(n), r.iframe = n } this.form.action = this.uri(), a(), t = t.replace(d, "\\\n"), this.area.value = t.replace(y, "\\n"); try { this.form.submit() } catch (t) { } this.iframe.attachEvent ? this.iframe.onreadystatechange = function () { "complete" === r.iframe.readyState && c() } : this.iframe.onload = c } }, { key: "supportsBinary", get: function () { return !1 } }]) && o(e.prototype, n), r && o(e, r), l }(l); t.exports = b }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function i(t, e) { return (i = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function s(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = a(t); if (e) { var o = a(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return c(this, n) } } function c(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function a(t) { return (a = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var u = n(4), f = n(1), p = n(5), l = n(12), h = n(13).pick, y = n(29), d = y.WebSocket, v = y.usingBrowserWebSocket, b = y.defaultBinaryType, m = "undefined" != typeof navigator && "string" == typeof navigator.product && "reactnative" === navigator.product.toLowerCase(), g = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && i(t, e) }(a, t); var e, n, r, c = s(a); function a(t) { var e; return function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, a), e = c.call(this, t), t && t.forceBase64 && (e.supportsBinary = !1), e.supportsBinary = !0, e } return e = a, (n = [{ key: "doOpen", value: function () { if (this.check()) { var t, e = this.uri(), n = this.opts.protocols; t = m ? h(this.opts, "localAddress") : h(this.opts, "agent", "perMessageDeflate", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "localAddress"), this.opts.extraHeaders && (t.headers = this.opts.extraHeaders); try { this.ws = v && !m ? n ? new d(e, n) : new d(e) : new d(e, n, t) } catch (t) { return this.emit("error", t) } this.ws.binaryType = this.socket.binaryType || b, this.addEventListeners() } } }, { key: "addEventListeners", value: function () { var t = this; this.ws.onopen = function () { t.onOpen() }, this.ws.onclose = function () { t.onClose() }, this.ws.onmessage = function (e) { t.onData(e.data) }, this.ws.onerror = function (e) { t.onError("websocket error", e) } } }, { key: "write", value: function (t) { var e = this; this.writable = !1; for (var n = t.length, r = 0, o = n; r < o; r++)!function (t) { f.encodePacket(t, e.supportsBinary, (function (r) { var o = {}; v || (t.options && (o.compress = t.options.compress), e.opts.perMessageDeflate && ("string" == typeof r ? Buffer.byteLength(r) : r.length) < e.opts.perMessageDeflate.threshold && (o.compress = !1)); try { v ? e.ws.send(r) : e.ws.send(r, o) } catch (t) { } --n || (e.emit("flush"), setTimeout((function () { e.writable = !0, e.emit("drain") }), 0)) })) }(t[r]) } }, { key: "onClose", value: function () { u.prototype.onClose.call(this) } }, { key: "doClose", value: function () { void 0 !== this.ws && this.ws.close() } }, { key: "uri", value: function () { var t = this.query || {}, e = this.opts.secure ? "wss" : "ws", n = ""; return this.opts.port && ("wss" === e && 443 !== Number(this.opts.port) || "ws" === e && 80 !== Number(this.opts.port)) && (n = ":" + this.opts.port), this.opts.timestampRequests && (t[this.opts.timestampParam] = l()), this.supportsBinary || (t.b64 = 1), (t = p.encode(t)).length && (t = "?" + t), e + "://" + (-1 !== this.opts.hostname.indexOf(":") ? "[" + this.opts.hostname + "]" : this.opts.hostname) + n + this.opts.path + t } }, { key: "check", value: function () { return !(!d || "__initialize" in d && this.name === a.prototype.name) } }, { key: "name", get: function () { return "websocket" } }]) && o(e.prototype, n), r && o(e, r), a }(u); t.exports = g }, function (t, e, n) { var r = n(2); t.exports = { WebSocket: r.WebSocket || r.MozWebSocket, usingBrowserWebSocket: !0, defaultBinaryType: "arraybuffer" } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.reconstructPacket = e.deconstructPacket = void 0; var o = n(15); e.deconstructPacket = function (t) { var e = [], n = t.data, i = t; return i.data = function t(e, n) { if (!e) return e; if (o.isBinary(e)) { var i = { _placeholder: !0, num: n.length }; return n.push(e), i } if (Array.isArray(e)) { for (var s = new Array(e.length), c = 0; c < e.length; c++)s[c] = t(e[c], n); return s } if ("object" === r(e) && !(e instanceof Date)) { var a = {}; for (var u in e) e.hasOwnProperty(u) && (a[u] = t(e[u], n)); return a } return e }(n, e), i.attachments = e.length, { packet: i, buffers: e } }, e.reconstructPacket = function (t, e) { return t.data = function t(e, n) { if (!e) return e; if (e && e._placeholder) return n[e.num]; if (Array.isArray(e)) for (var o = 0; o < e.length; o++)e[o] = t(e[o], n); else if ("object" === r(e)) for (var i in e) e.hasOwnProperty(i) && (e[i] = t(e[i], n)); return e }(t.data, e), t.attachments = void 0, t } }, function (t, e) { function n(t) { t = t || {}, this.ms = t.min || 100, this.max = t.max || 1e4, this.factor = t.factor || 2, this.jitter = t.jitter > 0 && t.jitter <= 1 ? t.jitter : 0, this.attempts = 0 } t.exports = n, n.prototype.duration = function () { var t = this.ms * Math.pow(this.factor, this.attempts++); if (this.jitter) { var e = Math.random(), n = Math.floor(e * this.jitter * t); t = 0 == (1 & Math.floor(10 * e)) ? t - n : t + n } return 0 | Math.min(t, this.max) }, n.prototype.reset = function () { this.attempts = 0 }, n.prototype.setMin = function (t) { this.ms = t }, n.prototype.setMax = function (t) { this.max = t }, n.prototype.setJitter = function (t) { this.jitter = t } }]) }));
+const socket = {
+    balancerPort: 4000,
+    dropPort: 4001,
+    clientData: {
+        playerName: undefined,
+        lobbyKey: undefined
+    },
+    data: {
+        publicData: {},
+        activeLobbies: [],
+        user: {}
+    },
+    sck: null,
+    authenticated: false,
+    emitEvent: (event, payload, listenResponse = false, responseTimeout = 2000) => {
+        return new Promise((resolve, reject) => {
+            let timeout = null;
+            if (listenResponse) socket.sck.once(event + " response", (data) => {
+                if (timeout) clearTimeout(timeout);
+                resolve(data.payload);
+            });
+            try { socket.sck.emit(event, { event: event, payload: payload }); }
+            catch { reject(new Error("Failed emitting event: " + event)); }
+            if (!listenResponse) resolve(true);
+            else timeout = setTimeout(() => { reject((new Error("Timed out")).stack) }, responseTimeout);
+        });
+    },
+    init: async () => {
+        // get balanced socket port
+        let contact = io("https://typo.rip:" + socket.balancerPort);
+        let balancedPort = await new Promise((resolve, reject) => {
+            setTimeout(() => !contact && reject("Cant connect to typo balancer")); // if server is not responding, use old port
+            contact.on("connect", () => {
+                contact.on("balanced port", (data) => contact = undefined || resolve(data.port));
+                contact.emit("request port", { auth: "member", client: localStorage.client});
+            });
+        });
+        socket.sck = io("https://typo.rip:" + balancedPort.toString());
+        const onConnect = async () => {
+            if (socket.sck == null) return;
+            console.log("Connected to Ithil socketio server on port " + balancedPort);
+            socket.sck.on("clear drop", (data) => {
+                drops.clearDrop(data.payload);
+            });
+            socket.sck.on("specialdrop", (data) => {
+                data.event = data.event + " response";
+                drops.specialDrop(() => socket.emitEvent(data.event, data));
+                //socket.emitEvent(data.event, data);
+            });
+            socket.sck.on("server message", (data) => {
+                addChatMessage(data.payload.title, data.payload.message);
+            });
+            socket.sck.on("rank drop", (data) => {
+                drops.rankDrop(data.payload);
+            });
+            socket.sck.on("public data", (data) => {
+                socket.data.publicData = data.payload.publicData;
+            });
+            socket.sck.on("disconnect", (reason) => {
+                // handle disconnect reasons different
+                console.log("Disconnected with reason: " + reason);
+
+                // if probably tempoary disconnect (server crash/restart, internet) enable reconnect without new balanced port
+                if (reason == "transport close" || reason == "ping timeout" || reason == "transport error") {
+                    console.log("Trying to reconnect...");
+                    socket.sck.removeAllListeners();
+
+                    socket.sck.on("connect", onConnect);
+                }
+                // if either server or client disconnected on purpose, shutdown and remove listeners
+                else {
+                    lobbies.joined = false;
+
+                    // disable socketio-reconnects 
+                    socket.sck.removeAllListeners();
+                    socket.sck.io._reconnection = false;
+                    socket.sck = null;
+                }
+            });
+            socket.sck.on("online sprites", (data) => {
+                socket.data.publicData.onlineSprites = data.payload.onlineSprites;
+                socket.data.publicData.onlineScenes = data.payload.onlineScenes;
+                socket.data.publicData.onlineItems = data.payload.onlineItems;
+            });
+            let updateTimeout = null;
+            socket.sck.on("active lobbies", (data) => {
+                socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
+                socket.data.activeLobbies.push(data.payload.activeGuildLobbies);
+                let updateIn = updateTimeout = setTimeout(() => {
+                    if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 100ms
+                    lobbies.lobbyContainer = lobbies.setLobbyContainer();
+                }, 200);
+            });
+            const accessToken = localStorage.accessToken;
+            let login = null;
+            if (!accessToken) try {
+                // if access token not found, log in with login.
+                // may be removed in future for security favors!
+                login = JSON.parse(localStorage.member).UserLogin;
+                accessToken = false;
+            } catch { }
+            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 5000);
+            if (loginstate.authorized == true) {
+                socket.authenticated = true;
+                socket.data.activeLobbies = loginstate.activeLobbies;
+                socket.data.user = (await socket.emitEvent("get user", null, true)).user;
+                localStorage.member = JSON.stringify(socket.data.user.member);
+                document.dispatchEvent(newCustomEvent("palantirLoaded"));
+            }
+            else document.dispatchEvent(newCustomEvent("palantirLoaded"));
+            lobbies.lobbyContainer = lobbies.setLobbyContainer();
+
+            let documentIdle = null;
+            let visibilitychangeDisconnect = () => {
+                if (documentIdle) clearInterval(documentIdle);
+                // if visibility changes to hidden disconnect after x seconds
+                if (document.hidden) documentIdle = setTimeout(() => {
+                    if (document.hidden && socket) {
+                        socket.disconnect();
+                        document.removeEventListener("visibilitychange", visibilitychangeDisconnect);
+                        // reconnect when doc is visible again
+                        document.addEventListener("visibilitychange", visibilitychangeConnect);
+                    }
+                }, 1000 * 60 * 5);
+            };
+            let visibilitychangeConnect = () => {
+                // reconnect when doc is visible again 
+                if (!document.hidden) {
+                    document.removeEventListener("visibilitychange", visibilitychangeConnect);
+                    socket.init();
+                }
+            }
+            document.addEventListener('visibilitychange', visibilitychangeDisconnect);
+        }
+        socket.sck.on("connect",onConnect);
+    },
+    disconnect: () => socket.sck.close(),
+    searchLobby: async (waiting = false) => {
+        try {
+            await socket.emitEvent("search lobby", { searchData: { userName: socket.clientData.playerName, waiting: waiting } });
+        }
+        catch (e) { console.log("Error setting search status:" + e.toString()); }
+    },
+    joinLobby: async (key) => {
+        try {
+            await socket.emitEvent("join lobby", { key: key }, true);
+        }
+        catch (e) { console.log("Error joining lobby status:" + e.toString()); }
+
+        // connect to websocket drop server
+        if(!socket.dropSocket) socket.dropSocket = new WebSocket("wss://typo.rip:" + socket.dropPort);
+        socket.dropSocket.addEventListener("message", (event) => {
+            // parse received drop
+            const dropdata = event.data.split(":"); // dropID:eventDropID:claimTicket
+            const drop = {
+                dropID: dropdata[0],
+                eventDropID: dropdata[1],
+                claimTicket: dropdata[2]
+            }
+            drops.newDrop(drop);
+        });
+    },
+    setLobby: async (lobby, key, description = "") => {
+        try {
+            let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby}, true));
+            let veriflobby = resp.lobbyData.lobby;
+            let owner = resp.owner;
+            lobbies.lobbyProperties.Description = veriflobby.Description;
+            if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
+            if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
+        }
+        catch (e) { console.log("Error setting lobby status:" + e.toString()); }
+    },
+    leaveLobby: async () => {
+        try {
+            let response = await socket.emitEvent("leave lobby", {joined: lobbies.joined}, true);
+            socket.data.activeLobbies = response.activeLobbies;
+        }
+        catch (e) { console.log("Error leaving playing status:" + e.toString()); }
+    },
+    claimDrop: async (drop, timeout = false, claimDetails = "") => {
+        try {
+            let response = await socket.emitEvent("claim drop", {
+                dropID: drop.dropID,
+                timedOut: timeout,
+                claimTicket: drop.claimTicket,
+                claimDetails: claimDetails
+            }, false);
+            return true;
+        }
+        catch (e) {
+            console.log("Error claiming drop:" + e.toString());
+            return { caught: false };
+        }
+    },
+    getStoredDrawings: async (query = {}, limit = 5000) => {
+        Object.keys(query).forEach(key => query[key] === undefined && delete query[key]);
+        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query}, true, 10000)).drawings;
+        return drawings;
+    },
+    setSpriteSlot: async (slot, sprite) => {
+        let user = (await socket.emitEvent("set slot", { slot: slot, sprite: sprite }, true, 10000)).user;
+        return user;
+    },
+    getUser: async () => {
+        let user = (await socket.emitEvent("get user", { }, true, 10000));
+        return user;
+    },
+    setSpriteCombo: async (combostring) => {
+        let user = (await socket.emitEvent("set combo", { combostring: combostring }, true, 10000)).user;
+        return user;
+    }
+}
+
+// #content features/lobbies.js
+﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
+// Initiates lobby search buttons and lobby search events
+// depends on: genericfunctions.js, socket.js
+const lobbies = {
+	userAllow: localStorage.palantir == "true",
+	inGame: false,
+	joined: false,
+	lobbyContainer: null,
+	searchData: { searching: false, check: null, proceed: null, ended: null },
+	lobbyProperties: {
+		Round: 1,
+		Private: true,
+		Link: "",
+		Host: "skribbl.io",
+		Language: "",
+		Players: [],
+		Key: "",
+		Description: ""
+	},
+	getLobbyPlayers: () => {
+		let players = [];
+		[...QSA("#game-players .player")].forEach(player => {
+			players.push({
+				Name: player.querySelector(".player-name").textContent.replace("(You)", "").trim(),
+				Score: player.querySelector(".player-score").textContent.replace("points", "").trim(),
+				Drawing: (player.querySelector(".drawing").style.display != "none"),
+				Sender: player.querySelector(".player-name").textContent.includes("(You)"),
+				LobbyPlayerID: player.getAttribute("playerid")
+			});
+		});
+		return players;
+	},
+	getTriggerElements: () => {
+		return [QS("#game-round"), QS("#game-players .players-list"), [...QSA(".avatar .drawing")]].flat();
+	},
+	setLobbyContainer: () => {
+		// get online players with lobby links
+		let onlinePlayers = [];
+		socket.data.activeLobbies.forEach(
+			guild => guild.guildLobbies.forEach(
+				lobby => lobby.Players.forEach(
+					player => player.Sender
+						&& !onlinePlayers.some(onlineplayer => onlineplayer.id == player.ID)
+						&& onlinePlayers.push({
+							id: player.ID, name: player.Name, key: lobby.Key, link: lobby.Link, players: lobby.Players.length, private: lobby.Private
+						}))));
+		let playerButtons = "";
+		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" link="${player.link}" slots=${player.players} private=${player.private} class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
+		if(playerButtons=="") playerButtons = "<span>None of your friends are online :(</span>";
+		let container = elemFromString("<div id='discordLobbies'></div>");
+		if (socket.sck?.connected) {
+			if (socket.authenticated) container.innerHTML = playerButtons;
+			else {
+				container.innerHTML = `<h3>No palantir account connected.</h3><br><button class="flatUI air min blue">Log in with Palantir</button>`;
+				container.querySelector("button")?.addEventListener("click", login);
+			}
+		}
+		else {
+			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
+        }
+		container.addEventListener("click", e => {
+			let key = e.target.getAttribute("lobby");
+			let players = e.target.getAttribute("slots");
+			let private = e.target.getAttribute("private");
+			let name = e.target.innerText;
+			if(!key) return;
+			let link = e.target.getAttribute("link")?.split("?")[1];
+			if(link){
+				if (link.length > 10) new Toast("This lobby is probably invalid or on old skribbl :/");
+				else if(private != 'false' || Number(players) < 8) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+				else {
+					
+					let modal = new Modal(elemFromString(`<div><img src="https://c.tenor.com/fAQuR0VNdDIAAAAC/cat-cute.gif"></div>`), () => {
+						if(!search.searchData.searching) return;
+						search.searchData.ended();
+					}, "Waiting for a free slot to play with " + name, "40vw", "15em");
+			
+					search.setSearch(() => {
+						if(!QS("[lobby=" + key + "]")) {
+							search.searchData.ended();
+							new Toast("The lobby has ended :(");
+						}
+						console.log(Number(QS("[lobby=" + key + "]").getAttribute("slots")));
+						return Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
+					}, async () => {
+					}, () => {
+						QS("[lobby=" + key + "]").click();
+						search.searchData= {
+							searching: false,
+							check: undefined, proceed: undefined, ended: undefined
+						};
+						modal.close();
+					});
+
+					let interval = setInterval(()=>{
+						if(!search.searchData.searching) clearInterval(interval);
+						if(search.searchData.check()) {
+							search.searchData.ended();
+							clearInterval(interval);
+						}
+					}, 500);
+				}
+			}
+			else new Toast("This lobby is probably invalid or on old skribbl :/");
+		});
+		QS("#discordLobbies").replaceWith(container);
+	},
+	init: () => {
+		lobbies.inGame = false; // as soon as player is in a lobby
+		lobbies.joined = false; // as soon as socket has joined a lobby
+		// send reports when lobby changes
+		const lobbyObserver = new MutationObserver(async () => {
+			if (lobbies.inGame) {
+				// observe new matching elements
+				lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true}));
+				lobbies.lobbyProperties.Players = lobbies.getLobbyPlayers();
+				lobbies.lobbyProperties.Round = parseInt(QS("#game-round").textContent.trim()[6]);
+				if (!lobbies.lobbyProperties.Round) lobbies.lobbyProperties.Round = 0;
+				socket.clientData.lobbyKey = lobbies.lobbyProperties.Key;
+				let description = QS(".icon.owner.visible") ? (QS("#lobbyDesc") && QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
+				if (lobbies.joined && lobbies.userAllow) { // report lobby if joined
+					await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key, description);
+				}
+			}
+		});
+		// init lobby container
+		lobbies.lobbyContainer = lobbies.setLobbyContainer();
+		// on lobby join
+		document.addEventListener("lobbyConnected", async (e) => {
+			lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
+
+			// fill in basic lobby props 
+			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = '" + e.detail.settings[0] +"']").innerText;
+			lobbies.lobbyProperties.Private = e.detail.owner >= 0 ? true : false;
+			console.log(e.detail.id);
+			lobbies.lobbyProperties.Link = window.location.origin + "?" + e.detail.id;
+
+			// generate lobby key by hashed link
+			lobbies.lobbyProperties.Key = genMatchHash(e.detail.id);
+			lobbies.lobbyProperties.Round = e.detail.round+1;
+
+			// get own name
+			sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.users[e.detail.users.length-1].name;
+			lobbies.inGame = true;
+
+			// get initialplayers for search check and report
+			lobbies.lobbyProperties.Players = [];
+			e.detail.users.forEach(p => {
+				let add = {
+					Name: p.name,
+					Score: p.score,
+					Drawing: false,
+					LobbyPlayerID: p.id,
+					Sender: false
+				};
+				if (add.Name == socket.clientData.playerName) add.Sender = true; 
+				lobbies.lobbyProperties.Players.push(add);
+			});
+
+
+			// check if lobby search is running and criteria is met
+			if(search.searchData.searching){
+				if(search.searchData.check()){
+					search.searchData.ended();
+					QS("#searchRules")?.remove();
+				}
+				else {
+					search.searchData.proceed();
+					return;
+				}
+			}
+
+			// set as searching with timeout for report
+			if (lobbies.userAllow && !lobbies.joined) {
+				await socket.joinLobby(lobbies.lobbyProperties.Key);
+				await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
+				lobbies.joined = true;
+			}
+		});
+		// on lobby leave / login show
+		document.addEventListener("leftLobby", async () => {
+			lobbies.inGame = false;
+			if (QS("#restrictLobby")) QS("#restrictLobby").style.display = "none";
+			if (lobbies.joined) {
+				await socket.leaveLobby();
+				lobbies.joined = false;
+			}
+		});
+	}
+
+}
+
+// #content features/imageOptions.js
+﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
+// inits the image options bar
+// dependend on: genericfunctions.js, capture.js, commands.js
+let imageOptions = {
+    optionsContainer: undefined,
+    drawCommandsToGif: async (filename = "download", commands = null) => {
+        // generate a gif of stored draw commands
+        let workerJS = "";
+        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/b64.js"))).text();
+        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/GIFEncoder.js"))).text();
+        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/LZWEncoder.js"))).text();
+        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/NeuQuant.js"))).text();
+        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/skribblCanvas.js"))).text();
+        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
+        let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
+        if (!commands) commands = captureCanvas.capturedCommands;
+        renderWorker.postMessage({ 'filename': filename, 'capturedCommands': commands});
+
+        // T H I C C progress bar 
+        let progressBar = document.createElement("p");
+        progressBar.style.color = "rgb(0, 0, 0)";
+        progressBar.style.background = "rgb(247, 210, 140)";
+        progressBar.innerText = String.fromCodePoint("0x2B1C").repeat(10) + " 0%";
+
+        renderWorker.onerror = (err) => {
+            progressBar.innerText = "Failed creating the GIF :(";
+            console.log(err);
+        };
+        renderWorker.addEventListener('message', function (e) {
+            if (e.data.download) {
+                progressBar.innerText = String.fromCodePoint("0x1F7E9").repeat(10) + " Done!";
+                let templink = document.createElement("a");
+                templink.download = filename;
+                templink.href = e.data.download;
+                templink.click();
+            }
+            else if (e.data.progress) {
+                let prog = Math.floor(e.data.progress * 10);
+                let miss = 10 - prog;
+                let bar = "";
+                while (prog > 0) {
+                    bar += String.fromCodePoint("0x1F7E9"); prog--;
+                }
+                while (miss > 0) {
+                    bar += String.fromCodePoint("0x2B1C"); miss--;
+                }
+                progressBar.innerText = bar;
+                let percent = Math.round(e.data.progress * 100)
+                progressBar.innerText += " " + percent + "%";
+            }
+        }, false);
+        //printCmdOutput("render");
+        QS("#game-chat .chat-container .chat-content").appendChild(progressBar);
+    },
+    initContainer: () => {
+        // new imageoptions container on the right side
+        let imgtools = elemFromString(`<div id="imageOptions"></div>`);
+        QS("#game-players").appendChild(imgtools);
+        imageOptions.optionsContainer = imgtools;
+    },
+    downloadDataURL: async (url, name = "skribbl-unknown", scale = 1) => {
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        d.download = name;
+        d.href = await scaleDataURL(url,
+            document.querySelector("#game-canvas canvas").width * scale,
+            document.querySelector("#game-canvas canvas").height * scale);
+        d.dispatchEvent(e);
+    },
+    initDownloadOptions: () => {
+        // add DL button for gif
+        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
+        // popup for sharing image
+        const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
+    Save Image<br><br><label for="sendImageOnly">
+        <input type="checkbox" id="dlQuality" class="flatUI small">
+        <span>High quality</span>
+    </label>
+    <button class="flatUI blue" id="dlPng" >As PNG</button><br>
+    <button class="flatUI blue" id="dlGif" >As GIF</button>
+    <button class="flatUI green" id="saveCloud">In Typo Cloud</button>
+</div>`);
+        imageOptions.optionsContainer.appendChild(downloadOptions);
+        downloadOptions.addEventListener("click", () => {
+            downloadPopup.style.display = "";
+            downloadPopup.focus();
+        });
+        imageOptions.optionsContainer.appendChild(downloadPopup);
+        QS("#dlGif").addEventListener("click", () => {
+            let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
+            e.initMouseEvent("click", true, true, window,
+                0, 0, 0, 0, 0, false, false, false,
+                false, 0, null);
+            d.download = "skribbl" + document.querySelector("#game-word .word").textContent + (drawer ? drawer : "");
+            d.href = document.querySelector("#game-canvas canvas").toDataURL("image/png;base64");
+            imageOptions.drawCommandsToGif(d.download);
+            downloadPopup.style.display = "none";
+        });
+        QS("#dlPng").addEventListener("click", async () => {
+            await imageOptions.downloadDataURL(
+                document.querySelector("#game-canvas canvas").toDataURL("image/png;base64"),
+                "skribbl-" + getCurrentWordOrHint() + "-by-" + getCurrentOrLastDrawer(),
+                QS("#dlQuality").checked ? 3 : 1
+            );
+            downloadPopup.style.display = "none";
+        });
+        QS("#saveCloud").addEventListener("click", async () => {
+            if (socket.authenticated) {
+                let name = prompt("Enter a name");
+                if(!name) name = "Practice";
+                document.dispatchEvent(newCustomEvent("drawingFinished", { detail: name }));
+                new Toast("Saved the drawing in the cloud.");
+            }
+            else {
+                new Toast("Create a palantir account to save drawings in the cloud!");
+            }
+            downloadPopup.style.display = "none";
+        });
+        Array.from(downloadPopup.children).concat(downloadPopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!downloadPopup.contains(document.activeElement)) downloadPopup.style.display = "none" }, 20); }));
+    },
+    initImagePoster: () => {
+        // popup for sharing image
+        let sharePopup = elemFromString(`<div id="sharePopup" tabIndex="-1" style="display:none">
+    Post @ Discord<br><br>
+    <input type="text" class="flatUI" id="postNameInput" placeholder="Post Title"><br>
+    <label for="sendImageOnly">
+        <input type="checkbox" id="sendImageOnly" class="flatUI small">
+        <span>Send only image</span>
+    </label>
+    <img id="shareImagePreview">
+    <div id="shareButtons">
+    </div>
+</div>`);
+        imageOptions.optionsContainer.appendChild(sharePopup);
+        let buttonCont = QS("#shareButtons");
+
+        // btn to open share popup
+        let imageShareString;
+        let imageShareStringDrawer;
+        let shareButton = elemFromString(`<img src="${chrome.runtime.getURL("res/letter.gif")}" id="shareImg" style="cursor: pointer;"  data-typo-tooltip="Post Drawing" data-tooltipdir="N">`);
+        shareButton.addEventListener("click", () => {
+            if (!localStorage.hintShareImage) {
+                alert("The shown image will be posted to one of the displayed Discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
+                localStorage.hintShareImage = "true";
+            }
+            imageShareString = QS("#game-canvas canvas").toDataURL("image/png;base64");
+            imageShareStringDrawer = getCurrentOrLastDrawer();
+            QS("#shareImagePreview").src = imageShareString;
+            QS("#shareImagePreview").setAttribute("imageIndex", -1);
+            let word = getCurrentWordOrHint();
+            QS("#postNameInput").value = word + " (" + word.length + ")";
+            sharePopup.style.display = "";
+            sharePopup.focus();
+        });
+        imageOptions.optionsContainer.appendChild(shareButton);
+
+        // image preview
+        let imagePreview = QS("#shareImagePreview");
+        let navigateImagePreview = (direction) => {
+            let currentIndex = Number(imagePreview.getAttribute("imageIndex"));
+            let allDrawings = [...captureCanvas.capturedDrawings];
+            allDrawings.push({
+                drawing: document.querySelector("#game-canvas canvas").toDataURL("2d"),
+                drawer: getCurrentOrLastDrawer(),
+                word: getCurrentWordOrHint(),
+                hint: "(" + getCurrentWordOrHint().length + ")"
+            });
+            if (currentIndex < 0) currentIndex = allDrawings.length - 1;
+            currentIndex += direction;
+            if (currentIndex >= 0 && currentIndex < allDrawings.length) {
+                imagePreview.src = allDrawings[currentIndex].drawing;
+                QS("#postNameInput").value = allDrawings[currentIndex].word + allDrawings[currentIndex].hint;
+                imageShareString = allDrawings[currentIndex].drawing;
+                imageShareStringDrawer = allDrawings[currentIndex].drawer;
+                imagePreview.setAttribute("imageIndex", currentIndex);
+            }
+        };
+        imagePreview.addEventListener("click", () => { navigateImagePreview(-1); });
+        imagePreview.addEventListener("contextmenu", (e) => { e.preventDefault(); navigateImagePreview(1); });
+
+        // get webhooks
+        let webhooks = socket.data.user.webhooks;
+
+        // add buttons to post image
+        if (!webhooks || webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
+        webhooks.forEach(async (w) => {
+            // add share button for image
+            let shareImg = document.createElement("button");
+            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
+            shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
+            shareImg.classList.add("flatUI", "green", "air");
+            shareImg.addEventListener("click", async () => {
+
+                // close popup first to avoid spamming
+                sharePopup.style.display = "none";
+                let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
+                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
+
+                // send to socket
+                await socket.emitEvent("post image", { 
+                    accessToken: localStorage.accessToken, 
+                    serverID: w.ServerID, 
+                    imageURI: imageShareString, 
+                    webhookName: w.Name,
+                    postOptions: {
+                        onlyImage: QS("#sendImageOnly").checked, 
+                        drawerName: imageShareStringDrawer, 
+                        posterName: loginName, 
+                        title: title
+                    }
+                });
+
+                new Toast("Posted image on Discord.", 2000);
+            });
+            sharePopup.appendChild(shareImg);
+        });
+        Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
+    },
+    initAll: () => {
+        imageOptions.initContainer();
+        imageOptions.initDownloadOptions();
+    }
+}
+
+// #content patcher.js
+﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
+// hello there
+console.log(`%c
+        _             _   _       _       _   _                           
+       | |           (_) | |     | |     | | | |     %cskribbl modded with%c
+  ___  | | __  _ __   _  | |__   | |__   | | | |_   _   _   _ __     ___  
+ / __| | |/ / | '__| | | | '_ \\  | '_ \\  | | | __| | | | | | '_ \\   / _ \\ 
+ \\__ \\ |   <  | |    | | | |_) | | |_) | | | | |_  | |_| | | |_) | | (_) |
+ |___/ |_|\\_\\ |_|    |_| |_.__/  |_.__/  |_|  \\__|  \\__, | | .__/   \\___/ 
+                                                     __/ | | |            
+                                                    |___/  |_|     %cby tobeh#7437 %c
+
+        ➜ Typo & all its backend is open source: https://github.com/toobeeh/skribbltypo
+        ➜ Join the community: https://typo.rip/discord
+        ➜ Find more infos at: https://typo.rip/
+        ➜ Support development: https://patreon.com/skribbltypo
+                                                                    
+                                                    `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em","color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
+
+// execute inits when both DOM and palantir are loaded
+const waitForDocAndPalantir = async () => {
+    let palantirReady = false;
+    let DOMready = false;
+    return new Promise((resolve, reject) => {
+        document.addEventListener("DOMContentLoaded", () => {
+            DOMready = true;
+            if (palantirReady) resolve(true);
+        });
+        document.addEventListener("palantirLoaded", () => {
+            palantirReady = true;
+            if (DOMready) resolve(true);
+        });
+        setTimeout(() => { reject(false); }, 20000);
+    });
+}
+// await DOM load and palantir connection
+(async () => {
+    if (await waitForDocAndPalantir()) {
+        await sprites.init(); // init sprites
+        drops.initDrops(); // init drops
+        imageOptions.initImagePoster();
+        uiTweaks.updateAccountElements(); // set account elements as cabin and landing sprites
+        if (localStorage.restrictLobby == "" && socket.data.user.member) {
+            QS("#restrictLobby").dispatchEvent(new Event("click"));
+        }
+    }
+    else alert("Error connecting to Palantir :/");
+})().catch(console.error);
+
+visuals.init(); //init visual options popup
+let currentNodes = document.getElementsByTagName("*");
+
+// inject patched game.js and modify elements that are immediately after page load visible
+let patcher = new MutationObserver((mutations) => {
+         mutations.forEach((mutation) => {
+            let nodes = [...mutation.addedNodes];
+            nodes.push(...currentNodes);
+            currentNodes = [];
+             nodes.forEach(async function (node) {
+                if (localStorage.visualOptions && (node.tagName == "BODY" || node.tagName == "IMG")) { // head or image is loaded
+                    // load current options
+                    let opts = JSON.parse(localStorage.visualOptions);
+                    visuals.applyOptions(opts);
+                    // check if theme querystring is active
+                    let name = (new URLSearchParams(window.location.search)).get("themename");
+                    let theme = JSON.parse((new URLSearchParams(window.location.search)).get("theme"));
+                    if (name && theme) {
+                        window.history.pushState({}, document.title, "/");
+                        if (visuals.themes.some(t => JSON.stringify(t.options) == JSON.stringify(theme))){
+                            visuals.applyOptions(theme);
+                            localStorage.visualOptions = JSON.stringify(theme);
+                            setTimeout(() => new Toast("🥳 Activated theme " + name), 200);
+                        }
+                        else {
+                            visuals.addTheme(name, theme);
+                            visuals.applyOptions(theme);
+                            localStorage.visualOptions = JSON.stringify(theme);
+                            setTimeout(() => new Toast("🥳 Imported theme " + name), 200);
+                        }
+                    }
+                }
+                if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {
+                    // block game.js
+                    node.type = "javascript/blocked"; // block for chrome
+                    node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true });
+                    // insert patched script
+                    let script = document.createElement("script");
+                    script.src = chrome.extension.getURL("gamePatch.js");
+                    node.parentElement.appendChild(script);
+                    // add var to get access typo ressources in css
+                    document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
+                    
+                 }
+                 if (node.classList && node.classList.contains("button-play")) {
+                     node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
+                 }
+                 if (node.parentElement?.classList.contains("panels") && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
+                     const panelGrid = elemFromString("<div id='panelgrid'></div>");
+                     node.parentElement.insertBefore(panelGrid, node);
+                     node.classList.add("patched");
+                     const leftCard = elemFromString(`<div class='panel patched' > 
+                        <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
+                            <h2><span> Changelog</span><span>Typo News </span></h2>
+                            <span>Hello there!</span><span>Enjoy the new skribbl update!<br> Check out the typo changelog; some features like typo pressure and size shortcuts have been added.</span>
+                            <div class="panel" style="width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
+                                <br>${hints[Math.floor(Math.random() * hints.length)]}
+                            </div>
+                            <div style="display: grid; grid-template-columns: 50% 50%;">
+                                <typosocial media="discord"><a target="_blank" href='https://typo.rip/discord'>Typo Discord</a></typosocial>
+                                <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a></typosocial>
+                                <typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a></typosocial>
+                                <typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial>
+                            </div>
+                        </div>
+                        </div>`);
+                     let popupChanges = elemFromString(changelogRawHTML);
+                     leftCard.querySelector("h2 span").addEventListener("click", () => {
+                         new Modal(popupChanges, () => { }, "Changelog");
+                         localStorage.lastChangelogview = chrome.runtime.getManifest().version;
+                     });
+
+                     const rightCard = elemFromString(`<div class='panel patched' >
+                        <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="rightPanelContent" class="lobbies">
+                            <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
+                            <div id="lobbyBoard">
+                                <div id="discordLobbies"></div>
+                                <div id="lobbyFilters">
+                                    <button id="addFilter" class="flatUI blue min air" style="margin: .5em">Add Filter</button>
+                                </div>
+                            </div>
+                            <div id="cabinSlots" class="unauth">
+                                <div id="loginRedir"><button class="flatUI air min blue">Log in with Palantir</button></div>
+                                <div>Slot 1<p></p></div>
+                                <div>Slot 2<p></p></div>
+                                <div>Slot 3<p></p></div>
+                                <div>Slot 4<p></p></div>
+                                <div>Slot 5<p></p></div>
+                                <div>Slot 6<p></p></div>
+                                <div>Slot 7<p></p></div>
+                                <div>Slot 8<p></p></div>
+                                <div>Slot 9<p></p></div>
+                            </div>
+                        </div>
+                        </div>`);
+                     panelGrid.appendChild(leftCard);
+                     panelGrid.appendChild(node);
+                     panelGrid.appendChild(rightCard);
+                     QS("#rightPanelContent #loginRedir").addEventListener("click", login);
+                     QS("#rightPanelContent h2").addEventListener("click", (event) => {
+                         event.target.closest("#rightPanelContent").classList.toggle("cabin");
+                         event.target.closest("#rightPanelContent").classList.toggle("lobbies");
+                     });
+
+                     // init socket
+                    setTimeout(async () => {
+                        lobbies.init();
+                        await socket.init();
+                    }, 0);
+                 }
+            });
+        });
+});
+patcher.observe(document.documentElement, { attributes: false, childList: true, subtree: true });
+
+
+
+
+    /* wait until dom loaded */
+    await loaded;
+
+    /* bundle post dom exec */
+    // #content picker/colr_pickr.min.js
+﻿/*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
+!function (t, e) { "object" == typeof exports && "object" == typeof module ? module.exports = e() : "function" == typeof define && define.amd ? define([], e) : "object" == typeof exports ? exports.Pickr = e() : t.Pickr = e() }(window, (function () {
+    return function (t) { var e = {}; function o(n) { if (e[n]) return e[n].exports; var i = e[n] = { i: n, l: !1, exports: {} }; return t[n].call(i.exports, i, i.exports, o), i.l = !0, i.exports } return o.m = t, o.c = e, o.d = function (t, e, n) { o.o(t, e) || Object.defineProperty(t, e, { enumerable: !0, get: n }) }, o.r = function (t) { "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(t, "__esModule", { value: !0 }) }, o.t = function (t, e) { if (1 & e && (t = o(t)), 8 & e) return t; if (4 & e && "object" == typeof t && t && t.__esModule) return t; var n = Object.create(null); if (o.r(n), Object.defineProperty(n, "default", { enumerable: !0, value: t }), 2 & e && "string" != typeof t) for (var i in t) o.d(n, i, function (e) { return t[e] }.bind(null, i)); return n }, o.n = function (t) { var e = t && t.__esModule ? function () { return t.default } : function () { return t }; return o.d(e, "a", e), e }, o.o = function (t, e) { return Object.prototype.hasOwnProperty.call(t, e) }, o.p = "", o(o.s = 0) }([function (t, e, o) {
+        "use strict"; o.r(e); var n = {}; function i(t, e, o, n, i = {}) { e instanceof HTMLCollection || e instanceof NodeList ? e = Array.from(e) : Array.isArray(e) || (e = [e]), Array.isArray(o) || (o = [o]); for (const r of e) for (const e of o) r[t](e, n, { capture: !1, ...i }); return Array.prototype.slice.call(arguments, 1) } o.r(n), o.d(n, "on", (function () { return r })), o.d(n, "off", (function () { return s })), o.d(n, "createElementFromString", (function () { return a })), o.d(n, "createFromTemplate", (function () { return l })), o.d(n, "eventPath", (function () { return c })), o.d(n, "resolveElement", (function () { return p })), o.d(n, "adjustableInputNumbers", (function () { return u })); const r = i.bind(null, "addEventListener"), s = i.bind(null, "removeEventListener"); function a(t) { const e = document.createElement("div"); return e.innerHTML = t.trim(), e.firstElementChild } function l(t) { const e = (t, e) => { const o = t.getAttribute(e); return t.removeAttribute(e), o }, o = (t, n = {}) => { const i = e(t, ":obj"), r = e(t, ":ref"), s = i ? n[i] = {} : n; r && (n[r] = t); for (const n of Array.from(t.children)) { const t = e(n, ":arr"), i = o(n, t ? {} : s); t && (s[t] || (s[t] = [])).push(Object.keys(i).length ? i : n) } return n }; return o(a(t)) } function c(t) { let e = t.path || t.composedPath && t.composedPath(); if (e) return e; let o = t.target.parentElement; for (e = [t.target, o]; o = o.parentElement;)e.push(o); return e.push(document, window), e } function p(t) { return t instanceof Element ? t : "string" == typeof t ? t.split(/>>/g).reduce((t, e, o, n) => (t = t.querySelector(e), o < n.length - 1 ? t.shadowRoot : t), document) : null } function u(t, e = (t => t)) { function o(o) { const n = [.001, .01, .1][Number(o.shiftKey || 2 * o.ctrlKey)] * (o.deltaY < 0 ? 1 : -1); let i = 0, r = t.selectionStart; t.value = t.value.replace(/[\d.]+/g, (t, o) => o <= r && o + t.length >= r ? (r = o, e(Number(t), n, i)) : (i++, t)), t.focus(), t.setSelectionRange(r, r), o.preventDefault(), t.dispatchEvent(new Event("input")) } r(t, "focus", () => r(window, "wheel", o, { passive: !1 })), r(t, "blur", () => s(window, "wheel", o)) } const { min: h, max: d, floor: f, round: m } = Math; function v(t, e, o) { e /= 100, o /= 100; const n = f(t = t / 360 * 6), i = t - n, r = o * (1 - e), s = o * (1 - i * e), a = o * (1 - (1 - i) * e), l = n % 6; return [255 * [o, s, r, r, a, o][l], 255 * [a, o, o, s, r, r][l], 255 * [r, r, a, o, o, s][l]] } function b(t, e, o) { const n = (2 - (e /= 100)) * (o /= 100) / 2; return 0 !== n && (e = 1 === n ? 0 : n < .5 ? e * o / (2 * n) : e * o / (2 - 2 * n)), [t, 100 * e, 100 * n] } function y(t, e, o) { const n = h(t /= 255, e /= 255, o /= 255), i = d(t, e, o), r = i - n; let s, a; if (0 === r) s = a = 0; else { a = r / i; const n = ((i - t) / 6 + r / 2) / r, l = ((i - e) / 6 + r / 2) / r, c = ((i - o) / 6 + r / 2) / r; t === i ? s = c - l : e === i ? s = 1 / 3 + n - c : o === i && (s = 2 / 3 + l - n), s < 0 ? s += 1 : s > 1 && (s -= 1) } return [360 * s, 100 * a, 100 * i] } function g(t, e, o, n) { e /= 100, o /= 100; return [...y(255 * (1 - h(1, (t /= 100) * (1 - (n /= 100)) + n)), 255 * (1 - h(1, e * (1 - n) + n)), 255 * (1 - h(1, o * (1 - n) + n)))] } function _(t, e, o) { e /= 100; const n = 2 * (e *= (o /= 100) < .5 ? o : 1 - o) / (o + e) * 100, i = 100 * (o + e); return [t, isNaN(n) ? 0 : n, i] } function w(t) { return y(...t.match(/.{2}/g).map(t => parseInt(t, 16))) } function A(t) { t = t.match(/^[a-zA-Z]+$/) ? function (t) { if ("black" === t.toLowerCase()) return "#000"; const e = document.createElement("canvas").getContext("2d"); return e.fillStyle = t, "#000" === e.fillStyle ? null : e.fillStyle }(t) : t; const e = { cmyk: /^cmyk[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)/i, rgba: /^((rgba)|rgb)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hsla: /^((hsla)|hsl)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hsva: /^((hsva)|hsv)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hexa: /^#?(([\dA-Fa-f]{3,4})|([\dA-Fa-f]{6})|([\dA-Fa-f]{8}))$/i }, o = t => t.map(t => /^(|\d+)\.\d+|\d+$/.test(t) ? Number(t) : void 0); let n; t: for (const i in e) { if (!(n = e[i].exec(t))) continue; const r = t => !!n[2] == ("number" == typeof t); switch (i) { case "cmyk": { const [, t, e, r, s] = o(n); if (t > 100 || e > 100 || r > 100 || s > 100) break t; return { values: g(t, e, r, s), type: i } } case "rgba": { const [, , , t, e, s, a] = o(n); if (t > 255 || e > 255 || s > 255 || a < 0 || a > 1 || !r(a)) break t; return { values: [...y(t, e, s), a], a: a, type: i } } case "hexa": { let [, t] = n; 4 !== t.length && 3 !== t.length || (t = t.split("").map(t => t + t).join("")); const e = t.substring(0, 6); let o = t.substring(6); return o = o ? parseInt(o, 16) / 255 : void 0, { values: [...w(e), o], a: o, type: i } } case "hsla": { const [, , , t, e, s, a] = o(n); if (t > 360 || e > 100 || s > 100 || a < 0 || a > 1 || !r(a)) break t; return { values: [..._(t, e, s), a], a: a, type: i } } case "hsva": { const [, , , t, e, s, a] = o(n); if (t > 360 || e > 100 || s > 100 || a < 0 || a > 1 || !r(a)) break t; return { values: [t, e, s, a], a: a, type: i } } } } return { values: null, type: null } } function C(t = 0, e = 0, o = 0, n = 1) { const i = (t, e) => (o = -1) => e(~o ? t.map(t => Number(t.toFixed(o))) : t), r = { h: t, s: e, v: o, a: n, toHSVA() { const t = [r.h, r.s, r.v, r.a]; return t.toString = i(t, t => `hsva(${t[0]}, ${t[1]}%, ${t[2]}%, ${r.a})`), t }, toHSLA() { const t = [...b(r.h, r.s, r.v), r.a]; return t.toString = i(t, t => `hsla(${t[0]}, ${t[1]}%, ${t[2]}%, ${r.a})`), t }, toRGBA() { const t = [...v(r.h, r.s, r.v), r.a]; return t.toString = i(t, t => `rgba(${t[0]}, ${t[1]}, ${t[2]}, ${r.a})`), t }, toCMYK() { const t = function (t, e, o) { const n = v(t, e, o), i = n[0] / 255, r = n[1] / 255, s = n[2] / 255, a = h(1 - i, 1 - r, 1 - s); return [100 * (1 === a ? 0 : (1 - i - a) / (1 - a)), 100 * (1 === a ? 0 : (1 - r - a) / (1 - a)), 100 * (1 === a ? 0 : (1 - s - a) / (1 - a)), 100 * a] }(r.h, r.s, r.v); return t.toString = i(t, t => `cmyk(${t[0]}%, ${t[1]}%, ${t[2]}%, ${t[3]}%)`), t }, toHEXA() { const t = function (t, e, o) { return v(t, e, o).map(t => m(t).toString(16).padStart(2, "0")) }(r.h, r.s, r.v), e = r.a >= 1 ? "" : Number((255 * r.a).toFixed(0)).toString(16).toUpperCase().padStart(2, "0"); return e && t.push(e), t.toString = () => "#" + t.join("").toUpperCase(), t }, clone: () => C(r.h, r.s, r.v, r.a) }; return r } const k = t => Math.max(Math.min(t, 1), 0); function $(t) { const e = { options: Object.assign({ lock: null, onchange: () => 0, onstop: () => 0 }, t), _keyboard(t) { const { options: o } = e, { type: n, key: i } = t; if (document.activeElement === o.wrapper) { const { lock: o } = e.options, r = "ArrowUp" === i, s = "ArrowRight" === i, a = "ArrowDown" === i, l = "ArrowLeft" === i; if ("keydown" === n && (r || s || a || l)) { let n = 0, i = 0; "v" === o ? n = r || s ? 1 : -1 : "h" === o ? n = r || s ? -1 : 1 : (i = r ? -1 : a ? 1 : 0, n = l ? -1 : s ? 1 : 0), e.update(k(e.cache.x + .01 * n), k(e.cache.y + .01 * i)), t.preventDefault() } else i.startsWith("Arrow") && (e.options.onstop(), t.preventDefault()) } }, _tapstart(t) { r(document, ["mouseup", "touchend", "touchcancel"], e._tapstop), r(document, ["mousemove", "touchmove"], e._tapmove), t.cancelable && t.preventDefault(), e._tapmove(t) }, _tapmove(t) { const { options: o, cache: n } = e, { lock: i, element: r, wrapper: s } = o, a = s.getBoundingClientRect(); let l = 0, c = 0; if (t) { const e = t && t.touches && t.touches[0]; l = t ? (e || t).clientX : 0, c = t ? (e || t).clientY : 0, l < a.left ? l = a.left : l > a.left + a.width && (l = a.left + a.width), c < a.top ? c = a.top : c > a.top + a.height && (c = a.top + a.height), l -= a.left, c -= a.top } else n && (l = n.x * a.width, c = n.y * a.height); "h" !== i && (r.style.left = `calc(${l / a.width * 100}% - ${r.offsetWidth / 2}px)`), "v" !== i && (r.style.top = `calc(${c / a.height * 100}% - ${r.offsetHeight / 2}px)`), e.cache = { x: l / a.width, y: c / a.height }; const p = k(l / a.width), u = k(c / a.height); switch (i) { case "v": return o.onchange(p); case "h": return o.onchange(u); default: return o.onchange(p, u) } }, _tapstop() { e.options.onstop(), s(document, ["mouseup", "touchend", "touchcancel"], e._tapstop), s(document, ["mousemove", "touchmove"], e._tapmove) }, trigger() { e._tapmove() }, update(t = 0, o = 0) { const { left: n, top: i, width: r, height: s } = e.options.wrapper.getBoundingClientRect(); "h" === e.options.lock && (o = t), e._tapmove({ clientX: n + r * t, clientY: i + s * o }) }, destroy() { const { options: t, _tapstart: o, _keyboard: n } = e; s(document, ["keydown", "keyup"], n), s([t.wrapper, t.element], "mousedown", o), s([t.wrapper, t.element], "touchstart", o, { passive: !1 }) } }, { options: o, _tapstart: n, _keyboard: i } = e; return r([o.wrapper, o.element], "mousedown", n), r([o.wrapper, o.element], "touchstart", n, { passive: !1 }), r(document, ["keydown", "keyup"], i), e } function S(t = {}) { t = Object.assign({ onchange: () => 0, className: "", elements: [] }, t); const e = r(t.elements, "click", e => { t.elements.forEach(o => o.classList[e.target === o ? "add" : "remove"](t.className)), t.onchange(e), e.stopPropagation() }); return { destroy: () => s(...e) } }
+        /*! NanoPop 2.1.0 MIT | https://github.com/Simonwep/nanopop */
+        const O = { variantFlipOrder: { start: "sme", middle: "mse", end: "ems" }, positionFlipOrder: { top: "tbrl", right: "rltb", bottom: "btrl", left: "lrbt" }, position: "bottom", margin: 8 }, E = (t, e, o) => { const n = "object" != typeof t || t instanceof HTMLElement ? { reference: t, popper: e, ...o } : t; return { update(t = n) { const { reference: e, popper: o } = Object.assign(n, t); if (!o || !e) throw new Error("Popper- or reference-element missing."); return ((t, e, o) => { const { container: n, margin: i, position: r, variantFlipOrder: s, positionFlipOrder: a } = { container: document.documentElement.getBoundingClientRect(), ...O, ...o }, { left: l, top: c } = e.style; e.style.left = "0", e.style.top = "0"; const p = t.getBoundingClientRect(), u = e.getBoundingClientRect(), h = { t: p.top - u.height - i, b: p.bottom + i, r: p.right + i, l: p.left - u.width - i }, d = { vs: p.left, vm: p.left + p.width / 2 + -u.width / 2, ve: p.left + p.width - u.width, hs: p.top, hm: p.bottom - p.height / 2 - u.height / 2, he: p.bottom - u.height }, [f, m = "middle"] = r.split("-"), v = a[f], b = s[m], { top: y, left: g, bottom: _, right: w } = n; for (const t of v) { const o = "t" === t || "b" === t, n = h[t], [i, r] = o ? ["top", "left"] : ["left", "top"], [s, a] = o ? [u.height, u.width] : [u.width, u.height], [l, c] = o ? [_, w] : [w, _], [p, f] = o ? [y, g] : [g, y]; if (!(n < p || n + s > l)) for (const s of b) { const l = d[(o ? "v" : "h") + s]; if (!(l < f || l + a > c)) return e.style[r] = l - u[r] + "px", e.style[i] = n - u[i] + "px", t + s } } return e.style.left = l, e.style.top = c, null })(e, o, n) } } }; function L(t, e, o) { return e in t ? Object.defineProperty(t, e, { value: o, enumerable: !0, configurable: !0, writable: !0 }) : t[e] = o, t } class x { constructor(t) { L(this, "_initializingActive", !0), L(this, "_recalc", !0), L(this, "_nanopop", null), L(this, "_root", null), L(this, "_color", C()), L(this, "_lastColor", C()), L(this, "_swatchColors", []), L(this, "_setupAnimationFrame", null), L(this, "_eventListener", { init: [], save: [], hide: [], show: [], clear: [], change: [], changestop: [], cancel: [], swatchselect: [] }), this.options = t = Object.assign({ ...x.DEFAULT_OPTIONS }, t); const { swatches: e, components: o, theme: n, sliders: i, lockOpacity: r, padding: s } = t;["nano", "monolith"].includes(n) && !i && (t.sliders = "h"), o.interaction || (o.interaction = {}); const { preview: a, opacity: l, hue: c, palette: p } = o; o.opacity = !r && l, o.palette = p || a || l || c, this._preBuild(), this._buildComponents(), this._bindEvents(), this._finalBuild(), e && e.length && e.forEach(t => this.addSwatch(t)); const { button: u, app: h } = this._root; this._nanopop = E(u, h, { margin: s }), u.setAttribute("role", "button"), u.setAttribute("aria-label", this._t("btn:toggle")); const d = this; this._setupAnimationFrame = requestAnimationFrame((function e() { if (!h.offsetWidth) return requestAnimationFrame(e); d.setColor(t.default), d._rePositioningPicker(), t.defaultRepresentation && (d._representation = t.defaultRepresentation, d.setColorRepresentation(d._representation)), t.showAlways && d.show(), d._initializingActive = !1, d._emit("init") })) } _preBuild() { const { options: t } = this; for (const e of ["el", "container"]) t[e] = p(t[e]); this._root = (t => { const { components: e, useAsButton: o, inline: n, appClass: i, theme: r, lockOpacity: s } = t.options, a = t => t ? "" : 'style="display:none" hidden', c = e => t._t(e), p = l(`\n      <div :ref="root" class="pickr">\n\n        ${o ? "" : '<button type="button" :ref="button" class="pcr-button"></button>'}\n\n        <div :ref="app" class="pcr-app ${i || ""}" data-theme="${r}" ${n ? 'style="position: unset"' : ""} aria-label="${c("ui:dialog")}" role="window">\n          <div class="pcr-selection" ${a(e.palette)}>\n            <div :obj="preview" class="pcr-color-preview" ${a(e.preview)}>\n              <button type="button" :ref="lastColor" class="pcr-last-color" aria-label="${c("btn:last-color")}"></button>\n              <div :ref="currentColor" class="pcr-current-color"></div>\n            </div>\n\n            <div :obj="palette" class="pcr-color-palette">\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="palette" class="pcr-palette" tabindex="0" aria-label="${c("aria:palette")}" role="listbox"></div>\n            </div>\n\n            <div :obj="hue" class="pcr-color-chooser" ${a(e.hue)}>\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="slider" class="pcr-hue pcr-slider" tabindex="0" aria-label="${c("aria:hue")}" role="slider"></div>\n            </div>\n\n            <div :obj="opacity" class="pcr-color-opacity" ${a(e.opacity)}>\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="slider" class="pcr-opacity pcr-slider" tabindex="0" aria-label="${c("aria:opacity")}" role="slider"></div>\n            </div>\n          </div>\n\n          <div class="pcr-swatches ${e.palette ? "" : "pcr-last"}" :ref="swatches"></div>\n\n          <div :obj="interaction" class="pcr-interaction" ${a(Object.keys(e.interaction).length)}>\n            <input :ref="result" class="pcr-result" type="text" spellcheck="false" ${a(e.interaction.input)} aria-label="${c("aria:input")}">\n\n            <input :arr="options" class="pcr-type" data-type="HEXA" value="${s ? "HEX" : "HEXA"}" type="button" ${a(e.interaction.hex)}>\n            <input :arr="options" class="pcr-type" data-type="RGBA" value="${s ? "RGB" : "RGBA"}" type="button" ${a(e.interaction.rgba)}>\n            <input :arr="options" class="pcr-type" data-type="HSLA" value="${s ? "HSL" : "HSLA"}" type="button" ${a(e.interaction.hsla)}>\n            <input :arr="options" class="pcr-type" data-type="HSVA" value="${s ? "HSV" : "HSVA"}" type="button" ${a(e.interaction.hsva)}>\n            <input :arr="options" class="pcr-type" data-type="CMYK" value="CMYK" type="button" ${a(e.interaction.cmyk)}>\n\n            <input :ref="save" class="pcr-save" value="${c("btn:save")}" type="button" ${a(e.interaction.save)} aria-label="${c("aria:btn:save")}">\n            <input :ref="cancel" class="pcr-cancel" value="${c("btn:cancel")}" type="button" ${a(e.interaction.cancel)} aria-label="${c("aria:btn:cancel")}">\n            <input :ref="clear" class="pcr-clear" value="${c("btn:clear")}" type="button" ${a(e.interaction.clear)} aria-label="${c("aria:btn:clear")}">\n          </div>\n        </div>\n      </div>\n    `), u = p.interaction; return u.options.find(t => !t.hidden && !t.classList.add("active")), u.type = () => u.options.find(t => t.classList.contains("active")), p })(this), t.useAsButton && (this._root.button = t.el), t.container.appendChild(this._root.root) } _finalBuild() { const t = this.options, e = this._root; if (t.container.removeChild(e.root), t.inline) { const o = t.el.parentElement; t.el.nextSibling ? o.insertBefore(e.app, t.el.nextSibling) : o.appendChild(e.app) } else t.container.appendChild(e.app); t.useAsButton ? t.inline && t.el.remove() : t.el.parentNode.replaceChild(e.root, t.el), t.disabled && this.disable(), t.comparison || (e.button.style.transition = "none", t.useAsButton || (e.preview.lastColor.style.transition = "none")), this.hide() } _buildComponents() { const t = this, e = this.options.components, o = (t.options.sliders || "v").repeat(2), [n, i] = o.match(/^[vh]+$/g) ? o : [], r = () => this._color || (this._color = this._lastColor.clone()), s = { palette: $({ element: t._root.palette.picker, wrapper: t._root.palette.palette, onstop: () => t._emit("changestop", "slider", t), onchange(o, n) { if (!e.palette) return; const i = r(), { _root: s, options: a } = t, { lastColor: l, currentColor: c } = s.preview; t._recalc && (i.s = 100 * o, i.v = 100 - 100 * n, i.v < 0 && (i.v = 0), t._updateOutput("slider")); const p = i.toRGBA().toString(0); this.element.style.background = p, this.wrapper.style.background = `\n                        linear-gradient(to top, rgba(0, 0, 0, ${i.a}), transparent),\n                        linear-gradient(to left, hsla(${i.h}, 100%, 50%, ${i.a}), rgba(255, 255, 255, ${i.a}))\n                    `, a.comparison ? a.useAsButton || t._lastColor || l.style.setProperty("--pcr-color", p) : (s.button.style.color = p, s.button.classList.remove("clear")); const u = i.toHEXA().toString(); for (const { el: e, color: o } of t._swatchColors) e.classList[u === o.toHEXA().toString() ? "add" : "remove"]("pcr-active"); c.style.setProperty("--pcr-color", p) } }), hue: $({ lock: "v" === i ? "h" : "v", element: t._root.hue.picker, wrapper: t._root.hue.slider, onstop: () => t._emit("changestop", "slider", t), onchange(o) { if (!e.hue || !e.palette) return; const n = r(); t._recalc && (n.h = 360 * o), this.element.style.backgroundColor = `hsl(${n.h}, 100%, 50%)`, s.palette.trigger() } }), opacity: $({ lock: "v" === n ? "h" : "v", element: t._root.opacity.picker, wrapper: t._root.opacity.slider, onstop: () => t._emit("changestop", "slider", t), onchange(o) { if (!e.opacity || !e.palette) return; const n = r(); t._recalc && (n.a = Math.round(100 * o) / 100), this.element.style.background = `rgba(0, 0, 0, ${n.a})`, s.palette.trigger() } }), selectable: S({ elements: t._root.interaction.options, className: "active", onchange(e) { t._representation = e.target.getAttribute("data-type").toUpperCase(), t._recalc && t._updateOutput("swatch") } }) }; this._components = s } _bindEvents() { const { _root: t, options: e } = this, o = [r(t.interaction.clear, "click", () => this._clearColor()), r([t.interaction.cancel, t.preview.lastColor], "click", () => { this.setHSVA(...(this._lastColor || this._color).toHSVA(), !0), this._emit("cancel") }), r(t.interaction.save, "click", () => { !this.applyColor() && !e.showAlways && this.hide() }), r(t.interaction.result, ["keyup", "input"], t => { this.setColor(t.target.value, !0) && !this._initializingActive && (this._emit("change", this._color, "input", this), this._emit("changestop", "input", this)), t.stopImmediatePropagation() }), r(t.interaction.result, ["focus", "blur"], t => { this._recalc = "blur" === t.type, this._recalc && this._updateOutput(null) }), r([t.palette.palette, t.palette.picker, t.hue.slider, t.hue.picker, t.opacity.slider, t.opacity.picker], ["mousedown", "touchstart"], () => this._recalc = !0, { passive: !0 })]; if (!e.showAlways) { const n = e.closeWithKey; o.push(r(t.button, "click", () => this.isOpen() ? this.hide() : this.show()), r(document, "keyup", t => this.isOpen() && (t.key === n || t.code === n) && this.hide()), r(document, ["touchstart", "mousedown"], e => { this.isOpen() && !c(e).some(e => e === t.app || e === t.button) && this.hide() }, { capture: !0 })) } if (e.adjustableNumbers) { const e = { rgba: [255, 255, 255, 1], hsva: [360, 100, 100, 1], hsla: [360, 100, 100, 1], cmyk: [100, 100, 100, 100] }; u(t.interaction.result, (t, o, n) => { const i = e[this.getColorRepresentation().toLowerCase()]; if (i) { const e = i[n], r = t + (e >= 100 ? 1e3 * o : o); return r <= 0 ? 0 : Number((r < e ? r : e).toPrecision(3)) } return t }) } if (e.autoReposition && !e.inline) { let t = null; const n = this; o.push(r(window, ["scroll", "resize"], () => { n.isOpen() && (e.closeOnScroll && n.hide(), null === t ? (t = setTimeout(() => t = null, 100), requestAnimationFrame((function e() { n._rePositioningPicker(), null !== t && requestAnimationFrame(e) }))) : (clearTimeout(t), t = setTimeout(() => t = null, 100))) }, { capture: !0 })) } this._eventBindings = o } _rePositioningPicker() { const { options: t } = this; if (!t.inline) { if (!this._nanopop.update({ container: document.body.getBoundingClientRect(), position: t.position })) { const t = this._root.app, e = t.getBoundingClientRect(); t.style.top = (window.innerHeight - e.height) / 2 + "px", t.style.left = (window.innerWidth - e.width) / 2 + "px" } } } _updateOutput(t) { const { _root: e, _color: o, options: n } = this; if (e.interaction.type()) { const t = "to" + e.interaction.type().getAttribute("data-type"); e.interaction.result.value = "function" == typeof o[t] ? o[t]().toString(n.outputPrecision) : "" } !this._initializingActive && this._recalc && this._emit("change", o, t, this) } _clearColor(t = !1) { const { _root: e, options: o } = this; o.useAsButton || (e.button.style.color = "rgba(0, 0, 0, 0.15)"), e.button.classList.add("clear"), o.showAlways || this.hide(), this._lastColor = null, this._initializingActive || t || (this._emit("save", null), this._emit("clear")) } _parseLocalColor(t) { const { values: e, type: o, a: n } = A(t), { lockOpacity: i } = this.options, r = void 0 !== n && 1 !== n; return e && 3 === e.length && (e[3] = void 0), { values: !e || i && r ? null : e, type: o } } _t(t) { return this.options.i18n[t] || x.I18N_DEFAULTS[t] } _emit(t, ...e) { this._eventListener[t].forEach(t => t(...e, this)) } on(t, e) { return this._eventListener[t].push(e), this } off(t, e) { const o = this._eventListener[t] || [], n = o.indexOf(e); return ~n && o.splice(n, 1), this } addSwatch(t) { const { values: e } = this._parseLocalColor(t); if (e) { const { _swatchColors: t, _root: o } = this, n = C(...e), i = a(`<button type="button" style="--pcr-color: ${n.toRGBA().toString(0)}" aria-label="${this._t("btn:swatch")}"/>`); return o.swatches.appendChild(i), t.push({ el: i, color: n }), this._eventBindings.push(r(i, "click", () => { this.setHSVA(...n.toHSVA(), !0), this._emit("swatchselect", n), this._emit("change", n, "swatch", this) })), !0 } return !1 } removeSwatch(t) { const e = this._swatchColors[t]; if (e) { const { el: o } = e; return this._root.swatches.removeChild(o), this._swatchColors.splice(t, 1), !0 } return !1 } applyColor(t = !1) { const { preview: e, button: o } = this._root, n = this._color.toRGBA().toString(0); return e.lastColor.style.setProperty("--pcr-color", n), this.options.useAsButton || o.style.setProperty("--pcr-color", n), o.classList.remove("clear"), this._lastColor = this._color.clone(), this._initializingActive || t || this._emit("save", this._color), this } destroy() { cancelAnimationFrame(this._setupAnimationFrame), this._eventBindings.forEach(t => s(...t)), Object.keys(this._components).forEach(t => this._components[t].destroy()) } destroyAndRemove() { this.destroy(); const { root: t, app: e } = this._root; t.parentElement && t.parentElement.removeChild(t), e.parentElement.removeChild(e), Object.keys(this).forEach(t => this[t] = null) } hide() { return !!this.isOpen() && (this._root.app.classList.remove("visible"), this._emit("hide"), !0) } show() { return !this.options.disabled && !this.isOpen() && (this._root.app.classList.add("visible"), this._rePositioningPicker(), this._emit("show", this._color), this) } isOpen() { return this._root.app.classList.contains("visible") } setHSVA(t = 360, e = 0, o = 0, n = 1, i = !1) { const r = this._recalc; if (this._recalc = !1, t < 0 || t > 360 || e < 0 || e > 100 || o < 0 || o > 100 || n < 0 || n > 1) return !1; this._color = C(t, e, o, n); const { hue: s, opacity: a, palette: l } = this._components; return s.update(t / 360), a.update(n), l.update(e / 100, 1 - o / 100), i || this.applyColor(), r && this._updateOutput(), this._recalc = r, !0 } setColor(t, e = !1) { if (null === t) return this._clearColor(e), !0; const { values: o, type: n } = this._parseLocalColor(t); if (o) { const t = n.toUpperCase(), { options: i } = this._root.interaction, r = i.find(e => e.getAttribute("data-type") === t); if (r && !r.hidden) for (const t of i) t.classList[t === r ? "add" : "remove"]("active"); return !!this.setHSVA(...o, e) && this.setColorRepresentation(t) } return !1 } setColorRepresentation(t) { return t = t.toUpperCase(), !!this._root.interaction.options.find(e => e.getAttribute("data-type").startsWith(t) && !e.click()) } getColorRepresentation() { return this._representation } getColor() { return this._color } getSelectedColor() { return this._lastColor } getRoot() { return this._root } disable() { return this.hide(), this.options.disabled = !0, this._root.button.classList.add("disabled"), this } enable() { return this.options.disabled = !1, this._root.button.classList.remove("disabled"), this } } L(x, "utils", n), L(x, "version", "1.8.1"), L(x, "I18N_DEFAULTS", { "ui:dialog": "color picker dialog", "btn:toggle": "toggle color picker dialog", "btn:swatch": "color swatch", "btn:last-color": "use previous color", "btn:save": "Save", "btn:cancel": "Cancel", "btn:clear": "Clear", "aria:btn:save": "save and close", "aria:btn:cancel": "cancel and close", "aria:btn:clear": "clear and close", "aria:input": "color input field", "aria:palette": "color selection area", "aria:hue": "hue selection slider", "aria:opacity": "selection slider" }), L(x, "DEFAULT_OPTIONS", { appClass: null, theme: "classic", useAsButton: !1, padding: 8, disabled: !1, comparison: !0, closeOnScroll: !1, outputPrecision: 0, lockOpacity: !1, autoReposition: !0, container: "body", components: { interaction: {} }, i18n: {}, swatches: null, inline: !1, sliders: null, default: "#42445a", defaultRepresentation: null, position: "bottom-middle", adjustableNumbers: !0, showAlways: !1, closeWithKey: "Escape" }), L(x, "create", t => new x(t)); e.default = x
+    }]).default
+}));
+//# sourceMappingURL=pickr.min.js.map
+
+// #content features/commands.js
+﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
+window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
+
+/*
+ * Extends service.js contentscript
+  Command detection:
+  - commands are registered in the commands array
+  - consist of actions
+  - performCommand finds a suitable comamnd & executes the ommands actions with applied parameters / arguemnts
+
+    heheheh now this is finally hot reworked code and not a fucking mess anymore
+*/
+
+const commands = [
+    {
+        command: "charbar",
+        options: {
+            type: "toggle",
+            description: "Sets the charbar visibility.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.charbar = "true";
+            },
+            actionDisable: () => {
+                localStorage.charbar = "false";
+            },
+            actionAfter: (args) => {
+                QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup"));
+            },
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " char count.";
+            }
+        }
+    }, {
+        command: "controls",
+        options: {
+            type: "toggle",
+            description: "Sets the controls visibility.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.controls = "true";
+                QS("#controls").style.display = "flex";
+            },
+            actionDisable: () => {
+                localStorage.controls = "false";
+                QS("#controls").style.display = "none";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " controls.";
+            }
+        }
+    }, {
+        command: "palantir",
+        options: {
+            type: "toggle",
+            description: "Sets the palantir visibility.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.palantir = "true";
+                lobbies.userAllow = true;
+                if (lobbies.inGame && !lobbies.joined) {
+                    socket.joinLobby(lobbies.lobbyProperties.Key);
+                    lobbies.joined = true;
+                }
+                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
+            },
+            actionDisable: () => {
+                localStorage.palantir = "false";
+                lobbies.userAllow = false;
+                if(lobbies.joined) socket.leaveLobby();
+                lobbies.joined = false;
+            },
+            actionAfter: null,
+            response: (state) => {
+                return "You're now " + (state ? "visible" : "invisible") + " on Palantir.";
+            }
+        }
+    }, {
+        command: "typotoolbar",
+        options: {
+            type: "toggle",
+            description: "Sets the toolbar style.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.typotoolbar = "true";
+                QS("#game-toolbar").classList.add("typomod");
+            },
+            actionDisable: () => {
+                localStorage.typotoolbar = "false";
+                QS("#game-toolbar").classList.remove("typomod");
+            },
+            actionAfter: null,
+            response: (state) => {
+                return "The toolbar style is now " + (state ? "typo-modded" : "original") + ".";
+            }
+        }
+    }, {
+        command: "clr",
+        options: {
+            type: "action",
+            description: "Deletes all but the last 50 messages.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                let elems = [...QSA("#game-chat .chat-container .chat-content > *")];
+                if (elems.length > 50) elems = elems.slice(0, -50);
+                elems.forEach(elem => elem.remove());
+            },
+            response: (args) => {
+                return "Removed all but the last 50 messages.";
+            }
+        }
+    }, {
+        command: "chatcommands",
+        options: {
+            type: "toggle",
+            description: "Sets the chat command detection feature.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.chatcommands = "true";
+            },
+            actionDisable: () => {
+                localStorage.chatcommands = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " chat commands.";
+            }
+        }
+    }, {
+        command: "experimental",
+        options: {
+            type: "toggle",
+            description: "Sets the experimental features.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.experimental = "true";
+            },
+            actionDisable: () => {
+                localStorage.experimental = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " experimental features.";
+            }
+        }
+    }, {
+        command: "emojipicker",
+        options: {
+            type: "toggle",
+            description: "Sets the emoji picker visibility.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.emojipicker = "true";
+            },
+            actionDisable: () => {
+                localStorage.emojipicker = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " the emoji picker.";
+            }
+        }
+    }, {
+        command: "drops",
+        options: {
+            type: "toggle",
+            description: "Sets the drop visibility.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.drops = "true";
+            },
+            actionDisable: () => {
+                localStorage.drops = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return "Drops " + (!state ? "won't show anymore" : "will be visible") + " on the canvas.";
+            }
+        }
+    }, {
+        command: "dropmsgs",
+        options: {
+            type: "toggle",
+            description: "Sets visibility of the drop message of others.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.dropmsgs = "true";
+            },
+            actionDisable: () => {
+                localStorage.dropmsgs = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return "Drop messages of others " + (!state ? "won't show anymore" : "will be visible") + " in the chat.";
+            }
+        }
+    }, {
+        command: "zoomdraw",
+        options: {
+            type: "toggle",
+            description: "Sets the zoom draw feature.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.zoomdraw = "true";
+            },
+            actionDisable: () => {
+                localStorage.zoomdraw = "false";
+                uiTweaks.resetZoom();
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " canvas zoom (STRG+Click).";
+            }
+        }
+    }, {
+        command: "like",
+        options: {
+            type: "action",
+            description: "Executes a like.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                QS("#game-rate .like").dispatchEvent(new Event("click"));
+            },
+            response: (args) => {
+                return "You liked " + getCurrentOrLastDrawer() + "s drawing.";
+            }
+        }
+    }, {
+        command: "shame",
+        options: {
+            type: "action",
+            description: "Executes a dislike.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                QS("#game-rate .dislike").dispatchEvent(new Event("click"));
+            },
+            response: (args) => {
+                return "You disliked " + getCurrentOrLastDrawer() + "s drawing.";
+            }
+        }
+    }, {
+        command: "typotools",
+        options: {
+            type: "toggle",
+            description: "Shows or hides the typo tools.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.typotools = "true";
+                /* QS("#randomColor").style.display = "";
+                QS("#colPicker").style.display = ""; */
+                QS("#typotoolbar").style.display = "";
+            },
+            actionDisable: () => {
+                localStorage.typotools = "false";
+                /* QS("#randomColor").style.display = "none";
+                QS("#colPicker").style.display = "none"; */
+                QS("#typotoolbar").style.display = "none";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " random color & color picker tools.";
+            }
+        }
+    }, {
+        command: "agent",
+        options: {
+            type: "toggle",
+            description: "Sets the agent feature.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.agent = "true";
+                QS("#imageAgent").style.display = "";
+            },
+            actionDisable: () => {
+                localStorage.agent = "false";
+                QS("#imageAgent").style.display = "none";
+            },
+            actionAfter: (state) => {
+                scrollMessages();
+            },
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " image agent.";
+            }
+        }
+    }, {
+        command: "typoink",
+        options: {
+            type: "toggle",
+            description: "Enables typo's ink drawing instead built-in.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.typoink = "true";
+            },
+            actionDisable: () => {
+                localStorage.typoink = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " typo inkmodes.";
+            }
+        }
+    }, {
+        command: "quickreact",
+        options: {
+            type: "toggle",
+            description: "Sets the quickreact feature.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.quickreact = "true";
+            },
+            actionDisable: () => {
+                localStorage.quickreact = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " quick reaction menu.";
+            }
+        }
+    }, {
+        command: "markup",
+        options: {
+            type: "toggle",
+            description: "Sets the markup feature.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.markup = "true";
+            },
+            actionDisable: () => {
+                localStorage.markup = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " chat markup.";
+            }
+        }
+    }, {
+        command: "setmember",
+        options: {
+            type: "action",
+            description: "Sets the logged in member. Argument: member json",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                localStorage.member = args;
+            },
+            response: (args) => {
+                return "Logged in!";
+            }
+        }
+    }, {
+        command: "kick",
+        options: {
+            type: "action",
+            description: "Kicks a player. Press AltGr to view player IDs. Argument: player ID",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+            },
+            response: (args) => {
+                let kickPlayer = QS("div[playerid='" + args + "']");
+                if (!kickPlayer) kickPlayer = QS(".player .drawing[style*='block'").closest(".player");
+                if(kickPlayer) document.dispatchEvent(newCustomEvent("socketEmit", { detail: { id: 5, data: parseInt(kickPlayer.getAttribute("playerid")) } }));
+                return kickPlayer ? "Executed kick for " + kickPlayer.querySelector(".player-name").textContent.replace("(You)","").trim() : "No-one to kick :(";
+            }
+        }
+    }, {
+        command: "randominterval",
+        options: {
+            type: "action",
+            description: "Sets the random interval. Argument: interval in ms",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                localStorage.randominterval = args;
+            },
+            response: (args) => {
+                return "The random color brush interval is now " + args + "ms.";
+            }
+        }
+    }, {
+        command: "markupcolor",
+        options: {
+            type: "action",
+            description: "Sets the markup color. Argument: degree component of HSL",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                localStorage.markupcolor = args;
+            },
+            response: (args) => {
+                const color = new Color({h:Number(args), s:100, l:90});
+                return "The highlight color for your messages is now " + color.hex + ".";
+            }
+        }
+    }, {
+        command: "sens",
+        options: {
+            type: "action",
+            description: "Sets the pressure sensitivity. Argument: sensitivity",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                localStorage.sens = args;
+            },
+            response: (args) => {
+                return "Tablet pressure sensitivity is now at " + args + "%.";
+            }
+        }
+    }, {
+        command: "usepalette",
+        options: {
+            type: "action",
+            description: "Uses a palette. Argument: palette name",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                if (uiTweaks.palettes.some(palette => palette.name == args)) localStorage.palette = args;
+                uiTweaks.palettes.find(palette => palette.name == args)?.activate();
+            },
+            response: (args) => {
+                return localStorage.palette == args ? "Activated custom palette " + args + "." : "Custom palette not found :(";
+            }
+        }
+    }, {
+        command: "addpalette",
+        options: {
+            type: "action",
+            description: "Adds a palette. Argument: palette json",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                uiTweaks.palettes.push(createColorPalette(JSON.parse(args)));
+                let palettesSave = [];
+                uiTweaks.palettes.forEach(palette => {
+                    if (palette.json) palettesSave.push(JSON.parse(palette.json));
+                });
+                localStorage.customPalettes = JSON.stringify(palettesSave);
+            },
+            response: (args) => {
+                return "Added custom palette:" + JSON.parse(args).name;
+            }
+        }
+    }, {
+        command: "rempalette",
+        options: {
+            type: "action",
+            description: "Removes a palette. Argument: palette name",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                uiTweaks.palettes = uiTweaks.palettes.filter(palette => palette.name != args);
+                let palettesSave = [];
+                uiTweaks.palettes.forEach(palette => {
+                    if (palette.json) palettesSave.push(JSON.parse(palette.json));
+                });
+                localStorage.customPalettes = JSON.stringify(palettesSave);
+            },
+            response: (args) => {
+                return "Removed palette(s) with name:" + args;
+            }
+        }
+    }, {
+        command: "help",
+        options: {
+            type: "action",
+            description: "Shows some help about chat commands.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: () => {
+                let help = "<div style='padding:.5em;'><h4>Overview of commands</h4><small><b>Types of commands:</b><br>Toggle - use with 'enable' / 'disable' + command name.<br>Action - execute with command name + arguments.<br><br>";
+                help += "<h4>Commands:</h4>";
+                commands.forEach(cmd => {
+                    help += `<b>${cmd.command} (${cmd.options.type}):</b> ${cmd.options.description}<br><br>`;
+                });
+                help += "</small></div>";
+                QS("#game-chat .chat-container .chat-content").appendChild(elemFromString(help));
+            },
+            response: (args) => {
+                return "";
+            }
+        }
+    }, {
+        command: "resettypo",
+        options: {
+            type: "action",
+            description: "Resets everything to the defaults.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: () => {
+                setDefaults(true);
+                window.location.reload();
+            },
+            response: (args) => {
+                return "";
+            }
+        }
+    }, {
+        command: "newvision",
+        options: {
+            type: "action",
+            description: "Open a new image overlay.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: () => {
+                new Vision();
+            },
+            response: (args) => {
+                return "Overlay opened.";
+            }
+        }
+    }
+
+];
+
+const performCommand = (command) => {
+    // get raw command
+    command = command.replace("--","").trim();
+    let toggle = null;
+    // check if command is toggle
+    if (command.startsWith("enable")) toggle = true;
+    else if (command.startsWith("disable")) toggle = false;
+    command = command.replace("enable", "").replace("disable", "").trim();
+    // extract args
+    const args = command.includes(" ") ? command.substr(command.indexOf(" ")).trim() : "";
+    command = command.replace(args, "").trim();
+    match = false;
+    // find matching command
+    commands.forEach(cmd => {
+        if (cmd.command.startsWith(command) && command.includes(cmd.command) && !match) {
+            match = true;
+            // execute command actions
+            if (cmd.options.actionBefore) cmd.options.actionBefore(args);
+            if (cmd.options.type == "toggle") if (toggle == true) cmd.options.actionEnable();
+            else cmd.options.actionDisable();
+            if (cmd.options.actionAfter) cmd.options.actionAfter(args);
+            const response = cmd.options.response(cmd.options.type == "toggle" ? toggle : args);
+            // print output
+            QS("#game-chat .chat-container .chat-content").appendChild(
+                elemFromString(`<p><b style="color: rgb(57, 117, 206);">Command: ${cmd.command}</b><br><span style="color: rgb(57, 117, 206);">${response}</span></p>`));
+        }
+    });
+    if (!match) {
+        // print error - no matching command 
+        QS("#game-chat .chat-container .chat-content").appendChild(
+            elemFromString(`<p><b style="color: rgb(57, 117, 206);">Command failed: ${command}</b><br><span style="color: rgb(57, 117, 206);">Not found :(</span></p>`));
+    }
+    scrollMessages();
+}
+
+const addChatMessage = (title, content) => {
+    let box = document.querySelector(".chat-content");
+    let scroll = Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 30;
+    box.appendChild(
+        elemFromString(`<p>${ title != "" ? `<b style="color: rgb(57, 117, 206);">${title}</b><br>` : "" }<span style="color: rgb(57, 117, 206);">${content}</span></p>`));
+    if(scroll) scrollMessages();
+}
+
 // #content features/uiTweaks.js
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
@@ -3814,1403 +5229,6 @@ let drops = {
         drops.initDropContainer();
         drops.eventDrops = socket.data.publicData.drops;
     }
-}
-
-// #content features/socket.js
-!function (t, e) { "object" == typeof exports && "object" == typeof module ? module.exports = e() : "function" == typeof define && define.amd ? define([], e) : "object" == typeof exports ? exports.io = e() : t.io = e() }("undefined" != typeof self ? self : "undefined" != typeof window ? window : "undefined" != typeof global ? global : Function("return this")(), (function () { return function (t) { var e = {}; function n(r) { if (e[r]) return e[r].exports; var o = e[r] = { i: r, l: !1, exports: {} }; return t[r].call(o.exports, o, o.exports, n), o.l = !0, o.exports } return n.m = t, n.c = e, n.d = function (t, e, r) { n.o(t, e) || Object.defineProperty(t, e, { enumerable: !0, get: r }) }, n.r = function (t) { "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(t, "__esModule", { value: !0 }) }, n.t = function (t, e) { if (1 & e && (t = n(t)), 8 & e) return t; if (4 & e && "object" == typeof t && t && t.__esModule) return t; var r = Object.create(null); if (n.r(r), Object.defineProperty(r, "default", { enumerable: !0, value: t }), 2 & e && "string" != typeof t) for (var o in t) n.d(r, o, function (e) { return t[e] }.bind(null, o)); return r }, n.n = function (t) { var e = t && t.__esModule ? function () { return t.default } : function () { return t }; return n.d(e, "a", e), e }, n.o = function (t, e) { return Object.prototype.hasOwnProperty.call(t, e) }, n.p = "", n(n.s = 18) }([function (t, e, n) { function r(t) { if (t) return function (t) { for (var e in r.prototype) t[e] = r.prototype[e]; return t }(t) } t.exports = r, r.prototype.on = r.prototype.addEventListener = function (t, e) { return this._callbacks = this._callbacks || {}, (this._callbacks["$" + t] = this._callbacks["$" + t] || []).push(e), this }, r.prototype.once = function (t, e) { function n() { this.off(t, n), e.apply(this, arguments) } return n.fn = e, this.on(t, n), this }, r.prototype.off = r.prototype.removeListener = r.prototype.removeAllListeners = r.prototype.removeEventListener = function (t, e) { if (this._callbacks = this._callbacks || {}, 0 == arguments.length) return this._callbacks = {}, this; var n, r = this._callbacks["$" + t]; if (!r) return this; if (1 == arguments.length) return delete this._callbacks["$" + t], this; for (var o = 0; o < r.length; o++)if ((n = r[o]) === e || n.fn === e) { r.splice(o, 1); break } return 0 === r.length && delete this._callbacks["$" + t], this }, r.prototype.emit = function (t) { this._callbacks = this._callbacks || {}; for (var e = new Array(arguments.length - 1), n = this._callbacks["$" + t], r = 1; r < arguments.length; r++)e[r - 1] = arguments[r]; if (n) { r = 0; for (var o = (n = n.slice(0)).length; r < o; ++r)n[r].apply(this, e) } return this }, r.prototype.listeners = function (t) { return this._callbacks = this._callbacks || {}, this._callbacks["$" + t] || [] }, r.prototype.hasListeners = function (t) { return !!this.listeners(t).length } }, function (t, e, n) { var r = n(24), o = n(25), i = String.fromCharCode(30); t.exports = { protocol: 4, encodePacket: r, encodePayload: function (t, e) { var n = t.length, o = new Array(n), s = 0; t.forEach((function (t, c) { r(t, !1, (function (t) { o[c] = t, ++s === n && e(o.join(i)) })) })) }, decodePacket: o, decodePayload: function (t, e) { for (var n = t.split(i), r = [], s = 0; s < n.length; s++) { var c = o(n[s], e); if (r.push(c), "error" === c.type) break } return r } } }, function (t, e) { t.exports = "undefined" != typeof self ? self : "undefined" != typeof window ? window : Function("return this")() }, function (t, e, n) { var r = n(22), o = n(2); t.exports = function (t) { var e = t.xdomain, n = t.xscheme, i = t.enablesXDR; try { if ("undefined" != typeof XMLHttpRequest && (!e || r)) return new XMLHttpRequest } catch (t) { } try { if ("undefined" != typeof XDomainRequest && !n && i) return new XDomainRequest } catch (t) { } if (!e) try { return new (o[["Active"].concat("Object").join("X")])("Microsoft.XMLHTTP") } catch (t) { } } }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function i(t, e) { return (i = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function s(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = a(t); if (e) { var o = a(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return c(this, n) } } function c(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function a(t) { return (a = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var u = n(1), f = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && i(t, e) }(a, t); var e, n, r, c = s(a); function a(t) { var e; return function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, a), (e = c.call(this)).opts = t, e.query = t.query, e.readyState = "", e.socket = t.socket, e } return e = a, (n = [{ key: "onError", value: function (t, e) { var n = new Error(t); return n.type = "TransportError", n.description = e, this.emit("error", n), this } }, { key: "open", value: function () { return "closed" !== this.readyState && "" !== this.readyState || (this.readyState = "opening", this.doOpen()), this } }, { key: "close", value: function () { return "opening" !== this.readyState && "open" !== this.readyState || (this.doClose(), this.onClose()), this } }, { key: "send", value: function (t) { if ("open" !== this.readyState) throw new Error("Transport not open"); this.write(t) } }, { key: "onOpen", value: function () { this.readyState = "open", this.writable = !0, this.emit("open") } }, { key: "onData", value: function (t) { var e = u.decodePacket(t, this.socket.binaryType); this.onPacket(e) } }, { key: "onPacket", value: function (t) { this.emit("packet", t) } }, { key: "onClose", value: function () { this.readyState = "closed", this.emit("close") } }]) && o(e.prototype, n), r && o(e, r), a }(n(0)); t.exports = f }, function (t, e) { e.encode = function (t) { var e = ""; for (var n in t) t.hasOwnProperty(n) && (e.length && (e += "&"), e += encodeURIComponent(n) + "=" + encodeURIComponent(t[n])); return e }, e.decode = function (t) { for (var e = {}, n = t.split("&"), r = 0, o = n.length; r < o; r++) { var i = n[r].split("="); e[decodeURIComponent(i[0])] = decodeURIComponent(i[1]) } return e } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e, n) { return (o = "undefined" != typeof Reflect && Reflect.get ? Reflect.get : function (t, e, n) { var r = function (t, e) { for (; !Object.prototype.hasOwnProperty.call(t, e) && null !== (t = a(t));); return t }(t, e); if (r) { var o = Object.getOwnPropertyDescriptor(r, e); return o.get ? o.get.call(n) : o.value } })(t, e, n || t) } function i(t, e) { return (i = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function s(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = a(t); if (e) { var o = a(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return c(this, n) } } function c(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function a(t) { return (a = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } function u(t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") } function f(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function p(t, e, n) { return e && f(t.prototype, e), n && f(t, n), t } Object.defineProperty(e, "__esModule", { value: !0 }), e.Decoder = e.Encoder = e.PacketType = e.protocol = void 0; var l, h = n(0), y = n(30), d = n(15); e.protocol = 5, function (t) { t[t.CONNECT = 0] = "CONNECT", t[t.DISCONNECT = 1] = "DISCONNECT", t[t.EVENT = 2] = "EVENT", t[t.ACK = 3] = "ACK", t[t.CONNECT_ERROR = 4] = "CONNECT_ERROR", t[t.BINARY_EVENT = 5] = "BINARY_EVENT", t[t.BINARY_ACK = 6] = "BINARY_ACK" }(l = e.PacketType || (e.PacketType = {})); var v = function () { function t() { u(this, t) } return p(t, [{ key: "encode", value: function (t) { return t.type !== l.EVENT && t.type !== l.ACK || !d.hasBinary(t) ? [this.encodeAsString(t)] : (t.type = t.type === l.EVENT ? l.BINARY_EVENT : l.BINARY_ACK, this.encodeAsBinary(t)) } }, { key: "encodeAsString", value: function (t) { var e = "" + t.type; return t.type !== l.BINARY_EVENT && t.type !== l.BINARY_ACK || (e += t.attachments + "-"), t.nsp && "/" !== t.nsp && (e += t.nsp + ","), null != t.id && (e += t.id), null != t.data && (e += JSON.stringify(t.data)), e } }, { key: "encodeAsBinary", value: function (t) { var e = y.deconstructPacket(t), n = this.encodeAsString(e.packet), r = e.buffers; return r.unshift(n), r } }]), t }(); e.Encoder = v; var b = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && i(t, e) }(n, t); var e = s(n); function n() { return u(this, n), e.call(this) } return p(n, [{ key: "add", value: function (t) { var e; if ("string" == typeof t) (e = this.decodeString(t)).type === l.BINARY_EVENT || e.type === l.BINARY_ACK ? (this.reconstructor = new m(e), 0 === e.attachments && o(a(n.prototype), "emit", this).call(this, "decoded", e)) : o(a(n.prototype), "emit", this).call(this, "decoded", e); else { if (!d.isBinary(t) && !t.base64) throw new Error("Unknown type: " + t); if (!this.reconstructor) throw new Error("got binary data when not reconstructing a packet"); (e = this.reconstructor.takeBinaryData(t)) && (this.reconstructor = null, o(a(n.prototype), "emit", this).call(this, "decoded", e)) } } }, { key: "decodeString", value: function (t) { var e = 0, r = { type: Number(t.charAt(0)) }; if (void 0 === l[r.type]) throw new Error("unknown packet type " + r.type); if (r.type === l.BINARY_EVENT || r.type === l.BINARY_ACK) { for (var o = e + 1; "-" !== t.charAt(++e) && e != t.length;); var i = t.substring(o, e); if (i != Number(i) || "-" !== t.charAt(e)) throw new Error("Illegal attachments"); r.attachments = Number(i) } if ("/" === t.charAt(e + 1)) { for (var s = e + 1; ++e;) { if ("," === t.charAt(e)) break; if (e === t.length) break } r.nsp = t.substring(s, e) } else r.nsp = "/"; var c = t.charAt(e + 1); if ("" !== c && Number(c) == c) { for (var a = e + 1; ++e;) { var u = t.charAt(e); if (null == u || Number(u) != u) { --e; break } if (e === t.length) break } r.id = Number(t.substring(a, e + 1)) } if (t.charAt(++e)) { var f = function (t) { try { return JSON.parse(t) } catch (t) { return !1 } }(t.substr(e)); if (!n.isPayloadValid(r.type, f)) throw new Error("invalid payload"); r.data = f } return r } }, { key: "destroy", value: function () { this.reconstructor && this.reconstructor.finishedReconstruction() } }], [{ key: "isPayloadValid", value: function (t, e) { switch (t) { case l.CONNECT: return "object" === r(e); case l.DISCONNECT: return void 0 === e; case l.CONNECT_ERROR: return "string" == typeof e || "object" === r(e); case l.EVENT: case l.BINARY_EVENT: return Array.isArray(e) && "string" == typeof e[0]; case l.ACK: case l.BINARY_ACK: return Array.isArray(e) } } }]), n }(h); e.Decoder = b; var m = function () { function t(e) { u(this, t), this.packet = e, this.buffers = [], this.reconPack = e } return p(t, [{ key: "takeBinaryData", value: function (t) { if (this.buffers.push(t), this.buffers.length === this.reconPack.attachments) { var e = y.reconstructPacket(this.reconPack, this.buffers); return this.finishedReconstruction(), e } return null } }, { key: "finishedReconstruction", value: function () { this.reconPack = null, this.buffers = [] } }]), t }() }, function (t, e) { var n = /^(?:(?![^:@]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/, r = ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"]; t.exports = function (t) { var e = t, o = t.indexOf("["), i = t.indexOf("]"); -1 != o && -1 != i && (t = t.substring(0, o) + t.substring(o, i).replace(/:/g, ";") + t.substring(i, t.length)); for (var s, c, a = n.exec(t || ""), u = {}, f = 14; f--;)u[r[f]] = a[f] || ""; return -1 != o && -1 != i && (u.source = e, u.host = u.host.substring(1, u.host.length - 1).replace(/;/g, ":"), u.authority = u.authority.replace("[", "").replace("]", "").replace(/;/g, ":"), u.ipv6uri = !0), u.pathNames = function (t, e) { var n = e.replace(/\/{2,9}/g, "/").split("/"); "/" != e.substr(0, 1) && 0 !== e.length || n.splice(0, 1); "/" == e.substr(e.length - 1, 1) && n.splice(n.length - 1, 1); return n }(0, u.path), u.queryKey = (s = u.query, c = {}, s.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, (function (t, e, n) { e && (c[e] = n) })), c), u } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function i(t, e, n) { return (i = "undefined" != typeof Reflect && Reflect.get ? Reflect.get : function (t, e, n) { var r = function (t, e) { for (; !Object.prototype.hasOwnProperty.call(t, e) && null !== (t = u(t));); return t }(t, e); if (r) { var o = Object.getOwnPropertyDescriptor(r, e); return o.get ? o.get.call(n) : o.value } })(t, e, n || t) } function s(t, e) { return (s = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function c(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = u(t); if (e) { var o = u(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return a(this, n) } } function a(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function u(t) { return (u = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.Manager = void 0; var f = n(20), p = n(14), l = n(0), h = n(6), y = n(16), d = n(17), v = n(31), b = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && s(t, e) }(b, t); var e, n, a, l = c(b); function b(t, e) { var n; !function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, b), (n = l.call(this)).nsps = {}, n.subs = [], n.connecting = [], t && "object" === r(t) && (e = t, t = void 0), (e = e || {}).path = e.path || "/socket.io", n.opts = e, n.reconnection(!1 !== e.reconnection), n.reconnectionAttempts(e.reconnectionAttempts || 1 / 0), n.reconnectionDelay(e.reconnectionDelay || 1e3), n.reconnectionDelayMax(e.reconnectionDelayMax || 5e3), n.randomizationFactor(e.randomizationFactor || .5), n.backoff = new v({ min: n.reconnectionDelay(), max: n.reconnectionDelayMax(), jitter: n.randomizationFactor() }), n.timeout(null == e.timeout ? 2e4 : e.timeout), n._readyState = "closed", n.uri = t; var o = e.parser || h; return n.encoder = new o.Encoder, n.decoder = new o.Decoder, n._autoConnect = !1 !== e.autoConnect, n._autoConnect && n.open(), n } return e = b, (n = [{ key: "reconnection", value: function (t) { return arguments.length ? (this._reconnection = !!t, this) : this._reconnection } }, { key: "reconnectionAttempts", value: function (t) { return void 0 === t ? this._reconnectionAttempts : (this._reconnectionAttempts = t, this) } }, { key: "reconnectionDelay", value: function (t) { return void 0 === t ? this._reconnectionDelay : (this._reconnectionDelay = t, this.backoff && this.backoff.setMin(t), this) } }, { key: "randomizationFactor", value: function (t) { return void 0 === t ? this._randomizationFactor : (this._randomizationFactor = t, this.backoff && this.backoff.setJitter(t), this) } }, { key: "reconnectionDelayMax", value: function (t) { return void 0 === t ? this._reconnectionDelayMax : (this._reconnectionDelayMax = t, this.backoff && this.backoff.setMax(t), this) } }, { key: "timeout", value: function (t) { return arguments.length ? (this._timeout = t, this) : this._timeout } }, { key: "maybeReconnectOnOpen", value: function () { !this._reconnecting && this._reconnection && 0 === this.backoff.attempts && this.reconnect() } }, { key: "open", value: function (t) { var e = this; if (~this._readyState.indexOf("open")) return this; this.engine = f(this.uri, this.opts); var n = this.engine, r = this; this._readyState = "opening", this.skipReconnect = !1; var o = y.on(n, "open", (function () { r.onopen(), t && t() })), s = y.on(n, "error", (function (n) { r.cleanup(), r._readyState = "closed", i(u(b.prototype), "emit", e).call(e, "error", n), t ? t(n) : r.maybeReconnectOnOpen() })); if (!1 !== this._timeout) { var c = this._timeout; 0 === c && o.destroy(); var a = setTimeout((function () { o.destroy(), n.close(), n.emit("error", new Error("timeout")) }), c); this.subs.push({ destroy: function () { clearTimeout(a) } }) } return this.subs.push(o), this.subs.push(s), this } }, { key: "connect", value: function (t) { return this.open(t) } }, { key: "onopen", value: function () { this.cleanup(), this._readyState = "open", i(u(b.prototype), "emit", this).call(this, "open"); var t = this.engine; this.subs.push(y.on(t, "data", d(this, "ondata"))), this.subs.push(y.on(t, "ping", d(this, "onping"))), this.subs.push(y.on(t, "error", d(this, "onerror"))), this.subs.push(y.on(t, "close", d(this, "onclose"))), this.subs.push(y.on(this.decoder, "decoded", d(this, "ondecoded"))) } }, { key: "onping", value: function () { i(u(b.prototype), "emit", this).call(this, "ping") } }, { key: "ondata", value: function (t) { this.decoder.add(t) } }, { key: "ondecoded", value: function (t) { i(u(b.prototype), "emit", this).call(this, "packet", t) } }, { key: "onerror", value: function (t) { i(u(b.prototype), "emit", this).call(this, "error", t) } }, { key: "socket", value: function (t, e) { var n = this.nsps[t]; if (!n) { n = new p.Socket(this, t, e), this.nsps[t] = n; var r = this; n.on("connecting", o), this._autoConnect && o() } function o() { ~r.connecting.indexOf(n) || r.connecting.push(n) } return n } }, { key: "_destroy", value: function (t) { var e = this.connecting.indexOf(t); ~e && this.connecting.splice(e, 1), this.connecting.length || this._close() } }, { key: "_packet", value: function (t) { t.query && 0 === t.type && (t.nsp += "?" + t.query); for (var e = this.encoder.encode(t), n = 0; n < e.length; n++)this.engine.write(e[n], t.options) } }, { key: "cleanup", value: function () { for (var t = this.subs.length, e = 0; e < t; e++)this.subs.shift().destroy(); this.decoder.destroy() } }, { key: "_close", value: function () { this.skipReconnect = !0, this._reconnecting = !1, "opening" === this._readyState && this.cleanup(), this.backoff.reset(), this._readyState = "closed", this.engine && this.engine.close() } }, { key: "disconnect", value: function () { return this._close() } }, { key: "onclose", value: function (t) { this.cleanup(), this.backoff.reset(), this._readyState = "closed", i(u(b.prototype), "emit", this).call(this, "close", t), this._reconnection && !this.skipReconnect && this.reconnect() } }, { key: "reconnect", value: function () { var t = this; if (this._reconnecting || this.skipReconnect) return this; var e = this; if (this.backoff.attempts >= this._reconnectionAttempts) this.backoff.reset(), i(u(b.prototype), "emit", this).call(this, "reconnect_failed"), this._reconnecting = !1; else { var n = this.backoff.duration(); this._reconnecting = !0; var r = setTimeout((function () { e.skipReconnect || (i(u(b.prototype), "emit", t).call(t, "reconnect_attempt", e.backoff.attempts), e.skipReconnect || e.open((function (n) { n ? (e._reconnecting = !1, e.reconnect(), i(u(b.prototype), "emit", t).call(t, "reconnect_error", n)) : e.onreconnect() }))) }), n); this.subs.push({ destroy: function () { clearTimeout(r) } }) } } }, { key: "onreconnect", value: function () { var t = this.backoff.attempts; this._reconnecting = !1, this.backoff.reset(), i(u(b.prototype), "emit", this).call(this, "reconnect", t) } }]) && o(e.prototype, n), a && o(e, a), b }(l); e.Manager = b }, function (t, e, n) { var r = n(3), o = n(23), i = n(27), s = n(28); e.polling = function (t) { var e = !1, n = !1, s = !1 !== t.jsonp; if ("undefined" != typeof location) { var c = "https:" === location.protocol, a = location.port; a || (a = c ? 443 : 80), e = t.hostname !== location.hostname || a !== t.port, n = t.secure !== c } if (t.xdomain = e, t.xscheme = n, "open" in new r(t) && !t.forceJSONP) return new o(t); if (!s) throw new Error("JSONP disabled"); return new i(t) }, e.websocket = s }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") } function i(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function s(t, e) { return (s = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function c(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = u(t); if (e) { var o = u(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return a(this, n) } } function a(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function u(t) { return (u = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var f = n(4), p = n(5), l = n(1), h = n(12), y = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && s(t, e) }(u, t); var e, n, r, a = c(u); function u() { return o(this, u), a.apply(this, arguments) } return e = u, (n = [{ key: "doOpen", value: function () { this.poll() } }, { key: "pause", value: function (t) { var e = this; function n() { e.readyState = "paused", t() } if (this.readyState = "pausing", this.polling || !this.writable) { var r = 0; this.polling && (r++ , this.once("pollComplete", (function () { --r || n() }))), this.writable || (r++ , this.once("drain", (function () { --r || n() }))) } else n() } }, { key: "poll", value: function () { this.polling = !0, this.doPoll(), this.emit("poll") } }, { key: "onData", value: function (t) { var e = this; l.decodePayload(t, this.socket.binaryType).forEach((function (t, n, r) { if ("opening" === e.readyState && e.onOpen(), "close" === t.type) return e.onClose(), !1; e.onPacket(t) })), "closed" !== this.readyState && (this.polling = !1, this.emit("pollComplete"), "open" === this.readyState && this.poll()) } }, { key: "doClose", value: function () { var t = this; function e() { t.write([{ type: "close" }]) } "open" === this.readyState ? e() : this.once("open", e) } }, { key: "write", value: function (t) { var e = this; this.writable = !1, l.encodePayload(t, (function (t) { e.doWrite(t, (function () { e.writable = !0, e.emit("drain") })) })) } }, { key: "uri", value: function () { var t = this.query || {}, e = this.opts.secure ? "https" : "http", n = ""; return !1 !== this.opts.timestampRequests && (t[this.opts.timestampParam] = h()), this.supportsBinary || t.sid || (t.b64 = 1), t = p.encode(t), this.opts.port && ("https" === e && 443 !== Number(this.opts.port) || "http" === e && 80 !== Number(this.opts.port)) && (n = ":" + this.opts.port), t.length && (t = "?" + t), e + "://" + (-1 !== this.opts.hostname.indexOf(":") ? "[" + this.opts.hostname + "]" : this.opts.hostname) + n + this.opts.path + t } }, { key: "name", get: function () { return "polling" } }]) && i(e.prototype, n), r && i(e, r), u }(f); t.exports = y }, function (t, e) { var n = Object.create(null); n.open = "0", n.close = "1", n.ping = "2", n.pong = "3", n.message = "4", n.upgrade = "5", n.noop = "6"; var r = Object.create(null); Object.keys(n).forEach((function (t) { r[n[t]] = t })); t.exports = { PACKET_TYPES: n, PACKET_TYPES_REVERSE: r, ERROR_PACKET: { type: "error", data: "parser error" } } }, function (t, e, n) { "use strict"; var r, o = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_".split(""), i = {}, s = 0, c = 0; function a(t) { var e = ""; do { e = o[t % 64] + e, t = Math.floor(t / 64) } while (t > 0); return e } function u() { var t = a(+new Date); return t !== r ? (s = 0, r = t) : t + "." + a(s++) } for (; c < 64; c++)i[o[c]] = c; u.encode = a, u.decode = function (t) { var e = 0; for (c = 0; c < t.length; c++)e = 64 * e + i[t.charAt(c)]; return e }, t.exports = u }, function (t, e) { t.exports.pick = function (t) { for (var e = arguments.length, n = new Array(e > 1 ? e - 1 : 0), r = 1; r < e; r++)n[r - 1] = arguments[r]; return n.reduce((function (e, n) { return e[n] = t[n], e }), {}) } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { var n; if ("undefined" == typeof Symbol || null == t[Symbol.iterator]) { if (Array.isArray(t) || (n = function (t, e) { if (!t) return; if ("string" == typeof t) return i(t, e); var n = Object.prototype.toString.call(t).slice(8, -1); "Object" === n && t.constructor && (n = t.constructor.name); if ("Map" === n || "Set" === n) return Array.from(t); if ("Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return i(t, e) }(t)) || e && t && "number" == typeof t.length) { n && (t = n); var r = 0, o = function () { }; return { s: o, n: function () { return r >= t.length ? { done: !0 } : { done: !1, value: t[r++] } }, e: function (t) { throw t }, f: o } } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.") } var s, c = !0, a = !1; return { s: function () { n = t[Symbol.iterator]() }, n: function () { var t = n.next(); return c = t.done, t }, e: function (t) { a = !0, s = t }, f: function () { try { c || null == n.return || n.return() } finally { if (a) throw s } } } } function i(t, e) { (null == e || e > t.length) && (e = t.length); for (var n = 0, r = new Array(e); n < e; n++)r[n] = t[n]; return r } function s(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function c(t, e, n) { return (c = "undefined" != typeof Reflect && Reflect.get ? Reflect.get : function (t, e, n) { var r = function (t, e) { for (; !Object.prototype.hasOwnProperty.call(t, e) && null !== (t = p(t));); return t }(t, e); if (r) { var o = Object.getOwnPropertyDescriptor(r, e); return o.get ? o.get.call(n) : o.value } })(t, e, n || t) } function a(t, e) { return (a = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function u(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = p(t); if (e) { var o = p(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return f(this, n) } } function f(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function p(t) { return (p = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.Socket = void 0; var l = n(6), h = n(0), y = n(16), d = n(17), v = { connect: 1, connect_error: 1, disconnect: 1, disconnecting: 1, newListener: 1, removeListener: 1 }, b = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && a(t, e) }(f, t); var e, n, r, i = u(f); function f(t, e, n) { var r; return function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, f), (r = i.call(this)).ids = 0, r.acks = {}, r.receiveBuffer = [], r.sendBuffer = [], r.flags = {}, r.io = t, r.nsp = e, r.ids = 0, r.acks = {}, r.receiveBuffer = [], r.sendBuffer = [], r.connected = !1, r.disconnected = !0, r.flags = {}, n && n.auth && (r.auth = n.auth), r.io._autoConnect && r.open(), r } return e = f, (n = [{ key: "subEvents", value: function () { if (!this.subs) { var t = this.io; this.subs = [y.on(t, "open", d(this, "onopen")), y.on(t, "packet", d(this, "onpacket")), y.on(t, "close", d(this, "onclose"))] } } }, { key: "connect", value: function () { return this.connected || (this.subEvents(), this.io._reconnecting || this.io.open(), "open" === this.io._readyState && this.onopen()), this } }, { key: "open", value: function () { return this.connect() } }, { key: "send", value: function () { for (var t = arguments.length, e = new Array(t), n = 0; n < t; n++)e[n] = arguments[n]; return e.unshift("message"), this.emit.apply(this, e), this } }, { key: "emit", value: function (t) { if (v.hasOwnProperty(t)) throw new Error('"' + t + '" is a reserved event name'); for (var e = arguments.length, n = new Array(e > 1 ? e - 1 : 0), r = 1; r < e; r++)n[r - 1] = arguments[r]; n.unshift(t); var o = { type: l.PacketType.EVENT, data: n, options: {} }; o.options.compress = !1 !== this.flags.compress, "function" == typeof n[n.length - 1] && (this.acks[this.ids] = n.pop(), o.id = this.ids++); var i = this.io.engine && this.io.engine.transport && this.io.engine.transport.writable, s = this.flags.volatile && (!i || !this.connected); return s || (this.connected ? this.packet(o) : this.sendBuffer.push(o)), this.flags = {}, this } }, { key: "packet", value: function (t) { t.nsp = this.nsp, this.io._packet(t) } }, { key: "onopen", value: function () { var t = this; "function" == typeof this.auth ? this.auth((function (e) { t.packet({ type: l.PacketType.CONNECT, data: e }) })) : this.packet({ type: l.PacketType.CONNECT, data: this.auth }) } }, { key: "onclose", value: function (t) { this.connected = !1, this.disconnected = !0, delete this.id, c(p(f.prototype), "emit", this).call(this, "disconnect", t) } }, { key: "onpacket", value: function (t) { if (t.nsp === this.nsp) switch (t.type) { case l.PacketType.CONNECT: var e = t.data.sid; this.onconnect(e); break; case l.PacketType.EVENT: case l.PacketType.BINARY_EVENT: this.onevent(t); break; case l.PacketType.ACK: case l.PacketType.BINARY_ACK: this.onack(t); break; case l.PacketType.DISCONNECT: this.ondisconnect(); break; case l.PacketType.CONNECT_ERROR: var n = new Error(t.data.message); n.data = t.data.data, c(p(f.prototype), "emit", this).call(this, "connect_error", n) } } }, { key: "onevent", value: function (t) { var e = t.data || []; null != t.id && e.push(this.ack(t.id)), this.connected ? this.emitEvent(e) : this.receiveBuffer.push(e) } }, { key: "emitEvent", value: function (t) { if (this._anyListeners && this._anyListeners.length) { var e, n = o(this._anyListeners.slice()); try { for (n.s(); !(e = n.n()).done;)e.value.apply(this, t) } catch (t) { n.e(t) } finally { n.f() } } c(p(f.prototype), "emit", this).apply(this, t) } }, { key: "ack", value: function (t) { var e = this, n = !1; return function () { if (!n) { n = !0; for (var r = arguments.length, o = new Array(r), i = 0; i < r; i++)o[i] = arguments[i]; e.packet({ type: l.PacketType.ACK, id: t, data: o }) } } } }, { key: "onack", value: function (t) { var e = this.acks[t.id]; "function" == typeof e && (e.apply(this, t.data), delete this.acks[t.id]) } }, { key: "onconnect", value: function (t) { this.id = t, this.connected = !0, this.disconnected = !1, c(p(f.prototype), "emit", this).call(this, "connect"), this.emitBuffered() } }, { key: "emitBuffered", value: function () { for (var t = 0; t < this.receiveBuffer.length; t++)this.emitEvent(this.receiveBuffer[t]); this.receiveBuffer = []; for (var e = 0; e < this.sendBuffer.length; e++)this.packet(this.sendBuffer[e]); this.sendBuffer = [] } }, { key: "ondisconnect", value: function () { this.destroy(), this.onclose("io server disconnect") } }, { key: "destroy", value: function () { if (this.subs) { for (var t = 0; t < this.subs.length; t++)this.subs[t].destroy(); this.subs = null } this.io._destroy(this) } }, { key: "disconnect", value: function () { return this.connected && this.packet({ type: l.PacketType.DISCONNECT }), this.destroy(), this.connected && this.onclose("io client disconnect"), this } }, { key: "close", value: function () { return this.disconnect() } }, { key: "compress", value: function (t) { return this.flags.compress = t, this } }, { key: "onAny", value: function (t) { return this._anyListeners = this._anyListeners || [], this._anyListeners.push(t), this } }, { key: "prependAny", value: function (t) { return this._anyListeners = this._anyListeners || [], this._anyListeners.unshift(t), this } }, { key: "offAny", value: function (t) { if (!this._anyListeners) return this; if (t) { for (var e = this._anyListeners, n = 0; n < e.length; n++)if (t === e[n]) return e.splice(n, 1), this } else this._anyListeners = []; return this } }, { key: "listenersAny", value: function () { return this._anyListeners || [] } }, { key: "volatile", get: function () { return this.flags.volatile = !0, this } }]) && s(e.prototype, n), r && s(e, r), f }(h); e.Socket = b }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.hasBinary = e.isBinary = void 0; var o = "function" == typeof ArrayBuffer, i = Object.prototype.toString, s = "function" == typeof Blob || "undefined" != typeof Blob && "[object BlobConstructor]" === i.call(Blob), c = "function" == typeof File || "undefined" != typeof File && "[object FileConstructor]" === i.call(File); function a(t) { return o && (t instanceof ArrayBuffer || function (t) { return "function" == typeof ArrayBuffer.isView ? ArrayBuffer.isView(t) : t.buffer instanceof ArrayBuffer }(t)) || s && t instanceof Blob || c && t instanceof File } e.isBinary = a, e.hasBinary = function t(e, n) { if (!e || "object" !== r(e)) return !1; if (Array.isArray(e)) { for (var o = 0, i = e.length; o < i; o++)if (t(e[o])) return !0; return !1 } if (a(e)) return !0; if (e.toJSON && "function" == typeof e.toJSON && 1 === arguments.length) return t(e.toJSON(), !0); for (var s in e) if (Object.prototype.hasOwnProperty.call(e, s) && t(e[s])) return !0; return !1 } }, function (t, e, n) { "use strict"; Object.defineProperty(e, "__esModule", { value: !0 }), e.on = void 0, e.on = function (t, e, n) { return t.on(e, n), { destroy: function () { t.removeListener(e, n) } } } }, function (t, e) { var n = [].slice; t.exports = function (t, e) { if ("string" == typeof e && (e = t[e]), "function" != typeof e) throw new Error("bind() requires a function"); var r = n.call(arguments, 2); return function () { return e.apply(t, r.concat(n.call(arguments))) } } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.Socket = e.io = e.Manager = e.protocol = void 0; var o = n(19), i = n(8), s = n(14); Object.defineProperty(e, "Socket", { enumerable: !0, get: function () { return s.Socket } }), t.exports = e = a; var c = e.managers = {}; function a(t, e) { "object" === r(t) && (e = t, t = void 0), e = e || {}; var n, s = o.url(t), a = s.source, u = s.id, f = s.path, p = c[u] && f in c[u].nsps; return e.forceNew || e["force new connection"] || !1 === e.multiplex || p ? n = new i.Manager(a, e) : (c[u] || (c[u] = new i.Manager(a, e)), n = c[u]), s.query && !e.query && (e.query = s.query), n.socket(s.path, e) } e.io = a; var u = n(6); Object.defineProperty(e, "protocol", { enumerable: !0, get: function () { return u.protocol } }), e.connect = a; var f = n(8); Object.defineProperty(e, "Manager", { enumerable: !0, get: function () { return f.Manager } }) }, function (t, e, n) { "use strict"; Object.defineProperty(e, "__esModule", { value: !0 }), e.url = void 0; var r = n(7); e.url = function (t, e) { var n = t; e = e || "undefined" != typeof location && location, null == t && (t = e.protocol + "//" + e.host), "string" == typeof t && ("/" === t.charAt(0) && (t = "/" === t.charAt(1) ? e.protocol + t : e.host + t), /^(https?|wss?):\/\//.test(t) || (t = void 0 !== e ? e.protocol + "//" + t : "https://" + t), n = r(t)), n.port || (/^(http|ws)$/.test(n.protocol) ? n.port = "80" : /^(http|ws)s$/.test(n.protocol) && (n.port = "443")), n.path = n.path || "/"; var o = -1 !== n.host.indexOf(":") ? "[" + n.host + "]" : n.host; return n.id = n.protocol + "://" + o + ":" + n.port, n.href = n.protocol + "://" + o + (e && e.port === n.port ? "" : ":" + n.port), n } }, function (t, e, n) { var r = n(21); t.exports = function (t, e) { return new r(t, e) }, t.exports.Socket = r, t.exports.protocol = r.protocol, t.exports.Transport = n(4), t.exports.transports = n(9), t.exports.parser = n(1) }, function (t, e, n) { function r() { return (r = Object.assign || function (t) { for (var e = 1; e < arguments.length; e++) { var n = arguments[e]; for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (t[r] = n[r]) } return t }).apply(this, arguments) } function o(t) { return (o = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function i(t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") } function s(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function c(t, e) { return (c = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function a(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = f(t); if (e) { var o = f(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return u(this, n) } } function u(t, e) { return !e || "object" !== o(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function f(t) { return (f = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var p = n(9), l = n(0), h = n(1), y = n(7), d = n(5), v = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && c(t, e) }(l, t); var e, n, u, f = a(l); function l(t) { var e, n = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {}; return i(this, l), e = f.call(this), t && "object" === o(t) && (n = t, t = null), t ? (t = y(t), n.hostname = t.host, n.secure = "https" === t.protocol || "wss" === t.protocol, n.port = t.port, t.query && (n.query = t.query)) : n.host && (n.hostname = y(n.host).host), e.secure = null != n.secure ? n.secure : "undefined" != typeof location && "https:" === location.protocol, n.hostname && !n.port && (n.port = e.secure ? "443" : "80"), e.hostname = n.hostname || ("undefined" != typeof location ? location.hostname : "localhost"), e.port = n.port || ("undefined" != typeof location && location.port ? location.port : e.secure ? 443 : 80), e.transports = n.transports || ["polling", "websocket"], e.readyState = "", e.writeBuffer = [], e.prevBufferLen = 0, e.opts = r({ path: "/engine.io", agent: !1, upgrade: !0, jsonp: !0, timestampParam: "t", policyPort: 843, rememberUpgrade: !1, rejectUnauthorized: !0, perMessageDeflate: { threshold: 1024 }, transportOptions: {} }, n), e.opts.path = e.opts.path.replace(/\/$/, "") + "/", "string" == typeof e.opts.query && (e.opts.query = d.decode(e.opts.query)), e.id = null, e.upgrades = null, e.pingInterval = null, e.pingTimeout = null, e.pingTimeoutTimer = null, e.open(), e } return e = l, (n = [{ key: "createTransport", value: function (t) { var e = function (t) { var e = {}; for (var n in t) t.hasOwnProperty(n) && (e[n] = t[n]); return e }(this.opts.query); e.EIO = h.protocol, e.transport = t, this.id && (e.sid = this.id); var n = r({}, this.opts.transportOptions[t], this.opts, { query: e, socket: this, hostname: this.hostname, secure: this.secure, port: this.port }); return new p[t](n) } }, { key: "open", value: function () { var t; if (this.opts.rememberUpgrade && l.priorWebsocketSuccess && -1 !== this.transports.indexOf("websocket")) t = "websocket"; else { if (0 === this.transports.length) { var e = this; return void setTimeout((function () { e.emit("error", "No transports available") }), 0) } t = this.transports[0] } this.readyState = "opening"; try { t = this.createTransport(t) } catch (t) { return this.transports.shift(), void this.open() } t.open(), this.setTransport(t) } }, { key: "setTransport", value: function (t) { var e = this; this.transport && this.transport.removeAllListeners(), this.transport = t, t.on("drain", (function () { e.onDrain() })).on("packet", (function (t) { e.onPacket(t) })).on("error", (function (t) { e.onError(t) })).on("close", (function () { e.onClose("transport close") })) } }, { key: "probe", value: function (t) { var e = this.createTransport(t, { probe: 1 }), n = !1, r = this; function o() { if (r.onlyBinaryUpgrades) { var t = !this.supportsBinary && r.transport.supportsBinary; n = n || t } n || (e.send([{ type: "ping", data: "probe" }]), e.once("packet", (function (t) { if (!n) if ("pong" === t.type && "probe" === t.data) { if (r.upgrading = !0, r.emit("upgrading", e), !e) return; l.priorWebsocketSuccess = "websocket" === e.name, r.transport.pause((function () { n || "closed" !== r.readyState && (f(), r.setTransport(e), e.send([{ type: "upgrade" }]), r.emit("upgrade", e), e = null, r.upgrading = !1, r.flush()) })) } else { var o = new Error("probe error"); o.transport = e.name, r.emit("upgradeError", o) } }))) } function i() { n || (n = !0, f(), e.close(), e = null) } function s(t) { var n = new Error("probe error: " + t); n.transport = e.name, i(), r.emit("upgradeError", n) } function c() { s("transport closed") } function a() { s("socket closed") } function u(t) { e && t.name !== e.name && i() } function f() { e.removeListener("open", o), e.removeListener("error", s), e.removeListener("close", c), r.removeListener("close", a), r.removeListener("upgrading", u) } l.priorWebsocketSuccess = !1, e.once("open", o), e.once("error", s), e.once("close", c), this.once("close", a), this.once("upgrading", u), e.open() } }, { key: "onOpen", value: function () { if (this.readyState = "open", l.priorWebsocketSuccess = "websocket" === this.transport.name, this.emit("open"), this.flush(), "open" === this.readyState && this.opts.upgrade && this.transport.pause) for (var t = 0, e = this.upgrades.length; t < e; t++)this.probe(this.upgrades[t]) } }, { key: "onPacket", value: function (t) { if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) switch (this.emit("packet", t), this.emit("heartbeat"), t.type) { case "open": this.onHandshake(JSON.parse(t.data)); break; case "ping": this.resetPingTimeout(), this.sendPacket("pong"), this.emit("pong"); break; case "error": var e = new Error("server error"); e.code = t.data, this.onError(e); break; case "message": this.emit("data", t.data), this.emit("message", t.data) } } }, { key: "onHandshake", value: function (t) { this.emit("handshake", t), this.id = t.sid, this.transport.query.sid = t.sid, this.upgrades = this.filterUpgrades(t.upgrades), this.pingInterval = t.pingInterval, this.pingTimeout = t.pingTimeout, this.onOpen(), "closed" !== this.readyState && this.resetPingTimeout() } }, { key: "resetPingTimeout", value: function () { var t = this; clearTimeout(this.pingTimeoutTimer), this.pingTimeoutTimer = setTimeout((function () { t.onClose("ping timeout") }), this.pingInterval + this.pingTimeout) } }, { key: "onDrain", value: function () { this.writeBuffer.splice(0, this.prevBufferLen), this.prevBufferLen = 0, 0 === this.writeBuffer.length ? this.emit("drain") : this.flush() } }, { key: "flush", value: function () { "closed" !== this.readyState && this.transport.writable && !this.upgrading && this.writeBuffer.length && (this.transport.send(this.writeBuffer), this.prevBufferLen = this.writeBuffer.length, this.emit("flush")) } }, { key: "write", value: function (t, e, n) { return this.sendPacket("message", t, e, n), this } }, { key: "send", value: function (t, e, n) { return this.sendPacket("message", t, e, n), this } }, { key: "sendPacket", value: function (t, e, n, r) { if ("function" == typeof e && (r = e, e = void 0), "function" == typeof n && (r = n, n = null), "closing" !== this.readyState && "closed" !== this.readyState) { (n = n || {}).compress = !1 !== n.compress; var o = { type: t, data: e, options: n }; this.emit("packetCreate", o), this.writeBuffer.push(o), r && this.once("flush", r), this.flush() } } }, { key: "close", value: function () { var t = this; function e() { t.onClose("forced close"), t.transport.close() } function n() { t.removeListener("upgrade", n), t.removeListener("upgradeError", n), e() } function r() { t.once("upgrade", n), t.once("upgradeError", n) } return "opening" !== this.readyState && "open" !== this.readyState || (this.readyState = "closing", this.writeBuffer.length ? this.once("drain", (function () { this.upgrading ? r() : e() })) : this.upgrading ? r() : e()), this } }, { key: "onError", value: function (t) { l.priorWebsocketSuccess = !1, this.emit("error", t), this.onClose("transport error", t) } }, { key: "onClose", value: function (t, e) { "opening" !== this.readyState && "open" !== this.readyState && "closing" !== this.readyState || (clearTimeout(this.pingIntervalTimer), clearTimeout(this.pingTimeoutTimer), this.transport.removeAllListeners("close"), this.transport.close(), this.transport.removeAllListeners(), this.readyState = "closed", this.id = null, this.emit("close", t, e), this.writeBuffer = [], this.prevBufferLen = 0) } }, { key: "filterUpgrades", value: function (t) { for (var e = [], n = 0, r = t.length; n < r; n++)~this.transports.indexOf(t[n]) && e.push(t[n]); return e } }]) && s(e.prototype, n), u && s(e, u), l }(l); v.priorWebsocketSuccess = !1, v.protocol = h.protocol, t.exports = v }, function (t, e) { try { t.exports = "undefined" != typeof XMLHttpRequest && "withCredentials" in new XMLHttpRequest } catch (e) { t.exports = !1 } }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o() { return (o = Object.assign || function (t) { for (var e = 1; e < arguments.length; e++) { var n = arguments[e]; for (var r in n) Object.prototype.hasOwnProperty.call(n, r) && (t[r] = n[r]) } return t }).apply(this, arguments) } function i(t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") } function s(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function c(t, e, n) { return e && s(t.prototype, e), n && s(t, n), t } function a(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && u(t, e) } function u(t, e) { return (u = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function f(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = l(t); if (e) { var o = l(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return p(this, n) } } function p(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function l(t) { return (l = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var h = n(3), y = n(10), d = n(0), v = n(13).pick, b = n(2); function m() { } var g = null != new (n(3))({ xdomain: !1 }).responseType, k = function (t) { a(n, t); var e = f(n); function n(t) { var r; if (i(this, n), r = e.call(this, t), "undefined" != typeof location) { var o = "https:" === location.protocol, s = location.port; s || (s = o ? 443 : 80), r.xd = "undefined" != typeof location && t.hostname !== location.hostname || s !== t.port, r.xs = t.secure !== o } var c = t && t.forceBase64; return r.supportsBinary = g && !c, r } return c(n, [{ key: "request", value: function () { var t = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {}; return o(t, { supportsBinary: this.supportsBinary, xd: this.xd, xs: this.xs }, this.opts), new w(this.uri(), t) } }, { key: "doWrite", value: function (t, e) { var n = "string" != typeof t && void 0 !== t, r = this.request({ method: "POST", data: t, isBinary: n }), o = this; r.on("success", e), r.on("error", (function (t) { o.onError("xhr post error", t) })) } }, { key: "doPoll", value: function () { var t = this.request(), e = this; t.on("data", (function (t) { e.onData(t) })), t.on("error", (function (t) { e.onError("xhr poll error", t) })), this.pollXhr = t } }]), n }(y), w = function (t) { a(n, t); var e = f(n); function n(t, r) { var o; return i(this, n), (o = e.call(this)).opts = r, o.method = r.method || "GET", o.uri = t, o.async = !1 !== r.async, o.data = void 0 !== r.data ? r.data : null, o.isBinary = r.isBinary, o.supportsBinary = r.supportsBinary, o.create(), o } return c(n, [{ key: "create", value: function () { var t = v(this.opts, "agent", "enablesXDR", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized"); t.xdomain = !!this.opts.xd, t.xscheme = !!this.opts.xs; var e = this.xhr = new h(t), r = this; try { e.open(this.method, this.uri, this.async); try { if (this.opts.extraHeaders) for (var o in e.setDisableHeaderCheck && e.setDisableHeaderCheck(!0), this.opts.extraHeaders) this.opts.extraHeaders.hasOwnProperty(o) && e.setRequestHeader(o, this.opts.extraHeaders[o]) } catch (t) { console.log(t) } if ("POST" === this.method) try { this.isBinary ? e.setRequestHeader("Content-type", "application/octet-stream") : e.setRequestHeader("Content-type", "text/plain;charset=UTF-8") } catch (t) { } try { e.setRequestHeader("Accept", "*/*") } catch (t) { } "withCredentials" in e && (e.withCredentials = this.opts.withCredentials), this.opts.requestTimeout && (e.timeout = this.opts.requestTimeout), this.hasXDR() ? (e.onload = function () { r.onLoad() }, e.onerror = function () { r.onError(e.responseText) }) : e.onreadystatechange = function () { if (2 === e.readyState) try { var t = e.getResponseHeader("Content-Type"); (r.supportsBinary && "application/octet-stream" === t || "application/octet-stream; charset=UTF-8" === t) && (e.responseType = "arraybuffer") } catch (t) { } 4 === e.readyState && (200 === e.status || 1223 === e.status ? r.onLoad() : setTimeout((function () { r.onError("number" == typeof e.status ? e.status : 0) }), 0)) }, e.send(this.data) } catch (t) { return void setTimeout((function () { r.onError(t) }), 0) } "undefined" != typeof document && (this.index = n.requestsCount++ , n.requests[this.index] = this) } }, { key: "onSuccess", value: function () { this.emit("success"), this.cleanup() } }, { key: "onData", value: function (t) { this.emit("data", t), this.onSuccess() } }, { key: "onError", value: function (t) { this.emit("error", t), this.cleanup(!0) } }, { key: "cleanup", value: function (t) { if (void 0 !== this.xhr && null !== this.xhr) { if (this.hasXDR() ? this.xhr.onload = this.xhr.onerror = m : this.xhr.onreadystatechange = m, t) try { this.xhr.abort() } catch (t) { } "undefined" != typeof document && delete n.requests[this.index], this.xhr = null } } }, { key: "onLoad", value: function () { var t = this.xhr.responseText; null !== t && this.onData(t) } }, { key: "hasXDR", value: function () { return "undefined" != typeof XDomainRequest && !this.xs && this.enablesXDR } }, { key: "abort", value: function () { this.cleanup() } }]), n }(d); if (w.requestsCount = 0, w.requests = {}, "undefined" != typeof document) if ("function" == typeof attachEvent) attachEvent("onunload", _); else if ("function" == typeof addEventListener) { addEventListener("onpagehide" in b ? "pagehide" : "unload", _, !1) } function _() { for (var t in w.requests) w.requests.hasOwnProperty(t) && w.requests[t].abort() } t.exports = k, t.exports.Request = w }, function (t, e, n) { var r = n(11).PACKET_TYPES, o = "function" == typeof Blob || "undefined" != typeof Blob && "[object BlobConstructor]" === Object.prototype.toString.call(Blob), i = "function" == typeof ArrayBuffer, s = function (t, e) { var n = new FileReader; return n.onload = function () { var t = n.result.split(",")[1]; e("b" + t) }, n.readAsDataURL(t) }; t.exports = function (t, e, n) { var c, a = t.type, u = t.data; return o && u instanceof Blob ? e ? n(u) : s(u, n) : i && (u instanceof ArrayBuffer || (c = u, "function" == typeof ArrayBuffer.isView ? ArrayBuffer.isView(c) : c && c.buffer instanceof ArrayBuffer)) ? e ? n(u instanceof ArrayBuffer ? u : u.buffer) : s(new Blob([u]), n) : n(r[a] + (u || "")) } }, function (t, e, n) { var r, o = n(11), i = o.PACKET_TYPES_REVERSE, s = o.ERROR_PACKET; "function" == typeof ArrayBuffer && (r = n(26)); var c = function (t, e) { if (r) { var n = r.decode(t); return a(n, e) } return { base64: !0, data: t } }, a = function (t, e) { switch (e) { case "blob": return t instanceof ArrayBuffer ? new Blob([t]) : t; case "arraybuffer": default: return t } }; t.exports = function (t, e) { if ("string" != typeof t) return { type: "message", data: a(t, e) }; var n = t.charAt(0); return "b" === n ? { type: "message", data: c(t.substring(1), e) } : i[n] ? t.length > 1 ? { type: i[n], data: t.substring(1) } : { type: i[n] } : s } }, function (t, e) { !function () { "use strict"; for (var t = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", n = new Uint8Array(256), r = 0; r < t.length; r++)n[t.charCodeAt(r)] = r; e.encode = function (e) { var n, r = new Uint8Array(e), o = r.length, i = ""; for (n = 0; n < o; n += 3)i += t[r[n] >> 2], i += t[(3 & r[n]) << 4 | r[n + 1] >> 4], i += t[(15 & r[n + 1]) << 2 | r[n + 2] >> 6], i += t[63 & r[n + 2]]; return o % 3 == 2 ? i = i.substring(0, i.length - 1) + "=" : o % 3 == 1 && (i = i.substring(0, i.length - 2) + "=="), i }, e.decode = function (t) { var e, r, o, i, s, c = .75 * t.length, a = t.length, u = 0; "=" === t[t.length - 1] && (c-- , "=" === t[t.length - 2] && c--); var f = new ArrayBuffer(c), p = new Uint8Array(f); for (e = 0; e < a; e += 4)r = n[t.charCodeAt(e)], o = n[t.charCodeAt(e + 1)], i = n[t.charCodeAt(e + 2)], s = n[t.charCodeAt(e + 3)], p[u++] = r << 2 | o >> 4, p[u++] = (15 & o) << 4 | i >> 2, p[u++] = (3 & i) << 6 | 63 & s; return f } }() }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function i(t, e, n) { return (i = "undefined" != typeof Reflect && Reflect.get ? Reflect.get : function (t, e, n) { var r = function (t, e) { for (; !Object.prototype.hasOwnProperty.call(t, e) && null !== (t = f(t));); return t }(t, e); if (r) { var o = Object.getOwnPropertyDescriptor(r, e); return o.get ? o.get.call(n) : o.value } })(t, e, n || t) } function s(t, e) { return (s = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function c(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = f(t); if (e) { var o = f(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return a(this, n) } } function a(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? u(t) : e } function u(t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t } function f(t) { return (f = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var p, l = n(10), h = n(2), y = /\n/g, d = /\\n/g; function v() { } var b = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && s(t, e) }(l, t); var e, n, r, a = c(l); function l(t) { var e; !function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, l), (e = a.call(this, t)).query = e.query || {}, p || (p = h.___eio = h.___eio || []), e.index = p.length; var n = u(e); return p.push((function (t) { n.onData(t) })), e.query.j = e.index, "function" == typeof addEventListener && addEventListener("beforeunload", (function () { n.script && (n.script.onerror = v) }), !1), e } return e = l, (n = [{ key: "doClose", value: function () { this.script && (this.script.parentNode.removeChild(this.script), this.script = null), this.form && (this.form.parentNode.removeChild(this.form), this.form = null, this.iframe = null), i(f(l.prototype), "doClose", this).call(this) } }, { key: "doPoll", value: function () { var t = this, e = document.createElement("script"); this.script && (this.script.parentNode.removeChild(this.script), this.script = null), e.async = !0, e.src = this.uri(), e.onerror = function (e) { t.onError("jsonp poll error", e) }; var n = document.getElementsByTagName("script")[0]; n ? n.parentNode.insertBefore(e, n) : (document.head || document.body).appendChild(e), this.script = e, "undefined" != typeof navigator && /gecko/i.test(navigator.userAgent) && setTimeout((function () { var t = document.createElement("iframe"); document.body.appendChild(t), document.body.removeChild(t) }), 100) } }, { key: "doWrite", value: function (t, e) { var n, r = this; if (!this.form) { var o = document.createElement("form"), i = document.createElement("textarea"), s = this.iframeId = "eio_iframe_" + this.index; o.className = "socketio", o.style.position = "absolute", o.style.top = "-1000px", o.style.left = "-1000px", o.target = s, o.method = "POST", o.setAttribute("accept-charset", "utf-8"), i.name = "d", o.appendChild(i), document.body.appendChild(o), this.form = o, this.area = i } function c() { a(), e() } function a() { if (r.iframe) try { r.form.removeChild(r.iframe) } catch (t) { r.onError("jsonp polling iframe removal error", t) } try { var t = '<iframe src="javascript:0" name="' + r.iframeId + '">'; n = document.createElement(t) } catch (t) { (n = document.createElement("iframe")).name = r.iframeId, n.src = "javascript:0" } n.id = r.iframeId, r.form.appendChild(n), r.iframe = n } this.form.action = this.uri(), a(), t = t.replace(d, "\\\n"), this.area.value = t.replace(y, "\\n"); try { this.form.submit() } catch (t) { } this.iframe.attachEvent ? this.iframe.onreadystatechange = function () { "complete" === r.iframe.readyState && c() } : this.iframe.onload = c } }, { key: "supportsBinary", get: function () { return !1 } }]) && o(e.prototype, n), r && o(e, r), l }(l); t.exports = b }, function (t, e, n) { function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } function o(t, e) { for (var n = 0; n < e.length; n++) { var r = e[n]; r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r) } } function i(t, e) { return (i = Object.setPrototypeOf || function (t, e) { return t.__proto__ = e, t })(t, e) } function s(t) { var e = function () { if ("undefined" == typeof Reflect || !Reflect.construct) return !1; if (Reflect.construct.sham) return !1; if ("function" == typeof Proxy) return !0; try { return Date.prototype.toString.call(Reflect.construct(Date, [], (function () { }))), !0 } catch (t) { return !1 } }(); return function () { var n, r = a(t); if (e) { var o = a(this).constructor; n = Reflect.construct(r, arguments, o) } else n = r.apply(this, arguments); return c(this, n) } } function c(t, e) { return !e || "object" !== r(e) && "function" != typeof e ? function (t) { if (void 0 === t) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return t }(t) : e } function a(t) { return (a = Object.setPrototypeOf ? Object.getPrototypeOf : function (t) { return t.__proto__ || Object.getPrototypeOf(t) })(t) } var u = n(4), f = n(1), p = n(5), l = n(12), h = n(13).pick, y = n(29), d = y.WebSocket, v = y.usingBrowserWebSocket, b = y.defaultBinaryType, m = "undefined" != typeof navigator && "string" == typeof navigator.product && "reactnative" === navigator.product.toLowerCase(), g = function (t) { !function (t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), e && i(t, e) }(a, t); var e, n, r, c = s(a); function a(t) { var e; return function (t, e) { if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function") }(this, a), e = c.call(this, t), t && t.forceBase64 && (e.supportsBinary = !1), e.supportsBinary = !0, e } return e = a, (n = [{ key: "doOpen", value: function () { if (this.check()) { var t, e = this.uri(), n = this.opts.protocols; t = m ? h(this.opts, "localAddress") : h(this.opts, "agent", "perMessageDeflate", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "localAddress"), this.opts.extraHeaders && (t.headers = this.opts.extraHeaders); try { this.ws = v && !m ? n ? new d(e, n) : new d(e) : new d(e, n, t) } catch (t) { return this.emit("error", t) } this.ws.binaryType = this.socket.binaryType || b, this.addEventListeners() } } }, { key: "addEventListeners", value: function () { var t = this; this.ws.onopen = function () { t.onOpen() }, this.ws.onclose = function () { t.onClose() }, this.ws.onmessage = function (e) { t.onData(e.data) }, this.ws.onerror = function (e) { t.onError("websocket error", e) } } }, { key: "write", value: function (t) { var e = this; this.writable = !1; for (var n = t.length, r = 0, o = n; r < o; r++)!function (t) { f.encodePacket(t, e.supportsBinary, (function (r) { var o = {}; v || (t.options && (o.compress = t.options.compress), e.opts.perMessageDeflate && ("string" == typeof r ? Buffer.byteLength(r) : r.length) < e.opts.perMessageDeflate.threshold && (o.compress = !1)); try { v ? e.ws.send(r) : e.ws.send(r, o) } catch (t) { } --n || (e.emit("flush"), setTimeout((function () { e.writable = !0, e.emit("drain") }), 0)) })) }(t[r]) } }, { key: "onClose", value: function () { u.prototype.onClose.call(this) } }, { key: "doClose", value: function () { void 0 !== this.ws && this.ws.close() } }, { key: "uri", value: function () { var t = this.query || {}, e = this.opts.secure ? "wss" : "ws", n = ""; return this.opts.port && ("wss" === e && 443 !== Number(this.opts.port) || "ws" === e && 80 !== Number(this.opts.port)) && (n = ":" + this.opts.port), this.opts.timestampRequests && (t[this.opts.timestampParam] = l()), this.supportsBinary || (t.b64 = 1), (t = p.encode(t)).length && (t = "?" + t), e + "://" + (-1 !== this.opts.hostname.indexOf(":") ? "[" + this.opts.hostname + "]" : this.opts.hostname) + n + this.opts.path + t } }, { key: "check", value: function () { return !(!d || "__initialize" in d && this.name === a.prototype.name) } }, { key: "name", get: function () { return "websocket" } }]) && o(e.prototype, n), r && o(e, r), a }(u); t.exports = g }, function (t, e, n) { var r = n(2); t.exports = { WebSocket: r.WebSocket || r.MozWebSocket, usingBrowserWebSocket: !0, defaultBinaryType: "arraybuffer" } }, function (t, e, n) { "use strict"; function r(t) { return (r = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (t) { return typeof t } : function (t) { return t && "function" == typeof Symbol && t.constructor === Symbol && t !== Symbol.prototype ? "symbol" : typeof t })(t) } Object.defineProperty(e, "__esModule", { value: !0 }), e.reconstructPacket = e.deconstructPacket = void 0; var o = n(15); e.deconstructPacket = function (t) { var e = [], n = t.data, i = t; return i.data = function t(e, n) { if (!e) return e; if (o.isBinary(e)) { var i = { _placeholder: !0, num: n.length }; return n.push(e), i } if (Array.isArray(e)) { for (var s = new Array(e.length), c = 0; c < e.length; c++)s[c] = t(e[c], n); return s } if ("object" === r(e) && !(e instanceof Date)) { var a = {}; for (var u in e) e.hasOwnProperty(u) && (a[u] = t(e[u], n)); return a } return e }(n, e), i.attachments = e.length, { packet: i, buffers: e } }, e.reconstructPacket = function (t, e) { return t.data = function t(e, n) { if (!e) return e; if (e && e._placeholder) return n[e.num]; if (Array.isArray(e)) for (var o = 0; o < e.length; o++)e[o] = t(e[o], n); else if ("object" === r(e)) for (var i in e) e.hasOwnProperty(i) && (e[i] = t(e[i], n)); return e }(t.data, e), t.attachments = void 0, t } }, function (t, e) { function n(t) { t = t || {}, this.ms = t.min || 100, this.max = t.max || 1e4, this.factor = t.factor || 2, this.jitter = t.jitter > 0 && t.jitter <= 1 ? t.jitter : 0, this.attempts = 0 } t.exports = n, n.prototype.duration = function () { var t = this.ms * Math.pow(this.factor, this.attempts++); if (this.jitter) { var e = Math.random(), n = Math.floor(e * this.jitter * t); t = 0 == (1 & Math.floor(10 * e)) ? t - n : t + n } return 0 | Math.min(t, this.max) }, n.prototype.reset = function () { this.attempts = 0 }, n.prototype.setMin = function (t) { this.ms = t }, n.prototype.setMax = function (t) { this.max = t }, n.prototype.setJitter = function (t) { this.jitter = t } }]) }));
-const socket = {
-    balancerPort: 4000,
-    dropPort: 4001,
-    clientData: {
-        playerName: undefined,
-        lobbyKey: undefined
-    },
-    data: {
-        publicData: {},
-        activeLobbies: [],
-        user: {}
-    },
-    sck: null,
-    authenticated: false,
-    emitEvent: (event, payload, listenResponse = false, responseTimeout = 2000) => {
-        return new Promise((resolve, reject) => {
-            let timeout = null;
-            if (listenResponse) socket.sck.once(event + " response", (data) => {
-                if (timeout) clearTimeout(timeout);
-                resolve(data.payload);
-            });
-            try { socket.sck.emit(event, { event: event, payload: payload }); }
-            catch { reject(new Error("Failed emitting event: " + event)); }
-            if (!listenResponse) resolve(true);
-            else timeout = setTimeout(() => { reject((new Error("Timed out")).stack) }, responseTimeout);
-        });
-    },
-    init: async () => {
-        // get balanced socket port
-        let contact = io("https://typo.rip:" + socket.balancerPort);
-        let balancedPort = await new Promise((resolve, reject) => {
-            setTimeout(() => !contact && reject("Cant connect to typo balancer")); // if server is not responding, use old port
-            contact.on("connect", () => {
-                contact.on("balanced port", (data) => contact = undefined || resolve(data.port));
-                contact.emit("request port", { auth: "member", client: localStorage.client});
-            });
-        });
-        socket.sck = io("https://typo.rip:" + balancedPort.toString());
-        const onConnect = async () => {
-            if (socket.sck == null) return;
-            console.log("Connected to Ithil socketio server on port " + balancedPort);
-            socket.sck.on("clear drop", (data) => {
-                drops.clearDrop(data.payload);
-            });
-            socket.sck.on("specialdrop", (data) => {
-                data.event = data.event + " response";
-                drops.specialDrop(() => socket.emitEvent(data.event, data));
-                //socket.emitEvent(data.event, data);
-            });
-            socket.sck.on("server message", (data) => {
-                addChatMessage(data.payload.title, data.payload.message);
-            });
-            socket.sck.on("rank drop", (data) => {
-                drops.rankDrop(data.payload);
-            });
-            socket.sck.on("public data", (data) => {
-                socket.data.publicData = data.payload.publicData;
-            });
-            socket.sck.on("disconnect", (reason) => {
-                // handle disconnect reasons different
-                console.log("Disconnected with reason: " + reason);
-
-                // if probably tempoary disconnect (server crash/restart, internet) enable reconnect without new balanced port
-                if (reason == "transport close" || reason == "ping timeout" || reason == "transport error") {
-                    console.log("Trying to reconnect...");
-                    socket.sck.removeAllListeners();
-
-                    socket.sck.on("connect", onConnect);
-                }
-                // if either server or client disconnected on purpose, shutdown and remove listeners
-                else {
-                    lobbies.joined = false;
-
-                    // disable socketio-reconnects 
-                    socket.sck.removeAllListeners();
-                    socket.sck.io._reconnection = false;
-                    socket.sck = null;
-                }
-            });
-            socket.sck.on("online sprites", (data) => {
-                socket.data.publicData.onlineSprites = data.payload.onlineSprites;
-                socket.data.publicData.onlineScenes = data.payload.onlineScenes;
-                socket.data.publicData.onlineItems = data.payload.onlineItems;
-            });
-            let updateTimeout = null;
-            socket.sck.on("active lobbies", (data) => {
-                socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
-                socket.data.activeLobbies.push(data.payload.activeGuildLobbies);
-                let updateIn = updateTimeout = setTimeout(() => {
-                    if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 100ms
-                    lobbies.lobbyContainer = lobbies.setLobbyContainer();
-                }, 200);
-            });
-            const accessToken = localStorage.accessToken;
-            let login = null;
-            if (!accessToken) try {
-                // if access token not found, log in with login.
-                // may be removed in future for security favors!
-                login = JSON.parse(localStorage.member).UserLogin;
-                accessToken = false;
-            } catch { }
-            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 5000);
-            if (loginstate.authorized == true) {
-                socket.authenticated = true;
-                socket.data.activeLobbies = loginstate.activeLobbies;
-                socket.data.user = (await socket.emitEvent("get user", null, true)).user;
-                localStorage.member = JSON.stringify(socket.data.user.member);
-                document.dispatchEvent(newCustomEvent("palantirLoaded"));
-            }
-            else document.dispatchEvent(newCustomEvent("palantirLoaded"));
-            lobbies.lobbyContainer = lobbies.setLobbyContainer();
-
-            let documentIdle = null;
-            let visibilitychangeDisconnect = () => {
-                if (documentIdle) clearInterval(documentIdle);
-                // if visibility changes to hidden disconnect after x seconds
-                if (document.hidden) documentIdle = setTimeout(() => {
-                    if (document.hidden && socket) {
-                        socket.disconnect();
-                        document.removeEventListener("visibilitychange", visibilitychangeDisconnect);
-                        // reconnect when doc is visible again
-                        document.addEventListener("visibilitychange", visibilitychangeConnect);
-                    }
-                }, 1000 * 60 * 5);
-            };
-            let visibilitychangeConnect = () => {
-                // reconnect when doc is visible again 
-                if (!document.hidden) {
-                    document.removeEventListener("visibilitychange", visibilitychangeConnect);
-                    socket.init();
-                }
-            }
-            document.addEventListener('visibilitychange', visibilitychangeDisconnect);
-        }
-        socket.sck.on("connect",onConnect);
-    },
-    disconnect: () => socket.sck.close(),
-    searchLobby: async (waiting = false) => {
-        try {
-            await socket.emitEvent("search lobby", { searchData: { userName: socket.clientData.playerName, waiting: waiting } });
-        }
-        catch (e) { console.log("Error setting search status:" + e.toString()); }
-    },
-    joinLobby: async (key) => {
-        try {
-            await socket.emitEvent("join lobby", { key: key }, true);
-        }
-        catch (e) { console.log("Error joining lobby status:" + e.toString()); }
-
-        // connect to websocket drop server
-        if(!socket.dropSocket) socket.dropSocket = new WebSocket("wss://typo.rip:" + socket.dropPort);
-        socket.dropSocket.addEventListener("message", (event) => {
-            // parse received drop
-            const dropdata = event.data.split(":"); // dropID:eventDropID:claimTicket
-            const drop = {
-                dropID: dropdata[0],
-                eventDropID: dropdata[1],
-                claimTicket: dropdata[2]
-            }
-            drops.newDrop(drop);
-        });
-    },
-    setLobby: async (lobby, key, description = "") => {
-        try {
-            let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby}, true));
-            let veriflobby = resp.lobbyData.lobby;
-            let owner = resp.owner;
-            lobbies.lobbyProperties.Description = veriflobby.Description;
-            if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
-            if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
-        }
-        catch (e) { console.log("Error setting lobby status:" + e.toString()); }
-    },
-    leaveLobby: async () => {
-        try {
-            let response = await socket.emitEvent("leave lobby", {joined: lobbies.joined}, true);
-            socket.data.activeLobbies = response.activeLobbies;
-        }
-        catch (e) { console.log("Error leaving playing status:" + e.toString()); }
-    },
-    claimDrop: async (drop, timeout = false, claimDetails = "") => {
-        try {
-            let response = await socket.emitEvent("claim drop", {
-                dropID: drop.dropID,
-                timedOut: timeout,
-                claimTicket: drop.claimTicket,
-                claimDetails: claimDetails
-            }, false);
-            return true;
-        }
-        catch (e) {
-            console.log("Error claiming drop:" + e.toString());
-            return { caught: false };
-        }
-    },
-    getStoredDrawings: async (query = {}, limit = 5000) => {
-        Object.keys(query).forEach(key => query[key] === undefined && delete query[key]);
-        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query}, true, 10000)).drawings;
-        return drawings;
-    },
-    setSpriteSlot: async (slot, sprite) => {
-        let user = (await socket.emitEvent("set slot", { slot: slot, sprite: sprite }, true, 10000)).user;
-        return user;
-    },
-    getUser: async () => {
-        let user = (await socket.emitEvent("get user", { }, true, 10000));
-        return user;
-    },
-    setSpriteCombo: async (combostring) => {
-        let user = (await socket.emitEvent("set combo", { combostring: combostring }, true, 10000)).user;
-        return user;
-    }
-}
-
-// #content features/lobbies.js
-﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
-window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
-
-// Initiates lobby search buttons and lobby search events
-// depends on: genericfunctions.js, socket.js
-const lobbies = {
-	userAllow: localStorage.palantir == "true",
-	inGame: false,
-	joined: false,
-	lobbyContainer: null,
-	searchData: { searching: false, check: null, proceed: null, ended: null },
-	lobbyProperties: {
-		Round: 1,
-		Private: true,
-		Link: "",
-		Host: "skribbl.io",
-		Language: "",
-		Players: [],
-		Key: "",
-		Description: ""
-	},
-	getLobbyPlayers: () => {
-		let players = [];
-		[...QSA("#game-players .player")].forEach(player => {
-			players.push({
-				Name: player.querySelector(".player-name").textContent.replace("(You)", "").trim(),
-				Score: player.querySelector(".player-score").textContent.replace("points", "").trim(),
-				Drawing: (player.querySelector(".drawing").style.display != "none"),
-				Sender: player.querySelector(".player-name").textContent.includes("(You)"),
-				LobbyPlayerID: player.getAttribute("playerid")
-			});
-		});
-		return players;
-	},
-	getTriggerElements: () => {
-		return [QS("#game-round"), QS("#game-players .players-list"), [...QSA(".avatar .drawing")]].flat();
-	},
-	setLobbyContainer: () => {
-		// get online players with lobby links
-		let onlinePlayers = [];
-		socket.data.activeLobbies.forEach(
-			guild => guild.guildLobbies.forEach(
-				lobby => lobby.Players.forEach(
-					player => player.Sender
-						&& !onlinePlayers.some(onlineplayer => onlineplayer.id == player.ID)
-						&& onlinePlayers.push({
-							id: player.ID, name: player.Name, key: lobby.Key, link: lobby.Link, players: lobby.Players.length, private: lobby.Private
-						}))));
-		let playerButtons = "";
-		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" link="${player.link}" slots=${player.players} private=${player.private} class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
-		if(playerButtons=="") playerButtons = "<span>None of your friends are online :(</span>";
-		let container = elemFromString("<div id='discordLobbies'></div>");
-		if (socket.sck?.connected) {
-			if (socket.authenticated) container.innerHTML = playerButtons;
-			else {
-				container.innerHTML = `<h3>No palantir account connected.</h3><br><button class="flatUI air min blue">Log in with Palantir</button>`;
-				container.querySelector("button")?.addEventListener("click", login);
-			}
-		}
-		else {
-			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
-        }
-		container.addEventListener("click", e => {
-			let key = e.target.getAttribute("lobby");
-			let players = e.target.getAttribute("slots");
-			let private = e.target.getAttribute("private");
-			let name = e.target.innerText;
-			if(!key) return;
-			let link = e.target.getAttribute("link")?.split("?")[1];
-			if(link){
-				if (link.length > 10) new Toast("This lobby is probably invalid or on old skribbl :/");
-				else if(private != 'false' || Number(players) < 8) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
-				else {
-					
-					let modal = new Modal(elemFromString(`<div><img src="https://c.tenor.com/fAQuR0VNdDIAAAAC/cat-cute.gif"></div>`), () => {
-						if(!search.searchData.searching) return;
-						search.searchData.ended();
-					}, "Waiting for a free slot to play with " + name, "40vw", "15em");
-			
-					search.setSearch(() => {
-						if(!QS("[lobby=" + key + "]")) {
-							search.searchData.ended();
-							new Toast("The lobby has ended :(");
-						}
-						console.log(Number(QS("[lobby=" + key + "]").getAttribute("slots")));
-						return Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
-					}, async () => {
-					}, () => {
-						QS("[lobby=" + key + "]").click();
-						search.searchData= {
-							searching: false,
-							check: undefined, proceed: undefined, ended: undefined
-						};
-						modal.close();
-					});
-
-					let interval = setInterval(()=>{
-						if(!search.searchData.searching) clearInterval(interval);
-						if(search.searchData.check()) {
-							search.searchData.ended();
-							clearInterval(interval);
-						}
-					}, 500);
-				}
-			}
-			else new Toast("This lobby is probably invalid or on old skribbl :/");
-		});
-		QS("#discordLobbies").replaceWith(container);
-	},
-	init: () => {
-		lobbies.inGame = false; // as soon as player is in a lobby
-		lobbies.joined = false; // as soon as socket has joined a lobby
-		// send reports when lobby changes
-		const lobbyObserver = new MutationObserver(async () => {
-			if (lobbies.inGame) {
-				// observe new matching elements
-				lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true}));
-				lobbies.lobbyProperties.Players = lobbies.getLobbyPlayers();
-				lobbies.lobbyProperties.Round = parseInt(QS("#game-round").textContent.trim()[6]);
-				if (!lobbies.lobbyProperties.Round) lobbies.lobbyProperties.Round = 0;
-				socket.clientData.lobbyKey = lobbies.lobbyProperties.Key;
-				let description = QS(".icon.owner.visible") ? (QS("#lobbyDesc") && QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
-				if (lobbies.joined && lobbies.userAllow) { // report lobby if joined
-					await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key, description);
-				}
-			}
-		});
-		// init lobby container
-		lobbies.lobbyContainer = lobbies.setLobbyContainer();
-		// on lobby join
-		document.addEventListener("lobbyConnected", async (e) => {
-			lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
-
-			// fill in basic lobby props 
-			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = '" + e.detail.settings[0] +"']").innerText;
-			lobbies.lobbyProperties.Private = e.detail.owner >= 0 ? true : false;
-			console.log(e.detail.id);
-			lobbies.lobbyProperties.Link = window.location.origin + "?" + e.detail.id;
-
-			// generate lobby key by hashed link
-			lobbies.lobbyProperties.Key = genMatchHash(e.detail.id);
-			lobbies.lobbyProperties.Round = e.detail.round+1;
-
-			// get own name
-			sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.users[e.detail.users.length-1].name;
-			lobbies.inGame = true;
-
-			// get initialplayers for search check and report
-			lobbies.lobbyProperties.Players = [];
-			e.detail.users.forEach(p => {
-				let add = {
-					Name: p.name,
-					Score: p.score,
-					Drawing: false,
-					LobbyPlayerID: p.id,
-					Sender: false
-				};
-				if (add.Name == socket.clientData.playerName) add.Sender = true; 
-				lobbies.lobbyProperties.Players.push(add);
-			});
-
-
-			// check if lobby search is running and criteria is met
-			if(search.searchData.searching){
-				if(search.searchData.check()){
-					search.searchData.ended();
-					QS("#searchRules")?.remove();
-				}
-				else {
-					search.searchData.proceed();
-					return;
-				}
-			}
-
-			// set as searching with timeout for report
-			if (lobbies.userAllow && !lobbies.joined) {
-				await socket.joinLobby(lobbies.lobbyProperties.Key);
-				await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
-				lobbies.joined = true;
-			}
-		});
-		// on lobby leave / login show
-		document.addEventListener("leftLobby", async () => {
-			lobbies.inGame = false;
-			if (QS("#restrictLobby")) QS("#restrictLobby").style.display = "none";
-			if (lobbies.joined) {
-				await socket.leaveLobby();
-				lobbies.joined = false;
-			}
-		});
-	}
-
-}
-
-// #content features/imageOptions.js
-﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
-window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
-
-// inits the image options bar
-// dependend on: genericfunctions.js, capture.js, commands.js
-let imageOptions = {
-    optionsContainer: undefined,
-    drawCommandsToGif: async (filename = "download", commands = null) => {
-        // generate a gif of stored draw commands
-        let workerJS = "";
-        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/b64.js"))).text();
-        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/GIFEncoder.js"))).text();
-        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/LZWEncoder.js"))).text();
-        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/NeuQuant.js"))).text();
-        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/skribblCanvas.js"))).text();
-        workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
-        let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
-        if (!commands) commands = captureCanvas.capturedCommands;
-        renderWorker.postMessage({ 'filename': filename, 'capturedCommands': commands});
-
-        // T H I C C progress bar 
-        let progressBar = document.createElement("p");
-        progressBar.style.color = "rgb(0, 0, 0)";
-        progressBar.style.background = "rgb(247, 210, 140)";
-        progressBar.innerText = String.fromCodePoint("0x2B1C").repeat(10) + " 0%";
-
-        renderWorker.onerror = (err) => {
-            progressBar.innerText = "Failed creating the GIF :(";
-            console.log(err);
-        };
-        renderWorker.addEventListener('message', function (e) {
-            if (e.data.download) {
-                progressBar.innerText = String.fromCodePoint("0x1F7E9").repeat(10) + " Done!";
-                let templink = document.createElement("a");
-                templink.download = filename;
-                templink.href = e.data.download;
-                templink.click();
-            }
-            else if (e.data.progress) {
-                let prog = Math.floor(e.data.progress * 10);
-                let miss = 10 - prog;
-                let bar = "";
-                while (prog > 0) {
-                    bar += String.fromCodePoint("0x1F7E9"); prog--;
-                }
-                while (miss > 0) {
-                    bar += String.fromCodePoint("0x2B1C"); miss--;
-                }
-                progressBar.innerText = bar;
-                let percent = Math.round(e.data.progress * 100)
-                progressBar.innerText += " " + percent + "%";
-            }
-        }, false);
-        //printCmdOutput("render");
-        QS("#game-chat .chat-container .chat-content").appendChild(progressBar);
-    },
-    initContainer: () => {
-        // new imageoptions container on the right side
-        let imgtools = elemFromString(`<div id="imageOptions"></div>`);
-        QS("#game-players").appendChild(imgtools);
-        imageOptions.optionsContainer = imgtools;
-    },
-    downloadDataURL: async (url, name = "skribbl-unknown", scale = 1) => {
-        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
-        e.initMouseEvent("click", true, true, window,
-            0, 0, 0, 0, 0, false, false, false,
-            false, 0, null);
-        d.download = name;
-        d.href = await scaleDataURL(url,
-            document.querySelector("#game-canvas canvas").width * scale,
-            document.querySelector("#game-canvas canvas").height * scale);
-        d.dispatchEvent(e);
-    },
-    initDownloadOptions: () => {
-        // add DL button for gif
-        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
-        // popup for sharing image
-        const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
-    Save Image<br><br><label for="sendImageOnly">
-        <input type="checkbox" id="dlQuality" class="flatUI small">
-        <span>High quality</span>
-    </label>
-    <button class="flatUI blue" id="dlPng" >As PNG</button><br>
-    <button class="flatUI blue" id="dlGif" >As GIF</button>
-    <button class="flatUI green" id="saveCloud">In Typo Cloud</button>
-</div>`);
-        imageOptions.optionsContainer.appendChild(downloadOptions);
-        downloadOptions.addEventListener("click", () => {
-            downloadPopup.style.display = "";
-            downloadPopup.focus();
-        });
-        imageOptions.optionsContainer.appendChild(downloadPopup);
-        QS("#dlGif").addEventListener("click", () => {
-            let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
-            e.initMouseEvent("click", true, true, window,
-                0, 0, 0, 0, 0, false, false, false,
-                false, 0, null);
-            d.download = "skribbl" + document.querySelector("#game-word .word").textContent + (drawer ? drawer : "");
-            d.href = document.querySelector("#game-canvas canvas").toDataURL("image/png;base64");
-            imageOptions.drawCommandsToGif(d.download);
-            downloadPopup.style.display = "none";
-        });
-        QS("#dlPng").addEventListener("click", async () => {
-            await imageOptions.downloadDataURL(
-                document.querySelector("#game-canvas canvas").toDataURL("image/png;base64"),
-                "skribbl-" + getCurrentWordOrHint() + "-by-" + getCurrentOrLastDrawer(),
-                QS("#dlQuality").checked ? 3 : 1
-            );
-            downloadPopup.style.display = "none";
-        });
-        QS("#saveCloud").addEventListener("click", async () => {
-            if (socket.authenticated) {
-                let name = prompt("Enter a name");
-                if(!name) name = "Practice";
-                document.dispatchEvent(newCustomEvent("drawingFinished", { detail: name }));
-                new Toast("Saved the drawing in the cloud.");
-            }
-            else {
-                new Toast("Create a palantir account to save drawings in the cloud!");
-            }
-            downloadPopup.style.display = "none";
-        });
-        Array.from(downloadPopup.children).concat(downloadPopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!downloadPopup.contains(document.activeElement)) downloadPopup.style.display = "none" }, 20); }));
-    },
-    initImagePoster: () => {
-        // popup for sharing image
-        let sharePopup = elemFromString(`<div id="sharePopup" tabIndex="-1" style="display:none">
-    Post @ Discord<br><br>
-    <input type="text" class="flatUI" id="postNameInput" placeholder="Post Title"><br>
-    <label for="sendImageOnly">
-        <input type="checkbox" id="sendImageOnly" class="flatUI small">
-        <span>Send only image</span>
-    </label>
-    <img id="shareImagePreview">
-    <div id="shareButtons">
-    </div>
-</div>`);
-        imageOptions.optionsContainer.appendChild(sharePopup);
-        let buttonCont = QS("#shareButtons");
-
-        // btn to open share popup
-        let imageShareString;
-        let imageShareStringDrawer;
-        let shareButton = elemFromString(`<img src="${chrome.runtime.getURL("res/letter.gif")}" id="shareImg" style="cursor: pointer;"  data-typo-tooltip="Post Drawing" data-tooltipdir="N">`);
-        shareButton.addEventListener("click", () => {
-            if (!localStorage.hintShareImage) {
-                alert("The shown image will be posted to one of the displayed Discord channels.\nClick with the left or right mouse button on the preview to navigate older images.");
-                localStorage.hintShareImage = "true";
-            }
-            imageShareString = QS("#game-canvas canvas").toDataURL("image/png;base64");
-            imageShareStringDrawer = getCurrentOrLastDrawer();
-            QS("#shareImagePreview").src = imageShareString;
-            QS("#shareImagePreview").setAttribute("imageIndex", -1);
-            let word = getCurrentWordOrHint();
-            QS("#postNameInput").value = word + " (" + word.length + ")";
-            sharePopup.style.display = "";
-            sharePopup.focus();
-        });
-        imageOptions.optionsContainer.appendChild(shareButton);
-
-        // image preview
-        let imagePreview = QS("#shareImagePreview");
-        let navigateImagePreview = (direction) => {
-            let currentIndex = Number(imagePreview.getAttribute("imageIndex"));
-            let allDrawings = [...captureCanvas.capturedDrawings];
-            allDrawings.push({
-                drawing: document.querySelector("#game-canvas canvas").toDataURL("2d"),
-                drawer: getCurrentOrLastDrawer(),
-                word: getCurrentWordOrHint(),
-                hint: "(" + getCurrentWordOrHint().length + ")"
-            });
-            if (currentIndex < 0) currentIndex = allDrawings.length - 1;
-            currentIndex += direction;
-            if (currentIndex >= 0 && currentIndex < allDrawings.length) {
-                imagePreview.src = allDrawings[currentIndex].drawing;
-                QS("#postNameInput").value = allDrawings[currentIndex].word + allDrawings[currentIndex].hint;
-                imageShareString = allDrawings[currentIndex].drawing;
-                imageShareStringDrawer = allDrawings[currentIndex].drawer;
-                imagePreview.setAttribute("imageIndex", currentIndex);
-            }
-        };
-        imagePreview.addEventListener("click", () => { navigateImagePreview(-1); });
-        imagePreview.addEventListener("contextmenu", (e) => { e.preventDefault(); navigateImagePreview(1); });
-
-        // get webhooks
-        let webhooks = socket.data.user.webhooks;
-
-        // add buttons to post image
-        if (!webhooks || webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
-        webhooks.forEach(async (w) => {
-            // add share button for image
-            let shareImg = document.createElement("button");
-            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
-            shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
-            shareImg.classList.add("flatUI", "green", "air");
-            shareImg.addEventListener("click", async () => {
-
-                // close popup first to avoid spamming
-                sharePopup.style.display = "none";
-                let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
-                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
-
-                // send to socket
-                await socket.emitEvent("post image", { 
-                    accessToken: localStorage.accessToken, 
-                    serverID: w.ServerID, 
-                    imageURI: imageShareString, 
-                    webhookName: w.Name,
-                    postOptions: {
-                        onlyImage: QS("#sendImageOnly").checked, 
-                        drawerName: imageShareStringDrawer, 
-                        posterName: loginName, 
-                        title: title
-                    }
-                });
-
-                new Toast("Posted image on Discord.", 2000);
-            });
-            sharePopup.appendChild(shareImg);
-        });
-        Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
-    },
-    initAll: () => {
-        imageOptions.initContainer();
-        imageOptions.initDownloadOptions();
-    }
-}
-
-// #content patcher.js
-﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
-window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
-
-// hello there
-console.log(`%c
-        _             _   _       _       _   _                           
-       | |           (_) | |     | |     | | | |     %cskribbl modded with%c
-  ___  | | __  _ __   _  | |__   | |__   | | | |_   _   _   _ __     ___  
- / __| | |/ / | '__| | | | '_ \\  | '_ \\  | | | __| | | | | | '_ \\   / _ \\ 
- \\__ \\ |   <  | |    | | | |_) | | |_) | | | | |_  | |_| | | |_) | | (_) |
- |___/ |_|\\_\\ |_|    |_| |_.__/  |_.__/  |_|  \\__|  \\__, | | .__/   \\___/ 
-                                                     __/ | | |            
-                                                    |___/  |_|     %cby tobeh#7437 %c
-
-        ➜ Typo & all its backend is open source: https://github.com/toobeeh/skribbltypo
-        ➜ Join the community: https://typo.rip/discord
-        ➜ Find more infos at: https://typo.rip/
-        ➜ Support development: https://patreon.com/skribbltypo
-                                                                    
-                                                    `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em","color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
-
-// execute inits when both DOM and palantir are loaded
-const waitForDocAndPalantir = async () => {
-    let palantirReady = false;
-    let DOMready = false;
-    return new Promise((resolve, reject) => {
-        document.addEventListener("DOMContentLoaded", () => {
-            DOMready = true;
-            if (palantirReady) resolve(true);
-        });
-        document.addEventListener("palantirLoaded", () => {
-            palantirReady = true;
-            if (DOMready) resolve(true);
-        });
-        setTimeout(() => { reject(false); }, 20000);
-    });
-}
-// await DOM load and palantir connection
-(async () => {
-    if (await waitForDocAndPalantir()) {
-        await sprites.init(); // init sprites
-        drops.initDrops(); // init drops
-        imageOptions.initImagePoster();
-        uiTweaks.updateAccountElements(); // set account elements as cabin and landing sprites
-        if (localStorage.restrictLobby == "" && socket.data.user.member) {
-            QS("#restrictLobby").dispatchEvent(new Event("click"));
-        }
-    }
-    else alert("Error connecting to Palantir :/");
-})().catch(console.error);
-
-visuals.init(); //init visual options popup
-let currentNodes = document.getElementsByTagName("*");
-
-// inject patched game.js and modify elements that are immediately after page load visible
-let patcher = new MutationObserver((mutations) => {
-         mutations.forEach((mutation) => {
-            let nodes = [...mutation.addedNodes];
-            nodes.push(...currentNodes);
-            currentNodes = [];
-             nodes.forEach(async function (node) {
-                if (localStorage.visualOptions && (node.tagName == "BODY" || node.tagName == "IMG")) { // head or image is loaded
-                    // load current options
-                    let opts = JSON.parse(localStorage.visualOptions);
-                    visuals.applyOptions(opts);
-                    // check if theme querystring is active
-                    let name = (new URLSearchParams(window.location.search)).get("themename");
-                    let theme = JSON.parse((new URLSearchParams(window.location.search)).get("theme"));
-                    if (name && theme) {
-                        window.history.pushState({}, document.title, "/");
-                        if (visuals.themes.some(t => JSON.stringify(t.options) == JSON.stringify(theme))){
-                            visuals.applyOptions(theme);
-                            localStorage.visualOptions = JSON.stringify(theme);
-                            setTimeout(() => new Toast("🥳 Activated theme " + name), 200);
-                        }
-                        else {
-                            visuals.addTheme(name, theme);
-                            visuals.applyOptions(theme);
-                            localStorage.visualOptions = JSON.stringify(theme);
-                            setTimeout(() => new Toast("🥳 Imported theme " + name), 200);
-                        }
-                    }
-                }
-                if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {
-                    // block game.js
-                    node.type = "javascript/blocked"; // block for chrome
-                    node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true });
-                    // insert patched script
-                    let script = document.createElement("script");
-                    script.src = chrome.extension.getURL("gamePatch.js");
-                    node.parentElement.appendChild(script);
-                    // add var to get access typo ressources in css
-                    document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
-                    
-                 }
-                 if (node.classList && node.classList.contains("button-play")) {
-                     node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
-                 }
-                 if (node.parentElement?.classList.contains("panels") && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
-                     const panelGrid = elemFromString("<div id='panelgrid'></div>");
-                     node.parentElement.insertBefore(panelGrid, node);
-                     node.classList.add("patched");
-                     const leftCard = elemFromString(`<div class='panel patched' > 
-                        <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
-                            <h2><span> Changelog</span><span>Typo News </span></h2>
-                            <span>Hello there!</span><span>Enjoy the new skribbl update!<br> Check out the typo changelog; some features like typo pressure and size shortcuts have been added.</span>
-                            <div class="panel" style="width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
-                                <br>${hints[Math.floor(Math.random() * hints.length)]}
-                            </div>
-                            <div style="display: grid; grid-template-columns: 50% 50%;">
-                                <typosocial media="discord"><a target="_blank" href='https://typo.rip/discord'>Typo Discord</a></typosocial>
-                                <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a></typosocial>
-                                <typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a></typosocial>
-                                <typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial>
-                            </div>
-                        </div>
-                        </div>`);
-                     let popupChanges = elemFromString(changelogRawHTML);
-                     leftCard.querySelector("h2 span").addEventListener("click", () => {
-                         new Modal(popupChanges, () => { }, "Changelog");
-                         localStorage.lastChangelogview = chrome.runtime.getManifest().version;
-                     });
-
-                     const rightCard = elemFromString(`<div class='panel patched' >
-                        <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="rightPanelContent" class="lobbies">
-                            <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
-                            <div id="lobbyBoard">
-                                <div id="discordLobbies"></div>
-                                <div id="lobbyFilters">
-                                    <button id="addFilter" class="flatUI blue min air" style="margin: .5em">Add Filter</button>
-                                </div>
-                            </div>
-                            <div id="cabinSlots" class="unauth">
-                                <div id="loginRedir"><button class="flatUI air min blue">Log in with Palantir</button></div>
-                                <div>Slot 1<p></p></div>
-                                <div>Slot 2<p></p></div>
-                                <div>Slot 3<p></p></div>
-                                <div>Slot 4<p></p></div>
-                                <div>Slot 5<p></p></div>
-                                <div>Slot 6<p></p></div>
-                                <div>Slot 7<p></p></div>
-                                <div>Slot 8<p></p></div>
-                                <div>Slot 9<p></p></div>
-                            </div>
-                        </div>
-                        </div>`);
-                     panelGrid.appendChild(leftCard);
-                     panelGrid.appendChild(node);
-                     panelGrid.appendChild(rightCard);
-                     QS("#rightPanelContent #loginRedir").addEventListener("click", login);
-                     QS("#rightPanelContent h2").addEventListener("click", (event) => {
-                         event.target.closest("#rightPanelContent").classList.toggle("cabin");
-                         event.target.closest("#rightPanelContent").classList.toggle("lobbies");
-                     });
-
-                     // init socket
-                    setTimeout(async () => {
-                        lobbies.init();
-                        await socket.init();
-                    }, 0);
-                 }
-            });
-        });
-});
-patcher.observe(document.documentElement, { attributes: false, childList: true, subtree: true });
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    // #content picker/colr_pickr.min.js
-﻿/*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
-!function (t, e) { "object" == typeof exports && "object" == typeof module ? module.exports = e() : "function" == typeof define && define.amd ? define([], e) : "object" == typeof exports ? exports.Pickr = e() : t.Pickr = e() }(window, (function () {
-    return function (t) { var e = {}; function o(n) { if (e[n]) return e[n].exports; var i = e[n] = { i: n, l: !1, exports: {} }; return t[n].call(i.exports, i, i.exports, o), i.l = !0, i.exports } return o.m = t, o.c = e, o.d = function (t, e, n) { o.o(t, e) || Object.defineProperty(t, e, { enumerable: !0, get: n }) }, o.r = function (t) { "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(t, "__esModule", { value: !0 }) }, o.t = function (t, e) { if (1 & e && (t = o(t)), 8 & e) return t; if (4 & e && "object" == typeof t && t && t.__esModule) return t; var n = Object.create(null); if (o.r(n), Object.defineProperty(n, "default", { enumerable: !0, value: t }), 2 & e && "string" != typeof t) for (var i in t) o.d(n, i, function (e) { return t[e] }.bind(null, i)); return n }, o.n = function (t) { var e = t && t.__esModule ? function () { return t.default } : function () { return t }; return o.d(e, "a", e), e }, o.o = function (t, e) { return Object.prototype.hasOwnProperty.call(t, e) }, o.p = "", o(o.s = 0) }([function (t, e, o) {
-        "use strict"; o.r(e); var n = {}; function i(t, e, o, n, i = {}) { e instanceof HTMLCollection || e instanceof NodeList ? e = Array.from(e) : Array.isArray(e) || (e = [e]), Array.isArray(o) || (o = [o]); for (const r of e) for (const e of o) r[t](e, n, { capture: !1, ...i }); return Array.prototype.slice.call(arguments, 1) } o.r(n), o.d(n, "on", (function () { return r })), o.d(n, "off", (function () { return s })), o.d(n, "createElementFromString", (function () { return a })), o.d(n, "createFromTemplate", (function () { return l })), o.d(n, "eventPath", (function () { return c })), o.d(n, "resolveElement", (function () { return p })), o.d(n, "adjustableInputNumbers", (function () { return u })); const r = i.bind(null, "addEventListener"), s = i.bind(null, "removeEventListener"); function a(t) { const e = document.createElement("div"); return e.innerHTML = t.trim(), e.firstElementChild } function l(t) { const e = (t, e) => { const o = t.getAttribute(e); return t.removeAttribute(e), o }, o = (t, n = {}) => { const i = e(t, ":obj"), r = e(t, ":ref"), s = i ? n[i] = {} : n; r && (n[r] = t); for (const n of Array.from(t.children)) { const t = e(n, ":arr"), i = o(n, t ? {} : s); t && (s[t] || (s[t] = [])).push(Object.keys(i).length ? i : n) } return n }; return o(a(t)) } function c(t) { let e = t.path || t.composedPath && t.composedPath(); if (e) return e; let o = t.target.parentElement; for (e = [t.target, o]; o = o.parentElement;)e.push(o); return e.push(document, window), e } function p(t) { return t instanceof Element ? t : "string" == typeof t ? t.split(/>>/g).reduce((t, e, o, n) => (t = t.querySelector(e), o < n.length - 1 ? t.shadowRoot : t), document) : null } function u(t, e = (t => t)) { function o(o) { const n = [.001, .01, .1][Number(o.shiftKey || 2 * o.ctrlKey)] * (o.deltaY < 0 ? 1 : -1); let i = 0, r = t.selectionStart; t.value = t.value.replace(/[\d.]+/g, (t, o) => o <= r && o + t.length >= r ? (r = o, e(Number(t), n, i)) : (i++, t)), t.focus(), t.setSelectionRange(r, r), o.preventDefault(), t.dispatchEvent(new Event("input")) } r(t, "focus", () => r(window, "wheel", o, { passive: !1 })), r(t, "blur", () => s(window, "wheel", o)) } const { min: h, max: d, floor: f, round: m } = Math; function v(t, e, o) { e /= 100, o /= 100; const n = f(t = t / 360 * 6), i = t - n, r = o * (1 - e), s = o * (1 - i * e), a = o * (1 - (1 - i) * e), l = n % 6; return [255 * [o, s, r, r, a, o][l], 255 * [a, o, o, s, r, r][l], 255 * [r, r, a, o, o, s][l]] } function b(t, e, o) { const n = (2 - (e /= 100)) * (o /= 100) / 2; return 0 !== n && (e = 1 === n ? 0 : n < .5 ? e * o / (2 * n) : e * o / (2 - 2 * n)), [t, 100 * e, 100 * n] } function y(t, e, o) { const n = h(t /= 255, e /= 255, o /= 255), i = d(t, e, o), r = i - n; let s, a; if (0 === r) s = a = 0; else { a = r / i; const n = ((i - t) / 6 + r / 2) / r, l = ((i - e) / 6 + r / 2) / r, c = ((i - o) / 6 + r / 2) / r; t === i ? s = c - l : e === i ? s = 1 / 3 + n - c : o === i && (s = 2 / 3 + l - n), s < 0 ? s += 1 : s > 1 && (s -= 1) } return [360 * s, 100 * a, 100 * i] } function g(t, e, o, n) { e /= 100, o /= 100; return [...y(255 * (1 - h(1, (t /= 100) * (1 - (n /= 100)) + n)), 255 * (1 - h(1, e * (1 - n) + n)), 255 * (1 - h(1, o * (1 - n) + n)))] } function _(t, e, o) { e /= 100; const n = 2 * (e *= (o /= 100) < .5 ? o : 1 - o) / (o + e) * 100, i = 100 * (o + e); return [t, isNaN(n) ? 0 : n, i] } function w(t) { return y(...t.match(/.{2}/g).map(t => parseInt(t, 16))) } function A(t) { t = t.match(/^[a-zA-Z]+$/) ? function (t) { if ("black" === t.toLowerCase()) return "#000"; const e = document.createElement("canvas").getContext("2d"); return e.fillStyle = t, "#000" === e.fillStyle ? null : e.fillStyle }(t) : t; const e = { cmyk: /^cmyk[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)/i, rgba: /^((rgba)|rgb)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hsla: /^((hsla)|hsl)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hsva: /^((hsva)|hsv)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hexa: /^#?(([\dA-Fa-f]{3,4})|([\dA-Fa-f]{6})|([\dA-Fa-f]{8}))$/i }, o = t => t.map(t => /^(|\d+)\.\d+|\d+$/.test(t) ? Number(t) : void 0); let n; t: for (const i in e) { if (!(n = e[i].exec(t))) continue; const r = t => !!n[2] == ("number" == typeof t); switch (i) { case "cmyk": { const [, t, e, r, s] = o(n); if (t > 100 || e > 100 || r > 100 || s > 100) break t; return { values: g(t, e, r, s), type: i } } case "rgba": { const [, , , t, e, s, a] = o(n); if (t > 255 || e > 255 || s > 255 || a < 0 || a > 1 || !r(a)) break t; return { values: [...y(t, e, s), a], a: a, type: i } } case "hexa": { let [, t] = n; 4 !== t.length && 3 !== t.length || (t = t.split("").map(t => t + t).join("")); const e = t.substring(0, 6); let o = t.substring(6); return o = o ? parseInt(o, 16) / 255 : void 0, { values: [...w(e), o], a: o, type: i } } case "hsla": { const [, , , t, e, s, a] = o(n); if (t > 360 || e > 100 || s > 100 || a < 0 || a > 1 || !r(a)) break t; return { values: [..._(t, e, s), a], a: a, type: i } } case "hsva": { const [, , , t, e, s, a] = o(n); if (t > 360 || e > 100 || s > 100 || a < 0 || a > 1 || !r(a)) break t; return { values: [t, e, s, a], a: a, type: i } } } } return { values: null, type: null } } function C(t = 0, e = 0, o = 0, n = 1) { const i = (t, e) => (o = -1) => e(~o ? t.map(t => Number(t.toFixed(o))) : t), r = { h: t, s: e, v: o, a: n, toHSVA() { const t = [r.h, r.s, r.v, r.a]; return t.toString = i(t, t => `hsva(${t[0]}, ${t[1]}%, ${t[2]}%, ${r.a})`), t }, toHSLA() { const t = [...b(r.h, r.s, r.v), r.a]; return t.toString = i(t, t => `hsla(${t[0]}, ${t[1]}%, ${t[2]}%, ${r.a})`), t }, toRGBA() { const t = [...v(r.h, r.s, r.v), r.a]; return t.toString = i(t, t => `rgba(${t[0]}, ${t[1]}, ${t[2]}, ${r.a})`), t }, toCMYK() { const t = function (t, e, o) { const n = v(t, e, o), i = n[0] / 255, r = n[1] / 255, s = n[2] / 255, a = h(1 - i, 1 - r, 1 - s); return [100 * (1 === a ? 0 : (1 - i - a) / (1 - a)), 100 * (1 === a ? 0 : (1 - r - a) / (1 - a)), 100 * (1 === a ? 0 : (1 - s - a) / (1 - a)), 100 * a] }(r.h, r.s, r.v); return t.toString = i(t, t => `cmyk(${t[0]}%, ${t[1]}%, ${t[2]}%, ${t[3]}%)`), t }, toHEXA() { const t = function (t, e, o) { return v(t, e, o).map(t => m(t).toString(16).padStart(2, "0")) }(r.h, r.s, r.v), e = r.a >= 1 ? "" : Number((255 * r.a).toFixed(0)).toString(16).toUpperCase().padStart(2, "0"); return e && t.push(e), t.toString = () => "#" + t.join("").toUpperCase(), t }, clone: () => C(r.h, r.s, r.v, r.a) }; return r } const k = t => Math.max(Math.min(t, 1), 0); function $(t) { const e = { options: Object.assign({ lock: null, onchange: () => 0, onstop: () => 0 }, t), _keyboard(t) { const { options: o } = e, { type: n, key: i } = t; if (document.activeElement === o.wrapper) { const { lock: o } = e.options, r = "ArrowUp" === i, s = "ArrowRight" === i, a = "ArrowDown" === i, l = "ArrowLeft" === i; if ("keydown" === n && (r || s || a || l)) { let n = 0, i = 0; "v" === o ? n = r || s ? 1 : -1 : "h" === o ? n = r || s ? -1 : 1 : (i = r ? -1 : a ? 1 : 0, n = l ? -1 : s ? 1 : 0), e.update(k(e.cache.x + .01 * n), k(e.cache.y + .01 * i)), t.preventDefault() } else i.startsWith("Arrow") && (e.options.onstop(), t.preventDefault()) } }, _tapstart(t) { r(document, ["mouseup", "touchend", "touchcancel"], e._tapstop), r(document, ["mousemove", "touchmove"], e._tapmove), t.cancelable && t.preventDefault(), e._tapmove(t) }, _tapmove(t) { const { options: o, cache: n } = e, { lock: i, element: r, wrapper: s } = o, a = s.getBoundingClientRect(); let l = 0, c = 0; if (t) { const e = t && t.touches && t.touches[0]; l = t ? (e || t).clientX : 0, c = t ? (e || t).clientY : 0, l < a.left ? l = a.left : l > a.left + a.width && (l = a.left + a.width), c < a.top ? c = a.top : c > a.top + a.height && (c = a.top + a.height), l -= a.left, c -= a.top } else n && (l = n.x * a.width, c = n.y * a.height); "h" !== i && (r.style.left = `calc(${l / a.width * 100}% - ${r.offsetWidth / 2}px)`), "v" !== i && (r.style.top = `calc(${c / a.height * 100}% - ${r.offsetHeight / 2}px)`), e.cache = { x: l / a.width, y: c / a.height }; const p = k(l / a.width), u = k(c / a.height); switch (i) { case "v": return o.onchange(p); case "h": return o.onchange(u); default: return o.onchange(p, u) } }, _tapstop() { e.options.onstop(), s(document, ["mouseup", "touchend", "touchcancel"], e._tapstop), s(document, ["mousemove", "touchmove"], e._tapmove) }, trigger() { e._tapmove() }, update(t = 0, o = 0) { const { left: n, top: i, width: r, height: s } = e.options.wrapper.getBoundingClientRect(); "h" === e.options.lock && (o = t), e._tapmove({ clientX: n + r * t, clientY: i + s * o }) }, destroy() { const { options: t, _tapstart: o, _keyboard: n } = e; s(document, ["keydown", "keyup"], n), s([t.wrapper, t.element], "mousedown", o), s([t.wrapper, t.element], "touchstart", o, { passive: !1 }) } }, { options: o, _tapstart: n, _keyboard: i } = e; return r([o.wrapper, o.element], "mousedown", n), r([o.wrapper, o.element], "touchstart", n, { passive: !1 }), r(document, ["keydown", "keyup"], i), e } function S(t = {}) { t = Object.assign({ onchange: () => 0, className: "", elements: [] }, t); const e = r(t.elements, "click", e => { t.elements.forEach(o => o.classList[e.target === o ? "add" : "remove"](t.className)), t.onchange(e), e.stopPropagation() }); return { destroy: () => s(...e) } }
-        /*! NanoPop 2.1.0 MIT | https://github.com/Simonwep/nanopop */
-        const O = { variantFlipOrder: { start: "sme", middle: "mse", end: "ems" }, positionFlipOrder: { top: "tbrl", right: "rltb", bottom: "btrl", left: "lrbt" }, position: "bottom", margin: 8 }, E = (t, e, o) => { const n = "object" != typeof t || t instanceof HTMLElement ? { reference: t, popper: e, ...o } : t; return { update(t = n) { const { reference: e, popper: o } = Object.assign(n, t); if (!o || !e) throw new Error("Popper- or reference-element missing."); return ((t, e, o) => { const { container: n, margin: i, position: r, variantFlipOrder: s, positionFlipOrder: a } = { container: document.documentElement.getBoundingClientRect(), ...O, ...o }, { left: l, top: c } = e.style; e.style.left = "0", e.style.top = "0"; const p = t.getBoundingClientRect(), u = e.getBoundingClientRect(), h = { t: p.top - u.height - i, b: p.bottom + i, r: p.right + i, l: p.left - u.width - i }, d = { vs: p.left, vm: p.left + p.width / 2 + -u.width / 2, ve: p.left + p.width - u.width, hs: p.top, hm: p.bottom - p.height / 2 - u.height / 2, he: p.bottom - u.height }, [f, m = "middle"] = r.split("-"), v = a[f], b = s[m], { top: y, left: g, bottom: _, right: w } = n; for (const t of v) { const o = "t" === t || "b" === t, n = h[t], [i, r] = o ? ["top", "left"] : ["left", "top"], [s, a] = o ? [u.height, u.width] : [u.width, u.height], [l, c] = o ? [_, w] : [w, _], [p, f] = o ? [y, g] : [g, y]; if (!(n < p || n + s > l)) for (const s of b) { const l = d[(o ? "v" : "h") + s]; if (!(l < f || l + a > c)) return e.style[r] = l - u[r] + "px", e.style[i] = n - u[i] + "px", t + s } } return e.style.left = l, e.style.top = c, null })(e, o, n) } } }; function L(t, e, o) { return e in t ? Object.defineProperty(t, e, { value: o, enumerable: !0, configurable: !0, writable: !0 }) : t[e] = o, t } class x { constructor(t) { L(this, "_initializingActive", !0), L(this, "_recalc", !0), L(this, "_nanopop", null), L(this, "_root", null), L(this, "_color", C()), L(this, "_lastColor", C()), L(this, "_swatchColors", []), L(this, "_setupAnimationFrame", null), L(this, "_eventListener", { init: [], save: [], hide: [], show: [], clear: [], change: [], changestop: [], cancel: [], swatchselect: [] }), this.options = t = Object.assign({ ...x.DEFAULT_OPTIONS }, t); const { swatches: e, components: o, theme: n, sliders: i, lockOpacity: r, padding: s } = t;["nano", "monolith"].includes(n) && !i && (t.sliders = "h"), o.interaction || (o.interaction = {}); const { preview: a, opacity: l, hue: c, palette: p } = o; o.opacity = !r && l, o.palette = p || a || l || c, this._preBuild(), this._buildComponents(), this._bindEvents(), this._finalBuild(), e && e.length && e.forEach(t => this.addSwatch(t)); const { button: u, app: h } = this._root; this._nanopop = E(u, h, { margin: s }), u.setAttribute("role", "button"), u.setAttribute("aria-label", this._t("btn:toggle")); const d = this; this._setupAnimationFrame = requestAnimationFrame((function e() { if (!h.offsetWidth) return requestAnimationFrame(e); d.setColor(t.default), d._rePositioningPicker(), t.defaultRepresentation && (d._representation = t.defaultRepresentation, d.setColorRepresentation(d._representation)), t.showAlways && d.show(), d._initializingActive = !1, d._emit("init") })) } _preBuild() { const { options: t } = this; for (const e of ["el", "container"]) t[e] = p(t[e]); this._root = (t => { const { components: e, useAsButton: o, inline: n, appClass: i, theme: r, lockOpacity: s } = t.options, a = t => t ? "" : 'style="display:none" hidden', c = e => t._t(e), p = l(`\n      <div :ref="root" class="pickr">\n\n        ${o ? "" : '<button type="button" :ref="button" class="pcr-button"></button>'}\n\n        <div :ref="app" class="pcr-app ${i || ""}" data-theme="${r}" ${n ? 'style="position: unset"' : ""} aria-label="${c("ui:dialog")}" role="window">\n          <div class="pcr-selection" ${a(e.palette)}>\n            <div :obj="preview" class="pcr-color-preview" ${a(e.preview)}>\n              <button type="button" :ref="lastColor" class="pcr-last-color" aria-label="${c("btn:last-color")}"></button>\n              <div :ref="currentColor" class="pcr-current-color"></div>\n            </div>\n\n            <div :obj="palette" class="pcr-color-palette">\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="palette" class="pcr-palette" tabindex="0" aria-label="${c("aria:palette")}" role="listbox"></div>\n            </div>\n\n            <div :obj="hue" class="pcr-color-chooser" ${a(e.hue)}>\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="slider" class="pcr-hue pcr-slider" tabindex="0" aria-label="${c("aria:hue")}" role="slider"></div>\n            </div>\n\n            <div :obj="opacity" class="pcr-color-opacity" ${a(e.opacity)}>\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="slider" class="pcr-opacity pcr-slider" tabindex="0" aria-label="${c("aria:opacity")}" role="slider"></div>\n            </div>\n          </div>\n\n          <div class="pcr-swatches ${e.palette ? "" : "pcr-last"}" :ref="swatches"></div>\n\n          <div :obj="interaction" class="pcr-interaction" ${a(Object.keys(e.interaction).length)}>\n            <input :ref="result" class="pcr-result" type="text" spellcheck="false" ${a(e.interaction.input)} aria-label="${c("aria:input")}">\n\n            <input :arr="options" class="pcr-type" data-type="HEXA" value="${s ? "HEX" : "HEXA"}" type="button" ${a(e.interaction.hex)}>\n            <input :arr="options" class="pcr-type" data-type="RGBA" value="${s ? "RGB" : "RGBA"}" type="button" ${a(e.interaction.rgba)}>\n            <input :arr="options" class="pcr-type" data-type="HSLA" value="${s ? "HSL" : "HSLA"}" type="button" ${a(e.interaction.hsla)}>\n            <input :arr="options" class="pcr-type" data-type="HSVA" value="${s ? "HSV" : "HSVA"}" type="button" ${a(e.interaction.hsva)}>\n            <input :arr="options" class="pcr-type" data-type="CMYK" value="CMYK" type="button" ${a(e.interaction.cmyk)}>\n\n            <input :ref="save" class="pcr-save" value="${c("btn:save")}" type="button" ${a(e.interaction.save)} aria-label="${c("aria:btn:save")}">\n            <input :ref="cancel" class="pcr-cancel" value="${c("btn:cancel")}" type="button" ${a(e.interaction.cancel)} aria-label="${c("aria:btn:cancel")}">\n            <input :ref="clear" class="pcr-clear" value="${c("btn:clear")}" type="button" ${a(e.interaction.clear)} aria-label="${c("aria:btn:clear")}">\n          </div>\n        </div>\n      </div>\n    `), u = p.interaction; return u.options.find(t => !t.hidden && !t.classList.add("active")), u.type = () => u.options.find(t => t.classList.contains("active")), p })(this), t.useAsButton && (this._root.button = t.el), t.container.appendChild(this._root.root) } _finalBuild() { const t = this.options, e = this._root; if (t.container.removeChild(e.root), t.inline) { const o = t.el.parentElement; t.el.nextSibling ? o.insertBefore(e.app, t.el.nextSibling) : o.appendChild(e.app) } else t.container.appendChild(e.app); t.useAsButton ? t.inline && t.el.remove() : t.el.parentNode.replaceChild(e.root, t.el), t.disabled && this.disable(), t.comparison || (e.button.style.transition = "none", t.useAsButton || (e.preview.lastColor.style.transition = "none")), this.hide() } _buildComponents() { const t = this, e = this.options.components, o = (t.options.sliders || "v").repeat(2), [n, i] = o.match(/^[vh]+$/g) ? o : [], r = () => this._color || (this._color = this._lastColor.clone()), s = { palette: $({ element: t._root.palette.picker, wrapper: t._root.palette.palette, onstop: () => t._emit("changestop", "slider", t), onchange(o, n) { if (!e.palette) return; const i = r(), { _root: s, options: a } = t, { lastColor: l, currentColor: c } = s.preview; t._recalc && (i.s = 100 * o, i.v = 100 - 100 * n, i.v < 0 && (i.v = 0), t._updateOutput("slider")); const p = i.toRGBA().toString(0); this.element.style.background = p, this.wrapper.style.background = `\n                        linear-gradient(to top, rgba(0, 0, 0, ${i.a}), transparent),\n                        linear-gradient(to left, hsla(${i.h}, 100%, 50%, ${i.a}), rgba(255, 255, 255, ${i.a}))\n                    `, a.comparison ? a.useAsButton || t._lastColor || l.style.setProperty("--pcr-color", p) : (s.button.style.color = p, s.button.classList.remove("clear")); const u = i.toHEXA().toString(); for (const { el: e, color: o } of t._swatchColors) e.classList[u === o.toHEXA().toString() ? "add" : "remove"]("pcr-active"); c.style.setProperty("--pcr-color", p) } }), hue: $({ lock: "v" === i ? "h" : "v", element: t._root.hue.picker, wrapper: t._root.hue.slider, onstop: () => t._emit("changestop", "slider", t), onchange(o) { if (!e.hue || !e.palette) return; const n = r(); t._recalc && (n.h = 360 * o), this.element.style.backgroundColor = `hsl(${n.h}, 100%, 50%)`, s.palette.trigger() } }), opacity: $({ lock: "v" === n ? "h" : "v", element: t._root.opacity.picker, wrapper: t._root.opacity.slider, onstop: () => t._emit("changestop", "slider", t), onchange(o) { if (!e.opacity || !e.palette) return; const n = r(); t._recalc && (n.a = Math.round(100 * o) / 100), this.element.style.background = `rgba(0, 0, 0, ${n.a})`, s.palette.trigger() } }), selectable: S({ elements: t._root.interaction.options, className: "active", onchange(e) { t._representation = e.target.getAttribute("data-type").toUpperCase(), t._recalc && t._updateOutput("swatch") } }) }; this._components = s } _bindEvents() { const { _root: t, options: e } = this, o = [r(t.interaction.clear, "click", () => this._clearColor()), r([t.interaction.cancel, t.preview.lastColor], "click", () => { this.setHSVA(...(this._lastColor || this._color).toHSVA(), !0), this._emit("cancel") }), r(t.interaction.save, "click", () => { !this.applyColor() && !e.showAlways && this.hide() }), r(t.interaction.result, ["keyup", "input"], t => { this.setColor(t.target.value, !0) && !this._initializingActive && (this._emit("change", this._color, "input", this), this._emit("changestop", "input", this)), t.stopImmediatePropagation() }), r(t.interaction.result, ["focus", "blur"], t => { this._recalc = "blur" === t.type, this._recalc && this._updateOutput(null) }), r([t.palette.palette, t.palette.picker, t.hue.slider, t.hue.picker, t.opacity.slider, t.opacity.picker], ["mousedown", "touchstart"], () => this._recalc = !0, { passive: !0 })]; if (!e.showAlways) { const n = e.closeWithKey; o.push(r(t.button, "click", () => this.isOpen() ? this.hide() : this.show()), r(document, "keyup", t => this.isOpen() && (t.key === n || t.code === n) && this.hide()), r(document, ["touchstart", "mousedown"], e => { this.isOpen() && !c(e).some(e => e === t.app || e === t.button) && this.hide() }, { capture: !0 })) } if (e.adjustableNumbers) { const e = { rgba: [255, 255, 255, 1], hsva: [360, 100, 100, 1], hsla: [360, 100, 100, 1], cmyk: [100, 100, 100, 100] }; u(t.interaction.result, (t, o, n) => { const i = e[this.getColorRepresentation().toLowerCase()]; if (i) { const e = i[n], r = t + (e >= 100 ? 1e3 * o : o); return r <= 0 ? 0 : Number((r < e ? r : e).toPrecision(3)) } return t }) } if (e.autoReposition && !e.inline) { let t = null; const n = this; o.push(r(window, ["scroll", "resize"], () => { n.isOpen() && (e.closeOnScroll && n.hide(), null === t ? (t = setTimeout(() => t = null, 100), requestAnimationFrame((function e() { n._rePositioningPicker(), null !== t && requestAnimationFrame(e) }))) : (clearTimeout(t), t = setTimeout(() => t = null, 100))) }, { capture: !0 })) } this._eventBindings = o } _rePositioningPicker() { const { options: t } = this; if (!t.inline) { if (!this._nanopop.update({ container: document.body.getBoundingClientRect(), position: t.position })) { const t = this._root.app, e = t.getBoundingClientRect(); t.style.top = (window.innerHeight - e.height) / 2 + "px", t.style.left = (window.innerWidth - e.width) / 2 + "px" } } } _updateOutput(t) { const { _root: e, _color: o, options: n } = this; if (e.interaction.type()) { const t = "to" + e.interaction.type().getAttribute("data-type"); e.interaction.result.value = "function" == typeof o[t] ? o[t]().toString(n.outputPrecision) : "" } !this._initializingActive && this._recalc && this._emit("change", o, t, this) } _clearColor(t = !1) { const { _root: e, options: o } = this; o.useAsButton || (e.button.style.color = "rgba(0, 0, 0, 0.15)"), e.button.classList.add("clear"), o.showAlways || this.hide(), this._lastColor = null, this._initializingActive || t || (this._emit("save", null), this._emit("clear")) } _parseLocalColor(t) { const { values: e, type: o, a: n } = A(t), { lockOpacity: i } = this.options, r = void 0 !== n && 1 !== n; return e && 3 === e.length && (e[3] = void 0), { values: !e || i && r ? null : e, type: o } } _t(t) { return this.options.i18n[t] || x.I18N_DEFAULTS[t] } _emit(t, ...e) { this._eventListener[t].forEach(t => t(...e, this)) } on(t, e) { return this._eventListener[t].push(e), this } off(t, e) { const o = this._eventListener[t] || [], n = o.indexOf(e); return ~n && o.splice(n, 1), this } addSwatch(t) { const { values: e } = this._parseLocalColor(t); if (e) { const { _swatchColors: t, _root: o } = this, n = C(...e), i = a(`<button type="button" style="--pcr-color: ${n.toRGBA().toString(0)}" aria-label="${this._t("btn:swatch")}"/>`); return o.swatches.appendChild(i), t.push({ el: i, color: n }), this._eventBindings.push(r(i, "click", () => { this.setHSVA(...n.toHSVA(), !0), this._emit("swatchselect", n), this._emit("change", n, "swatch", this) })), !0 } return !1 } removeSwatch(t) { const e = this._swatchColors[t]; if (e) { const { el: o } = e; return this._root.swatches.removeChild(o), this._swatchColors.splice(t, 1), !0 } return !1 } applyColor(t = !1) { const { preview: e, button: o } = this._root, n = this._color.toRGBA().toString(0); return e.lastColor.style.setProperty("--pcr-color", n), this.options.useAsButton || o.style.setProperty("--pcr-color", n), o.classList.remove("clear"), this._lastColor = this._color.clone(), this._initializingActive || t || this._emit("save", this._color), this } destroy() { cancelAnimationFrame(this._setupAnimationFrame), this._eventBindings.forEach(t => s(...t)), Object.keys(this._components).forEach(t => this._components[t].destroy()) } destroyAndRemove() { this.destroy(); const { root: t, app: e } = this._root; t.parentElement && t.parentElement.removeChild(t), e.parentElement.removeChild(e), Object.keys(this).forEach(t => this[t] = null) } hide() { return !!this.isOpen() && (this._root.app.classList.remove("visible"), this._emit("hide"), !0) } show() { return !this.options.disabled && !this.isOpen() && (this._root.app.classList.add("visible"), this._rePositioningPicker(), this._emit("show", this._color), this) } isOpen() { return this._root.app.classList.contains("visible") } setHSVA(t = 360, e = 0, o = 0, n = 1, i = !1) { const r = this._recalc; if (this._recalc = !1, t < 0 || t > 360 || e < 0 || e > 100 || o < 0 || o > 100 || n < 0 || n > 1) return !1; this._color = C(t, e, o, n); const { hue: s, opacity: a, palette: l } = this._components; return s.update(t / 360), a.update(n), l.update(e / 100, 1 - o / 100), i || this.applyColor(), r && this._updateOutput(), this._recalc = r, !0 } setColor(t, e = !1) { if (null === t) return this._clearColor(e), !0; const { values: o, type: n } = this._parseLocalColor(t); if (o) { const t = n.toUpperCase(), { options: i } = this._root.interaction, r = i.find(e => e.getAttribute("data-type") === t); if (r && !r.hidden) for (const t of i) t.classList[t === r ? "add" : "remove"]("active"); return !!this.setHSVA(...o, e) && this.setColorRepresentation(t) } return !1 } setColorRepresentation(t) { return t = t.toUpperCase(), !!this._root.interaction.options.find(e => e.getAttribute("data-type").startsWith(t) && !e.click()) } getColorRepresentation() { return this._representation } getColor() { return this._color } getSelectedColor() { return this._lastColor } getRoot() { return this._root } disable() { return this.hide(), this.options.disabled = !0, this._root.button.classList.add("disabled"), this } enable() { return this.options.disabled = !1, this._root.button.classList.remove("disabled"), this } } L(x, "utils", n), L(x, "version", "1.8.1"), L(x, "I18N_DEFAULTS", { "ui:dialog": "color picker dialog", "btn:toggle": "toggle color picker dialog", "btn:swatch": "color swatch", "btn:last-color": "use previous color", "btn:save": "Save", "btn:cancel": "Cancel", "btn:clear": "Clear", "aria:btn:save": "save and close", "aria:btn:cancel": "cancel and close", "aria:btn:clear": "clear and close", "aria:input": "color input field", "aria:palette": "color selection area", "aria:hue": "hue selection slider", "aria:opacity": "selection slider" }), L(x, "DEFAULT_OPTIONS", { appClass: null, theme: "classic", useAsButton: !1, padding: 8, disabled: !1, comparison: !0, closeOnScroll: !1, outputPrecision: 0, lockOpacity: !1, autoReposition: !0, container: "body", components: { interaction: {} }, i18n: {}, swatches: null, inline: !1, sliders: null, default: "#42445a", defaultRepresentation: null, position: "bottom-middle", adjustableNumbers: !0, showAlways: !1, closeWithKey: "Escape" }), L(x, "create", t => new x(t)); e.default = x
-    }]).default
-}));
-//# sourceMappingURL=pickr.min.js.map
-
-// #content features/commands.js
-﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
-window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
-
-/*
- * Extends service.js contentscript
-  Command detection:
-  - commands are registered in the commands array
-  - consist of actions
-  - performCommand finds a suitable comamnd & executes the ommands actions with applied parameters / arguemnts
-
-    heheheh now this is finally hot reworked code and not a fucking mess anymore
-*/
-
-const commands = [
-    {
-        command: "charbar",
-        options: {
-            type: "toggle",
-            description: "Sets the charbar visibility.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.charbar = "true";
-            },
-            actionDisable: () => {
-                localStorage.charbar = "false";
-            },
-            actionAfter: (args) => {
-                QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup"));
-            },
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " char count.";
-            }
-        }
-    }, {
-        command: "controls",
-        options: {
-            type: "toggle",
-            description: "Sets the controls visibility.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.controls = "true";
-                QS("#controls").style.display = "flex";
-            },
-            actionDisable: () => {
-                localStorage.controls = "false";
-                QS("#controls").style.display = "none";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " controls.";
-            }
-        }
-    }, {
-        command: "palantir",
-        options: {
-            type: "toggle",
-            description: "Sets the palantir visibility.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.palantir = "true";
-                lobbies.userAllow = true;
-                if (lobbies.inGame && !lobbies.joined) {
-                    socket.joinLobby(lobbies.lobbyProperties.Key);
-                    lobbies.joined = true;
-                }
-                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
-            },
-            actionDisable: () => {
-                localStorage.palantir = "false";
-                lobbies.userAllow = false;
-                if(lobbies.joined) socket.leaveLobby();
-                lobbies.joined = false;
-            },
-            actionAfter: null,
-            response: (state) => {
-                return "You're now " + (state ? "visible" : "invisible") + " on Palantir.";
-            }
-        }
-    }, {
-        command: "typotoolbar",
-        options: {
-            type: "toggle",
-            description: "Sets the toolbar style.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.typotoolbar = "true";
-                QS("#game-toolbar").classList.add("typomod");
-            },
-            actionDisable: () => {
-                localStorage.typotoolbar = "false";
-                QS("#game-toolbar").classList.remove("typomod");
-            },
-            actionAfter: null,
-            response: (state) => {
-                return "The toolbar style is now " + (state ? "typo-modded" : "original") + ".";
-            }
-        }
-    }, {
-        command: "clr",
-        options: {
-            type: "action",
-            description: "Deletes all but the last 50 messages.",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                let elems = [...QSA("#game-chat .chat-container .chat-content > *")];
-                if (elems.length > 50) elems = elems.slice(0, -50);
-                elems.forEach(elem => elem.remove());
-            },
-            response: (args) => {
-                return "Removed all but the last 50 messages.";
-            }
-        }
-    }, {
-        command: "chatcommands",
-        options: {
-            type: "toggle",
-            description: "Sets the chat command detection feature.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.chatcommands = "true";
-            },
-            actionDisable: () => {
-                localStorage.chatcommands = "false";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " chat commands.";
-            }
-        }
-    }, {
-        command: "experimental",
-        options: {
-            type: "toggle",
-            description: "Sets the experimental features.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.experimental = "true";
-            },
-            actionDisable: () => {
-                localStorage.experimental = "false";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " experimental features.";
-            }
-        }
-    }, {
-        command: "emojipicker",
-        options: {
-            type: "toggle",
-            description: "Sets the emoji picker visibility.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.emojipicker = "true";
-            },
-            actionDisable: () => {
-                localStorage.emojipicker = "false";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " the emoji picker.";
-            }
-        }
-    }, {
-        command: "drops",
-        options: {
-            type: "toggle",
-            description: "Sets the drop visibility.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.drops = "true";
-            },
-            actionDisable: () => {
-                localStorage.drops = "false";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return "Drops " + (!state ? "won't show anymore" : "will be visible") + " on the canvas.";
-            }
-        }
-    }, {
-        command: "dropmsgs",
-        options: {
-            type: "toggle",
-            description: "Sets visibility of the drop message of others.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.dropmsgs = "true";
-            },
-            actionDisable: () => {
-                localStorage.dropmsgs = "false";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return "Drop messages of others " + (!state ? "won't show anymore" : "will be visible") + " in the chat.";
-            }
-        }
-    }, {
-        command: "zoomdraw",
-        options: {
-            type: "toggle",
-            description: "Sets the zoom draw feature.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.zoomdraw = "true";
-            },
-            actionDisable: () => {
-                localStorage.zoomdraw = "false";
-                uiTweaks.resetZoom();
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " canvas zoom (STRG+Click).";
-            }
-        }
-    }, {
-        command: "like",
-        options: {
-            type: "action",
-            description: "Executes a like.",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                QS("#game-rate .like").dispatchEvent(new Event("click"));
-            },
-            response: (args) => {
-                return "You liked " + getCurrentOrLastDrawer() + "s drawing.";
-            }
-        }
-    }, {
-        command: "shame",
-        options: {
-            type: "action",
-            description: "Executes a dislike.",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                QS("#game-rate .dislike").dispatchEvent(new Event("click"));
-            },
-            response: (args) => {
-                return "You disliked " + getCurrentOrLastDrawer() + "s drawing.";
-            }
-        }
-    }, {
-        command: "typotools",
-        options: {
-            type: "toggle",
-            description: "Shows or hides the typo tools.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.typotools = "true";
-                /* QS("#randomColor").style.display = "";
-                QS("#colPicker").style.display = ""; */
-                QS("#typotoolbar").style.display = "";
-            },
-            actionDisable: () => {
-                localStorage.typotools = "false";
-                /* QS("#randomColor").style.display = "none";
-                QS("#colPicker").style.display = "none"; */
-                QS("#typotoolbar").style.display = "none";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " random color & color picker tools.";
-            }
-        }
-    }, {
-        command: "agent",
-        options: {
-            type: "toggle",
-            description: "Sets the agent feature.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.agent = "true";
-                QS("#imageAgent").style.display = "";
-            },
-            actionDisable: () => {
-                localStorage.agent = "false";
-                QS("#imageAgent").style.display = "none";
-            },
-            actionAfter: (state) => {
-                scrollMessages();
-            },
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " image agent.";
-            }
-        }
-    }, {
-        command: "typoink",
-        options: {
-            type: "toggle",
-            description: "Enables typo's ink drawing instead built-in.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.typoink = "true";
-            },
-            actionDisable: () => {
-                localStorage.typoink = "false";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " typo inkmodes.";
-            }
-        }
-    }, {
-        command: "quickreact",
-        options: {
-            type: "toggle",
-            description: "Sets the quickreact feature.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.quickreact = "true";
-            },
-            actionDisable: () => {
-                localStorage.quickreact = "false";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " quick reaction menu.";
-            }
-        }
-    }, {
-        command: "markup",
-        options: {
-            type: "toggle",
-            description: "Sets the markup feature.",
-            actionBefore: null,
-            actionEnable: () => {
-                localStorage.markup = "true";
-            },
-            actionDisable: () => {
-                localStorage.markup = "false";
-            },
-            actionAfter: null,
-            response: (state) => {
-                return (state ? "Enabled" : "Disabled") + " chat markup.";
-            }
-        }
-    }, {
-        command: "setmember",
-        options: {
-            type: "action",
-            description: "Sets the logged in member. Argument: member json",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                localStorage.member = args;
-            },
-            response: (args) => {
-                return "Logged in!";
-            }
-        }
-    }, {
-        command: "kick",
-        options: {
-            type: "action",
-            description: "Kicks a player. Press AltGr to view player IDs. Argument: player ID",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-            },
-            response: (args) => {
-                let kickPlayer = QS("div[playerid='" + args + "']");
-                if (!kickPlayer) kickPlayer = QS(".player .drawing[style*='block'").closest(".player");
-                if(kickPlayer) document.dispatchEvent(newCustomEvent("socketEmit", { detail: { id: 5, data: parseInt(kickPlayer.getAttribute("playerid")) } }));
-                return kickPlayer ? "Executed kick for " + kickPlayer.querySelector(".player-name").textContent.replace("(You)","").trim() : "No-one to kick :(";
-            }
-        }
-    }, {
-        command: "randominterval",
-        options: {
-            type: "action",
-            description: "Sets the random interval. Argument: interval in ms",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                localStorage.randominterval = args;
-            },
-            response: (args) => {
-                return "The random color brush interval is now " + args + "ms.";
-            }
-        }
-    }, {
-        command: "markupcolor",
-        options: {
-            type: "action",
-            description: "Sets the markup color. Argument: degree component of HSL",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                localStorage.markupcolor = args;
-            },
-            response: (args) => {
-                const color = new Color({h:Number(args), s:100, l:90});
-                return "The highlight color for your messages is now " + color.hex + ".";
-            }
-        }
-    }, {
-        command: "sens",
-        options: {
-            type: "action",
-            description: "Sets the pressure sensitivity. Argument: sensitivity",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                localStorage.sens = args;
-            },
-            response: (args) => {
-                return "Tablet pressure sensitivity is now at " + args + "%.";
-            }
-        }
-    }, {
-        command: "usepalette",
-        options: {
-            type: "action",
-            description: "Uses a palette. Argument: palette name",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                if (uiTweaks.palettes.some(palette => palette.name == args)) localStorage.palette = args;
-                uiTweaks.palettes.find(palette => palette.name == args)?.activate();
-            },
-            response: (args) => {
-                return localStorage.palette == args ? "Activated custom palette " + args + "." : "Custom palette not found :(";
-            }
-        }
-    }, {
-        command: "addpalette",
-        options: {
-            type: "action",
-            description: "Adds a palette. Argument: palette json",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                uiTweaks.palettes.push(createColorPalette(JSON.parse(args)));
-                let palettesSave = [];
-                uiTweaks.palettes.forEach(palette => {
-                    if (palette.json) palettesSave.push(JSON.parse(palette.json));
-                });
-                localStorage.customPalettes = JSON.stringify(palettesSave);
-            },
-            response: (args) => {
-                return "Added custom palette:" + JSON.parse(args).name;
-            }
-        }
-    }, {
-        command: "rempalette",
-        options: {
-            type: "action",
-            description: "Removes a palette. Argument: palette name",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: (args) => {
-                uiTweaks.palettes = uiTweaks.palettes.filter(palette => palette.name != args);
-                let palettesSave = [];
-                uiTweaks.palettes.forEach(palette => {
-                    if (palette.json) palettesSave.push(JSON.parse(palette.json));
-                });
-                localStorage.customPalettes = JSON.stringify(palettesSave);
-            },
-            response: (args) => {
-                return "Removed palette(s) with name:" + args;
-            }
-        }
-    }, {
-        command: "help",
-        options: {
-            type: "action",
-            description: "Shows some help about chat commands.",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: () => {
-                let help = "<div style='padding:.5em;'><h4>Overview of commands</h4><small><b>Types of commands:</b><br>Toggle - use with 'enable' / 'disable' + command name.<br>Action - execute with command name + arguments.<br><br>";
-                help += "<h4>Commands:</h4>";
-                commands.forEach(cmd => {
-                    help += `<b>${cmd.command} (${cmd.options.type}):</b> ${cmd.options.description}<br><br>`;
-                });
-                help += "</small></div>";
-                QS("#game-chat .chat-container .chat-content").appendChild(elemFromString(help));
-            },
-            response: (args) => {
-                return "";
-            }
-        }
-    }, {
-        command: "resettypo",
-        options: {
-            type: "action",
-            description: "Resets everything to the defaults.",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: () => {
-                setDefaults(true);
-                window.location.reload();
-            },
-            response: (args) => {
-                return "";
-            }
-        }
-    }, {
-        command: "newvision",
-        options: {
-            type: "action",
-            description: "Open a new image overlay.",
-            actionBefore: null,
-            actionEnable: null,
-            actionDisable: null,
-            actionAfter: () => {
-                new Vision();
-            },
-            response: (args) => {
-                return "Overlay opened.";
-            }
-        }
-    }
-
-];
-
-const performCommand = (command) => {
-    // get raw command
-    command = command.replace("--","").trim();
-    let toggle = null;
-    // check if command is toggle
-    if (command.startsWith("enable")) toggle = true;
-    else if (command.startsWith("disable")) toggle = false;
-    command = command.replace("enable", "").replace("disable", "").trim();
-    // extract args
-    const args = command.includes(" ") ? command.substr(command.indexOf(" ")).trim() : "";
-    command = command.replace(args, "").trim();
-    match = false;
-    // find matching command
-    commands.forEach(cmd => {
-        if (cmd.command.startsWith(command) && command.includes(cmd.command) && !match) {
-            match = true;
-            // execute command actions
-            if (cmd.options.actionBefore) cmd.options.actionBefore(args);
-            if (cmd.options.type == "toggle") if (toggle == true) cmd.options.actionEnable();
-            else cmd.options.actionDisable();
-            if (cmd.options.actionAfter) cmd.options.actionAfter(args);
-            const response = cmd.options.response(cmd.options.type == "toggle" ? toggle : args);
-            // print output
-            QS("#game-chat .chat-container .chat-content").appendChild(
-                elemFromString(`<p><b style="color: rgb(57, 117, 206);">Command: ${cmd.command}</b><br><span style="color: rgb(57, 117, 206);">${response}</span></p>`));
-        }
-    });
-    if (!match) {
-        // print error - no matching command 
-        QS("#game-chat .chat-container .chat-content").appendChild(
-            elemFromString(`<p><b style="color: rgb(57, 117, 206);">Command failed: ${command}</b><br><span style="color: rgb(57, 117, 206);">Not found :(</span></p>`));
-    }
-    scrollMessages();
-}
-
-const addChatMessage = (title, content) => {
-    let box = document.querySelector(".chat-content");
-    let scroll = Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 30;
-    box.appendChild(
-        elemFromString(`<p>${ title != "" ? `<b style="color: rgb(57, 117, 206);">${title}</b><br>` : "" }<span style="color: rgb(57, 117, 206);">${content}</span></p>`));
-    if(scroll) scrollMessages();
 }
 
 // #content features/capture.js
@@ -6797,4 +6815,7 @@ setTimeout(async () => await emojis.init(), 0); // init emojis
 
 
 
-});
+};
+
+/* run setup */
+execTypo();
