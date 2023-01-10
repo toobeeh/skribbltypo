@@ -1,10 +1,10 @@
 
 // ==UserScript==
-// @name skribbltypo
+// @name skribbltypo 
 // @website https://typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo. Limited support
-// @version 0.0.1
+// @version 24.1.3
 // @grant none
 // @match https://skribbl.io/*
 // @run-at document-start
