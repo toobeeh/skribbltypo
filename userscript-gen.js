@@ -74,19 +74,34 @@ const chrome = {
 
 `;
 
-/* add bundle styles */
+/* combine bundles */
 bundle += `
-document.body.insertAdjacentHTML("afterbegin", \`<style>${bundle_styles}</style>\`);
-`;
 
-/* add bundle pre dom load */
-bundle += bundle_begin;
+/* async typo setup for same-context of differently timed executions */
+const execTypo = async () => {
 
-/* add bundle post dom load */
-bundle += `
-document.addEventListener("DOMContentLoaded", () => {
+    /* dom content load promise */
+    const loaded = new Promise((resolve, reject) => {
+        document.addEventListener("DOMContentLoaded", () => {
+            resolve();
+        });
+    });
+
+    /* bundle styles */
+    document.body.insertAdjacentHTML("afterbegin", \`<style>${bundle_styles}</style>\`);
+
+    /* bundle pre dom exec */
+    ${bundle_begin}
+
+    /* wait until dom loaded */
+    await loaded;
+
+    /* bundle post dom exec */
     ${bundle_end}
-});
+};
+
+/* run setup */
+execTypo();
 `;
 
 /* save bundle */
