@@ -44,7 +44,6 @@
       ],
       "js": [
         "picker/colr_pickr.min.js",
-        "color.js",
         "features/commands.js",
         "features/capture.js",
         "features/typro.js",
@@ -66,6 +65,7 @@
         "*://skribbl.io/*"
       ],
       "js": [
+        "color.js",
         "features/modal.js",
         "features/search.js",
         "features/sprites.js",

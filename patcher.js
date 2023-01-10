@@ -50,11 +50,15 @@ const waitForDocAndPalantir = async () => {
 })().catch(console.error);
 
 visuals.init(); //init visual options popup
+let currentNodes = document.getElementsByTagName("*");
 
 // inject patched game.js and modify elements that are immediately after page load visible
 let patcher = new MutationObserver((mutations) => {
          mutations.forEach((mutation) => {
-             mutation.addedNodes.forEach(async function (node) {
+            let nodes = [...mutation.addedNodes];
+            nodes.push(...currentNodes);
+            currentNodes = [];
+             nodes.forEach(async function (node) {
                 if (localStorage.visualOptions && (node.tagName == "BODY" || node.tagName == "IMG")) { // head or image is loaded
                     // load current options
                     let opts = JSON.parse(localStorage.visualOptions);

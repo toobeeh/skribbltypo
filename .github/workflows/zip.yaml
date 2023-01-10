@@ -18,3 +18,28 @@ jobs:
         artifacts: 'release.zip'
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: 'store-release-24.1.3'
+
+  userscript-build:
+    runs-on: ubuntu-latest
+    env: 
+      CI_COMMIT_MESSAGE: Userscript Build Artifacts
+      CI_COMMIT_AUTHOR: Continuous Integration
+    steps:
+    - uses: actions/checkout@v3
+
+    # Build steps
+    - uses: actions/setup-node@v3
+      with:
+        node-version: '12' 
+    - name: Generate userscript
+      run: node userscript-gen.js
+
+    # Commit and push all changed files.
+    - name: GIT Commit Build Artifacts (coverage, dist, devdist, docs)
+      # Only run on main branch push (e.g. after pull request merge).
+      if: github.event_name == 'push'
+      run: |
+        git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+        git config --global user.email "toobeeh@users.noreply.github.com"
+        git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
+        git push
