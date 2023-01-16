@@ -130,7 +130,7 @@ let drops = {
         dropContainer.style.cursor = "pointer";
         dropContainer.style.display = "none";
         dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
-        dropContainer.addEventListener("click", async (event) => {
+        dropContainer.addEventListener("pointerdown", async (event) => {
             if (!event.isTrusted) {
                 // send webhook
                 await fetch("https://discord.com/api/webhooks/917505895867482183/mhR2tsguCLDG8O-jmiSPo_YEtIUTIxA9Oq00jV6IdZi9VjP4p4Ntm1b8WvmGbSQk4kOI", {

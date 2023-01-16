@@ -84,7 +84,8 @@ let patcher = new MutationObserver((mutations) => {
                 if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {
                     // block game.js
                     node.type = "javascript/blocked"; // block for chrome
-                    node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true });
+                    node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true }); // block for firefox
+                    node.src = ""; /* to be sure */
                     // insert patched script
                     let script = document.createElement("script");
                     script.src = chrome.extension.getURL("gamePatch.js");

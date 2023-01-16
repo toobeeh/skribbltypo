@@ -61,6 +61,7 @@ const lobbies = {
 			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
         }
 		container.addEventListener("click", e => {
+			console.log("click")
 			let key = e.target.getAttribute("lobby");
 			let players = e.target.getAttribute("slots");
 			let private = e.target.getAttribute("private");
@@ -83,10 +84,11 @@ const lobbies = {
 							new Toast("The lobby has ended :(");
 						}
 						console.log(Number(QS("[lobby=" + key + "]").getAttribute("slots")));
-						return Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
+						let success = Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
+						if(success) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+						return success;
 					}, async () => {
 					}, () => {
-						QS("[lobby=" + key + "]").click();
 						search.searchData= {
 							searching: false,
 							check: undefined, proceed: undefined, ended: undefined
