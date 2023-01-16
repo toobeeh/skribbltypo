@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.1.3.1673365482377
+// @version 24.1.3.1673908592295
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -3193,6 +3193,7 @@ const lobbies = {
 			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
         }
 		container.addEventListener("click", e => {
+			console.log("click")
 			let key = e.target.getAttribute("lobby");
 			let players = e.target.getAttribute("slots");
 			let private = e.target.getAttribute("private");
@@ -3215,10 +3216,11 @@ const lobbies = {
 							new Toast("The lobby has ended :(");
 						}
 						console.log(Number(QS("[lobby=" + key + "]").getAttribute("slots")));
-						return Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
+						let success = Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
+						if(success) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+						return success;
 					}, async () => {
 					}, () => {
-						QS("[lobby=" + key + "]").click();
 						search.searchData= {
 							searching: false,
 							check: undefined, proceed: undefined, ended: undefined
@@ -3640,7 +3642,8 @@ let patcher = new MutationObserver((mutations) => {
                 if (node.tagName == "SCRIPT" && node.src.includes("game.js")) {
                     // block game.js
                     node.type = "javascript/blocked"; // block for chrome
-                    node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true });
+                    node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true }); // block for firefox
+                    node.src = ""; /* to be sure */
                     // insert patched script
                     let script = document.createElement("script");
                     script.src = chrome.extension.getURL("gamePatch.js");
@@ -5418,7 +5421,7 @@ let drops = {
         dropContainer.style.cursor = "pointer";
         dropContainer.style.display = "none";
         dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
-        dropContainer.addEventListener("click", async (event) => {
+        dropContainer.addEventListener("pointerdown", async (event) => {
             if (!event.isTrusted) {
                 // send webhook
                 await fetch("https://discord.com/api/webhooks/917505895867482183/mhR2tsguCLDG8O-jmiSPo_YEtIUTIxA9Oq00jV6IdZi9VjP4p4Ntm1b8WvmGbSQk4kOI", {
