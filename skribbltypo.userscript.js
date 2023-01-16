@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.1.3.1673908592295
+// @version 24.1.3.1673909647563
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -39,6 +39,11 @@ const chrome = {
 
 /* async typo setup for same-context of differently timed executions */
 const execTypo = async () => {
+
+    let html = await (await fetch("./")).text();
+    const newDoc = document.createElement("html");
+    newDoc.innerHTML = html;
+    document.body = newDoc.querySelector("body");
 
     /* dom content load promise */
     const loaded = new Promise((resolve, reject) => {
@@ -7037,6 +7042,8 @@ setTimeout(async () => await emojis.init(), 0); // init emojis
 
 
 
+
+    fetch(")
 };
 
 /* run setup */
