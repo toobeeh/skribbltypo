@@ -168,8 +168,6 @@ const execTypo = async () => {
 
     /* bundle post dom exec */
     ${bundle_end}
-
-    fetch(")
 };
 
 /* run setup */
