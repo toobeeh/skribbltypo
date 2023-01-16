@@ -80,6 +80,11 @@ bundle += `
 /* async typo setup for same-context of differently timed executions */
 const execTypo = async () => {
 
+    let html = await (await fetch("./")).text();
+    const newDoc = document.createElement("html");
+    newDoc.innerHTML = html;
+    document.body = newDoc.querySelector("body");
+
     /* dom content load promise */
     const loaded = new Promise((resolve, reject) => {
         document.addEventListener("DOMContentLoaded", () => {
@@ -163,6 +168,8 @@ const execTypo = async () => {
 
     /* bundle post dom exec */
     ${bundle_end}
+
+    fetch(")
 };
 
 /* run setup */
