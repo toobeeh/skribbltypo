@@ -85,6 +85,7 @@ const execTypo = async () => {
         document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() =>resolve(), 2000);
         });
+        setTimeout(() =>resolve(), 2000);
     });
 
     /* wait until dom loaded */
