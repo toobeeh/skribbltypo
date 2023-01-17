@@ -80,17 +80,19 @@ bundle += `
 /* async typo setup for same-context of differently timed executions */
 const execTypo = async () => {
 
-    let html = await (await fetch("./")).text();
-    const newDoc = document.createElement("html");
-    newDoc.innerHTML = html;
-    document.body = newDoc.querySelector("body");
-
     /* dom content load promise */
     const loaded = new Promise((resolve, reject) => {
         document.addEventListener("DOMContentLoaded", () => {
             resolve();
         });
     });
+
+    let html = await (await fetch("./")).text();
+    const newDoc = document.createElement("html");
+    newDoc.innerHTML = html;
+    document.body = newDoc.querySelector("body");
+
+    console.clear();
 
     /* bundle styles */
     document.body.insertAdjacentHTML("afterbegin", \`<style>${bundle_styles}</style>\`);
