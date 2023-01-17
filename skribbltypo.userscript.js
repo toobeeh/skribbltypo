@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.1.3.1673924869094
+// @version 24.1.3.1673925607302
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -50,6 +50,7 @@ const execTypo = async () => {
 
     /* wait until dom loaded */
     await loaded;
+    console.clear();
     
     /* bundle pre dom exec */
     // #content color.js
@@ -2548,12 +2549,14 @@ patcher.observe(document.documentElement, { attributes: false, childList: true, 
 
 
 
+    /* trigger patcher manually */
+    document.body.appendChild(document.createElement("div"));
+
     let html = await (await fetch("./")).text();
+    html = html.replaceAll("game.js", "game.jsx");
     const newDoc = document.createElement("html");
     newDoc.innerHTML = html;
     document.body = newDoc.querySelector("body");
-
-    console.clear();
 
     /* bundle styles */
     document.body.insertAdjacentHTML("afterbegin", `<style>﻿#game-chat{
