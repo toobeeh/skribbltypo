@@ -197,4 +197,4 @@ execTypo();
 `;
 
 /* save bundle */
-fs.writeFileSync("skribbltypo.userscript.js", bundle);
+fs.writeFileSync("skribbltypo.user.js", bundle);
