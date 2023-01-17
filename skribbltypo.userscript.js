@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.1.3.1673929616613
+// @version 24.1.4.167393071
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.1.3 usrsc"};
+            return {version: "24.1.4 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1162,7 +1162,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.restrictLobby || override) localStorage.restrictLobby = "";
     if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
     if (!localStorage.palantir || override) localStorage.palantir = "true";
-    if (!localStorage.typoink || override) localStorage.typoink = "true";
+    if (!localStorage.typoink || override) localStorage.typoink = "false";
     if (!localStorage.typotoolbar || override) localStorage.typotoolbar = "true";
     if (!localStorage.inkMode || override) localStorage.inkMode = "thickness";
     if (!localStorage.sens || override) localStorage.sens = 50;
@@ -3954,7 +3954,7 @@ bounceload {
         const frame = document.createElement("iframe");
         frame.style.border = "none";
         frame.style.height = "100vh";
-        frame.style.width = "min(25em, 100vw)";
+        frame.style.width = "min(25em, 90vw)";
         frame.srcdoc = popupDoc.innerHTML;
         document.querySelector("#typoPopupPolyfill").append(frame);
     
