@@ -87,6 +87,9 @@ const execTypo = async () => {
         });
     });
 
+    /* wait until dom loaded */
+    await loaded;
+
     let html = await (await fetch("./")).text();
     const newDoc = document.createElement("html");
     newDoc.innerHTML = html;
@@ -100,8 +103,6 @@ const execTypo = async () => {
     /* bundle pre dom exec */
     ${bundle_begin}
 
-    /* wait until dom loaded */
-    /* await loaded; */
     document.dispatchEvent(new Event("DOMContentLoaded"));
 
     /* init popup polyfill */
