@@ -83,7 +83,7 @@ const execTypo = async () => {
     /* dom content load promise */
     const loaded = new Promise((resolve, reject) => {
         document.addEventListener("DOMContentLoaded", () => {
-            resolve();
+            setTimeout(() =>resolve(), 2000);
         });
     });
 
