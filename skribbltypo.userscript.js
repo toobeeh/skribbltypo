@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.1.3.1673927274915
+// @version 24.1.3.1673928955634
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -2567,7 +2567,8 @@ patcher.observe(document.documentElement, { attributes: false, childList: true, 
     }
 
     /* bundle styles */
-    document.body.insertAdjacentHTML("afterbegin", `<style>﻿#game-chat{
+    document.body.insertAdjacentHTML("afterbegin", `<style>
+        ﻿#game-chat{
     position:relative;
 }
     #game-bar #lobby-nav {
@@ -3276,6 +3277,10 @@ bounceload {
     --PLAYERS_PER_PAGE: 8 !important;
 }
 
+#imageOptions > img {
+    height:100%;
+}
+
 #game #game-players .players-list .player.typo {
     height: 60px !important;
     display:flex;
@@ -3746,7 +3751,9 @@ bounceload {
             }
 
 
-</style>`);
+ 
+        .adsbygoogle, .ad-2 {dispaly:none}
+    </style>`);
 
     /* dispatch fake load events */
     window.dispatchEvent(new Event("load"));
@@ -3921,7 +3928,9 @@ bounceload {
                 runtime: {
                     onMessage: {
                         addListener: (callback) => {
-                            window.addEventListener("message", msg => callback(msg.data, {tab:{id:0}}));
+                            window.addEventListener("message", msg => { 
+                                if(msg.origin.includes("//skribbl.io")) callback(msg.data, {tab:{id:0}}); 
+                            });
                         }
                     }
                 },
