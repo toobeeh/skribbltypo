@@ -707,6 +707,10 @@ bounceload {
     --PLAYERS_PER_PAGE: 8 !important;
 }
 
+#imageOptions > img {
+    height:100%;
+}
+
 #game #game-players .players-list .player.typo {
     height: 60px !important;
     display:flex;

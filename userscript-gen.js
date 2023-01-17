@@ -112,7 +112,10 @@ const execTypo = async () => {
     }
 
     /* bundle styles */
-    document.body.insertAdjacentHTML("afterbegin", \`<style>${bundle_styles}</style>\`);
+    document.body.insertAdjacentHTML("afterbegin", \`<style>
+        ${bundle_styles} 
+        .adsbygoogle, .ad-2 {dispaly:none}
+    </style>\`);
 
     /* dispatch fake load events */
     window.dispatchEvent(new Event("load"));
@@ -133,7 +136,9 @@ const execTypo = async () => {
                 runtime: {
                     onMessage: {
                         addListener: (callback) => {
-                            window.addEventListener("message", msg => callback(msg.data, {tab:{id:0}}));
+                            window.addEventListener("message", msg => { 
+                                if(msg.origin.includes("//skribbl.io")) callback(msg.data, {tab:{id:0}}); 
+                            });
                         }
                     }
                 },
