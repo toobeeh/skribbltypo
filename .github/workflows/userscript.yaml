@@ -22,6 +22,7 @@ jobs:
       # Only run on main branch push (e.g. after pull request merge).
       if: github.event_name == 'push'
       run: |
+        git add skribbltypo.user.js
         git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
         git config --global user.email "toobeeh@users.noreply.github.com"
         git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
