@@ -90,6 +90,9 @@ const execTypo = async () => {
 
     /* wait until dom loaded */
     await loaded;
+    
+    /* bundle pre dom exec */
+    ${bundle_begin}
 
     let html = await (await fetch("./")).text();
     const newDoc = document.createElement("html");
@@ -101,8 +104,6 @@ const execTypo = async () => {
     /* bundle styles */
     document.body.insertAdjacentHTML("afterbegin", \`<style>${bundle_styles}</style>\`);
 
-    /* bundle pre dom exec */
-    ${bundle_begin}
 
     document.dispatchEvent(new Event("DOMContentLoaded"));
 
