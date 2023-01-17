@@ -101,7 +101,8 @@ const execTypo = async () => {
     ${bundle_begin}
 
     /* wait until dom loaded */
-    await loaded;
+    /* await loaded; */
+    document.dispatchEvent(new Event("DOMContentLoaded"));
 
     /* init popup polyfill */
     const popupHTML = \`${fs.readFileSync("./popup/popup.html")}\`;
