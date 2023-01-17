@@ -90,16 +90,18 @@ const execTypo = async () => {
 
     /* wait until dom loaded */
     await loaded;
+    console.clear();
     
     /* bundle pre dom exec */
     ${bundle_begin}
+
+    /* trigger patcher manually */
+    document.body.appendChild(document.createElement("div"));
 
     let html = await (await fetch("./")).text();
     const newDoc = document.createElement("html");
     newDoc.innerHTML = html;
     document.body = newDoc.querySelector("body");
-
-    console.clear();
 
     /* bundle styles */
     document.body.insertAdjacentHTML("afterbegin", \`<style>${bundle_styles}</style>\`);
