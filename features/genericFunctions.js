@@ -277,7 +277,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.restrictLobby || override) localStorage.restrictLobby = "";
     if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
     if (!localStorage.palantir || override) localStorage.palantir = "true";
-    if (!localStorage.typoink || override) localStorage.typoink = "true";
+    if (!localStorage.typoink || override) localStorage.typoink = "false";
     if (!localStorage.typotoolbar || override) localStorage.typotoolbar = "true";
     if (!localStorage.inkMode || override) localStorage.inkMode = "thickness";
     if (!localStorage.sens || override) localStorage.sens = 50;

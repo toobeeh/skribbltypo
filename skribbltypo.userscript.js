@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.1.3.1673928955634
+// @version 24.1.3.1673929616613
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -28,7 +28,9 @@ const chrome = {
         },
         onMessage: {
             addListener: (callback) => {
-                window.addEventListener("message", msg => callback(msg.data));
+                window.addEventListener("message",msg => { 
+                    if(msg.origin.includes("//skribbl.io")) callback(msg.data, {tab:{id:0}}); 
+                });
             }
         },
         sendMessage: undefined
@@ -49,7 +51,7 @@ const execTypo = async () => {
     });
 
     /* wait until dom loaded */
-    await loaded;
+    /* await loaded; */
     console.clear();
     
     /* bundle pre dom exec */
@@ -3752,7 +3754,7 @@ bounceload {
 
 
  
-        .adsbygoogle, .ad-2 {dispaly:none}
+        .adsbygoogle, .ad-2 {display:none !important}
     </style>`);
 
     /* dispatch fake load events */
@@ -3928,9 +3930,7 @@ bounceload {
                 runtime: {
                     onMessage: {
                         addListener: (callback) => {
-                            window.addEventListener("message", msg => { 
-                                if(msg.origin.includes("//skribbl.io")) callback(msg.data, {tab:{id:0}}); 
-                            });
+                            window.addEventListener("message", msg => callback(msg.data, {tab:{id:0}}));
                         }
                     }
                 },
