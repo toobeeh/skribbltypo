@@ -99,6 +99,7 @@ const execTypo = async () => {
     document.body.appendChild(document.createElement("div"));
 
     let html = await (await fetch("./")).text();
+    html = html.replaceAll("game.js", "game.jsx");
     const newDoc = document.createElement("html");
     newDoc.innerHTML = html;
     document.body = newDoc.querySelector("body");
