@@ -65,7 +65,9 @@ const chrome = {
         },
         onMessage: {
             addListener: (callback) => {
-                window.addEventListener("message", msg => callback(msg.data));
+                window.addEventListener("message",msg => { 
+                    if(msg.origin.includes("//skribbl.io")) callback(msg.data, {tab:{id:0}}); 
+                });
             }
         },
         sendMessage: undefined
@@ -89,7 +91,7 @@ const execTypo = async () => {
     });
 
     /* wait until dom loaded */
-    await loaded;
+    /* await loaded; */
     console.clear();
     
     /* bundle pre dom exec */
@@ -114,7 +116,7 @@ const execTypo = async () => {
     /* bundle styles */
     document.body.insertAdjacentHTML("afterbegin", \`<style>
         ${bundle_styles} 
-        .adsbygoogle, .ad-2 {dispaly:none}
+        .adsbygoogle, .ad-2 {display:none !important}
     </style>\`);
 
     /* dispatch fake load events */
@@ -136,9 +138,7 @@ const execTypo = async () => {
                 runtime: {
                     onMessage: {
                         addListener: (callback) => {
-                            window.addEventListener("message", msg => { 
-                                if(msg.origin.includes("//skribbl.io")) callback(msg.data, {tab:{id:0}}); 
-                            });
+                            window.addEventListener("message", msg => callback(msg.data, {tab:{id:0}}));
                         }
                     }
                 },
