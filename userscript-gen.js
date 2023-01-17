@@ -95,19 +95,27 @@ const execTypo = async () => {
     /* bundle pre dom exec */
     ${bundle_begin}
 
-    /* trigger patcher manually */
-    document.body.appendChild(document.createElement("div"));
+    /* disconnect patcher, not used */
+    patcher.disconnect();
 
+    /* get new document to re-run without original game js */
     let html = await (await fetch("./")).text();
     html = html.replaceAll("game.js", "game.jsx");
     const newDoc = document.createElement("html");
     newDoc.innerHTML = html;
     document.body = newDoc.querySelector("body");
 
+    /* patch nodes manually */
+    let nodes = document.querySelectorAll("*");
+    for(const node of nodes){
+        await patchNode(node);
+    }
+
     /* bundle styles */
     document.body.insertAdjacentHTML("afterbegin", \`<style>${bundle_styles}</style>\`);
 
-
+    /* dispatch fake load events */
+    window.dispatchEvent(new Event("load"));
     document.dispatchEvent(new Event("DOMContentLoaded"));
 
     /* init popup polyfill */
