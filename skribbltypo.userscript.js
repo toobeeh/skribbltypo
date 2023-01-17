@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.1.3.1673919314982
+// @version 24.1.3.1673923483576
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -43,7 +43,7 @@ const execTypo = async () => {
     /* dom content load promise */
     const loaded = new Promise((resolve, reject) => {
         document.addEventListener("DOMContentLoaded", () => {
-            resolve();
+            setTimeout(() =>resolve(), 2000);
         });
     });
 
