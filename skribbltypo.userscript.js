@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.1.3.1673923729277
+// @version 24.1.3.1673924248964
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -46,6 +46,9 @@ const execTypo = async () => {
             setTimeout(() =>resolve(), 2000);
         });
     });
+
+    /* wait until dom loaded */
+    await loaded;
 
     let html = await (await fetch("./")).text();
     const newDoc = document.createElement("html");
@@ -3733,8 +3736,6 @@ patcher.observe(document.documentElement, { attributes: false, childList: true, 
 
 
 
-    /* wait until dom loaded */
-    /* await loaded; */
     document.dispatchEvent(new Event("DOMContentLoaded"));
 
     /* init popup polyfill */
