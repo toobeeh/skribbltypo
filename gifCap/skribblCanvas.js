@@ -5,11 +5,14 @@ var Z = function (t) { // t-> canvas
     }, this.mousepos = {
         x: 0,
         y: 0
-    }, this.drawCommands = [], this.drawCommandsReceived = [], this.brush = new Q;
+    },
+        this.drawCommands = [],
+        this.drawCommandsReceived = [],
+        this.brush = new Q();
     var e = this;
     setInterval(function () {
         e.drawCommandsReceived.length > 0 && e.performDrawCommand(e.drawCommandsReceived.shift())
-    }, 3), this.clear()
+    }, 3), this.clear(), console.log("Hi")
 };
 Z.prototype.updateMousePosition = function (t, e, n) {
     var o = this.canvas[0].getBoundingClientRect(),
@@ -20,17 +23,7 @@ Z.prototype.updateMousePosition = function (t, e, n) {
         c = (t - o.left) / i,
         u = (e - o.top) / a;
     n ? (this.mouseposPrev.x = this.mousepos.x = Math.floor(c * r), this.mouseposPrev.y = this.mousepos.y = Math.floor(u * s)) : (this.mouseposPrev.x = this.mousepos.x, this.mouseposPrev.y = this.mousepos.y, this.mousepos.x = Math.floor(c * r), this.mousepos.y = Math.floor(u * s))
-}, Z.prototype.addDrawCommandReceived = function (t) {
-    this.drawCommandsReceived.push(t)
-}, Z.prototype.addDrawCommand = function (t) {
-    this.drawCommands.push(t)
-}, Z.prototype.createDrawCommandLine = function (t, e, n, o, r, s) {
-    return [0, t, e, n, o, r, s]
-}, Z.prototype.createDrawCommandErase = function (t, e, n, o, r) {
-    return [1, t, e, n, o, r]
-}, Z.prototype.createDrawCommandFill = function (t, e, n) {
-    return [2, t, e, n]
-    }, Z.prototype.performDrawCommand = function (t) {
+}, Z.prototype.performDrawCommand = function (t) {
     //console.log(t);
     switch (t[0]) {
         case 0:
@@ -130,74 +123,36 @@ Z.prototype.updateMousePosition = function (t, e, n) {
 }, Z.prototype.clear = function () {
     this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height)
 }, Z.prototype.setDrawing = function (t) {
-   
+
 };
 var Q = function () {
-    this.down = !1, this.tool = "pen", this.toolUsed = !1, this.colorIndex = 0, this.thickness = 0, this.thicknessMin = 4, this.thicknessMax = 40, this.brushCanvas = new OffscreenCanvas(this.thicknessMax,this.thicknessMax), this.brushCanvasCtx = this.brushCanvas.getContext("2d"), this.setTool("pen"), this.setThickness(12), this.setColor(1)
+    this.down = !1, this.tool = "pen", this.toolUsed = !1, this.colorIndex = 0, this.thickness = 0, this.thicknessMin = 4, this.thicknessMax = 40, this.brushCanvas = new OffscreenCanvas(this.thicknessMax, this.thicknessMax), this.brushCanvasCtx = this.brushCanvas.getContext("2d"), this.setTool("pen"), this.setThickness(12), this.setColor(1)
 };
 Q.prototype.hide = function () {
-   
+
 }, Q.prototype.show = function () {
-    
+
 }, Q.prototype.setDown = function (t) {
-    
+
 }, Q.prototype.setTool = function (t) {
     //this.tool = t, $(".containerTools .tool").removeClass("toolActive"), $(".containerTools .tool[data-tool='" + t + "']").addClass("toolActive"), this.updateBrushCursor()
 }, Q.prototype.setColor = function (t) {
     //this.colorIndex = t, $(".colorPreview").css("background-color", this.getColor(t)), this.updateBrushCursor()
-    }, Q.prototype.getColor = function (t) {
+}, Q.prototype.getColor = function (t) {
     if (t > 10000) {
         t = t - 10000;
         t = t.toString(16);
         return "#" + t;
     }
-    let color = "#FFF";
-    
-    color = [[255, 255, 255],
-    [80, 80, 80],
-    [0, 0, 0],
-    [210, 210, 210],
-    [168, 168, 168],
-    [126, 126, 126],
-    [239, 19, 11],
-    [183, 6, 0],
-    [86, 8, 6],
-    [255, 113, 0],
-    [206, 67, 12],
-    [137, 39, 0],
-    [255, 228, 0],
-    [232, 162, 0],
-    [163, 103, 0],
-    [0, 204, 0],
-    [0, 114, 21],
-    [0, 61, 3],
-    [0, 255, 145],
-    [0, 158, 114],
-    [0, 120, 93],
-    [0, 178, 255],
-    [0, 86, 158],
-    [0, 59, 120],
-    [35, 31, 211],
-    [18, 11, 145],
-    [8, 3, 82],
-    [163, 0, 186],
-    [108, 0, 135],
-    [65, 0, 81],
-    [211, 124, 170],
-    [167, 85, 116],
-    [118, 48, 75],
-    [255, 172, 142],
-    [226, 139, 93],
-    [204, 119, 77],
-    [160, 82, 45],
-    [99, 48, 13],
-        [72, 28, 0]][t];
-    color = rgbToHex(color);
+    let color = [0, 0, 0];
+
+    color = [[255, 255, 255], [0, 0, 0], [193, 193, 193], [80, 80, 80], [239, 19, 11], [116, 11, 7], [255, 113, 0], [194, 56, 0], [255, 228, 0], [232, 162, 0], [0, 204, 0], [0, 70, 25], [0, 255, 145], [0, 120, 93], [0, 178, 255], [0, 86, 158], [35, 31, 211], [14, 8, 101], [163, 0, 186], [85, 0, 105], [223, 105, 167], [135, 53, 84], [255, 172, 142], [204, 119, 77], [160, 82, 45], [99, 48, 13]][t];
+    color = rgbToHex(color[0], color[1], color[2]);
     return color;
 }, setBrushSize = Q.prototype.setThickness = function (t) {
     this.thickness = t, this.thickness < this.thicknessMin && (this.thickness = this.thicknessMin), this.thickness > this.thicknessMax && (this.thickness = this.thicknessMax), this.updateBrushCursor()
 }, Q.prototype.updateBrushCursor = function () {
-    };
+};
 function i(t, e, n) {
     return t < e ? e : t > n ? n : t
 }

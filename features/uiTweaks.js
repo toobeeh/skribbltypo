@@ -94,7 +94,7 @@ const uiTweaks = {
                 item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
             );
             uiTweaks.randomInterval = setInterval(() => {
-                items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("click", { button: 0, altKey: false }));
+                items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
             }, Number(localStorage.randominterval));
         });
     },

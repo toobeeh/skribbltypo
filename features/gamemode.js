@@ -41,7 +41,7 @@ const gamemodes = {
                     // update message blur based on self drawing / guessed or not
                     QS("#game-chat .chat-container style#gamemodeDeafRules").innerHTML =
                         (QS(".player-name.me").closest(".player.guessed")) || QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                        "" : "#game-chat .chat-container .chat-content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .bubble {display:none !important} .characters{color:black !important}";
+                            "" : "#game-chat .chat-container .chat-content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .player-bubble {display:none !important} .characters{color:black !important}";
                 }
             }
         }, {
@@ -94,7 +94,7 @@ const gamemodes = {
                     QS(".toolbar-group-actions").style.cssText = "pointer-events:none;opacity:.5;";
                     this.restoreCanvas = (event) => {
                         const img = new Image;
-                        img.onload = () => QS("#game-canvas canvas").getContext("2d").drawImage(img,0,0);
+                        img.onload = () => QS("#game-canvas canvas").getContext("2d").drawImage(img, 0, 0);
                         img.src = event.detail;
                     }
                     document.addEventListener("logCanvasClear", this.restoreCanvas);
@@ -138,7 +138,7 @@ const gamemodes = {
                     QS("#randomColor").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                        `#game-toolbar div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
+                            `#game-toolbar div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
                             {display:none;}
                          #colPicker{display:none;}
                          #game-toolbar div.color-picker > div.colors > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";

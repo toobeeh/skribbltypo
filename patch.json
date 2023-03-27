@@ -39,7 +39,7 @@
                 },
                 {
                     "source": "##PUSHCMD##",
-                    "target": "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.getContext\\(\"2d\", {\\s*willReadFrequently"
+                    "target": "\\.getContext\\(\"2d\", {\\s*willReadFrequently[^}]*}\\)\\s*, ([a-zA-Z0-9&_\\-$]+) = \\[\\]"
                 },
                 {
                     "source": "##PERFOUTER##",

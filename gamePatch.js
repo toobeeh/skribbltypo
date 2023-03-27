@@ -31,76 +31,76 @@
             HIDDEN: 1,
             COMBINATION: 2
         }
-// TYPOMOD 
-    // desc: create re-useable functions
-    , typo = {
-        joinLobby: undefined,        createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
-            // IDENTIFY x.value.split: #home .container-name-lang input -> Bn
-            // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> p
-            return { id: id, name: name.length != 0 ? name : (Bn.value.split("#")[0] != "" ? Bn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? p.avatar : avatar, score: score, guessed: guessed };
-        },
-        createFakeLobbyData: (
-            settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
-            id = "FAKE",
-            me = 0,
-            owner = 0,
-            users = [],
-            state = { id: 4, time: 999, data: { id: 0, word: "Anything" } }) => {
-            if (users.length == 0) users = [typo.createFakeUser()];
-            return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };
-        },
-        disconnect: undefined,
-        lastConnect: 0,
-        initListeners: (() => {
-            let abort=false; document.addEventListener("abortJoin", () => abort = true); document.addEventListener("joinLobby", (e) => {
-                abort=false;let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
-                //Xn(true);
-                setTimeout(() => {
-                    if(abort) return; typo.lastConnect = Date.now();
-                    //_n.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
-                    //##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1   
-                    if(e.detail) window.history.pushState({path:window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
-                    typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//Zn(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
-                    document.dispatchEvent(new Event("joinedLobby"));
-                }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
-            });
-            document.addEventListener("leaveLobby", () => {
-                if (typo.disconnect) typo.disconnect();
-                else ca() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
-            });
-            document.addEventListener("setColor", (e) => {
-                let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
-                let match = xt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS
-                let code = match >= 0 ? match : e.detail.code;
-                if (e.detail.secondary) Yt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
-                else Pt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
-            });
-            document.addEventListener("performDrawCommand", (e) => {
-                ht.push(e.detail); // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
-                Vt(Jt(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
-                     });
-                document.addEventListener("addTypoTooltips", () => {
-                [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
-                    elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
-                    elem.removeAttribute("data-typo-tooltip");
-                    elem.addEventListener("mouseenter", (e) => Oe(e.target)); // IDENTIFY: x(e.target): 
-                    elem.addEventListener("mouseleave", (e) => We()); // IDENTIFY: (e) => x(): 
- 
+        // TYPOMOD 
+        // desc: create re-useable functions
+        , typo = {
+            joinLobby: undefined, createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
+                // IDENTIFY x.value.split: #home .container-name-lang input -> Bn
+                // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> p
+                return { id: id, name: name.length != 0 ? name : (Bn.value.split("#")[0] != "" ? Bn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? p.avatar : avatar, score: score, guessed: guessed };
+            },
+            createFakeLobbyData: (
+                settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
+                id = "FAKE",
+                me = 0,
+                owner = 0,
+                users = [],
+                state = { id: 4, time: 999, data: { id: 0, word: "Anything" } }) => {
+                if (users.length == 0) users = [typo.createFakeUser()];
+                return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };
+            },
+            disconnect: undefined,
+            lastConnect: 0,
+            initListeners: (() => {
+                let abort = false; document.addEventListener("abortJoin", () => abort = true); document.addEventListener("joinLobby", (e) => {
+                    abort = false; let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
+                    //Xn(true);
+                    setTimeout(() => {
+                        if (abort) return; typo.lastConnect = Date.now();
+                        //_n.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
+                        //##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1   
+                        if (e.detail) window.history.pushState({ path: window.location.origin + '?' + e.detail }, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
+                        typo.joinLobby(); window.history.pushState({ path: window.location.origin }, '', window.location.origin);//Zn(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
+                        document.dispatchEvent(new Event("joinedLobby"));
+                    }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
                 });
-});        
-})(),
-        hexToRgb: (hex) => {
-            let arrBuff = new ArrayBuffer(4);
-            let vw = new DataView(arrBuff);
-            vw.setUint32(0, parseInt(hex, 16), false);
-            let arrByte = new Uint8Array(arrBuff);
-            return [arrByte[1], arrByte[2], arrByte[3]];
-        },
-        rgbToHex: (r, g, b) => {
-            return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                document.addEventListener("leaveLobby", () => {
+                    if (typo.disconnect) typo.disconnect();
+                    else ca() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
+                });
+                document.addEventListener("setColor", (e) => {
+                    let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
+                    let match = xt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS
+                    let code = match >= 0 ? match : e.detail.code;
+                    if (e.detail.secondary) Yt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
+                    else Pt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
+                });
+                document.addEventListener("performDrawCommand", (e) => {
+                    S.push(e.detail); // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
+                    Vt(Jt(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
+                });
+                document.addEventListener("addTypoTooltips", () => {
+                    [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
+                        elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
+                        elem.removeAttribute("data-typo-tooltip");
+                        elem.addEventListener("mouseenter", (e) => Oe(e.target)); // IDENTIFY: x(e.target): 
+                        elem.addEventListener("mouseleave", (e) => We()); // IDENTIFY: (e) => x(): 
+
+                    });
+                });
+            })(),
+            hexToRgb: (hex) => {
+                let arrBuff = new ArrayBuffer(4);
+                let vw = new DataView(arrBuff);
+                vw.setUint32(0, parseInt(hex, 16), false);
+                let arrByte = new Uint8Array(arrBuff);
+                return [arrByte[1], arrByte[2], arrByte[3]];
+            },
+            rgbToHex: (r, g, b) => {
+                return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            }
         }
-    }
-    // TYPOEND
+        // TYPOEND
         , oe = ["Normal", "Hidden", "Combination"]
         , re = ["English", "German", "Bulgarian", "Czech", "Danish", "Dutch", "Finnish", "French", "Estonian", "Greek", "Hebrew", "Hungarian", "Italian", "Japanese", "Korean", "Latvian", "Macedonian", "Norwegian", "Portuguese", "Polish", "Romanian", "Russian", "Serbian", "Slovakian", "Spanish", "Swedish", "Tagalog", "Turkish"];
     if (h.localStorageAvailable = !1,
@@ -878,18 +878,18 @@
                 graphic: "clear.gif",
                 action: Zt
             })
-/*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*ct(2, {
-        isAction: !0,
-        name: "Switcher",
-        graphic: "",
-        action: ()=>{document.dispatchEvent(new Event("toggleColor"));}
-    })*/ /*TYPOEND*/
-, /*TYPOMOD DESC: add action for brushlab*/ ct(3, {
-        isAction: !0,
-        name: "Lab",
-        graphic: "",keydef:'L',
-        action: ()=>{document.dispatchEvent(new Event("openBrushLab"));}
-    }) /*TYPOEND*/,
+            /*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*ct(2, {
+                    isAction: !0,
+                    name: "Switcher",
+                    graphic: "",
+                    action: ()=>{document.dispatchEvent(new Event("toggleColor"));}
+                })*/ /*TYPOEND*/
+            , /*TYPOMOD DESC: add action for brushlab*/ ct(3, {
+                isAction: !0,
+                name: "Lab",
+                graphic: "", keydef: 'L',
+                action: () => { document.dispatchEvent(new Event("openBrushLab")); }
+            }) /*TYPOEND*/,
             u.querySelector("#game-canvas canvas"))
         , ht = q.getContext("2d", {
             willReadFrequently: !0
@@ -916,11 +916,11 @@
                 if (n <= 0)
                     return;
                 o.clearRect(0, 0, t, t);
-// TYPOMOD
-// desc: cursor with custom color
-var a = Ct < 10000 ? xt[Ct] : typo.hexToRgb((Ct - 10000).toString(16).padStart(6, "0"));
-// TYPOEND 
-  a = [(a = 1 == p.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
+                // TYPOMOD
+                // desc: cursor with custom color
+                var a = Ct < 10000 ? xt[Ct] : typo.hexToRgb((Ct - 10000).toString(16).padStart(6, "0"));
+                // TYPOEND 
+                a = [(a = 1 == p.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
                 o.fillStyle = "rgba(" + a[0] + "," + a[1] + "," + a[2] + "," + a[3] + ")",
                     o.beginPath(),
                     o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI),
@@ -1005,7 +1005,7 @@ var a = Ct < 10000 ? xt[Ct] : typo.hexToRgb((Ct - 10000).toString(16).padStart(6
     }
     function Pt(e) {
         var t =
-e > 10000 ? Ft(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ft(xt[e]);
+            e > 10000 ? Ft(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ft(xt[e]);
         Ct = e,
             u.querySelector("#color-preview-primary").style.fill = t,
             u.querySelector("#game-toolbar .color-picker-mobile .preview").style.backgroundColor = t,
@@ -1013,7 +1013,7 @@ e > 10000 ? Ft(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ft(xt
     }
     function Yt(e) {
         var t =
-e > 10000 ? Ft(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ft(xt[e]);
+            e > 10000 ? Ft(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ft(xt[e]);
         qt = e,
             u.querySelector("#color-preview-secondary").style.fill = t,
             St()
@@ -1037,10 +1037,10 @@ e > 10000 ? Ft(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ft(xt
     }
     function Kt(e) {
 /*TYPOMOD   
-desc: if color code > 1000 -> customcolor*/if(e < 1000)
-        e = x(e, 0, xt.length),
-            e = xt[e];
-else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
+desc: if color code > 1000 -> customcolor*/if (e < 1000)
+            e = x(e, 0, xt.length),
+                e = xt[e];
+        else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         return {
             r: e[0],
             g: e[1],
@@ -1052,7 +1052,7 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             !(C != M && mt < e)) {
 /* TYPOMOD
         desc: replace draw commands because of redo*/        const keepCommands = S;
-        /* TYPOEND*/
+            /* TYPOEND*/
             r = _t();
             e = Math.floor(S.length / Gt);
             gt = gt.slice(0, e),
@@ -1065,11 +1065,12 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 Vt(Jt(S[t]), S[t]);
             pt = Math.min(S.length, pt),
                 mt = Math.min(S.length, mt)
-        
-/* TYPOMOD 
-         log kept commands*/
-        document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));
-        /* TYPOEND*/}
+
+            /* TYPOMOD 
+                     log kept commands*/
+            document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));
+            /* TYPOEND*/
+}
     }
     const Gt = 50;
     function _t() {
@@ -1130,11 +1131,11 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 , e = q.height + e + t;
             return o < r && r < a && i < n && n < e
         }(e) ? console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS") :
-/* TYPOMOD 
-         log draw commands */
-        document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e })) & 
+            /* TYPOMOD 
+                     log draw commands */
+            document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e })) &
         /* TYPOEND */ (S.push(e),
-            C == M && Vt(Jt(e)))
+                C == M && Vt(Jt(e)))
     }
     function Jt(e) {
         var t = [0, 0, q.width, q.height];
@@ -1252,16 +1253,16 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         ht.putImageData(m, o, u)
     }
     function tn() {
-/* TYPOMOD
-         desc: store data before clear */
+        /* TYPOMOD
+                 desc: store data before clear */
         const data = document.querySelector("#game-canvas canvas").toDataURL();
-/* TYPOEND */
+        /* TYPOEND */
         ht.fillStyle = "#FFF",
             ht.fillRect(0, 0, q.width, q.height)
-/* TYPOMOD
-         desc: dispatch clear event */
-        ;document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));
-/* TYPOEND */
+            /* TYPOMOD
+                     desc: dispatch clear event */
+            ; document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));
+        /* TYPOEND */
     }
     function nn(e, t, n) {
         ((t = n ? !t : t) ? Pt : Yt)(e)
@@ -1431,8 +1432,8 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                         if (0 == l && 0 == s && 0 == i)
                             return r
                     }
-/* TYPOMOD
-                     desc: if color is not in array, convert to custom color */
+                    /* TYPOMOD
+                                         desc: if color is not in array, convert to custom color */
                     return r = parseInt(typo.rgbToHex(n, a, o), 16) + 10000;
                     /* TYPOEND */
                     return r
@@ -1451,10 +1452,11 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
             }
             wt == je && (l = Mt,
                 0 <= vt && (l = (l - et) * x(vt, 0, 1) + et),
-                
-/* TYPOMOD use typo pressure */ 
-(()=>{if(0 <= vt && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(vt, sensitivity); l = Math.round(calcSkribblSize(levelled));}
-})(),s = Math.ceil(.5 * l),
+
+                /* TYPOMOD use typo pressure */
+                (() => {
+                    if (0 <= vt && localStorage.typoink == 'true') { const calcSkribblSize = (val) => Number(val) * 36 + 4; const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens); let levelled = calcLevelledSize(vt, sensitivity); l = Math.round(calcSkribblSize(levelled)); }
+                })(), s = Math.ceil(.5 * l),
                 c = x(Math.floor(yt[0]), -s, q.width + s),
                 e = x(Math.floor(yt[1]), -s, q.height + s),
                 r = x(Math.floor(k[0]), -s, q.width + s),
@@ -1517,10 +1519,11 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
     function Sn(e) {
         e.classList.add("show")
     }
-/* TYPOMOD 
-     desc: add event handlers for typo features */
+    /* TYPOMOD 
+         desc: add event handlers for typo features */
     D(".avatar-customizer .container", "pointerdown", () => {
-        ta(typo.createFakeLobbyData());}); 
+        ta(typo.createFakeLobbyData());
+    });
     /* TYPOEND */
     function kn(e) {
         for (var t = 0; t < hn.children.length; t++)
@@ -1862,10 +1865,10 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         (s = P(e, {
             closeOnBeforeunload: !1
         })).on("connect", function () {
-/* TYPOMOD
-             desc: disconnect socket & leave lobby */
-            document.addEventListener('socketEmit', event => s.emit('data', {id: event.detail.id, data: event.detail.data}));
- typo.disconnect = () => {
+            /* TYPOMOD
+                         desc: disconnect socket & leave lobby */
+            document.addEventListener('socketEmit', event => s.emit('data', { id: event.detail.id, data: event.detail.data }));
+            typo.disconnect = () => {
                 if (s) {
                     s.typoDisconnect = true;
                     s.on("disconnect", () => {
@@ -1921,20 +1924,20 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 a = e
             }),
             s.on("disconnect", function () {
-/* TYPOMOD
-                 DESC: no msg if disconnect intentionally */
-                if(!s.typoDisconnect)
-                /*TYPOEND*/
-                switch (a) {
-                    case ee:
-                        i(ye, R("You have been kicked!"));
-                        break;
-                    case te:
-                        i(ye, R("You have been banned!"));
-                        break;
-                    default:
-                        i(ye, R("Connection lost!"))
-                }
+                /* TYPOMOD
+                                 DESC: no msg if disconnect intentionally */
+                if (!s.typoDisconnect)
+                    /*TYPOEND*/
+                    switch (a) {
+                        case ee:
+                            i(ye, R("You have been kicked!"));
+                            break;
+                        case te:
+                            i(ye, R("You have been banned!"));
+                            break;
+                        default:
+                            i(ye, R("Connection lost!"))
+                    }
                 ca()
             }),
             s.on("connect_error", function (e) {
@@ -2074,9 +2077,9 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 }
             l ? E.playSound(qn) : E.playSound(Cn),
                 b(R("The word was '$'", e.data.word), "", v($e), !0)
-/* TYPOMOD
-             desc: log finished drawing */
-            ;document.dispatchEvent(new CustomEvent("drawingFinished", { detail: e.data.word }));
+                /* TYPOMOD
+                             desc: log finished drawing */
+                ; document.dispatchEvent(new CustomEvent("drawingFinished", { detail: e.data.word }));
             /* TYPOEND */
         } else
             e.id != Z && (O[0].textContent = R("WAITING"),
@@ -2213,8 +2216,8 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         var t, n = e.id, a = e.data;
         switch (n) {
             case ba:
-/* TYPOMOD
-                 desc: send lobbydata*/
+                /* TYPOMOD
+                                 desc: send lobbydata*/
                 document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: a }));
                 /* TYPOEND*/
                 ta(a);
@@ -2372,8 +2375,8 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 $("player-icons"))
             , e = $("icon owner")
             , o = $("icon muted");
-/* TYPOMOD
-         desc: set ID to player to identify */
+        /* TYPOMOD
+                 desc: set ID to player to identify */
         n.element.setAttribute("playerid", n.id);
         /* TYPOEND */
         return a.appendChild(e),
@@ -2566,22 +2569,22 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         }),
         D([Bn, Gn], "change", a),
         D(_n, "click",
-typo.joinLobby = function () {
-            var t, e, n, a, o;
-            n = h.location.href,
-                o = "",
-                n = n.split("?"),
-                t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o,
-                Wn || (e = "" != t ? "id=" + t : "lang=" + Gn.value,
-                    Ce(),
-                    Zn(!0),
-                    Qn(function () {
-                        jn(location.origin + ":3000/play", e, function (e) {
-                            Zn(!1),
-                                e.success && ea(e.data, t)
-                        }, !0)
-                    }))
-        }),
+            typo.joinLobby = function () {
+                var t, e, n, a, o;
+                n = h.location.href,
+                    o = "",
+                    n = n.split("?"),
+                    t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o,
+                    Wn || (e = "" != t ? "id=" + t : "lang=" + Gn.value,
+                        Ce(),
+                        Zn(!0),
+                        Qn(function () {
+                            jn(location.origin + ":3000/play", e, function (e) {
+                                Zn(!1),
+                                    e.success && ea(e.data, t)
+                            }, !0)
+                        }))
+            }),
         D(Vn, "click", function () {
             Wn || (Ce(),
                 Zn(!0),
@@ -2697,9 +2700,9 @@ typo.joinLobby = function () {
             lo(xe.value.length)
         }),
         D(qe, "submit", function (e) {
-const input = xe; let rest = input.value.substring(100);
-        input.value = input.value.substring(0,100);
-        if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event("submit"));},180);
+            const input = xe; let rest = input.value.substring(100);
+            input.value = input.value.substring(0, 100);
+            if (rest.length > 0) setTimeout(() => { input.value = rest; e.target.dispatchEvent(new Event("submit")); }, 180);
             return e.preventDefault(),
                 xe.value && so(xe.value),
                 qe.reset(),
