@@ -4,7 +4,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // adds all smaller ui improvements to skribbl
 // depends on: capture.js, generalFunctions.js, emojis.js
 const uiTweaks = {
-    palettes:[],
+    palettes: [],
     initGameNavigation: () => {
         // Create next button
         let btNext = elemFromString(`<button class="button-blue">Next Lobby</button>`);
@@ -29,7 +29,7 @@ const uiTweaks = {
         const input = QS("#game-chat .chat-container form input");
         const hints = QS("#game-word .hints .container");
         const characters = QS("#game-chat .characters");
-        
+
         /* let charbar = (input.insertAdjacentHTML("afterend", "<span id='charbar' style='color:black' ></span>"), QS("#charbar"));
         charbar.insertAdjacentHTML("afterend", "<style id='charcountRules'></style>"); */
 
@@ -55,10 +55,10 @@ const uiTweaks = {
                 charbar.innerText = " - ";
                 charbar.style.background = "#BAFFAA";
             } */
-            if(localStorage.charbar != "true"){
+            if (localStorage.charbar != "true") {
                 characters.style.cssText = "display:none";
             }
-            else if(hints.querySelector(".word-length") && hints.querySelector(".word-length").parentElement.style.display != "none"){
+            else if (hints.querySelector(".word-length") && hints.querySelector(".word-length").parentElement.style.display != "none") {
                 let word = hints.textContent.replace(hints.querySelector(".word-length").innerText, "");
                 if (input.value.length > word.length
                     || !replaceUmlaute(input.value).toLowerCase().match(new RegExp(replaceUmlaute(word.substr(0, input.value.length).toLowerCase().replaceAll("_", "[\\w\\d]"))))) {
@@ -89,8 +89,8 @@ const uiTweaks = {
             clearInterval(uiTweaks.randomInterval);
             let nthChild = rand.getAttribute("data-monochrome");
             let items = [
-                ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : "" ))
-            ].filter(item => 
+                ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : ""))
+            ].filter(item =>
                 item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
             );
             uiTweaks.randomInterval = setInterval(() => {
@@ -122,7 +122,7 @@ const uiTweaks = {
         });
         let dontDispatch = false;
         pickr.on("change", color => {
-            colcode = parseInt(color.toHEXA().toString().replace("#", ""),16) + 10000;
+            colcode = parseInt(color.toHEXA().toString().replace("#", ""), 16) + 10000;
             if (!dontDispatch) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
             dontDispatch = false;
         });
@@ -151,7 +151,7 @@ const uiTweaks = {
             canvasGame.style.left = "";
             document.removeEventListener("keydown", changeZoom);
             zoomActive = false;
-           // document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
+            // document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
         }
         let toggleZoom = (event, skipctrl = false) => {
             if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
@@ -224,11 +224,11 @@ const uiTweaks = {
         const board = QS("#game-board");
 
         let roomObserver = new MutationObserver(function (mutations) {
-            if(chat.classList.contains("room")) {
-                if(settings.parentElement != chat.parentElement) settings.insertAdjacentElement("afterend", chat);
+            if (chat.classList.contains("room")) {
+                if (settings.parentElement != chat.parentElement) settings.insertAdjacentElement("afterend", chat);
             }
             else {
-                if(board.parentElement != chat.parentElement) board.insertAdjacentElement("afterend", chat);
+                if (board.parentElement != chat.parentElement) board.insertAdjacentElement("afterend", chat);
             }
         });
         roomObserver.observe(chat, { attributes: true, childList: false });
@@ -257,7 +257,7 @@ const uiTweaks = {
             }
             else {
                 if (QS("#game").style.display == "none") {
-                    new Toast("Fullscreen mode is only available in-game.",2000);
+                    new Toast("Fullscreen mode is only available in-game.", 2000);
                     return;
                 }
                 document.documentElement.requestFullscreen();
@@ -316,7 +316,7 @@ const uiTweaks = {
                 else {
                     let sizes = [...QSA(".container .size")];
                     let ind = Number(e.key);
-                    if(ind > 0 && ind < 6) sizes[ind-1].click();
+                    if (ind > 0 && ind < 6) sizes[ind - 1].click();
                 }
             }
             else if (document.activeElement.matches(".chat-container input") && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
@@ -332,7 +332,7 @@ const uiTweaks = {
                 }
                 document.addEventListener("keyup", removeIDs);
                 QSA(".players-list .player").forEach(player => {
-                    if(!player.querySelector(".player-icons span")) player.querySelector(".player-icons").insertAdjacentHTML("afterbegin","<span style='color:inherit'>#" + player.getAttribute("playerid") + " </span>");
+                    if (!player.querySelector(".player-icons span")) player.querySelector(".player-icons").insertAdjacentHTML("afterbegin", "<span style='color:inherit'>#" + player.getAttribute("playerid") + " </span>");
                 });
                 return;
             }
@@ -368,17 +368,17 @@ const uiTweaks = {
                         </select><br> 
                         <input type="radio" id="restricted" name="restriction" value="restricted">
                         <label for="restricted"> Allow no one to see the invite</label></div>`), async () => {
-                    localStorage.restrictLobby = QS("#selectrestriction input[name=restriction]:checked").value;
-                    if (localStorage.restrictLobby == "server") localStorage.restrictLobby = QS("#selectrestriction select").value;
-                    updateIcon();
-                    if (lobbies.joined && lobbies.userAllow) { // report lobby if joined
-                        let description = lobbies.lobbyProperties.Private ? (QS("#lobbyDesc") && QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
-                        await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key, description);
-                    }
+                localStorage.restrictLobby = QS("#selectrestriction input[name=restriction]:checked").value;
+                if (localStorage.restrictLobby == "server") localStorage.restrictLobby = QS("#selectrestriction select").value;
+                updateIcon();
+                if (lobbies.joined && lobbies.userAllow) { // report lobby if joined
+                    let description = lobbies.lobbyProperties.Private ? (QS("#lobbyDesc") && QS("#lobbyDesc").value ? QS("#lobbyDesc").value : '') : "";
+                    await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key, description);
+                }
             }, "Lobby Privacy");
             if (localStorage.restrictLobby == "restricted") modal.content.querySelector("#restricted").setAttribute("checked", "checked");
             else if (localStorage.restrictLobby == "unrestricted") modal.content.querySelector("#unrestricted").setAttribute("checked", "checked");
-            else if(localStorage.restrictLobby != ""){
+            else if (localStorage.restrictLobby != "") {
                 modal.content.querySelector("#restrictserver").setAttribute("checked", "checked");
                 modal.content.querySelector("select").value = localStorage.restrictLobby;
             }
@@ -449,7 +449,7 @@ const uiTweaks = {
     box-shadow: black 0px 2px 7px;
 ">Copy chat selection for Discord</div>`);
         popup.style.display = "none";
-        const chatbox = QS("#game-chat > .chat-container" );
+        const chatbox = QS("#game-chat > .chat-container");
         popup.addEventListener("pointerdown", () => {
             let chat = document.getSelection().toString();
             chat = chat.replace(/(\n)(?=.*? guessed the word!)/g, "+ ")
@@ -469,7 +469,7 @@ const uiTweaks = {
         document.addEventListener("selectionchange", () => {
             const selection = document.getSelection();
             if (selection.toString() != "" && chatbox.contains(selection.anchorNode) && selection.anchorNode.localName != "form") popup.style.display = "";
-            else setTimeout(()=>popup.style.display = "none", 20);
+            else setTimeout(() => popup.style.display = "none", 20);
         });
         QS("#game-chat").appendChild(popup);
     },
@@ -480,7 +480,7 @@ const uiTweaks = {
     },
     initClipboardCopy: () => {
         document.addEventListener("keydown", async (e) => {
-            if (!(e.which==67 && e.ctrlKey) || QS("#game").style.display == "none" || document.getSelection().type == "Range") return;
+            if (!(e.which == 67 && e.ctrlKey) || QS("#game").style.display == "none" || document.getSelection().type == "Range") return;
             let canvas = QS("#game-canvas canvas");
             let scaled = await scaleDataURL(canvas.toDataURL(), canvas.width * localStorage.qualityScale, canvas.height * localStorage.qualityScale);
             await dataURLtoClipboard(scaled);
@@ -533,7 +533,7 @@ const uiTweaks = {
             }
             else overlay.classList.remove("countdown");
         });
-        overlayObserver.observe(QS(".overlay-content"), {subtree:true, attributes:true, characterData:true});
+        overlayObserver.observe(QS(".overlay-content"), { subtree: true, attributes: true, characterData: true });
     },
     initStraightLines: () => {
         // Credits for basic idea of canvas preview to https://greasyfork.org/en/scripts/410108-skribbl-line-tool/code
@@ -575,13 +575,13 @@ const uiTweaks = {
                 bubbles: true,
                 clientX: x,
                 clientY: y,
-                button:0,
-                pressure:pressure,
+                button: 0,
+                pressure: pressure,
                 pointerType: "mouse"
             });
         }
         // get pos when scaled
-        const getRealCoordinates = (x,y) => {
+        const getRealCoordinates = (x, y) => {
             const { width, height } = preview.canvas.getBoundingClientRect();
             x = (800 / width) * x;
             y = (600 / height) * y;
@@ -600,7 +600,7 @@ const uiTweaks = {
             snap = straight && snap;
             if (!straight && !pointerdown) preview.stop();
             if (!straight && state) lastRelease = Date.now();
-            if(!straight) lastDirectClient = [null, null];
+            if (!straight) lastDirectClient = [null, null];
         });
         document.addEventListener("keyup", (event) => {
             let state = straight;
@@ -644,7 +644,7 @@ const uiTweaks = {
             event.stopPropagation();
             if (straight) {
                 const col = QS("#color-preview-primary").style.fill;
-                const size = [4,14,30,40][[...QSA(".size")].findIndex(size => size.classList.contains("selected"))]
+                const size = [4, 14, 30, 40][[...QSA(".size")].findIndex(size => size.classList.contains("selected"))]
                 if (lastDown[0]) {
                     let real = getRealCoordinates(event.offsetX, event.offsetY);
                     if (!snap) preview.line(lastDown[0], lastDown[1], real[0], real[1], col, size);
@@ -657,7 +657,7 @@ const uiTweaks = {
         });
         preview.canvas.addEventListener("contextmenu", (event) => {
             event.preventDefault();
-            if(straight && lastDirectClient[0] != null){
+            if (straight && lastDirectClient[0] != null) {
                 let dest = [event.clientX, event.clientY];
                 preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", lastDirectClient[0], lastDirectClient[1]));
                 preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", dest[0], dest[1]));
@@ -713,11 +713,11 @@ const uiTweaks = {
             height: 100%;
         "></div>`);
         QS("#game-toolbar").appendChild(container);
-        container.parentElement.parentElement.style.position="relative";
+        container.parentElement.parentElement.style.position = "relative";
         container.style.display = localStorage.typotools == "true" ? "" : "none";
 
         // move tools
-        setTimeout(()=>container.appendChild(QS(`.tool[data-tooltip="Lab"]`)),200);
+        setTimeout(() => container.appendChild(QS(`.tool[data-tooltip="Lab"]`)), 500);
 
     },
     initAll: () => {
@@ -749,6 +749,6 @@ const uiTweaks = {
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
 
         // random easteregg
-        if(Math.random() < 0.1) QS("#game-chat .chat-container form input").placeholder = "Typo your guess here...";
+        if (Math.random() < 0.1) QS("#game-chat .chat-container form input").placeholder = "Typo your guess here...";
     }
 }

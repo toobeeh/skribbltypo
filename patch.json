@@ -39,7 +39,7 @@
                 },
                 {
                     "source": "##PUSHCMD##",
-                    "target": "([a-zA-Z0-9&_\\-$]+) = \\([a-zA-Z0-9&_\\-$]+\\.willReadFrequently"
+                    "target": "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.getContext\\(\"2d\", {\\s*willReadFrequently"
                 },
                 {
                     "source": "##PERFOUTER##",
@@ -69,7 +69,7 @@
             "name": "Custom Cursor Color",
             "replacements": [
                 {
-                    "source": "patchcode#customcursor([^;]+;)",
+                    "source": "patchcode#customcursor([^,]+,)",
                     "target": "(\\s)"
                 },
                 {
@@ -87,8 +87,8 @@
             ],
             "injections": [
                 {
-                    "position": "(clearRect\\(0, 0, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\);)\\s+let [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]",
-                    "code": "// TYPOMOD\n// desc: cursor with custom color\nlet ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.hexToRgb((##COLORINDEX## - 10000).toString(16).padStart(6, \"0\"));\n// TYPOEND patchcode#customcursor"
+                    "position": "(clearRect\\(0, 0, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\);)\\s+var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\s*,",
+                    "code": "// TYPOMOD\n// desc: cursor with custom color\nvar ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.hexToRgb((##COLORINDEX## - 10000).toString(16).padStart(6, \"0\"));\n// TYPOEND \npatchcode#customcursor"
                 }
             ]
         },
@@ -248,12 +248,12 @@
             "replacements": [
                 {
                     "source": "##SOCKET##",
-                    "target": "\\(([a-zA-Z0-9&_\\-$]+?) = [^}]+?closeOnBeforeunload[^{]+\\.on\\(\"connect\", function\\(\\) \\{"
+                    "target": "\\(([a-zA-Z0-9&_\\-$]+?) = [^}]+?closeOnBeforeunload[^{]+\\.on\\(\"connect\", function\\s*\\(\\) \\{"
                 }
             ],
             "injections": [
                 {
-                    "position": "(\\.on\\(\"connect\", function\\(\\) \\{)",
+                    "position": "(\\.on\\(\"connect\", function\\s*\\(\\) \\{)",
                     "code": "/* TYPOMOD\n             desc: disconnect socket & leave lobby */\n            document.addEventListener('socketEmit', event => ##SOCKET##.emit('data', {id: event.detail.id, data: event.detail.data}));\n typo.disconnect = () => {\n                if (##SOCKET##) {\n                    ##SOCKET##.typoDisconnect = true;\n                    ##SOCKET##.on(\"disconnect\", () => {\n                        typo.disconnect = undefined;\n                        document.dispatchEvent(new Event(\"leftLobby\"));\n                    });\n                    ##SOCKET##.off(\"data\");\n                    ##SOCKET##.reconnect = false;\n                    ##SOCKET##.disconnect();\n                }\n                else document.dispatchEvent(new Event(\"leftLobby\"));\n            }\n            /* TYPOEND */"
                 }
             ]
@@ -263,12 +263,12 @@
             "replacements": [
                 {
                     "source": "##SOCKET##",
-                    "target": "\\(([a-zA-Z0-9&_\\-$]+?) = [^}]+?closeOnBeforeunload[^{]+\\.on\\(\"connect\", function\\(\\) \\{"
+                    "target": "\\(([a-zA-Z0-9&_\\-$]+?) = [^}]+?closeOnBeforeunload[^{]+\\.on\\(\"connect\", function\\s*\\(\\) \\{"
                 }
             ],
             "injections": [
                 {
-                    "position": "(\\.on\\(\"disconnect\", function\\(\\) {)",
+                    "position": "(\\.on\\(\"disconnect\", function\\s*\\(\\) {)",
                     "code": "/* TYPOMOD\n                 DESC: no msg if disconnect intentionally */\n                if(!##SOCKET##.typoDisconnect)\n                /*TYPOEND*/"
                 }
             ]
@@ -293,13 +293,13 @@
             "replacements": [
                 {
                     "source": "##EVENT##",
-                    "target": "var [a-zA-Z0-9&_\\-$]+? = ([a-zA-Z0-9&_\\-$]+?)\\.id\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.data;\\s+switch"
+                    "target": "switch \\([a-zA-Z0-9&_\\-$]+?\\) {[\\s\\S]*?(?=break)break[^(]*\\(([^)]*)\\)[^}]*joined the room!"
                 }
             ],
             "injections": [
                 {
-                    "position": "(var [a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.id\\s+?,\\s+?[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\.data;\\s+switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)",
-                    "code": "/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent(\"lobbyConnected\", { detail: ##EVENT##.data }));\n                /* TYPOEND*/"
+                    "position": "(switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)[^}]*joined the room!",
+                    "code": "/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent(\"lobbyConnected\", { detail: ##EVENT## }));\n                /* TYPOEND*/"
                 }
             ]
         },
@@ -308,12 +308,12 @@
             "replacements": [
                 {
                     "source": "##PLAYER##",
-                    "target": "([a-zA-Z0-9&_\\-$]+?)\\.avatar\\)\\s+}, 250\\)\\);"
+                    "target": "([a-zA-Z0-9&_\\-$]+?)\\.element, \"click\""
                 }
             ],
             "injections": [
                 {
-                    "position": "([a-zA-Z0-9&_\\-$]+?\\.avatar\\)\\s+}, 250\\)\\);)",
+                    "position": "(\\(\"icon muted\"\\);)",
                     "code": "/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute(\"playerid\", ##PLAYER##.id);\n        /* TYPOEND */"
                 }
             ]
@@ -328,7 +328,7 @@
             ],
             "injections": [
                 {
-                    "position": "(\"submit\", function\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+return [a-zA-Z0-9&_\\-$]+\\.preventDefault",
+                    "position": "(\"submit\", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+return [a-zA-Z0-9&_\\-$]+\\.preventDefault",
                     "code": "const input = ##INPUT##; let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event(\"submit\"));},180);"
                 }
             ]
@@ -364,19 +364,17 @@
         },
         {
             "name": "Define join function",
-            "replacements": [
-            ],
+            "replacements": [],
             "injections": [
                 {
-                    "position": "(\"click\",) function\\(\\)[^}]+}\\([a-zA-Z0-9&_\\-$]+\\.location\\.href",
+                    "position": "(\"click\",) function[^}]+\\.location\\.href",
                     "code": "typo.joinLobby = "
                 }
             ]
         },
         {
             "name": "Set last joined in regular join",
-            "replacements": [
-            ],
+            "replacements": [],
             "injections": [
                 {
                     "position": "}(\\([a-zA-Z0-9&_\\-$]+\\.location\\.href\\);)",
@@ -399,7 +397,7 @@
             "replacements": [
                 {
                     "source": "##TYPOSIZE##",
-                    "target": "var o = Math.ceil\\(\\.5 \\* (e)\\)"
+                    "target": "[a-zA-Z0-9&_\\-$]+ = Math\\.ceil\\(\\.5 \\* ([a-zA-Z0-9&_\\-$]+)\\)"
                 },
                 {
                     "source": "##PRESSURE##",
@@ -408,8 +406,8 @@
             ],
             "injections": [
                 {
-                    "position": "([a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+, 0, 1\\)[^;]+;)",
-                    "code": "if(0 <= ##PRESSURE## && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(##PRESSURE##, sensitivity); ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));}"
+                    "position": "(\\s)[a-zA-Z0-9&_\\-$]+ = Math\\.ceil\\(\\.5[^}]*",
+                    "code": " /* TYPOMOD use typo pressure */ \n(()=>{if(0 <= ##PRESSURE## && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(##PRESSURE##, sensitivity); ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));}\n})(),"
                 }
             ]
         }
