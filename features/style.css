@@ -1,16 +1,18 @@
-﻿#game-chat{
-    position:relative;
+﻿#game-chat {
+    position: relative;
 }
-    #game-bar #lobby-nav {
-        position: absolute;
-        bottom: 0;
-        width: auto;
-        height: 100%;
-        right: 50px;
-        font-size: 1rem;
-        display: flex;
-        padding: 0.4rem;
-    }
+
+#game-bar #lobby-nav {
+    position: absolute;
+    bottom: 0;
+    width: auto;
+    height: 100%;
+    right: 50px;
+    font-size: 1rem;
+    display: flex;
+    padding: 0.4rem;
+}
+
 .avatar-customizer .container {
     margin: 0 30px
 }
@@ -19,58 +21,85 @@
     margin-bottom: 15px !important;
 }
 
-#panel-right, #panel-left{
-    display:none !important;
+#panel-right,
+#panel-left {
+    display: none !important;
 }
-.filterDisabled{
+
+.filterDisabled {
     opacity: 0.5
 }
 
-:is(#rightPanelContent,#leftPanelContent) h2 span:first-child {
-    user-select:none;
+:is(#rightPanelContent, #leftPanelContent) h2 span:first-child {
+    user-select: none;
     float: right
 }
-:is(#rightPanelContent,#leftPanelContent) h2 span:last-child {
+
+:is(#rightPanelContent, #leftPanelContent) h2 span:last-child {
     user-select: none;
     float: left
-} 
-#leftPanelContent h2 span:first-child{
-    cursor:pointer;
-    opacity:.5;
 }
+
+#leftPanelContent h2 span:first-child {
+    cursor: pointer;
+    opacity: .5;
+}
+
 #rightPanelContent.lobbies h2 span:first-child {
     opacity: 0.5;
     cursor: pointer;
-} #rightPanelContent.lobbies h2 span:last-child {
+}
+
+#rightPanelContent.lobbies h2 span:last-child {
     opacity: 1;
     pointer-events: none;
-} #rightPanelContent.lobbies #cabinSlots {
-    display:none;
-} #rightPanelContent.cabin #lobbyBoard {
+}
+
+#rightPanelContent.lobbies #cabinSlots {
     display: none;
-} #rightPanelContent.lobbies #lobbyBoard {
-    justify-content:space-between;
+}
+
+#rightPanelContent.cabin #lobbyBoard {
+    display: none;
+}
+
+#rightPanelContent.lobbies #lobbyBoard {
+    justify-content: space-between;
     display: flex;
     flex-direction: column;
-    gap:1em;
-    -ms-overflow-style: none; /* for Internet Explorer, Edge */
-    scrollbar-width: none; /* for Firefox */
+    gap: 1em;
+    -ms-overflow-style: none;
+    /* for Internet Explorer, Edge */
+    scrollbar-width: none;
+    /* for Firefox */
     overflow-y: scroll;
     height: 100%;
     align-content: flex-start;
-} #lobbyBoard::-webkit-scrollbar {
-    display: none; /* for Chrome, Safari, and Opera */
-} #lobbyBoard #discordLobbies, #lobbyBoard #lobbyFilters{
-    dispaly:flex;
+}
+
+#lobbyBoard::-webkit-scrollbar {
+    display: none;
+    /* for Chrome, Safari, and Opera */
+}
+
+#lobbyBoard #discordLobbies,
+#lobbyBoard #lobbyFilters {
+    dispaly: flex;
     flex-direction: row;
     flex-wrap: wrap;
-} #rightPanelContent.cabin h2 span:last-child {
+}
+
+#rightPanelContent.cabin h2 span:last-child {
     opacity: 0.5;
     cursor: pointer;
-} #rightPanelContent.cabin h2 span:first-child {
+}
+
+#rightPanelContent.cabin h2 span:first-child {
     opacity: 1;
     pointer-events: none;
-} #typoUserInfo {
+}
+
+#typoUserInfo {
     padding: 1em;
     background: inherit;
     border-radius: 1em;
@@ -79,31 +108,47 @@
     text-align: center;
     pointer-events: none;
     user-select: none
-} #typoUserInfo small{
-      opacity: 0.6;
-  }
-  #typoUserInfo #ptrLogout, #typoUserInfo #ptrManage{
-      pointer-events:all;
-      cursor:pointer;
-      opacity:0.8;
-  }
-  
-  #loginRedir{
-    z-index:-1;
-    opacity:0;
-    position:absolute;
-    inset:0;
-    display:flex;
-    place-items:center;
-    transition:opacity .25s;
-} #loginRedir button {color:inherit !important;} #cabinSlots.unauth:hover > div:not(#loginRedir){
+}
+
+#typoUserInfo small {
+    opacity: 0.6;
+}
+
+#typoUserInfo #ptrLogout,
+#typoUserInfo #ptrManage {
+    pointer-events: all;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+#loginRedir {
+    z-index: -1;
+    opacity: 0;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    place-items: center;
+    transition: opacity .25s;
+}
+
+#loginRedir button {
+    color: inherit !important;
+}
+
+#cabinSlots.unauth:hover>div:not(#loginRedir) {
     opacity: 0.3;
-} #cabinSlots.unauth:hover #loginRedir {
-    opacity:1;
-    z-index:10;
-} #cabinSlots {
-    -ms-overflow-style: none; /* for Internet Explorer, Edge */
-    scrollbar-width: none; /* for Firefox */
+}
+
+#cabinSlots.unauth:hover #loginRedir {
+    opacity: 1;
+    z-index: 10;
+}
+
+#cabinSlots {
+    -ms-overflow-style: none;
+    /* for Internet Explorer, Edge */
+    scrollbar-width: none;
+    /* for Firefox */
     overflow-y: scroll;
     aspect-ratio: 1;
     position: relative;
@@ -113,59 +158,93 @@
     grid-row-gap: 1em;
     opacity: 1;
     transition: opacity 0.25s;
-} #cabinSlots::-webkit-scrollbar {
-        display: none; /* for Chrome, Safari, and Opera */
-    } #cabinSlots > div {
-        aspect-ratio: 1;
-        display: flex;
-        flex-direction: column;
-        place-items: center;
-        place-content: center;
-        border-radius: .5em;
-        background-color: #00000014;
-        user-select: none;
-    } #cabinSlots > div:not(#loginRedir) {
-            cursor: not-allowed;
-            pointer-events: none;
-        } #cabinSlots > div:not(#loginRedir) * {
-            pointer-events: none;
-        } #cabinSlots > div:not(#loginRedir) > p {
-            font-size: 0.7em;
-            color:inherit !important;
-        } #cabinSlots > div:not(#loginRedir).unlocked, .spriteChoice {
-                background-color: #ffffff14;
-                cursor: pointer;
-                transform: scale(1);
-                transition: all .2s;
-                background-size: 100%;
-                background-repeat: no-repeat;
-                background-position: center;
-                color: transparent;
-                pointer-events: all;
-            } .spriteChoice:hover {
-                transform: scale(0.95);
-            } #cabinSlots > div:not(#loginRedir).unlocked:hover {
-                    transform: scale(0.95);
-                    color: unset;
-                    background-size: 0%;
-                } #panelgrid {
+}
+
+#cabinSlots::-webkit-scrollbar {
+    display: none;
+    /* for Chrome, Safari, and Opera */
+}
+
+#cabinSlots>div {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    place-content: center;
+    border-radius: .5em;
+    background-color: #00000014;
+    user-select: none;
+}
+
+#cabinSlots>div:not(#loginRedir) {
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+#cabinSlots>div:not(#loginRedir) * {
+    pointer-events: none;
+}
+
+#cabinSlots>div:not(#loginRedir)>p {
+    font-size: 0.7em;
+    color: inherit !important;
+}
+
+#cabinSlots>div:not(#loginRedir).unlocked,
+.spriteChoice {
+    background-color: #ffffff14;
+    cursor: pointer;
+    transform: scale(1);
+    transition: all .2s;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    color: transparent;
+    pointer-events: all;
+}
+
+.spriteChoice:hover {
+    transform: scale(0.95);
+}
+
+#cabinSlots>div:not(#loginRedir).unlocked:hover {
+    transform: scale(0.95);
+    color: unset;
+    background-size: 0%;
+}
+
+#panelgrid {
     display: grid;
     grid-template-columns: repeat(3, 400px);
     grid-column-gap: 2em;
-    color:white;
-} #panelgrid a{color:inherit;} #panelgrid > div:nth-child(1){
-    height:90%;
-    margin-top:10%;
-    width:95%;
-    margin-left:5%;
-} #panelgrid > div:nth-child(3) {
-        height: 90%;
-        margin-top: 10%;
-        width: 95%;
-        margin-right: 5%;
-    } #panelgrid .panel h2 {margin-top:0;} typosocial {
-    font-size:0.9em;
-    cursor:pointer;
+    color: white;
+}
+
+#panelgrid a {
+    color: inherit;
+}
+
+#panelgrid>div:nth-child(1) {
+    height: 90%;
+    margin-top: 10%;
+    width: 95%;
+    margin-left: 5%;
+}
+
+#panelgrid>div:nth-child(3) {
+    height: 90%;
+    margin-top: 10%;
+    width: 95%;
+    margin-right: 5%;
+}
+
+#panelgrid .panel h2 {
+    margin-top: 0;
+}
+
+typosocial {
+    font-size: 0.9em;
+    cursor: pointer;
     display: inline-block;
     border-radius: .5em;
     margin: .5em;
@@ -175,53 +254,87 @@
     background-repeat: no-repeat;
     background-position: .2em center;
     transform: scale(1);
-    transition:transform .2s;
-    image-rendering:auto;
-} typosocial:hover {
-        transform: scale(0.95);
-    } typosocial a {
-        padding:.8em;
-        display:block;
-        margin-left:1.5em;
-        text-decoration: none;
-        color: white;
-        font-weight:bold;
-    } typosocial[media=discord] {
-        background-color: #5865F2;
-        background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885972636239282246/discord_logo_icon_181298.png);
-    } typosocial[media=website] {
-        background-color: #7058f2;
-        background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885973183977619476/256CircleFit.png);
-    } typosocial[media=patreon] {
-        background-color: #FF424D;
-        background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885975333990461490/5396969-black-patreon-logo-png-1-sound-of-the-future-patreon-logo-png-1600_1600_preview.png);
-    } typosocial[media=github] {
-        background-color: black;
-        background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885977424863584256/Untitled-1.png);
-    } #home .news .head, #game-room .container-settings .lobby-name{border-bottom-color:transparent !important} #game-board #game-canvas canvas {
+    transition: transform .2s;
+    image-rendering: auto;
+}
+
+typosocial:hover {
+    transform: scale(0.95);
+}
+
+typosocial a {
+    padding: .8em;
+    display: block;
+    margin-left: 1.5em;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+typosocial[media=discord] {
+    background-color: #5865F2;
+    background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885972636239282246/discord_logo_icon_181298.png);
+}
+
+typosocial[media=website] {
+    background-color: #7058f2;
+    background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885973183977619476/256CircleFit.png);
+}
+
+typosocial[media=patreon] {
+    background-color: #FF424D;
+    background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885975333990461490/5396969-black-patreon-logo-png-1-sound-of-the-future-patreon-logo-png-1600_1600_preview.png);
+}
+
+typosocial[media=github] {
+    background-color: black;
+    background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885977424863584256/Untitled-1.png);
+}
+
+#home .news .head,
+#game-room .container-settings .lobby-name {
+    border-bottom-color: transparent !important
+}
+
+#game-board #game-canvas canvas {
     image-rendering: pixelated;
-} #randomColor, #colPicker{
-    width:100%;
-    height:100%;
-} div#game-chat div.container form{
-    display:flex;
-    flex-direction:row;
-} div#game-chat div.container form input {
-    width:auto;
-    flex-grow:2;
-} .avatar .special.typoSpecialSlot{
-    background-size:cover;
-} input[type=radio] {
+}
+
+#randomColor,
+#colPicker {
+    width: 100%;
+    height: 100%;
+}
+
+div#game-chat div.container form {
+    display: flex;
+    flex-direction: row;
+}
+
+div#game-chat div.container form input {
+    width: auto;
+    flex-grow: 2;
+}
+
+.avatar .special.typoSpecialSlot {
+    background-size: cover;
+}
+
+input[type=radio] {
     height: unset;
     width: unset;
-} .emojiwrapper {
-    background-color: rgba(0,0,0,0.1);
+}
+
+.emojiwrapper {
+    background-color: rgba(0, 0, 0, 0.1);
     display: inline-block;
     cursor: pointer;
     border-radius: 0.3em;
     padding: 0.1em;
     margin: .2em;
-} .emojipreview {
+}
+
+.emojipreview {
     position: relative;
     bottom: -0.25em;
     display: inline-block;
@@ -230,7 +343,10 @@
     background-repeat: no-repeat;
     width: 1em;
     image-rendering: auto;
-} .flatUI, input[type=checkbox].flatUI {
+}
+
+.flatUI,
+input[type=checkbox].flatUI {
     border: none;
     color: black;
     font-size: small;
@@ -238,69 +354,116 @@
     margin: .5em 0;
     border-radius: 8px;
     background: #e2e2e2 !important;
-    padding:.5em;
+    padding: .5em;
     /*box-shadow: #00000091 0px 2px 2px 0px;*/
 }
-input[type=checkbox].flatUI:focus{
+
+input[type=checkbox].flatUI:focus {
     border-bottom: 0px
 }
- input[type=checkbox].flatUI:checked::before{
+
+input[type=checkbox].flatUI:checked::before {
     opacity: 0
- }
- .flatUI:hover, .flatUI:focus, .flatUI:active {
-        background: #d4d4d4 !important;
-    } .flatUI.orange {
-        background: #ffbf1f !important;
-        color: white;
-    } .flatUI.orange:hover, .flatUI.orange:focus, .flatUI.orange:active {
-            background: #e8b83e !important;
-        } .flatUI.green {
-        background: #0ac200 !important;
-        color: white;
-    } .flatUI.green:hover, .flatUI.green:focus, .flatUI.green:active {
-            background: #079100 !important;
-        } .flatUI.blue {
-        background: #51a1eb !important;
-        color:white;
-    } .flatUI.blue:hover, .flatUI.blue:focus, .flatUI.blue:active {
-            background: #3d93e2 !important;
-        } .flatUI.min{
-        width:auto;
-        display:inline-block;
-    } .flatUI.air {
-        padding: .7em 1em;
-    } input.flatUI, input.flatUI:focus {
-    border:none;
+}
+
+.flatUI:hover,
+.flatUI:focus,
+.flatUI:active {
+    background: #d4d4d4 !important;
+}
+
+.flatUI.orange {
+    background: #ffbf1f !important;
+    color: white;
+}
+
+.flatUI.orange:hover,
+.flatUI.orange:focus,
+.flatUI.orange:active {
+    background: #e8b83e !important;
+}
+
+.flatUI.green {
+    background: #0ac200 !important;
+    color: white;
+}
+
+.flatUI.green:hover,
+.flatUI.green:focus,
+.flatUI.green:active {
+    background: #079100 !important;
+}
+
+.flatUI.blue {
+    background: #51a1eb !important;
+    color: white;
+}
+
+.flatUI.blue:hover,
+.flatUI.blue:focus,
+.flatUI.blue:active {
+    background: #3d93e2 !important;
+}
+
+.flatUI.min {
+    width: auto;
+    display: inline-block;
+}
+
+.flatUI.air {
+    padding: .7em 1em;
+}
+
+input.flatUI,
+input.flatUI:focus {
+    border: none;
     border-bottom: 2px solid black;
     border-radius: 4px;
-} label input[type=checkbox].flatUI {
+}
+
+label input[type=checkbox].flatUI {
     float: left;
     width: 2em;
     height: 2em;
     margin: 0 0 0.2em 0;
-    cursor:pointer;
-    position:relative;
-} label input[type=checkbox].flatUI.small {
-        font-size: .7em;
-    } label input[type=checkbox].flatUI.small + span {
-        font-size: .8em;
-    } span.small {
+    cursor: pointer;
+    position: relative;
+}
+
+label input[type=checkbox].flatUI.small {
+    font-size: .7em;
+}
+
+label input[type=checkbox].flatUI.small+span {
     font-size: .8em;
-} label input[type=checkbox].flatUI + span {
-        height: 2em;
-        display: inline-block;
-        margin: .2em 0;
-        margin-left: .5em;
-        cursor: pointer;
-        width: calc(100% - 3em);
-    } label input[type="checkbox"].flatUI:checked:after {
-        content: "🞬";
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        font-size: 1.5em;
-    } #sharePopup, #optionsPopup, #downloadPopup, #gamemodePopup {
+}
+
+span.small {
+    font-size: .8em;
+}
+
+label input[type=checkbox].flatUI+span {
+    height: 2em;
+    display: inline-block;
+    margin: .2em 0;
+    margin-left: .5em;
+    cursor: pointer;
+    width: calc(100% - 3em);
+}
+
+label input[type="checkbox"].flatUI:checked:after {
+    content: "🞬";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.5em;
+}
+
+#sharePopup,
+#optionsPopup,
+#downloadPopup,
+#gamemodePopup {
     position: absolute;
     background-color: rgb(3 34 140 / 75%);
     color: white;
@@ -314,39 +477,55 @@ input[type=checkbox].flatUI:focus{
     min-height: 15%;
     padding: 1em;
     bottom: 3em;
-} #emojiPrev {
+}
+
+#emojiPrev {
     background-color: rgb(3 34 140 / 75%);
     backdrop-filter: blur(4px);
     box-shadow: black 1px 1px 9px -2px;
-} #game-players.room #imageOptions{
-    display:none;
-} #shareImagePreview {
+}
+
+#game-players.room #imageOptions {
+    display: none;
+}
+
+#shareImagePreview {
     width: 100%;
     padding: 1.5em 0;
-} #imageOptions {
+}
+
+#imageOptions {
     position: absolute;
     height: 48px;
-    background-color: white;
+    background-color: var(--COLOR_CHAT_BG_BASE);
     width: 100%;
     bottom: -55px;
     border-radius: 3px;
     display: flex;
     padding: .4em 0px;
     justify-content: space-evenly;
-} #imageOptions img {
-        filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
-        cursor: pointer;
-        transform: translate(0);
-        transition: transform 0.1s ease-in-out;
-    } #imageOptions img:hover {
-            transform: translate(0,-3px);
-        } #charbar {
+}
+
+#imageOptions img {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+    cursor: pointer;
+    transform: translate(0);
+    transition: transform 0.1s ease-in-out;
+}
+
+#imageOptions img:hover {
+    transform: translate(0, -3px);
+}
+
+#charbar {
     border-radius: 4px;
     margin: 0px 0.2em;
     padding: 0px 0.5em;
     display: grid;
     place-items: center;
-} .button-blue {
+}
+
+.button-blue {
     font-size: 1em;
     padding: .4em .6em;
     background-color: #2c8de7;
@@ -356,9 +535,12 @@ input[type=checkbox].flatUI:focus{
     font-weight: 700;
     margin-left: 1em;
     margin-right: 1em;
-} .button-blue:hover {
-        background-color: #1671c5;
-    } 
+}
+
+.button-blue:hover {
+    background-color: #1671c5;
+}
+
 .button-orange {
     font-size: 1em;
     padding: .4em .6em;
@@ -369,72 +551,124 @@ input[type=checkbox].flatUI:focus{
     font-weight: 700;
     margin-left: 1em;
     margin-right: 1em;
-} .button-orange:hover {
-        background-color: rgb(217 167 26);
-    }
+}
+
+.button-orange:hover {
+    background-color: rgb(217 167 26);
+}
+
 /* Accessibility */
 #containerFreespace {
-  background: none;
-} .tooltip.show {
-  opacity: 1;
-} .tooltip .tooltip-inner, .tooltip .arrow {
-  color: #eee !important;
-  background-color: rgba(0, 0, 0, 0.9);
-} .tooltip .tooltip-inner {
-  border: 1px solid #222;
-} div hr{
-    border-top-width: 4px;
-} div#currentWord { text-align: right; } #wordSize {
-  flex: 1 1 auto;
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 3px;
-} input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    background: none;
 }
+
+.tooltip.show {
+    opacity: 1;
+}
+
+.tooltip .tooltip-inner,
+.tooltip .arrow {
+    color: #eee !important;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.tooltip .tooltip-inner {
+    border: 1px solid #222;
+}
+
+div hr {
+    border-top-width: 4px;
+}
+
+div#currentWord {
+    text-align: right;
+}
+
+#wordSize {
+    flex: 1 1 auto;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 /* Character counter */
 #boxChatInput {
-  display: flex;
-} #formChat {
-  width: 100%;
+    display: flex;
 }
+
+#formChat {
+    width: 100%;
+}
+
 /* Keybinds */
-.keybindMenu > div {
-  display: flex;
-  margin-bottom: 10px;
-} .keybindMenu > h4, .keybindMenu > h5, .keybindMenu > p {
-  text-align: center;
-} .keybindMenu p {
-  font-size: 12px;
-} .keybindMenu h5 {
-  font-size: 16px;
-} .keybindMenu h5.plus {
-  margin-left: 10px;
-  font-weight: bold;
-} .keybindMenu label {
-  vertical-align: middle;
-  align-self: center;
-  margin-bottom: 0;
-} .keybindMenu > div > label:nth-child(n + 2) {
-  margin-left: 10px;
-} .keybindMenu .form-control {
-  margin-left: 10px;
-  width: auto;
+.keybindMenu>div {
+    display: flex;
+    margin-bottom: 10px;
 }
+
+.keybindMenu>h4,
+.keybindMenu>h5,
+.keybindMenu>p {
+    text-align: center;
+}
+
+.keybindMenu p {
+    font-size: 12px;
+}
+
+.keybindMenu h5 {
+    font-size: 16px;
+}
+
+.keybindMenu h5.plus {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.keybindMenu label {
+    vertical-align: middle;
+    align-self: center;
+    margin-bottom: 0;
+}
+
+.keybindMenu>div>label:nth-child(n + 2) {
+    margin-left: 10px;
+}
+
+.keybindMenu .form-control {
+    margin-left: 10px;
+    width: auto;
+}
+
 /* Gamemodes */
 .gamemodeMenu {
-  display: flex;
-  margin-top: 10px;
-} .gamemodeMenu label {
-  align-self: center;
-} .gamemodeMenu select {
-  margin-left: 10px;
-} .gamemodeDeaf .message {
-  display: none !important;
-} .gamemodeDeaf #boxMessages {
-  opacity: 0;
-} #imageCloud {
+    display: flex;
+    margin-top: 10px;
+}
+
+.gamemodeMenu label {
+    align-self: center;
+}
+
+.gamemodeMenu select {
+    margin-left: 10px;
+}
+
+.gamemodeDeaf .message {
+    display: none !important;
+}
+
+.gamemodeDeaf #boxMessages {
+    opacity: 0;
+}
+
+#imageCloud {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -442,7 +676,9 @@ input[type=checkbox].flatUI:focus{
     margin-left: 18%;
     max-height: 100%;
     overflow-y: auto;
-} #imageCloudSidebar {
+}
+
+#imageCloudSidebar {
     position: absolute;
     left: 0;
     padding: 1em;
@@ -452,47 +688,63 @@ input[type=checkbox].flatUI:focus{
     background: rgb(115 169 251 / 12%);
     border-radius: 1em;
     overflow: hidden;
-} #imageCloudSidebar h4 {
-        margin-bottom:.5em;
-    } #imageCloud > div {
+}
+
+#imageCloudSidebar h4 {
+    margin-bottom: .5em;
+}
+
+#imageCloud>div {
     width: 30%;
     margin: 0.5em;
     position: relative;
-} #imageCloud > div > img {
-        width: 100%;
-        height: auto;
-        transition: opacity 0.25s ease 0s;
-        box-shadow: rgb(0 0 0 / 15%) 1px 1px 9px 1px;
-        opacity: 1;
-    } #imageCloud > div > div {
-        transition: opacity 0.25s ease 0s;
-        opacity: 0;
-        position: absolute;
-        inset: 0px;
-        display: flex;
-        place-items: center;
-        justify-content: space-around;
-        border-radius: 1em;
-        z-index: 200;
-        background: rgba(0, 0, 0, 0.1);
-        flex-direction: column;
-    } #imageCloud > div > div > div {
-            display: flex;
-            flex-wrap: wrap;
-            align-content: space-evenly;
-            justify-content: space-evenly;
-            height: 100%;
-            width: 100%;
-            gap: 1em;
-        } #imageCloud > div > img.skeletonImage {
-        opacity: 0.4;
-    } #imageCloud > div.skeletonDiv {
-        animation-name: skeleton;
-        animation-duration: 1.5s;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
-        animation-timing-function: ease-in;
-    } @keyframes skeleton {
+}
+
+#imageCloud>div>img {
+    width: 100%;
+    height: auto;
+    transition: opacity 0.25s ease 0s;
+    box-shadow: rgb(0 0 0 / 15%) 1px 1px 9px 1px;
+    opacity: 1;
+}
+
+#imageCloud>div>div {
+    transition: opacity 0.25s ease 0s;
+    opacity: 0;
+    position: absolute;
+    inset: 0px;
+    display: flex;
+    place-items: center;
+    justify-content: space-around;
+    border-radius: 1em;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.1);
+    flex-direction: column;
+}
+
+#imageCloud>div>div>div {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: space-evenly;
+    justify-content: space-evenly;
+    height: 100%;
+    width: 100%;
+    gap: 1em;
+}
+
+#imageCloud>div>img.skeletonImage {
+    opacity: 0.4;
+}
+
+#imageCloud>div.skeletonDiv {
+    animation-name: skeleton;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-timing-function: ease-in;
+}
+
+@keyframes skeleton {
     from {
         background-color: #fafafa;
     }
@@ -500,7 +752,9 @@ input[type=checkbox].flatUI:focus{
     to {
         background-color: #969595;
     }
-} .modalContainer {
+}
+
+.modalContainer {
     padding: 1em;
     /*background-color: white;*/
     background-color: rgb(3 34 140 / 90%);
@@ -511,56 +765,75 @@ input[type=checkbox].flatUI:focus{
     z-index: 60;
     display: flex;
     flex-direction: column;
-    transform: translate(0,-20vh);
+    transform: translate(0, -20vh);
     opacity: 0;
     transition: transform .1s, opacity .1s;
     max-height: 85vh;
     overflow: hidden;
     position: fixed;
-} .modalBlur {
-        position: fixed;
-        width: 100vw;
-        height: 100vh;
-        left: 0;
-        top: 0;
-        background-color: black;
-        opacity: 0;
-        z-index: 59;
-        transition: opacity .1s;
-    } .modalContainer #modalClose {
+}
+
+.modalBlur {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    background-color: black;
+    opacity: 0;
+    z-index: 59;
+    transition: opacity .1s;
+}
+
+.modalContainer #modalClose {
     position: absolute;
     right: .5rem;
-    top:0;
+    top: 0;
     font-size: 2em;
     opacity: .5;
     cursor: pointer;
-} .modalContainer #modalClose:hover {
+}
+
+.modalContainer #modalClose:hover {
     opacity: .9;
-} #imageAgent {
+}
+
+#imageAgent {
     border-radius: 1em;
     width: 100%;
     background-color: rgb(3 34 140 / 75%);
     backdrop-filter: blur(4px);
     padding: .5em;
     margin-bottom: 1em;
-} #imageAgent > *:not(img) {
-        width: 90%;
-        margin: 0 5%;
-        display: flex;
-        justify-content: space-evenly;
-    } #imageAgent > div > img{
-    margin-top:1em;
-    max-height:20vh;
-    max-width:90%;
-} #brushmagicSettings .mode{
-    margin:2em 0;
-} #brushmagicSettings .mode .options:not(:empty){margin-top:1em;}
+}
+
+#imageAgent>*:not(img) {
+    width: 90%;
+    margin: 0 5%;
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#imageAgent>div>img {
+    margin-top: 1em;
+    max-height: 20vh;
+    max-width: 90%;
+}
+
+#brushmagicSettings .mode {
+    margin: 2em 0;
+}
+
+#brushmagicSettings .mode .options:not(:empty) {
+    margin-top: 1em;
+}
 
 .tool[data-tooltip='Switcher'] {
     display: none;
 }
+
 .tool[data-tooltip='Lab'] .icon {
-    background-image:var(--typobrush) !important;
+    background-image: var(--typobrush) !important;
 }
 
 #game-room .container #game-chat.room {
@@ -580,22 +853,23 @@ input[type=checkbox].flatUI:focus{
     background-size: 80% !important;
 }
 
-#panelgrid > div:nth-child(2) > div.avatar-customizer > div.container {
-  cursor:pointer;
-  transition: 0.2s all
+#panelgrid>div:nth-child(2)>div.avatar-customizer>div.container {
+    cursor: pointer;
+    transition: 0.2s all
 }
 
-#panelgrid > div:nth-child(2) > div.avatar-customizer > div.container:hover{
-  transform:scale(95%)
+#panelgrid>div:nth-child(2)>div.avatar-customizer>div.container:hover {
+    transform: scale(95%)
 }
 
 
 @keyframes bounceload {
     from {
-        transform:scale(0.5)
+        transform: scale(0.5)
     }
+
     to {
-        transform:translateX(-40%) scale(1.5)
+        transform: translateX(-40%) scale(1.5)
     }
 }
 
@@ -614,12 +888,12 @@ bounceload {
     animation-timing-function: ease-in-out;
     transform-origin: center;
     margin-right: .5em;
-    margin-left:.5em;
-    margin-bottom:-.4em;
+    margin-left: .5em;
+    margin-bottom: -.4em;
 }
 
-#game-canvas .room .game-room-group.customwords{
-    height:calc(28% - var(--BORDER_GAP) * 4) !important;
+#game-canvas .room .game-room-group.customwords {
+    height: calc(28% - var(--BORDER_GAP) * 4) !important;
 }
 
 /* .player-avatar-container > .player { height: 54px !important}
@@ -628,7 +902,9 @@ bounceload {
 
 .player-score {margin-top:.5em !important} */
 
-#home > .bottom{margin-top:2em;} 
+#home>.bottom {
+    margin-top: 2em;
+}
 
 .visionFrame {
     border: 2px solid black;
@@ -645,98 +921,114 @@ bounceload {
     pointer-events: none;
     cursor: grab;
     box-shadow: rgb(0 0 0) 0px 0px 0px 2px inset, rgb(255 255 255 / 50%) 0px 0px 3px -1px;
-    min-height:10em;
-    min-width:10em;
+    min-height: 10em;
+    min-width: 10em;
 }
+
 .visionContent {
     grid-row-start: 2;
     grid-column-start: 2;
-    opacity:.5;
-    pointer-events:all;
-    background-position:center center;
-    background-size:contain;
-    background-repeat:no-repeat;
-    cursor:unset;
-    width:100%;
-    height:100%;
+    opacity: .5;
+    pointer-events: all;
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    cursor: unset;
+    width: 100%;
+    height: 100%;
 }
+
 .visionFrame.ghost .visionContent {
     pointer-events: none;
 }
-.visionFrame:not(.iframe) iframe.visionContent{display:none;}
-.visionFrame.iframe div.visionContent{display:none;}
+
+.visionFrame:not(.iframe) iframe.visionContent {
+    display: none;
+}
+
+.visionFrame.iframe div.visionContent {
+    display: none;
+}
+
 .visionBorder {
     background: black;
-    pointer-events:all;
+    pointer-events: all;
 }
-.visionBorder.rightResize{
-    cursor:e-resize;
-    grid-column-start:3;
+
+.visionBorder.rightResize {
+    cursor: e-resize;
+    grid-column-start: 3;
 }
-    .visionBorder.bottomResize {
-        cursor: s-resize;
-        grid-column-start: 2;
-        grid-row-start: 3;
-    }
-    .visionBorder.allResize {
-        cursor: nwse-resize;
-        grid-column-start: 3;
-        grid-row-start: 3;
-    }
-.visionHead{
-    position:relative;
-    grid-row-start:1;
-    grid-column-start:1;
-    grid-column-end:4;
-    background:black;
-    pointer-events:all;
-    padding:.5em;
+
+.visionBorder.bottomResize {
+    cursor: s-resize;
+    grid-column-start: 2;
+    grid-row-start: 3;
 }
-.visionControl{
-    position:absolute;
-    top:.5em;
-    right:.5em;
-    color:red;
-    font-size:1.5em;
-    cursor:pointer;
+
+.visionBorder.allResize {
+    cursor: nwse-resize;
+    grid-column-start: 3;
+    grid-row-start: 3;
 }
-    .visionHead input:is([type=text], [type=range]){
-    width:50%;
+
+.visionHead {
+    position: relative;
+    grid-row-start: 1;
+    grid-column-start: 1;
+    grid-column-end: 4;
+    background: black;
+    pointer-events: all;
+    padding: .5em;
 }
-:root{
+
+.visionControl {
+    position: absolute;
+    top: .5em;
+    right: .5em;
+    color: red;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.visionHead input:is([type=text], [type=range]) {
+    width: 50%;
+}
+
+:root {
     --PLAYERS_PER_PAGE: 8 !important;
 }
 
-#imageOptions > img {
-    height:100%;
+#imageOptions>img {
+    height: 100%;
 }
 
 #game #game-players .players-list .player.typo {
     height: 60px !important;
-    display:flex;
-    flex-direction:column;
+    display: flex;
+    flex-direction: column;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container{
+#game #game-players .players-list .player.typo .player-avatar-container {
     place-items: center;
-    position:absolute;
-    right:0;
-    height:100%;
-    top:0;
-    bottom:0;
-    display:grid;
+    position: absolute;
+    right: 0;
+    height: 100%;
+    top: 0;
+    bottom: 0;
+    display: grid;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container .avatar{
-    position:absolute;
-    width:48px;
+#game #game-players .players-list .player.typo .player-avatar-container .avatar {
+    position: absolute;
+    width: 48px;
     height: 48px;
 }
 
 #game #game-players .players-list .player.typo .player-info {
-    position:unset;
-    display:grid;
-    place-items:center;
+    position: unset;
+    display: grid;
+    place-items: center;
     grid-template-columns: 1fr 4fr;
     grid-template-rows: 1fr 1fr;
     width: calc(100% - 48px - 3px);
@@ -744,36 +1036,36 @@ bounceload {
 }
 
 #game #game-players .players-list .player.typo .player-info .player-name {
-    position:unset;
+    position: unset;
     grid-column: 2;
-    grid-row:1;
+    grid-row: 1;
     align-self: end;
     white-space: nowrap;
     overflow: hidden;
 }
 
 #game #game-players .players-list .player.typo .player-info .player-rank {
-    position:unset;
+    position: unset;
     grid-row: 1/-1;
 }
 
 #game #game-players .players-list .player.typo .player-info .player-score {
-    position:unset;
+    position: unset;
     grid-column: 2;
     align-self: start;
 }
 
 #game #game-players .players-list .player.typo .player-icons {
-    position:absolute;
+    position: absolute;
     padding-left: 4px;
 }
 
 #game #game-players .players-list .player.typo .player-icons .icon {
-    height:18px;
-    width:18px
+    height: 18px;
+    width: 18px
 }
 
 
-#game-rate{
+#game-rate {
     z-index: 10 !important;
 }
