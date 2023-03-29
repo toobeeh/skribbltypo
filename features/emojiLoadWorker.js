@@ -1,6 +1,5 @@
 // Webworker to load emojis
 (async () => {
-    
     let emojis = [];
     // sources
     const categories = [
@@ -21,19 +20,6 @@
             animated: emoji.url.indexOf(".gif") > 0 ? true : false
         });
     });
-    // get categoryemojis by regex since dom parser and queryselector not available
-    for (const category of categories) {
-        let doc = await (await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(category)}`)).text();
-        for (const match of doc.matchAll(new RegExp("<li[^>]*title=[^>]*>(.+?|\n)</li>", "g"))) {
-            const title = match[0].matchAll(new RegExp(/<li[^>]*title='(.+?)'/gi)).next().value[1];
-            const url = match[0].matchAll(new RegExp(/src=[^"]*"(.+?)[^"]"/gi)).next().value[1];
-            emojis.push({
-                name: title,
-                url: url,
-                animated: url.indexOf(".gif") > 0 ? true : false
-            });
-        }
-    }
     emojis = emojis.filter(emoji => emoji.animated || !emoji.animated && emojis.filter(
         emojidupe => emojidupe.animated && emojidupe.name == emoji.name).length == 0);
     let removedDupes = [];

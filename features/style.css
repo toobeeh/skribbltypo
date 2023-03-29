@@ -217,7 +217,7 @@
     display: grid;
     grid-template-columns: repeat(3, 400px);
     grid-column-gap: 2em;
-    color: white;
+    color: var(--COLOR_PANEL_TEXT);
 }
 
 #panelgrid a {
@@ -754,12 +754,19 @@ input::-webkit-inner-spin-button {
     }
 }
 
+#modal .modal-container,
+#modal .modal-container .modal-title,
+#modal .modal-container .modal-content {
+    color: var(--COLOR_PANEL_TEXT) !important;
+}
+
 .modalContainer {
     padding: 1em;
     /*background-color: white;*/
-    background-color: rgb(3 34 140 / 90%);
+    background-color: var(--COLOR_PANEL_BG);
+    backdrop-filter: blur(4px);
     /* backdrop-filter: blur(4px); */
-    color: white;
+    color: var(--COLOR_PANEL_TEXT);
     border-radius: 1em;
     box-shadow: black 1px 1px 9px -2px;
     z-index: 60;
@@ -1068,4 +1075,81 @@ bounceload {
 
 #game-rate {
     z-index: 10 !important;
+}
+
+.themesv2 {
+    width: 100%;
+    padding: .5em;
+}
+
+.themesv2 .menu {
+    margin: 1em;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 3em;
+    justify-items: center;
+    margin-bottom: 2em;
+}
+
+.themesv2 .menu div {
+    cursor: pointer;
+    font-size: 1.2em;
+    opacity: .5;
+    font-weight: bold;
+}
+
+.themesv2.manage .menu div.manage {
+    opacity: 1;
+}
+
+.themesv2.create .menu div.create {
+    opacity: 1;
+}
+
+.themesv2.add .menu div.add {
+    opacity: 1;
+}
+
+.themesv2 .body>div {
+    display: none;
+}
+
+.themesv2.manage .body>div.manage {
+    display: block;
+}
+
+.themesv2.add .body>div.add {
+    display: block;
+}
+
+.themesv2.create .body>div.create {
+    display: flex;
+    flex-direction: column;
+    gap: .8em;
+}
+
+.themesv2.create .body>div.create>div {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.themesv2 label.checkbox {
+    display: flex;
+    align-items: center;
+    gap: .5em;
+    cursor: pointer;
+    user-select: none;
+    ;
+}
+
+.themesv2 details {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.themesv2 summary {
+    cursor: pointer;
+    font-weight: bold;
 }

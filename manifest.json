@@ -43,7 +43,6 @@
         "*://skribbl.io/*"
       ],
       "js": [
-        "picker/colr_pickr.min.js",
         "features/commands.js",
         "features/uiTweaks.js",
         "features/drops.js",
@@ -65,6 +64,7 @@
         "*://skribbl.io/*"
       ],
       "js": [
+        "picker/colr_pickr.min.js",
         "color.js",
         "features/modal.js",
         "features/search.js",

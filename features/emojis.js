@@ -3,7 +3,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 // adds emoji replacement
 const emojis = {
-    emojis : [],
+    emojis: [],
     init: async () => {
         // load emojis in worker to avoid blocking ui
         let workerJS = await (await fetch(chrome.runtime.getURL("features/emojiLoadWorker.js"))).text();
@@ -11,13 +11,14 @@ const emojis = {
         setTimeout(() => {
             loadWorker.addEventListener('message', message => {
                 emojis.emojis = message.data;
+                console.log("added " + message.data.length + " emojis");
             });
-        }, navigator.userAgent.includes("Firefox") ? 1000 : 0); // firefox seems to have problems to immediately initialize the worker
+        }, 1000); // firefox seems to have problems to immediately initialize the worker
         QS("#emojiPrev").style.maxHeight = "80%";
         QS("#emojiPrev").style.overflowY = "auto";
         // show emoji preview on chat type
         const input = QS("#game-chat form input");
-        input.closest("form").addEventListener("submit", ()=>{
+        input.closest("form").addEventListener("submit", () => {
             QS("#emojiPrev").style.display = "none";
         });
         input.addEventListener("input", (e) => {
@@ -55,7 +56,7 @@ const emojis = {
         });
     },
     get: (name) => emojis.emojis.find(emoji => emoji.name == name),
-    search: (name) => emojis.emojis.filter(emoji => emoji.name.indexOf(name) >= 0).sort((a,b)=>a.name.length - b.name.length),
+    search: (name) => emojis.emojis.filter(emoji => emoji.name.indexOf(name) >= 0).sort((a, b) => a.name.length - b.name.length),
     replaceEmojiContent: (node) => {
         const matches = node.innerHTML.matchAll(new RegExp(":([A-Za-z0-9\-\_]+):", "g"));
         for (const match of matches) {
@@ -72,7 +73,7 @@ const emojis = {
                 style.innerHTML = ".emoji-" + emoji.name + id + ":hover:after {width:fit-content; color:white; word-break:none;font-weight:500; letter-spacing:.05em; content:'։" + emoji.name + "։'; position: absolute; left:2.5em;background: #333333e0; padding: .5em; border-radius: .2em;}" +
                     ".emoji-" + emoji.name + id + ":hover:before {content: '';border-style: solid;border-width: .5em .5em .5em 0;border-color: transparent #333333e0 transparent transparent; position: absolute;left: 2em; top: .5em;}";
             }
-          
+
         }
         // if scrolled very down, scroll to view full emoji height
         if (matches.length > 0 && Math.floor(node.parentElement.scrollHeight - node.parentElement.scrollTop) <= node.parentElement.clientHeight + 30) {
