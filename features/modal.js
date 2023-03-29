@@ -52,12 +52,17 @@ class Modal {
             modal.style.transform = "translate(0,-20vh)";
             modal.style.opacity = "0";
             blur.style.opacity = "0";
+
+            document.body.style.height = "";
+            document.body.style.overflowY = "";
+            document.body.style.paddingRight = "";
+
             document.removeEventListener("keydown", esc);
             setTimeout(() => {
                 this.onclose();
                 this.blur.remove();
                 this.modal.remove();
-            },200)
+            }, 200)
         };
         blur.addEventListener("click", this.close);
         modal.querySelector("#modalClose").addEventListener("click", this.close);
@@ -66,6 +71,11 @@ class Modal {
             modal.style.opacity = "1";
             blur.style.opacity = "0.5";
         }, 20);
+
+        /*  */
+        document.body.style.height = "100vh";
+        document.body.style.overflowY = "hidden";
+        document.body.style.paddingRight = "15px";
     }
 }
 
@@ -95,7 +105,7 @@ box-shadow: black 1px 1px 9px -2px;
         toast.style.opacity = "1";
         setTimeout(() => {
             toast.style.opacity = "0";
-            setTimeout(()=> toast.remove(), 500);
+            setTimeout(() => toast.remove(), 500);
         }, duration);
         this.toast = toast;
     }

@@ -1115,7 +1115,9 @@ bounceload {
 }
 
 .themesv2.manage .body>div.manage {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
 }
 
 .themesv2.add .body>div.add {
@@ -1152,4 +1154,19 @@ bounceload {
 .themesv2 summary {
     cursor: pointer;
     font-weight: bold;
+}
+
+.themesv2 .theme {
+    display: grid;
+    grid-template-columns: 3fr 2fr 1fr 1fr 1fr;
+    gap: .5em 1em;
+    background-color: var(--COLOR_PANEL_BUTTON);
+    padding: .5em;
+    padding-left: 1em;
+    border-radius: 1em;
+    align-items: center;
+}
+
+#themeName[disabled] {
+    cursor: forbidden;
 }

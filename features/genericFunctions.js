@@ -31,7 +31,7 @@ const solveMatchHash = (hash, key) => {
 
 // polyfill customevent
 const newCustomEvent = (type, detail = {}) => {
-    if (typeof(cloneInto) == "undefined") return new CustomEvent(type, detail);
+    if (typeof (cloneInto) == "undefined") return new CustomEvent(type, detail);
     let eventDetail = cloneInto(detail, document.defaultView);
     return clonedEvent = new document.defaultView.CustomEvent(type, eventDetail);
 }
@@ -74,7 +74,7 @@ const markMessage = (newNode) => {
 //func to scroll to bottom of message container
 const scrollMessages = (onlyIfScrolledDown = false) => {
     let box = document.querySelector(".chat-content");
-    if (!onlyIfScrolledDown ||  Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 60) {
+    if (!onlyIfScrolledDown || Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 60) {
         box.scrollTop = box.scrollHeight;
     }
 }
@@ -118,7 +118,7 @@ const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackover
         type: 'image/png'
     });
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-    addChatMessage("","Copied to clipboard");
+    addChatMessage("", "Copied to clipboard");
 }
 
 // func to replace umlaute in a string
@@ -151,7 +151,7 @@ const getCurrentOrLastDrawer = () => {
         try {
             drawer = (new RegExp(">([^>]+?) is drawing now!<\/b>", "g")).exec(QS("#game-chat .content").innerHTML).pop();
         }
-        catch {}
+        catch { }
     }
     return drawer;
 }
@@ -167,7 +167,7 @@ const getCurrentWordOrHint = () => {
 // adds a color palette
 const setColorPalette = (colorPalette) => {
     paletteContainer = elemFromString(`<div class="colors custom"></div>`);
-    paletteContainer.style.width=colorPalette.rowCount * 24 + "px";
+    paletteContainer.style.width = colorPalette.rowCount * 24 + "px";
     let swatches = [...colorPalette.swatches];
     rowTop = 0;
     while (swatches.length > 0) {
@@ -209,7 +209,7 @@ const createColorPalette = (paletteObject) => {
             const col = new Color({ rgb: window.getComputedStyle(dummyColorTester).backgroundColor });
             palette.colors.push({ color: col.hex });
             const swatch = elemFromString(`<div class="color" style="background-color:${col.hex}"></div>`);
-            const code = parseInt(col.hex.replace("#",""), 16) + 10000;
+            const code = parseInt(col.hex.replace("#", ""), 16) + 10000;
             swatch.addEventListener("mousedown", (e) => {
                 document.dispatchEvent(newCustomEvent("setColor", { detail: { code: code, secondary: e.button === 2 } }));
             });
@@ -255,14 +255,14 @@ const leaveLobby = async (next = false) => {
                     resolve();
                 }, { once: true });
                 document.dispatchEvent(newCustomEvent("joinLobby"));
-            }, { once: true });   
+            }, { once: true });
         }
         document.dispatchEvent(newCustomEvent("leaveLobby"));
         if (!next && document.fullscreenElement) {
             document.exitFullscreen();
             resolve();
         }
-    });    
+    });
 }
 document.addEventListener("toast", (e) => new Toast(e.detail.text, 1000));
 
@@ -273,6 +273,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.client || override) localStorage.client = Date.now();
     if (!localStorage.visualOptions || override) localStorage.visualOptions = "{}";
     if (!localStorage.themes || override) localStorage.themes = `[{"name":"Original","options":{"urlLogo":"","urlBackground":"","containerImages":"","fontColor":"","fontColorButtons":"","fontStyle":"","containerBackgroundsCheck":false,"containerBackgrounds":"","inputBackgroundsCheck":false,"inputBackgrounds":"","containerOutlinesCheck":false,"containerOutlines":"","inputOutlinesCheck":false,"inputOutlines":"","hideFooter":false,"hideCaptcha":false,"hideMeta":false,"hideAvatarLogo":false,"hideInGameLogo":false,"hideAvatarSprites":false}},{"name":"Dark Discord","options":{"urlLogo":"","urlBackground":"https://cdn.discordapp.com/attachments/715996980849147968/814955491876012032/dcdark.png); background-size: 800px;(","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Karla:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#2C2F3375","inputBackgroundsCheck":true,"inputBackgrounds":"#00000075","containerOutlinesCheck":true,"containerOutlines":"transparent !important; border-left: 4px solid #7289DA !important; ","inputOutlinesCheck":true,"inputOutlines":"transparent !important; border-left: 3px solid #363636 !important; ","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}},{"name":"Alpha","options":{"urlLogo":"https://imgur.com/k8e70AG.png","urlBackground":"https://i.imgur.com/UNZtzl6.jpg","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Mulish:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#ffffff50","inputBackgroundsCheck":true,"inputBackgrounds":"#00000040","containerOutlinesCheck":true,"containerOutlines":"","inputOutlinesCheck":true,"inputOutlines":"","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}}]`;
+    if (!localStorage.themesv2 || override) localStorage.themesv2 = "[]";
     if (!localStorage.controls || override) localStorage.controls = "true";
     if (!localStorage.restrictLobby || override) localStorage.restrictLobby = "";
     if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
@@ -300,7 +301,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.palette || override) localStorage.palette = "originalPalette";
     if (!localStorage.lobbyStream || override) localStorage.lobbyStream = "{}";
     if (!localStorage.customPalettes || override) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
-    if (!Number(localStorage.qualityScale) || Number(localStorage.qualityScale) < 1  ) localStorage.qualityScale = 1;
+    if (!Number(localStorage.qualityScale) || Number(localStorage.qualityScale) < 1) localStorage.qualityScale = 1;
 }
 258;
 

@@ -58,6 +58,27 @@ const copyColors = () => JSON.parse(JSON.stringify(COLORS));
 const toColorCode = value => value.length == 3
     ? `hsl(${value[0]}, ${value[1]}%, ${value[2]}%)`
     : `hsla(${value[0]}, ${value[1]}%, ${value[2]}%, ${value[3]})`;
+const getEmptyTheme = () => ({
+    colors: copyColors(),
+    images: {
+        urlLogo: "",
+        urlBackground: "",
+        containerImages: "",
+        containerImages: "",
+        backgroundTint: "transparent"
+    },
+    misc: {
+        fontStyle: "",
+        hideFooter: false,
+        hideTypoInfo: false,
+        hideTypoPanels: false,
+        hideAvatarLogo: false,
+        hideInGameLogo: false,
+        hideAvatarSprites: false,
+        themeCssUrl: ""
+    }
+
+});
 
 
 const simpleThemeColors = (mainHsl, textHsl, useIngame = false, useInputs = false, invertInputText = true) => {
@@ -129,26 +150,101 @@ const visuals = {
     themes: [],
     form: undefined,
     getElem: undefined,
-    currentEditor: {
-        colors: copyColors(),
-        images: {
-            urlLogo: "",
-            urlBackground: "",
-            containerImages: "",
-            containerImages: "",
-            backgroundTint: "transparent"
-        },
-        misc: {
-            fontStyle: "",
-            hideFooter: false,
-            hideTypoInfo: false,
-            hideTypoPanels: false,
-            hideAvatarLogo: false,
-            hideInGameLogo: false,
-            hideAvatarSprites: false,
-            themeCssUrl: ""
+    refreshThemeContainer: undefined,
+    mainPickers: { primary: undefined, text: undefined, tint: undefined },
+    currentEditor: getEmptyTheme(),
+    saveTheme: (theme, name) => {
+        if (!theme.meta) {
+            theme.meta = {
+                author: "You",
+                created: Date.now(),
+                type: "theme",
+                id: Date.now(),
+                name: name
+            }
         }
+        visuals.themes = visuals.themes.filter(t => t.meta.id != theme.meta.id);
+        visuals.themes.push(theme);
+        localStorage.themesv2 = JSON.stringify(visuals.themes.filter(t => t.meta.id > 0));
+        visuals.refreshThemeContainer();
+        visuals.getElem(".menu .manage").click();
+    },
+    deleteTheme: (id) => {
+        visuals.themes = visuals.themes.filter(t => t.meta.id != id);
+        localStorage.themesv2 = JSON.stringify(visuals.themes);
+        visuals.refreshThemeContainer();
+    },
+    loadThemeToEditor: (id, apply = true) => {
+        let theme = visuals.themes.find(t => t.meta.id === id);
+        if (!theme) theme = getEmptyTheme();
+        theme = JSON.parse(JSON.stringify(theme));
+        visuals.getElem(".menu .create").click();
+        visuals.currentEditor = theme;
+        visuals.getElem("#themeName").disabled = theme.meta?.id ? true : false;
+        visuals.getElem(".themeColor").style.display = theme.meta?.id ? "none" : "grid";
+        visuals.getElem(".textColor").style.display = theme.meta?.id ? "none" : "grid";
+        visuals.getElem("#themeName").value = theme.meta?.name ? theme.meta.name : "";
 
+        /* load normal input values */
+        [...visuals.form.querySelectorAll(".imageSettings input, .proSettings input")].forEach(elem => {
+            switch (elem.id) {
+                case "urlLogo":
+                    elem.value = theme.images.urlLogo;
+                    break;
+                case "urlBackground":
+                    elem.value = theme.images.urlBackground;
+                    break;
+                case "urlBackgroundGame":
+                    break;
+                case "containerImages":
+                    elem.value = theme.images.containerImages;
+                    break;
+                case "fontStyle":
+                    elem.value = theme.misc.fontStyle;
+                    break;
+                case "cssUrl":
+                    elem.value = theme.misc.themeCssUrl;
+                    break;
+                case "hideFooter":
+                    elem.checked = theme.misc.hideFooter;
+                    break;
+                case "hideTypoInfo":
+                    elem.checked = theme.misc.hideTypoInfo;
+                    break;
+                case "hideTypoPanels":
+                    elem.checked = theme.misc.hideTypoPanels;
+                    break;
+                case "hideAvatarLogo":
+                    elem.checked = theme.misc.hideAvatarLogo;
+                    break;
+                case "hideInGameLogo":
+                    elem.checked = theme.misc.hideInGameLogo;
+                    break;
+                case "hideAvatarSprites":
+                    elem.checked = theme.misc.hideAvatarSprites;
+                    break;
+            }
+        });
+
+        /* reset main pickers rgb(193,204,255)*/
+        visuals.getElem("#primaryColorPicker").removeAttribute("data-color");
+        visuals.getElem("#primaryColorPicker").style.backgroundColor = "blue";
+
+        visuals.getElem("#textColorPicker").removeAttribute("data-color");
+        visuals.getElem("#textColorPicker").style.backgroundColor = "blue";
+
+        visuals.getElem("#backgroundTintPicker").removeAttribute("data-color");
+        visuals.getElem("#backgroundTintPicker").style.backgroundColor = theme.images.backgroundTint != "transparent" ? theme.images.backgroundTint : "blue";
+
+        visuals.getElem("#enableBackgroundTint").checked = theme.images.backgroundTint != "transparent";
+
+        /* load color inits */
+        visuals.form.querySelectorAll(".body .picker").forEach(p => {
+            p.style.backgroundColor = toColorCode(theme.colors[p.id]);
+            p.setAttribute("data-color", JSON.stringify(theme.colors[p.id]));
+        });
+
+        if (apply) visuals.applyOptions(visuals.currentEditor);
     },
     html: `<div class="themesv2 manage">
         <div class="menu">
@@ -159,34 +255,35 @@ const visuals = {
 
         <div class="body">
             <div class="manage">
-                manage
+                
 
             </div>
             
             <div class="create">
                 
-                <div class="themeName" style="display: grid; grid-template-columns: 1fr 3fr 2fr; align-items: center; gap: 1em;">
+                <div class="themeName" style="display: grid; grid-template-columns: 1fr 3fr 2fr 1fr; align-items: center; gap: 1em;">
                     <label style="font-weight: bold" for="themeName">Theme Name:</label>
                     <input placeholder="Name your theme" type="text" id="themeName" name="themeName" style="width: auto">
-                    <button style="width: fit-content" class="flatUI blue min air">Save Theme</button>
+                    <button id="saveTheme" style="width: fit-content" class="flatUI blue min air">Save Theme</button>
+                    <button id="resetTheme" style="width: fit-content" class="flatUI orange min air">Reset</button>
                 </div>
 
                 <div class="themeColor" style="display: grid; grid-template-columns: 1fr 1fr 2fr 2fr; align-items: center; gap: 1em;">
                     <label style="font-weight: bold" >Primary Color:</label>
-                    <div id="primaryColorPicker"></div>
+                    <div id="primaryColorPicker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%; background: blue;"></div>
                     <label class="checkbox"><input type="checkbox" class="" id="useThemeInputs"> <div>Use on Input fields</div></label>
                     <label class="checkbox"><input type="checkbox" class="" id="useThemeIngame"> <div>Use ingame</div></label>
                 </div>
 
                 <div class="textColor" style="display: grid; grid-template-columns: 1fr 1fr 2fr 2fr; align-items: center; gap: 1em;">
                     <label style="font-weight: bold" >Text Color:</label>
-                    <div id="textColorPicker"></div>
+                    <div id="textColorPicker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%; background: blue;"></div>
                     <label class="checkbox" style="grid-column: span 2"><input type="checkbox" class="" id="invertText"> <div>Invert text brightness in input fields</div></label>
                 </div>
 
                 <div class="backgroundTint" style="display: grid; grid-template-columns: 1fr 1fr 2fr 2fr; align-items: center; gap: 1em;">
                     <label style="font-weight: bold" >Background Color Tint:</label>
-                    <div id="backgroundTintPicker"></div>
+                    <div id="backgroundTintPicker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%; background: blue;"></div>
                     <label class="checkbox" style="grid-column: span 2"><input type="checkbox" class="" id="enableBackgroundTint"> <div>Tint background image with color</div></label>
                 </div>
 
@@ -225,8 +322,8 @@ const visuals = {
                     <summary>Advanced Color Settings</summary>
                     <br>
                     <div><b>Warning:</b> All colors will be reset if you change the Theme Primary Color.</div>
-                    <div style="display: grid; grid-gap: .5em 1em; grid-template-columns: 3fr 2fr; padding: 1em;">
-                    ${Object.keys(COLORS).map(key => `<div>${key.replaceAll("-", "").replaceAll("_", " ")}</div><div class="picker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%;background-color: ${toColorCode(COLORS[key])}" data-color="${JSON.stringify(COLORS[key])}" id=${key}></div>`).join("")}
+                    <div id="colorSwatchesTheme" style="display: grid; grid-gap: .5em 1em; grid-template-columns: 3fr 2fr; padding: 1em;">
+                        ${Object.keys(COLORS).map(key => `<div>${key.replaceAll("-", "").replaceAll("_", " ")}</div><div class="picker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%;background-color: ${toColorCode(COLORS[key])}" data-color="${JSON.stringify(COLORS[key])}" id=${key}></div>`).join("")}
                     </div>
                     <br>
                 </details>
@@ -289,6 +386,8 @@ const visuals = {
     </div>
     `,
     init: () => {
+        visuals.themes = JSON.parse(localStorage.themesv2 ? localStorage.themesv2 : "[]");
+        visuals.themes.push({ ...getEmptyTheme(), meta: { name: "Original", author: "Mel", type: "theme", id: 0, created: 0 } });
         visuals.form = elemFromString(visuals.html);
         const elem = visuals.getElem = selector => visuals.form.querySelector(selector);
         const setContent = mode => {
@@ -304,7 +403,6 @@ const visuals = {
 
         /* add lsiteners to other inputs */
         const inputChanged = elem => {
-            console.log(elem.value);
             switch (elem.id) {
                 case "urlLogo":
                     visuals.currentEditor.images.urlLogo = elem.value;
@@ -341,7 +439,6 @@ const visuals = {
                 case "hideAvatarSprites":
                     visuals.currentEditor.misc.hideAvatarSprites = elem.checked;
                     break;
-
             }
             visuals.applyOptions(visuals.currentEditor);
         }
@@ -350,13 +447,7 @@ const visuals = {
             elem.addEventListener("input", () => { inputChanged(elem); });
         });
 
-    },
-    show: () => {
-        const onclose = () => {
-
-        };
-        new Modal(visuals.form, onclose, "Skribbl Themes");
-
+        /* setup pickers, ugh */
         const createPicker = (element, change, button = true, transparency = false, defaultCol = "rgb(193,204,255)") => {
             const pickr = Pickr.create({
                 el: element,
@@ -424,35 +515,110 @@ const visuals = {
             updateColors();
         }
 
-        let primaryPicker = createPicker(visuals.getElem("#primaryColorPicker"), (color) => {
-            primaryColor = color.toHSLA().slice(0, 3);
-            primaryPicker.applyColor(true);
-            updateSimple();
-        }, false, false);
+        /* set primary color picker */
+        visuals.getElem("#primaryColorPicker").addEventListener("click", (e) => {
+            let color = JSON.parse(e.target.getAttribute("data-color"));
+            const picker = createPicker(e.target, color => {
+                primaryColor = color.toHSLA().slice(0, 3);
+                e.target.setAttribute("data-color", JSON.stringify(primaryColor));
+                e.target.style.backgroundColor = toColorCode(primaryColor);
+                updateSimple();
+            }, true, false, color ? toColorCode(color) : undefined);
+            picker.show();
+            picker.on("hide", instance => instance.destroyAndRemove());
+        });
 
-        let textPicker = createPicker(visuals.getElem("#textColorPicker"), (color) => {
-            textColor = color.toHSLA().slice(0, 3);
-            textPicker.applyColor(true);
-            updateSimple();
-        }, false, false);
+        /* set text color picker */
+        visuals.getElem("#textColorPicker").addEventListener("click", (e) => {
+            let color = JSON.parse(e.target.getAttribute("data-color"));
+            const picker = createPicker(e.target, color => {
+                textColor = color.toHSLA().slice(0, 3);
+                e.target.setAttribute("data-color", JSON.stringify(textColor));
+                e.target.style.backgroundColor = toColorCode(textColor);
+                updateSimple();
+            }, true, false, color ? toColorCode(color) : undefined);
+            picker.show();
+            picker.on("hide", instance => instance.destroyAndRemove());
+        });
 
-        let bgTint = "transparent";
-        let tintPicker = createPicker(visuals.getElem("#backgroundTintPicker"), (color) => {
-            bgTint = toColorCode(color.toHSLA());
-            tintPicker.applyColor(true);
-            if (visuals.getElem("#enableBackgroundTint").checked) visuals.currentEditor.images.backgroundTint = toColorCode(color.toHSLA());
-            else visuals.currentEditor.images.backgroundTint = "transparent";
-            visuals.applyOptions(visuals.currentEditor);
-        }, false, true);
+        /* set tint color picker */
+        visuals.getElem("#backgroundTintPicker").addEventListener("click", (e) => {
+            let color = JSON.parse(e.target.getAttribute("data-color"));
+            const picker = createPicker(e.target, color => {
+                tintColor = color.toHSLA();
+                e.target.setAttribute("data-color", JSON.stringify(tintColor));
+                e.target.style.backgroundColor = toColorCode(tintColor);
+                visuals.currentEditor.images.backgroundTint = !visuals.getElem("#enableBackgroundTint").checked ? "transparent" : toColorCode(tintColor);
+                visuals.applyOptions(visuals.currentEditor);
+            }, true, false, color ? toColorCode(color) : undefined);
+            picker.show();
+            picker.on("hide", instance => instance.destroyAndRemove());
+        });
 
         visuals.getElem("#useThemeIngame").addEventListener("input", () => updateSimple());
         visuals.getElem("#useThemeInputs").addEventListener("input", () => updateSimple());
         visuals.getElem("#invertText").addEventListener("input", () => updateSimple());
         visuals.getElem("#enableBackgroundTint").addEventListener("input", (event) => {
-            visuals.currentEditor.images.backgroundTint = event.target.checked ? bgTint : "transparent";
+            let checked = event.target.checked;
+            let current = visuals.getElem("#backgroundTintPicker").getAttribute("data-color");
+            if (!checked || !current) visuals.currentEditor.images.backgroundTint = "transparent";
+            else visuals.currentEditor.images.backgroundTint = toColorCode(JSON.parse(current));
             visuals.applyOptions(visuals.currentEditor);
         });
 
+        /* refresh themes func */
+        visuals.refreshThemeContainer = () => {
+            const manage = elem(".body .manage");
+            manage.innerHTML = "";
+            visuals.themes.forEach(theme => {
+                const entry = elemFromString(`<div class="theme">
+                <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
+                <div>${theme.meta.type}</div>
+                <button class="flatUI green min air">Use</button>
+                <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI orange min air">Delete</button>
+                <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI blue min air">Edit</button>
+                `);
+                manage.appendChild(entry);
+                entry.querySelector(".green").addEventListener("click", () => {
+                    visuals.applyOptions(theme);
+                });
+                entry.querySelector(".orange").addEventListener("click", () => {
+                    visuals.deleteTheme(theme.meta.id);
+                    visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
+                });
+                entry.querySelector(".blue").addEventListener("click", () => {
+                    visuals.loadThemeToEditor(theme.meta.id, true);
+                });
+            });
+        }
+
+        visuals.refreshThemeContainer();
+
+        /*  save handler */
+        elem("#saveTheme").addEventListener("click", () => {
+            const name = elem("#themeName").value;
+            if (name == "") name = "New Theme";
+
+            const theme = JSON.parse(JSON.stringify(visuals.currentEditor));
+            visuals.loadThemeToEditor("", false);
+            visuals.saveTheme(theme, name);
+            primaryColor = undefined;
+            textColor = undefined;
+        });
+
+        /*  reset handler */
+        elem("#resetTheme").addEventListener("click", () => {
+            visuals.loadThemeToEditor("", true);
+            primaryColor = undefined;
+            textColor = undefined;
+        });
+
+    },
+    show: () => {
+        const onclose = () => {
+
+        };
+        new Modal(visuals.form, onclose, "Skribbl Themes");
     },
     loadOptions: () => {
 
@@ -675,20 +841,17 @@ const visuals = {
         document.body.appendChild(bg);
 
         /* add font import */
+        QS("#typoThemeExternal")?.remove();
         if (theme.misc.themeCssUrl != "") {
             const css = elemFromString(`<link id="typoThemeExternal" rel="stylesheet" href="${theme.misc.themeCssUrl}">`);
-            QS("#typoThemeExternal")?.remove();
             document.head.appendChild(css);
         }
 
         /* add theme style import */
-        if (theme.misc.font != "") {
+        QS("#typoThemeFont")?.remove();
+        if (theme.misc.fontStyle != "") {
             const font = elemFromString(`<div id="typoThemeFont"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=${theme.misc.fontStyle.trim()}&display=swap" rel="stylesheet"></div>`);
-            QS("#typoThemeFont")?.remove();
             document.head.appendChild(font);
         }
-    },
-    addTheme: () => {
-
     }
 }
