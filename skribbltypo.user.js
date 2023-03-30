@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.2.1.168019775
+// @version 24.2.2.168020670
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.2.1 usrsc"};
+            return {version: "24.2.2 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1752,6 +1752,12 @@ const visuals = {
             p.setAttribute("data-color", JSON.stringify(theme.colors[p.id]));
         });
 
+        /* load hooks */
+        [...visuals.form.querySelectorAll(".styleHookInput")].forEach(hook => {
+            const id = hook.getAttribute("data-hook");
+            hook.value = theme.hooks && theme.hooks[id] ? theme.hooks[id] : "";
+        });
+
         if (apply) visuals.applyOptions(visuals.currentEditor);
     },
     html: `<div class="themesv2 manage">
@@ -2004,7 +2010,7 @@ const visuals = {
                 visuals.currentEditor.hooks[id] = hook.value;
                 visuals.applyOptions(visuals.currentEditor);
             });
-        })
+        });
 
         /* init detail pickers */
         const showPicker = (entry) => {
