@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.2.0.167994575
+// @version 24.2.0.168019758
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -55,7 +55,18 @@ const execTypo = async () => {
     console.clear();
     
     /* bundle pre dom exec */
-    // #content color.js
+    // #content picker/colr_pickr.min.js
+﻿/*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
+!function (t, e) { "object" == typeof exports && "object" == typeof module ? module.exports = e() : "function" == typeof define && define.amd ? define([], e) : "object" == typeof exports ? exports.Pickr = e() : t.Pickr = e() }(window, (function () {
+    return function (t) { var e = {}; function o(n) { if (e[n]) return e[n].exports; var i = e[n] = { i: n, l: !1, exports: {} }; return t[n].call(i.exports, i, i.exports, o), i.l = !0, i.exports } return o.m = t, o.c = e, o.d = function (t, e, n) { o.o(t, e) || Object.defineProperty(t, e, { enumerable: !0, get: n }) }, o.r = function (t) { "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(t, "__esModule", { value: !0 }) }, o.t = function (t, e) { if (1 & e && (t = o(t)), 8 & e) return t; if (4 & e && "object" == typeof t && t && t.__esModule) return t; var n = Object.create(null); if (o.r(n), Object.defineProperty(n, "default", { enumerable: !0, value: t }), 2 & e && "string" != typeof t) for (var i in t) o.d(n, i, function (e) { return t[e] }.bind(null, i)); return n }, o.n = function (t) { var e = t && t.__esModule ? function () { return t.default } : function () { return t }; return o.d(e, "a", e), e }, o.o = function (t, e) { return Object.prototype.hasOwnProperty.call(t, e) }, o.p = "", o(o.s = 0) }([function (t, e, o) {
+        "use strict"; o.r(e); var n = {}; function i(t, e, o, n, i = {}) { e instanceof HTMLCollection || e instanceof NodeList ? e = Array.from(e) : Array.isArray(e) || (e = [e]), Array.isArray(o) || (o = [o]); for (const r of e) for (const e of o) r[t](e, n, { capture: !1, ...i }); return Array.prototype.slice.call(arguments, 1) } o.r(n), o.d(n, "on", (function () { return r })), o.d(n, "off", (function () { return s })), o.d(n, "createElementFromString", (function () { return a })), o.d(n, "createFromTemplate", (function () { return l })), o.d(n, "eventPath", (function () { return c })), o.d(n, "resolveElement", (function () { return p })), o.d(n, "adjustableInputNumbers", (function () { return u })); const r = i.bind(null, "addEventListener"), s = i.bind(null, "removeEventListener"); function a(t) { const e = document.createElement("div"); return e.innerHTML = t.trim(), e.firstElementChild } function l(t) { const e = (t, e) => { const o = t.getAttribute(e); return t.removeAttribute(e), o }, o = (t, n = {}) => { const i = e(t, ":obj"), r = e(t, ":ref"), s = i ? n[i] = {} : n; r && (n[r] = t); for (const n of Array.from(t.children)) { const t = e(n, ":arr"), i = o(n, t ? {} : s); t && (s[t] || (s[t] = [])).push(Object.keys(i).length ? i : n) } return n }; return o(a(t)) } function c(t) { let e = t.path || t.composedPath && t.composedPath(); if (e) return e; let o = t.target.parentElement; for (e = [t.target, o]; o = o.parentElement;)e.push(o); return e.push(document, window), e } function p(t) { return t instanceof Element ? t : "string" == typeof t ? t.split(/>>/g).reduce((t, e, o, n) => (t = t.querySelector(e), o < n.length - 1 ? t.shadowRoot : t), document) : null } function u(t, e = (t => t)) { function o(o) { const n = [.001, .01, .1][Number(o.shiftKey || 2 * o.ctrlKey)] * (o.deltaY < 0 ? 1 : -1); let i = 0, r = t.selectionStart; t.value = t.value.replace(/[\d.]+/g, (t, o) => o <= r && o + t.length >= r ? (r = o, e(Number(t), n, i)) : (i++, t)), t.focus(), t.setSelectionRange(r, r), o.preventDefault(), t.dispatchEvent(new Event("input")) } r(t, "focus", () => r(window, "wheel", o, { passive: !1 })), r(t, "blur", () => s(window, "wheel", o)) } const { min: h, max: d, floor: f, round: m } = Math; function v(t, e, o) { e /= 100, o /= 100; const n = f(t = t / 360 * 6), i = t - n, r = o * (1 - e), s = o * (1 - i * e), a = o * (1 - (1 - i) * e), l = n % 6; return [255 * [o, s, r, r, a, o][l], 255 * [a, o, o, s, r, r][l], 255 * [r, r, a, o, o, s][l]] } function b(t, e, o) { const n = (2 - (e /= 100)) * (o /= 100) / 2; return 0 !== n && (e = 1 === n ? 0 : n < .5 ? e * o / (2 * n) : e * o / (2 - 2 * n)), [t, 100 * e, 100 * n] } function y(t, e, o) { const n = h(t /= 255, e /= 255, o /= 255), i = d(t, e, o), r = i - n; let s, a; if (0 === r) s = a = 0; else { a = r / i; const n = ((i - t) / 6 + r / 2) / r, l = ((i - e) / 6 + r / 2) / r, c = ((i - o) / 6 + r / 2) / r; t === i ? s = c - l : e === i ? s = 1 / 3 + n - c : o === i && (s = 2 / 3 + l - n), s < 0 ? s += 1 : s > 1 && (s -= 1) } return [360 * s, 100 * a, 100 * i] } function g(t, e, o, n) { e /= 100, o /= 100; return [...y(255 * (1 - h(1, (t /= 100) * (1 - (n /= 100)) + n)), 255 * (1 - h(1, e * (1 - n) + n)), 255 * (1 - h(1, o * (1 - n) + n)))] } function _(t, e, o) { e /= 100; const n = 2 * (e *= (o /= 100) < .5 ? o : 1 - o) / (o + e) * 100, i = 100 * (o + e); return [t, isNaN(n) ? 0 : n, i] } function w(t) { return y(...t.match(/.{2}/g).map(t => parseInt(t, 16))) } function A(t) { t = t.match(/^[a-zA-Z]+$/) ? function (t) { if ("black" === t.toLowerCase()) return "#000"; const e = document.createElement("canvas").getContext("2d"); return e.fillStyle = t, "#000" === e.fillStyle ? null : e.fillStyle }(t) : t; const e = { cmyk: /^cmyk[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)/i, rgba: /^((rgba)|rgb)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hsla: /^((hsla)|hsl)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hsva: /^((hsva)|hsv)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hexa: /^#?(([\dA-Fa-f]{3,4})|([\dA-Fa-f]{6})|([\dA-Fa-f]{8}))$/i }, o = t => t.map(t => /^(|\d+)\.\d+|\d+$/.test(t) ? Number(t) : void 0); let n; t: for (const i in e) { if (!(n = e[i].exec(t))) continue; const r = t => !!n[2] == ("number" == typeof t); switch (i) { case "cmyk": { const [, t, e, r, s] = o(n); if (t > 100 || e > 100 || r > 100 || s > 100) break t; return { values: g(t, e, r, s), type: i } } case "rgba": { const [, , , t, e, s, a] = o(n); if (t > 255 || e > 255 || s > 255 || a < 0 || a > 1 || !r(a)) break t; return { values: [...y(t, e, s), a], a: a, type: i } } case "hexa": { let [, t] = n; 4 !== t.length && 3 !== t.length || (t = t.split("").map(t => t + t).join("")); const e = t.substring(0, 6); let o = t.substring(6); return o = o ? parseInt(o, 16) / 255 : void 0, { values: [...w(e), o], a: o, type: i } } case "hsla": { const [, , , t, e, s, a] = o(n); if (t > 360 || e > 100 || s > 100 || a < 0 || a > 1 || !r(a)) break t; return { values: [..._(t, e, s), a], a: a, type: i } } case "hsva": { const [, , , t, e, s, a] = o(n); if (t > 360 || e > 100 || s > 100 || a < 0 || a > 1 || !r(a)) break t; return { values: [t, e, s, a], a: a, type: i } } } } return { values: null, type: null } } function C(t = 0, e = 0, o = 0, n = 1) { const i = (t, e) => (o = -1) => e(~o ? t.map(t => Number(t.toFixed(o))) : t), r = { h: t, s: e, v: o, a: n, toHSVA() { const t = [r.h, r.s, r.v, r.a]; return t.toString = i(t, t => `hsva(${t[0]}, ${t[1]}%, ${t[2]}%, ${r.a})`), t }, toHSLA() { const t = [...b(r.h, r.s, r.v), r.a]; return t.toString = i(t, t => `hsla(${t[0]}, ${t[1]}%, ${t[2]}%, ${r.a})`), t }, toRGBA() { const t = [...v(r.h, r.s, r.v), r.a]; return t.toString = i(t, t => `rgba(${t[0]}, ${t[1]}, ${t[2]}, ${r.a})`), t }, toCMYK() { const t = function (t, e, o) { const n = v(t, e, o), i = n[0] / 255, r = n[1] / 255, s = n[2] / 255, a = h(1 - i, 1 - r, 1 - s); return [100 * (1 === a ? 0 : (1 - i - a) / (1 - a)), 100 * (1 === a ? 0 : (1 - r - a) / (1 - a)), 100 * (1 === a ? 0 : (1 - s - a) / (1 - a)), 100 * a] }(r.h, r.s, r.v); return t.toString = i(t, t => `cmyk(${t[0]}%, ${t[1]}%, ${t[2]}%, ${t[3]}%)`), t }, toHEXA() { const t = function (t, e, o) { return v(t, e, o).map(t => m(t).toString(16).padStart(2, "0")) }(r.h, r.s, r.v), e = r.a >= 1 ? "" : Number((255 * r.a).toFixed(0)).toString(16).toUpperCase().padStart(2, "0"); return e && t.push(e), t.toString = () => "#" + t.join("").toUpperCase(), t }, clone: () => C(r.h, r.s, r.v, r.a) }; return r } const k = t => Math.max(Math.min(t, 1), 0); function $(t) { const e = { options: Object.assign({ lock: null, onchange: () => 0, onstop: () => 0 }, t), _keyboard(t) { const { options: o } = e, { type: n, key: i } = t; if (document.activeElement === o.wrapper) { const { lock: o } = e.options, r = "ArrowUp" === i, s = "ArrowRight" === i, a = "ArrowDown" === i, l = "ArrowLeft" === i; if ("keydown" === n && (r || s || a || l)) { let n = 0, i = 0; "v" === o ? n = r || s ? 1 : -1 : "h" === o ? n = r || s ? -1 : 1 : (i = r ? -1 : a ? 1 : 0, n = l ? -1 : s ? 1 : 0), e.update(k(e.cache.x + .01 * n), k(e.cache.y + .01 * i)), t.preventDefault() } else i.startsWith("Arrow") && (e.options.onstop(), t.preventDefault()) } }, _tapstart(t) { r(document, ["mouseup", "touchend", "touchcancel"], e._tapstop), r(document, ["mousemove", "touchmove"], e._tapmove), t.cancelable && t.preventDefault(), e._tapmove(t) }, _tapmove(t) { const { options: o, cache: n } = e, { lock: i, element: r, wrapper: s } = o, a = s.getBoundingClientRect(); let l = 0, c = 0; if (t) { const e = t && t.touches && t.touches[0]; l = t ? (e || t).clientX : 0, c = t ? (e || t).clientY : 0, l < a.left ? l = a.left : l > a.left + a.width && (l = a.left + a.width), c < a.top ? c = a.top : c > a.top + a.height && (c = a.top + a.height), l -= a.left, c -= a.top } else n && (l = n.x * a.width, c = n.y * a.height); "h" !== i && (r.style.left = `calc(${l / a.width * 100}% - ${r.offsetWidth / 2}px)`), "v" !== i && (r.style.top = `calc(${c / a.height * 100}% - ${r.offsetHeight / 2}px)`), e.cache = { x: l / a.width, y: c / a.height }; const p = k(l / a.width), u = k(c / a.height); switch (i) { case "v": return o.onchange(p); case "h": return o.onchange(u); default: return o.onchange(p, u) } }, _tapstop() { e.options.onstop(), s(document, ["mouseup", "touchend", "touchcancel"], e._tapstop), s(document, ["mousemove", "touchmove"], e._tapmove) }, trigger() { e._tapmove() }, update(t = 0, o = 0) { const { left: n, top: i, width: r, height: s } = e.options.wrapper.getBoundingClientRect(); "h" === e.options.lock && (o = t), e._tapmove({ clientX: n + r * t, clientY: i + s * o }) }, destroy() { const { options: t, _tapstart: o, _keyboard: n } = e; s(document, ["keydown", "keyup"], n), s([t.wrapper, t.element], "mousedown", o), s([t.wrapper, t.element], "touchstart", o, { passive: !1 }) } }, { options: o, _tapstart: n, _keyboard: i } = e; return r([o.wrapper, o.element], "mousedown", n), r([o.wrapper, o.element], "touchstart", n, { passive: !1 }), r(document, ["keydown", "keyup"], i), e } function S(t = {}) { t = Object.assign({ onchange: () => 0, className: "", elements: [] }, t); const e = r(t.elements, "click", e => { t.elements.forEach(o => o.classList[e.target === o ? "add" : "remove"](t.className)), t.onchange(e), e.stopPropagation() }); return { destroy: () => s(...e) } }
+        /*! NanoPop 2.1.0 MIT | https://github.com/Simonwep/nanopop */
+        const O = { variantFlipOrder: { start: "sme", middle: "mse", end: "ems" }, positionFlipOrder: { top: "tbrl", right: "rltb", bottom: "btrl", left: "lrbt" }, position: "bottom", margin: 8 }, E = (t, e, o) => { const n = "object" != typeof t || t instanceof HTMLElement ? { reference: t, popper: e, ...o } : t; return { update(t = n) { const { reference: e, popper: o } = Object.assign(n, t); if (!o || !e) throw new Error("Popper- or reference-element missing."); return ((t, e, o) => { const { container: n, margin: i, position: r, variantFlipOrder: s, positionFlipOrder: a } = { container: document.documentElement.getBoundingClientRect(), ...O, ...o }, { left: l, top: c } = e.style; e.style.left = "0", e.style.top = "0"; const p = t.getBoundingClientRect(), u = e.getBoundingClientRect(), h = { t: p.top - u.height - i, b: p.bottom + i, r: p.right + i, l: p.left - u.width - i }, d = { vs: p.left, vm: p.left + p.width / 2 + -u.width / 2, ve: p.left + p.width - u.width, hs: p.top, hm: p.bottom - p.height / 2 - u.height / 2, he: p.bottom - u.height }, [f, m = "middle"] = r.split("-"), v = a[f], b = s[m], { top: y, left: g, bottom: _, right: w } = n; for (const t of v) { const o = "t" === t || "b" === t, n = h[t], [i, r] = o ? ["top", "left"] : ["left", "top"], [s, a] = o ? [u.height, u.width] : [u.width, u.height], [l, c] = o ? [_, w] : [w, _], [p, f] = o ? [y, g] : [g, y]; if (!(n < p || n + s > l)) for (const s of b) { const l = d[(o ? "v" : "h") + s]; if (!(l < f || l + a > c)) return e.style[r] = l - u[r] + "px", e.style[i] = n - u[i] + "px", t + s } } return e.style.left = l, e.style.top = c, null })(e, o, n) } } }; function L(t, e, o) { return e in t ? Object.defineProperty(t, e, { value: o, enumerable: !0, configurable: !0, writable: !0 }) : t[e] = o, t } class x { constructor(t) { L(this, "_initializingActive", !0), L(this, "_recalc", !0), L(this, "_nanopop", null), L(this, "_root", null), L(this, "_color", C()), L(this, "_lastColor", C()), L(this, "_swatchColors", []), L(this, "_setupAnimationFrame", null), L(this, "_eventListener", { init: [], save: [], hide: [], show: [], clear: [], change: [], changestop: [], cancel: [], swatchselect: [] }), this.options = t = Object.assign({ ...x.DEFAULT_OPTIONS }, t); const { swatches: e, components: o, theme: n, sliders: i, lockOpacity: r, padding: s } = t;["nano", "monolith"].includes(n) && !i && (t.sliders = "h"), o.interaction || (o.interaction = {}); const { preview: a, opacity: l, hue: c, palette: p } = o; o.opacity = !r && l, o.palette = p || a || l || c, this._preBuild(), this._buildComponents(), this._bindEvents(), this._finalBuild(), e && e.length && e.forEach(t => this.addSwatch(t)); const { button: u, app: h } = this._root; this._nanopop = E(u, h, { margin: s }), u.setAttribute("role", "button"), u.setAttribute("aria-label", this._t("btn:toggle")); const d = this; this._setupAnimationFrame = requestAnimationFrame((function e() { if (!h.offsetWidth) return requestAnimationFrame(e); d.setColor(t.default), d._rePositioningPicker(), t.defaultRepresentation && (d._representation = t.defaultRepresentation, d.setColorRepresentation(d._representation)), t.showAlways && d.show(), d._initializingActive = !1, d._emit("init") })) } _preBuild() { const { options: t } = this; for (const e of ["el", "container"]) t[e] = p(t[e]); this._root = (t => { const { components: e, useAsButton: o, inline: n, appClass: i, theme: r, lockOpacity: s } = t.options, a = t => t ? "" : 'style="display:none" hidden', c = e => t._t(e), p = l(`\n      <div :ref="root" class="pickr">\n\n        ${o ? "" : '<button type="button" :ref="button" class="pcr-button"></button>'}\n\n        <div :ref="app" class="pcr-app ${i || ""}" data-theme="${r}" ${n ? 'style="position: unset"' : ""} aria-label="${c("ui:dialog")}" role="window">\n          <div class="pcr-selection" ${a(e.palette)}>\n            <div :obj="preview" class="pcr-color-preview" ${a(e.preview)}>\n              <button type="button" :ref="lastColor" class="pcr-last-color" aria-label="${c("btn:last-color")}"></button>\n              <div :ref="currentColor" class="pcr-current-color"></div>\n            </div>\n\n            <div :obj="palette" class="pcr-color-palette">\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="palette" class="pcr-palette" tabindex="0" aria-label="${c("aria:palette")}" role="listbox"></div>\n            </div>\n\n            <div :obj="hue" class="pcr-color-chooser" ${a(e.hue)}>\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="slider" class="pcr-hue pcr-slider" tabindex="0" aria-label="${c("aria:hue")}" role="slider"></div>\n            </div>\n\n            <div :obj="opacity" class="pcr-color-opacity" ${a(e.opacity)}>\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="slider" class="pcr-opacity pcr-slider" tabindex="0" aria-label="${c("aria:opacity")}" role="slider"></div>\n            </div>\n          </div>\n\n          <div class="pcr-swatches ${e.palette ? "" : "pcr-last"}" :ref="swatches"></div>\n\n          <div :obj="interaction" class="pcr-interaction" ${a(Object.keys(e.interaction).length)}>\n            <input :ref="result" class="pcr-result" type="text" spellcheck="false" ${a(e.interaction.input)} aria-label="${c("aria:input")}">\n\n            <input :arr="options" class="pcr-type" data-type="HEXA" value="${s ? "HEX" : "HEXA"}" type="button" ${a(e.interaction.hex)}>\n            <input :arr="options" class="pcr-type" data-type="RGBA" value="${s ? "RGB" : "RGBA"}" type="button" ${a(e.interaction.rgba)}>\n            <input :arr="options" class="pcr-type" data-type="HSLA" value="${s ? "HSL" : "HSLA"}" type="button" ${a(e.interaction.hsla)}>\n            <input :arr="options" class="pcr-type" data-type="HSVA" value="${s ? "HSV" : "HSVA"}" type="button" ${a(e.interaction.hsva)}>\n            <input :arr="options" class="pcr-type" data-type="CMYK" value="CMYK" type="button" ${a(e.interaction.cmyk)}>\n\n            <input :ref="save" class="pcr-save" value="${c("btn:save")}" type="button" ${a(e.interaction.save)} aria-label="${c("aria:btn:save")}">\n            <input :ref="cancel" class="pcr-cancel" value="${c("btn:cancel")}" type="button" ${a(e.interaction.cancel)} aria-label="${c("aria:btn:cancel")}">\n            <input :ref="clear" class="pcr-clear" value="${c("btn:clear")}" type="button" ${a(e.interaction.clear)} aria-label="${c("aria:btn:clear")}">\n          </div>\n        </div>\n      </div>\n    `), u = p.interaction; return u.options.find(t => !t.hidden && !t.classList.add("active")), u.type = () => u.options.find(t => t.classList.contains("active")), p })(this), t.useAsButton && (this._root.button = t.el), t.container.appendChild(this._root.root) } _finalBuild() { const t = this.options, e = this._root; if (t.container.removeChild(e.root), t.inline) { const o = t.el.parentElement; t.el.nextSibling ? o.insertBefore(e.app, t.el.nextSibling) : o.appendChild(e.app) } else t.container.appendChild(e.app); t.useAsButton ? t.inline && t.el.remove() : t.el.parentNode.replaceChild(e.root, t.el), t.disabled && this.disable(), t.comparison || (e.button.style.transition = "none", t.useAsButton || (e.preview.lastColor.style.transition = "none")), this.hide() } _buildComponents() { const t = this, e = this.options.components, o = (t.options.sliders || "v").repeat(2), [n, i] = o.match(/^[vh]+$/g) ? o : [], r = () => this._color || (this._color = this._lastColor.clone()), s = { palette: $({ element: t._root.palette.picker, wrapper: t._root.palette.palette, onstop: () => t._emit("changestop", "slider", t), onchange(o, n) { if (!e.palette) return; const i = r(), { _root: s, options: a } = t, { lastColor: l, currentColor: c } = s.preview; t._recalc && (i.s = 100 * o, i.v = 100 - 100 * n, i.v < 0 && (i.v = 0), t._updateOutput("slider")); const p = i.toRGBA().toString(0); this.element.style.background = p, this.wrapper.style.background = `\n                        linear-gradient(to top, rgba(0, 0, 0, ${i.a}), transparent),\n                        linear-gradient(to left, hsla(${i.h}, 100%, 50%, ${i.a}), rgba(255, 255, 255, ${i.a}))\n                    `, a.comparison ? a.useAsButton || t._lastColor || l.style.setProperty("--pcr-color", p) : (s.button.style.color = p, s.button.classList.remove("clear")); const u = i.toHEXA().toString(); for (const { el: e, color: o } of t._swatchColors) e.classList[u === o.toHEXA().toString() ? "add" : "remove"]("pcr-active"); c.style.setProperty("--pcr-color", p) } }), hue: $({ lock: "v" === i ? "h" : "v", element: t._root.hue.picker, wrapper: t._root.hue.slider, onstop: () => t._emit("changestop", "slider", t), onchange(o) { if (!e.hue || !e.palette) return; const n = r(); t._recalc && (n.h = 360 * o), this.element.style.backgroundColor = `hsl(${n.h}, 100%, 50%)`, s.palette.trigger() } }), opacity: $({ lock: "v" === n ? "h" : "v", element: t._root.opacity.picker, wrapper: t._root.opacity.slider, onstop: () => t._emit("changestop", "slider", t), onchange(o) { if (!e.opacity || !e.palette) return; const n = r(); t._recalc && (n.a = Math.round(100 * o) / 100), this.element.style.background = `rgba(0, 0, 0, ${n.a})`, s.palette.trigger() } }), selectable: S({ elements: t._root.interaction.options, className: "active", onchange(e) { t._representation = e.target.getAttribute("data-type").toUpperCase(), t._recalc && t._updateOutput("swatch") } }) }; this._components = s } _bindEvents() { const { _root: t, options: e } = this, o = [r(t.interaction.clear, "click", () => this._clearColor()), r([t.interaction.cancel, t.preview.lastColor], "click", () => { this.setHSVA(...(this._lastColor || this._color).toHSVA(), !0), this._emit("cancel") }), r(t.interaction.save, "click", () => { !this.applyColor() && !e.showAlways && this.hide() }), r(t.interaction.result, ["keyup", "input"], t => { this.setColor(t.target.value, !0) && !this._initializingActive && (this._emit("change", this._color, "input", this), this._emit("changestop", "input", this)), t.stopImmediatePropagation() }), r(t.interaction.result, ["focus", "blur"], t => { this._recalc = "blur" === t.type, this._recalc && this._updateOutput(null) }), r([t.palette.palette, t.palette.picker, t.hue.slider, t.hue.picker, t.opacity.slider, t.opacity.picker], ["mousedown", "touchstart"], () => this._recalc = !0, { passive: !0 })]; if (!e.showAlways) { const n = e.closeWithKey; o.push(r(t.button, "click", () => this.isOpen() ? this.hide() : this.show()), r(document, "keyup", t => this.isOpen() && (t.key === n || t.code === n) && this.hide()), r(document, ["touchstart", "mousedown"], e => { this.isOpen() && !c(e).some(e => e === t.app || e === t.button) && this.hide() }, { capture: !0 })) } if (e.adjustableNumbers) { const e = { rgba: [255, 255, 255, 1], hsva: [360, 100, 100, 1], hsla: [360, 100, 100, 1], cmyk: [100, 100, 100, 100] }; u(t.interaction.result, (t, o, n) => { const i = e[this.getColorRepresentation().toLowerCase()]; if (i) { const e = i[n], r = t + (e >= 100 ? 1e3 * o : o); return r <= 0 ? 0 : Number((r < e ? r : e).toPrecision(3)) } return t }) } if (e.autoReposition && !e.inline) { let t = null; const n = this; o.push(r(window, ["scroll", "resize"], () => { n.isOpen() && (e.closeOnScroll && n.hide(), null === t ? (t = setTimeout(() => t = null, 100), requestAnimationFrame((function e() { n._rePositioningPicker(), null !== t && requestAnimationFrame(e) }))) : (clearTimeout(t), t = setTimeout(() => t = null, 100))) }, { capture: !0 })) } this._eventBindings = o } _rePositioningPicker() { const { options: t } = this; if (!t.inline) { if (!this._nanopop.update({ container: document.body.getBoundingClientRect(), position: t.position })) { const t = this._root.app, e = t.getBoundingClientRect(); t.style.top = (window.innerHeight - e.height) / 2 + "px", t.style.left = (window.innerWidth - e.width) / 2 + "px" } } } _updateOutput(t) { const { _root: e, _color: o, options: n } = this; if (e.interaction.type()) { const t = "to" + e.interaction.type().getAttribute("data-type"); e.interaction.result.value = "function" == typeof o[t] ? o[t]().toString(n.outputPrecision) : "" } !this._initializingActive && this._recalc && this._emit("change", o, t, this) } _clearColor(t = !1) { const { _root: e, options: o } = this; o.useAsButton || (e.button.style.color = "rgba(0, 0, 0, 0.15)"), e.button.classList.add("clear"), o.showAlways || this.hide(), this._lastColor = null, this._initializingActive || t || (this._emit("save", null), this._emit("clear")) } _parseLocalColor(t) { const { values: e, type: o, a: n } = A(t), { lockOpacity: i } = this.options, r = void 0 !== n && 1 !== n; return e && 3 === e.length && (e[3] = void 0), { values: !e || i && r ? null : e, type: o } } _t(t) { return this.options.i18n[t] || x.I18N_DEFAULTS[t] } _emit(t, ...e) { this._eventListener[t].forEach(t => t(...e, this)) } on(t, e) { return this._eventListener[t].push(e), this } off(t, e) { const o = this._eventListener[t] || [], n = o.indexOf(e); return ~n && o.splice(n, 1), this } addSwatch(t) { const { values: e } = this._parseLocalColor(t); if (e) { const { _swatchColors: t, _root: o } = this, n = C(...e), i = a(`<button type="button" style="--pcr-color: ${n.toRGBA().toString(0)}" aria-label="${this._t("btn:swatch")}"/>`); return o.swatches.appendChild(i), t.push({ el: i, color: n }), this._eventBindings.push(r(i, "click", () => { this.setHSVA(...n.toHSVA(), !0), this._emit("swatchselect", n), this._emit("change", n, "swatch", this) })), !0 } return !1 } removeSwatch(t) { const e = this._swatchColors[t]; if (e) { const { el: o } = e; return this._root.swatches.removeChild(o), this._swatchColors.splice(t, 1), !0 } return !1 } applyColor(t = !1) { const { preview: e, button: o } = this._root, n = this._color.toRGBA().toString(0); return e.lastColor.style.setProperty("--pcr-color", n), this.options.useAsButton || o.style.setProperty("--pcr-color", n), o.classList.remove("clear"), this._lastColor = this._color.clone(), this._initializingActive || t || this._emit("save", this._color), this } destroy() { cancelAnimationFrame(this._setupAnimationFrame), this._eventBindings.forEach(t => s(...t)), Object.keys(this._components).forEach(t => this._components[t].destroy()) } destroyAndRemove() { this.destroy(); const { root: t, app: e } = this._root; t.parentElement && t.parentElement.removeChild(t), e.parentElement.removeChild(e), Object.keys(this).forEach(t => this[t] = null) } hide() { return !!this.isOpen() && (this._root.app.classList.remove("visible"), this._emit("hide"), !0) } show() { return !this.options.disabled && !this.isOpen() && (this._root.app.classList.add("visible"), this._rePositioningPicker(), this._emit("show", this._color), this) } isOpen() { return this._root.app.classList.contains("visible") } setHSVA(t = 360, e = 0, o = 0, n = 1, i = !1) { const r = this._recalc; if (this._recalc = !1, t < 0 || t > 360 || e < 0 || e > 100 || o < 0 || o > 100 || n < 0 || n > 1) return !1; this._color = C(t, e, o, n); const { hue: s, opacity: a, palette: l } = this._components; return s.update(t / 360), a.update(n), l.update(e / 100, 1 - o / 100), i || this.applyColor(), r && this._updateOutput(), this._recalc = r, !0 } setColor(t, e = !1) { if (null === t) return this._clearColor(e), !0; const { values: o, type: n } = this._parseLocalColor(t); if (o) { const t = n.toUpperCase(), { options: i } = this._root.interaction, r = i.find(e => e.getAttribute("data-type") === t); if (r && !r.hidden) for (const t of i) t.classList[t === r ? "add" : "remove"]("active"); return !!this.setHSVA(...o, e) && this.setColorRepresentation(t) } return !1 } setColorRepresentation(t) { return t = t.toUpperCase(), !!this._root.interaction.options.find(e => e.getAttribute("data-type").startsWith(t) && !e.click()) } getColorRepresentation() { return this._representation } getColor() { return this._color } getSelectedColor() { return this._lastColor } getRoot() { return this._root } disable() { return this.hide(), this.options.disabled = !0, this._root.button.classList.add("disabled"), this } enable() { return this.options.disabled = !1, this._root.button.classList.remove("disabled"), this } } L(x, "utils", n), L(x, "version", "1.8.1"), L(x, "I18N_DEFAULTS", { "ui:dialog": "color picker dialog", "btn:toggle": "toggle color picker dialog", "btn:swatch": "color swatch", "btn:last-color": "use previous color", "btn:save": "Save", "btn:cancel": "Cancel", "btn:clear": "Clear", "aria:btn:save": "save and close", "aria:btn:cancel": "cancel and close", "aria:btn:clear": "clear and close", "aria:input": "color input field", "aria:palette": "color selection area", "aria:hue": "hue selection slider", "aria:opacity": "selection slider" }), L(x, "DEFAULT_OPTIONS", { appClass: null, theme: "classic", useAsButton: !1, padding: 8, disabled: !1, comparison: !0, closeOnScroll: !1, outputPrecision: 0, lockOpacity: !1, autoReposition: !0, container: "body", components: { interaction: {} }, i18n: {}, swatches: null, inline: !1, sliders: null, default: "#42445a", defaultRepresentation: null, position: "bottom-middle", adjustableNumbers: !0, showAlways: !1, closeWithKey: "Escape" }), L(x, "create", t => new x(t)); e.default = x
+    }]).default
+}));
+//# sourceMappingURL=pickr.min.js.map
+
+// #content color.js
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
@@ -183,12 +194,17 @@ class Modal {
             modal.style.transform = "translate(0,-20vh)";
             modal.style.opacity = "0";
             blur.style.opacity = "0";
+
+            document.body.style.height = "";
+            document.body.style.overflowY = "";
+            document.body.style.paddingRight = "";
+
             document.removeEventListener("keydown", esc);
             setTimeout(() => {
                 this.onclose();
                 this.blur.remove();
                 this.modal.remove();
-            },200)
+            }, 200)
         };
         blur.addEventListener("click", this.close);
         modal.querySelector("#modalClose").addEventListener("click", this.close);
@@ -197,6 +213,11 @@ class Modal {
             modal.style.opacity = "1";
             blur.style.opacity = "0.5";
         }, 20);
+
+        /*  */
+        document.body.style.height = "100vh";
+        document.body.style.overflowY = "hidden";
+        document.body.style.paddingRight = "15px";
     }
 }
 
@@ -226,7 +247,7 @@ box-shadow: black 1px 1px 9px -2px;
         toast.style.opacity = "1";
         setTimeout(() => {
             toast.style.opacity = "0";
-            setTimeout(()=> toast.remove(), 500);
+            setTimeout(() => toast.remove(), 500);
         }, duration);
         this.toast = toast;
     }
@@ -916,7 +937,7 @@ const solveMatchHash = (hash, key) => {
 
 // polyfill customevent
 const newCustomEvent = (type, detail = {}) => {
-    if (typeof(cloneInto) == "undefined") return new CustomEvent(type, detail);
+    if (typeof (cloneInto) == "undefined") return new CustomEvent(type, detail);
     let eventDetail = cloneInto(detail, document.defaultView);
     return clonedEvent = new document.defaultView.CustomEvent(type, eventDetail);
 }
@@ -959,7 +980,7 @@ const markMessage = (newNode) => {
 //func to scroll to bottom of message container
 const scrollMessages = (onlyIfScrolledDown = false) => {
     let box = document.querySelector(".chat-content");
-    if (!onlyIfScrolledDown ||  Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 60) {
+    if (!onlyIfScrolledDown || Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 60) {
         box.scrollTop = box.scrollHeight;
     }
 }
@@ -1003,7 +1024,7 @@ const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackover
         type: 'image/png'
     });
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-    addChatMessage("","Copied to clipboard");
+    addChatMessage("", "Copied to clipboard");
 }
 
 // func to replace umlaute in a string
@@ -1036,7 +1057,7 @@ const getCurrentOrLastDrawer = () => {
         try {
             drawer = (new RegExp(">([^>]+?) is drawing now!<\/b>", "g")).exec(QS("#game-chat .content").innerHTML).pop();
         }
-        catch {}
+        catch { }
     }
     return drawer;
 }
@@ -1052,7 +1073,7 @@ const getCurrentWordOrHint = () => {
 // adds a color palette
 const setColorPalette = (colorPalette) => {
     paletteContainer = elemFromString(`<div class="colors custom"></div>`);
-    paletteContainer.style.width=colorPalette.rowCount * 24 + "px";
+    paletteContainer.style.width = colorPalette.rowCount * 24 + "px";
     let swatches = [...colorPalette.swatches];
     rowTop = 0;
     while (swatches.length > 0) {
@@ -1094,7 +1115,7 @@ const createColorPalette = (paletteObject) => {
             const col = new Color({ rgb: window.getComputedStyle(dummyColorTester).backgroundColor });
             palette.colors.push({ color: col.hex });
             const swatch = elemFromString(`<div class="color" style="background-color:${col.hex}"></div>`);
-            const code = parseInt(col.hex.replace("#",""), 16) + 10000;
+            const code = parseInt(col.hex.replace("#", ""), 16) + 10000;
             swatch.addEventListener("mousedown", (e) => {
                 document.dispatchEvent(newCustomEvent("setColor", { detail: { code: code, secondary: e.button === 2 } }));
             });
@@ -1140,14 +1161,14 @@ const leaveLobby = async (next = false) => {
                     resolve();
                 }, { once: true });
                 document.dispatchEvent(newCustomEvent("joinLobby"));
-            }, { once: true });   
+            }, { once: true });
         }
         document.dispatchEvent(newCustomEvent("leaveLobby"));
         if (!next && document.fullscreenElement) {
             document.exitFullscreen();
             resolve();
         }
-    });    
+    });
 }
 document.addEventListener("toast", (e) => new Toast(e.detail.text, 1000));
 
@@ -1158,6 +1179,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.client || override) localStorage.client = Date.now();
     if (!localStorage.visualOptions || override) localStorage.visualOptions = "{}";
     if (!localStorage.themes || override) localStorage.themes = `[{"name":"Original","options":{"urlLogo":"","urlBackground":"","containerImages":"","fontColor":"","fontColorButtons":"","fontStyle":"","containerBackgroundsCheck":false,"containerBackgrounds":"","inputBackgroundsCheck":false,"inputBackgrounds":"","containerOutlinesCheck":false,"containerOutlines":"","inputOutlinesCheck":false,"inputOutlines":"","hideFooter":false,"hideCaptcha":false,"hideMeta":false,"hideAvatarLogo":false,"hideInGameLogo":false,"hideAvatarSprites":false}},{"name":"Dark Discord","options":{"urlLogo":"","urlBackground":"https://cdn.discordapp.com/attachments/715996980849147968/814955491876012032/dcdark.png); background-size: 800px;(","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Karla:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#2C2F3375","inputBackgroundsCheck":true,"inputBackgrounds":"#00000075","containerOutlinesCheck":true,"containerOutlines":"transparent !important; border-left: 4px solid #7289DA !important; ","inputOutlinesCheck":true,"inputOutlines":"transparent !important; border-left: 3px solid #363636 !important; ","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}},{"name":"Alpha","options":{"urlLogo":"https://imgur.com/k8e70AG.png","urlBackground":"https://i.imgur.com/UNZtzl6.jpg","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Mulish:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#ffffff50","inputBackgroundsCheck":true,"inputBackgrounds":"#00000040","containerOutlinesCheck":true,"containerOutlines":"","inputOutlinesCheck":true,"inputOutlines":"","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}}]`;
+    if (!localStorage.themesv2 || override) localStorage.themesv2 = "[]";
     if (!localStorage.controls || override) localStorage.controls = "true";
     if (!localStorage.restrictLobby || override) localStorage.restrictLobby = "";
     if (!localStorage.qualityScale || override) localStorage.qualityScale = "1";
@@ -1185,7 +1207,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.palette || override) localStorage.palette = "originalPalette";
     if (!localStorage.lobbyStream || override) localStorage.lobbyStream = "{}";
     if (!localStorage.customPalettes || override) localStorage.customPalettes = '[{"rowCount":13, "name":"sketchfulPalette", "colors":[{"color":"rgb(255, 255, 255)","index":100},{"color":"rgb(211, 209, 210)","index":101},{"color":"rgb(247, 15, 15)","index":102},{"color":"rgb(255, 114, 0)","index":103},{"color":"rgb(252, 231, 0)","index":104},{"color":"rgb(2, 203, 0)","index":105},{"color":"rgb(1, 254, 148)","index":106},{"color":"rgb(5, 176, 255)","index":107},{"color":"rgb(34, 30, 205)","index":108},{"color":"rgb(163, 0, 189)","index":109},{"color":"rgb(204, 127, 173)","index":110},{"color":"rgb(253, 173, 136)","index":111},{"color":"rgb(158, 84, 37)","index":112},{"color":"rgb(81, 79, 84)","index":113},{"color":"rgb(169, 167, 168)","index":114},{"color":"rgb(174, 11, 0)","index":115},{"color":"rgb(200, 71, 6)","index":116},{"color":"rgb(236, 158, 6)","index":117},{"color":"rgb(0, 118, 18)","index":118},{"color":"rgb(4, 157, 111)","index":119},{"color":"rgb(0, 87, 157)","index":120},{"color":"rgb(15, 11, 150)","index":121},{"color":"rgb(110, 0, 131)","index":122},{"color":"rgb(166, 86, 115)","index":123},{"color":"rgb(227, 138, 94)","index":124},{"color":"rgb(94, 50, 13)","index":125},{"color":"rgb(0, 0, 0)","index":126},{"color":"rgb(130, 124, 128)","index":127},{"color":"rgb(87, 6, 12)","index":128},{"color":"rgb(139, 37, 0)","index":129},{"color":"rgb(158, 102, 0)","index":130},{"color":"rgb(0, 63, 0)","index":131},{"color":"rgb(0, 118, 106)","index":132},{"color":"rgb(0, 59, 117)","index":133},{"color":"rgb(14, 1, 81)","index":134},{"color":"rgb(60, 3, 80)","index":135},{"color":"rgb(115, 49, 77)","index":136},{"color":"rgb(209, 117, 78)","index":137},{"color":"rgb(66, 30, 6)","index":138}]}]';
-    if (!Number(localStorage.qualityScale) || Number(localStorage.qualityScale) < 1  ) localStorage.qualityScale = 1;
+    if (!Number(localStorage.qualityScale) || Number(localStorage.qualityScale) < 1) localStorage.qualityScale = 1;
 }
 258;
 
@@ -1384,12 +1406,749 @@ If you want to know more about your stored data, contact the typo dev.
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
+const COLORS = Object.freeze({
+    "--COLOR_PANEL_BG": [226, 85, 32, 0.75],
+    "--COLOR_PANEL_LO": [226, 90, 27, 0.75],
+    "--COLOR_PANEL_BUTTON": [226, 67, 49],
+    "--COLOR_PANEL_BUTTON_HOVER": [226, 73, 43],
+    "--COLOR_PANEL_BUTTON_ACTIVE": [226, 72, 41],
+    "--COLOR_PANEL_HI": [226, 80, 44],
+    "--COLOR_PANEL_FOCUS": [32, 85, 56],
+    "--COLOR_PANEL_BORDER": [232, 85, 11],
+    "--COLOR_PANEL_BORDER_FOCUS": [207, 98, 66],
+    "--COLOR_PANEL_TEXT": [0, 0, 94],
+    "--COLOR_PANEL_TEXT_FOCUS": [0, 0, 100],
+    "--COLOR_PANEL_TEXT_PLACEHOLDER": [0, 0, 61],
+    "--COLOR_TOOL_BASE": [0, 0, 100],
+    "--COLOR_TOOL_HOVER": [0, 0, 77],
+    "--COLOR_TOOL_TEXT": [0, 0, 0],
+    "--COLOR_TOOL_SIZE_BASE": [0, 0, 100],
+    "--COLOR_TOOL_SIZE_HOVER": [0, 0, 77],
+    "--COLOR_TOOL_ACTIVE": [271, 77, 66],
+    "--COLOR_TOOL_SIZE_ACTIVE": [271, 77, 66],
+    "--COLOR_INPUT_BG": [0, 0, 100],
+    "--COLOR_INPUT_HOVER": [0, 0, 100],
+    "--COLOR_INPUT_TEXT": [0, 0, 17],
+    "--COLOR_INPUT_BORDER": [0, 0, 44],
+    "--COLOR_INPUT_BORDER_FOCUS": [207, 98, 66],
+    "--COLOR_PLAYER_TEXT_BASE": [0, 0, 0],
+    "--COLOR_PLAYER_ME": [214, 100, 64],
+    "--COLOR_PLAYER_ME_GUESSED": [216, 100, 35],
+    "--COLOR_PLAYER_BG_BASE": [0, 0, 100],
+    "--COLOR_PLAYER_BG_ALT": [0, 0, 93],
+    "--COLOR_PLAYER_BG_GUESSED_BASE": [113, 68, 58],
+    "--COLOR_PLAYER_BG_GUESSED_ALT": [113, 57, 50],
+    "--COLOR_TOOL_TIP_BG": [226, 100, 64],
+    "--COLOR_GAMEBAR_TEXT": [0, 0, 0],
+    "--COLOR_GAMEBAR_ROUND_TEXT": [0, 0, 0],
+    "--COLOR_GAMEBAR_WORD_DESCRIPTION": [0, 0, 21],
+    "--COLOR_TEXT_CANVAS_TRANSPARENT": [0, 0, 25],
+    "--COLOR_CHAT_TEXT_BASE": [0, 0, 0],
+    "--COLOR_CHAT_TEXT_GUESSED": [103, 68, 48],
+    "--COLOR_CHAT_TEXT_CLOSE": [54, 100, 44],
+    "--COLOR_CHAT_TEXT_DRAWING": [216, 60, 52],
+    "--COLOR_CHAT_TEXT_JOIN": [103, 68, 48],
+    "--COLOR_CHAT_TEXT_LEAVE": [21, 91, 42],
+    "--COLOR_CHAT_TEXT_OWNER": [32, 100, 63],
+    "--COLOR_CHAT_TEXT_GUESSCHAT": [86, 47, 46],
+    "--COLOR_CHAT_BG_BASE": [0, 0, 100],
+    "--COLOR_CHAT_BG_ALT": [0, 0, 93],
+    "--COLOR_CHAT_SCROLLBAR": [0, 0, 49],
+    "--COLOR_CHAT_SCROLLBAR_THUMB": [0, 0, 78],
+    "--COLOR_CHAT_BG_GUESSED_BASE": [105, 100, 94],
+    "--COLOR_CHAT_BG_GUESSED_ALT": [104, 100, 87],
+    "--COLOR_CHAT_INPUT_COUNT": [0, 0, 0]
+});
+
+const copyColors = () => JSON.parse(JSON.stringify(COLORS));
+
+const toColorCode = value => value.length == 3
+    ? `hsl(${value[0]}, ${value[1]}%, ${value[2]}%)`
+    : `hsla(${value[0]}, ${value[1]}%, ${value[2]}%, ${value[3]})`;
+
+const getEmptyTheme = () => ({
+    colors: copyColors(),
+    images: {
+        urlLogo: "",
+        urlBackground: "",
+        containerImages: "",
+        containerImages: "",
+        backgroundTint: "transparent"
+    },
+    misc: {
+        fontStyle: "",
+        hideFooter: false,
+        hideTypoInfo: false,
+        hideTypoPanels: false,
+        hideAvatarLogo: false,
+        hideInGameLogo: false,
+        hideAvatarSprites: false,
+        themeCssUrl: ""
+    },
+    hooks: Object.keys(COLORS).map(k => ({ color: k, css: "" })).reduce((acc, { color, css }) => {
+        acc[color] = css;
+        return acc;
+    }, {})
+});
+
+/* thanks chatgpt :^ */
+const getSelectorsWithVariables = (cssText, colorVariables) => {
+    // Parse the CSS text using a DOM parser
+    const parser = new DOMParser();
+    const css = parser.parseFromString(`<style>${cssText}</style>`, 'text/html').querySelector('style');
+
+    // Get all CSS rules from the stylesheet
+    const rules = css.sheet.cssRules;
+
+    // Initialize an empty object to store selectors for each variable
+    const variableSelectors = {};
+
+    // Iterate through each color variable to initialize empty arrays for each one
+    colorVariables.forEach((colorVariable) => {
+        variableSelectors[colorVariable] = [];
+    });
+
+    // Iterate through each rule to find selectors with variables
+    for (let i = 0; i < rules.length; i++) {
+        const rule = rules[i];
+
+        // Check if the rule is a CSSStyleRule (i.e., a selector with style properties)
+        if (rule instanceof CSSStyleRule) {
+
+            // Iterate through each style property to find variables
+            for (let j = 0; j < rule.style.length; j++) {
+                const propertyName = rule.style[j];
+                const propertyValue = rule.style.getPropertyValue(propertyName);
+
+                // Check if the property value contains any of the color variables
+                colorVariables.forEach((colorVariable) => {
+                    if (propertyValue.includes(`var(${colorVariable}`)) {
+                        variableSelectors[colorVariable].push(rule.selectorText);
+                    }
+                });
+            }
+        }
+    }
+
+    // Return an object with color variables as keys and an array of selectors where they are used as the value
+    return variableSelectors;
+}
+
+let SKRIBBL_HOOKS = localStorage.cache_skribbl_hooks ? JSON.parse(localStorage.cache_skribbl_hooks) : {};
+(async () => {
+    const style = await (await fetch("/css/style.css")).text();
+    SKRIBBL_HOOKS = getSelectorsWithVariables(style, Object.keys(COLORS));
+    localStorage.cache_skribbl_hooks = JSON.stringify(SKRIBBL_HOOKS);
+})()
+
+
+const simpleThemeColors = (mainHsl, textHsl, useIngame = false, useInputs = false, invertInputText = true) => {
+    const theme = copyColors();
+
+    /* modify main elements */
+    const mainHueBase = 226;
+    const mainSatBase = 85;
+    const mainLigBase = 32;
+    const mainOpBase = 0.75;
+
+    if (mainHsl) {
+        const mainHue = mainHsl[0];
+        const mainSat = mainHsl[1];
+        const mainLig = mainHsl[2];
+        const mains = [
+            "--COLOR_PANEL_BG",
+            "--COLOR_PANEL_LO",
+            "--COLOR_PANEL_BUTTON",
+            "--COLOR_PANEL_BUTTON_HOVER",
+            "--COLOR_PANEL_BUTTON_ACTIVE",
+            "--COLOR_PANEL_HI",
+            "--COLOR_PANEL_FOCUS",
+            "--COLOR_PANEL_BORDER",
+            "--COLOR_TOOL_TIP_BG"
+        ];
+        mains.forEach(k => theme[k][0] = (theme[k][0] - mainHueBase + mainHue) % 360);
+        mains.forEach(k => theme[k][1] = theme[k][1] * (mainSat / 100));
+        mains.forEach(k => theme[k][2] = theme[k][2] * (mainLig / 100));
+
+        if (useIngame) {
+            const themeSat = mainSatBase * (mainSat / 100);
+            const themeLight = mainLigBase * (mainLig / 100);
+            theme["--COLOR_CHAT_BG_BASE"] = [mainHue, themeSat, themeLight, mainOpBase];
+            theme["--COLOR_CHAT_BG_ALT"] = [mainHue, themeSat, themeLight - 7, mainOpBase];
+            theme["--COLOR_PLAYER_BG_BASE"] = [mainHue, themeSat, themeLight, mainOpBase];
+            theme["--COLOR_PLAYER_BG_ALT"] = [mainHue, themeSat, themeLight - 7, mainOpBase];
+        }
+
+        if (useInputs) {
+            theme["--COLOR_INPUT_BORDER"] = [mainHue, mainSatBase, 75 * (mainLigBase / 100), 0.4];
+            theme["--COLOR_INPUT_BORDER_FOCUS"] = [mainHue, mainSatBase, 85 * (mainLigBase / 100), 0.4];
+            theme["--COLOR_INPUT_BG"] = [mainHue, mainSatBase, 80 * (mainLigBase / 100), 0.3];
+            theme["--COLOR_INPUT_HOVER"] = [mainHue, mainSatBase, 90 * (mainLigBase / 100), 0.3];
+        }
+    }
+
+    /* modify text */
+    if (textHsl) {
+        const texts = [
+            "--COLOR_GAMEBAR_TEXT",
+            "--COLOR_GAMEBAR_ROUND_TEXT",
+            "--COLOR_PLAYER_TEXT_BASE",
+            "--COLOR_CHAT_TEXT_BASE",
+            "--COLOR_INPUT_TEXT",
+            "--COLOR_PANEL_TEXT"
+        ];
+        texts.forEach(k => theme[k] = [...textHsl]);
+        theme["--COLOR_PANEL_TEXT_PLACEHOLDER"] = [textHsl[0], textHsl[1], textHsl[2] - 50];
+        theme["--COLOR_GAMEBAR_WORD_DESCRIPTION"] = [textHsl[0], textHsl[1], textHsl[2], 0.7];
+        if (invertInputText) theme["--COLOR_INPUT_TEXT"][2] = 100 - theme["--COLOR_INPUT_TEXT"][2];
+    }
+    return theme;
+}
+
 // inits the image options bar
 // dependend on: genericfunctions.js
 const visuals = {
-    form: undefined,
     themes: [],
-    applyOptions: (options) => {
+    form: undefined,
+    getElem: undefined,
+    refreshThemeContainer: () => {
+        const manage = visuals.getElem(".body .manage");
+        manage.innerHTML = "";
+        visuals.themes.forEach(theme => {
+            const entry = elemFromString(`<div class="theme">
+            <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
+            <div>${theme.meta.type}</div>
+            <button class="flatUI green min air">${Number(localStorage.activeTheme) === theme.meta.id ? "Disable" : "Use"}</button>
+            <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI orange min air">Delete</button>
+            <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI blue min air">Edit</button>
+            `);
+            manage.appendChild(entry);
+            entry.querySelector(".green").addEventListener("click", () => {
+                if (Number(localStorage.activeTheme) !== theme.meta.id) visuals.applyOptions(theme);
+                else {
+                    visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
+                    localStorage.activeTheme = undefined;
+                }
+                localStorage.visualOptions = undefined;
+                visuals.refreshThemeContainer();
+            });
+            entry.querySelector(".orange").addEventListener("click", () => {
+                visuals.deleteTheme(theme.meta.id);
+                visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
+            });
+            entry.querySelector(".blue").addEventListener("click", () => {
+                visuals.loadThemeToEditor(theme.meta.id, true);
+            });
+        });
+
+        const oldThemes = JSON.parse(localStorage.themes ? localStorage.themes : "[]");
+        oldThemes.forEach(theme => {
+            const entry = elemFromString(`<div class="oldtheme">
+            <div><b>${theme.name}</b></div>
+            <div>Old Theme</div>
+            <button class="flatUI green min air">Apply</button>
+            <br>
+            <br>
+            `);
+            manage.appendChild(entry);
+            entry.querySelector(".green").addEventListener("click", () => {
+                localStorage.visualOptions = JSON.stringify(theme.options);
+                localStorage.activeTheme = undefined;
+                visuals.applyOldOptions(theme.options);
+                visuals.refreshThemeContainer();
+            });
+        });
+    },
+    mainPickers: { primary: undefined, text: undefined, tint: undefined },
+    currentEditor: getEmptyTheme(),
+    saveTheme: (theme, name) => {
+        if (!theme.meta) {
+            theme.meta = {
+                author: "You",
+                created: Date.now(),
+                type: "theme",
+                id: Date.now(),
+                name: name
+            }
+        }
+        visuals.themes = visuals.themes.filter(t => t.meta.id != theme.meta.id);
+        visuals.themes.push(theme);
+        localStorage.themesv2 = JSON.stringify(visuals.themes.filter(t => t.meta.id > 0));
+        visuals.refreshThemeContainer();
+        visuals.getElem(".menu .manage").click();
+    },
+    deleteTheme: (id) => {
+        visuals.themes = visuals.themes.filter(t => t.meta.id != id);
+        localStorage.themesv2 = JSON.stringify(visuals.themes);
+        visuals.refreshThemeContainer();
+    },
+    loadThemeToEditor: (id, apply = true) => {
+        let theme = visuals.themes.find(t => t.meta.id === id);
+        if (!theme) theme = getEmptyTheme();
+        theme = JSON.parse(JSON.stringify(theme));
+        visuals.getElem(".menu .create").click();
+        visuals.currentEditor = theme;
+        visuals.getElem("#themeName").disabled = theme.meta?.id ? true : false;
+        visuals.getElem(".themeColor").style.display = theme.meta?.id ? "none" : "grid";
+        visuals.getElem(".textColor").style.display = theme.meta?.id ? "none" : "grid";
+        visuals.getElem("#themeName").value = theme.meta?.name ? theme.meta.name : "";
+
+        /* load normal input values */
+        [...visuals.form.querySelectorAll(".imageSettings input, .proSettings input")].forEach(elem => {
+            switch (elem.id) {
+                case "urlLogo":
+                    elem.value = theme.images.urlLogo;
+                    break;
+                case "urlBackground":
+                    elem.value = theme.images.urlBackground;
+                    break;
+                case "urlBackgroundGame":
+                    break;
+                case "containerImages":
+                    elem.value = theme.images.containerImages;
+                    break;
+                case "fontStyle":
+                    elem.value = theme.misc.fontStyle;
+                    break;
+                case "cssUrl":
+                    elem.value = theme.misc.themeCssUrl;
+                    break;
+                case "hideFooter":
+                    elem.checked = theme.misc.hideFooter;
+                    break;
+                case "hideTypoInfo":
+                    elem.checked = theme.misc.hideTypoInfo;
+                    break;
+                case "hideTypoPanels":
+                    elem.checked = theme.misc.hideTypoPanels;
+                    break;
+                case "hideAvatarLogo":
+                    elem.checked = theme.misc.hideAvatarLogo;
+                    break;
+                case "hideInGameLogo":
+                    elem.checked = theme.misc.hideInGameLogo;
+                    break;
+                case "hideAvatarSprites":
+                    elem.checked = theme.misc.hideAvatarSprites;
+                    break;
+            }
+        });
+
+        /* reset main pickers rgb(193,204,255)*/
+        visuals.getElem("#primaryColorPicker").removeAttribute("data-color");
+        visuals.getElem("#primaryColorPicker").style.backgroundColor = "blue";
+
+        visuals.getElem("#textColorPicker").removeAttribute("data-color");
+        visuals.getElem("#textColorPicker").style.backgroundColor = "blue";
+
+        visuals.getElem("#backgroundTintPicker").removeAttribute("data-color");
+        visuals.getElem("#backgroundTintPicker").style.backgroundColor = theme.images.backgroundTint != "transparent" ? theme.images.backgroundTint : "blue";
+
+        visuals.getElem("#enableBackgroundTint").checked = theme.images.backgroundTint != "transparent";
+
+        /* load color inits */
+        visuals.form.querySelectorAll(".body .picker").forEach(p => {
+            p.style.backgroundColor = toColorCode(theme.colors[p.id]);
+            p.setAttribute("data-color", JSON.stringify(theme.colors[p.id]));
+        });
+
+        if (apply) visuals.applyOptions(visuals.currentEditor);
+    },
+    html: `<div class="themesv2 manage">
+        <div class="menu">
+            <div class="manage">Select Theme</div>
+            <div class="create">Theme Editor</div>
+            <div class="add">Browse Themes</div>
+        </div>
+
+        <div class="body">
+            <div class="manage">
+                
+
+            </div>
+            
+            <div class="create">
+                
+                <div class="themeName" style="display: grid; grid-template-columns: 1fr 3fr 2fr 1fr; align-items: center; gap: 1em;">
+                    <label style="font-weight: bold" for="themeName">Theme Name:</label>
+                    <input placeholder="Name your theme" type="text" id="themeName" name="themeName" style="width: auto">
+                    <button id="saveTheme" style="width: fit-content" class="flatUI blue min air">Save Theme</button>
+                    <button id="resetTheme" style="width: fit-content" class="flatUI orange min air">Reset</button>
+                </div>
+
+                <div class="themeColor" style="display: grid; grid-template-columns: 1fr 1fr 2fr 2fr; align-items: center; gap: 1em;">
+                    <label style="font-weight: bold" >Primary Color:</label>
+                    <div id="primaryColorPicker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%; background: blue;"></div>
+                    <label class="checkbox"><input type="checkbox" class="" id="useThemeInputs"> <div>Use on Input fields</div></label>
+                    <label class="checkbox"><input type="checkbox" class="" id="useThemeIngame"> <div>Use ingame</div></label>
+                </div>
+
+                <div class="textColor" style="display: grid; grid-template-columns: 1fr 1fr 2fr 2fr; align-items: center; gap: 1em;">
+                    <label style="font-weight: bold" >Text Color:</label>
+                    <div id="textColorPicker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%; background: blue;"></div>
+                    <label class="checkbox" style="grid-column: span 2"><input type="checkbox" class="" id="invertText"> <div>Invert text brightness in input fields</div></label>
+                </div>
+
+                <div class="backgroundTint" style="display: grid; grid-template-columns: 1fr 1fr 2fr 2fr; align-items: center; gap: 1em;">
+                    <label style="font-weight: bold" >Background Color Tint:</label>
+                    <div id="backgroundTintPicker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%; background: blue;"></div>
+                    <label class="checkbox" style="grid-column: span 2"><input type="checkbox" class="" id="enableBackgroundTint"> <div>Tint background image with color</div></label>
+                </div>
+
+                <br><br>
+
+                <details class="imageSettings">
+                    <summary>Image Settings</summary>
+                    <br>
+                    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 1em 3em;'>
+
+                        <label style="display:flex; flex-direction: column; gap: .5em;">
+                            Skribbl-Logo Image 
+                            <input type='text' id='urlLogo' placeholder='https://link.here/image.gif'>
+                        </label>
+
+                        <label style="display:flex; flex-direction: column; gap: .5em;">
+                            Background-Image 
+                            <input type='text' id='urlBackground' placeholder='https://link.here/image.gif'>
+                        </label>
+
+                        <label style="display:flex; flex-direction: column; gap: .5em;">
+                            In-Game Background Image
+                            <input type='text' id='urlBackgroundGame' placeholder='https://link.here/image.gif'>
+                        </label>
+
+                        <label style="display:flex; flex-direction: column; gap: .5em;">
+                            Container Background
+                            <input type='text' id='containerImages' placeholder='https://link.here/image.gif'>
+                        </label>
+
+                    </div>
+                    <br>
+                </details>
+
+                <details class="colorPickers">
+                    <summary>Advanced Color Settings</summary>
+                    <br>
+                    <div><b>Warning:</b> All colors will be reset if you change the Theme Primary Color.</div>
+                    <div id="colorSwatchesTheme" style="display: grid; grid-gap: .5em 1em; grid-template-columns: 3fr 2fr; padding: 1em;">
+                        ${Object.keys(COLORS).map(key => `<div>${key.replaceAll("-", "").replaceAll("_", " ")}</div><div class="picker" style="cursor:pointer; width: 2em; height: 2em; border-radius: 100%;background-color: ${toColorCode(COLORS[key])}" data-color="${JSON.stringify(COLORS[key])}" id=${key}></div>`).join("")}
+                    </div>
+                    <br>
+                </details>
+
+                <details class="proSettings">
+                    <summary>Miscellaneous</summary>
+                    <br>
+                    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 1em 3em;'>
+
+                        <label style="display:flex; flex-direction: column; gap: .5em;">
+                            Use Google Font 
+                            <input type='text' id='fontStyle' placeholder='Google Fonts import Link'>
+                        </label>
+
+                        <label style="display:flex; flex-direction: column; gap: .5em;">
+                            External CSS URL
+                            <input type='text' id='cssUrl' placeholder='https://link.here/style.css'>
+                        </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="hideFooter"> 
+                            <div>Hide footer</div>
+                        </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="hideTypoPanels"> 
+                            <div>Hide Typo panels</div>
+                        </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="hideTypoInfo"> 
+                            <div>Hide Typo user stats</div>
+                        </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="hideAvatarLogo"> 
+                            <div>Hide avatars beyond logo</div>
+                        </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="hideInGameLogo"> 
+                            <div>Hide in-game logo</div>
+                        </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="hideAvatarSprites"> 
+                            <div>Hide sprites on home page</div>
+                        </label>
+                    </div>
+
+                    <br>
+                </details>
+
+                <details class="skribblHooks">
+                    <summary>Skribbl Style Hooks</summary>
+                    <br>
+                    <div>
+                        Skribbl style hooks allow more advanced CSS styling without having to dig through the skribbl css classes.<br>
+                        The CSS you write will be applied wherever the skribbl color variable is used.
+                    </div>
+                    <br>
+                    <div style="display: grid; grid-gap: .5em 1em; grid-template-columns: 1fr 3fr; padding: 1em;">
+                        ${Object.keys(COLORS).map(key => `<div>${key.replaceAll("-", "").replaceAll("_", " ")}</div><input class="styleHookInput" data-hook="${key}" id="styleHook${key}" type='text' id='cssUrl' placeholder='background: green; border: 2px solid red;'>`).join("")}
+                    </div>
+                    <br>
+                </details>
+
+            </div>
+            
+            <div class="add">
+
+            </div>
+        </div>    
+    </div>
+    `,
+    init: () => {
+        visuals.themes = JSON.parse(localStorage.themesv2 ? localStorage.themesv2 : "[]");
+        visuals.themes.push({ ...getEmptyTheme(), meta: { name: "Original Theme", author: "Mel", type: "theme", id: 0, created: 0 } });
+        visuals.form = elemFromString(visuals.html);
+        const elem = visuals.getElem = selector => visuals.form.querySelector(selector);
+        const setContent = mode => {
+            visuals.form.classList.toggle("add", mode == "add");
+            visuals.form.classList.toggle("manage", mode == "manage");
+            visuals.form.classList.toggle("create", mode == "create");
+        };
+
+        elem(".menu .add").addEventListener("click", () => setContent("add"));
+        elem(".menu .manage").addEventListener("click", () => setContent("manage"));
+        elem(".menu .create").addEventListener("click", () => setContent("create"));
+
+
+        /* add lsiteners to other inputs */
+        const inputChanged = elem => {
+            switch (elem.id) {
+                case "urlLogo":
+                    visuals.currentEditor.images.urlLogo = elem.value;
+                    break;
+                case "urlBackground":
+                    visuals.currentEditor.images.urlBackground = elem.value;
+                    break;
+                case "urlBackgroundGame":
+                    break;
+                case "containerImages":
+                    visuals.currentEditor.images.containerImages = elem.value;
+                    break;
+                case "fontStyle":
+                    visuals.currentEditor.misc.fontStyle = elem.value;
+                    break;
+                case "cssUrl":
+                    visuals.currentEditor.misc.themeCssUrl = elem.value;
+                    break;
+                case "hideFooter":
+                    visuals.currentEditor.misc.hideFooter = elem.checked;
+                    break;
+                case "hideTypoInfo":
+                    visuals.currentEditor.misc.hideTypoInfo = elem.checked;
+                    break;
+                case "hideTypoPanels":
+                    visuals.currentEditor.misc.hideTypoPanels = elem.checked;
+                    break;
+                case "hideAvatarLogo":
+                    visuals.currentEditor.misc.hideAvatarLogo = elem.checked;
+                    break;
+                case "hideInGameLogo":
+                    visuals.currentEditor.misc.hideInGameLogo = elem.checked;
+                    break;
+                case "hideAvatarSprites":
+                    visuals.currentEditor.misc.hideAvatarSprites = elem.checked;
+                    break;
+            }
+            visuals.applyOptions(visuals.currentEditor);
+        }
+
+        [...visuals.form.querySelectorAll(".imageSettings input, .proSettings input")].forEach(elem => {
+            elem.addEventListener("input", () => { inputChanged(elem); });
+        });
+
+        /* setup pickers, ugh */
+        const createPicker = (element, change, button = true, transparency = false, defaultCol = "rgb(193,204,255)") => {
+            const pickr = Pickr.create({
+                el: element,
+                useAsButton: button,
+                lockOpacity: !transparency,
+                theme: 'nano',
+                autoReposition: true,
+                default: defaultCol,
+                comparison: false,
+                components: {
+                    // Main components
+                    preview: true,
+                    hue: true,
+                    opacity: transparency,
+                    // Input / output Options
+                    interaction: {
+                        input: true,
+                        save: true
+                    }
+                }
+            });
+            pickr.on("change", color => {
+                change(color);
+            });
+            return pickr;
+        }
+
+        /* setup hooks */
+        [...visuals.form.querySelectorAll(".styleHookInput")].forEach(hook => {
+            const id = hook.getAttribute("data-hook");
+            hook.addEventListener("input", () => {
+                visuals.currentEditor.hooks[id] = hook.value;
+                visuals.applyOptions(visuals.currentEditor);
+            });
+        })
+
+        /* init detail pickers */
+        const showPicker = (entry) => {
+            const picker = createPicker(entry.elem, (c) => { setColor(c, entry.elem.id); }, true, true, toColorCode(visuals.currentEditor.colors[entry.id]));
+            picker.show();
+            picker.on("hide", instance => instance.destroyAndRemove());
+        };
+
+        const pickers = [];
+        [...visuals.form.querySelectorAll(".colorPickers .picker")].forEach(elem => {
+            let entry = { id: elem.id, elem: elem };
+            pickers.push(entry);
+            elem.addEventListener("click", () => showPicker(entry))
+        });
+
+        const setColor = (color, id) => {
+            visuals.currentEditor.colors[id] = color.toHSLA();
+            updateColors();
+            visuals.applyOptions(visuals.currentEditor);
+        }
+
+        const updateColors = () => {
+            pickers.forEach(picker => {
+                picker.elem.style.backgroundColor = toColorCode(visuals.currentEditor.colors[picker.id]);
+                picker.elem.setAttribute("data-color", JSON.stringify(visuals.currentEditor.colors[picker.id]));
+            });
+        }
+
+        /* create primary pickers */
+        let primaryColor = undefined;
+        let textColor = undefined;
+        const updateSimple = () => {
+            visuals.currentEditor.colors = simpleThemeColors(primaryColor, textColor,
+                visuals.getElem("#useThemeIngame").checked,
+                visuals.getElem("#useThemeInputs").checked,
+                visuals.getElem("#invertText").checked
+            );
+            visuals.applyOptions(visuals.currentEditor);
+            updateColors();
+        }
+
+        /* set primary color picker */
+        visuals.getElem("#primaryColorPicker").addEventListener("click", (e) => {
+            let color = JSON.parse(e.target.getAttribute("data-color"));
+            const picker = createPicker(e.target, color => {
+                primaryColor = color.toHSLA().slice(0, 3);
+                e.target.setAttribute("data-color", JSON.stringify(primaryColor));
+                e.target.style.backgroundColor = toColorCode(primaryColor);
+                updateSimple();
+            }, true, false, color ? toColorCode(color) : undefined);
+            picker.show();
+            picker.on("hide", instance => instance.destroyAndRemove());
+        });
+
+        /* set text color picker */
+        visuals.getElem("#textColorPicker").addEventListener("click", (e) => {
+            let color = JSON.parse(e.target.getAttribute("data-color"));
+            const picker = createPicker(e.target, color => {
+                textColor = color.toHSLA().slice(0, 3);
+                e.target.setAttribute("data-color", JSON.stringify(textColor));
+                e.target.style.backgroundColor = toColorCode(textColor);
+                updateSimple();
+            }, true, false, color ? toColorCode(color) : undefined);
+            picker.show();
+            picker.on("hide", instance => instance.destroyAndRemove());
+        });
+
+        /* set tint color picker */
+        visuals.getElem("#backgroundTintPicker").addEventListener("click", (e) => {
+            let color = JSON.parse(e.target.getAttribute("data-color"));
+            const picker = createPicker(e.target, color => {
+                tintColor = color.toHSLA();
+                e.target.setAttribute("data-color", JSON.stringify(tintColor));
+                e.target.style.backgroundColor = toColorCode(tintColor);
+                visuals.currentEditor.images.backgroundTint = !visuals.getElem("#enableBackgroundTint").checked ? "transparent" : toColorCode(tintColor);
+                visuals.applyOptions(visuals.currentEditor);
+            }, true, false, color ? toColorCode(color) : undefined);
+            picker.show();
+            picker.on("hide", instance => instance.destroyAndRemove());
+        });
+
+        visuals.getElem("#useThemeIngame").addEventListener("input", () => updateSimple());
+        visuals.getElem("#useThemeInputs").addEventListener("input", () => updateSimple());
+        visuals.getElem("#invertText").addEventListener("input", () => updateSimple());
+        visuals.getElem("#enableBackgroundTint").addEventListener("input", (event) => {
+            let checked = event.target.checked;
+            let current = visuals.getElem("#backgroundTintPicker").getAttribute("data-color");
+            if (!checked || !current) visuals.currentEditor.images.backgroundTint = "transparent";
+            else visuals.currentEditor.images.backgroundTint = toColorCode(JSON.parse(current));
+            visuals.applyOptions(visuals.currentEditor);
+        });
+
+        visuals.refreshThemeContainer();
+
+        /*  save handler */
+        elem("#saveTheme").addEventListener("click", () => {
+            const name = elem("#themeName").value;
+            if (name == "") name = "New Theme";
+
+            const theme = JSON.parse(JSON.stringify(visuals.currentEditor));
+            visuals.loadThemeToEditor("", false);
+            visuals.saveTheme(theme, name);
+            primaryColor = undefined;
+            textColor = undefined;
+        });
+
+        /*  reset handler */
+        elem("#resetTheme").addEventListener("click", () => {
+            localStorage.activeTheme = undefined;
+            localStorage.activeOldTheme = undefined;
+            visuals.loadThemeToEditor("", true);
+            localStorage.activeTheme = undefined;
+            visuals.refreshThemeContainer();
+            primaryColor = undefined;
+            textColor = undefined;
+        });
+
+    },
+    show: () => {
+        const onclose = () => {
+
+        };
+        new Modal(visuals.form, onclose, "Skribbl Themes");
+    },
+    loadActiveTheme: () => {
+        let active = Number(localStorage.activeTheme);
+        let theme = visuals.themes.find(t => t.meta.id === active);
+        if (theme) visuals.applyOptions(theme);
+        else if (localStorage.visualOptions != undefined) {
+            visuals.applyOldOptions(JSON.parse(localStorage.visualOptions));
+        }
+        visuals.refreshThemeContainer();
+    },
+    applyOldOptions: (options) => {
+
+        /* remove old visual rules */
+        QS("#visualRules")?.remove();
+        QS(".fontImport")?.remove();
+        QS("#injectionElems")?.remove();
+        QS("#typoThemeBg")?.remove();
+        QS("#typoThemeExternal")?.remove();
+        QS("#typoThemeFont")?.remove();
+        QS("#typo_theme_style")?.remove();
+
         let style = document.createElement("style");
         style.id = "visualRules";
         let urlBackground = options["urlBackground"] ? options["urlBackground"].trim() : "";
@@ -1403,14 +2162,16 @@ const visuals = {
         }
 
         let urlLogo = options["urlLogo"] ? options["urlLogo"].trim() : "";
-        if (QS("div.logo-big img")){
+        if (QS("div.logo-big img")) {
             QS("div.logo-big img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
-            style.innerHTML+=`div.logo-big img {max-height:20vh}`;
-        } 
+            style.innerHTML += `div.logo-big img {max-height:20vh}`;
+        }
         if (QS("#game #game-logo img")) QS("#game #game-logo img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
-        
+
         if (options["containerBackgroundsCheck"] == true) {
+
             let val = options["containerBackgrounds"] ? options["containerBackgrounds"].trim() : "";
+            style.innerHTML += ":root {--COLOR_PANEL_BUTTON: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#setting-bar .content, #emojiPrev, #imageAgent, #home .news ::-webkit-scrollbar, #home .news ::-webkit-scrollbar-thumb, .modalContainer, .toast, #modal .box, #home .panel, #home .bottom .footer {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#home .bottom svg {fill: " + (val != "" ? val : "transparent") + " !important}";
         }
@@ -1437,8 +2198,7 @@ const visuals = {
             style.innerHTML += "#game-bar,  #game-room .settings, #game-room .players,   #imageAgent, #modal .box, #home .panel, .modalContainer, #game-chat .chat-container, #game-players .players-list .player, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
         }
 
-        if (options["containerImages"] && options["containerImages"].trim() != "")
-        {
+        if (options["containerImages"] && options["containerImages"].trim() != "") {
             style.innerHTML += "#game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat .chat-container, #game-players .players-list  {background-image: url(" + options["containerImages"].trim() + ") !important}";
             style.innerHTML += "#game-players .players-list {background:none !important}";
         }
@@ -1471,7 +2231,7 @@ const visuals = {
             document.head.appendChild(elemFromString(
                 '<div class="fontImport" ><link rel="preconnect" href="https://fonts.gstatic.com">'
                 + '<link href="https://fonts.googleapis.com/css2?family=' + font.trim() + '&display=swap" rel="stylesheet"></div>'));
-            style.innerHTML += "*{font-family:'" + font.trim().split(":")[0].replaceAll("+"," ") + "', sans-serif !important}";
+            style.innerHTML += "*{font-family:'" + font.trim().split(":")[0].replaceAll("+", " ") + "', sans-serif !important}";
         }
         // input backgrounds 
         if (options["inputBackgroundsCheck"] == true) {
@@ -1517,194 +2277,126 @@ const visuals = {
         if (QS("#visualRules")) QS("#visualRules").innerHTML = style.innerHTML;
         else document.head.append(style);
     },
-    show: () => {
-        let options = JSON.parse(localStorage.visualOptions);
-        visuals.loadOptions(options);
-        const onclose = () => {
-            let options = visuals.getOptions();
-            visuals.applyOptions(options);
-            localStorage.visualOptions = JSON.stringify(options);
-        };
-        new Modal(visuals.form, onclose, "Skribbl Themes");
-    },
-    loadOptions: (options) => {
-        [...visuals.form.querySelectorAll("input")].forEach(input => {
-            if (options[input.id] != undefined && options[input.id] != null) input.type == "text" ? input.value = options[input.id] : input.checked = options[input.id];
-            else input.type == "text" ? input.value = "" : input.checked = false; 
-        });
-        visuals.applyOptions(options);
-    },
-    getOptions: () => {
-        let options = {};
-        [...visuals.form.querySelectorAll("input")].forEach(input => options[input.id] = (input.type == "text" ? input.value : input.checked));
-        return options;
-    },
-    addTheme: undefined,
-    init: () => {
-        let html =
-            `<div id='visualOpt' style='display:flex; flex-direction:column; align-items: center; width:100%'>
-    <h3>Image Replacements</h3>
-    <div style='width:100%; justify-content: space-evenly;display:flex;'>
-        <div>
-            <h4>Skribbl-Logo Image</h4>
-            <input class='flatUI' type='text' id='urlLogo' placeholder='https://link.here/image.gif'>
-        </div>
-        <div>
-            <h4>Background Image</h4>
-            <input class='flatUI' type='text' id='urlBackground' placeholder='https://link.here/image.gif'>
-        </div>
-    </div>
-    <div style='width:100%; justify-content: space-evenly;display:flex;'>
-        <div>
-            <h4>In-Game Background Image</h4>
-            <input class='flatUI' type='text' id='urlBackgroundGame' placeholder='https://link.here/image.gif'>
-        </div>
-        <div>
-            <h4>Custom Container Backgrounds</h4>
-            <input class='flatUI' type='text' id='containerImages' placeholder='https://link.here/image.gif'>
-        </div>
-    </div>
-    <br>
-    <h3>Font Options</h3> 
-    <div style='width:100%; justify-content: space-evenly;display:flex;'>
-        <div>
-            <h4>Font Color</h4>
-            <input class='flatUI' type='text' id='fontColor' placeholder='#ffffff'>
-        </div>
-        <div>
-            <h4>In-Game Font Color</h4>
-            <input class='flatUI' type='text' id='ingameFontColor' placeholder='#ffffff'>
-        </div>
+    applyOptions: (theme) => {
 
-        <div>
-            <h4>Button Font Color</h4>
-            <input class='flatUI' type='text' id='fontColorButtons' placeholder='#ffffff'>
-        </div>
-        <div>
-            <h4>Font Style</h4>
-            <input class='flatUI' type='text' id='fontStyle' placeholder='Roboto:ital,wght@1,300'>
-        </div>
-    </div>
-    <br>
-    <h3>Color Options</h3>
-    <h4> Colors as rgb: <code>rgb(x, x, x, x%)</code> or hex: <code>#xxxxxxxx</code> or empty for transparent</h4>
-    <div style="display: grid; grid-template-columns: 1fr 2fr; grid-column-gap: 1em;grid-row-gap: 1em; margin: 0 1em;">
-        <label>
-            <input type="checkbox" class="flatUI" id='containerBackgroundsCheck'> <span>Change Container Backgrounds</span>
-        </label>
-        <input class='flatUI' type='text' id='containerBackgrounds' placeholder='transparent'>
-
-        <label>
-            <input type="checkbox" class="flatUI" id='ingameContainerBackgroundsCheck'> <span>Change In-Game-Container Backgrounds</span>
-        </label>
-        <input class='flatUI' type='text' id='ingameContainerBackgrounds' placeholder='transparent'>
-
-        <label>
-            <input type="checkbox" class="flatUI" id='inputBackgroundsCheck'> <span>Change Input Backgrounds</span>
-        </label>
-        <input class='flatUI' type='text' id='inputBackgrounds' placeholder='transparent'>
-
-        <label>
-            <input type="checkbox" class="flatUI" id='containerOutlinesCheck'> <span>Container Outlines</span>
-        </label>
-        <input class='flatUI' type='text' id='containerOutlines' placeholder='transparent'>
-
-        <label>
-            <input type="checkbox" class="flatUI" id='inputOutlinesCheck'> <span>Input Outlines</span>
-        </label>
-        <input class='flatUI' type='text' id='inputOutlines' placeholder='transparent'>
-    </div>
-    <br>
-    <h3>Hide Elements</h3>
-    <div style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 1em;grid-row-gap: 1em; margin: 0 1em;">
-        <label><input type="checkbox" class="flatUI" id="hideFooter"> <span>Hide credits, contact & TOS on frontpage</span></label>
-        <label><input type="checkbox" class="flatUI" id="hideTypoInfo"> <span> Hide palantir stats</span></label>
-        <label style="display:none"><input type="checkbox" class="flatUI" id="hideDiscord"> <span> Hide Discord banner</span></label>
-        <label><input type="checkbox" class="flatUI" id="hideAvatarLogo"> <span> Hide avatars beyond logo</span></label>
-        <label><input type="checkbox" class="flatUI" id="hideInGameLogo"> <span> Hide logo in-game</span></label>
-        <label><input type="checkbox" class="flatUI" id="hideAvatarSprites"> <span> Hide sprites on frontpage</span></label>
-        <label><input type="checkbox" class="flatUI" id="hideTypoPanels"> <span> Hide typo panels (news, lobbies, cabin)</span></label>
-    </div>
-    <div>
-        <h4>HTML/CSS injection: add HTML to body</h4>
-        <input class='flatUI' type='text' id='injection' placeholder='<elem></elem> <style>elem { }</style>'>
-    </div>
-</div>`;
-        visuals.form = elemFromString(html);
-        [...visuals.form.querySelectorAll("input")].forEach(input => {
-            input.addEventListener("input", () => visuals.applyOptions(visuals.getOptions()));
-        });
-
-        try { visuals.themes = JSON.parse(localStorage.themes); }
-        catch{ visuals.themes = []; }
-        let createBtn = (theme) => {
-            let themebtn = elemFromString("<button class='flatUI green min air' style='margin:.5em'>" + theme.name + "</button>");
-            themebtn.addEventListener("click", () => {
-                visuals.loadOptions(theme.options);
-                visuals.applyOptions(theme.options);
-            });
-            let removeToggle = null;
-            themebtn.addEventListener("contextmenu", (e) => {
-                e.preventDefault();
-                if (removeToggle) {
-                    themebtn.remove();
-                    visuals.themes = visuals.themes.filter(rem => rem.options != theme.options);
-                    localStorage.themes = JSON.stringify(visuals.themes);
-                }
-                else {
-                    themebtn.innerText = "Repeat to remove";
-                    removeToggle = setTimeout(() => {
-                        removeToggle = null;
-                        themebtn.innerText = theme.name;
-                    }, 2000);
-                }
-            });
-            return themebtn;
+        if (theme.meta?.id) {
+            localStorage.activeTheme = theme.meta.id;
+            localStorage.activeOldTheme = undefined;
         }
-        let themes = elemFromString(
-            `<div style='width:100%; justify-content: flex-start;display:flex;flex-wrap:wrap;'>
-    </div>`);
-        visuals.themes.forEach(theme => {
-            themebtn = createBtn(theme);
-            themes.appendChild(themebtn);
-        });
-        visuals.addTheme = (name, options) => {
-            visuals.themes.push({ name: name, options:  options});
-            localStorage.themes = JSON.stringify(visuals.themes);
-            themes.insertBefore(createBtn([...visuals.themes].pop()), themes.firstChild);
+
+        /* remove old visual rules */
+        QS("#visualRules")?.remove();
+        QS(".fontImport")?.remove();
+        QS("#injectionElems")?.remove();
+        QS("#typoThemeBg")?.remove();
+        QS("#typoThemeExternal")?.remove();
+        QS("#typoThemeFont")?.remove();
+        QS("#typo_theme_style")?.remove();
+
+        /* append css */
+        let css = Object.keys(theme.colors).map(key => {
+            let value = theme.colors[key];
+            let string = value.length == 3
+                ? `hsl(${value[0]}, ${value[1]}%, ${value[2]}%)`
+                : `hsla(${value[0]}, ${value[1]}%, ${value[2]}%, ${value[3]})`;
+
+            return `${key}: ${string};`;
+        }).join("\n");
+        const style = document.createElement("STYLE");
+        style.id = "typo_theme_style";
+        style.innerHTML = `
+        :root {${css}}
+        body {
+            background: none;
         }
-        let addtheme = elemFromString("<button class='flatUI blue min air' style='margin:.5em'>Save Current</button>");
-        addtheme.addEventListener("click", () => {
-            let input = prompt("How to name the theme?\nYou can right-click a theme to remove it.");
-            if (input == null) return;
-            let name = input && input != "" ? input : "new theme";
-            visuals.addTheme(name, visuals.getOptions());
-        });
-        themes.appendChild(addtheme);
-        let exportTheme = elemFromString("<button class='flatUI blue min air' style='margin:.5em'>Export</button>");
-        exportTheme.addEventListener("click", () => {
-            navigator.clipboard.writeText(JSON.stringify(visuals.getOptions()));
-            new Toast("Copied theme text to clipboard.");
-        });
-        themes.appendChild(exportTheme);
-        let importTheme = elemFromString("<button class='flatUI blue min air' style='margin:.5em'>Import</button>");
-        importTheme.addEventListener("click", () => {
-            try {
-                let theme = prompt("Enter the theme text");
-                if (theme == null) return;
-                let input = prompt("How to name the theme?");
-                if (input == null) return;
-                let name = input && input != "" ? input : "new theme";
-                visuals.themes.push({ name: name, options: JSON.parse(theme) });
-                localStorage.themes = JSON.stringify(visuals.themes);
-                themes.insertBefore(createBtn([...visuals.themes].pop()), themes.firstChild);
-            }
-            catch{new Toast("Error adding the theme.")}
-        });
-        themes.appendChild(importTheme);
-        visuals.form.insertBefore(themes, visuals.form.firstChild);
+        #typoThemeBg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: ${theme.images.backgroundTint};
+            z-index: -1;
+            pointer-events: none;
+            filter: brightness(${theme.images.backgroundTint != "transparent" ? 4 : 1});
+        }
+        #typoThemeBg::after {
+            image-rendering: unset;
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-position: center;
+            background-image: url(${theme.images.urlBackground != "" ? theme.images.urlBackground : "/img/background.png"});
+            background-repeat: ${theme.images.urlBackground != "" ? "no-repeat" : "repeat"};
+            background-size: ${theme.images.urlBackground != "" ? "cover" : "350px"};
+            mix-blend-mode: ${theme.images.backgroundTint == "transparent" ? "none" : "multiply"};
+            filter: ${theme.images.backgroundTint == "transparent" ? "none" : "saturate(0%)"};
+        }
+
+        ${theme.misc.hideFooter ? ".tos, .notice {display:none}" : ""}
+
+        ${theme.misc.hideTypoInfo ? "#typoUserInfo {display:none !important}" : ""}
+
+        ${theme.misc.hideTypoPanels ? "#panelgrid .panel:is(:first-child, :last-child) {display:none } #panelgrid{grid-template-columns: 100% !important}" : ""}
+
+        ${theme.misc.hideInGameLogo ? "#game #game-logo{display:none} #game{margin-top:2em}" : ""}
+
+        ${theme.misc.hideAvatarSprites ? `
+        .avatar-customizer .spriteSlot{display:none }
+        .avatar-customizer {background-image: unset !important }
+        .avatar-customizer .color, .avatar-customizer .mouth, .avatar-customizer .eyes {opacity: 1 !important}
+        ` : ""}
+
+        ${theme.misc.hideAvatarLogo ? "#home .logo-big .avatar-container {display:none }" : ""}
+
+        ${theme.images.containerImages != "" ? `
+        #game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, 
+        #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat 
+        .chat-container, #game-players .players-list  {background-image: url(${theme.images.containerImages}) !important}
+        #game-players .players-list .player {background:none !important}
+        ` : ""}
+
+        ${theme.misc.fontStyle != "" ? `*{font-family:'${theme.misc.fontStyle.trim().split(":")[0].replaceAll("+", " ")}', sans-serif !important}` : ""}
+
+        ${theme.images.urlLogo != "" ? "div.logo-big img {max-height:20vh}" : ""}
+
+        ${Object.keys(theme.hooks ? theme.hooks : {}).filter(key => theme.hooks[key] != "").map(key => `${SKRIBBL_HOOKS[key].join(",")}{${theme.hooks[key]}}`)}
+        
+        `;
+        QS("#typo_theme_style")?.remove();
+        document.body.append(style);
+
+        /* add typo background */
+        const bg = elemFromString(`<div id="typoThemeBg"></div>`);
+        QS("#typoThemeBg")?.remove();
+        document.body.appendChild(bg);
+
+        /* use image url */
+        let small = QS("div.logo-big img");
+        let big = QS("#game #game-logo img");
+        if (theme.images.urlLogo != "") {
+            if (small) small.src = theme.images.urlLogo;
+            if (big) big.src = theme.images.urlLogo;
+        }
+        else {
+            if (small) small.src = "img/logo.gif";
+            if (big) big.src = "img/logo.gif";
+        }
+
+        /* add font import */
+        QS("#typoThemeExternal")?.remove();
+        if (theme.misc.themeCssUrl != "") {
+            const css = elemFromString(`<link id="typoThemeExternal" rel="stylesheet" href="${theme.misc.themeCssUrl}">`);
+            document.head.appendChild(css);
+        }
+
+        /* add theme style import */
+        QS("#typoThemeFont")?.remove();
+        if (theme.misc.fontStyle != "") {
+            const font = elemFromString(`<div id="typoThemeFont"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=${theme.misc.fontStyle.trim()}&display=swap" rel="stylesheet"></div>`);
+            document.head.appendChild(font);
+        }
     }
-
 }
 
 // #content errors.js
@@ -2400,7 +3092,7 @@ console.log(`%c
         ➜ Find more infos at: https://typo.rip/
         ➜ Support development: https://patreon.com/skribbltypo
                                                                     
-                                                    `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em","color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
+                                                    `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
 
 // execute inits when both DOM and palantir are loaded
 const waitForDocAndPalantir = async () => {
@@ -2439,14 +3131,13 @@ let currentNodes = document.getElementsByTagName("*");
 let patchNode = async (node) => {
     if (localStorage.visualOptions && (node.tagName == "BODY" || node.tagName == "IMG")) { // head or image is loaded
         // load current options
-        let opts = JSON.parse(localStorage.visualOptions);
-        visuals.applyOptions(opts);
+        visuals.loadActiveTheme();
         // check if theme querystring is active
         let name = (new URLSearchParams(window.location.search)).get("themename");
         let theme = JSON.parse((new URLSearchParams(window.location.search)).get("theme"));
         if (name && theme) {
             window.history.pushState({}, document.title, "/");
-            if (visuals.themes.some(t => JSON.stringify(t.options) == JSON.stringify(theme))){
+            if (visuals.themes.some(t => JSON.stringify(t.options) == JSON.stringify(theme))) {
                 visuals.applyOptions(theme);
                 localStorage.visualOptions = JSON.stringify(theme);
                 setTimeout(() => new Toast("🥳 Activated theme " + name), 200);
@@ -2470,16 +3161,16 @@ let patchNode = async (node) => {
         node.parentElement.appendChild(script);
         // add var to get access typo ressources in css
         document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
-        
-     }
-     if (node.classList && node.classList.contains("button-play")) {
-         node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
-     }
-     if (node.parentElement?.classList.contains("panels") && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
-         const panelGrid = elemFromString("<div id='panelgrid'></div>");
-         node.parentElement.insertBefore(panelGrid, node);
-         node.classList.add("patched");
-         const leftCard = elemFromString(`<div class='panel patched' > 
+
+    }
+    if (node.classList && node.classList.contains("button-play")) {
+        node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
+    }
+    if (node.parentElement?.classList.contains("panels") && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
+        const panelGrid = elemFromString("<div id='panelgrid'></div>");
+        node.parentElement.insertBefore(panelGrid, node);
+        node.classList.add("patched");
+        const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
                 <span>Hello there!</span><span>Enjoy the new skribbl update!<br> Check out the typo changelog; some features like typo pressure and size shortcuts have been added.</span>
@@ -2494,13 +3185,13 @@ let patchNode = async (node) => {
                 </div>
             </div>
             </div>`);
-         let popupChanges = elemFromString(changelogRawHTML);
-         leftCard.querySelector("h2 span").addEventListener("click", () => {
-             new Modal(popupChanges, () => { }, "Changelog");
-             localStorage.lastChangelogview = chrome.runtime.getManifest().version;
-         });
+        let popupChanges = elemFromString(changelogRawHTML);
+        leftCard.querySelector("h2 span").addEventListener("click", () => {
+            new Modal(popupChanges, () => { }, "Changelog");
+            localStorage.lastChangelogview = chrome.runtime.getManifest().version;
+        });
 
-         const rightCard = elemFromString(`<div class='panel patched' >
+        const rightCard = elemFromString(`<div class='panel patched' >
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="rightPanelContent" class="lobbies">
                 <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
                 <div id="lobbyBoard">
@@ -2523,21 +3214,21 @@ let patchNode = async (node) => {
                 </div>
             </div>
             </div>`);
-         panelGrid.appendChild(leftCard);
-         panelGrid.appendChild(node);
-         panelGrid.appendChild(rightCard);
-         QS("#rightPanelContent #loginRedir").addEventListener("click", login);
-         QS("#rightPanelContent h2").addEventListener("click", (event) => {
-             event.target.closest("#rightPanelContent").classList.toggle("cabin");
-             event.target.closest("#rightPanelContent").classList.toggle("lobbies");
-         });
+        panelGrid.appendChild(leftCard);
+        panelGrid.appendChild(node);
+        panelGrid.appendChild(rightCard);
+        QS("#rightPanelContent #loginRedir").addEventListener("click", login);
+        QS("#rightPanelContent h2").addEventListener("click", (event) => {
+            event.target.closest("#rightPanelContent").classList.toggle("cabin");
+            event.target.closest("#rightPanelContent").classList.toggle("lobbies");
+        });
 
-         // init socket
+        // init socket
         setTimeout(async () => {
             lobbies.init();
             await socket.init();
         }, 0);
-     }
+    }
 }
 let patcher = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
@@ -2773,6 +3464,7 @@ patcher.observe(document.documentElement, { attributes: false, childList: true, 
     background-position: center;
     color: transparent;
     pointer-events: all;
+    border-radius: .5em;
 }
 
 .spriteChoice:hover {
@@ -2789,7 +3481,7 @@ patcher.observe(document.documentElement, { attributes: false, childList: true, 
     display: grid;
     grid-template-columns: repeat(3, 400px);
     grid-column-gap: 2em;
-    color: white;
+    color: var(--COLOR_PANEL_TEXT);
 }
 
 #panelgrid a {
@@ -3326,12 +4018,19 @@ input::-webkit-inner-spin-button {
     }
 }
 
+#modal .modal-container,
+#modal .modal-container .modal-title,
+#modal .modal-container .modal-content {
+    color: var(--COLOR_PANEL_TEXT) !important;
+}
+
 .modalContainer {
     padding: 1em;
     /*background-color: white;*/
-    background-color: rgb(3 34 140 / 90%);
+    background-color: var(--COLOR_PANEL_BG);
+    backdrop-filter: blur(4px);
     /* backdrop-filter: blur(4px); */
-    color: white;
+    color: var(--COLOR_PANEL_TEXT);
     border-radius: 1em;
     box-shadow: black 1px 1px 9px -2px;
     z-index: 60;
@@ -3640,6 +4339,100 @@ bounceload {
 
 #game-rate {
     z-index: 10 !important;
+}
+
+.themesv2 {
+    width: 100%;
+    padding: .5em;
+}
+
+.themesv2 .menu {
+    margin: 1em;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 3em;
+    justify-items: center;
+    margin-bottom: 2em;
+}
+
+.themesv2 .menu div {
+    cursor: pointer;
+    font-size: 1.2em;
+    opacity: .5;
+    font-weight: bold;
+}
+
+.themesv2.manage .menu div.manage {
+    opacity: 1;
+}
+
+.themesv2.create .menu div.create {
+    opacity: 1;
+}
+
+.themesv2.add .menu div.add {
+    opacity: 1;
+}
+
+.themesv2 .body>div {
+    display: none;
+}
+
+.themesv2.manage .body>div.manage {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.themesv2.add .body>div.add {
+    display: block;
+}
+
+.themesv2.create .body>div.create {
+    display: flex;
+    flex-direction: column;
+    gap: .8em;
+}
+
+.themesv2.create .body>div.create>div {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
+
+.themesv2 label.checkbox {
+    display: flex;
+    align-items: center;
+    gap: .5em;
+    cursor: pointer;
+    user-select: none;
+    ;
+}
+
+.themesv2 details {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.themesv2 summary {
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.themesv2 :is(.theme, .oldtheme) {
+    display: grid;
+    grid-template-columns: 3fr 2fr 1fr 1fr 1fr;
+    gap: .5em 1em;
+    background-color: var(--COLOR_PANEL_BUTTON);
+    padding: .5em;
+    padding-left: 1em;
+    border-radius: 1em;
+    align-items: center;
+}
+
+#themeName[disabled] {
+    cursor: forbidden;
 }
 
 /*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
@@ -4273,18 +5066,7 @@ bounceload {
     
 
     /* bundle post dom exec */
-    // #content picker/colr_pickr.min.js
-﻿/*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
-!function (t, e) { "object" == typeof exports && "object" == typeof module ? module.exports = e() : "function" == typeof define && define.amd ? define([], e) : "object" == typeof exports ? exports.Pickr = e() : t.Pickr = e() }(window, (function () {
-    return function (t) { var e = {}; function o(n) { if (e[n]) return e[n].exports; var i = e[n] = { i: n, l: !1, exports: {} }; return t[n].call(i.exports, i, i.exports, o), i.l = !0, i.exports } return o.m = t, o.c = e, o.d = function (t, e, n) { o.o(t, e) || Object.defineProperty(t, e, { enumerable: !0, get: n }) }, o.r = function (t) { "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }), Object.defineProperty(t, "__esModule", { value: !0 }) }, o.t = function (t, e) { if (1 & e && (t = o(t)), 8 & e) return t; if (4 & e && "object" == typeof t && t && t.__esModule) return t; var n = Object.create(null); if (o.r(n), Object.defineProperty(n, "default", { enumerable: !0, value: t }), 2 & e && "string" != typeof t) for (var i in t) o.d(n, i, function (e) { return t[e] }.bind(null, i)); return n }, o.n = function (t) { var e = t && t.__esModule ? function () { return t.default } : function () { return t }; return o.d(e, "a", e), e }, o.o = function (t, e) { return Object.prototype.hasOwnProperty.call(t, e) }, o.p = "", o(o.s = 0) }([function (t, e, o) {
-        "use strict"; o.r(e); var n = {}; function i(t, e, o, n, i = {}) { e instanceof HTMLCollection || e instanceof NodeList ? e = Array.from(e) : Array.isArray(e) || (e = [e]), Array.isArray(o) || (o = [o]); for (const r of e) for (const e of o) r[t](e, n, { capture: !1, ...i }); return Array.prototype.slice.call(arguments, 1) } o.r(n), o.d(n, "on", (function () { return r })), o.d(n, "off", (function () { return s })), o.d(n, "createElementFromString", (function () { return a })), o.d(n, "createFromTemplate", (function () { return l })), o.d(n, "eventPath", (function () { return c })), o.d(n, "resolveElement", (function () { return p })), o.d(n, "adjustableInputNumbers", (function () { return u })); const r = i.bind(null, "addEventListener"), s = i.bind(null, "removeEventListener"); function a(t) { const e = document.createElement("div"); return e.innerHTML = t.trim(), e.firstElementChild } function l(t) { const e = (t, e) => { const o = t.getAttribute(e); return t.removeAttribute(e), o }, o = (t, n = {}) => { const i = e(t, ":obj"), r = e(t, ":ref"), s = i ? n[i] = {} : n; r && (n[r] = t); for (const n of Array.from(t.children)) { const t = e(n, ":arr"), i = o(n, t ? {} : s); t && (s[t] || (s[t] = [])).push(Object.keys(i).length ? i : n) } return n }; return o(a(t)) } function c(t) { let e = t.path || t.composedPath && t.composedPath(); if (e) return e; let o = t.target.parentElement; for (e = [t.target, o]; o = o.parentElement;)e.push(o); return e.push(document, window), e } function p(t) { return t instanceof Element ? t : "string" == typeof t ? t.split(/>>/g).reduce((t, e, o, n) => (t = t.querySelector(e), o < n.length - 1 ? t.shadowRoot : t), document) : null } function u(t, e = (t => t)) { function o(o) { const n = [.001, .01, .1][Number(o.shiftKey || 2 * o.ctrlKey)] * (o.deltaY < 0 ? 1 : -1); let i = 0, r = t.selectionStart; t.value = t.value.replace(/[\d.]+/g, (t, o) => o <= r && o + t.length >= r ? (r = o, e(Number(t), n, i)) : (i++, t)), t.focus(), t.setSelectionRange(r, r), o.preventDefault(), t.dispatchEvent(new Event("input")) } r(t, "focus", () => r(window, "wheel", o, { passive: !1 })), r(t, "blur", () => s(window, "wheel", o)) } const { min: h, max: d, floor: f, round: m } = Math; function v(t, e, o) { e /= 100, o /= 100; const n = f(t = t / 360 * 6), i = t - n, r = o * (1 - e), s = o * (1 - i * e), a = o * (1 - (1 - i) * e), l = n % 6; return [255 * [o, s, r, r, a, o][l], 255 * [a, o, o, s, r, r][l], 255 * [r, r, a, o, o, s][l]] } function b(t, e, o) { const n = (2 - (e /= 100)) * (o /= 100) / 2; return 0 !== n && (e = 1 === n ? 0 : n < .5 ? e * o / (2 * n) : e * o / (2 - 2 * n)), [t, 100 * e, 100 * n] } function y(t, e, o) { const n = h(t /= 255, e /= 255, o /= 255), i = d(t, e, o), r = i - n; let s, a; if (0 === r) s = a = 0; else { a = r / i; const n = ((i - t) / 6 + r / 2) / r, l = ((i - e) / 6 + r / 2) / r, c = ((i - o) / 6 + r / 2) / r; t === i ? s = c - l : e === i ? s = 1 / 3 + n - c : o === i && (s = 2 / 3 + l - n), s < 0 ? s += 1 : s > 1 && (s -= 1) } return [360 * s, 100 * a, 100 * i] } function g(t, e, o, n) { e /= 100, o /= 100; return [...y(255 * (1 - h(1, (t /= 100) * (1 - (n /= 100)) + n)), 255 * (1 - h(1, e * (1 - n) + n)), 255 * (1 - h(1, o * (1 - n) + n)))] } function _(t, e, o) { e /= 100; const n = 2 * (e *= (o /= 100) < .5 ? o : 1 - o) / (o + e) * 100, i = 100 * (o + e); return [t, isNaN(n) ? 0 : n, i] } function w(t) { return y(...t.match(/.{2}/g).map(t => parseInt(t, 16))) } function A(t) { t = t.match(/^[a-zA-Z]+$/) ? function (t) { if ("black" === t.toLowerCase()) return "#000"; const e = document.createElement("canvas").getContext("2d"); return e.fillStyle = t, "#000" === e.fillStyle ? null : e.fillStyle }(t) : t; const e = { cmyk: /^cmyk[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)/i, rgba: /^((rgba)|rgb)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hsla: /^((hsla)|hsl)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hsva: /^((hsva)|hsv)[\D]+([\d.]+)[\D]+([\d.]+)[\D]+([\d.]+)[\D]*?([\d.]+|$)/i, hexa: /^#?(([\dA-Fa-f]{3,4})|([\dA-Fa-f]{6})|([\dA-Fa-f]{8}))$/i }, o = t => t.map(t => /^(|\d+)\.\d+|\d+$/.test(t) ? Number(t) : void 0); let n; t: for (const i in e) { if (!(n = e[i].exec(t))) continue; const r = t => !!n[2] == ("number" == typeof t); switch (i) { case "cmyk": { const [, t, e, r, s] = o(n); if (t > 100 || e > 100 || r > 100 || s > 100) break t; return { values: g(t, e, r, s), type: i } } case "rgba": { const [, , , t, e, s, a] = o(n); if (t > 255 || e > 255 || s > 255 || a < 0 || a > 1 || !r(a)) break t; return { values: [...y(t, e, s), a], a: a, type: i } } case "hexa": { let [, t] = n; 4 !== t.length && 3 !== t.length || (t = t.split("").map(t => t + t).join("")); const e = t.substring(0, 6); let o = t.substring(6); return o = o ? parseInt(o, 16) / 255 : void 0, { values: [...w(e), o], a: o, type: i } } case "hsla": { const [, , , t, e, s, a] = o(n); if (t > 360 || e > 100 || s > 100 || a < 0 || a > 1 || !r(a)) break t; return { values: [..._(t, e, s), a], a: a, type: i } } case "hsva": { const [, , , t, e, s, a] = o(n); if (t > 360 || e > 100 || s > 100 || a < 0 || a > 1 || !r(a)) break t; return { values: [t, e, s, a], a: a, type: i } } } } return { values: null, type: null } } function C(t = 0, e = 0, o = 0, n = 1) { const i = (t, e) => (o = -1) => e(~o ? t.map(t => Number(t.toFixed(o))) : t), r = { h: t, s: e, v: o, a: n, toHSVA() { const t = [r.h, r.s, r.v, r.a]; return t.toString = i(t, t => `hsva(${t[0]}, ${t[1]}%, ${t[2]}%, ${r.a})`), t }, toHSLA() { const t = [...b(r.h, r.s, r.v), r.a]; return t.toString = i(t, t => `hsla(${t[0]}, ${t[1]}%, ${t[2]}%, ${r.a})`), t }, toRGBA() { const t = [...v(r.h, r.s, r.v), r.a]; return t.toString = i(t, t => `rgba(${t[0]}, ${t[1]}, ${t[2]}, ${r.a})`), t }, toCMYK() { const t = function (t, e, o) { const n = v(t, e, o), i = n[0] / 255, r = n[1] / 255, s = n[2] / 255, a = h(1 - i, 1 - r, 1 - s); return [100 * (1 === a ? 0 : (1 - i - a) / (1 - a)), 100 * (1 === a ? 0 : (1 - r - a) / (1 - a)), 100 * (1 === a ? 0 : (1 - s - a) / (1 - a)), 100 * a] }(r.h, r.s, r.v); return t.toString = i(t, t => `cmyk(${t[0]}%, ${t[1]}%, ${t[2]}%, ${t[3]}%)`), t }, toHEXA() { const t = function (t, e, o) { return v(t, e, o).map(t => m(t).toString(16).padStart(2, "0")) }(r.h, r.s, r.v), e = r.a >= 1 ? "" : Number((255 * r.a).toFixed(0)).toString(16).toUpperCase().padStart(2, "0"); return e && t.push(e), t.toString = () => "#" + t.join("").toUpperCase(), t }, clone: () => C(r.h, r.s, r.v, r.a) }; return r } const k = t => Math.max(Math.min(t, 1), 0); function $(t) { const e = { options: Object.assign({ lock: null, onchange: () => 0, onstop: () => 0 }, t), _keyboard(t) { const { options: o } = e, { type: n, key: i } = t; if (document.activeElement === o.wrapper) { const { lock: o } = e.options, r = "ArrowUp" === i, s = "ArrowRight" === i, a = "ArrowDown" === i, l = "ArrowLeft" === i; if ("keydown" === n && (r || s || a || l)) { let n = 0, i = 0; "v" === o ? n = r || s ? 1 : -1 : "h" === o ? n = r || s ? -1 : 1 : (i = r ? -1 : a ? 1 : 0, n = l ? -1 : s ? 1 : 0), e.update(k(e.cache.x + .01 * n), k(e.cache.y + .01 * i)), t.preventDefault() } else i.startsWith("Arrow") && (e.options.onstop(), t.preventDefault()) } }, _tapstart(t) { r(document, ["mouseup", "touchend", "touchcancel"], e._tapstop), r(document, ["mousemove", "touchmove"], e._tapmove), t.cancelable && t.preventDefault(), e._tapmove(t) }, _tapmove(t) { const { options: o, cache: n } = e, { lock: i, element: r, wrapper: s } = o, a = s.getBoundingClientRect(); let l = 0, c = 0; if (t) { const e = t && t.touches && t.touches[0]; l = t ? (e || t).clientX : 0, c = t ? (e || t).clientY : 0, l < a.left ? l = a.left : l > a.left + a.width && (l = a.left + a.width), c < a.top ? c = a.top : c > a.top + a.height && (c = a.top + a.height), l -= a.left, c -= a.top } else n && (l = n.x * a.width, c = n.y * a.height); "h" !== i && (r.style.left = `calc(${l / a.width * 100}% - ${r.offsetWidth / 2}px)`), "v" !== i && (r.style.top = `calc(${c / a.height * 100}% - ${r.offsetHeight / 2}px)`), e.cache = { x: l / a.width, y: c / a.height }; const p = k(l / a.width), u = k(c / a.height); switch (i) { case "v": return o.onchange(p); case "h": return o.onchange(u); default: return o.onchange(p, u) } }, _tapstop() { e.options.onstop(), s(document, ["mouseup", "touchend", "touchcancel"], e._tapstop), s(document, ["mousemove", "touchmove"], e._tapmove) }, trigger() { e._tapmove() }, update(t = 0, o = 0) { const { left: n, top: i, width: r, height: s } = e.options.wrapper.getBoundingClientRect(); "h" === e.options.lock && (o = t), e._tapmove({ clientX: n + r * t, clientY: i + s * o }) }, destroy() { const { options: t, _tapstart: o, _keyboard: n } = e; s(document, ["keydown", "keyup"], n), s([t.wrapper, t.element], "mousedown", o), s([t.wrapper, t.element], "touchstart", o, { passive: !1 }) } }, { options: o, _tapstart: n, _keyboard: i } = e; return r([o.wrapper, o.element], "mousedown", n), r([o.wrapper, o.element], "touchstart", n, { passive: !1 }), r(document, ["keydown", "keyup"], i), e } function S(t = {}) { t = Object.assign({ onchange: () => 0, className: "", elements: [] }, t); const e = r(t.elements, "click", e => { t.elements.forEach(o => o.classList[e.target === o ? "add" : "remove"](t.className)), t.onchange(e), e.stopPropagation() }); return { destroy: () => s(...e) } }
-        /*! NanoPop 2.1.0 MIT | https://github.com/Simonwep/nanopop */
-        const O = { variantFlipOrder: { start: "sme", middle: "mse", end: "ems" }, positionFlipOrder: { top: "tbrl", right: "rltb", bottom: "btrl", left: "lrbt" }, position: "bottom", margin: 8 }, E = (t, e, o) => { const n = "object" != typeof t || t instanceof HTMLElement ? { reference: t, popper: e, ...o } : t; return { update(t = n) { const { reference: e, popper: o } = Object.assign(n, t); if (!o || !e) throw new Error("Popper- or reference-element missing."); return ((t, e, o) => { const { container: n, margin: i, position: r, variantFlipOrder: s, positionFlipOrder: a } = { container: document.documentElement.getBoundingClientRect(), ...O, ...o }, { left: l, top: c } = e.style; e.style.left = "0", e.style.top = "0"; const p = t.getBoundingClientRect(), u = e.getBoundingClientRect(), h = { t: p.top - u.height - i, b: p.bottom + i, r: p.right + i, l: p.left - u.width - i }, d = { vs: p.left, vm: p.left + p.width / 2 + -u.width / 2, ve: p.left + p.width - u.width, hs: p.top, hm: p.bottom - p.height / 2 - u.height / 2, he: p.bottom - u.height }, [f, m = "middle"] = r.split("-"), v = a[f], b = s[m], { top: y, left: g, bottom: _, right: w } = n; for (const t of v) { const o = "t" === t || "b" === t, n = h[t], [i, r] = o ? ["top", "left"] : ["left", "top"], [s, a] = o ? [u.height, u.width] : [u.width, u.height], [l, c] = o ? [_, w] : [w, _], [p, f] = o ? [y, g] : [g, y]; if (!(n < p || n + s > l)) for (const s of b) { const l = d[(o ? "v" : "h") + s]; if (!(l < f || l + a > c)) return e.style[r] = l - u[r] + "px", e.style[i] = n - u[i] + "px", t + s } } return e.style.left = l, e.style.top = c, null })(e, o, n) } } }; function L(t, e, o) { return e in t ? Object.defineProperty(t, e, { value: o, enumerable: !0, configurable: !0, writable: !0 }) : t[e] = o, t } class x { constructor(t) { L(this, "_initializingActive", !0), L(this, "_recalc", !0), L(this, "_nanopop", null), L(this, "_root", null), L(this, "_color", C()), L(this, "_lastColor", C()), L(this, "_swatchColors", []), L(this, "_setupAnimationFrame", null), L(this, "_eventListener", { init: [], save: [], hide: [], show: [], clear: [], change: [], changestop: [], cancel: [], swatchselect: [] }), this.options = t = Object.assign({ ...x.DEFAULT_OPTIONS }, t); const { swatches: e, components: o, theme: n, sliders: i, lockOpacity: r, padding: s } = t;["nano", "monolith"].includes(n) && !i && (t.sliders = "h"), o.interaction || (o.interaction = {}); const { preview: a, opacity: l, hue: c, palette: p } = o; o.opacity = !r && l, o.palette = p || a || l || c, this._preBuild(), this._buildComponents(), this._bindEvents(), this._finalBuild(), e && e.length && e.forEach(t => this.addSwatch(t)); const { button: u, app: h } = this._root; this._nanopop = E(u, h, { margin: s }), u.setAttribute("role", "button"), u.setAttribute("aria-label", this._t("btn:toggle")); const d = this; this._setupAnimationFrame = requestAnimationFrame((function e() { if (!h.offsetWidth) return requestAnimationFrame(e); d.setColor(t.default), d._rePositioningPicker(), t.defaultRepresentation && (d._representation = t.defaultRepresentation, d.setColorRepresentation(d._representation)), t.showAlways && d.show(), d._initializingActive = !1, d._emit("init") })) } _preBuild() { const { options: t } = this; for (const e of ["el", "container"]) t[e] = p(t[e]); this._root = (t => { const { components: e, useAsButton: o, inline: n, appClass: i, theme: r, lockOpacity: s } = t.options, a = t => t ? "" : 'style="display:none" hidden', c = e => t._t(e), p = l(`\n      <div :ref="root" class="pickr">\n\n        ${o ? "" : '<button type="button" :ref="button" class="pcr-button"></button>'}\n\n        <div :ref="app" class="pcr-app ${i || ""}" data-theme="${r}" ${n ? 'style="position: unset"' : ""} aria-label="${c("ui:dialog")}" role="window">\n          <div class="pcr-selection" ${a(e.palette)}>\n            <div :obj="preview" class="pcr-color-preview" ${a(e.preview)}>\n              <button type="button" :ref="lastColor" class="pcr-last-color" aria-label="${c("btn:last-color")}"></button>\n              <div :ref="currentColor" class="pcr-current-color"></div>\n            </div>\n\n            <div :obj="palette" class="pcr-color-palette">\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="palette" class="pcr-palette" tabindex="0" aria-label="${c("aria:palette")}" role="listbox"></div>\n            </div>\n\n            <div :obj="hue" class="pcr-color-chooser" ${a(e.hue)}>\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="slider" class="pcr-hue pcr-slider" tabindex="0" aria-label="${c("aria:hue")}" role="slider"></div>\n            </div>\n\n            <div :obj="opacity" class="pcr-color-opacity" ${a(e.opacity)}>\n              <div :ref="picker" class="pcr-picker"></div>\n              <div :ref="slider" class="pcr-opacity pcr-slider" tabindex="0" aria-label="${c("aria:opacity")}" role="slider"></div>\n            </div>\n          </div>\n\n          <div class="pcr-swatches ${e.palette ? "" : "pcr-last"}" :ref="swatches"></div>\n\n          <div :obj="interaction" class="pcr-interaction" ${a(Object.keys(e.interaction).length)}>\n            <input :ref="result" class="pcr-result" type="text" spellcheck="false" ${a(e.interaction.input)} aria-label="${c("aria:input")}">\n\n            <input :arr="options" class="pcr-type" data-type="HEXA" value="${s ? "HEX" : "HEXA"}" type="button" ${a(e.interaction.hex)}>\n            <input :arr="options" class="pcr-type" data-type="RGBA" value="${s ? "RGB" : "RGBA"}" type="button" ${a(e.interaction.rgba)}>\n            <input :arr="options" class="pcr-type" data-type="HSLA" value="${s ? "HSL" : "HSLA"}" type="button" ${a(e.interaction.hsla)}>\n            <input :arr="options" class="pcr-type" data-type="HSVA" value="${s ? "HSV" : "HSVA"}" type="button" ${a(e.interaction.hsva)}>\n            <input :arr="options" class="pcr-type" data-type="CMYK" value="CMYK" type="button" ${a(e.interaction.cmyk)}>\n\n            <input :ref="save" class="pcr-save" value="${c("btn:save")}" type="button" ${a(e.interaction.save)} aria-label="${c("aria:btn:save")}">\n            <input :ref="cancel" class="pcr-cancel" value="${c("btn:cancel")}" type="button" ${a(e.interaction.cancel)} aria-label="${c("aria:btn:cancel")}">\n            <input :ref="clear" class="pcr-clear" value="${c("btn:clear")}" type="button" ${a(e.interaction.clear)} aria-label="${c("aria:btn:clear")}">\n          </div>\n        </div>\n      </div>\n    `), u = p.interaction; return u.options.find(t => !t.hidden && !t.classList.add("active")), u.type = () => u.options.find(t => t.classList.contains("active")), p })(this), t.useAsButton && (this._root.button = t.el), t.container.appendChild(this._root.root) } _finalBuild() { const t = this.options, e = this._root; if (t.container.removeChild(e.root), t.inline) { const o = t.el.parentElement; t.el.nextSibling ? o.insertBefore(e.app, t.el.nextSibling) : o.appendChild(e.app) } else t.container.appendChild(e.app); t.useAsButton ? t.inline && t.el.remove() : t.el.parentNode.replaceChild(e.root, t.el), t.disabled && this.disable(), t.comparison || (e.button.style.transition = "none", t.useAsButton || (e.preview.lastColor.style.transition = "none")), this.hide() } _buildComponents() { const t = this, e = this.options.components, o = (t.options.sliders || "v").repeat(2), [n, i] = o.match(/^[vh]+$/g) ? o : [], r = () => this._color || (this._color = this._lastColor.clone()), s = { palette: $({ element: t._root.palette.picker, wrapper: t._root.palette.palette, onstop: () => t._emit("changestop", "slider", t), onchange(o, n) { if (!e.palette) return; const i = r(), { _root: s, options: a } = t, { lastColor: l, currentColor: c } = s.preview; t._recalc && (i.s = 100 * o, i.v = 100 - 100 * n, i.v < 0 && (i.v = 0), t._updateOutput("slider")); const p = i.toRGBA().toString(0); this.element.style.background = p, this.wrapper.style.background = `\n                        linear-gradient(to top, rgba(0, 0, 0, ${i.a}), transparent),\n                        linear-gradient(to left, hsla(${i.h}, 100%, 50%, ${i.a}), rgba(255, 255, 255, ${i.a}))\n                    `, a.comparison ? a.useAsButton || t._lastColor || l.style.setProperty("--pcr-color", p) : (s.button.style.color = p, s.button.classList.remove("clear")); const u = i.toHEXA().toString(); for (const { el: e, color: o } of t._swatchColors) e.classList[u === o.toHEXA().toString() ? "add" : "remove"]("pcr-active"); c.style.setProperty("--pcr-color", p) } }), hue: $({ lock: "v" === i ? "h" : "v", element: t._root.hue.picker, wrapper: t._root.hue.slider, onstop: () => t._emit("changestop", "slider", t), onchange(o) { if (!e.hue || !e.palette) return; const n = r(); t._recalc && (n.h = 360 * o), this.element.style.backgroundColor = `hsl(${n.h}, 100%, 50%)`, s.palette.trigger() } }), opacity: $({ lock: "v" === n ? "h" : "v", element: t._root.opacity.picker, wrapper: t._root.opacity.slider, onstop: () => t._emit("changestop", "slider", t), onchange(o) { if (!e.opacity || !e.palette) return; const n = r(); t._recalc && (n.a = Math.round(100 * o) / 100), this.element.style.background = `rgba(0, 0, 0, ${n.a})`, s.palette.trigger() } }), selectable: S({ elements: t._root.interaction.options, className: "active", onchange(e) { t._representation = e.target.getAttribute("data-type").toUpperCase(), t._recalc && t._updateOutput("swatch") } }) }; this._components = s } _bindEvents() { const { _root: t, options: e } = this, o = [r(t.interaction.clear, "click", () => this._clearColor()), r([t.interaction.cancel, t.preview.lastColor], "click", () => { this.setHSVA(...(this._lastColor || this._color).toHSVA(), !0), this._emit("cancel") }), r(t.interaction.save, "click", () => { !this.applyColor() && !e.showAlways && this.hide() }), r(t.interaction.result, ["keyup", "input"], t => { this.setColor(t.target.value, !0) && !this._initializingActive && (this._emit("change", this._color, "input", this), this._emit("changestop", "input", this)), t.stopImmediatePropagation() }), r(t.interaction.result, ["focus", "blur"], t => { this._recalc = "blur" === t.type, this._recalc && this._updateOutput(null) }), r([t.palette.palette, t.palette.picker, t.hue.slider, t.hue.picker, t.opacity.slider, t.opacity.picker], ["mousedown", "touchstart"], () => this._recalc = !0, { passive: !0 })]; if (!e.showAlways) { const n = e.closeWithKey; o.push(r(t.button, "click", () => this.isOpen() ? this.hide() : this.show()), r(document, "keyup", t => this.isOpen() && (t.key === n || t.code === n) && this.hide()), r(document, ["touchstart", "mousedown"], e => { this.isOpen() && !c(e).some(e => e === t.app || e === t.button) && this.hide() }, { capture: !0 })) } if (e.adjustableNumbers) { const e = { rgba: [255, 255, 255, 1], hsva: [360, 100, 100, 1], hsla: [360, 100, 100, 1], cmyk: [100, 100, 100, 100] }; u(t.interaction.result, (t, o, n) => { const i = e[this.getColorRepresentation().toLowerCase()]; if (i) { const e = i[n], r = t + (e >= 100 ? 1e3 * o : o); return r <= 0 ? 0 : Number((r < e ? r : e).toPrecision(3)) } return t }) } if (e.autoReposition && !e.inline) { let t = null; const n = this; o.push(r(window, ["scroll", "resize"], () => { n.isOpen() && (e.closeOnScroll && n.hide(), null === t ? (t = setTimeout(() => t = null, 100), requestAnimationFrame((function e() { n._rePositioningPicker(), null !== t && requestAnimationFrame(e) }))) : (clearTimeout(t), t = setTimeout(() => t = null, 100))) }, { capture: !0 })) } this._eventBindings = o } _rePositioningPicker() { const { options: t } = this; if (!t.inline) { if (!this._nanopop.update({ container: document.body.getBoundingClientRect(), position: t.position })) { const t = this._root.app, e = t.getBoundingClientRect(); t.style.top = (window.innerHeight - e.height) / 2 + "px", t.style.left = (window.innerWidth - e.width) / 2 + "px" } } } _updateOutput(t) { const { _root: e, _color: o, options: n } = this; if (e.interaction.type()) { const t = "to" + e.interaction.type().getAttribute("data-type"); e.interaction.result.value = "function" == typeof o[t] ? o[t]().toString(n.outputPrecision) : "" } !this._initializingActive && this._recalc && this._emit("change", o, t, this) } _clearColor(t = !1) { const { _root: e, options: o } = this; o.useAsButton || (e.button.style.color = "rgba(0, 0, 0, 0.15)"), e.button.classList.add("clear"), o.showAlways || this.hide(), this._lastColor = null, this._initializingActive || t || (this._emit("save", null), this._emit("clear")) } _parseLocalColor(t) { const { values: e, type: o, a: n } = A(t), { lockOpacity: i } = this.options, r = void 0 !== n && 1 !== n; return e && 3 === e.length && (e[3] = void 0), { values: !e || i && r ? null : e, type: o } } _t(t) { return this.options.i18n[t] || x.I18N_DEFAULTS[t] } _emit(t, ...e) { this._eventListener[t].forEach(t => t(...e, this)) } on(t, e) { return this._eventListener[t].push(e), this } off(t, e) { const o = this._eventListener[t] || [], n = o.indexOf(e); return ~n && o.splice(n, 1), this } addSwatch(t) { const { values: e } = this._parseLocalColor(t); if (e) { const { _swatchColors: t, _root: o } = this, n = C(...e), i = a(`<button type="button" style="--pcr-color: ${n.toRGBA().toString(0)}" aria-label="${this._t("btn:swatch")}"/>`); return o.swatches.appendChild(i), t.push({ el: i, color: n }), this._eventBindings.push(r(i, "click", () => { this.setHSVA(...n.toHSVA(), !0), this._emit("swatchselect", n), this._emit("change", n, "swatch", this) })), !0 } return !1 } removeSwatch(t) { const e = this._swatchColors[t]; if (e) { const { el: o } = e; return this._root.swatches.removeChild(o), this._swatchColors.splice(t, 1), !0 } return !1 } applyColor(t = !1) { const { preview: e, button: o } = this._root, n = this._color.toRGBA().toString(0); return e.lastColor.style.setProperty("--pcr-color", n), this.options.useAsButton || o.style.setProperty("--pcr-color", n), o.classList.remove("clear"), this._lastColor = this._color.clone(), this._initializingActive || t || this._emit("save", this._color), this } destroy() { cancelAnimationFrame(this._setupAnimationFrame), this._eventBindings.forEach(t => s(...t)), Object.keys(this._components).forEach(t => this._components[t].destroy()) } destroyAndRemove() { this.destroy(); const { root: t, app: e } = this._root; t.parentElement && t.parentElement.removeChild(t), e.parentElement.removeChild(e), Object.keys(this).forEach(t => this[t] = null) } hide() { return !!this.isOpen() && (this._root.app.classList.remove("visible"), this._emit("hide"), !0) } show() { return !this.options.disabled && !this.isOpen() && (this._root.app.classList.add("visible"), this._rePositioningPicker(), this._emit("show", this._color), this) } isOpen() { return this._root.app.classList.contains("visible") } setHSVA(t = 360, e = 0, o = 0, n = 1, i = !1) { const r = this._recalc; if (this._recalc = !1, t < 0 || t > 360 || e < 0 || e > 100 || o < 0 || o > 100 || n < 0 || n > 1) return !1; this._color = C(t, e, o, n); const { hue: s, opacity: a, palette: l } = this._components; return s.update(t / 360), a.update(n), l.update(e / 100, 1 - o / 100), i || this.applyColor(), r && this._updateOutput(), this._recalc = r, !0 } setColor(t, e = !1) { if (null === t) return this._clearColor(e), !0; const { values: o, type: n } = this._parseLocalColor(t); if (o) { const t = n.toUpperCase(), { options: i } = this._root.interaction, r = i.find(e => e.getAttribute("data-type") === t); if (r && !r.hidden) for (const t of i) t.classList[t === r ? "add" : "remove"]("active"); return !!this.setHSVA(...o, e) && this.setColorRepresentation(t) } return !1 } setColorRepresentation(t) { return t = t.toUpperCase(), !!this._root.interaction.options.find(e => e.getAttribute("data-type").startsWith(t) && !e.click()) } getColorRepresentation() { return this._representation } getColor() { return this._color } getSelectedColor() { return this._lastColor } getRoot() { return this._root } disable() { return this.hide(), this.options.disabled = !0, this._root.button.classList.add("disabled"), this } enable() { return this.options.disabled = !1, this._root.button.classList.remove("disabled"), this } } L(x, "utils", n), L(x, "version", "1.8.1"), L(x, "I18N_DEFAULTS", { "ui:dialog": "color picker dialog", "btn:toggle": "toggle color picker dialog", "btn:swatch": "color swatch", "btn:last-color": "use previous color", "btn:save": "Save", "btn:cancel": "Cancel", "btn:clear": "Clear", "aria:btn:save": "save and close", "aria:btn:cancel": "cancel and close", "aria:btn:clear": "clear and close", "aria:input": "color input field", "aria:palette": "color selection area", "aria:hue": "hue selection slider", "aria:opacity": "selection slider" }), L(x, "DEFAULT_OPTIONS", { appClass: null, theme: "classic", useAsButton: !1, padding: 8, disabled: !1, comparison: !0, closeOnScroll: !1, outputPrecision: 0, lockOpacity: !1, autoReposition: !0, container: "body", components: { interaction: {} }, i18n: {}, swatches: null, inline: !1, sliders: null, default: "#42445a", defaultRepresentation: null, position: "bottom-middle", adjustableNumbers: !0, showAlways: !1, closeWithKey: "Escape" }), L(x, "create", t => new x(t)); e.default = x
-    }]).default
-}));
-//# sourceMappingURL=pickr.min.js.map
-
-// #content features/commands.js
+    // #content features/commands.js
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
@@ -6249,7 +7031,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 // adds emoji replacement
 const emojis = {
-    emojis : [],
+    emojis: [],
     init: async () => {
         // load emojis in worker to avoid blocking ui
         let workerJS = await (await fetch(chrome.runtime.getURL("features/emojiLoadWorker.js"))).text();
@@ -6257,13 +7039,14 @@ const emojis = {
         setTimeout(() => {
             loadWorker.addEventListener('message', message => {
                 emojis.emojis = message.data;
+                console.log("added " + message.data.length + " emojis");
             });
-        }, navigator.userAgent.includes("Firefox") ? 1000 : 0); // firefox seems to have problems to immediately initialize the worker
+        }, 1000); // firefox seems to have problems to immediately initialize the worker
         QS("#emojiPrev").style.maxHeight = "80%";
         QS("#emojiPrev").style.overflowY = "auto";
         // show emoji preview on chat type
         const input = QS("#game-chat form input");
-        input.closest("form").addEventListener("submit", ()=>{
+        input.closest("form").addEventListener("submit", () => {
             QS("#emojiPrev").style.display = "none";
         });
         input.addEventListener("input", (e) => {
@@ -6301,7 +7084,7 @@ const emojis = {
         });
     },
     get: (name) => emojis.emojis.find(emoji => emoji.name == name),
-    search: (name) => emojis.emojis.filter(emoji => emoji.name.indexOf(name) >= 0).sort((a,b)=>a.name.length - b.name.length),
+    search: (name) => emojis.emojis.filter(emoji => emoji.name.indexOf(name) >= 0).sort((a, b) => a.name.length - b.name.length),
     replaceEmojiContent: (node) => {
         const matches = node.innerHTML.matchAll(new RegExp(":([A-Za-z0-9\-\_]+):", "g"));
         for (const match of matches) {
@@ -6318,7 +7101,7 @@ const emojis = {
                 style.innerHTML = ".emoji-" + emoji.name + id + ":hover:after {width:fit-content; color:white; word-break:none;font-weight:500; letter-spacing:.05em; content:'։" + emoji.name + "։'; position: absolute; left:2.5em;background: #333333e0; padding: .5em; border-radius: .2em;}" +
                     ".emoji-" + emoji.name + id + ":hover:before {content: '';border-style: solid;border-width: .5em .5em .5em 0;border-color: transparent #333333e0 transparent transparent; position: absolute;left: 2em; top: .5em;}";
             }
-          
+
         }
         // if scrolled very down, scroll to view full emoji height
         if (matches.length > 0 && Math.floor(node.parentElement.scrollHeight - node.parentElement.scrollTop) <= node.parentElement.clientHeight + 30) {
