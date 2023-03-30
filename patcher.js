@@ -17,7 +17,7 @@ console.log(`%c
         ➜ Find more infos at: https://typo.rip/
         ➜ Support development: https://patreon.com/skribbltypo
                                                                     
-                                                    `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em","color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
+                                                    `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
 
 // execute inits when both DOM and palantir are loaded
 const waitForDocAndPalantir = async () => {
@@ -56,14 +56,13 @@ let currentNodes = document.getElementsByTagName("*");
 let patchNode = async (node) => {
     if (localStorage.visualOptions && (node.tagName == "BODY" || node.tagName == "IMG")) { // head or image is loaded
         // load current options
-        let opts = JSON.parse(localStorage.visualOptions);
-        visuals.applyOptions(opts);
+        visuals.loadActiveTheme();
         // check if theme querystring is active
         let name = (new URLSearchParams(window.location.search)).get("themename");
         let theme = JSON.parse((new URLSearchParams(window.location.search)).get("theme"));
         if (name && theme) {
             window.history.pushState({}, document.title, "/");
-            if (visuals.themes.some(t => JSON.stringify(t.options) == JSON.stringify(theme))){
+            if (visuals.themes.some(t => JSON.stringify(t.options) == JSON.stringify(theme))) {
                 visuals.applyOptions(theme);
                 localStorage.visualOptions = JSON.stringify(theme);
                 setTimeout(() => new Toast("🥳 Activated theme " + name), 200);
@@ -87,16 +86,16 @@ let patchNode = async (node) => {
         node.parentElement.appendChild(script);
         // add var to get access typo ressources in css
         document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
-        
-     }
-     if (node.classList && node.classList.contains("button-play")) {
-         node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
-     }
-     if (node.parentElement?.classList.contains("panels") && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
-         const panelGrid = elemFromString("<div id='panelgrid'></div>");
-         node.parentElement.insertBefore(panelGrid, node);
-         node.classList.add("patched");
-         const leftCard = elemFromString(`<div class='panel patched' > 
+
+    }
+    if (node.classList && node.classList.contains("button-play")) {
+        node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
+    }
+    if (node.parentElement?.classList.contains("panels") && node.tagName == "DIV" && node.classList.contains("panel") && !node.classList.contains("patched")) {
+        const panelGrid = elemFromString("<div id='panelgrid'></div>");
+        node.parentElement.insertBefore(panelGrid, node);
+        node.classList.add("patched");
+        const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
                 <span>Hello there!</span><span>Enjoy the new skribbl update!<br> Check out the typo changelog; some features like typo pressure and size shortcuts have been added.</span>
@@ -111,13 +110,13 @@ let patchNode = async (node) => {
                 </div>
             </div>
             </div>`);
-         let popupChanges = elemFromString(changelogRawHTML);
-         leftCard.querySelector("h2 span").addEventListener("click", () => {
-             new Modal(popupChanges, () => { }, "Changelog");
-             localStorage.lastChangelogview = chrome.runtime.getManifest().version;
-         });
+        let popupChanges = elemFromString(changelogRawHTML);
+        leftCard.querySelector("h2 span").addEventListener("click", () => {
+            new Modal(popupChanges, () => { }, "Changelog");
+            localStorage.lastChangelogview = chrome.runtime.getManifest().version;
+        });
 
-         const rightCard = elemFromString(`<div class='panel patched' >
+        const rightCard = elemFromString(`<div class='panel patched' >
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="rightPanelContent" class="lobbies">
                 <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
                 <div id="lobbyBoard">
@@ -140,21 +139,21 @@ let patchNode = async (node) => {
                 </div>
             </div>
             </div>`);
-         panelGrid.appendChild(leftCard);
-         panelGrid.appendChild(node);
-         panelGrid.appendChild(rightCard);
-         QS("#rightPanelContent #loginRedir").addEventListener("click", login);
-         QS("#rightPanelContent h2").addEventListener("click", (event) => {
-             event.target.closest("#rightPanelContent").classList.toggle("cabin");
-             event.target.closest("#rightPanelContent").classList.toggle("lobbies");
-         });
+        panelGrid.appendChild(leftCard);
+        panelGrid.appendChild(node);
+        panelGrid.appendChild(rightCard);
+        QS("#rightPanelContent #loginRedir").addEventListener("click", login);
+        QS("#rightPanelContent h2").addEventListener("click", (event) => {
+            event.target.closest("#rightPanelContent").classList.toggle("cabin");
+            event.target.closest("#rightPanelContent").classList.toggle("lobbies");
+        });
 
-         // init socket
+        // init socket
         setTimeout(async () => {
             lobbies.init();
             await socket.init();
         }, 0);
-     }
+    }
 }
 let patcher = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {

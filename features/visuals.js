@@ -54,10 +54,13 @@ const COLORS = Object.freeze({
     "--COLOR_CHAT_BG_GUESSED_ALT": [104, 100, 87],
     "--COLOR_CHAT_INPUT_COUNT": [0, 0, 0]
 });
+
 const copyColors = () => JSON.parse(JSON.stringify(COLORS));
+
 const toColorCode = value => value.length == 3
     ? `hsl(${value[0]}, ${value[1]}%, ${value[2]}%)`
     : `hsla(${value[0]}, ${value[1]}%, ${value[2]}%, ${value[3]})`;
+
 const getEmptyTheme = () => ({
     colors: copyColors(),
     images: {
@@ -76,9 +79,62 @@ const getEmptyTheme = () => ({
         hideInGameLogo: false,
         hideAvatarSprites: false,
         themeCssUrl: ""
+    },
+    hooks: Object.keys(COLORS).map(k => ({ color: k, css: "" })).reduce((acc, { color, css }) => {
+        acc[color] = css;
+        return acc;
+    }, {})
+});
+
+/* thanks chatgpt :^ */
+const getSelectorsWithVariables = (cssText, colorVariables) => {
+    // Parse the CSS text using a DOM parser
+    const parser = new DOMParser();
+    const css = parser.parseFromString(`<style>${cssText}</style>`, 'text/html').querySelector('style');
+
+    // Get all CSS rules from the stylesheet
+    const rules = css.sheet.cssRules;
+
+    // Initialize an empty object to store selectors for each variable
+    const variableSelectors = {};
+
+    // Iterate through each color variable to initialize empty arrays for each one
+    colorVariables.forEach((colorVariable) => {
+        variableSelectors[colorVariable] = [];
+    });
+
+    // Iterate through each rule to find selectors with variables
+    for (let i = 0; i < rules.length; i++) {
+        const rule = rules[i];
+
+        // Check if the rule is a CSSStyleRule (i.e., a selector with style properties)
+        if (rule instanceof CSSStyleRule) {
+
+            // Iterate through each style property to find variables
+            for (let j = 0; j < rule.style.length; j++) {
+                const propertyName = rule.style[j];
+                const propertyValue = rule.style.getPropertyValue(propertyName);
+
+                // Check if the property value contains any of the color variables
+                colorVariables.forEach((colorVariable) => {
+                    if (propertyValue.includes(`var(${colorVariable}`)) {
+                        variableSelectors[colorVariable].push(rule.selectorText);
+                    }
+                });
+            }
+        }
     }
 
-});
+    // Return an object with color variables as keys and an array of selectors where they are used as the value
+    return variableSelectors;
+}
+
+let SKRIBBL_HOOKS = localStorage.cache_skribbl_hooks ? JSON.parse(localStorage.cache_skribbl_hooks) : {};
+(async () => {
+    const style = await (await fetch("/css/style.css")).text();
+    SKRIBBL_HOOKS = getSelectorsWithVariables(style, Object.keys(COLORS));
+    localStorage.cache_skribbl_hooks = JSON.stringify(SKRIBBL_HOOKS);
+})()
 
 
 const simpleThemeColors = (mainHsl, textHsl, useIngame = false, useInputs = false, invertInputText = true) => {
@@ -150,7 +206,54 @@ const visuals = {
     themes: [],
     form: undefined,
     getElem: undefined,
-    refreshThemeContainer: undefined,
+    refreshThemeContainer: () => {
+        const manage = visuals.getElem(".body .manage");
+        manage.innerHTML = "";
+        visuals.themes.forEach(theme => {
+            const entry = elemFromString(`<div class="theme">
+            <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
+            <div>${theme.meta.type}</div>
+            <button class="flatUI green min air">${Number(localStorage.activeTheme) === theme.meta.id ? "Disable" : "Use"}</button>
+            <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI orange min air">Delete</button>
+            <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI blue min air">Edit</button>
+            `);
+            manage.appendChild(entry);
+            entry.querySelector(".green").addEventListener("click", () => {
+                if (Number(localStorage.activeTheme) !== theme.meta.id) visuals.applyOptions(theme);
+                else {
+                    visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
+                    localStorage.activeTheme = undefined;
+                }
+                localStorage.visualOptions = undefined;
+                visuals.refreshThemeContainer();
+            });
+            entry.querySelector(".orange").addEventListener("click", () => {
+                visuals.deleteTheme(theme.meta.id);
+                visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
+            });
+            entry.querySelector(".blue").addEventListener("click", () => {
+                visuals.loadThemeToEditor(theme.meta.id, true);
+            });
+        });
+
+        const oldThemes = JSON.parse(localStorage.themes ? localStorage.themes : "[]");
+        oldThemes.forEach(theme => {
+            const entry = elemFromString(`<div class="oldtheme">
+            <div><b>${theme.name}</b></div>
+            <div>Old Theme</div>
+            <button class="flatUI green min air">Apply</button>
+            <br>
+            <br>
+            `);
+            manage.appendChild(entry);
+            entry.querySelector(".green").addEventListener("click", () => {
+                localStorage.visualOptions = JSON.stringify(theme.options);
+                localStorage.activeTheme = undefined;
+                visuals.applyOldOptions(theme.options);
+                visuals.refreshThemeContainer();
+            });
+        });
+    },
     mainPickers: { primary: undefined, text: undefined, tint: undefined },
     currentEditor: getEmptyTheme(),
     saveTheme: (theme, name) => {
@@ -377,6 +480,20 @@ const visuals = {
                     <br>
                 </details>
 
+                <details class="skribblHooks">
+                    <summary>Skribbl Style Hooks</summary>
+                    <br>
+                    <div>
+                        Skribbl style hooks allow more advanced CSS styling without having to dig through the skribbl css classes.<br>
+                        The CSS you write will be applied wherever the skribbl color variable is used.
+                    </div>
+                    <br>
+                    <div style="display: grid; grid-gap: .5em 1em; grid-template-columns: 1fr 3fr; padding: 1em;">
+                        ${Object.keys(COLORS).map(key => `<div>${key.replaceAll("-", "").replaceAll("_", " ")}</div><input class="styleHookInput" data-hook="${key}" id="styleHook${key}" type='text' id='cssUrl' placeholder='background: green; border: 2px solid red;'>`).join("")}
+                    </div>
+                    <br>
+                </details>
+
             </div>
             
             <div class="add">
@@ -387,7 +504,7 @@ const visuals = {
     `,
     init: () => {
         visuals.themes = JSON.parse(localStorage.themesv2 ? localStorage.themesv2 : "[]");
-        visuals.themes.push({ ...getEmptyTheme(), meta: { name: "Original", author: "Mel", type: "theme", id: 0, created: 0 } });
+        visuals.themes.push({ ...getEmptyTheme(), meta: { name: "Original Theme", author: "Mel", type: "theme", id: 0, created: 0 } });
         visuals.form = elemFromString(visuals.html);
         const elem = visuals.getElem = selector => visuals.form.querySelector(selector);
         const setContent = mode => {
@@ -474,6 +591,15 @@ const visuals = {
             });
             return pickr;
         }
+
+        /* setup hooks */
+        [...visuals.form.querySelectorAll(".styleHookInput")].forEach(hook => {
+            const id = hook.getAttribute("data-hook");
+            hook.addEventListener("input", () => {
+                visuals.currentEditor.hooks[id] = hook.value;
+                visuals.applyOptions(visuals.currentEditor);
+            });
+        })
 
         /* init detail pickers */
         const showPicker = (entry) => {
@@ -566,32 +692,6 @@ const visuals = {
             visuals.applyOptions(visuals.currentEditor);
         });
 
-        /* refresh themes func */
-        visuals.refreshThemeContainer = () => {
-            const manage = elem(".body .manage");
-            manage.innerHTML = "";
-            visuals.themes.forEach(theme => {
-                const entry = elemFromString(`<div class="theme">
-                <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
-                <div>${theme.meta.type}</div>
-                <button class="flatUI green min air">Use</button>
-                <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI orange min air">Delete</button>
-                <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI blue min air">Edit</button>
-                `);
-                manage.appendChild(entry);
-                entry.querySelector(".green").addEventListener("click", () => {
-                    visuals.applyOptions(theme);
-                });
-                entry.querySelector(".orange").addEventListener("click", () => {
-                    visuals.deleteTheme(theme.meta.id);
-                    visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
-                });
-                entry.querySelector(".blue").addEventListener("click", () => {
-                    visuals.loadThemeToEditor(theme.meta.id, true);
-                });
-            });
-        }
-
         visuals.refreshThemeContainer();
 
         /*  save handler */
@@ -608,7 +708,11 @@ const visuals = {
 
         /*  reset handler */
         elem("#resetTheme").addEventListener("click", () => {
+            localStorage.activeTheme = undefined;
+            localStorage.activeOldTheme = undefined;
             visuals.loadThemeToEditor("", true);
+            localStorage.activeTheme = undefined;
+            visuals.refreshThemeContainer();
             primaryColor = undefined;
             textColor = undefined;
         });
@@ -620,8 +724,14 @@ const visuals = {
         };
         new Modal(visuals.form, onclose, "Skribbl Themes");
     },
-    loadOptions: () => {
-
+    loadActiveTheme: () => {
+        let active = Number(localStorage.activeTheme);
+        let theme = visuals.themes.find(t => t.meta.id === active);
+        if (theme) visuals.applyOptions(theme);
+        else if (localStorage.visualOptions != undefined) {
+            visuals.applyOldOptions(JSON.parse(localStorage.visualOptions));
+        }
+        visuals.refreshThemeContainer();
     },
     applyOldOptions: (options) => {
 
@@ -629,6 +739,10 @@ const visuals = {
         QS("#visualRules")?.remove();
         QS(".fontImport")?.remove();
         QS("#injectionElems")?.remove();
+        QS("#typoThemeBg")?.remove();
+        QS("#typoThemeExternal")?.remove();
+        QS("#typoThemeFont")?.remove();
+        QS("#typo_theme_style")?.remove();
 
         let style = document.createElement("style");
         style.id = "visualRules";
@@ -650,7 +764,9 @@ const visuals = {
         if (QS("#game #game-logo img")) QS("#game #game-logo img").src = urlLogo != "" ? urlLogo : "img/logo.gif";
 
         if (options["containerBackgroundsCheck"] == true) {
+
             let val = options["containerBackgrounds"] ? options["containerBackgrounds"].trim() : "";
+            style.innerHTML += ":root {--COLOR_PANEL_BUTTON: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#setting-bar .content, #emojiPrev, #imageAgent, #home .news ::-webkit-scrollbar, #home .news ::-webkit-scrollbar-thumb, .modalContainer, .toast, #modal .box, #home .panel, #home .bottom .footer {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#home .bottom svg {fill: " + (val != "" ? val : "transparent") + " !important}";
         }
@@ -758,6 +874,11 @@ const visuals = {
     },
     applyOptions: (theme) => {
 
+        if (theme.meta?.id) {
+            localStorage.activeTheme = theme.meta.id;
+            localStorage.activeOldTheme = undefined;
+        }
+
         /* remove old visual rules */
         QS("#visualRules")?.remove();
         QS(".fontImport")?.remove();
@@ -765,6 +886,7 @@ const visuals = {
         QS("#typoThemeBg")?.remove();
         QS("#typoThemeExternal")?.remove();
         QS("#typoThemeFont")?.remove();
+        QS("#typo_theme_style")?.remove();
 
         /* append css */
         let css = Object.keys(theme.colors).map(key => {
@@ -830,15 +952,31 @@ const visuals = {
         ` : ""}
 
         ${theme.misc.fontStyle != "" ? `*{font-family:'${theme.misc.fontStyle.trim().split(":")[0].replaceAll("+", " ")}', sans-serif !important}` : ""}
+
+        ${theme.images.urlLogo != "" ? "div.logo-big img {max-height:20vh}" : ""}
+
+        ${Object.keys(theme.hooks ? theme.hooks : {}).filter(key => theme.hooks[key] != "").map(key => `${SKRIBBL_HOOKS[key].join(",")}{${theme.hooks[key]}}`)}
         
         `;
-        document.querySelector("#typo_theme_style")?.remove();
+        QS("#typo_theme_style")?.remove();
         document.body.append(style);
 
         /* add typo background */
         const bg = elemFromString(`<div id="typoThemeBg"></div>`);
         QS("#typoThemeBg")?.remove();
         document.body.appendChild(bg);
+
+        /* use image url */
+        let small = QS("div.logo-big img");
+        let big = QS("#game #game-logo img");
+        if (theme.images.urlLogo != "") {
+            if (small) small.src = theme.images.urlLogo;
+            if (big) big.src = theme.images.urlLogo;
+        }
+        else {
+            if (small) small.src = "img/logo.gif";
+            if (big) big.src = "img/logo.gif";
+        }
 
         /* add font import */
         QS("#typoThemeExternal")?.remove();

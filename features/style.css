@@ -201,6 +201,7 @@
     background-position: center;
     color: transparent;
     pointer-events: all;
+    border-radius: .5em;
 }
 
 .spriteChoice:hover {
@@ -1156,7 +1157,7 @@ bounceload {
     font-weight: bold;
 }
 
-.themesv2 .theme {
+.themesv2 :is(.theme, .oldtheme) {
     display: grid;
     grid-template-columns: 3fr 2fr 1fr 1fr 1fr;
     gap: .5em 1em;
