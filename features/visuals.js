@@ -347,6 +347,12 @@ const visuals = {
             p.setAttribute("data-color", JSON.stringify(theme.colors[p.id]));
         });
 
+        /* load hooks */
+        [...visuals.form.querySelectorAll(".styleHookInput")].forEach(hook => {
+            const id = hook.getAttribute("data-hook");
+            hook.value = theme.hooks && theme.hooks[id] ? theme.hooks[id] : "";
+        });
+
         if (apply) visuals.applyOptions(visuals.currentEditor);
     },
     html: `<div class="themesv2 manage">
@@ -599,7 +605,7 @@ const visuals = {
                 visuals.currentEditor.hooks[id] = hook.value;
                 visuals.applyOptions(visuals.currentEditor);
             });
-        })
+        });
 
         /* init detail pickers */
         const showPicker = (entry) => {
