@@ -52,7 +52,13 @@ const COLORS = Object.freeze({
     "--COLOR_CHAT_SCROLLBAR_THUMB": [0, 0, 78],
     "--COLOR_CHAT_BG_GUESSED_BASE": [105, 100, 94],
     "--COLOR_CHAT_BG_GUESSED_ALT": [104, 100, 87],
-    "--COLOR_CHAT_INPUT_COUNT": [0, 0, 0]
+    "--COLOR_CHAT_INPUT_COUNT": [0, 0, 0],
+    "--COLOR_BUTTON_DANGER_BG": [44, 81, 51],
+    "--COLOR_BUTTON_SUBMIT_BG": [110, 75, 55],
+    "--COLOR_BUTTON_NORMAL_BG": [208, 80, 54],
+    "--COLOR_BUTTON_DANGER_TEXT": [0, 0, 100],
+    "--COLOR_BUTTON_SUBMIT_TEXT": [0, 0, 100],
+    "--COLOR_BUTTON_NORMAL_TEXT": [0, 0, 100]
 });
 
 const copyColors = () => JSON.parse(JSON.stringify(COLORS));
@@ -66,6 +72,7 @@ const getEmptyTheme = () => ({
     images: {
         urlLogo: "",
         urlBackground: "",
+        backgroundRepeat: false,
         containerImages: "",
         containerImages: "",
         backgroundTint: "transparent"
@@ -78,7 +85,10 @@ const getEmptyTheme = () => ({
         hideAvatarLogo: false,
         hideInGameLogo: false,
         hideAvatarSprites: false,
-        themeCssUrl: ""
+        themeCssUrl: "",
+        themeCss: "",
+        hideMeta: false,
+        cssText: ""
     },
     hooks: Object.keys(COLORS).map(k => ({ color: k, css: "" })).reduce((acc, { color, css }) => {
         acc[color] = css;
@@ -164,6 +174,8 @@ const simpleThemeColors = (mainHsl, textHsl, useIngame = false, useInputs = fals
         mains.forEach(k => theme[k][0] = (theme[k][0] - mainHueBase + mainHue) % 360);
         mains.forEach(k => theme[k][1] = theme[k][1] * (mainSat / 100));
         mains.forEach(k => theme[k][2] = theme[k][2] * (mainLig / 100));
+        theme["--COLOR_CHAT_SCROLLBAR"] = [...theme["--COLOR_PANEL_LO"]];
+        theme["--COLOR_CHAT_SCROLLBAR_THUMB"] = [...theme["--COLOR_PANEL_HI"]];
 
         if (useIngame) {
             const themeSat = mainSatBase * (mainSat / 100);
@@ -228,6 +240,8 @@ const visuals = {
                 visuals.refreshThemeContainer();
             });
             entry.querySelector(".orange").addEventListener("click", () => {
+                const result = confirm("Delete theme " + theme.meta.name + "?");
+                if (!result) return;
                 visuals.deleteTheme(theme.meta.id);
                 visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
             });
@@ -305,6 +319,9 @@ const visuals = {
                 case "fontStyle":
                     elem.value = theme.misc.fontStyle;
                     break;
+                case "cssText":
+                    elem.value = theme.misc.cssText;
+                    break;
                 case "cssUrl":
                     elem.value = theme.misc.themeCssUrl;
                     break;
@@ -325,6 +342,12 @@ const visuals = {
                     break;
                 case "hideAvatarSprites":
                     elem.checked = theme.misc.hideAvatarSprites;
+                    break;
+                case "hideMeta":
+                    elem.checked = theme.misc.hideMeta;
+                    break;
+                case "backgroundRepeat":
+                    elem.checked = theme.images.backgroundRepeat;
                     break;
             }
         });
@@ -413,6 +436,11 @@ const visuals = {
                             <input type='text' id='urlBackground' placeholder='https://link.here/image.gif'>
                         </label>
 
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="backgroundRepeat"> 
+                            <div>Repeat Background</div>
+                        </label>
+
                         <label style="display:flex; flex-direction: column; gap: .5em;">
                             In-Game Background Image
                             <input type='text' id='urlBackgroundGame' placeholder='https://link.here/image.gif'>
@@ -452,9 +480,19 @@ const visuals = {
                             <input type='text' id='cssUrl' placeholder='https://link.here/style.css'>
                         </label>
 
+                        <label style="display:flex; flex-direction: column; gap: .5em; grid-column: span 2">
+                            Plain CSS Injection
+                            <input type='text' id='cssText' placeholder='.logo-big { display: none !Important; }'>
+                        </label>
+
                         <label class="checkbox">
                             <input type="checkbox" class="" id="hideFooter"> 
                             <div>Hide footer</div>
+                        </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="hideMeta"> 
+                            <div>Hide About, News & How-To</div>
                         </label>
 
                         <label class="checkbox">
@@ -509,7 +547,27 @@ const visuals = {
     </div>
     `,
     init: () => {
-        visuals.themes = JSON.parse(localStorage.themesv2 ? localStorage.themesv2 : "[]");
+
+        /* fill themes with missing values */
+        const merge = (a, b) => {
+            for (let key in b) {
+                if (b.hasOwnProperty(key)) {
+                    if (!a.hasOwnProperty(key)) {
+                        a[key] = b[key];
+                    } else if (typeof b[key] === 'object' && typeof a[key] === 'object') {
+                        merge(a[key], b[key]);
+                    }
+                }
+            }
+            return a;
+        }
+        const local = JSON.parse(localStorage.themesv2 ? localStorage.themesv2 : "[]");
+        local.forEach(t => {
+            const defaults = getEmptyTheme();
+            const merged = merge(t, defaults);
+            visuals.themes.push(merged);
+        });
+
         visuals.themes.push({ ...getEmptyTheme(), meta: { name: "Original Theme", author: "Mel", type: "theme", id: 0, created: 0 } });
         visuals.form = elemFromString(visuals.html);
         const elem = visuals.getElem = selector => visuals.form.querySelector(selector);
@@ -539,10 +597,15 @@ const visuals = {
                     visuals.currentEditor.images.containerImages = elem.value;
                     break;
                 case "fontStyle":
-                    visuals.currentEditor.misc.fontStyle = elem.value;
+                    const regex = /\?family=([^&]*)/;
+                    const match = elem.value.match(regex);
+                    visuals.currentEditor.misc.fontStyle = match ? match[1] : elem.value;
                     break;
                 case "cssUrl":
                     visuals.currentEditor.misc.themeCssUrl = elem.value;
+                    break;
+                case "cssText":
+                    visuals.currentEditor.misc.cssText = elem.value;
                     break;
                 case "hideFooter":
                     visuals.currentEditor.misc.hideFooter = elem.checked;
@@ -561,6 +624,12 @@ const visuals = {
                     break;
                 case "hideAvatarSprites":
                     visuals.currentEditor.misc.hideAvatarSprites = elem.checked;
+                    break;
+                case "hideMeta":
+                    visuals.currentEditor.misc.hideMeta = elem.checked;
+                    break;
+                case "backgroundRepeat":
+                    visuals.currentEditor.images.backgroundRepeat = elem.checked;
                     break;
             }
             visuals.applyOptions(visuals.currentEditor);
@@ -680,7 +749,8 @@ const visuals = {
                 tintColor = color.toHSLA();
                 e.target.setAttribute("data-color", JSON.stringify(tintColor));
                 e.target.style.backgroundColor = toColorCode(tintColor);
-                visuals.currentEditor.images.backgroundTint = !visuals.getElem("#enableBackgroundTint").checked ? "transparent" : toColorCode(tintColor);
+                visuals.currentEditor.images.backgroundTint = toColorCode(tintColor);
+                visuals.getElem("#enableBackgroundTint").checked = true;
                 visuals.applyOptions(visuals.currentEditor);
             }, true, false, color ? toColorCode(color) : undefined);
             picker.show();
@@ -928,8 +998,8 @@ const visuals = {
             inset: 0;
             background-position: center;
             background-image: url(${theme.images.urlBackground != "" ? theme.images.urlBackground : "/img/background.png"});
-            background-repeat: ${theme.images.urlBackground != "" ? "no-repeat" : "repeat"};
-            background-size: ${theme.images.urlBackground != "" ? "cover" : "350px"};
+            background-repeat: ${theme.images.urlBackground != "" || theme.images.backgroundRepeat ? "no-repeat" : "repeat"};
+            background-size: ${theme.images.urlBackground != "" || theme.images.backgroundRepeat ? "cover" : "350px"};
             mix-blend-mode: ${theme.images.backgroundTint == "transparent" ? "none" : "multiply"};
             filter: ${theme.images.backgroundTint == "transparent" ? "none" : "saturate(0%)"};
         }
@@ -941,6 +1011,8 @@ const visuals = {
         ${theme.misc.hideTypoPanels ? "#panelgrid .panel:is(:first-child, :last-child) {display:none } #panelgrid{grid-template-columns: 100% !important}" : ""}
 
         ${theme.misc.hideInGameLogo ? "#game #game-logo{display:none} #game{margin-top:2em}" : ""}
+
+        ${theme.misc.hideMeta ? ".bottom{display:none !important}" : ""}
 
         ${theme.misc.hideAvatarSprites ? `
         .avatar-customizer .spriteSlot{display:none }
@@ -957,11 +1029,48 @@ const visuals = {
         #game-players .players-list .player {background:none !important}
         ` : ""}
 
+        .flatUi.orange, .button-orange {
+            background-color: var(--COLOR_BUTTON_DANGER_BG) !important;
+            color: var(--COLOR_BUTTON_DANGER_TEXT) !important;
+        }
+        .flatUI.green, .button-play {
+            color: var(--COLOR_BUTTON_SUBMIT_TEXT) !important;
+            background-color: var(--COLOR_BUTTON_SUBMIT_BG) !important;
+        }
+        .flatUI.blue, .button-create, .button-blue {
+            background-color: var(--COLOR_BUTTON_NORMAL_BG) !important;
+            color: var(--COLOR_BUTTON_NORMAL_TEXT) !important;
+        }
+
         ${theme.misc.fontStyle != "" ? `*{font-family:'${theme.misc.fontStyle.trim().split(":")[0].replaceAll("+", " ")}', sans-serif !important}` : ""}
 
         ${theme.images.urlLogo != "" ? "div.logo-big img {max-height:20vh}" : ""}
 
         ${Object.keys(theme.hooks ? theme.hooks : {}).filter(key => theme.hooks[key] != "").map(key => `${SKRIBBL_HOOKS[key].join(",")}{${theme.hooks[key]}}`)}
+
+        ::-webkit-scrollbar {
+            width: 14px;
+            border-radius: 7px;
+            background-color: var(--COLOR_PANEL_LO); 
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            border-radius: 7px;
+            background-color: var(--COLOR_PANEL_HI)
+        }
+
+        #game-chat ::-webkit-scrollbar {
+            width: 14px;
+            border-radius: 7px;
+            background-color: var(--COLOR_CHAT_SCROLLBAR); 
+        }
+        
+        #game-chat ::-webkit-scrollbar-thumb {
+            border-radius: 7px;
+            background-color: var(--COLOR_CHAT_SCROLLBAR_THUMB); 
+        }
+
+        ${theme.misc.cssText}
         
         `;
         QS("#typo_theme_style")?.remove();

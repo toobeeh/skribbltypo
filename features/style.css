@@ -466,8 +466,8 @@ label input[type="checkbox"].flatUI:checked:after {
 #downloadPopup,
 #gamemodePopup {
     position: absolute;
-    background-color: rgb(3 34 140 / 75%);
-    color: white;
+    background-color: var(--COLOR_PANEL_BG);
+    color: var(--COLOR_GAMEBAR_TEXT);
     backdrop-filter: blur(4px);
     overflow: hidden;
     z-index: 5;
@@ -481,7 +481,7 @@ label input[type="checkbox"].flatUI:checked:after {
 }
 
 #emojiPrev {
-    background-color: rgb(3 34 140 / 75%);
+    background-color: var(--COLOR_PANEL_BG);
     backdrop-filter: blur(4px);
     box-shadow: black 1px 1px 9px -2px;
 }
@@ -1155,6 +1155,8 @@ bounceload {
 .themesv2 summary {
     cursor: pointer;
     font-weight: bold;
+    user-select: none;
+
 }
 
 .themesv2 :is(.theme, .oldtheme) {

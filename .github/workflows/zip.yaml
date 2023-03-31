@@ -17,4 +17,4 @@ jobs:
         allowUpdates: true
         artifacts: 'release.zip'
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag: 'store-release-24.2.2'
+        tag: 'store-release-24.2.3'

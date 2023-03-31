@@ -399,10 +399,10 @@ const uiTweaks = {
     ">
     <style>
         #quickreact > span {
-            background: white;
+            background: var(--COLOR_PANEL_BG);
+            color: var(--COLOR_GAMEBAR_TEXT);
             border-radius: .5em;
             padding: .5em;
-            color: black;
             font-weight: 600;
         }
     </style>
