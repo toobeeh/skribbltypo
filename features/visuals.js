@@ -72,7 +72,7 @@ const getEmptyTheme = () => ({
     images: {
         urlLogo: "",
         urlBackground: "",
-        backgroundRepeat: false,
+        backgroundRepeat: true,
         containerImages: "",
         containerImages: "",
         backgroundTint: "transparent"
@@ -88,7 +88,8 @@ const getEmptyTheme = () => ({
         themeCssUrl: "",
         themeCss: "",
         hideMeta: false,
-        cssText: ""
+        cssText: "",
+        htmlText: ""
     },
     hooks: Object.keys(COLORS).map(k => ({ color: k, css: "" })).reduce((acc, { color, css }) => {
         acc[color] = css;
@@ -321,6 +322,8 @@ const visuals = {
                     break;
                 case "cssText":
                     elem.value = theme.misc.cssText;
+                case "htmlText":
+                    elem.value = theme.misc.htmlText;
                     break;
                 case "cssUrl":
                     elem.value = theme.misc.themeCssUrl;
@@ -485,6 +488,11 @@ const visuals = {
                             <input type='text' id='cssText' placeholder='.logo-big { display: none !Important; }'>
                         </label>
 
+                        <label style="display:flex; flex-direction: column; gap: .5em; grid-column: span 2">
+                            Plain HTML Injection
+                            <input type='text' id='htmlText' placeholder='<div>hello there</div>'>
+                        </label>
+
                         <label class="checkbox">
                             <input type="checkbox" class="" id="hideFooter"> 
                             <div>Hide footer</div>
@@ -606,6 +614,9 @@ const visuals = {
                     break;
                 case "cssText":
                     visuals.currentEditor.misc.cssText = elem.value;
+                    break;
+                case "htmlText":
+                    visuals.currentEditor.misc.htmlText = elem.value;
                     break;
                 case "hideFooter":
                     visuals.currentEditor.misc.hideFooter = elem.checked;
@@ -963,6 +974,7 @@ const visuals = {
         QS("#typoThemeExternal")?.remove();
         QS("#typoThemeFont")?.remove();
         QS("#typo_theme_style")?.remove();
+        [...QSA(".typo_theme_injection_element")].forEach(elem => elem.remove());
 
         /* append css */
         let css = Object.keys(theme.colors).map(key => {
@@ -998,8 +1010,8 @@ const visuals = {
             inset: 0;
             background-position: center;
             background-image: url(${theme.images.urlBackground != "" ? theme.images.urlBackground : "/img/background.png"});
-            background-repeat: ${theme.images.urlBackground != "" || theme.images.backgroundRepeat ? "no-repeat" : "repeat"};
-            background-size: ${theme.images.urlBackground != "" || theme.images.backgroundRepeat ? "cover" : "350px"};
+            background-repeat: ${theme.images.urlBackground != "" || !theme.images.backgroundRepeat ? "no-repeat" : "repeat"};
+            background-size: ${theme.images.urlBackground != "" || !theme.images.backgroundRepeat ? "cover" : "350px"};
             mix-blend-mode: ${theme.images.backgroundTint == "transparent" ? "none" : "multiply"};
             filter: ${theme.images.backgroundTint == "transparent" ? "none" : "saturate(0%)"};
         }
@@ -1012,7 +1024,7 @@ const visuals = {
 
         ${theme.misc.hideInGameLogo ? "#game #game-logo{display:none} #game{margin-top:2em}" : ""}
 
-        ${theme.misc.hideMeta ? ".bottom{display:none !important}" : ""}
+        ${theme.misc.hideMeta ? "#home > div.bottom {display:none !important}" : ""}
 
         ${theme.misc.hideAvatarSprites ? `
         .avatar-customizer .spriteSlot{display:none }
@@ -1105,6 +1117,18 @@ const visuals = {
         if (theme.misc.fontStyle != "") {
             const font = elemFromString(`<div id="typoThemeFont"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=${theme.misc.fontStyle.trim()}&display=swap" rel="stylesheet"></div>`);
             document.head.appendChild(font);
+        }
+
+        /* add theme html injection */
+        if (theme.misc.htmlText != "") {
+            try {
+                const inj = elemFromString(`<div>${theme.misc.htmlText}</div>`);
+                [...inj.children].forEach(c => {
+                    c.classList.add("typo_theme_injection_element");
+                    document.body.append(c);
+                });
+            }
+            catch { }
         }
     }
 }

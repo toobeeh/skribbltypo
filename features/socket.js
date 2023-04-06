@@ -67,6 +67,7 @@ const socket = {
             socket.sck.on("disconnect", (reason) => {
                 // handle disconnect reasons different
                 console.log("Disconnected with reason: " + reason);
+                lobbies.joined = false;
 
                 // if probably tempoary disconnect (server crash/restart, internet) enable reconnect without new balanced port
                 if (reason == "transport close" || reason == "ping timeout" || reason == "transport error") {
@@ -77,7 +78,6 @@ const socket = {
                 }
                 // if either server or client disconnected on purpose, shutdown and remove listeners
                 else {
-                    lobbies.joined = false;
 
                     // disable socketio-reconnects 
                     socket.sck.removeAllListeners();
@@ -114,6 +114,12 @@ const socket = {
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
+
+                if (lobbies.inGame && !lobbies.joined) {
+                    socket.joinLobby(lobbies.lobbyProperties.Key);
+                    lobbies.joined = true;
+                }
+                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
             }
             else document.dispatchEvent(newCustomEvent("palantirLoaded"));
             lobbies.lobbyContainer = lobbies.setLobbyContainer();
