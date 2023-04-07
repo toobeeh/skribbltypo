@@ -1161,13 +1161,31 @@ bounceload {
 
 .themesv2 :is(.theme, .oldtheme) {
     display: grid;
-    grid-template-columns: 3fr 2fr 1fr 1fr 1fr;
+    grid-template-columns: 3fr 2fr 1fr 1fr;
     gap: .5em 1em;
     background-color: var(--COLOR_PANEL_BUTTON);
     padding: .5em;
     padding-left: 1em;
     border-radius: 1em;
     align-items: center;
+}
+
+.themesv2 .theme .manageSection {
+    display: none;
+}
+
+.themesv2 .theme .manageTheme:after {
+    content: "Manage";
+}
+
+.themesv2 .theme.manage .manageTheme:after {
+    content: "Done";
+}
+
+.themesv2 .theme.manage .manageSection {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
 }
 
 #themeName[disabled] {
