@@ -253,6 +253,25 @@ const visuals = {
             }
 
             const themes = await (await fetch("https://tobeh.host/Orthanc/themeapi/all/")).json();
+
+            /* update themes */
+
+            for (let t of themes) {
+                let added = visuals.themes.find(theme => theme.meta.id == t.id);
+                if (added && added.meta.version && added.meta.version < t.version) {
+                    let updated = await (await fetch("https://tobeh.host/Orthanc/themeapi/get/?id=" + t.id)).json();
+
+                    const defaults = getEmptyTheme();
+                    const merged = merge(updated, defaults);
+                    merged.meta.version = t.version;
+                    merged.meta.id = t.id;
+                    visuals.themes = [merged, ...visuals.themes.filter(theme => theme.meta.id != t.id)];
+                    localStorage.themesv2 = JSON.stringify(visuals.themes);
+                }
+            }
+
+            /* add list */
+
             const container = visuals.getElem("#themeBrowser");
             container.innerHTML = "";
             themes.forEach(t => {
@@ -272,6 +291,7 @@ const visuals = {
                     const defaults = getEmptyTheme();
                     const merged = merge(theme, defaults);
                     merged.meta.type = "onlineTheme";
+                    merged.meta.version = t.version;
                     merged.meta.id = t.id;
                     visuals.applyOptions(merged);
                     localStorage.activeTheme = merged.meta.id;
