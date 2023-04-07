@@ -225,7 +225,7 @@ const visuals = {
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        console.log("Theme share link: " + xhr.responseText);
+                        console.log("Theme share id: " + xhr.responseText);
                         resolve(xhr.responseText);
                     } else {
                         reject(null);
@@ -237,15 +237,61 @@ const visuals = {
             xhr.send("theme=" + encodeURIComponent(theme));
         });
     },
+    refreshThemeBrowser: () => {
+        (async () => {
+            const merge = (a, b) => {
+                for (let key in b) {
+                    if (b.hasOwnProperty(key)) {
+                        if (!a.hasOwnProperty(key)) {
+                            a[key] = b[key];
+                        } else if (typeof b[key] === 'object' && typeof a[key] === 'object') {
+                            merge(a[key], b[key]);
+                        }
+                    }
+                }
+                return a;
+            }
+
+            const themes = await (await fetch("https://tobeh.host/Orthanc/themeapi/all/")).json();
+            const container = visuals.getElem("#themeBrowser");
+            container.innerHTML = "";
+            themes.forEach(t => {
+                const added = visuals.themes.some(a => a.meta.id == t.id);
+                const entry = elemFromString(`<div class="theme">
+                    <div><b>${t.name}</b> by ${t.author}</div>
+                    <div>Public Theme</div>
+                    <button ${added ? "disabled" : ""} class="flatUI green min air downloadTheme">${!added ? "Download" : "Added"} </button>
+                    <div>${t.downloads} Downloads</div>
+                </div>
+                `);
+                container.appendChild(entry);
+                entry.querySelector(".downloadTheme").addEventListener("click", async () => {
+
+                    const theme = await (await fetch("https://tobeh.host/Orthanc/themeapi/download/?id=" + t.id)).json();
+
+                    const defaults = getEmptyTheme();
+                    const merged = merge(theme, defaults);
+                    merged.meta.type = "onlineTheme";
+                    merged.meta.id = t.id;
+                    visuals.applyOptions(merged);
+                    localStorage.activeTheme = merged.meta.id;
+                    localStorage.visualOptions = undefined;
+                    visuals.saveTheme(merged, "");
+                    new Toast("Theme has been imported!");
+                    visuals.refreshThemeBrowser();
+                });
+            });
+        })()
+    },
     refreshThemeContainer: () => {
         const manage = visuals.getElem(".body .manage");
         manage.innerHTML = "";
         visuals.themes.forEach(theme => {
             const entry = elemFromString(`<div class="theme">
                 <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
-                <div>${theme.meta.type == "theme" ? "Local Theme" : "Unknown"}</div>
+                <div>${theme.meta.type == "theme" ? "Local Theme" : "Online Theme"}</div>
                 <button class="flatUI green min air toggleTheme">${Number(localStorage.activeTheme) === theme.meta.id ? "Disable" : "Use"}</button>
-                <button ${theme.meta.id == 0 ? "disabled" : ""}  class="flatUI orange min air manageTheme"></button>
+                <button ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}  class="flatUI orange min air manageTheme"></button>
 
                 <div style="grid-column: span all" class="manageSection">
                     <button class="flatUI orange min air deleteTheme">Delete</button>
@@ -318,7 +364,7 @@ const visuals = {
             }
         }
         visuals.themes = visuals.themes.filter(t => t.meta.id != theme.meta.id);
-        visuals.themes.push(theme);
+        visuals.themes = [theme, ...visuals.themes];
         localStorage.themesv2 = JSON.stringify(visuals.themes.filter(t => t.meta.id > 0));
         visuals.refreshThemeContainer();
         visuals.getElem(".menu .manage").click();
@@ -586,9 +632,13 @@ const visuals = {
             <div class="add">
 
                 <div class="themeUrlImport" style="display: grid; grid-template-columns: 1fr 3fr 1fr; align-items: center; gap: 1em;">
-                    <label style="font-weight: bold" for="themeShareLink">Theme Share Link:</label>
+                    <label style="font-weight: bold" for="themeShareLink">Theme Share ID:</label>
                     <input placeholder="Ask a friend to share their theme" type="text" id="themeShareLink" name="themeShareLink" style="width: auto">
                     <button id="themeShareLinkSubmit" style="width: fit-content" class="flatUI blue min air">Load Theme</button>
+                </div>
+                <br>
+
+                <div id="themeBrowser">
                 </div>
 
             </div>
@@ -870,6 +920,9 @@ const visuals = {
             elem("#themeShareLinkSubmit").disabled = false;
             elem("#themeShareLinkSubmit").innerText = "Load Theme";
         });
+
+        /* add theme browser */
+        visuals.refreshThemeBrowser();
 
     },
     show: () => {
