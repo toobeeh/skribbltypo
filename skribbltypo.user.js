@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.2.11.168089816
+// @version 24.2.12.168090625
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.2.11 usrsc"};
+            return {version: "24.2.12 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -2609,6 +2609,22 @@ const visuals = {
         .flatUI.blue, .button-create, .button-blue, #copy-invite {
             background-color: var(--COLOR_BUTTON_NORMAL_BG) !important;
             color: var(--COLOR_BUTTON_NORMAL_TEXT) !important;
+        }
+
+        :is(.flatUi.orange, .button-orange):is(:hover, :active, :focus) {
+            background-color: var(--COLOR_BUTTON_DANGER_BG) !important;
+            color: var(--COLOR_BUTTON_DANGER_TEXT) !important;
+            opacity: 0.8;
+        }
+        :is(.flatUI.green, .button-play, #start-game):is(:hover, :active, :focus) {
+            color: var(--COLOR_BUTTON_SUBMIT_TEXT) !important;
+            background-color: var(--COLOR_BUTTON_SUBMIT_BG) !important;
+            opacity: 0.8;
+        }
+        :is(.flatUI.blue, .button-create, .button-blue, #copy-invite):is(:hover, :active, :focus) {
+            background-color: var(--COLOR_BUTTON_NORMAL_BG) !important;
+            color: var(--COLOR_BUTTON_NORMAL_TEXT) !important;
+            opacity: 0.8;
         }
 
         ${theme.misc.fontStyle != "" ? `*{font-family:'${theme.misc.fontStyle.trim().split(":")[0].replaceAll("+", " ")}', sans-serif !important}` : ""}
