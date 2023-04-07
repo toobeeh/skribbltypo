@@ -1206,6 +1206,22 @@ const visuals = {
             color: var(--COLOR_BUTTON_NORMAL_TEXT) !important;
         }
 
+        :is(.flatUi.orange, .button-orange):is(:hover, :active, :focus) {
+            background-color: var(--COLOR_BUTTON_DANGER_BG) !important;
+            color: var(--COLOR_BUTTON_DANGER_TEXT) !important;
+            opacity: 0.8;
+        }
+        :is(.flatUI.green, .button-play, #start-game):is(:hover, :active, :focus) {
+            color: var(--COLOR_BUTTON_SUBMIT_TEXT) !important;
+            background-color: var(--COLOR_BUTTON_SUBMIT_BG) !important;
+            opacity: 0.8;
+        }
+        :is(.flatUI.blue, .button-create, .button-blue, #copy-invite):is(:hover, :active, :focus) {
+            background-color: var(--COLOR_BUTTON_NORMAL_BG) !important;
+            color: var(--COLOR_BUTTON_NORMAL_TEXT) !important;
+            opacity: 0.8;
+        }
+
         ${theme.misc.fontStyle != "" ? `*{font-family:'${theme.misc.fontStyle.trim().split(":")[0].replaceAll("+", " ")}', sans-serif !important}` : ""}
 
         ${theme.images.urlLogo != "" ? "div.logo-big img {max-height:20vh}" : ""}
