@@ -1,9 +1,10 @@
-class TypoExtensionApi {
+class TypoXApiClient {
 
     requests = 0;
 
     access = Object.freeze({
-        addMessage: addChatMessage
+        addMessage: addChatMessage,
+        commands: commands
     });
 
     listen() {
@@ -40,6 +41,38 @@ class TypoExtensionApi {
                     resource: resource
                 }
             }));
+        });
+    }
+}
+
+class TypoXApiHost {
+
+    constructor() {
+        this.listen();
+    }
+
+    requests = 0;
+
+    access = Object.freeze({
+        addMessage: addChatMessage,
+        commands: commands
+    });
+
+    listen() {
+        document.addEventListener("typoapiRequest", event => {
+            const request = event.detail;
+            const resource = this.access[request.resource];
+
+            const response = {
+                found: false,
+                resource: resource
+            };
+
+            if (resource != undefined) {
+                response.found = true;
+            }
+
+            document.dispatchEvent(new CustomEvent("typoapiResponse#" + request.id, { detail: response }));
         });
     }
 }

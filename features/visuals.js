@@ -310,13 +310,14 @@ const visuals = {
             const entry = elemFromString(`<div class="theme">
                 <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
                 <div>${theme.meta.type == "theme" ? "Local Theme" : "Online Theme"}</div>
-                <button class="flatUI green min air toggleTheme">${Number(localStorage.activeTheme) === theme.meta.id ? "Disable" : "Use"}</button>
+                <button class="flatUI green min air toggleTheme">${localStorage.activeTheme != undefined && localStorage.activeTheme == theme.meta.id ? "Disable" : "Use"}</button>
                 <button ${theme.meta.id == 0 ? "disabled" : ""}  class="flatUI orange min air manageTheme"></button>
 
                 <div style="grid-column: span all" class="manageSection">
                     <button class="flatUI orange min air deleteTheme">Delete</button>
                     <button class="flatUI blue min air editTheme" ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}>Edit</button>
                     <button class="flatUI blue min air shareTheme" ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}>Share</button>
+                    <button class="flatUI blue min air renameTheme" ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}>Rename</button>
                 </div>
             </div>
             `);
@@ -342,9 +343,19 @@ const visuals = {
             entry.querySelector(".manageTheme").addEventListener("click", () => {
                 entry.classList.toggle("manage");
             });
+            entry.querySelector(".renameTheme").addEventListener("click", () => {
+                const name = prompt("Enter the new name");
+                if (name && name.length > 0) {
+                    visuals.themes.forEach(t => {
+                        if (t.meta.id == theme.meta.id) t.meta.name = name;
+                    });
+                    localStorage.themesv2 = JSON.stringify(visuals.themes);
+                    visuals.refreshThemeContainer();
+                }
+            });
             entry.querySelector(".shareTheme").addEventListener("click", async () => {
                 let url = await visuals.shareTheme(JSON.stringify(theme));
-                new Toast("Share URL copied to clipboard!");
+                new Toast("Share ID copied to clipboard! Use it in the 'Browse Themes' tab");
                 navigator.clipboard.writeText(url);
 
             });
