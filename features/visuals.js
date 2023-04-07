@@ -291,12 +291,12 @@ const visuals = {
                 <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
                 <div>${theme.meta.type == "theme" ? "Local Theme" : "Online Theme"}</div>
                 <button class="flatUI green min air toggleTheme">${Number(localStorage.activeTheme) === theme.meta.id ? "Disable" : "Use"}</button>
-                <button ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}  class="flatUI orange min air manageTheme"></button>
+                <button ${theme.meta.id == 0 ? "disabled" : ""}  class="flatUI orange min air manageTheme"></button>
 
                 <div style="grid-column: span all" class="manageSection">
                     <button class="flatUI orange min air deleteTheme">Delete</button>
-                    <button class="flatUI blue min air editTheme">Edit</button>
-                    <button class="flatUI blue min air shareTheme">Share</button>
+                    <button class="flatUI blue min air editTheme" ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}>Edit</button>
+                    <button class="flatUI blue min air shareTheme" ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}>Share</button>
                 </div>
             </div>
             `);
