@@ -404,6 +404,7 @@ const visuals = {
                     break;
                 case "cssText":
                     elem.value = theme.misc.cssText;
+                    break;
                 case "htmlText":
                     elem.value = theme.misc.htmlText;
                     break;
@@ -638,7 +639,7 @@ const visuals = {
                 </div>
                 <br>
 
-                <div id="themeBrowser">
+                <div id="themeBrowser" style="display:flex; flex-direction:column; gap: .8em;">
                 </div>
 
             </div>
@@ -1165,11 +1166,11 @@ const visuals = {
             background-color: var(--COLOR_BUTTON_DANGER_BG) !important;
             color: var(--COLOR_BUTTON_DANGER_TEXT) !important;
         }
-        .flatUI.green, .button-play {
+        .flatUI.green, .button-play, #start-game {
             color: var(--COLOR_BUTTON_SUBMIT_TEXT) !important;
             background-color: var(--COLOR_BUTTON_SUBMIT_BG) !important;
         }
-        .flatUI.blue, .button-create, .button-blue {
+        .flatUI.blue, .button-create, .button-blue, #copy-invite {
             background-color: var(--COLOR_BUTTON_NORMAL_BG) !important;
             color: var(--COLOR_BUTTON_NORMAL_TEXT) !important;
         }
