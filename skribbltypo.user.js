@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.2.9.168089031
+// @version 24.2.10.168089212
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.2.9 usrsc"};
+            return {version: "24.2.10 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1658,6 +1658,25 @@ const visuals = {
             }
 
             const themes = await (await fetch("https://tobeh.host/Orthanc/themeapi/all/")).json();
+
+            /* update themes */
+
+            for (let t of themes) {
+                let added = visuals.themes.find(theme => theme.meta.id == t.id);
+                if (added && added.meta.version && added.meta.version < t.version) {
+                    let updated = await (await fetch("https://tobeh.host/Orthanc/themeapi/get/?id=" + t.id)).json();
+
+                    const defaults = getEmptyTheme();
+                    const merged = merge(updated, defaults);
+                    merged.meta.version = t.version;
+                    merged.meta.id = t.id;
+                    visuals.themes = [merged, ...visuals.themes.filter(theme => theme.meta.id != t.id)];
+                    localStorage.themesv2 = JSON.stringify(visuals.themes);
+                }
+            }
+
+            /* add list */
+
             const container = visuals.getElem("#themeBrowser");
             container.innerHTML = "";
             themes.forEach(t => {
@@ -1677,6 +1696,7 @@ const visuals = {
                     const defaults = getEmptyTheme();
                     const merged = merge(theme, defaults);
                     merged.meta.type = "onlineTheme";
+                    merged.meta.version = t.version;
                     merged.meta.id = t.id;
                     visuals.applyOptions(merged);
                     localStorage.activeTheme = merged.meta.id;
