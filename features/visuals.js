@@ -259,9 +259,9 @@ const visuals = {
                 const added = visuals.themes.some(a => a.meta.id == t.id);
                 const entry = elemFromString(`<div class="theme">
                     <div><b>${t.name}</b> by ${t.author}</div>
-                    <div>Public Theme</div>
-                    <button ${added ? "disabled" : ""} class="flatUI green min air downloadTheme">${!added ? "Download" : "Added"} </button>
                     <div>${t.downloads} Downloads</div>
+                    <button ${added ? "disabled" : ""} class="flatUI green min air downloadTheme">${!added ? "Download" : "Added"} </button>
+                    <div>v${t.version}</div>
                 </div>
                 `);
                 container.appendChild(entry);
@@ -365,7 +365,7 @@ const visuals = {
         }
         visuals.themes = visuals.themes.filter(t => t.meta.id != theme.meta.id);
         visuals.themes = [theme, ...visuals.themes];
-        localStorage.themesv2 = JSON.stringify(visuals.themes.filter(t => t.meta.id > 0));
+        localStorage.themesv2 = JSON.stringify(visuals.themes.filter(t => t.meta.id > 0 || t.meta.type == "onlineTheme"));
         visuals.refreshThemeContainer();
         visuals.getElem(".menu .manage").click();
     },
@@ -932,9 +932,9 @@ const visuals = {
         new Modal(visuals.form, onclose, "Skribbl Themes");
     },
     loadActiveTheme: () => {
-        let active = Number(localStorage.activeTheme);
-        let theme = visuals.themes.find(t => t.meta.id === active);
-        if (theme) visuals.applyOptions(theme);
+        let active = localStorage.activeTheme;
+        let theme = visuals.themes.find(t => t.meta.id == active);
+        if (theme && active != undefined) visuals.applyOptions(theme);
         else if (localStorage.visualOptions != undefined) {
             visuals.applyOldOptions(JSON.parse(localStorage.visualOptions));
         }
