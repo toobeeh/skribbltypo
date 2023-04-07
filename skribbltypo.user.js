@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.2.3.168026473
+// @version 24.2.4.168080846
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.2.3 usrsc"};
+            return {version: "24.2.4 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1477,7 +1477,7 @@ const getEmptyTheme = () => ({
     images: {
         urlLogo: "",
         urlBackground: "",
-        backgroundRepeat: false,
+        backgroundRepeat: true,
         containerImages: "",
         containerImages: "",
         backgroundTint: "transparent"
@@ -1493,7 +1493,8 @@ const getEmptyTheme = () => ({
         themeCssUrl: "",
         themeCss: "",
         hideMeta: false,
-        cssText: ""
+        cssText: "",
+        htmlText: ""
     },
     hooks: Object.keys(COLORS).map(k => ({ color: k, css: "" })).reduce((acc, { color, css }) => {
         acc[color] = css;
@@ -1726,6 +1727,8 @@ const visuals = {
                     break;
                 case "cssText":
                     elem.value = theme.misc.cssText;
+                case "htmlText":
+                    elem.value = theme.misc.htmlText;
                     break;
                 case "cssUrl":
                     elem.value = theme.misc.themeCssUrl;
@@ -1890,6 +1893,11 @@ const visuals = {
                             <input type='text' id='cssText' placeholder='.logo-big { display: none !Important; }'>
                         </label>
 
+                        <label style="display:flex; flex-direction: column; gap: .5em; grid-column: span 2">
+                            Plain HTML Injection
+                            <input type='text' id='htmlText' placeholder='<div>hello there</div>'>
+                        </label>
+
                         <label class="checkbox">
                             <input type="checkbox" class="" id="hideFooter"> 
                             <div>Hide footer</div>
@@ -2011,6 +2019,9 @@ const visuals = {
                     break;
                 case "cssText":
                     visuals.currentEditor.misc.cssText = elem.value;
+                    break;
+                case "htmlText":
+                    visuals.currentEditor.misc.htmlText = elem.value;
                     break;
                 case "hideFooter":
                     visuals.currentEditor.misc.hideFooter = elem.checked;
@@ -2368,6 +2379,7 @@ const visuals = {
         QS("#typoThemeExternal")?.remove();
         QS("#typoThemeFont")?.remove();
         QS("#typo_theme_style")?.remove();
+        [...QSA(".typo_theme_injection_element")].forEach(elem => elem.remove());
 
         /* append css */
         let css = Object.keys(theme.colors).map(key => {
@@ -2403,8 +2415,8 @@ const visuals = {
             inset: 0;
             background-position: center;
             background-image: url(${theme.images.urlBackground != "" ? theme.images.urlBackground : "/img/background.png"});
-            background-repeat: ${theme.images.urlBackground != "" || theme.images.backgroundRepeat ? "no-repeat" : "repeat"};
-            background-size: ${theme.images.urlBackground != "" || theme.images.backgroundRepeat ? "cover" : "350px"};
+            background-repeat: ${theme.images.urlBackground != "" || !theme.images.backgroundRepeat ? "no-repeat" : "repeat"};
+            background-size: ${theme.images.urlBackground != "" || !theme.images.backgroundRepeat ? "cover" : "350px"};
             mix-blend-mode: ${theme.images.backgroundTint == "transparent" ? "none" : "multiply"};
             filter: ${theme.images.backgroundTint == "transparent" ? "none" : "saturate(0%)"};
         }
@@ -2417,7 +2429,7 @@ const visuals = {
 
         ${theme.misc.hideInGameLogo ? "#game #game-logo{display:none} #game{margin-top:2em}" : ""}
 
-        ${theme.misc.hideMeta ? ".bottom{display:none !important}" : ""}
+        ${theme.misc.hideMeta ? "#home > div.bottom {display:none !important}" : ""}
 
         ${theme.misc.hideAvatarSprites ? `
         .avatar-customizer .spriteSlot{display:none }
@@ -2510,6 +2522,18 @@ const visuals = {
         if (theme.misc.fontStyle != "") {
             const font = elemFromString(`<div id="typoThemeFont"><link rel="preconnect" href="https://fonts.gstatic.com"><link href="https://fonts.googleapis.com/css2?family=${theme.misc.fontStyle.trim()}&display=swap" rel="stylesheet"></div>`);
             document.head.appendChild(font);
+        }
+
+        /* add theme html injection */
+        if (theme.misc.htmlText != "") {
+            try {
+                const inj = elemFromString(`<div>${theme.misc.htmlText}</div>`);
+                [...inj.children].forEach(c => {
+                    c.classList.add("typo_theme_injection_element");
+                    document.body.append(c);
+                });
+            }
+            catch { }
         }
     }
 }
@@ -2615,6 +2639,7 @@ const socket = {
             socket.sck.on("disconnect", (reason) => {
                 // handle disconnect reasons different
                 console.log("Disconnected with reason: " + reason);
+                lobbies.joined = false;
 
                 // if probably tempoary disconnect (server crash/restart, internet) enable reconnect without new balanced port
                 if (reason == "transport close" || reason == "ping timeout" || reason == "transport error") {
@@ -2625,7 +2650,6 @@ const socket = {
                 }
                 // if either server or client disconnected on purpose, shutdown and remove listeners
                 else {
-                    lobbies.joined = false;
 
                     // disable socketio-reconnects 
                     socket.sck.removeAllListeners();
@@ -2662,6 +2686,12 @@ const socket = {
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
+
+                if (lobbies.inGame && !lobbies.joined) {
+                    socket.joinLobby(lobbies.lobbyProperties.Key);
+                    lobbies.joined = true;
+                }
+                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
             }
             else document.dispatchEvent(newCustomEvent("palantirLoaded"));
             lobbies.lobbyContainer = lobbies.setLobbyContainer();
