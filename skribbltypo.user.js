@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.2.6.168088267
+// @version 24.2.7.168088286
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.2.6 usrsc"};
+            return {version: "24.2.7 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1696,12 +1696,12 @@ const visuals = {
                 <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
                 <div>${theme.meta.type == "theme" ? "Local Theme" : "Online Theme"}</div>
                 <button class="flatUI green min air toggleTheme">${Number(localStorage.activeTheme) === theme.meta.id ? "Disable" : "Use"}</button>
-                <button ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}  class="flatUI orange min air manageTheme"></button>
+                <button ${theme.meta.id == 0 ? "disabled" : ""}  class="flatUI orange min air manageTheme"></button>
 
                 <div style="grid-column: span all" class="manageSection">
                     <button class="flatUI orange min air deleteTheme">Delete</button>
-                    <button class="flatUI blue min air editTheme">Edit</button>
-                    <button class="flatUI blue min air shareTheme">Share</button>
+                    <button class="flatUI blue min air editTheme" ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}>Edit</button>
+                    <button class="flatUI blue min air shareTheme" ${theme.meta.id == 0 || theme.meta.type != "theme" ? "disabled" : ""}>Share</button>
                 </div>
             </div>
             `);
