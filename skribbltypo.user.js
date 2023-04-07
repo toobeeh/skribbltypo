@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.2.8.168088390
+// @version 24.2.9.168089031
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.2.8 usrsc"};
+            return {version: "24.2.9 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1809,6 +1809,7 @@ const visuals = {
                     break;
                 case "cssText":
                     elem.value = theme.misc.cssText;
+                    break;
                 case "htmlText":
                     elem.value = theme.misc.htmlText;
                     break;
@@ -2043,7 +2044,7 @@ const visuals = {
                 </div>
                 <br>
 
-                <div id="themeBrowser">
+                <div id="themeBrowser" style="display:flex; flex-direction:column; gap: .8em;">
                 </div>
 
             </div>
@@ -2570,11 +2571,11 @@ const visuals = {
             background-color: var(--COLOR_BUTTON_DANGER_BG) !important;
             color: var(--COLOR_BUTTON_DANGER_TEXT) !important;
         }
-        .flatUI.green, .button-play {
+        .flatUI.green, .button-play, #start-game {
             color: var(--COLOR_BUTTON_SUBMIT_TEXT) !important;
             background-color: var(--COLOR_BUTTON_SUBMIT_BG) !important;
         }
-        .flatUI.blue, .button-create, .button-blue {
+        .flatUI.blue, .button-create, .button-blue, #copy-invite {
             background-color: var(--COLOR_BUTTON_NORMAL_BG) !important;
             color: var(--COLOR_BUTTON_NORMAL_TEXT) !important;
         }
@@ -5429,7 +5430,7 @@ const commands = [
             actionDisable: () => {
                 localStorage.palantir = "false";
                 lobbies.userAllow = false;
-                if(lobbies.joined) socket.leaveLobby();
+                if (lobbies.joined) socket.leaveLobby();
                 lobbies.joined = false;
             },
             actionAfter: null,
@@ -5729,8 +5730,8 @@ const commands = [
             response: (args) => {
                 let kickPlayer = QS("div[playerid='" + args + "']");
                 if (!kickPlayer) kickPlayer = QS(".player .drawing[style*='block'").closest(".player");
-                if(kickPlayer) document.dispatchEvent(newCustomEvent("socketEmit", { detail: { id: 5, data: parseInt(kickPlayer.getAttribute("playerid")) } }));
-                return kickPlayer ? "Executed kick for " + kickPlayer.querySelector(".player-name").textContent.replace("(You)","").trim() : "No-one to kick :(";
+                if (kickPlayer) document.dispatchEvent(newCustomEvent("socketEmit", { detail: { id: 5, data: parseInt(kickPlayer.getAttribute("playerid")) } }));
+                return kickPlayer ? "Executed kick for " + kickPlayer.querySelector(".player-name").textContent.replace("(You)", "").trim() : "No-one to kick :(";
             }
         }
     }, {
@@ -5760,7 +5761,7 @@ const commands = [
                 localStorage.markupcolor = args;
             },
             response: (args) => {
-                const color = new Color({h:Number(args), s:100, l:90});
+                const color = new Color({ h: Number(args), s: 100, l: 90 });
                 return "The highlight color for your messages is now " + color.hex + ".";
             }
         }
@@ -5893,7 +5894,7 @@ const commands = [
 
 const performCommand = (command) => {
     // get raw command
-    command = command.replace("--","").trim();
+    command = command.replace("--", "").trim();
     let toggle = null;
     // check if command is toggle
     if (command.startsWith("enable")) toggle = true;
@@ -5915,13 +5916,13 @@ const performCommand = (command) => {
             const response = cmd.options.response(cmd.options.type == "toggle" ? toggle : args);
             // print output
             QS("#game-chat .chat-container .chat-content").appendChild(
-                elemFromString(`<p><b style="color: rgb(57, 117, 206);">Command: ${cmd.command}</b><br><span style="color: rgb(57, 117, 206);">${response}</span></p>`));
+                elemFromString(`<p><b style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Command: ${cmd.command}</b><br><span style="color var(--COLOR_CHAT_TEXT_DRAWING);">${response}</span></p>`));
         }
     });
     if (!match) {
         // print error - no matching command 
         QS("#game-chat .chat-container .chat-content").appendChild(
-            elemFromString(`<p><b style="color: rgb(57, 117, 206);">Command failed: ${command}</b><br><span style="color: rgb(57, 117, 206);">Not found :(</span></p>`));
+            elemFromString(`<p><b style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Command failed: ${command}</b><br><span style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Not found :(</span></p>`));
     }
     scrollMessages();
 }
@@ -5930,8 +5931,8 @@ const addChatMessage = (title, content) => {
     let box = document.querySelector(".chat-content");
     let scroll = Math.floor(box.scrollHeight - box.scrollTop) <= box.clientHeight + 30;
     box.appendChild(
-        elemFromString(`<p>${ title != "" ? `<b style="color: rgb(57, 117, 206);">${title}</b><br>` : "" }<span style="color: rgb(57, 117, 206);">${content}</span></p>`));
-    if(scroll) scrollMessages();
+        elemFromString(`<p>${title != "" ? `<b style="color: var(--COLOR_CHAT_TEXT_DRAWING);">${title}</b><br>` : ""}<span style="color: var(--COLOR_CHAT_TEXT_DRAWING);">${content}</span></p>`));
+    if (scroll) scrollMessages();
 }
 
 // #content features/uiTweaks.js
