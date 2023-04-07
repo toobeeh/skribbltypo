@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.2.4.168080846
+// @version 24.2.5.168087565
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.2.4 usrsc"};
+            return {version: "24.2.5 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1624,19 +1624,43 @@ const visuals = {
     themes: [],
     form: undefined,
     getElem: undefined,
+    shareTheme: async (theme) => {
+        return new Promise((resolve, reject) => {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        console.log("Theme share link: " + xhr.responseText);
+                        resolve(xhr.responseText);
+                    } else {
+                        reject(null);
+                    }
+                }
+            };
+            xhr.open("POST", "https://tobeh.host/Orthanc/themeapi/share/index.php", true); // Replace with the URL of your PHP script
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.send("theme=" + encodeURIComponent(theme));
+        });
+    },
     refreshThemeContainer: () => {
         const manage = visuals.getElem(".body .manage");
         manage.innerHTML = "";
         visuals.themes.forEach(theme => {
             const entry = elemFromString(`<div class="theme">
-            <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
-            <div>${theme.meta.type}</div>
-            <button class="flatUI green min air">${Number(localStorage.activeTheme) === theme.meta.id ? "Disable" : "Use"}</button>
-            <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI orange min air">Delete</button>
-            <button ${theme.meta.id == 0 ? "disabled" : ""} class="flatUI blue min air">Edit</button>
+                <div><b>${theme.meta.name}</b> by ${theme.meta.author}</div>
+                <div>${theme.meta.type == "theme" ? "Local Theme" : "Unknown"}</div>
+                <button class="flatUI green min air toggleTheme">${Number(localStorage.activeTheme) === theme.meta.id ? "Disable" : "Use"}</button>
+                <button ${theme.meta.id == 0 ? "disabled" : ""}  class="flatUI orange min air manageTheme"></button>
+
+                <div style="grid-column: span all" class="manageSection">
+                    <button class="flatUI orange min air deleteTheme">Delete</button>
+                    <button class="flatUI blue min air editTheme">Edit</button>
+                    <button class="flatUI blue min air shareTheme">Share</button>
+                </div>
+            </div>
             `);
             manage.appendChild(entry);
-            entry.querySelector(".green").addEventListener("click", () => {
+            entry.querySelector(".toggleTheme").addEventListener("click", () => {
                 if (Number(localStorage.activeTheme) !== theme.meta.id) visuals.applyOptions(theme);
                 else {
                     visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
@@ -1645,14 +1669,23 @@ const visuals = {
                 localStorage.visualOptions = undefined;
                 visuals.refreshThemeContainer();
             });
-            entry.querySelector(".orange").addEventListener("click", () => {
+            entry.querySelector(".deleteTheme").addEventListener("click", () => {
                 const result = confirm("Delete theme " + theme.meta.name + "?");
                 if (!result) return;
                 visuals.deleteTheme(theme.meta.id);
                 visuals.applyOptions(visuals.themes.find(t => t.meta.id == 0));
             });
-            entry.querySelector(".blue").addEventListener("click", () => {
+            entry.querySelector(".editTheme").addEventListener("click", () => {
                 visuals.loadThemeToEditor(theme.meta.id, true);
+            });
+            entry.querySelector(".manageTheme").addEventListener("click", () => {
+                entry.classList.toggle("manage");
+            });
+            entry.querySelector(".shareTheme").addEventListener("click", async () => {
+                let url = await visuals.shareTheme(JSON.stringify(theme));
+                new Toast("Share URL copied to clipboard!");
+                navigator.clipboard.writeText(url);
+
             });
         });
 
@@ -1677,9 +1710,12 @@ const visuals = {
     mainPickers: { primary: undefined, text: undefined, tint: undefined },
     currentEditor: getEmptyTheme(),
     saveTheme: (theme, name) => {
+        let creator = socket?.data?.user?.member?.UserName;
+        if (!creator) creator = QS(".input-name").value;
+        if (!creator) creator = "Unknown";
         if (!theme.meta) {
             theme.meta = {
-                author: "You",
+                author: creator,
                 created: Date.now(),
                 type: "theme",
                 id: Date.now(),
@@ -1795,7 +1831,6 @@ const visuals = {
 
         <div class="body">
             <div class="manage">
-                
 
             </div>
             
@@ -1954,6 +1989,12 @@ const visuals = {
             </div>
             
             <div class="add">
+
+                <div class="themeUrlImport" style="display: grid; grid-template-columns: 1fr 3fr 1fr; align-items: center; gap: 1em;">
+                    <label style="font-weight: bold" for="themeShareLink">Theme Share Link:</label>
+                    <input placeholder="Ask a friend to share their theme" type="text" id="themeShareLink" name="themeShareLink" style="width: auto">
+                    <button id="themeShareLinkSubmit" style="width: fit-content" class="flatUI blue min air">Load Theme</button>
+                </div>
 
             </div>
         </div>    
@@ -2207,6 +2248,32 @@ const visuals = {
             visuals.refreshThemeContainer();
             primaryColor = undefined;
             textColor = undefined;
+        });
+
+        /*  import handler */
+        elem("#themeShareLinkSubmit").addEventListener("click", async () => {
+            elem("#themeShareLinkSubmit").disabled = true;
+            elem("#themeShareLinkSubmit").innerText = "Loading...";
+            try {
+                let link = elem("#themeShareLink").value;
+                let id = link.split("/").reverse()[0];
+                let text = await (await fetch("https://tobeh.host/Orthanc/themeapi/get/?id=" + id)).text();
+                let theme = JSON.parse(text);
+
+                const defaults = getEmptyTheme();
+                const merged = merge(theme, defaults);
+                visuals.applyOptions(merged);
+                localStorage.activeTheme = merged.meta.id;
+                localStorage.visualOptions = undefined;
+                visuals.saveTheme(merged, "");
+                new Toast("Theme has been imported!");
+            }
+            catch (e) {
+                console.log(e);
+                new Toast("Theme could not be loaded...");
+            }
+            elem("#themeShareLinkSubmit").disabled = false;
+            elem("#themeShareLinkSubmit").innerText = "Load Theme";
         });
 
     },
@@ -4576,13 +4643,31 @@ bounceload {
 
 .themesv2 :is(.theme, .oldtheme) {
     display: grid;
-    grid-template-columns: 3fr 2fr 1fr 1fr 1fr;
+    grid-template-columns: 3fr 2fr 1fr 1fr;
     gap: .5em 1em;
     background-color: var(--COLOR_PANEL_BUTTON);
     padding: .5em;
     padding-left: 1em;
     border-radius: 1em;
     align-items: center;
+}
+
+.themesv2 .theme .manageSection {
+    display: none;
+}
+
+.themesv2 .theme .manageTheme:after {
+    content: "Manage";
+}
+
+.themesv2 .theme.manage .manageTheme:after {
+    content: "Done";
+}
+
+.themesv2 .theme.manage .manageSection {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
 }
 
 #themeName[disabled] {
