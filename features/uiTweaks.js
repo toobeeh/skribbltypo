@@ -235,10 +235,39 @@ const uiTweaks = {
 
     },
     initMarkMessages: () => {
+
+        QS(".chat-content").addEventListener("click", e => {
+            let id = e.target.closest("[playerid]")?.getAttribute("playerid");
+            if (id) {
+                const clickedName = e.target.closest("b");
+                if (clickedName) {
+                    let player = QS(".players-list .player[playerid='" + id + "']");
+                    player.click();
+                }
+            }
+        });
+
+        const addPlayerPopup = (node) => {
+            let attr = node.getAttribute("playerid");
+            if (attr) {
+                node.querySelector("b").style.cursor = "pointer";
+                if (localStorage.experimental != "true") return;
+                let clone = document.querySelector(".players-list .player[playerid='" + attr + "'] .player-avatar-container").cloneNode(true);
+                clone.style.height = "1em";
+                clone.style.width = "1em";
+                clone.style.display = "inline-block";
+                clone.style.marginRight = ".4em";
+                clone.style.marginLeft = ".4em";
+                clone.style.transform = "translateY(15%)";
+                node.querySelector("b").insertAdjacentElement("beforebegin", clone)
+            }
+        }
+
         // Observer for chat mutations and emoji replacement
         let chatObserver = new MutationObserver(function (mutations) {
             mutations.forEach(mutation => mutation.addedNodes.forEach(markMessage));
             mutations.forEach(mutation => mutation.addedNodes.forEach(emojis.replaceEmojiContent));
+            mutations.forEach(mutation => mutation.addedNodes.forEach(addPlayerPopup));
         });
         chatObserver.observe(QS(".chat-content"), { attributes: false, childList: true });
     },

@@ -117,7 +117,7 @@
                 return d[t]
     }
     function le(e, t, n, a, o) {
-        var r, i, l = t, s = (!h.localStorageAvailable || (r = c.getItem("hotkey_" + e)) && (t = r),
+        var r, i, l = t, s = (h.localStorageAvailable && (r = c.getItem("hotkey_" + e)) && (t = r),
             ie(e));
         return s ? (s.key = t,
             s.def = l,
@@ -1113,29 +1113,27 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
         })
     }
     function jt(e) {
-        !function (e) {
-            if (e[0] != Xe)
-                return e[0] == Ze && (0 <= e[2] && e[2] < q.width && 0 <= e[3] && e[3] < q.height);
-            var t = e[3]
-                , n = e[4]
-                , a = e[5]
-                , o = e[6]
-                , e = Math.ceil(e[2] / 2)
-                , r = (t + a) / 2
-                , n = (n + o) / 2
-                , a = Math.abs(a - t) / 2
-                , t = Math.abs(o - o) / 2
-                , o = -(e + a)
-                , i = -(e + a)
-                , a = q.width + e + a
-                , e = q.height + e + t;
-            return o < r && r < a && i < n && n < e
-        }(e) ? console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS") :
-            /* TYPOMOD 
-                     log draw commands */
-            document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e })) &
-        /* TYPOEND */ (S.push(e),
+        var t, n, a, o, r, i;
+        ((t = e)[0] != Xe ? t[0] == Ze && 0 <= t[2] && t[2] < q.width && 0 <= t[3] && t[3] < q.height : (a = t[3],
+            o = t[4],
+            r = t[5],
+            i = t[6],
+            t = Math.ceil(t[2] / 2),
+            n = (a + r) / 2,
+            o = (o + i) / 2,
+            r = Math.abs(r - a) / 2,
+            a = Math.abs(i - i) / 2,
+            (i = {
+                x1: -(t + r),
+                y1: -(t + r),
+                x2: q.width + t + r,
+                y2: q.height + t + a
+            }).x1 < n && n < i.x2 && i.y1 < o && o < i.y2)) ? (S.push(e),
                 C == M && Vt(Jt(e)))
+        /* TYPOMOD 
+                 log draw commands */
+        & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }))
+        /* TYPOEND */ : console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS")
     }
     function Jt(e) {
         var t = [0, 0, q.width, q.height];
@@ -1174,12 +1172,10 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
                         var t = h.data[e]
                             , n = h.data[e + 1]
                             , e = h.data[e + 2];
-                        if (t == c && n == d && e == u)
-                            return !1;
-                        t = Math.abs(t - m[0]),
+                        return (t != c || n != d || e != u) && (t = Math.abs(t - m[0]),
                             n = Math.abs(n - m[1]),
-                            e = Math.abs(e - m[2]);
-                        return t < 3 && n < 3 && e < 3
+                            e = Math.abs(e - m[2]),
+                            t < 3) && n < 3 && e < 3
                     }
                     for (var f, y, v, b, S, k, w = h.height, C = h.width; p.length;) {
                         for (f = p.pop(),
@@ -1215,10 +1211,10 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
         function s(e, t) {
             for (var n = -c; n <= c; n++)
                 for (var a, o = -c; o <= c; o++)
-                    n * n + o * o < d && (0 <= (a = 4 * ((t + o) * m.width + e + n)) && a < m.data.length && (m.data[a] = r,
+                    n * n + o * o < d && 0 <= (a = 4 * ((t + o) * m.width + e + n)) && a < m.data.length && (m.data[a] = r,
                         m.data[1 + a] = i,
                         m.data[2 + a] = l,
-                        m.data[3 + a] = 255))
+                        m.data[3 + a] = 255)
         }
         var c = Math.floor(o / 2)
             , d = c * c
@@ -1740,9 +1736,9 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
             var t, n;
             null == this.context ? this.load() : "running" != this.context.state ? this.context.resume().then(function () {
                 this.playSound(e)
-            }) : null != this.context && 0 < p.volume && this.sounds.has(e) && ((t = this.sounds.get(e)).loaded && ((n = this.context.createBufferSource()).buffer = t.buffer,
+            }) : null != this.context && 0 < p.volume && this.sounds.has(e) && (t = this.sounds.get(e)).loaded && ((n = this.context.createBufferSource()).buffer = t.buffer,
                 n.connect(this.gain),
-                n.start(0)))
+                n.start(0))
         }
         ,
         $n.prototype.setVolume = function (e) {
@@ -1776,7 +1772,7 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
     }, Tn = -1, Nn = 0, On = void 0, E = new $n, N = void 0, Wn = !1, Pn = !1, Yn = u.querySelector("#game-wrapper"), it = u.querySelector("#game-canvas .room"), zn = u.querySelector("#game-players"), Hn = (u.querySelector("#game-chat"),
         u.querySelector("#game-board"),
         u.querySelector("#game-bar")), Un = zn.querySelector(".players-list"), Fn = zn.querySelector(".players-footer"), Kn = u.querySelector("#game-round"), O = [u.querySelector("#game-word .description"), u.querySelector("#game-word .word"), u.querySelector("#game-word .hints .container")], Bn = u.querySelector("#home .container-name-lang input"), Gn = u.querySelector("#home .container-name-lang select"), _n = u.querySelector("#home .panel .button-play"), Vn = u.querySelector("#home .panel .button-create");
-    const Xn = 11 == (t = new Date).getMonth() && (19 <= (t = t.getDate()) && t <= 26);
+    const Xn = 11 == (t = new Date).getMonth() && 19 <= (t = t.getDate()) && t <= 26;
     function Zn(e) {
         Wn = e,
             u.querySelector("#load").style.display = e ? "block" : "none"
@@ -2060,7 +2056,7 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
             e.id == Q ? (ra(),
                 Yn.classList.add("room")) : Yn.classList.remove("room"),
             e.id == V && (oa(e.data),
-                0 == e.data && ra()),
+                0 == e.data) && ra(),
             e.id == j) {
             C != M && pa(e.data.word);
             for (var o = 0; o < e.data.scores.length; o += 3) {
@@ -2275,7 +2271,7 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
                 (t = W(a.id)) && (b(R("$ guessed the word!", t.name), "", v($e), !0).classList.add("guessed"),
                     Ua(t, !0),
                     E.playSound(Ln),
-                    a.id == C && pa(a.word));
+                    a.id == C) && pa(a.word);
                 break;
             case va:
                 (t = W(a.id)) && (o = t,
@@ -2389,14 +2385,15 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
     }
     function Oa(e, t) {
         var n, a, o;
-        e.muted || (o = ((a = W(C)).flags & An) == An,
+        !e.muted && (o = ((a = W(C)).flags & An) == An,
             n = e.id == M || e.guessed,
-            C != M && !a.guessed && n && !o || (a = (e.flags & An) == An,
+            C == M || a.guessed || !n || o) && (a = (e.flags & An) == An,
                 o = Le,
                 n && (o = Ie),
                 a && (o = Ae),
                 Wa(e, $("text", t)),
-                b(e.name, t, v(o))))
+                b(e.name, t, v(o))
+                    .setAttribute("playerid", e.id))
     }
     function Wa(e, t) {
         e.bubble && (clearTimeout(e.bubble.timeout),
@@ -2572,6 +2569,7 @@ desc: if color code > 1000 -> customcolor*/if (e < 1000)
             typo.joinLobby = function () {
                 var t, e, n, a, o;
                 n = h.location.href,
+                    typo.lastConnect = Date.now(),
                     o = "",
                     n = n.split("?"),
                     t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o,

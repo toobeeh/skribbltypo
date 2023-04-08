@@ -178,8 +178,8 @@
             ],
             "injections": [
                 {
-                    "position": "(IGNORED COMMAND OUT OF CANVAS BOUNDS\"\\) :)",
-                    "code": "/* TYPOMOD \n         log draw commands */\n        document.dispatchEvent(new CustomEvent(\"logDrawCommand\", { detail: ##COMMAND## })) & \n        /* TYPOEND */"
+                    "position": "( ): console.log\\(\"IGNORED COMMAND OUT OF CANVAS BOUNDS\"\\)",
+                    "code": "/* TYPOMOD \n         log draw commands */\n       & document.dispatchEvent(new CustomEvent(\"logDrawCommand\", { detail: ##COMMAND## })) \n        /* TYPOEND */"
                 }
             ]
         },
@@ -377,8 +377,8 @@
             "replacements": [],
             "injections": [
                 {
-                    "position": "}(\\([a-zA-Z0-9&_\\-$]+\\.location\\.href\\);)",
-                    "code": ";typo.lastConnect = Date.now()"
+                    "position": "([a-zA-Z0-9&_\\-$]+\\.location\\.href,)",
+                    "code": "typo.lastConnect = Date.now(),"
                 }
             ]
         },
@@ -408,6 +408,21 @@
                 {
                     "position": "(\\s)[a-zA-Z0-9&_\\-$]+ = Math\\.ceil\\(\\.5[^}]*",
                     "code": " /* TYPOMOD use typo pressure */ \n(()=>{if(0 <= ##PRESSURE## && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(##PRESSURE##, sensitivity); ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));}\n})(),"
+                }
+            ]
+        },
+        {
+            "name": "Add User ID in chat",
+            "replacements": [
+                {
+                    "source": "##PLAYER##",
+                    "target": "\\(\"text\", [^\\(]+\\(([a-zA-Z0-9&_\\-$]+)\\.name, [^\\)]+\\)\\)"
+                }
+            ],
+            "injections": [
+                {
+                    "position": "(\\(\"text\", [^}]+name, [^\\)]+\\)\\))",
+                    "code": ".setAttribute(\"playerid\", ##PLAYER##.id)"
                 }
             ]
         }
