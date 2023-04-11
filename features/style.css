@@ -1097,6 +1097,7 @@ bounceload {
     font-size: 1.2em;
     opacity: .5;
     font-weight: bold;
+    user-select: none;
 }
 
 .themesv2.manage .menu div.manage {

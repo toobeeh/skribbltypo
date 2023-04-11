@@ -321,7 +321,6 @@ const hints = [
     "Use emojis in the chat! To send one, type :emoji-name:",
     "Use like-- or shame-- to quickly like or dislike without having to grab your mouse.",
     "Remove drawings from ImageTools by right-clicking them.",
-    "Remove themes by right-clicking them.",
     "SPAMGUESS!!!1! - oh wait, you didn't click the input field. <br>Click TAB to quickly select the chatbox.",
     "Create masterpieces with the Don't Clear challenge - the canvas won't be cleared after your turn.<br>This is fun on custom rounds!",
     "Get artsy with the monochrome challenge - you can only select between a pair of colors!",
@@ -339,16 +338,35 @@ const hints = [
     "Want to share a chat snippet on Discord?<br>Select the messages and click 'Copy chat selection for Discord' to create a nicely formatted chat history.",
     "In practise, you can also paste .png to the skribbl canvas! To do so, click 'Paste Image' in Image Tools.",
     "To draw without time limit, click the avatar on the landing page!",
-    "Want to kick someone without grapping your mouse? Type 'kick--' to kick the current drawer or 'kick [id]--' to kick a player by their id! View IDs by pressing AltGr.",
+    "Want to kick someone without grabbing your mouse? Type 'kick--' to kick the current drawer or 'kick [id]--' to kick a player by their id! View IDs by pressing AltGr.",
     "Enable Typo-Pressure in the settings popup to draw in a beautiful full-size-range!",
     "Use the keys 1-5 to quickly set your brush size.",
-    "Enable Typo-Pressure in the settings popup to draw in a beautiful full-size-range!.",
     "Disable Typo-Panels in the visual settings to get a more vanilla look.",
-    "Type 'newvision--' to view an image over the canvas as template!"
+    "Type 'newvision--' to view an image over the canvas as template!",
+    "Click this box to see a new hint 👀",
+    "Click the blue T-Icon next to the address bar or in the extension tray of your browser to adjust how typo works.",
+    "Click the eye-icon at the top left to change your skribbl look.",
+    "In the theme editor, you can quickly create a color theme with color presets.",
+    "Check out themes from other people in the 'Browse Themes' tab!",
+    "Skribbl themes made before April 2023 are only partially supported anymore.<br>You cant share, edit or delete them.",
+    "In the theme overview, click 'manage' and share to send a theme to someone else. The other person just eneds to enter the code in the 'Browse Themes' tab.",
+    "Don't forget to save your themes! They will be lost after a reload.",
+    "Click the name of a person in the chat to open their player menu.",
+    "Click the floppy disc icon and use 'As GIF' to save an animation of the drawing progress."
 ];
 
 const changelogRawHTML =
     `<div style="width: 100%">
+<h2>April 2023 - bugfixes and new themes</h2>
+Surprise, a new update!
+<ul>
+<li>NEW THEMES!! It's now much easier to create stunning color themes. For the fancy ones, there are also even more options to adjust skribbl to the last detail.</li>
+<li>You can now browse for other's themes and use them on the fly. If you want to submit your theme, ask about it on Discord!</li>
+<li>GIF downloading is fully working again - Show off!</li>
+<li>Random colors are working again</li>
+<li>Updated the skribbl source code - skribbl had some smaller updates meanwhile, too!</li>
+</ul>
+<hr>
 <h2>Smol additional update</h2>
 Typo pressure is back! Use it as before with customizable sensitivity instead skribbl's pressure.<br>
 The keys 1-5 can now be used to quickly select a brush size. Vision overlay, waiting for free slots in lobbies and some general improvements & bugfixes have been added.<br>

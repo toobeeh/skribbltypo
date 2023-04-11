@@ -98,9 +98,9 @@ let patchNode = async (node) => {
         const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
-                <span>Hello there!</span><span>Enjoy the new skribbl update!<br> Check out the typo changelog; some features like typo pressure and size shortcuts have been added.</span>
-                <div class="panel" style="width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
-                    <br>${hints[Math.floor(Math.random() * hints.length)]}
+                <span>Hello there ❤️✏️<br>Typo themes just got an upgrade! <br>Check out the changelog for mor information.</span>
+                <div class="panel" id="typoHints" style="cursor:pointer; width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
+                    <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
                 <div style="display: grid; grid-template-columns: 50% 50%;">
                     <typosocial media="discord"><a target="_blank" href='https://typo.rip/discord'>Typo Discord</a></typosocial>
@@ -116,6 +116,10 @@ let patchNode = async (node) => {
             localStorage.lastChangelogview = chrome.runtime.getManifest().version;
         });
 
+        leftCard.querySelector("#typoHints").addEventListener("click", (e) => {
+            leftCard.querySelector("#typoHints span").innerHTML = hints[Math.floor(Math.random() * hints.length)];
+        });
+
         const rightCard = elemFromString(`<div class='panel patched' >
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="rightPanelContent" class="lobbies">
                 <h2><span>Sprite Cabin </span><span> Lobbies</span></h2>
@@ -128,8 +132,8 @@ let patchNode = async (node) => {
                 <div id="cabinSlots" class="unauth">
                     <div id="loginRedir"><button class="flatUI air min blue">Log in with Palantir</button></div>
                     <div>Slot 1<p></p></div>
-                    <div>Slot 2<p></p></div>
                     <div>Slot 3<p></p></div>
+                    <div>Slot 2<p></p></div>
                     <div>Slot 4<p></p></div>
                     <div>Slot 5<p></p></div>
                     <div>Slot 6<p></p></div>
