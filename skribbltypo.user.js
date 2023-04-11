@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.0.168090625
+// @version 24.2.12.168096517
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -6220,10 +6220,39 @@ bounceload {
 
         },
         initMarkMessages: () => {
+
+            QS(".chat-content").addEventListener("click", e => {
+                let id = e.target.closest("[playerid]")?.getAttribute("playerid");
+                if (id) {
+                    const clickedName = e.target.closest("b");
+                    if (clickedName) {
+                        let player = QS(".players-list .player[playerid='" + id + "']");
+                        player.click();
+                    }
+                }
+            });
+
+            const addPlayerPopup = (node) => {
+                let attr = node.getAttribute("playerid");
+                if (attr) {
+                    node.querySelector("b").style.cursor = "pointer";
+                    if (localStorage.experimental != "true") return;
+                    let clone = document.querySelector(".players-list .player[playerid='" + attr + "'] .player-avatar-container").cloneNode(true);
+                    clone.style.height = "1em";
+                    clone.style.width = "1em";
+                    clone.style.display = "inline-block";
+                    clone.style.marginRight = ".4em";
+                    clone.style.marginLeft = ".4em";
+                    clone.style.transform = "translateY(15%)";
+                    node.querySelector("b").insertAdjacentElement("beforebegin", clone)
+                }
+            }
+
             // Observer for chat mutations and emoji replacement
             let chatObserver = new MutationObserver(function (mutations) {
                 mutations.forEach(mutation => mutation.addedNodes.forEach(markMessage));
                 mutations.forEach(mutation => mutation.addedNodes.forEach(emojis.replaceEmojiContent));
+                mutations.forEach(mutation => mutation.addedNodes.forEach(addPlayerPopup));
             });
             chatObserver.observe(QS(".chat-content"), { attributes: false, childList: true });
         },
@@ -6245,16 +6274,21 @@ bounceload {
                         new Toast("Fullscreen mode is only available in-game.", 2000);
                         return;
                     }
-                    document.documentElement.requestFullscreen();
-                    document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
+                    else {
+                        if (QS("#game").style.display == "none") {
+                            new Toast("Fullscreen mode is only available in-game.", 2000);
+                            return;
+                        }
+                        document.documentElement.requestFullscreen();
+                        document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
                     div#game-board, #game-container{flex-grow:1}
                     #game-wrapper{width:100%; padding:1em}
                     #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
                     #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
                     .logo-small{display:none !important}  
                     *::-webkit-scrollbar{display:none}</style>`);
-                }
-            });
+                    }
+                });
             document.addEventListener("fullscreenchange", () => {
                 if (!document.fullscreenElement) {
                     QS("#fullscreenRules").remove();
