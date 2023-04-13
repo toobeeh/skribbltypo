@@ -13,7 +13,7 @@ let bundle_styles = ""
 
 /* add js to bundle */
 const addToBundle = (text, name, end = false) => {
-    if(end) bundle_end += "// #content " + name + "\n" + text + "\n\n";
+    if (end) bundle_end += "// #content " + name + "\n" + text + "\n\n";
     else bundle_begin += "// #content " + name + "\n" + text + "\n\n";
 }
 
@@ -24,14 +24,14 @@ const addToStyle = (text, name) => {
 
 /* add typo scripts and css */
 mainfest.content_scripts.forEach(script => {
-    if(script.matches.some(url => url.includes("skribbl"))) {
-        if(script.js) script.js.forEach(js => 
+    if (script.matches.some(url => url.includes("skribbl"))) {
+        if (script.js) script.js.forEach(js =>
             addToBundle(fs.readFileSync("./" + js), js, script.run_at == "document_idle")
         );
-        if(script.css) script.css.forEach(css => 
+        if (script.css) script.css.forEach(css =>
             addToStyle(fs.readFileSync("./" + css), css)
         );
-    } 
+    }
 });
 
 /* build bundle header */
@@ -42,7 +42,7 @@ let bundle = `
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version ${mainfest.version}.${Date.now().toString().substring(0,9)}
+// @version ${mainfest.version}.${Date.now().toString().substring(0, 9)}
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -118,6 +118,12 @@ const execTypo = async () => {
         ${bundle_styles} 
         .adsbygoogle, .ad-2 {display:none !important}
     </style>\`);
+
+    /* add touch prevention and select prevention */
+    if(navigator.platform.match(/iPad/i) || navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform)){
+        document.body.style.touchAction = "none";
+        document.body.userSelect = "none";
+    }
 
     /* dispatch fake load events */
     window.dispatchEvent(new Event("load"));
