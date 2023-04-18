@@ -16,7 +16,12 @@ let imageOptions = {
         workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
         let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
         if (!commands) commands = captureCanvas.capturedCommands;
-        renderWorker.postMessage({ 'filename': filename, 'capturedCommands': commands});
+
+        let length = prompt("Enter the GIF duration in seconds", 4);
+        length = Number(length);
+        if (Number.isNaN(length) || length < 1 || length > 60) length = 4;
+
+        renderWorker.postMessage({ 'filename': filename, 'capturedCommands': commands, "gifLength": length });
 
         // T H I C C progress bar 
         let progressBar = document.createElement("p");
@@ -111,7 +116,7 @@ let imageOptions = {
         QS("#saveCloud").addEventListener("click", async () => {
             if (socket.authenticated) {
                 let name = prompt("Enter a name");
-                if(!name) name = "Practice";
+                if (!name) name = "Practice";
                 document.dispatchEvent(newCustomEvent("drawingFinished", { detail: name }));
                 new Toast("Saved the drawing in the cloud.");
             }
@@ -201,15 +206,15 @@ let imageOptions = {
                 let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
 
                 // send to socket
-                await socket.emitEvent("post image", { 
-                    accessToken: localStorage.accessToken, 
-                    serverID: w.ServerID, 
-                    imageURI: imageShareString, 
+                await socket.emitEvent("post image", {
+                    accessToken: localStorage.accessToken,
+                    serverID: w.ServerID,
+                    imageURI: imageShareString,
                     webhookName: w.Name,
                     postOptions: {
-                        onlyImage: QS("#sendImageOnly").checked, 
-                        drawerName: imageShareStringDrawer, 
-                        posterName: loginName, 
+                        onlyImage: QS("#sendImageOnly").checked,
+                        drawerName: imageShareStringDrawer,
+                        posterName: loginName,
                         title: title
                     }
                 });

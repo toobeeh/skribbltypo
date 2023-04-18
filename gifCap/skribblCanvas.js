@@ -97,29 +97,33 @@ Z.prototype.updateMousePosition = function (t, e, n) {
         p = Math.max(t, n) + c,
         f = Math.max(e, o) + c;
     t -= h, e -= l, n -= h, o -= l;
-    var d = this.canvasCtx.getImageData(h, l, p - h, f - l),
-        y = function (t, e) {
-            for (var n = -c; n <= c; n++)
-                for (var o = -c; o <= c; o++)
-                    if (n * n + o * o < u) {
-                        var r = 4 * ((e + o) * d.width + t + n);
-                        r >= 0 && r < d.data.length && (d.data[r] = s, d.data[r + 1] = i, d.data[r + 2] = a, d.data[r + 3] = 255)
-                    }
-        };
-    if (t == n && e == o) y(t, e);
-    else {
-        y(t, e), y(n, o);
-        var m = Math.abs(n - t),
-            g = Math.abs(o - e),
-            v = t < n ? 1 : -1,
-            b = e < o ? 1 : -1,
-            w = m - g;
-        for (Math.floor(Math.max(0, c - 10) / 5); t != n || e != o;) {
-            var k = w << 1;
-            k > -g && (w -= g, t += v), k < m && (w += m, e += b), y(t, e)
+    try {
+        var d = this.canvasCtx.getImageData(h, l, p - h, f - l),
+            y = function (t, e) {
+                for (var n = -c; n <= c; n++)
+                    for (var o = -c; o <= c; o++)
+                        if (n * n + o * o < u) {
+                            var r = 4 * ((e + o) * d.width + t + n);
+                            r >= 0 && r < d.data.length && (d.data[r] = s, d.data[r + 1] = i, d.data[r + 2] = a, d.data[r + 3] = 255)
+                        }
+            };
+        if (t == n && e == o) y(t, e);
+        else {
+            y(t, e), y(n, o);
+            var m = Math.abs(n - t),
+                g = Math.abs(o - e),
+                v = t < n ? 1 : -1,
+                b = e < o ? 1 : -1,
+                w = m - g;
+            for (Math.floor(Math.max(0, c - 10) / 5); t != n || e != o;) {
+                var k = w << 1;
+                k > -g && (w -= g, t += v), k < m && (w += m, e += b), y(t, e)
+            }
         }
+        this.canvasCtx.putImageData(d, h, l)
     }
-    this.canvasCtx.putImageData(d, h, l)
+    catch { }
+
 }, Z.prototype.clear = function () {
     this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height)
 }, Z.prototype.setDrawing = function (t) {

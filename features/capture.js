@@ -13,13 +13,14 @@ const captureCanvas = {
         //QS("#abortDrawing").style.display = "block";
         QS("#game-canvas canvas").style.pointerEvents = "none";
         //if (QS("#clearCanvasBeforePaste").checked) QS(".tools .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
-        for( dc of commands) {
+        for (dc of commands) {
             if (captureCanvas.abortDrawingProcess === true || QS("#game-toolbar.hidden")) {
                 QS("#game-canvas canvas").style.pointerEvents = "";
                 return;
             }
-            if (dc == [3]) QS(".tools .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
+            if (dc.length == 1 && dc[0] == 3) QS(".tools .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
             else document.dispatchEvent(newCustomEvent("performDrawCommand", { detail: dc }));
+            captureCanvas.capturedCommands.push(dc);
             await waitMs(3);
         }
         QS("#game-canvas canvas").style.pointerEvents = "";

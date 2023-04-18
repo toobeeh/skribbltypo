@@ -4,15 +4,16 @@ let filename;
 let resolution;
 let hits = 0;
 let msg = {};
-const frames = 60;
+const frames = 15;
 
 self.addEventListener('message', function (e) {
     let data = e.data;
     capturedCommands = data.capturedCommands;
     filename = data.filename;
+    let length = data.gifLength;
     capturedCommands.forEach((a) => hits += a.length);
-    //calc resolution for 4s duration and 0.5 ms delay between frames ()
-    resolution = Math.round(hits / frames);
+    //calc resolution for 15fps and 0.5 ms delay between frames ()
+    resolution = Math.round((hits / frames) / length);
     capture();
 }, false);
 
@@ -20,7 +21,7 @@ async function capture() {
     console.log("Started timeout");
     await setTimeout(() => {
         console.log("Started rendering");
-        let canvasDummy = new OffscreenCanvas(800,600);
+        let canvasDummy = new OffscreenCanvas(800, 600);
         let canvasContext = canvasDummy.getContext("2d");
         //create command-able skribbl canvas
         let canvasPainter = new Z([canvasDummy]);
