@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.1.168125192
+// @version 24.3.1.168139214
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -5204,6 +5204,12 @@ bounceload {
  
         .adsbygoogle, .ad-2 {display:none !important}
     </style>`);
+
+    /* add touch prevention and select prevention */
+    if(navigator.platform.match(/iPad/i) || navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(navigator.platform)){
+        document.body.style.touchAction = "none";
+        document.body.userSelect = "none";
+    }
 
     /* dispatch fake load events */
     window.dispatchEvent(new Event("load"));
