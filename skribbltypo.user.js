@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.1.168139214
+// @version 24.3.1.168184317
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -3200,7 +3200,12 @@ let imageOptions = {
         workerJS += await (await fetch(chrome.runtime.getURL("gifCap/capture.js"))).text();
         let renderWorker = new Worker(URL.createObjectURL(new Blob([(workerJS)], { type: 'application/javascript' })));
         if (!commands) commands = captureCanvas.capturedCommands;
-        renderWorker.postMessage({ 'filename': filename, 'capturedCommands': commands});
+
+        let length = prompt("Enter the GIF duration in seconds", 4);
+        length = Number(length);
+        if (Number.isNaN(length) || length < 1 || length > 60) length = 4;
+
+        renderWorker.postMessage({ 'filename': filename, 'capturedCommands': commands, "gifLength": length });
 
         // T H I C C progress bar 
         let progressBar = document.createElement("p");
@@ -3295,7 +3300,7 @@ let imageOptions = {
         QS("#saveCloud").addEventListener("click", async () => {
             if (socket.authenticated) {
                 let name = prompt("Enter a name");
-                if(!name) name = "Practice";
+                if (!name) name = "Practice";
                 document.dispatchEvent(newCustomEvent("drawingFinished", { detail: name }));
                 new Toast("Saved the drawing in the cloud.");
             }
@@ -3385,15 +3390,15 @@ let imageOptions = {
                 let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
 
                 // send to socket
-                await socket.emitEvent("post image", { 
-                    accessToken: localStorage.accessToken, 
-                    serverID: w.ServerID, 
-                    imageURI: imageShareString, 
+                await socket.emitEvent("post image", {
+                    accessToken: localStorage.accessToken,
+                    serverID: w.ServerID,
+                    imageURI: imageShareString,
                     webhookName: w.Name,
                     postOptions: {
-                        onlyImage: QS("#sendImageOnly").checked, 
-                        drawerName: imageShareStringDrawer, 
-                        posterName: loginName, 
+                        onlyImage: QS("#sendImageOnly").checked,
+                        drawerName: imageShareStringDrawer,
+                        posterName: loginName,
                         title: title
                     }
                 });
@@ -6977,13 +6982,14 @@ const captureCanvas = {
         //QS("#abortDrawing").style.display = "block";
         QS("#game-canvas canvas").style.pointerEvents = "none";
         //if (QS("#clearCanvasBeforePaste").checked) QS(".tools .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
-        for( dc of commands) {
+        for (dc of commands) {
             if (captureCanvas.abortDrawingProcess === true || QS("#game-toolbar.hidden")) {
                 QS("#game-canvas canvas").style.pointerEvents = "";
                 return;
             }
-            if (dc == [3]) QS(".tools .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
+            if (dc.length == 1 && dc[0] == 3) QS(".tools .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
             else document.dispatchEvent(newCustomEvent("performDrawCommand", { detail: dc }));
+            captureCanvas.capturedCommands.push(dc);
             await waitMs(3);
         }
         QS("#game-canvas canvas").style.pointerEvents = "";
