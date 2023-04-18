@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.1.168184317
+// @version 24.3.1.168184588
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -2405,6 +2405,7 @@ const visuals = {
         QS("#typoThemeExternal")?.remove();
         QS("#typoThemeFont")?.remove();
         QS("#typo_theme_style")?.remove();
+        [...QSA(".typo_theme_injection_element")].forEach(elem => elem.remove());
 
         let style = document.createElement("style");
         style.id = "visualRules";
@@ -3620,7 +3621,9 @@ patcher.observe(document.documentElement, { attributes: false, childList: true, 
     right: 50px;
     font-size: 1rem;
     display: flex;
+    gap: 1em;
     padding: 0.4rem;
+    align-items: center;
 }
 
 .avatar-customizer .container {
@@ -4801,6 +4804,29 @@ bounceload {
 
 #themeName[disabled] {
     cursor: forbidden;
+}
+
+.lobbyNavIcon {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    background-size: contain;
+    transition: scale .1s ease-in-out;
+}
+
+.lobbyNavIcon:hover {
+    scale: 1.1;
+}
+
+.lobbyNavIcon.next {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3)) drop-shadow(rgba(0, 0, 0, 0.3) 3px 3px 0px) sepia(1) saturate(5) brightness(0.7) hue-rotate(56deg);
+    rotate: 90deg;
+}
+
+.lobbyNavIcon.exit {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3)) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
+    rotate: -90deg;
 }
 
 /*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
@@ -6026,21 +6052,37 @@ const uiTweaks = {
     palettes: [],
     initGameNavigation: () => {
         // Create next button
-        let btNext = elemFromString(`<button class="button-blue">Next Lobby</button>`);
+        /* let btNext = elemFromString(`<button class="button-blue">Next Lobby</button>`);
         btNext.addEventListener("click", () => {
             leaveLobby(true)
+        }); */
+
+        let iconNext = elemFromString(`<div data-typo-tooltip='Next Lobby' data-tooltipdir='N' class="lobbyNavIcon next" style="
+                background-image: url(${chrome.runtime.getURL("res/arrow.gif")}); 
+            "></div>`);
+        iconNext.addEventListener("click", () => {
+            leaveLobby(true);
         });
 
         // Create exit button
-        let btExit = elemFromString(`<button class="button-orange">Exit Lobby</button>`);
+        /* let btExit = elemFromString(`<button class="button-orange">Exit Lobby</button>`);
         btExit.addEventListener("click", () => {
             leaveLobby(false);
+        }); */
+
+        let iconExit = elemFromString(`<div data-typo-tooltip='Leave Lobby' data-tooltipdir='N'  class="lobbyNavIcon exit" style="
+                background-image: url(${chrome.runtime.getURL("res/arrow.gif")}); 
+            "></div>`);
+        iconExit.addEventListener("click", () => {
+            leaveLobby(true);
         });
 
         // create container for buttons
         let lobbyControls = elemFromString(`<div id="lobby-nav"></div>`);
-        lobbyControls.appendChild(btExit);
-        lobbyControls.appendChild(btNext);
+        /* lobbyControls.appendChild(btExit);
+        lobbyControls.appendChild(btNext); */
+        lobbyControls.appendChild(iconExit);
+        lobbyControls.appendChild(iconNext);
         QS("#game-bar").appendChild(lobbyControls);
     },
     initWordHint: () => {
