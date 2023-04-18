@@ -29,7 +29,7 @@ const uiTweaks = {
                 background-image: url(${chrome.runtime.getURL("res/arrow.gif")}); 
             "></div>`);
         iconExit.addEventListener("click", () => {
-            leaveLobby(true);
+            leaveLobby(false);
         });
 
         // create container for buttons
