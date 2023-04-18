@@ -24,7 +24,7 @@ Z.prototype.updateMousePosition = function (t, e, n) {
         u = (e - o.top) / a;
     n ? (this.mouseposPrev.x = this.mousepos.x = Math.floor(c * r), this.mouseposPrev.y = this.mousepos.y = Math.floor(u * s)) : (this.mouseposPrev.x = this.mousepos.x, this.mouseposPrev.y = this.mousepos.y, this.mousepos.x = Math.floor(c * r), this.mousepos.y = Math.floor(u * s))
 }, Z.prototype.performDrawCommand = function (t) {
-    //console.log(t);
+    console.log(t);
     switch (t[0]) {
         case 0:
             var e = Math.floor(t[2]);
@@ -37,17 +37,17 @@ Z.prototype.updateMousePosition = function (t, e, n) {
                 u = a(this.brush.getColor(t[1]));
             this.plotLine(o, r, s, c, e, u.r, u.g, u.b);
             break;
+        /*  case 1:
+             var e = Math.floor(t[1]);
+             e < this.brush.thicknessMin && (e = this.brush.thicknessMin), e > this.brush.thicknessMax && (e = this.brush.thicknessMax);
+             var n = Math.floor(Math.ceil(e / 2)),
+                 o = i(Math.floor(t[2]), -n, this.canvas[0].width + n),
+                 r = i(Math.floor(t[3]), -n, this.canvas[0].height + n),
+                 s = i(Math.floor(t[4]), -n, this.canvas[0].width + n),
+                 c = i(Math.floor(t[5]), -n, this.canvas[0].height + n);
+             this.plotLine(o, r, s, c, e, 255, 255, 255); 
+        break;*/
         case 1:
-            var e = Math.floor(t[1]);
-            e < this.brush.thicknessMin && (e = this.brush.thicknessMin), e > this.brush.thicknessMax && (e = this.brush.thicknessMax);
-            var n = Math.floor(Math.ceil(e / 2)),
-                o = i(Math.floor(t[2]), -n, this.canvas[0].width + n),
-                r = i(Math.floor(t[3]), -n, this.canvas[0].height + n),
-                s = i(Math.floor(t[4]), -n, this.canvas[0].width + n),
-                c = i(Math.floor(t[5]), -n, this.canvas[0].height + n);
-            this.plotLine(o, r, s, c, e, 255, 255, 255);
-            break;
-        case 2:
             var u = a(this.brush.getColor(t[1])),
                 h = i(Math.floor(t[2]), 0, this.canvas[0].width),
                 l = i(Math.floor(t[3]), 0, this.canvas[0].height);
@@ -122,7 +122,7 @@ Z.prototype.updateMousePosition = function (t, e, n) {
         }
         this.canvasCtx.putImageData(d, h, l)
     }
-    catch { }
+    catch (e) { console.log(e); }
 
 }, Z.prototype.clear = function () {
     this.drawCommands = [], this.drawCommandsReceived = [], this.canvasCtx.fillStyle = "#FFF", this.canvasCtx.fillRect(0, 0, this.canvas[0].width, this.canvas[0].height)

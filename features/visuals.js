@@ -982,6 +982,7 @@ const visuals = {
         QS("#typoThemeExternal")?.remove();
         QS("#typoThemeFont")?.remove();
         QS("#typo_theme_style")?.remove();
+        [...QSA(".typo_theme_injection_element")].forEach(elem => elem.remove());
 
         let style = document.createElement("style");
         style.id = "visualRules";

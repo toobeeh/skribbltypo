@@ -10,7 +10,9 @@
     right: 50px;
     font-size: 1rem;
     display: flex;
+    gap: 1em;
     padding: 0.4rem;
+    align-items: center;
 }
 
 .avatar-customizer .container {
@@ -1191,4 +1193,27 @@ bounceload {
 
 #themeName[disabled] {
     cursor: forbidden;
+}
+
+.lobbyNavIcon {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    background-size: contain;
+    transition: scale .1s ease-in-out;
+}
+
+.lobbyNavIcon:hover {
+    scale: 1.1;
+}
+
+.lobbyNavIcon.next {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3)) drop-shadow(rgba(0, 0, 0, 0.3) 3px 3px 0px) sepia(1) saturate(5) brightness(0.7) hue-rotate(56deg);
+    rotate: 90deg;
+}
+
+.lobbyNavIcon.exit {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3)) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
+    rotate: -90deg;
 }
