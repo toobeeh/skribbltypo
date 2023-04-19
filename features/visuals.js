@@ -72,6 +72,7 @@ const getEmptyTheme = () => ({
     images: {
         urlLogo: "",
         urlBackground: "",
+        urlBackgroundGame: "",
         backgroundRepeat: true,
         containerImages: "",
         containerImages: "",
@@ -426,6 +427,7 @@ const visuals = {
                     elem.value = theme.images.urlBackground;
                     break;
                 case "urlBackgroundGame":
+                    elem.value = theme.images.urlBackgroundGame;
                     break;
                 case "containerImages":
                     elem.value = theme.images.containerImages;
@@ -723,6 +725,7 @@ const visuals = {
                     visuals.currentEditor.images.urlBackground = elem.value;
                     break;
                 case "urlBackgroundGame":
+                    visuals.currentEditor.images.urlBackgroundGame = elem.value;
                     break;
                 case "containerImages":
                     visuals.currentEditor.images.containerImages = elem.value;
@@ -1163,10 +1166,13 @@ const visuals = {
             inset: 0;
             background-position: center;
             background-image: url(${theme.images.urlBackground != "" ? theme.images.urlBackground : "/img/background.png"});
-            background-repeat: ${theme.images.urlBackground != "" || !theme.images.backgroundRepeat ? "no-repeat" : "repeat"};
-            background-size: ${theme.images.urlBackground != "" || !theme.images.backgroundRepeat ? "cover" : "350px"};
+            background-repeat: ${theme.images.urlBackground == "" || theme.images.backgroundRepeat ? "repeat" : "no-repeat"};
+            background-size: ${theme.images.urlBackground == "" ? "350px" : theme.images.backgroundRepeat ? "auto" : "cover"};
             mix-blend-mode: ${theme.images.backgroundTint == "transparent" ? "none" : "multiply"};
             filter: ${theme.images.backgroundTint == "transparent" ? "none" : "saturate(0%)"};
+        }
+        #typoThemeBg.ingame${theme.images.urlBackgroundGame != "" ? "" : ".disabled"}::after {
+            background-image: url(${theme.images.urlBackgroundGame});
         }
 
         ${theme.misc.hideFooter ? ".tos, .notice {display:none}" : ""}
@@ -1227,7 +1233,7 @@ const visuals = {
 
         ${theme.images.urlLogo != "" ? "div.logo-big img {max-height:20vh}" : ""}
 
-        ${Object.keys(theme.hooks ? theme.hooks : {}).filter(key => theme.hooks[key] != "").map(key => `${SKRIBBL_HOOKS[key].join(",")}{${theme.hooks[key]}}`)}
+        ${Object.keys(theme.hooks ? theme.hooks : {}).filter(key => theme.hooks[key] != "").map(key => `${SKRIBBL_HOOKS[key].join(",")}{${theme.hooks[key]}}`).join("\n")}
 
         ::-webkit-scrollbar {
             width: 14px;

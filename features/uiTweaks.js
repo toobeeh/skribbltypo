@@ -793,6 +793,12 @@ const uiTweaks = {
 
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
 
+        const GAME = QS("#game");
+        var gameObserver = new MutationObserver(() => {
+            QS("#typoThemeBg")?.classList.toggle("ingame", GAME.style.display != "none");
+        });
+        gameObserver.observe(GAME, { attributes: true, childList: false });
+
         // random easteregg
         if (Math.random() < 0.1) QS("#game-chat .chat-container form input").placeholder = "Typo your guess here...";
     }

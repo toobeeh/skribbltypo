@@ -1209,11 +1209,11 @@ bounceload {
 }
 
 .lobbyNavIcon.next {
-    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3)) drop-shadow(rgba(0, 0, 0, 0.3) 3px 3px 0px) sepia(1) saturate(5) brightness(0.7) hue-rotate(56deg);
+    filter: drop-shadow(3px -3px 0 rgba(0, 0, 0, .3)) drop-shadow(rgba(0, 0, 0, 0.3) 3px 3px 0px) sepia(1) saturate(5) brightness(0.7) hue-rotate(56deg);
     rotate: 90deg;
 }
 
 .lobbyNavIcon.exit {
-    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3)) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
+    filter: drop-shadow(-3px 3px 0 rgba(0, 0, 0, .3)) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
     rotate: -90deg;
 }
