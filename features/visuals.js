@@ -86,6 +86,7 @@ const getEmptyTheme = () => ({
         hideAvatarLogo: false,
         hideInGameLogo: false,
         hideAvatarSprites: false,
+        useOldNav: false,
         themeCssUrl: "",
         themeCss: "",
         hideMeta: false,
@@ -468,6 +469,9 @@ const visuals = {
                 case "backgroundRepeat":
                     elem.checked = theme.images.backgroundRepeat;
                     break;
+                case "useOldNav":
+                    elem.checked = theme.misc.useOldNav;
+                    break;
             }
         });
 
@@ -642,6 +646,11 @@ const visuals = {
                             <input type="checkbox" class="" id="hideAvatarSprites"> 
                             <div>Hide sprites on home page</div>
                         </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="useOldNav"> 
+                            <div>Use the old lobby navigation</div>
+                        </label>
                     </div>
 
                     <br>
@@ -767,6 +776,9 @@ const visuals = {
                     break;
                 case "backgroundRepeat":
                     visuals.currentEditor.images.backgroundRepeat = elem.checked;
+                    break;
+                case "useOldNav":
+                    visuals.currentEditor.misc.useOldNav = elem.checked;
                     break;
             }
             visuals.applyOptions(visuals.currentEditor);
@@ -1232,6 +1244,8 @@ const visuals = {
         ${theme.misc.fontStyle != "" ? `*{font-family:'${theme.misc.fontStyle.trim().split(":")[0].replaceAll("+", " ")}', sans-serif !important}` : ""}
 
         ${theme.images.urlLogo != "" ? "div.logo-big img {max-height:20vh}" : ""}
+
+        ${theme.misc.useOldNav ? ".lobbyNavIcon {display: none !important;} #legacy-next, #legacy-exit {display: block !important; }" : ""}
 
         ${Object.keys(theme.hooks ? theme.hooks : {}).filter(key => theme.hooks[key] != "").map(key => `${SKRIBBL_HOOKS[key].join(",")}{${theme.hooks[key]}}`).join("\n")}
 

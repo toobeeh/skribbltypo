@@ -7,10 +7,10 @@ const uiTweaks = {
     palettes: [],
     initGameNavigation: () => {
         // Create next button
-        /* let btNext = elemFromString(`<button class="button-blue">Next Lobby</button>`);
+        let btNext = elemFromString(`<button id="legacy-next" style="display: none;" class="button-blue">Next Lobby</button>`);
         btNext.addEventListener("click", () => {
             leaveLobby(true)
-        }); */
+        });
 
         let iconNext = elemFromString(`<div data-typo-tooltip='Next Lobby' data-tooltipdir='N' class="lobbyNavIcon next" style="
                 background-image: url(${chrome.runtime.getURL("res/arrow.gif")}); 
@@ -20,10 +20,10 @@ const uiTweaks = {
         });
 
         // Create exit button
-        /* let btExit = elemFromString(`<button class="button-orange">Exit Lobby</button>`);
+        let btExit = elemFromString(`<button id="legacy-exit" style="display: none;" class="button-orange">Exit Lobby</button>`);
         btExit.addEventListener("click", () => {
             leaveLobby(false);
-        }); */
+        });
 
         let iconExit = elemFromString(`<div data-typo-tooltip='Leave Lobby' data-tooltipdir='N'  class="lobbyNavIcon exit" style="
                 background-image: url(${chrome.runtime.getURL("res/arrow.gif")}); 
@@ -34,8 +34,8 @@ const uiTweaks = {
 
         // create container for buttons
         let lobbyControls = elemFromString(`<div id="lobby-nav"></div>`);
-        /* lobbyControls.appendChild(btExit);
-        lobbyControls.appendChild(btNext); */
+        lobbyControls.appendChild(btExit);
+        lobbyControls.appendChild(btNext);
         lobbyControls.appendChild(iconExit);
         lobbyControls.appendChild(iconNext);
         QS("#game-bar").appendChild(lobbyControls);
