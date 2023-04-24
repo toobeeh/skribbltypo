@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.2.168190454
+// @version 24.3.3.168234836
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.3.2 usrsc"};
+            return {version: "24.3.3 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1509,6 +1509,7 @@ const getEmptyTheme = () => ({
         hideAvatarLogo: false,
         hideInGameLogo: false,
         hideAvatarSprites: false,
+        useOldNav: false,
         themeCssUrl: "",
         themeCss: "",
         hideMeta: false,
@@ -1891,6 +1892,9 @@ const visuals = {
                 case "backgroundRepeat":
                     elem.checked = theme.images.backgroundRepeat;
                     break;
+                case "useOldNav":
+                    elem.checked = theme.misc.useOldNav;
+                    break;
             }
         });
 
@@ -2065,6 +2069,11 @@ const visuals = {
                             <input type="checkbox" class="" id="hideAvatarSprites"> 
                             <div>Hide sprites on home page</div>
                         </label>
+
+                        <label class="checkbox">
+                            <input type="checkbox" class="" id="useOldNav"> 
+                            <div>Use the old lobby navigation</div>
+                        </label>
                     </div>
 
                     <br>
@@ -2190,6 +2199,9 @@ const visuals = {
                     break;
                 case "backgroundRepeat":
                     visuals.currentEditor.images.backgroundRepeat = elem.checked;
+                    break;
+                case "useOldNav":
+                    visuals.currentEditor.misc.useOldNav = elem.checked;
                     break;
             }
             visuals.applyOptions(visuals.currentEditor);
@@ -2655,6 +2667,8 @@ const visuals = {
         ${theme.misc.fontStyle != "" ? `*{font-family:'${theme.misc.fontStyle.trim().split(":")[0].replaceAll("+", " ")}', sans-serif !important}` : ""}
 
         ${theme.images.urlLogo != "" ? "div.logo-big img {max-height:20vh}" : ""}
+
+        ${theme.misc.useOldNav ? ".lobbyNavIcon {display: none !important;} #legacy-next, #legacy-exit {display: block !important; }" : ""}
 
         ${Object.keys(theme.hooks ? theme.hooks : {}).filter(key => theme.hooks[key] != "").map(key => `${SKRIBBL_HOOKS[key].join(",")}{${theme.hooks[key]}}`).join("\n")}
 
@@ -6058,10 +6072,10 @@ const uiTweaks = {
     palettes: [],
     initGameNavigation: () => {
         // Create next button
-        /* let btNext = elemFromString(`<button class="button-blue">Next Lobby</button>`);
+        let btNext = elemFromString(`<button id="legacy-next" style="display: none;" class="button-blue">Next Lobby</button>`);
         btNext.addEventListener("click", () => {
             leaveLobby(true)
-        }); */
+        });
 
         let iconNext = elemFromString(`<div data-typo-tooltip='Next Lobby' data-tooltipdir='N' class="lobbyNavIcon next" style="
                 background-image: url(${chrome.runtime.getURL("res/arrow.gif")}); 
@@ -6071,10 +6085,10 @@ const uiTweaks = {
         });
 
         // Create exit button
-        /* let btExit = elemFromString(`<button class="button-orange">Exit Lobby</button>`);
+        let btExit = elemFromString(`<button id="legacy-exit" style="display: none;" class="button-orange">Exit Lobby</button>`);
         btExit.addEventListener("click", () => {
             leaveLobby(false);
-        }); */
+        });
 
         let iconExit = elemFromString(`<div data-typo-tooltip='Leave Lobby' data-tooltipdir='N'  class="lobbyNavIcon exit" style="
                 background-image: url(${chrome.runtime.getURL("res/arrow.gif")}); 
@@ -6085,8 +6099,8 @@ const uiTweaks = {
 
         // create container for buttons
         let lobbyControls = elemFromString(`<div id="lobby-nav"></div>`);
-        /* lobbyControls.appendChild(btExit);
-        lobbyControls.appendChild(btNext); */
+        lobbyControls.appendChild(btExit);
+        lobbyControls.appendChild(btNext);
         lobbyControls.appendChild(iconExit);
         lobbyControls.appendChild(iconNext);
         QS("#game-bar").appendChild(lobbyControls);
