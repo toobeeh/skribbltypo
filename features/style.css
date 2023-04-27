@@ -811,7 +811,7 @@ input::-webkit-inner-spin-button {
 #imageAgent {
     border-radius: 1em;
     width: 100%;
-    background-color: rgb(3 34 140 / 75%);
+    background-color: var(--COLOR_PANEL_BG);
     backdrop-filter: blur(4px);
     padding: .5em;
     margin-bottom: 1em;
