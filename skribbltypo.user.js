@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.3.168234836
+// @version 24.3.4.168257938
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.3.3 usrsc"};
+            return {version: "24.3.4 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -4442,7 +4442,7 @@ input::-webkit-inner-spin-button {
 #imageAgent {
     border-radius: 1em;
     width: 100%;
-    background-color: rgb(3 34 140 / 75%);
+    background-color: var(--COLOR_PANEL_BG);
     backdrop-filter: blur(4px);
     padding: .5em;
     margin-bottom: 1em;
