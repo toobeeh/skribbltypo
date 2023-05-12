@@ -31,12 +31,12 @@ jobs:
           apiSecret: ${{ secrets.MOZILLA_API_SECRET }}
           timeout: 900000
 
-      - name: "Create Release"
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: ${{ steps.web-ext-sign.outputs.target }}
+      # - name: "Create Release"
+      #   uses: softprops/action-gh-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     files: ${{ steps.web-ext-sign.outputs.target }}
 
       - name: Archive signed XPI
         uses: actions/upload-artifact@v2
