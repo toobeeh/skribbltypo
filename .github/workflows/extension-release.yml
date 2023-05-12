@@ -1,0 +1,128 @@
+name: Firefox & Chrome Web Extension Release
+on:
+  push:
+    branches:
+      - master
+jobs:
+  release:
+    name: "Create a release"
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: "Get Version"
+        run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_ENV
+
+      - name: "Echo Version"
+        run: echo $VERSION
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: skribbltypo-release-${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          body: Stable release of skribbl typo, version ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+
+  publish-chrome:
+    needs: release
+    name: "Release Chrome Web Ext"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: "Get Version"
+        run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_ENV
+
+      - name: "Echo Version"
+        run: echo $VERSION
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: typo-chromium-release-${{ env.VERSION }}.zip
+          exclusions: "*.git* *.xpi skribbltypo.user.js userscript-gen.js readme.md patch.json /*extensions/* *.web-extension-id .editorconfig .github/"
+
+      - name: Append to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: typo-chromium-release-${{ env.VERSION }}
+          path: typo-chromium-release-${{ env.VERSION }}.zip
+
+      - name: Append to release
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: typo-chromium-release-${{ env.VERSION }}.zip
+          asset_name: typo-chromium-release-${{ env.VERSION }}.zip
+          asset_content_type: application/zip
+
+  publish-firefox:
+    needs: release
+    name: "Build and sign Firefox Web Ext"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: "Get Version"
+        run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_ENV
+
+      - name: "Echo Version"
+        run: echo $VERSION
+
+      - name: "web-ext build"
+        id: web-ext-build
+        uses: kewisch/action-web-ext@v1
+        with:
+          cmd: build
+          source: ./
+          exclusions: '["skribbltypo.user.js", "userscript-gen.js"," patch.json", "/*extensions/*"]'
+
+      - name: "web-ext sign"
+        id: web-ext-sign
+        uses: kewisch/action-web-ext@v1
+        with:
+          cmd: sign
+          source: ${{ steps.web-ext-build.outputs.target }}
+          channel: unlisted
+          apiKey: ${{ secrets.MOZILLA_API_KEY }}
+          apiSecret: ${{ secrets.MOZILLA_API_SECRET }}
+          timeout: 900000
+
+      - name: Archive signed XPI
+        uses: actions/upload-artifact@v3
+        with:
+          name: typo-firefox-signed-release-${{env.VERSION}}
+          path: ${{ steps.web-ext-sign.outputs.target }}
+
+      - name: "Publish update to tobeh.host"
+        env:
+          FILE_PATH: ${{ steps.web-ext-sign.outputs.target }}
+          VERSION: ${{env.VERSION}}
+          AUTH: ${{ secrets.FF_UPDATE_AUTH }}
+          SCRIPT_URL: ${{ secrets.FF_UPDATE_URL }}
+        run: |
+          curl -X POST -F "file=@$FILE_PATH" -F "version=$VERSION" -F "auth=$AUTH" $SCRIPT_URL
+
+      - name: Append to release
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ${{ steps.web-ext-sign.outputs.target }}
+          asset_name: typo-firefox-signed-release-${{env.VERSION}}.xpi
+          asset_content_type: application/x-xpinstall
