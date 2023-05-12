@@ -106,7 +106,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: typo-firefox-signed-release-${{ env.VERSION }}
-          path: typo-firefox-signed-release-${{ env.VERSION }}.xpi
+          path: typo-firefox-signed-release-${{ env.VERSION }}
 
       - name: Upload XPI
         id: upload_xpi
@@ -115,7 +115,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: typo-firefox-signed-release-${{ env.VERSION }}.xpi
+          asset_path: typo-firefox-signed-release-${{ env.VERSION }}/*.xpi
           asset_name: typo-firefox-signed-release-${{ env.VERSION }}.xpi
           asset_content_type: application/x-xpinstall
 
@@ -123,7 +123,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: typo-chrome-release-${{ env.VERSION }}
-          path: typo-chrome-release-${{ env.VERSION }}.zip
+          path: typo-chrome-release-${{ env.VERSION }}
 
       - name: Upload Zip
         id: upload_zip
@@ -132,6 +132,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: typo-chrome-release-${{ env.VERSION }}.zip
+          asset_path: typo-chrome-release-${{ env.VERSION }}/*.zip
           asset_name: typo-chrome-release-${{ env.VERSION }}.zip
           asset_content_type: application/zip
