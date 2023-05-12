@@ -2,7 +2,7 @@ name: Firefox & Chrome Web Extension Release Test
 on:
   push:
     branches:
-      - master
+      - develop
 jobs:
   publish-chrome:
     name: "Release Chrome Web Ext"
