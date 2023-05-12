@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.5.168388626
+// @version 24.3.5.168388726
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
