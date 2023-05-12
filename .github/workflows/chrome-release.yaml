@@ -8,8 +8,7 @@ jobs:
     name: "Build and sign Chrome Web Ext"
     runs-on: ubuntu-latest
     steps:
-      - name: "Checkout"
-        uses: actions/checkout@v1
+      - uses: actions/checkout@v1
 
       - name: "Get Version"
         run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_ENV
