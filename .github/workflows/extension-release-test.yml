@@ -5,7 +5,7 @@ on:
       - develop
 jobs:
   publish-chrome:
-    name: "Release Chrome Web Ext"
+    name: "Test Release Chrome Web Ext"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -29,7 +29,7 @@ jobs:
           path: typo-chromium-release-${{ env.VERSION }}.zip
 
   publish-firefox:
-    name: "Build and sign Firefox Web Ext"
+    name: "Test Release Firefox Web Ext"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
