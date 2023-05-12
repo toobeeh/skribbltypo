@@ -282,7 +282,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.typotoolbar || override) localStorage.typotoolbar = "true";
     if (!localStorage.inkMode || override) localStorage.inkMode = "thickness";
     if (!localStorage.sens || override) localStorage.sens = 50;
-    if (!localStorage.charbar || override) localStorage.charbar = "false";
+    if (!localStorage.charbar || override) localStorage.charbar = "true";
     if (!localStorage.agent || override) localStorage.agent = "false";
     if (!localStorage.sizeslider || override) localStorage.sizeslider = "false";
     if (!localStorage.emojipicker || override) localStorage.emojipicker = "true";

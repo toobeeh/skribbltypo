@@ -18,7 +18,7 @@ const captureCanvas = {
                 QS("#game-canvas canvas").style.pointerEvents = "";
                 return;
             }
-            if (dc.length == 1 && dc[0] == 3) QS(".tools .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
+            if (dc.length == 1 && dc[0] == 3)QS(".toolbar-group-actions .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
             else document.dispatchEvent(newCustomEvent("performDrawCommand", { detail: dc }));
             captureCanvas.capturedCommands.push(dc);
             await waitMs(3);
