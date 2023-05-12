@@ -1,10 +1,10 @@
-name: Firefox Web Extension Release
+name: Chrome Web Extension Release
 on:
   push:
     branches:
       - master
 jobs:
-  build:
+  build-chrome:
     name: "Build and sign Chrome Web Ext"
     runs-on: ubuntu-latest
     steps:
