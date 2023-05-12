@@ -38,5 +38,5 @@ jobs:
       - name: Archive signed XPI
         uses: actions/upload-artifact@v2
         with:
-          name: typo-firefox-signed-$VERSION.xpi
+          name: typo-firefox-signed-${{env.VERSION}}.xpi
           path: ${{ steps.web-ext-sign.outputs.target }}
