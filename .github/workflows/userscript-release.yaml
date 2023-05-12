@@ -1,4 +1,4 @@
-name: Generate Userscript
+name: Userscript Release Commit
 on:
   release:
     types: [created]

@@ -1,4 +1,4 @@
-name: Firefox Web Extension Release
+name: Firefox & Chrome Web Extension Release
 on:
   push:
     branches:
@@ -65,17 +65,17 @@ jobs:
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
-          filename: typo-chrome-${{env.VERSION}}.zip
+          filename: typo-chrome-${{ env.VERSION }}.zip
           exclusions: "*.git* *.xpi skribbltypo.user.js userscript-gen.js readme.md patch.json /*extensions/* *.web-extension-id .editorconfig .github/"
 
       - name: Archive signed XPI
         uses: actions/upload-artifact@v3
         with:
-          name: typo-chrome-release-${{env.VERSION}}
-          path: typo-chrome-release-${{env.VERSION}}.zip
+          name: typo-chrome-release-${{ env.VERSION }}
+          path: typo-chrome-release-${{ env.VERSION }}.zip
 
   release:
-    name: "Create a release and upload XPI"
+    name: "Create a release and upload assets"
     needs: [publish-firefox, publish-chrome]
     runs-on: ubuntu-latest
     env:
@@ -102,6 +102,12 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Download Firefox release
+        uses: actions/download-artifact@v2
+        with:
+          name: typo-firefox-signed-release-${{ env.VERSION }}
+          path: typo-firefox-signed-release-${{ env.VERSION }}.xpi
+
       - name: Upload XPI
         id: upload_xpi
         uses: actions/upload-release-asset@v1.0.1
@@ -109,15 +115,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ needs.publish-firefox.outputs.web-ext-sign.outputs.target }}
+          asset_path: typo-firefox-signed-release-${{ env.VERSION }}.xpi
           asset_name: typo-firefox-signed-release-${{ env.VERSION }}.xpi
           asset_content_type: application/x-xpinstall
 
       - name: Download Chrome release
         uses: actions/download-artifact@v2
         with:
-          name: typo-chrome-release-${{env.VERSION}}
-          path: typo-chrome-release-${{env.VERSION}}.zip
+          name: typo-chrome-release-${{ env.VERSION }}
+          path: typo-chrome-release-${{ env.VERSION }}.zip
 
       - name: Upload Zip
         id: upload_zip
@@ -126,6 +132,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: typo-chrome-release-${{env.VERSION}}.zip
-          asset_name: typo-chrome-release-${{env.VERSION}}.zip
+          asset_path: typo-chrome-release-${{ env.VERSION }}.zip
+          asset_name: typo-chrome-release-${{ env.VERSION }}.zip
           asset_content_type: application/zip
