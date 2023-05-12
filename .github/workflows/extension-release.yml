@@ -49,3 +49,27 @@ jobs:
           SCRIPT_URL: ${{ secrets.FF_UPDATE_URL }}
         run: |
           curl -X POST -F "file=@$FILE_PATH" -F "version=$VERSION" -F "auth=$AUTH" $SCRIPT_URL
+
+  build-chrome:
+    name: "Build and sign Chrome Web Ext"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: "Get Version"
+        run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_ENV
+
+      - name: "Echo Version"
+        run: echo $VERSION
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: typo-chrome-${{env.VERSION}}.zip
+          exclusions: "*.git* *.xpi skribbltypo.user.js userscript-gen.js readme.md patch.json /*extensions/* *.web-extension-id .editorconfig .github/"
+
+      - name: Archive signed XPI
+        uses: actions/upload-artifact@v2
+        with:
+          name: typo-chrome-release-${{env.VERSION}}
+          path: typo-chrome-${{env.VERSION}}.zip
