@@ -19,11 +19,11 @@ jobs:
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
-          filename: release.zip
+          filename: typo-chrome-${{env.VERSION}}.zip
           exclusions: "*.git* *.xpi skribbltypo.user.js userscript-gen.js readme.md patch.json /*extensions/* *.web-extension-id .editorconfig .github/"
 
       - name: Archive signed XPI
         uses: actions/upload-artifact@v2
         with:
-          name: typo-chrome-signed-${{env.VERSION}}.zip
-          path: release.zip
+          name: typo-chrome-release-${{env.VERSION}}
+          path: typo-chrome-${{env.VERSION}}.zip
