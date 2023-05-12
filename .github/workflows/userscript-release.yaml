@@ -4,7 +4,7 @@ on:
     types: [created]
 
 jobs:
-  build:
+  publish-userscript:
     runs-on: ubuntu-latest
     env:
       CI_COMMIT_MESSAGE: Userscript Build Artifacts

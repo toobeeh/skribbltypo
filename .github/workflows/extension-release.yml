@@ -4,7 +4,7 @@ on:
     branches:
       - master
 jobs:
-  build-firefox:
+  publish-firefox:
     name: "Build and sign Firefox Web Ext"
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +36,7 @@ jobs:
           timeout: 900000
 
       - name: Archive signed XPI
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: typo-firefox-signed-release-${{env.VERSION}}
           path: ${{ steps.web-ext-sign.outputs.target }}
@@ -50,7 +50,7 @@ jobs:
         run: |
           curl -X POST -F "file=@$FILE_PATH" -F "version=$VERSION" -F "auth=$AUTH" $SCRIPT_URL
 
-  build-chrome:
+  publish-chrome:
     name: "Build and sign Chrome Web Ext"
     runs-on: ubuntu-latest
     steps:
@@ -69,7 +69,63 @@ jobs:
           exclusions: "*.git* *.xpi skribbltypo.user.js userscript-gen.js readme.md patch.json /*extensions/* *.web-extension-id .editorconfig .github/"
 
       - name: Archive signed XPI
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: typo-chrome-release-${{env.VERSION}}
-          path: typo-chrome-${{env.VERSION}}.zip
+          path: typo-chrome-release-${{env.VERSION}}.zip
+
+  release:
+    name: "Create a release and upload XPI"
+    needs: [publish-firefox, publish-chrome]
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: "Get Version"
+        run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_ENV
+
+      - name: "Echo Version"
+        run: echo $VERSION
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: skribbltypo-release-${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
+          body: Stable release of skribbl typo, version ${{ env.VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload XPI
+        id: upload_xpi
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ needs.publish-firefox.outputs.web-ext-sign.outputs.target }}
+          asset_name: typo-firefox-signed-release-${{ env.VERSION }}.xpi
+          asset_content_type: application/x-xpinstall
+
+      - name: Download Chrome release
+        uses: actions/download-artifact@v2
+        with:
+          name: typo-chrome-release-${{env.VERSION}}
+          path: typo-chrome-release-${{env.VERSION}}.zip
+
+      - name: Upload Zip
+        id: upload_zip
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: typo-chrome-release-${{env.VERSION}}.zip
+          asset_name: typo-chrome-release-${{env.VERSION}}.zip
+          asset_content_type: application/zip
