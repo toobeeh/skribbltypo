@@ -13,6 +13,8 @@ jobs:
 
       - name: "Get Version"
         run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_ENV
+
+      -name: "Echo Version"
         run: echo $VERSION
 
       - name: Archive Release
