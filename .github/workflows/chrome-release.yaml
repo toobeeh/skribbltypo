@@ -25,5 +25,5 @@ jobs:
       - name: Archive signed XPI
         uses: actions/upload-artifact@v2
         with:
-          name: typo-firefox-signed-${{env.VERSION}}.zip
+          name: typo-chrome-signed-${{env.VERSION}}.zip
           path: release.zip
