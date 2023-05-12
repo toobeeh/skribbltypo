@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.4.168257938
+// @version 24.3.5.168388626
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.3.4 usrsc"};
+            return {version: "24.3.5 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1188,7 +1188,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.typotoolbar || override) localStorage.typotoolbar = "true";
     if (!localStorage.inkMode || override) localStorage.inkMode = "thickness";
     if (!localStorage.sens || override) localStorage.sens = 50;
-    if (!localStorage.charbar || override) localStorage.charbar = "false";
+    if (!localStorage.charbar || override) localStorage.charbar = "true";
     if (!localStorage.agent || override) localStorage.agent = "false";
     if (!localStorage.sizeslider || override) localStorage.sizeslider = "false";
     if (!localStorage.emojipicker || override) localStorage.emojipicker = "true";
@@ -5514,7 +5514,7 @@ const commands = [
                 localStorage.charbar = "false";
             },
             actionAfter: (args) => {
-                QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup"));
+                setTimeout(()=>QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup")),500);
             },
             response: (state) => {
                 return (state ? "Enabled" : "Disabled") + " char count.";
@@ -7055,7 +7055,7 @@ const captureCanvas = {
                 QS("#game-canvas canvas").style.pointerEvents = "";
                 return;
             }
-            if (dc.length == 1 && dc[0] == 3) QS(".tools .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
+            if (dc.length == 1 && dc[0] == 3)QS(".toolbar-group-actions .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
             else document.dispatchEvent(newCustomEvent("performDrawCommand", { detail: dc }));
             captureCanvas.capturedCommands.push(dc);
             await waitMs(3);
