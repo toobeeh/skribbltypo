@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.3.6.168389875
+// @version 24.4.0.168492962
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
         },
         getManifest: () => {
-            return {version: "24.3.6 usrsc"};
+            return {version: "24.4.0 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -3537,7 +3537,7 @@ let patchNode = async (node) => {
         const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
-                <span>Hello there ❤️✏️<br>Typo themes just got an upgrade! <br>Check out the changelog for more information.</span>
+                <span>Hello there ❤️✏️<br>Image agent is back online! <br>Enable the feture in the extension popup to find image templates when it's your turn to draw..</span>
                 <div class="panel" id="typoHints" style="cursor:pointer; width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
@@ -7597,18 +7597,8 @@ let imageAgent = {// func to set the image in the agentdiv
         search = replaceUmlaute(search);
         imageAgent.agent.src = "https://cdn.discordapp.com/attachments/1031284926596796526/1052264435739271188/load.gif";
 
-        // Search engines with CORS bypass:
-        // Google, duckduckgo etc detect bot usage -> unusable
-        // Not working after few requests due to bot detection or smth:     https://yandex.com/images/search?text=hello%20kitty
-        // Working but a bit weird results:                                 https://www.mojeek.com/search?fmt=images&imgpr=bing&q=
-        // Probably best - wikimedia: https://commons.wikimedia.org/wiki/Special:MediaSearch?type=bitmap&q= LOL NO SO WEIRD
-        // Sooo weird  https://search.aol.com/aol/image;?q=
-        // lets give it a try https://www.picsearch.com/index.cgi?q=einhorn
-        // nice pakistani https://searchoye.com/search?q=&engine=5#gsc.tab=0&gsc.q=
-        // hehe finally my own scraper: https://typo-agent-scraper.herokuapp.com/param
         let param = encodeURIComponent(search);
-
-        const server = "https://typo-agent.onrender.com/"
+        const server = "https://agent.typo.rip/"
 
         let resp = await fetch(server + param);
         results = await resp.json();
@@ -7665,7 +7655,7 @@ let imageAgent = {// func to set the image in the agentdiv
         let agentObserver = new MutationObserver(() => {
             imageAgent.updateImageAgent();
         });
-        agentObserver.observe(QS("#game-word"), { attributes: true, subtree:true, childList: true });
+        agentObserver.observe(QS("#game-word"), { attributes: true, subtree: true, childList: true });
     }
 }
 
