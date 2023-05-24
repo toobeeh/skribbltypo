@@ -2,7 +2,7 @@ name: Userscript Release Commit
 on:
   push:
     branches:
-      - develop
+      - master
 
 jobs:
   publish-userscript:
