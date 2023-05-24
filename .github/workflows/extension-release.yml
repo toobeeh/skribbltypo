@@ -71,7 +71,7 @@ jobs:
 
   publish-firefox:
     needs: release
-    name: "Build and sign Firefox Web Ext"
+    name: "Release Firefox Web Ext"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1

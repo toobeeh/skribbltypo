@@ -1,7 +1,8 @@
 name: Userscript Release Commit
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - master
 
 jobs:
   publish-userscript:
@@ -29,49 +30,3 @@ jobs:
           git config --global user.email "toobeeh@users.noreply.github.com"
           git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
-
-  # publish-firefox:
-  #   name: "Build and sign Firefox Web Ext"
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v1
-
-  #     - name: "Get Version"
-  #       run: echo "VERSION=$(jq -r '.version' manifest.json)" >> $GITHUB_ENV
-
-  #     - name: "Echo Version"
-  #       run: echo $VERSION
-
-  #     - name: "web-ext build"
-  #       id: web-ext-build
-  #       uses: kewisch/action-web-ext@v1
-  #       with:
-  #         cmd: build
-  #         source: ./
-  #         exclusions: '["skribbltypo.user.js", "userscript-gen.js"," patch.json", "/*extensions/*"]'
-
-  #     - name: "web-ext sign"
-  #       id: web-ext-sign
-  #       uses: kewisch/action-web-ext@v1
-  #       with:
-  #         cmd: sign
-  #         source: ${{ steps.web-ext-build.outputs.target }}
-  #         channel: unlisted
-  #         apiKey: ${{ secrets.MOZILLA_API_KEY }}
-  #         apiSecret: ${{ secrets.MOZILLA_API_SECRET }}
-  #         timeout: 900000
-
-  #     - name: Archive signed XPI
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: typo-firefox-signed-release-${{env.VERSION}}
-  #         path: ${{ steps.web-ext-sign.outputs.target }}
-
-  #     - name: "Publish update to tobeh.host"
-  #       env:
-  #         FILE_PATH: ${{ steps.web-ext-sign.outputs.target }}
-  #         VERSION: ${{env.VERSION}}
-  #         AUTH: ${{ secrets.FF_UPDATE_AUTH }}
-  #         SCRIPT_URL: ${{ secrets.FF_UPDATE_URL }}
-  #       run: |
-  #         curl -X POST -F "file=@$FILE_PATH" -F "version=$VERSION" -F "auth=$AUTH" $SCRIPT_URL
