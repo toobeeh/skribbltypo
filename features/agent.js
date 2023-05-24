@@ -12,18 +12,8 @@ let imageAgent = {// func to set the image in the agentdiv
         search = replaceUmlaute(search);
         imageAgent.agent.src = "https://cdn.discordapp.com/attachments/1031284926596796526/1052264435739271188/load.gif";
 
-        // Search engines with CORS bypass:
-        // Google, duckduckgo etc detect bot usage -> unusable
-        // Not working after few requests due to bot detection or smth:     https://yandex.com/images/search?text=hello%20kitty
-        // Working but a bit weird results:                                 https://www.mojeek.com/search?fmt=images&imgpr=bing&q=
-        // Probably best - wikimedia: https://commons.wikimedia.org/wiki/Special:MediaSearch?type=bitmap&q= LOL NO SO WEIRD
-        // Sooo weird  https://search.aol.com/aol/image;?q=
-        // lets give it a try https://www.picsearch.com/index.cgi?q=einhorn
-        // nice pakistani https://searchoye.com/search?q=&engine=5#gsc.tab=0&gsc.q=
-        // hehe finally my own scraper: https://typo-agent-scraper.herokuapp.com/param
         let param = encodeURIComponent(search);
-
-        const server = "https://typo-agent.onrender.com/"
+        const server = "https://agent.typo.rip/"
 
         let resp = await fetch(server + param);
         results = await resp.json();
@@ -80,6 +70,6 @@ let imageAgent = {// func to set the image in the agentdiv
         let agentObserver = new MutationObserver(() => {
             imageAgent.updateImageAgent();
         });
-        agentObserver.observe(QS("#game-word"), { attributes: true, subtree:true, childList: true });
+        agentObserver.observe(QS("#game-word"), { attributes: true, subtree: true, childList: true });
     }
 }
