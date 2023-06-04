@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - develop
-
 jobs:
   publish-userscript:
     runs-on: ubuntu-latest
