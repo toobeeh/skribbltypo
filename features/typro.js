@@ -165,22 +165,22 @@ let typro = {
         sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Title</h4>"));
         let filterName = elemFromString("<input type='text' class='flatUI' placeholder='Sonic'>");
         filterName.addEventListener("input", async () => {
-            query.name = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
+            query.title = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterName);
         // date filter
-        sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Date</h4>"));
-        let filterDate = elemFromString("<input type='text' class='flatUI' placeholder='Jan 15 2020'>");
-        filterDate.addEventListener("input", async () => {
-            query.date = filterDate.value.trim() != "" ? filterDate.value.trim() : undefined;
-            await applyFilter();
-        });
-        sidebar.appendChild(filterDate);
+        // sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Date</h4>"));
+        // let filterDate = elemFromString("<input type='text' class='flatUI' placeholder='Jan 15 2020'>");
+        // filterDate.addEventListener("input", async () => {
+        //     query.date = filterDate.value.trim() != "" ? filterDate.value.trim() : undefined;
+        //     await applyFilter();
+        // });
+        // sidebar.appendChild(filterDate);
         // own filter
         let filterOwn = elemFromString("<label><input type='checkbox' class='flatUI'><span>Only your drawings</span></label>");
         filterOwn.querySelector("input").addEventListener("input", async () => {
-            query.own = filterOwn.querySelector("input").checked;
+            query.own = filterOwn.querySelector("input").checked ? true : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterOwn);
