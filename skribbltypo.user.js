@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.4.2.168607134
+// @version 24.4.2.168607335
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -7287,22 +7287,22 @@ let typro = {
         sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Title</h4>"));
         let filterName = elemFromString("<input type='text' class='flatUI' placeholder='Sonic'>");
         filterName.addEventListener("input", async () => {
-            query.name = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
+            query.title = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterName);
         // date filter
-        sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Date</h4>"));
-        let filterDate = elemFromString("<input type='text' class='flatUI' placeholder='Jan 15 2020'>");
-        filterDate.addEventListener("input", async () => {
-            query.date = filterDate.value.trim() != "" ? filterDate.value.trim() : undefined;
-            await applyFilter();
-        });
-        sidebar.appendChild(filterDate);
+        // sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Date</h4>"));
+        // let filterDate = elemFromString("<input type='text' class='flatUI' placeholder='Jan 15 2020'>");
+        // filterDate.addEventListener("input", async () => {
+        //     query.date = filterDate.value.trim() != "" ? filterDate.value.trim() : undefined;
+        //     await applyFilter();
+        // });
+        // sidebar.appendChild(filterDate);
         // own filter
         let filterOwn = elemFromString("<label><input type='checkbox' class='flatUI'><span>Only your drawings</span></label>");
         filterOwn.querySelector("input").addEventListener("input", async () => {
-            query.own = filterOwn.querySelector("input").checked;
+            query.own = filterOwn.querySelector("input").checked ? true : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterOwn);
