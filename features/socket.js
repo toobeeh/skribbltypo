@@ -31,22 +31,22 @@ const socket = {
     },
     init: async () => {
         // get balanced socket port
-        let contact = io("https://typo.rip:" + socket.balancerPort, {
+        let contact = io("https://main.ithil.typo.rip", {
             transports: ['websocket']
         });
-        let balancedPort = await new Promise((resolve, reject) => {
+        let worker = await new Promise((resolve, reject) => {
             setTimeout(() => !contact && reject("Cant connect to typo balancer")); // if server is not responding, use old port
             contact.on("connect", () => {
-                contact.on("balanced port", (data) => contact = undefined || resolve(data.port));
+                contact.on("balanced port", (data) => contact = undefined || resolve(data.alias));
                 contact.emit("request port", { auth: "member", client: localStorage.client });
             });
         });
-        socket.sck = io("https://typo.rip:" + balancedPort.toString(), {
+        socket.sck = io("https://" + worker + ".ithil.typo.rip", {
             transports: ['websocket']
         });
         const onConnect = async () => {
             if (socket.sck == null) return;
-            console.log("Connected to Ithil socketio server on port " + balancedPort);
+            console.log("Connected to Ithil socketio server '" + worker + "'");
             socket.sck.on("clear drop", (data) => {
                 drops.clearDrop(data.payload);
             });
@@ -162,7 +162,7 @@ const socket = {
         catch (e) { console.log("Error joining lobby status:" + e.toString()); }
 
         // connect to websocket drop server
-        if (!socket.dropSocket) socket.dropSocket = new WebSocket("wss://typo.rip:" + socket.dropPort);
+        if (!socket.dropSocket) socket.dropSocket = new WebSocket("wss://drops.ithil.typo.rip");
         socket.dropSocket.addEventListener("message", (event) => {
             // parse received drop
             const dropdata = event.data.split(":"); // dropID:eventDropID:claimTicket
@@ -209,7 +209,7 @@ const socket = {
     },
     getStoredDrawings: async (query = {}, limit = 5000) => {
         Object.keys(query).forEach(key => query[key] === undefined && delete query[key]);
-        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query }, true, 10000)).drawings;
+        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query }, true, 10000)).images;
         return drawings;
     },
     setSpriteSlot: async (slot, sprite) => {
