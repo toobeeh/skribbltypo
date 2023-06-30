@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.4.2.168493141
+// @version 24.4.2.168813350
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -7620,7 +7620,8 @@ let imageAgent = {// func to set the image in the agentdiv
         // func to set imageagentbuttons visible if drawing or opposite
         let word = getCurrentWordOrHint();
         // if player isnt drawing
-        if (word.includes("_") || word == "" || localStorage.agent == "false") {
+        if (word.includes("_") || word == "" || localStorage.agent == "false"
+            || !QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".player-name")?.textContent?.endsWith("(You)")) {
             imageAgent.agent.src = "";
             QS("#imageAgent").style.display = "none";
             scrollMessages(true);
