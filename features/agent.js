@@ -33,7 +33,8 @@ let imageAgent = {// func to set the image in the agentdiv
         // func to set imageagentbuttons visible if drawing or opposite
         let word = getCurrentWordOrHint();
         // if player isnt drawing
-        if (word.includes("_") || word == "" || localStorage.agent == "false") {
+        if (word.includes("_") || word == "" || localStorage.agent == "false"
+            || !QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".player-name")?.textContent?.endsWith("(You)")) {
             imageAgent.agent.src = "";
             QS("#imageAgent").style.display = "none";
             scrollMessages(true);
