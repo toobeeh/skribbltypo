@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.4.3.168823457
+// @version 24.4.3.168824313
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -2954,15 +2954,26 @@ const socket = {
         });
     },
     setLobby: async (lobby, key, description = "") => {
-        try {
-            let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
-            let veriflobby = resp.lobbyData.lobby;
-            let owner = resp.owner;
-            lobbies.lobbyProperties.Description = veriflobby.Description;
-            if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
-            if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
-        }
-        catch (e) { console.log("Error setting lobby status:" + e.toString()); }
+        const thisSet = Date.now();
+        window.lastLobbyFlush = thisSet;
+        setTimeout(async () => {
+
+            if (window.lastLobbyFlush === thisSet) {
+                try {
+                    let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
+                    let veriflobby = resp.lobbyData.lobby;
+                    let owner = resp.owner;
+                    lobbies.lobbyProperties.Description = veriflobby.Description;
+                    if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
+                    if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
+                }
+                catch (e) { console.log("Error setting lobby status:" + e.toString()); }
+                // console.log("flushed lobby");
+            }
+            else {
+                // console.log("skipped flush");
+            }
+        }, 1000);
     },
     leaveLobby: async () => {
         try {
@@ -3056,7 +3067,7 @@ const lobbies = {
 						}))));
 		let playerButtons = "";
 		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" link="${player.link}" slots=${player.players} private=${player.private} class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
-		if(playerButtons=="") playerButtons = "<span>None of your friends are online :(</span>";
+		if (playerButtons == "") playerButtons = "<span>None of your friends are online :(</span>";
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
 			if (socket.authenticated) container.innerHTML = playerButtons;
@@ -3067,53 +3078,53 @@ const lobbies = {
 		}
 		else {
 			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
-        }
+		}
 		container.addEventListener("click", e => {
 			console.log("click")
 			let key = e.target.getAttribute("lobby");
 			let players = e.target.getAttribute("slots");
 			let private = e.target.getAttribute("private");
 			let name = e.target.innerText;
-			if(!key) return;
+			if (!key) return;
 			let link = e.target.getAttribute("link")?.split("?")[1];
-			if(link){
-				if (link.length > 10) new Toast("This lobby is probably invalid or on old skribbl :/");
-				else if(private != 'false' || Number(players) < 8) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+			if (link) {
+				if (link.length > 10) new Toast("Lobby access is restricted.");
+				else if (private != 'false' || Number(players) < 8) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
 				else {
-					
+
 					let modal = new Modal(elemFromString(`<div><img src="https://c.tenor.com/fAQuR0VNdDIAAAAC/cat-cute.gif"></div>`), () => {
-						if(!search.searchData.searching) return;
+						if (!search.searchData.searching) return;
 						search.searchData.ended();
 					}, "Waiting for a free slot to play with " + name, "40vw", "15em");
-			
+
 					search.setSearch(() => {
-						if(!QS("[lobby=" + key + "]")) {
+						if (!QS("[lobby=" + key + "]")) {
 							search.searchData.ended();
 							new Toast("The lobby has ended :(");
 						}
 						console.log(Number(QS("[lobby=" + key + "]").getAttribute("slots")));
 						let success = Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
-						if(success) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+						if (success) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
 						return success;
 					}, async () => {
 					}, () => {
-						search.searchData= {
+						search.searchData = {
 							searching: false,
 							check: undefined, proceed: undefined, ended: undefined
 						};
 						modal.close();
 					});
 
-					let interval = setInterval(()=>{
-						if(!search.searchData.searching) clearInterval(interval);
-						if(search.searchData.check()) {
+					let interval = setInterval(() => {
+						if (!search.searchData.searching) clearInterval(interval);
+						if (search.searchData.check()) {
 							search.searchData.ended();
 							clearInterval(interval);
 						}
 					}, 500);
 				}
 			}
-			else new Toast("This lobby is probably invalid or on old skribbl :/");
+			else new Toast("Lobby access is restricted.");
 		});
 		QS("#discordLobbies").replaceWith(container);
 	},
@@ -3123,8 +3134,6 @@ const lobbies = {
 		// send reports when lobby changes
 		const lobbyObserver = new MutationObserver(async () => {
 			if (lobbies.inGame) {
-				// observe new matching elements
-				lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true}));
 				lobbies.lobbyProperties.Players = lobbies.getLobbyPlayers();
 				lobbies.lobbyProperties.Round = parseInt(QS("#game-round").textContent.trim()[6]);
 				if (!lobbies.lobbyProperties.Round) lobbies.lobbyProperties.Round = 0;
@@ -3135,24 +3144,31 @@ const lobbies = {
 				}
 			}
 		});
+
 		// init lobby container
 		lobbies.lobbyContainer = lobbies.setLobbyContainer();
 		// on lobby join
 		document.addEventListener("lobbyConnected", async (e) => {
-			lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
+
+			lobbyObserver.disconnect();
+
+			lobbyObserver.observe(QS("#game-round"), { characterData: true, childList: false, subtree: false, attributes: false });
+			lobbyObserver.observe(QS("#game-players .players-list"), { characterData: true, childList: true, subtree: false, attributes: false });
+			lobbyObserver.observe(QS("#game-word .description"), { characterData: false, childList: false, subtree: false, attributes: true });
+			// lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
 
 			// fill in basic lobby props 
-			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = '" + e.detail.settings[0] +"']").innerText;
+			lobbies.lobbyProperties.Language = QS("#home div.panel > div.container-name-lang > select option[value = '" + e.detail.settings[0] + "']").innerText;
 			lobbies.lobbyProperties.Private = e.detail.owner >= 0 ? true : false;
 			console.log(e.detail.id);
 			lobbies.lobbyProperties.Link = window.location.origin + "?" + e.detail.id;
 
 			// generate lobby key by hashed link
 			lobbies.lobbyProperties.Key = genMatchHash(e.detail.id);
-			lobbies.lobbyProperties.Round = e.detail.round+1;
+			lobbies.lobbyProperties.Round = e.detail.round + 1;
 
 			// get own name
-			sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.users[e.detail.users.length-1].name;
+			sessionStorage.lastLoginName = socket.clientData.playerName = e.detail.users[e.detail.users.length - 1].name;
 			lobbies.inGame = true;
 
 			// get initialplayers for search check and report
@@ -3165,14 +3181,14 @@ const lobbies = {
 					LobbyPlayerID: p.id,
 					Sender: false
 				};
-				if (add.Name == socket.clientData.playerName) add.Sender = true; 
+				if (add.Name == socket.clientData.playerName) add.Sender = true;
 				lobbies.lobbyProperties.Players.push(add);
 			});
 
 
 			// check if lobby search is running and criteria is met
-			if(search.searchData.searching){
-				if(search.searchData.check()){
+			if (search.searchData.searching) {
+				if (search.searchData.check()) {
 					search.searchData.ended();
 					QS("#searchRules")?.remove();
 				}
