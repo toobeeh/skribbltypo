@@ -175,15 +175,26 @@ const socket = {
         });
     },
     setLobby: async (lobby, key, description = "") => {
-        try {
-            let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
-            let veriflobby = resp.lobbyData.lobby;
-            let owner = resp.owner;
-            lobbies.lobbyProperties.Description = veriflobby.Description;
-            if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
-            if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
-        }
-        catch (e) { console.log("Error setting lobby status:" + e.toString()); }
+        const thisSet = Date.now();
+        window.lastLobbyFlush = thisSet;
+        setTimeout(async () => {
+
+            if (window.lastLobbyFlush === thisSet) {
+                try {
+                    let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
+                    let veriflobby = resp.lobbyData.lobby;
+                    let owner = resp.owner;
+                    lobbies.lobbyProperties.Description = veriflobby.Description;
+                    if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
+                    if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
+                }
+                catch (e) { console.log("Error setting lobby status:" + e.toString()); }
+                // console.log("flushed lobby");
+            }
+            else {
+                // console.log("skipped flush");
+            }
+        }, 1000);
     },
     leaveLobby: async () => {
         try {
