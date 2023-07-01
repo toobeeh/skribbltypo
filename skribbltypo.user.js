@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.4.2.168493141
+// @version 24.4.2.168813350
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -2810,22 +2810,22 @@ const socket = {
     },
     init: async () => {
         // get balanced socket port
-        let contact = io("https://typo.rip:" + socket.balancerPort, {
+        let contact = io("https://main.ithil.typo.rip", {
             transports: ['websocket']
         });
-        let balancedPort = await new Promise((resolve, reject) => {
+        let worker = await new Promise((resolve, reject) => {
             setTimeout(() => !contact && reject("Cant connect to typo balancer")); // if server is not responding, use old port
             contact.on("connect", () => {
-                contact.on("balanced port", (data) => contact = undefined || resolve(data.port));
+                contact.on("balanced port", (data) => contact = undefined || resolve(data.alias));
                 contact.emit("request port", { auth: "member", client: localStorage.client });
             });
         });
-        socket.sck = io("https://typo.rip:" + balancedPort.toString(), {
+        socket.sck = io("https://" + worker + ".ithil.typo.rip", {
             transports: ['websocket']
         });
         const onConnect = async () => {
             if (socket.sck == null) return;
-            console.log("Connected to Ithil socketio server on port " + balancedPort);
+            console.log("Connected to Ithil socketio server '" + worker + "'");
             socket.sck.on("clear drop", (data) => {
                 drops.clearDrop(data.payload);
             });
@@ -2941,7 +2941,7 @@ const socket = {
         catch (e) { console.log("Error joining lobby status:" + e.toString()); }
 
         // connect to websocket drop server
-        if (!socket.dropSocket) socket.dropSocket = new WebSocket("wss://typo.rip:" + socket.dropPort);
+        if (!socket.dropSocket) socket.dropSocket = new WebSocket("wss://drops.ithil.typo.rip");
         socket.dropSocket.addEventListener("message", (event) => {
             // parse received drop
             const dropdata = event.data.split(":"); // dropID:eventDropID:claimTicket
@@ -2988,7 +2988,7 @@ const socket = {
     },
     getStoredDrawings: async (query = {}, limit = 5000) => {
         Object.keys(query).forEach(key => query[key] === undefined && delete query[key]);
-        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query }, true, 10000)).drawings;
+        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query }, true, 10000)).images;
         return drawings;
     },
     setSpriteSlot: async (slot, sprite) => {
@@ -7139,26 +7139,28 @@ let typro = {
                 let container = document.createElement("div");
                 container.id = drawing.id;
 
-                container.classList.add(JSON.stringify(drawing.meta.name).replaceAll(" ", "_"));
-                container.classList.add(JSON.stringify(drawing.meta.author).replaceAll(" ", "_"));
-                let date = (new Date(drawing.meta.date)).toISOString().split("T")[0];
+                const meta = await (await fetch(drawing.meta)).json();
+
+                container.classList.add(JSON.stringify(meta.name).replaceAll(" ", "_"));
+                container.classList.add(JSON.stringify(meta.author).replaceAll(" ", "_"));
+                let date = (new Date(meta.date)).toISOString().split("T")[0];
                 container.classList.add(date);
-                if (drawing.meta.own == true) container.classList.add("own");
+                if (meta.own == true) container.classList.add("own");
 
                 let thumb = document.createElement("img");
-                let data = null;
-                thumb.src = drawing.meta.thumbnail ? drawing.meta.thumbnail : typro.thumbnail;
+                thumb.style.backgroundImage = "url(" + typro.thumbnail + ")";
+                thumb.style.backgroundSize = "cover";
+                thumb.src = drawing.image;
                 let overlay = elemFromString(`<div></div>`);
-                overlay.appendChild(elemFromString("<h3>" + drawing.meta.name + " by " + drawing.meta.author + "</h3>"));
+                overlay.appendChild(elemFromString("<h3>" + meta.name + " by " + meta.author + "</h3>"));
                 let options = elemFromString("<div ></div>");
                 overlay.appendChild(options);
 
                 let imgtools = elemFromString("<button class='flatUI blue min air'>Add to ImageTools</button>");
                 imgtools.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    let resp = (await socket.emitEvent("get commands", { id: drawing.id}, true, 5000));
-                    let commands = resp.commands;
-                    imageTools.addPasteCommandsButton(commands, drawing.meta.name);
+                    let commands = await (await fetch(drawing.commands)).json()
+                    imageTools.addPasteCommandsButton(commands, meta.name);
                     new Toast("Added drawing to ImageTools. You can paste it now!");
                 });
                 options.appendChild(imgtools);
@@ -7166,11 +7168,11 @@ let typro = {
                 let imgpost = elemFromString("<button class='flatUI blue min air'>Add to ImagePost</button>");
                 imgpost.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    if (!data) data = await socket.emitEvent("fetch drawing", { id: drawing.id }, true, 5000);
+                    const data = await (await fetch(drawing.drawing)).text()
                     captureCanvas.capturedDrawings.push({
-                        drawing: data.drawing.uri,
-                        drawer: drawing.meta.author,
-                        word: drawing.meta.name
+                        drawing: data,
+                        drawer: meta.author,
+                        word: meta.name
                     });
                     new Toast("Added drawing to ImagePost history. Click left on the post image to select it!");
                 });
@@ -7179,8 +7181,8 @@ let typro = {
                 let clipboard = elemFromString("<button class='flatUI blue min air'>Copy to Clipboard</button>");
                 clipboard.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    if (!data) data = await socket.emitEvent("fetch drawing", { id: drawing.id }, true, 5000);
-                    await dataURLtoClipboard(data.drawing.uri);
+                    const data = await (await fetch(drawing.drawing)).text()
+                    await dataURLtoClipboard(data);
                     new Toast("Copied the image to your clipboard. Share it! :3");
                 });
                 options.appendChild(clipboard);
@@ -7188,8 +7190,8 @@ let typro = {
                 let savepng = elemFromString("<button class='flatUI green min air'>Save PNG</button>");
                 savepng.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    if (!data) data = await socket.emitEvent("fetch drawing", { id: drawing.id }, true, 5000);
-                    imageOptions.downloadDataURL(data.drawing.uri, "skribblCloud-" + drawing.meta.name + "-by-" + drawing.meta.author);
+                    const data = await (await fetch(drawing.drawing)).text()
+                    imageOptions.downloadDataURL(data, "skribblCloud-" + meta.name + "-by-" + meta.author);
                     new Toast("Started the image download.");
                 });
                 options.appendChild(savepng);
@@ -7197,8 +7199,8 @@ let typro = {
                 let savegif = elemFromString("<button class='flatUI green min air'>Save GIF</button>");
                 savegif.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    let commands = (await socket.emitEvent("fetch drawing", { id: drawing.id, withCommands: true }, true, 5000)).drawing.commands;
-                    imageOptions.drawCommandsToGif(drawing.name, commands);
+                    let commands = await (await fetch(drawing.commands)).json();
+                    imageOptions.drawCommandsToGif(meta.name, commands);
                     new Toast("Started rendering the GIF. It's pronounced JIF, not GIF!!!");
                 });
                 options.appendChild(savegif);
@@ -7206,7 +7208,7 @@ let typro = {
                 let remove = elemFromString("<button class='flatUI orange min air'>Delete</button>");
                 let removeConfirm = false;
                 remove.addEventListener("click", async () => {
-                    if (!removeConfirm) { remove.innerHTML = "Really?"; removeConfirm = true; return;}
+                    if (!removeConfirm) { remove.innerHTML = "Really?"; removeConfirm = true; return; }
                     await socket.emitEvent("remove drawing", { id: drawing.id });
                     new Toast("Deleted drawing from the cloud.");
                     container.remove();
@@ -7285,29 +7287,29 @@ let typro = {
         sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Title</h4>"));
         let filterName = elemFromString("<input type='text' class='flatUI' placeholder='Sonic'>");
         filterName.addEventListener("input", async () => {
-            query.name = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
+            query.title = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterName);
         // date filter
-        sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Date</h4>"));
-        let filterDate = elemFromString("<input type='text' class='flatUI' placeholder='Jan 15 2020'>");
-        filterDate.addEventListener("input", async () => {
-            query.date = filterDate.value.trim() != "" ? filterDate.value.trim() : undefined;
-            await applyFilter();
-        });
-        sidebar.appendChild(filterDate);
+        // sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Date</h4>"));
+        // let filterDate = elemFromString("<input type='text' class='flatUI' placeholder='Jan 15 2020'>");
+        // filterDate.addEventListener("input", async () => {
+        //     query.date = filterDate.value.trim() != "" ? filterDate.value.trim() : undefined;
+        //     await applyFilter();
+        // });
+        // sidebar.appendChild(filterDate);
         // own filter
         let filterOwn = elemFromString("<label><input type='checkbox' class='flatUI'><span>Only your drawings</span></label>");
         filterOwn.querySelector("input").addEventListener("input", async () => {
-            query.own = filterOwn.querySelector("input").checked;
+            query.own = filterOwn.querySelector("input").checked ? true : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterOwn);
         modalContent.appendChild(sidebar);
         let modal = new Modal(modalContent, () => { }, "Typo Cloud Gallery", "90vw", "90vh");
         getSkeletons();
-        drawings = await socket.getStoredDrawings({}, 500);
+        drawings = await socket.getStoredDrawings({}, 1000);
         await typro.setDrawings(drawings, contentDrawings);
     }
 }
@@ -7618,7 +7620,8 @@ let imageAgent = {// func to set the image in the agentdiv
         // func to set imageagentbuttons visible if drawing or opposite
         let word = getCurrentWordOrHint();
         // if player isnt drawing
-        if (word.includes("_") || word == "" || localStorage.agent == "false") {
+        if (word.includes("_") || word == "" || localStorage.agent == "false"
+            || !QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".player-name")?.textContent?.endsWith("(You)")) {
             imageAgent.agent.src = "";
             QS("#imageAgent").style.display = "none";
             scrollMessages(true);
