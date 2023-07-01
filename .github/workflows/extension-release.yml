@@ -23,12 +23,13 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1.0.0
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: skribbltypo-release-${{ env.VERSION }}
           release_name: Release ${{ env.VERSION }}
+          body: Stable release of skribbl typo, version ${{ env.VERSION }}
           draft: false
           prerelease: false
 
