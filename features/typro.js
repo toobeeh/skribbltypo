@@ -65,6 +65,14 @@ let typro = {
                 });
                 options.appendChild(clipboard);
 
+                let link = elemFromString("<button class='flatUI blue min air'>Copy Link</button>");
+                link.addEventListener("click", async () => {
+                    drawing.image
+                    await navigator.clipboard.writeText(drawing.image);
+                    new Toast("Copied the image link to your clipboard. Share it! :3");
+                });
+                options.appendChild(link);
+
                 let savepng = elemFromString("<button class='flatUI green min air'>Save PNG</button>");
                 savepng.addEventListener("click", async () => {
                     new Toast("Loading...");

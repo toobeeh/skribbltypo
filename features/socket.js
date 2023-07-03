@@ -182,9 +182,11 @@ const socket = {
                     let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
                     let veriflobby = resp.lobbyData.lobby;
                     let owner = resp.owner;
+                    drops.mode = resp.dropMode;
                     lobbies.lobbyProperties.Description = veriflobby.Description;
                     if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
                     if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
+
                 }
                 catch (e) { console.log("Error setting lobby status:" + e.toString()); }
                 // console.log("flushed lobby");
