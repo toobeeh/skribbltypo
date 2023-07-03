@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.4.5.168838975
+// @version 24.4.5.168838995
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -2961,11 +2961,11 @@ const socket = {
                     let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
                     let veriflobby = resp.lobbyData.lobby;
                     let owner = resp.owner;
+                  
                     drops.mode = resp.dropMode;
                     lobbies.lobbyProperties.Description = veriflobby.Description;
                     if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
                     if (QS("#restrictLobby")) QS("#restrictLobby").style.display = owner && lobbies.lobbyProperties.Private ? "" : "none";
-
                 }
                 catch (e) { console.log("Error setting lobby status:" + e.toString()); }
                 // console.log("flushed lobby");
