@@ -5,6 +5,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 // depends on: generalFunctions.js, commands.js
 let drops = {
     eventDrops: [],
+    mode: "normal",
     currentDrop: null,
     dropContainer: null,
     waitForClear: false,
@@ -45,7 +46,7 @@ let drops = {
         "></div></div>
         `;
         document.body.insertAdjacentHTML("afterbegin", html);
-        setTimeout(()=>{
+        setTimeout(() => {
             QS("#specialdrop").remove();
         }, 5000);
         hits = 0;
@@ -59,17 +60,18 @@ let drops = {
         QS("#specialdrop").addEventListener("pointerdown", () => {
             hits++;
             addChatMessage("Santa:", msgs[msgs.length * Math.random() | 0]);
-            if(hits == 4) callback();
+            if (hits == 4) callback();
         });
     },
     newDrop: (drop) => {
         if (localStorage.drops == "false" || sessionStorage.inStream == "true" || !lobbies.joined) return;
         drops.currentDrop = drop;
         let dropElem = drops.dropContainer;
-        if (drop.eventDropID == 0) dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
+        if (drop.eventDropID == 0 || drops.mode === "league") dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
         else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.eventDropID).URL + '")';
         dropElem.style.display = "block";
         dropElem.style.left = Math.round(5 + Math.random() * 90) + "%";
+        dropElem.style.filter = drops.mode === "normal" ? "" : "hue-rotate(100deg) saturate(1.5)";
         //hide drop after 5s and emit timeout
         setTimeout(async () => {
             if (drops.currentDrop && !drops.claimedDrop) {
@@ -78,20 +80,20 @@ let drops = {
                 drops.claimedDrop = false;
                 dropElem.style.display = "none";
             }
-            
+
         }, 5000);
     },
     clearDrop: (result) => {
         if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
         let dropElem = drops.dropContainer;
         let winner = result.caughtPlayer;
-        if(result.leagueWeight > 0){
+        if (result.leagueWeight > 0) {
             if (result.claimTicket == drops.currentDrop.claimTicket) {
                 addChatMessage("Nice one!", "You caught a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
                 drops.caughtLeagueDrop = true;
             }
             else {
-                if(localStorage.dropmsgs == "true") addChatMessage("", winner + " claimed a " +  Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+                if (localStorage.dropmsgs == "true") addChatMessage("", winner + " claimed a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
             }
         }
         else {
@@ -99,7 +101,7 @@ let drops = {
                 addChatMessage("Yeee!", "You were the fastest to catch the drop!");
                 drops.selfCaught = true;
             }
-            else if(!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
             else addChatMessage("", winner + " caught the regular drop.");
             dropElem.style.display = "none";
         }
@@ -112,8 +114,8 @@ let drops = {
         drops.claimedDrop = false;
         drops.caughtLeagueDrop = false;
         drops.dropContainer.style.display = "none";
-        if(localStorage.dropmsgs == "true") {
-            addChatMessage("Last drop claim ranking:", text);    
+        if (localStorage.dropmsgs == "true") {
+            addChatMessage("Last drop claim ranking:", text);
         }
     },
     initDropContainer: () => {
