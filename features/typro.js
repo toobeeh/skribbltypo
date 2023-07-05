@@ -59,8 +59,7 @@ let typro = {
                 let clipboard = elemFromString("<button class='flatUI blue min air'>Copy to Clipboard</button>");
                 clipboard.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.drawing)).text()
-                    await dataURLtoClipboard(data);
+                    await imageUrlToClipboard(drawing.image);
                     new Toast("Copied the image to your clipboard. Share it! :3");
                 });
                 options.appendChild(clipboard);
@@ -76,8 +75,7 @@ let typro = {
                 let savepng = elemFromString("<button class='flatUI green min air'>Save PNG</button>");
                 savepng.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.drawing)).text()
-                    imageOptions.downloadDataURL(data, "skribblCloud-" + meta.name + "-by-" + meta.author);
+                    imageOptions.downloadImageURL(drawing.image, "skribblCloud-" + meta.name + "-by-" + meta.author);
                     new Toast("Started the image download.");
                 });
                 options.appendChild(savepng);

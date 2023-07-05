@@ -76,6 +76,17 @@ let imageOptions = {
             document.querySelector("#game-canvas canvas").height * scale);
         d.dispatchEvent(e);
     },
+    downloadImageURL: async (url, name = "skribbl-unknown", scale = 1) => {
+        const blob = await (await fetch(url)).blob();
+        const blobUrl = URL.createObjectURL(blob);
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        d.download = name;
+        d.href = blobUrl;
+        d.dispatchEvent(e);
+    },
     initDownloadOptions: () => {
         // add DL button for gif
         const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
