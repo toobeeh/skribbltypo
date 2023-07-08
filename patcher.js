@@ -98,7 +98,7 @@ let patchNode = async (node) => {
         const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
-                <span>Hello there ❤️✏️<br>Image agent is back online! <br>Enable the feature in the extension popup to find image templates when it's your turn to draw.</span>
+                <span>Hello there ❤️✏️<br>Check out the new tools "grid" and "rainbow stroke" in the brush lab!</span>
                 <div class="panel" id="typoHints" style="cursor:pointer; width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>

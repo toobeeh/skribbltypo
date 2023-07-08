@@ -6826,7 +6826,7 @@ const uiTweaks = {
         }
         else {
             const userinfo = QS("#typoUserInfo")
-            userinfo.innerText = "No palantir account connected!";
+            userinfo.innerText = "No palantir account connected.";
             userinfo.style.cssText = "opacity:1; transition: opacity 0.5s";
             setTimeout(() => { userinfo.style.opacity = "0"; }, 3000);
             setTimeout(() => { userinfo.style.display = "none" }, 3500);

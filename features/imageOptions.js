@@ -202,38 +202,40 @@ let imageOptions = {
         let webhooks = socket.data.user.webhooks;
 
         // add buttons to post image
-        if (!webhooks || webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
-        webhooks.forEach(async (w) => {
-            // add share button for image
-            let shareImg = document.createElement("button");
-            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
-            shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
-            shareImg.classList.add("flatUI", "green", "air");
-            shareImg.addEventListener("click", async () => {
+        if (webhooks === undefined || webhooks.length <= 0) sharePopup.innerHTML += "ImagePoster lets you share images directly to discord. <br><br>You need to be logged in with palantir and in a server that uses ImagePost..";
+        else {
+            webhooks.forEach(async (w) => {
+                // add share button for image
+                let shareImg = document.createElement("button");
+                let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
+                shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
+                shareImg.classList.add("flatUI", "green", "air");
+                shareImg.addEventListener("click", async () => {
 
-                // close popup first to avoid spamming
-                sharePopup.style.display = "none";
-                let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
-                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
+                    // close popup first to avoid spamming
+                    sharePopup.style.display = "none";
+                    let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
+                    let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
 
-                // send to socket
-                await socket.emitEvent("post image", {
-                    accessToken: localStorage.accessToken,
-                    serverID: w.ServerID,
-                    imageURI: imageShareString,
-                    webhookName: w.Name,
-                    postOptions: {
-                        onlyImage: QS("#sendImageOnly").checked,
-                        drawerName: imageShareStringDrawer,
-                        posterName: loginName,
-                        title: title
-                    }
+                    // send to socket
+                    await socket.emitEvent("post image", {
+                        accessToken: localStorage.accessToken,
+                        serverID: w.ServerID,
+                        imageURI: imageShareString,
+                        webhookName: w.Name,
+                        postOptions: {
+                            onlyImage: QS("#sendImageOnly").checked,
+                            drawerName: imageShareStringDrawer,
+                            posterName: loginName,
+                            title: title
+                        }
+                    });
+
+                    new Toast("Posted image on Discord.", 2000);
                 });
-
-                new Toast("Posted image on Discord.", 2000);
+                sharePopup.appendChild(shareImg);
             });
-            sharePopup.appendChild(shareImg);
-        });
+        }
         Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
     },
     initAll: () => {
