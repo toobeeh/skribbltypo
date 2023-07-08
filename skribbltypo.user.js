@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 24.4.5.168881357
+// @version 24.4.5.168881466
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -6992,7 +6992,7 @@ let drops = {
                 addChatMessage("Yeee!", "You were the fastest to catch the drop!");
                 drops.selfCaught = true;
             }
-            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the regular drop :(");
             else addChatMessage("", winner + " caught the regular drop.");
             dropElem.style.display = "none";
         }
@@ -7788,6 +7788,7 @@ const gamemodes = {
                         const img = new Image;
                         img.onload = () => QS("#game-canvas canvas").getContext("2d").drawImage(img, 0, 0);
                         img.src = event.detail;
+                        img.crossOrigin = "anonymous"
                     }
                     document.addEventListener("logCanvasClear", this.restoreCanvas);
                 },
