@@ -41,7 +41,7 @@ let bundle = `
 // @website https://typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
-// @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/cf478d8b402044398e52e72cad0a843815a46594/res/icon/128MaxFit.png
+// @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
 // @version ${mainfest.version}.${Date.now().toString().substring(0, 9)}
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
@@ -53,12 +53,12 @@ let bundle = `
 const chrome = {
     extension: {
         getURL: (url) => {
-            return "https://rawcdn.githack.com/toobeeh/skribbltypo/cf478d8b402044398e52e72cad0a843815a46594/" + url;
+            return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         }
     },
     runtime: {
         getURL: (url) => {
-            return "https://rawcdn.githack.com/toobeeh/skribbltypo/cf478d8b402044398e52e72cad0a843815a46594/" + url;
+            return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
             return {version: "${mainfest.version} usrsc"};
@@ -136,7 +136,7 @@ const execTypo = async () => {
     /* parse doc and add new base uri + polyfill for tabs api */
     popupDoc.innerHTML = popupHTML;
     popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
-        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/cf478d8b402044398e52e72cad0a843815a46594/popup/" />'
+        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/master/popup/" />'
     );
     popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
         \`<script>
