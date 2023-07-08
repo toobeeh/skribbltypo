@@ -4,8 +4,8 @@
 // @website https://typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
-// @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.4.5.168881336
+// @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
+// @version 24.4.5.168881357
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -16,12 +16,12 @@
 const chrome = {
     extension: {
         getURL: (url) => {
-            return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
+            return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         }
     },
     runtime: {
         getURL: (url) => {
-            return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
+            return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
             return {version: "24.4.5 usrsc"};
@@ -5446,7 +5446,7 @@ bounceload {
     /* parse doc and add new base uri + polyfill for tabs api */
     popupDoc.innerHTML = popupHTML;
     popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
-        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/cf478d8b402044398e52e72cad0a843815a46594/popup/" />'
+        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/master/popup/" />'
     );
     popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
         `<script>
