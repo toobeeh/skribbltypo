@@ -96,6 +96,7 @@ const gamemodes = {
                         const img = new Image;
                         img.onload = () => QS("#game-canvas canvas").getContext("2d").drawImage(img, 0, 0);
                         img.src = event.detail;
+                        img.crossOrigin = "anonymous"
                     }
                     document.addEventListener("logCanvasClear", this.restoreCanvas);
                 },

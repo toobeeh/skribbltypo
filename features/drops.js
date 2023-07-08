@@ -101,7 +101,7 @@ let drops = {
                 addChatMessage("Yeee!", "You were the fastest to catch the drop!");
                 drops.selfCaught = true;
             }
-            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the regular drop :(");
             else addChatMessage("", winner + " caught the regular drop.");
             dropElem.style.display = "none";
         }
