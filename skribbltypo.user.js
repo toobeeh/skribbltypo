@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 24.4.5.168881739
+// @version 24.4.5.168882353
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -526,12 +526,12 @@ const search = {
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
-const sprites = {    
+const sprites = {
     // Object which has necessary properties to handle sprite logic
     PlayerSpriteContainer: function (_lobbyKey, _lobbyPlayerID, _avatarContainer, _name) {
         this.lobbyKey = _lobbyKey;
         this.lobbyPlayerID = _lobbyPlayerID;
-        this.name =_name;
+        this.name = _name;
         this.avatarContainer = _avatarContainer;
     },
     availableSprites: [], //list of all sprites
@@ -555,7 +555,7 @@ const sprites = {
             let psc = new sprites.PlayerSpriteContainer(
                 lobbies.lobbyProperties.Key,
                 p.getAttribute("playerid"),
-                p.querySelector(".avatar"), 
+                p.querySelector(".avatar"),
                 p.querySelector(".player-name").innerText.replace("(You)", "").trim()
             )
             players.push(psc);
@@ -571,14 +571,14 @@ const sprites = {
             let playerSlots = [];
             sprites.playerSprites.forEach(sprite => {
                 if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) {
-                        playerSlots.push({ 
-                        sprite: sprite.Sprite, 
-                        slot: sprite.Slot ,
+                    playerSlots.push({
+                        sprite: sprite.Sprite,
+                        slot: sprite.Slot,
                         shift: shifts.find(shift => shift.LobbyPlayerID == player.lobbyPlayerID && sprite.Slot == shift.Slot)
                     });
                 }
             });
-            
+
             if (playerSlots.length > 0) {
                 player.avatarContainer.parentElement.parentElement.classList.toggle("typo", true);
                 // check if existent slots are set to 0
@@ -607,16 +607,16 @@ const sprites = {
                         else {
                             spriteContainer.parentElement.parentElement.parentElement.style.height = "56px";
                             spriteContainer.parentElement.parentElement.style.top = "3px";
-                        } 
+                        }
                     }
                 });
             }
             // else remove all existent slots
-            else{
-                [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove()); 
+            else {
+                [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove());
                 player.avatarContainer.parentElement.parentElement.classList.toggle("typo", false);
-            } 
-            
+            }
+
         });
     },
     updateScenes: () => {
@@ -636,6 +636,8 @@ const sprites = {
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
         });
+
+        if (QS("#scenesRules")?.innerHTML === scenesCSS.innerHTML) return;
 
         QS("#scenesRules")?.remove();
         playerlist.insertAdjacentElement("afterbegin", scenesCSS);
@@ -681,8 +683,8 @@ const sprites = {
     getOwnSpriteUrlShifted: (id) => {
         let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
         let url = sprites.getSpriteURL(id);
-        let shift = shifts.find(s=> s[0] == id);
-        if(shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
+        let shift = shifts.find(s => s[0] == id);
+        if (shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
         return url;
     },
     setLandingSprites: (authenticated = false) => {
@@ -705,19 +707,19 @@ const sprites = {
                 clone.classList.add("spriteSlot");
                 clone.classList.remove("special");
             });
-            
+
             let container = QS(".avatar-customizer");
             let scene = socket.data.user.scenes ? socket.data.user.scenes.toString().split(",").filter(s => s[0] == ".")[0] : undefined;
-            if(scene != undefined){
-                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".",""))).URL;
-                container.style.cssText=`    
+            if (scene != undefined) {
+                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".", ""))).URL;
+                container.style.cssText = `    
                     background-repeat: no-repeat;
                     background-image: url(${url});
                     background-size: cover;
                     background-position: center;
                 `;
             }
-            else container.style.cssText=``;
+            else container.style.cssText = ``;
         }
         else {
             QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
@@ -883,7 +885,7 @@ const sprites = {
                     })
                 }
             });
-            
+
         }
 
         QS("#rightPanelContent #loginRedir").addEventListener("click", login);
@@ -898,7 +900,7 @@ const sprites = {
             sprites.updateSprites();
         });
         endboardObserver.observe(QS(".overlay-content .result"), { childList: true, attributes: true });
-        sprites.getSprites();     
+        sprites.getSprites();
     }
 
 };
@@ -2780,6 +2782,7 @@ const socket = {
         user: {}
     },
     sck: null,
+    dropSocket: undefined,
     authenticated: false,
     emitEvent: (event, payload, listenResponse = false, responseTimeout = 2000) => {
         return new Promise((resolve, reject) => {
@@ -2833,7 +2836,7 @@ const socket = {
                 // handle disconnect reasons different
                 console.log("Disconnected with reason: " + reason);
                 lobbies.joined = false;
-                socket.dropSocket.close();
+                socket.dropSocket?.close();
                 socket.dropSocket = undefined;
 
                 // if probably tempoary disconnect (server crash/restart, internet) enable reconnect without new balanced port
@@ -2951,7 +2954,7 @@ const socket = {
                     let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
                     let veriflobby = resp.lobbyData.lobby;
                     let owner = resp.owner;
-                  
+
                     drops.mode = resp.dropMode;
                     lobbies.lobbyProperties.Description = veriflobby.Description;
                     if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
@@ -7818,7 +7821,7 @@ const gamemodes = {
                 initWithAction: true,
                 destroy: () => {
                     QS("#game-toolbar style#gamemodeMonochromeRules")?.remove()
-                    QS("#randomColor").setAttribute("data-monochrome", "");
+                    QS("#randomColor")?.setAttribute("data-monochrome", "");
                 },
                 observeSelector: "#game-toolbar",
                 observeOptions: {
@@ -7903,59 +7906,6 @@ const stateFromLocalstorage = (modeName, defaultState, stateOverride = undefined
 const brushtools = {
     groups: {
         color: {
-            /*rainbow: {
-                name: "Rainbow",
-                description: "The brush color is a rainbow color depending on your pen pressure.",
-                enabled: false,
-                options: {
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)){
-                        mode.disable();
-                    }
-                    brushtools.groups.color.rainbow.enabled = true;
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                },
-                disable: () => {
-                    brushtools.groups.color.rainbow.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const colors = brushtools.getColorsHue();
-                        const index = Math.round(event.pressure * (colors.length - 1));
-                        const color = colors[index][2].hex;
-                        colcode = parseInt(color.toString().replace("#", ""), 16) + 10000;
-                        if (colcode != 10000 + 16777215) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                    }
-                }
-            },
-            brightness: {
-                name: "Brightness",
-                description: "The brightness of a selected color varies with pen pressure.",
-                enabled: false,
-                options: {
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
-                        mode.disable();
-                    }
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                    brushtools.groups.color.brightness.enabled = true;
-                },
-                disable: () => {
-                    brushtools.groups.color.brightness.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const selected = QS("#color-preview-primary").style.fill;
-                        const matchGroup = brushtools.colorGroups.find(group => group.some(col => col == selected));
-                        const index = Math.round(event.pressure * (matchGroup.length - 1));
-                        const color = new Color({ rgb: matchGroup[index] });
-                        colcode = parseInt(color.hex.toString().replace("#", ""), 16) + 10000;
-                        document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                    }
-                }
-            },*/
             rainbowcircle: {
                 name: "Rainbow Cycle",
                 description: "Cycles through bright rainbow colors, no pen needed.",
@@ -8318,7 +8268,62 @@ const brushtools = {
                     }
                 }
             }
-        }
+        },
+        grid: {
+            grid: {
+                name: "Grid Lines",
+                description: "Enabling this will draw a grid on the canvas, with selected properties and the current brush size and color.",
+                enabled: stateFromLocalstorage("grid.gridlines", false),
+                options: {
+                    columns: {
+                        val: stateFromLocalstorage("grid.gridlines.options.cols", 16),
+                        type: "num",
+                        save: value => stateFromLocalstorage("grid.gridlines.options.cols", undefined, value)
+                    },
+                    rows: {
+                        val: stateFromLocalstorage("grid.gridlines.options.rows", 12),
+                        type: "num",
+                        save: value => stateFromLocalstorage("grid.gridlines.options.rows", undefined, value)
+                    },
+                },
+                enable: () => {
+
+                    QS("div[data-tooltip=Brush]")?.click();
+
+                    const rows = brushtools.groups.grid.grid.options.rows.val;
+                    const cols = brushtools.groups.grid.grid.options.columns.val;
+                    const canvasRect = brushtools.canvas.getBoundingClientRect();
+
+                    const colWidth = canvasRect.width / cols;
+                    const rowWidth = canvasRect.height / rows;
+
+                    const eventAtPos = (x, y) => {
+                        let event = new PointerEvent("pointermove");
+                        event = Object.defineProperty(event, "pointerType", { value: "mouse" });
+                        event = Object.defineProperty(event, "clientX", { value: canvasRect.left + x });
+                        event = Object.defineProperty(event, "clientY", { value: canvasRect.top + y });
+                        return event;
+                    }
+
+                    for (let row = 1; row < rows; row++) {
+                        const from = eventAtPos(0, row * rowWidth);
+                        const to = eventAtPos(canvasRect.width, row * rowWidth);
+                        brushtools.line(from, to);
+                    }
+
+                    for (let col = 1; col < cols; col++) {
+                        const from = eventAtPos(col * colWidth, 0);
+                        const to = eventAtPos(col * colWidth, canvasRect.height);
+                        brushtools.line(from, to);
+                    }
+
+                    brushtools.modal.close();
+                },
+                disable: () => {
+                    /* nothing to do */
+                }
+            },
+        },
     },
     line: (eventFrom, eventTo) => {
         //let down = Object.defineProperty(eventFrom, "pressure", { value: pressure });
@@ -8328,8 +8333,8 @@ const brushtools = {
         let up = Object.defineProperty(eventTo, "button", { value: 0 });
 
         brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", down));
-        brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", up));
-        brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", up));
+        document.dispatchEvent(new PointerEvent("pointermove", up));
+        document.dispatchEvent(new PointerEvent("pointerup", up));
     },
     currentDown: false,
     canvas: null,
@@ -8396,7 +8401,7 @@ const brushtools = {
                 display: grid;
                 grid-column-gap:2em;
                 width: 100%;
-                grid-template-columns: 1fr 1fr 1fr;"></div>`);
+                grid-template-columns: 1fr 1fr 1fr 1fr;"></div>`);
 
         const updateStates = () => {
             for (let [name, group] of Object.entries(brushtools.groups)) {
@@ -8408,7 +8413,7 @@ const brushtools = {
         }
 
         for (let [name, group] of Object.entries(brushtools.groups)) {
-            const groupContainer = elemFromString(`<div><h3>Adjust ${name}:</h3></div>`);
+            const groupContainer = elemFromString(`<div><h3 style="text-transform: capitalize">${name} tools:</h3></div>`);
             for (let [name, mode] of Object.entries(group)) {
 
                 /* if already enabled,call setup */
