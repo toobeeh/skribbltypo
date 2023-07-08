@@ -1,11 +1,11 @@
 const stateFromLocalstorage = (modeName, defaultState, stateOverride = undefined) => {
     let keyname = "brushmagic_" + modeName;
 
-    if(stateOverride === false || stateOverride != undefined) {
+    if (stateOverride === false || stateOverride != undefined) {
         localStorage.setItem(keyname, JSON.stringify(stateOverride));
         return stateOverride;
     }
-    else if(!localStorage.getItem(keyname)) {
+    else if (!localStorage.getItem(keyname)) {
         localStorage.setItem(keyname, JSON.stringify(defaultState));
         return defaultState;
     }
@@ -15,59 +15,6 @@ const stateFromLocalstorage = (modeName, defaultState, stateOverride = undefined
 const brushtools = {
     groups: {
         color: {
-            /*rainbow: {
-                name: "Rainbow",
-                description: "The brush color is a rainbow color depending on your pen pressure.",
-                enabled: false,
-                options: {
-				},
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)){
-                        mode.disable();
-                    }
-                    brushtools.groups.color.rainbow.enabled = true;
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                },
-                disable: () => {
-                    brushtools.groups.color.rainbow.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const colors = brushtools.getColorsHue();
-                        const index = Math.round(event.pressure * (colors.length - 1));
-                        const color = colors[index][2].hex;
-                        colcode = parseInt(color.toString().replace("#", ""), 16) + 10000;
-                        if (colcode != 10000 + 16777215) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-					}
-				}
-            },
-            brightness: {
-                name: "Brightness",
-                description: "The brightness of a selected color varies with pen pressure.",
-                enabled: false,
-                options: {
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
-                        mode.disable();
-                    }
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                    brushtools.groups.color.brightness.enabled = true;
-                },
-                disable: () => {
-                    brushtools.groups.color.brightness.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const selected = QS("#color-preview-primary").style.fill;
-                        const matchGroup = brushtools.colorGroups.find(group => group.some(col => col == selected));
-                        const index = Math.round(event.pressure * (matchGroup.length - 1));
-                        const color = new Color({ rgb: matchGroup[index] });
-                        colcode = parseInt(color.hex.toString().replace("#", ""), 16) + 10000;
-                        document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                    }
-                }
-            },*/
             rainbowcircle: {
                 name: "Rainbow Cycle",
                 description: "Cycles through bright rainbow colors, no pen needed.",
@@ -111,8 +58,46 @@ const brushtools = {
                         }
                     }
                 }
+            },
+            rainbowstroke: {
+                name: "Rainbow Strokes",
+                description: "Each stroke is made in a different rainbow color.",
+                enabled: stateFromLocalstorage("color.rainbowstroke", false),
+                options: {
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.color.rainbowstroke.lastSwitch = 0;
+                    brushtools.groups.color.rainbowstroke.lastIndex = 0;
+                    brushtools.groups.color.rainbowstroke.direction = 1;
+                    brushtools.groups.color.rainbowstroke.enabled = stateFromLocalstorage("color.rainbowstroke", undefined, true);
+                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
+                },
+                disable: () => {
+                    brushtools.groups.color.rainbowstroke.enabled = stateFromLocalstorage("color.rainbowstroke", undefined, false);
+                },
+                pointerupCallback: (event) => {
+                    const colors = ["ef130b", "ff7100", "ffe400", "00cc00", "00ff91", "00b2ff", "231fd3", "a300ba", "d37caa"];
+                    let index = brushtools.groups.color.rainbowstroke.lastIndex;
+                    if (brushtools.groups.color.rainbowstroke.direction > 0) {
+                        if (++index >= colors.length) {
+                            brushtools.groups.color.rainbowstroke.direction *= -1;
+                            index = colors.length - 1;
+                        }
+                    }
+                    else {
+                        if (--index < 0) {
+                            brushtools.groups.color.rainbowstroke.direction *= -1;
+                            index = 1;
+                        }
+                    }
+                    brushtools.groups.color.rainbowstroke.lastIndex = index;
+                    document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(colors[index], 16) + 10000 } }));
+                }
             }
-		},
+        },
         mirror: {
             mandala: {
                 name: "Mandala",
@@ -305,14 +290,14 @@ const brushtools = {
                     brushtools.groups.stroke.tilt.enabled = stateFromLocalstorage("stroke.tilt", undefined, false);
                 },
                 pointermoveCallback: (event) => {
-                    if (event.pressure > 0 ) {
+                    if (event.pressure > 0) {
                         const density = brushtools.groups.stroke.tilt.options.density.val;
                         const tilt = brushtools.groups.stroke.tilt.options.tilt.val;
                         for (let i = 1; i < density; i++) {
-                            const offset = event.pressure  * tilt;
+                            const offset = event.pressure * tilt;
                             let clone = new PointerEvent("pointermove", event)
-                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset - i});
-                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset - i});
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset - i });
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset - i });
                             brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", clone));
                         }
                     }
@@ -347,18 +332,18 @@ const brushtools = {
                     brushtools.groups.stroke.noise.enabled = stateFromLocalstorage("stroke.noise", undefined, false);
                 },
                 pointermoveCallback: (event) => {
-                    if (event.pressure > 0 ) {
+                    if (event.pressure > 0) {
                         const density = 4;
                         const direction = brushtools.groups.stroke.noise.options.direction.val;
                         const size = brushtools.groups.stroke.noise.options.size.val * 10;
-                        const amount = density; 
-                        const offset = event.pressure  * size;
-                        
+                        const amount = density;
+                        const offset = event.pressure * size;
+
                         for (let i = 1; i < amount; i++) {
                             let vertical = Math.random() * offset * 2 - offset;
                             let horizontal = Math.random() * offset * 2 - offset;
 
-                            switch(direction){
+                            switch (direction) {
                                 case "top":
                                     vertical = -Math.abs(vertical);
                                     horizontal = horizontal * 0.6;
@@ -375,7 +360,7 @@ const brushtools = {
                                     horizontal = Math.abs(horizontal);
                                     vertical = vertical * 0.6;
                                     break;
-                                case "vertical": 
+                                case "vertical":
                                     horizontal = horizontal * 0.3;
                                     break;
                                 case "horizontal":
@@ -384,15 +369,70 @@ const brushtools = {
                             }
 
                             let clone = new PointerEvent("pointermove", event);
-                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX + horizontal});
-                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY + vertical});
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX + horizontal });
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY + vertical });
                             brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", clone));
                             brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", event));
                         }
                     }
                 }
             }
-		}
+        },
+        grid: {
+            grid: {
+                name: "Grid Lines",
+                description: "Enabling this will draw a grid on the canvas, with selected properties and the current brush size and color.",
+                enabled: stateFromLocalstorage("grid.gridlines", false),
+                options: {
+                    columns: {
+                        val: stateFromLocalstorage("grid.gridlines.options.cols", 16),
+                        type: "num",
+                        save: value => stateFromLocalstorage("grid.gridlines.options.cols", undefined, value)
+                    },
+                    rows: {
+                        val: stateFromLocalstorage("grid.gridlines.options.rows", 12),
+                        type: "num",
+                        save: value => stateFromLocalstorage("grid.gridlines.options.rows", undefined, value)
+                    },
+                },
+                enable: () => {
+
+                    QS("div[data-tooltip=Brush]")?.click();
+
+                    const rows = brushtools.groups.grid.grid.options.rows.val;
+                    const cols = brushtools.groups.grid.grid.options.columns.val;
+                    const canvasRect = brushtools.canvas.getBoundingClientRect();
+
+                    const colWidth = canvasRect.width / cols;
+                    const rowWidth = canvasRect.height / rows;
+
+                    const eventAtPos = (x, y) => {
+                        let event = new PointerEvent("pointermove");
+                        event = Object.defineProperty(event, "pointerType", { value: "mouse" });
+                        event = Object.defineProperty(event, "clientX", { value: canvasRect.left + x });
+                        event = Object.defineProperty(event, "clientY", { value: canvasRect.top + y });
+                        return event;
+                    }
+
+                    for (let row = 1; row < rows; row++) {
+                        const from = eventAtPos(0, row * rowWidth);
+                        const to = eventAtPos(canvasRect.width, row * rowWidth);
+                        brushtools.line(from, to);
+                    }
+
+                    for (let col = 1; col < cols; col++) {
+                        const from = eventAtPos(col * colWidth, 0);
+                        const to = eventAtPos(col * colWidth, canvasRect.height);
+                        brushtools.line(from, to);
+                    }
+
+                    brushtools.modal.close();
+                },
+                disable: () => {
+                    /* nothing to do */
+                }
+            },
+        },
     },
     line: (eventFrom, eventTo) => {
         //let down = Object.defineProperty(eventFrom, "pressure", { value: pressure });
@@ -402,8 +442,8 @@ const brushtools = {
         let up = Object.defineProperty(eventTo, "button", { value: 0 });
 
         brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", down));
-        brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", up));
-        brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", up));
+        document.dispatchEvent(new PointerEvent("pointermove", up));
+        document.dispatchEvent(new PointerEvent("pointerup", up));
     },
     currentDown: false,
     canvas: null,
@@ -431,7 +471,7 @@ const brushtools = {
                 if (mode.name == modename) {
                     if (state) mode.enable();
                     else mode.disable();
-				}
+                }
             }
         }
     },
@@ -440,23 +480,28 @@ const brushtools = {
     setup: () => {
         brushtools.canvas = QS("#game-canvas canvas");
         brushtools.canvas.addEventListener("pointerdown", (event) => {
-            if(!event.isTrusted) return;
+            if (!event.isTrusted) return;
             brushtools.currentDown = true;
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
-                    if (mode.enabled) mode.pointermoveCallback(event);
+                    if (mode.enabled && mode.pointermoveCallback) mode.pointermoveCallback(event);
                 }
             }
         });
         brushtools.canvas.addEventListener("pointerup", (event) => {
-            if(!event.isTrusted) return;
+            if (!event.isTrusted) return;
             brushtools.currentDown = false;
+            for (let [name, group] of Object.entries(brushtools.groups)) {
+                for (let [name, mode] of Object.entries(group)) {
+                    if (mode.enabled && mode.pointerupCallback) mode.pointerupCallback(event);
+                }
+            }
         });
         brushtools.canvas.addEventListener("pointermove", (event) => {
-            if(!event.isTrusted) return;
-            for (let [name, group] of Object.entries(brushtools.groups)){
+            if (!event.isTrusted) return;
+            for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
-                    if (mode.enabled) mode.pointermoveCallback(event);
+                    if (mode.enabled && mode.pointermoveCallback) mode.pointermoveCallback(event);
                 }
             }
         });
@@ -465,7 +510,7 @@ const brushtools = {
                 display: grid;
                 grid-column-gap:2em;
                 width: 100%;
-                grid-template-columns: 1fr 1fr 1fr;"></div>`);
+                grid-template-columns: 1fr 1fr 1fr 1fr;"></div>`);
 
         const updateStates = () => {
             for (let [name, group] of Object.entries(brushtools.groups)) {
@@ -477,8 +522,12 @@ const brushtools = {
         }
 
         for (let [name, group] of Object.entries(brushtools.groups)) {
-            const groupContainer = elemFromString(`<div><h3>Adjust ${name}:</h3></div>`);
+            const groupContainer = elemFromString(`<div><h3 style="text-transform: capitalize">${name} tools:</h3></div>`);
             for (let [name, mode] of Object.entries(group)) {
+
+                /* if already enabled,call setup */
+                if (mode.enabled) mode.enable();
+
                 const modeDetails = elemFromString(`<div class="mode">
                 <label>
                     <input id="brushmagicToggle${name}" type="checkbox" class="flatUI"></input>
@@ -498,17 +547,17 @@ const brushtools = {
                         modeOptions.appendChild(optionElem);
                         optionElem.querySelector("input").addEventListener("input", event => {
                             option.val = parseInt(event.target.value);
-                            if(option.save) option.save(option.val);
+                            if (option.save) option.save(option.val);
                         });
                     }
                     else if (typeof (option) == "object") {
-                        const optionElem = elemFromString(`<label>Set ${name}:<select value="${option.val}">${option.type.map(opt => "<option value="+opt+" " + (option.val == opt ? "selected" : "") + ">" + opt + "</option>").join("")}</select></label>`);
+                        const optionElem = elemFromString(`<label>Set ${name}:<select value="${option.val}">${option.type.map(opt => "<option value=" + opt + " " + (option.val == opt ? "selected" : "") + ">" + opt + "</option>").join("")}</select></label>`);
                         modeOptions.appendChild(optionElem);
                         optionElem.querySelector("select").addEventListener("input", event => {
                             option.val = event.target.value;
-                            if(option.save) option.save(option.val);
+                            if (option.save) option.save(option.val);
                         });
-					}
+                    }
 
                 }
                 modeDetails.appendChild(modeOptions);

@@ -105,18 +105,8 @@ const scaleDataURL = async (url, width, height) => {
     });
 }
 
-const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackoverflow.com/questions/23182933/converting-an-image-dataurl-to-image
-    // Decode the dataURL
-    let binary = atob(dataUrl.split(',')[1]);
-    // Create 8-bit unsigned array
-    let array = [];
-    for (let i = 0; i < binary.length; i++) {
-        array.push(binary.charCodeAt(i));
-    }
-    // Return blob
-    let blob = new Blob([new Uint8Array(array)], {
-        type: 'image/png'
-    });
+const imageUrlToClipboard = async (dataUrl) => { // parts from: https://stackoverflow.com/questions/23182933/converting-an-image-dataurl-to-image
+    const blob = await (await fetch(dataUrl)).blob();
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
     addChatMessage("", "Copied to clipboard");
 }

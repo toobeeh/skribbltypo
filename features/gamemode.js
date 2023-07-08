@@ -96,6 +96,7 @@ const gamemodes = {
                         const img = new Image;
                         img.onload = () => QS("#game-canvas canvas").getContext("2d").drawImage(img, 0, 0);
                         img.src = event.detail;
+                        img.crossOrigin = "anonymous"
                     }
                     document.addEventListener("logCanvasClear", this.restoreCanvas);
                 },
@@ -125,7 +126,7 @@ const gamemodes = {
                 initWithAction: true,
                 destroy: () => {
                     QS("#game-toolbar style#gamemodeMonochromeRules")?.remove()
-                    QS("#randomColor").setAttribute("data-monochrome", "");
+                    QS("#randomColor")?.setAttribute("data-monochrome", "");
                 },
                 observeSelector: "#game-toolbar",
                 observeOptions: {

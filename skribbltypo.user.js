@@ -4,9 +4,9 @@
 // @website https://typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
-// @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.4.5.168838995
-// @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
+// @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
+// @version 24.5.0.168882496
+// @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
 // @run-at document-start
@@ -16,15 +16,15 @@
 const chrome = {
     extension: {
         getURL: (url) => {
-            return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
+            return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         }
     },
     runtime: {
         getURL: (url) => {
-            return "https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/" + url;
+            return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "24.4.5 usrsc"};
+            return {version: "24.5.0 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -526,12 +526,12 @@ const search = {
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
-const sprites = {    
+const sprites = {
     // Object which has necessary properties to handle sprite logic
     PlayerSpriteContainer: function (_lobbyKey, _lobbyPlayerID, _avatarContainer, _name) {
         this.lobbyKey = _lobbyKey;
         this.lobbyPlayerID = _lobbyPlayerID;
-        this.name =_name;
+        this.name = _name;
         this.avatarContainer = _avatarContainer;
     },
     availableSprites: [], //list of all sprites
@@ -555,7 +555,7 @@ const sprites = {
             let psc = new sprites.PlayerSpriteContainer(
                 lobbies.lobbyProperties.Key,
                 p.getAttribute("playerid"),
-                p.querySelector(".avatar"), 
+                p.querySelector(".avatar"),
                 p.querySelector(".player-name").innerText.replace("(You)", "").trim()
             )
             players.push(psc);
@@ -571,14 +571,14 @@ const sprites = {
             let playerSlots = [];
             sprites.playerSprites.forEach(sprite => {
                 if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) {
-                        playerSlots.push({ 
-                        sprite: sprite.Sprite, 
-                        slot: sprite.Slot ,
+                    playerSlots.push({
+                        sprite: sprite.Sprite,
+                        slot: sprite.Slot,
                         shift: shifts.find(shift => shift.LobbyPlayerID == player.lobbyPlayerID && sprite.Slot == shift.Slot)
                     });
                 }
             });
-            
+
             if (playerSlots.length > 0) {
                 player.avatarContainer.parentElement.parentElement.classList.toggle("typo", true);
                 // check if existent slots are set to 0
@@ -607,16 +607,16 @@ const sprites = {
                         else {
                             spriteContainer.parentElement.parentElement.parentElement.style.height = "56px";
                             spriteContainer.parentElement.parentElement.style.top = "3px";
-                        } 
+                        }
                     }
                 });
             }
             // else remove all existent slots
-            else{
-                [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove()); 
+            else {
+                [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove());
                 player.avatarContainer.parentElement.parentElement.classList.toggle("typo", false);
-            } 
-            
+            }
+
         });
     },
     updateScenes: () => {
@@ -636,6 +636,8 @@ const sprites = {
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
         });
+
+        if (QS("#scenesRules")?.innerHTML === scenesCSS.innerHTML) return;
 
         QS("#scenesRules")?.remove();
         playerlist.insertAdjacentElement("afterbegin", scenesCSS);
@@ -681,8 +683,8 @@ const sprites = {
     getOwnSpriteUrlShifted: (id) => {
         let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
         let url = sprites.getSpriteURL(id);
-        let shift = shifts.find(s=> s[0] == id);
-        if(shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
+        let shift = shifts.find(s => s[0] == id);
+        if (shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
         return url;
     },
     setLandingSprites: (authenticated = false) => {
@@ -705,19 +707,19 @@ const sprites = {
                 clone.classList.add("spriteSlot");
                 clone.classList.remove("special");
             });
-            
+
             let container = QS(".avatar-customizer");
             let scene = socket.data.user.scenes ? socket.data.user.scenes.toString().split(",").filter(s => s[0] == ".")[0] : undefined;
-            if(scene != undefined){
-                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".",""))).URL;
-                container.style.cssText=`    
+            if (scene != undefined) {
+                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".", ""))).URL;
+                container.style.cssText = `    
                     background-repeat: no-repeat;
                     background-image: url(${url});
                     background-size: cover;
                     background-position: center;
                 `;
             }
-            else container.style.cssText=``;
+            else container.style.cssText = ``;
         }
         else {
             QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
@@ -883,7 +885,7 @@ const sprites = {
                     })
                 }
             });
-            
+
         }
 
         QS("#rightPanelContent #loginRedir").addEventListener("click", login);
@@ -898,7 +900,7 @@ const sprites = {
             sprites.updateSprites();
         });
         endboardObserver.observe(QS(".overlay-content .result"), { childList: true, attributes: true });
-        sprites.getSprites();     
+        sprites.getSprites();
     }
 
 };
@@ -1011,18 +1013,8 @@ const scaleDataURL = async (url, width, height) => {
     });
 }
 
-const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackoverflow.com/questions/23182933/converting-an-image-dataurl-to-image
-    // Decode the dataURL
-    let binary = atob(dataUrl.split(',')[1]);
-    // Create 8-bit unsigned array
-    let array = [];
-    for (let i = 0; i < binary.length; i++) {
-        array.push(binary.charCodeAt(i));
-    }
-    // Return blob
-    let blob = new Blob([new Uint8Array(array)], {
-        type: 'image/png'
-    });
+const imageUrlToClipboard = async (dataUrl) => { // parts from: https://stackoverflow.com/questions/23182933/converting-an-image-dataurl-to-image
+    const blob = await (await fetch(dataUrl)).blob();
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
     addChatMessage("", "Copied to clipboard");
 }
@@ -2790,6 +2782,7 @@ const socket = {
         user: {}
     },
     sck: null,
+    dropSocket: undefined,
     authenticated: false,
     emitEvent: (event, payload, listenResponse = false, responseTimeout = 2000) => {
         return new Promise((resolve, reject) => {
@@ -2843,7 +2836,7 @@ const socket = {
                 // handle disconnect reasons different
                 console.log("Disconnected with reason: " + reason);
                 lobbies.joined = false;
-                socket.dropSocket.close();
+                socket.dropSocket?.close();
                 socket.dropSocket = undefined;
 
                 // if probably tempoary disconnect (server crash/restart, internet) enable reconnect without new balanced port
@@ -2961,7 +2954,7 @@ const socket = {
                     let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
                     let veriflobby = resp.lobbyData.lobby;
                     let owner = resp.owner;
-                  
+
                     drops.mode = resp.dropMode;
                     lobbies.lobbyProperties.Description = veriflobby.Description;
                     if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
@@ -3299,6 +3292,17 @@ let imageOptions = {
             document.querySelector("#game-canvas canvas").height * scale);
         d.dispatchEvent(e);
     },
+    downloadImageURL: async (url, name = "skribbl-unknown", scale = 1) => {
+        const blob = await (await fetch(url)).blob();
+        const blobUrl = URL.createObjectURL(blob);
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        d.download = name;
+        d.href = blobUrl;
+        d.dispatchEvent(e);
+    },
     initDownloadOptions: () => {
         // add DL button for gif
         const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
@@ -3414,38 +3418,40 @@ let imageOptions = {
         let webhooks = socket.data.user.webhooks;
 
         // add buttons to post image
-        if (!webhooks || webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
-        webhooks.forEach(async (w) => {
-            // add share button for image
-            let shareImg = document.createElement("button");
-            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
-            shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
-            shareImg.classList.add("flatUI", "green", "air");
-            shareImg.addEventListener("click", async () => {
+        if (webhooks === undefined || webhooks.length <= 0) sharePopup.innerHTML += "ImagePoster lets you share images directly to discord. <br><br>You need to be logged in with palantir and in a server that uses ImagePost..";
+        else {
+            webhooks.forEach(async (w) => {
+                // add share button for image
+                let shareImg = document.createElement("button");
+                let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
+                shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
+                shareImg.classList.add("flatUI", "green", "air");
+                shareImg.addEventListener("click", async () => {
 
-                // close popup first to avoid spamming
-                sharePopup.style.display = "none";
-                let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
-                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
+                    // close popup first to avoid spamming
+                    sharePopup.style.display = "none";
+                    let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
+                    let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
 
-                // send to socket
-                await socket.emitEvent("post image", {
-                    accessToken: localStorage.accessToken,
-                    serverID: w.ServerID,
-                    imageURI: imageShareString,
-                    webhookName: w.Name,
-                    postOptions: {
-                        onlyImage: QS("#sendImageOnly").checked,
-                        drawerName: imageShareStringDrawer,
-                        posterName: loginName,
-                        title: title
-                    }
+                    // send to socket
+                    await socket.emitEvent("post image", {
+                        accessToken: localStorage.accessToken,
+                        serverID: w.ServerID,
+                        imageURI: imageShareString,
+                        webhookName: w.Name,
+                        postOptions: {
+                            onlyImage: QS("#sendImageOnly").checked,
+                            drawerName: imageShareStringDrawer,
+                            posterName: loginName,
+                            title: title
+                        }
+                    });
+
+                    new Toast("Posted image on Discord.", 2000);
                 });
-
-                new Toast("Posted image on Discord.", 2000);
+                sharePopup.appendChild(shareImg);
             });
-            sharePopup.appendChild(shareImg);
-        });
+        }
         Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
     },
     initAll: () => {
@@ -3555,7 +3561,7 @@ let patchNode = async (node) => {
         const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
-                <span>Hello there ❤️✏️<br>Image agent is back online! <br>Enable the feture in the extension popup to find image templates when it's your turn to draw..</span>
+                <span>Hello there ❤️✏️<br>Check out the new tools "grid" and "rainbow stroke" in the brush lab!</span>
                 <div class="panel" id="typoHints" style="cursor:pointer; width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
@@ -5445,7 +5451,7 @@ bounceload {
     /* parse doc and add new base uri + polyfill for tabs api */
     popupDoc.innerHTML = popupHTML;
     popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
-        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/popup/" />'
+        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/master/popup/" />'
     );
     popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
         `<script>
@@ -6825,7 +6831,7 @@ const uiTweaks = {
         }
         else {
             const userinfo = QS("#typoUserInfo")
-            userinfo.innerText = "No palantir account connected!";
+            userinfo.innerText = "No palantir account connected.";
             userinfo.style.cssText = "opacity:1; transition: opacity 0.5s";
             setTimeout(() => { userinfo.style.opacity = "0"; }, 3000);
             setTimeout(() => { userinfo.style.display = "none" }, 3500);
@@ -6991,7 +6997,7 @@ let drops = {
                 addChatMessage("Yeee!", "You were the fastest to catch the drop!");
                 drops.selfCaught = true;
             }
-            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the drop before you :(");
+            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the regular drop :(");
             else addChatMessage("", winner + " caught the regular drop.");
             dropElem.style.display = "none";
         }
@@ -7201,8 +7207,7 @@ let typro = {
                 let clipboard = elemFromString("<button class='flatUI blue min air'>Copy to Clipboard</button>");
                 clipboard.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.drawing)).text()
-                    await dataURLtoClipboard(data);
+                    await imageUrlToClipboard(drawing.image);
                     new Toast("Copied the image to your clipboard. Share it! :3");
                 });
                 options.appendChild(clipboard);
@@ -7218,8 +7223,7 @@ let typro = {
                 let savepng = elemFromString("<button class='flatUI green min air'>Save PNG</button>");
                 savepng.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.drawing)).text()
-                    imageOptions.downloadDataURL(data, "skribblCloud-" + meta.name + "-by-" + meta.author);
+                    imageOptions.downloadImageURL(drawing.image, "skribblCloud-" + meta.name + "-by-" + meta.author);
                     new Toast("Started the image download.");
                 });
                 options.appendChild(savepng);
@@ -7789,6 +7793,7 @@ const gamemodes = {
                         const img = new Image;
                         img.onload = () => QS("#game-canvas canvas").getContext("2d").drawImage(img, 0, 0);
                         img.src = event.detail;
+                        img.crossOrigin = "anonymous"
                     }
                     document.addEventListener("logCanvasClear", this.restoreCanvas);
                 },
@@ -7818,7 +7823,7 @@ const gamemodes = {
                 initWithAction: true,
                 destroy: () => {
                     QS("#game-toolbar style#gamemodeMonochromeRules")?.remove()
-                    QS("#randomColor").setAttribute("data-monochrome", "");
+                    QS("#randomColor")?.setAttribute("data-monochrome", "");
                 },
                 observeSelector: "#game-toolbar",
                 observeOptions: {
@@ -7889,11 +7894,11 @@ Challenges
 const stateFromLocalstorage = (modeName, defaultState, stateOverride = undefined) => {
     let keyname = "brushmagic_" + modeName;
 
-    if(stateOverride === false || stateOverride != undefined) {
+    if (stateOverride === false || stateOverride != undefined) {
         localStorage.setItem(keyname, JSON.stringify(stateOverride));
         return stateOverride;
     }
-    else if(!localStorage.getItem(keyname)) {
+    else if (!localStorage.getItem(keyname)) {
         localStorage.setItem(keyname, JSON.stringify(defaultState));
         return defaultState;
     }
@@ -7903,59 +7908,6 @@ const stateFromLocalstorage = (modeName, defaultState, stateOverride = undefined
 const brushtools = {
     groups: {
         color: {
-            /*rainbow: {
-                name: "Rainbow",
-                description: "The brush color is a rainbow color depending on your pen pressure.",
-                enabled: false,
-                options: {
-				},
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)){
-                        mode.disable();
-                    }
-                    brushtools.groups.color.rainbow.enabled = true;
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                },
-                disable: () => {
-                    brushtools.groups.color.rainbow.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const colors = brushtools.getColorsHue();
-                        const index = Math.round(event.pressure * (colors.length - 1));
-                        const color = colors[index][2].hex;
-                        colcode = parseInt(color.toString().replace("#", ""), 16) + 10000;
-                        if (colcode != 10000 + 16777215) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-					}
-				}
-            },
-            brightness: {
-                name: "Brightness",
-                description: "The brightness of a selected color varies with pen pressure.",
-                enabled: false,
-                options: {
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
-                        mode.disable();
-                    }
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                    brushtools.groups.color.brightness.enabled = true;
-                },
-                disable: () => {
-                    brushtools.groups.color.brightness.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const selected = QS("#color-preview-primary").style.fill;
-                        const matchGroup = brushtools.colorGroups.find(group => group.some(col => col == selected));
-                        const index = Math.round(event.pressure * (matchGroup.length - 1));
-                        const color = new Color({ rgb: matchGroup[index] });
-                        colcode = parseInt(color.hex.toString().replace("#", ""), 16) + 10000;
-                        document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                    }
-                }
-            },*/
             rainbowcircle: {
                 name: "Rainbow Cycle",
                 description: "Cycles through bright rainbow colors, no pen needed.",
@@ -7999,8 +7951,46 @@ const brushtools = {
                         }
                     }
                 }
+            },
+            rainbowstroke: {
+                name: "Rainbow Strokes",
+                description: "Each stroke is made in a different rainbow color.",
+                enabled: stateFromLocalstorage("color.rainbowstroke", false),
+                options: {
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.color.rainbowstroke.lastSwitch = 0;
+                    brushtools.groups.color.rainbowstroke.lastIndex = 0;
+                    brushtools.groups.color.rainbowstroke.direction = 1;
+                    brushtools.groups.color.rainbowstroke.enabled = stateFromLocalstorage("color.rainbowstroke", undefined, true);
+                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
+                },
+                disable: () => {
+                    brushtools.groups.color.rainbowstroke.enabled = stateFromLocalstorage("color.rainbowstroke", undefined, false);
+                },
+                pointerupCallback: (event) => {
+                    const colors = ["ef130b", "ff7100", "ffe400", "00cc00", "00ff91", "00b2ff", "231fd3", "a300ba", "d37caa"];
+                    let index = brushtools.groups.color.rainbowstroke.lastIndex;
+                    if (brushtools.groups.color.rainbowstroke.direction > 0) {
+                        if (++index >= colors.length) {
+                            brushtools.groups.color.rainbowstroke.direction *= -1;
+                            index = colors.length - 1;
+                        }
+                    }
+                    else {
+                        if (--index < 0) {
+                            brushtools.groups.color.rainbowstroke.direction *= -1;
+                            index = 1;
+                        }
+                    }
+                    brushtools.groups.color.rainbowstroke.lastIndex = index;
+                    document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(colors[index], 16) + 10000 } }));
+                }
             }
-		},
+        },
         mirror: {
             mandala: {
                 name: "Mandala",
@@ -8193,14 +8183,14 @@ const brushtools = {
                     brushtools.groups.stroke.tilt.enabled = stateFromLocalstorage("stroke.tilt", undefined, false);
                 },
                 pointermoveCallback: (event) => {
-                    if (event.pressure > 0 ) {
+                    if (event.pressure > 0) {
                         const density = brushtools.groups.stroke.tilt.options.density.val;
                         const tilt = brushtools.groups.stroke.tilt.options.tilt.val;
                         for (let i = 1; i < density; i++) {
-                            const offset = event.pressure  * tilt;
+                            const offset = event.pressure * tilt;
                             let clone = new PointerEvent("pointermove", event)
-                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset - i});
-                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset - i});
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX - offset - i });
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY - offset - i });
                             brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", clone));
                         }
                     }
@@ -8235,18 +8225,18 @@ const brushtools = {
                     brushtools.groups.stroke.noise.enabled = stateFromLocalstorage("stroke.noise", undefined, false);
                 },
                 pointermoveCallback: (event) => {
-                    if (event.pressure > 0 ) {
+                    if (event.pressure > 0) {
                         const density = 4;
                         const direction = brushtools.groups.stroke.noise.options.direction.val;
                         const size = brushtools.groups.stroke.noise.options.size.val * 10;
-                        const amount = density; 
-                        const offset = event.pressure  * size;
-                        
+                        const amount = density;
+                        const offset = event.pressure * size;
+
                         for (let i = 1; i < amount; i++) {
                             let vertical = Math.random() * offset * 2 - offset;
                             let horizontal = Math.random() * offset * 2 - offset;
 
-                            switch(direction){
+                            switch (direction) {
                                 case "top":
                                     vertical = -Math.abs(vertical);
                                     horizontal = horizontal * 0.6;
@@ -8263,7 +8253,7 @@ const brushtools = {
                                     horizontal = Math.abs(horizontal);
                                     vertical = vertical * 0.6;
                                     break;
-                                case "vertical": 
+                                case "vertical":
                                     horizontal = horizontal * 0.3;
                                     break;
                                 case "horizontal":
@@ -8272,15 +8262,70 @@ const brushtools = {
                             }
 
                             let clone = new PointerEvent("pointermove", event);
-                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX + horizontal});
-                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY + vertical});
+                            clone = Object.defineProperty(clone, "clientX", { value: event.clientX + horizontal });
+                            clone = Object.defineProperty(clone, "clientY", { value: event.clientY + vertical });
                             brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", clone));
                             brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", event));
                         }
                     }
                 }
             }
-		}
+        },
+        grid: {
+            grid: {
+                name: "Grid Lines",
+                description: "Enabling this will draw a grid on the canvas, with selected properties and the current brush size and color.",
+                enabled: stateFromLocalstorage("grid.gridlines", false),
+                options: {
+                    columns: {
+                        val: stateFromLocalstorage("grid.gridlines.options.cols", 16),
+                        type: "num",
+                        save: value => stateFromLocalstorage("grid.gridlines.options.cols", undefined, value)
+                    },
+                    rows: {
+                        val: stateFromLocalstorage("grid.gridlines.options.rows", 12),
+                        type: "num",
+                        save: value => stateFromLocalstorage("grid.gridlines.options.rows", undefined, value)
+                    },
+                },
+                enable: () => {
+
+                    QS("div[data-tooltip=Brush]")?.click();
+
+                    const rows = brushtools.groups.grid.grid.options.rows.val;
+                    const cols = brushtools.groups.grid.grid.options.columns.val;
+                    const canvasRect = brushtools.canvas.getBoundingClientRect();
+
+                    const colWidth = canvasRect.width / cols;
+                    const rowWidth = canvasRect.height / rows;
+
+                    const eventAtPos = (x, y) => {
+                        let event = new PointerEvent("pointermove");
+                        event = Object.defineProperty(event, "pointerType", { value: "mouse" });
+                        event = Object.defineProperty(event, "clientX", { value: canvasRect.left + x });
+                        event = Object.defineProperty(event, "clientY", { value: canvasRect.top + y });
+                        return event;
+                    }
+
+                    for (let row = 1; row < rows; row++) {
+                        const from = eventAtPos(0, row * rowWidth);
+                        const to = eventAtPos(canvasRect.width, row * rowWidth);
+                        brushtools.line(from, to);
+                    }
+
+                    for (let col = 1; col < cols; col++) {
+                        const from = eventAtPos(col * colWidth, 0);
+                        const to = eventAtPos(col * colWidth, canvasRect.height);
+                        brushtools.line(from, to);
+                    }
+
+                    brushtools.modal.close();
+                },
+                disable: () => {
+                    /* nothing to do */
+                }
+            },
+        },
     },
     line: (eventFrom, eventTo) => {
         //let down = Object.defineProperty(eventFrom, "pressure", { value: pressure });
@@ -8290,8 +8335,8 @@ const brushtools = {
         let up = Object.defineProperty(eventTo, "button", { value: 0 });
 
         brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", down));
-        brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", up));
-        brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", up));
+        document.dispatchEvent(new PointerEvent("pointermove", up));
+        document.dispatchEvent(new PointerEvent("pointerup", up));
     },
     currentDown: false,
     canvas: null,
@@ -8319,7 +8364,7 @@ const brushtools = {
                 if (mode.name == modename) {
                     if (state) mode.enable();
                     else mode.disable();
-				}
+                }
             }
         }
     },
@@ -8328,23 +8373,28 @@ const brushtools = {
     setup: () => {
         brushtools.canvas = QS("#game-canvas canvas");
         brushtools.canvas.addEventListener("pointerdown", (event) => {
-            if(!event.isTrusted) return;
+            if (!event.isTrusted) return;
             brushtools.currentDown = true;
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
-                    if (mode.enabled) mode.pointermoveCallback(event);
+                    if (mode.enabled && mode.pointermoveCallback) mode.pointermoveCallback(event);
                 }
             }
         });
         brushtools.canvas.addEventListener("pointerup", (event) => {
-            if(!event.isTrusted) return;
+            if (!event.isTrusted) return;
             brushtools.currentDown = false;
+            for (let [name, group] of Object.entries(brushtools.groups)) {
+                for (let [name, mode] of Object.entries(group)) {
+                    if (mode.enabled && mode.pointerupCallback) mode.pointerupCallback(event);
+                }
+            }
         });
         brushtools.canvas.addEventListener("pointermove", (event) => {
-            if(!event.isTrusted) return;
-            for (let [name, group] of Object.entries(brushtools.groups)){
+            if (!event.isTrusted) return;
+            for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
-                    if (mode.enabled) mode.pointermoveCallback(event);
+                    if (mode.enabled && mode.pointermoveCallback) mode.pointermoveCallback(event);
                 }
             }
         });
@@ -8353,7 +8403,7 @@ const brushtools = {
                 display: grid;
                 grid-column-gap:2em;
                 width: 100%;
-                grid-template-columns: 1fr 1fr 1fr;"></div>`);
+                grid-template-columns: 1fr 1fr 1fr 1fr;"></div>`);
 
         const updateStates = () => {
             for (let [name, group] of Object.entries(brushtools.groups)) {
@@ -8365,8 +8415,12 @@ const brushtools = {
         }
 
         for (let [name, group] of Object.entries(brushtools.groups)) {
-            const groupContainer = elemFromString(`<div><h3>Adjust ${name}:</h3></div>`);
+            const groupContainer = elemFromString(`<div><h3 style="text-transform: capitalize">${name} tools:</h3></div>`);
             for (let [name, mode] of Object.entries(group)) {
+
+                /* if already enabled,call setup */
+                if (mode.enabled) mode.enable();
+
                 const modeDetails = elemFromString(`<div class="mode">
                 <label>
                     <input id="brushmagicToggle${name}" type="checkbox" class="flatUI"></input>
@@ -8386,17 +8440,17 @@ const brushtools = {
                         modeOptions.appendChild(optionElem);
                         optionElem.querySelector("input").addEventListener("input", event => {
                             option.val = parseInt(event.target.value);
-                            if(option.save) option.save(option.val);
+                            if (option.save) option.save(option.val);
                         });
                     }
                     else if (typeof (option) == "object") {
-                        const optionElem = elemFromString(`<label>Set ${name}:<select value="${option.val}">${option.type.map(opt => "<option value="+opt+" " + (option.val == opt ? "selected" : "") + ">" + opt + "</option>").join("")}</select></label>`);
+                        const optionElem = elemFromString(`<label>Set ${name}:<select value="${option.val}">${option.type.map(opt => "<option value=" + opt + " " + (option.val == opt ? "selected" : "") + ">" + opt + "</option>").join("")}</select></label>`);
                         modeOptions.appendChild(optionElem);
                         optionElem.querySelector("select").addEventListener("input", event => {
                             option.val = event.target.value;
-                            if(option.save) option.save(option.val);
+                            if (option.save) option.save(option.val);
                         });
-					}
+                    }
 
                 }
                 modeDetails.appendChild(modeOptions);

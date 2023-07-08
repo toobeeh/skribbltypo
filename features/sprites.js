@@ -1,12 +1,12 @@
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
-const sprites = {    
+const sprites = {
     // Object which has necessary properties to handle sprite logic
     PlayerSpriteContainer: function (_lobbyKey, _lobbyPlayerID, _avatarContainer, _name) {
         this.lobbyKey = _lobbyKey;
         this.lobbyPlayerID = _lobbyPlayerID;
-        this.name =_name;
+        this.name = _name;
         this.avatarContainer = _avatarContainer;
     },
     availableSprites: [], //list of all sprites
@@ -30,7 +30,7 @@ const sprites = {
             let psc = new sprites.PlayerSpriteContainer(
                 lobbies.lobbyProperties.Key,
                 p.getAttribute("playerid"),
-                p.querySelector(".avatar"), 
+                p.querySelector(".avatar"),
                 p.querySelector(".player-name").innerText.replace("(You)", "").trim()
             )
             players.push(psc);
@@ -46,14 +46,14 @@ const sprites = {
             let playerSlots = [];
             sprites.playerSprites.forEach(sprite => {
                 if (sprite.LobbyPlayerID.toString() == player.lobbyPlayerID && sprite.LobbyKey == player.lobbyKey) {
-                        playerSlots.push({ 
-                        sprite: sprite.Sprite, 
-                        slot: sprite.Slot ,
+                    playerSlots.push({
+                        sprite: sprite.Sprite,
+                        slot: sprite.Slot,
                         shift: shifts.find(shift => shift.LobbyPlayerID == player.lobbyPlayerID && sprite.Slot == shift.Slot)
                     });
                 }
             });
-            
+
             if (playerSlots.length > 0) {
                 player.avatarContainer.parentElement.parentElement.classList.toggle("typo", true);
                 // check if existent slots are set to 0
@@ -82,16 +82,16 @@ const sprites = {
                         else {
                             spriteContainer.parentElement.parentElement.parentElement.style.height = "56px";
                             spriteContainer.parentElement.parentElement.style.top = "3px";
-                        } 
+                        }
                     }
                 });
             }
             // else remove all existent slots
-            else{
-                [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove()); 
+            else {
+                [...player.avatarContainer.querySelectorAll(".typoSpecialSlot")].forEach(existentSlot => existentSlot.remove());
                 player.avatarContainer.parentElement.parentElement.classList.toggle("typo", false);
-            } 
-            
+            }
+
         });
     },
     updateScenes: () => {
@@ -111,6 +111,8 @@ const sprites = {
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
         });
+
+        if (QS("#scenesRules")?.innerHTML === scenesCSS.innerHTML) return;
 
         QS("#scenesRules")?.remove();
         playerlist.insertAdjacentElement("afterbegin", scenesCSS);
@@ -156,8 +158,8 @@ const sprites = {
     getOwnSpriteUrlShifted: (id) => {
         let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
         let url = sprites.getSpriteURL(id);
-        let shift = shifts.find(s=> s[0] == id);
-        if(shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
+        let shift = shifts.find(s => s[0] == id);
+        if (shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
         return url;
     },
     setLandingSprites: (authenticated = false) => {
@@ -180,19 +182,19 @@ const sprites = {
                 clone.classList.add("spriteSlot");
                 clone.classList.remove("special");
             });
-            
+
             let container = QS(".avatar-customizer");
             let scene = socket.data.user.scenes ? socket.data.user.scenes.toString().split(",").filter(s => s[0] == ".")[0] : undefined;
-            if(scene != undefined){
-                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".",""))).URL;
-                container.style.cssText=`    
+            if (scene != undefined) {
+                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".", ""))).URL;
+                container.style.cssText = `    
                     background-repeat: no-repeat;
                     background-image: url(${url});
                     background-size: cover;
                     background-position: center;
                 `;
             }
-            else container.style.cssText=``;
+            else container.style.cssText = ``;
         }
         else {
             QSA(".avatar-customizer .color, .avatar-customizer .eyes, .avatar-customizer .mouth").forEach(n => {
@@ -358,7 +360,7 @@ const sprites = {
                     })
                 }
             });
-            
+
         }
 
         QS("#rightPanelContent #loginRedir").addEventListener("click", login);
@@ -373,7 +375,7 @@ const sprites = {
             sprites.updateSprites();
         });
         endboardObserver.observe(QS(".overlay-content .result"), { childList: true, attributes: true });
-        sprites.getSprites();     
+        sprites.getSprites();
     }
 
 };

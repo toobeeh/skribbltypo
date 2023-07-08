@@ -11,6 +11,7 @@ const socket = {
         user: {}
     },
     sck: null,
+    dropSocket: undefined,
     authenticated: false,
     emitEvent: (event, payload, listenResponse = false, responseTimeout = 2000) => {
         return new Promise((resolve, reject) => {
@@ -64,7 +65,7 @@ const socket = {
                 // handle disconnect reasons different
                 console.log("Disconnected with reason: " + reason);
                 lobbies.joined = false;
-                socket.dropSocket.close();
+                socket.dropSocket?.close();
                 socket.dropSocket = undefined;
 
                 // if probably tempoary disconnect (server crash/restart, internet) enable reconnect without new balanced port
@@ -182,7 +183,7 @@ const socket = {
                     let resp = (await socket.emitEvent("set lobby", { lobbyKey: key, lobby: lobby, description: description, restriction: localStorage.restrictLobby }, true));
                     let veriflobby = resp.lobbyData.lobby;
                     let owner = resp.owner;
-                  
+
                     drops.mode = resp.dropMode;
                     lobbies.lobbyProperties.Description = veriflobby.Description;
                     if (QS("#lobbyDesc")) QS("#lobbyDesc").value = veriflobby.Description;
