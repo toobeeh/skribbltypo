@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
-// @version 24.4.5.168838995
+// @version 24.4.5.168858238
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
 // @grant none
 // @match https://skribbl.io/*
@@ -1011,18 +1011,8 @@ const scaleDataURL = async (url, width, height) => {
     });
 }
 
-const dataURLtoClipboard = async (dataUrl) => { // parts from: https://stackoverflow.com/questions/23182933/converting-an-image-dataurl-to-image
-    // Decode the dataURL
-    let binary = atob(dataUrl.split(',')[1]);
-    // Create 8-bit unsigned array
-    let array = [];
-    for (let i = 0; i < binary.length; i++) {
-        array.push(binary.charCodeAt(i));
-    }
-    // Return blob
-    let blob = new Blob([new Uint8Array(array)], {
-        type: 'image/png'
-    });
+const imageUrlToClipboard = async (dataUrl) => { // parts from: https://stackoverflow.com/questions/23182933/converting-an-image-dataurl-to-image
+    const blob = await (await fetch(dataUrl)).blob();
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
     addChatMessage("", "Copied to clipboard");
 }
@@ -3297,6 +3287,17 @@ let imageOptions = {
         d.href = await scaleDataURL(url,
             document.querySelector("#game-canvas canvas").width * scale,
             document.querySelector("#game-canvas canvas").height * scale);
+        d.dispatchEvent(e);
+    },
+    downloadImageURL: async (url, name = "skribbl-unknown", scale = 1) => {
+        const blob = await (await fetch(url)).blob();
+        const blobUrl = URL.createObjectURL(blob);
+        let e = document.createEvent("MouseEvents"), d = document.createElement("a"), drawer = getCurrentOrLastDrawer();
+        e.initMouseEvent("click", true, true, window,
+            0, 0, 0, 0, 0, false, false, false,
+            false, 0, null);
+        d.download = name;
+        d.href = blobUrl;
         d.dispatchEvent(e);
     },
     initDownloadOptions: () => {
@@ -7201,8 +7202,7 @@ let typro = {
                 let clipboard = elemFromString("<button class='flatUI blue min air'>Copy to Clipboard</button>");
                 clipboard.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.drawing)).text()
-                    await dataURLtoClipboard(data);
+                    await imageUrlToClipboard(drawing.image);
                     new Toast("Copied the image to your clipboard. Share it! :3");
                 });
                 options.appendChild(clipboard);
@@ -7218,8 +7218,7 @@ let typro = {
                 let savepng = elemFromString("<button class='flatUI green min air'>Save PNG</button>");
                 savepng.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.drawing)).text()
-                    imageOptions.downloadDataURL(data, "skribblCloud-" + meta.name + "-by-" + meta.author);
+                    imageOptions.downloadImageURL(drawing.image, "skribblCloud-" + meta.name + "-by-" + meta.author);
                     new Toast("Started the image download.");
                 });
                 options.appendChild(savepng);
