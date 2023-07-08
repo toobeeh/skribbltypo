@@ -126,7 +126,7 @@ const gamemodes = {
                 initWithAction: true,
                 destroy: () => {
                     QS("#game-toolbar style#gamemodeMonochromeRules")?.remove()
-                    QS("#randomColor").setAttribute("data-monochrome", "");
+                    QS("#randomColor")?.setAttribute("data-monochrome", "");
                 },
                 observeSelector: "#game-toolbar",
                 observeOptions: {

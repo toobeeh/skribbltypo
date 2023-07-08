@@ -15,59 +15,6 @@ const stateFromLocalstorage = (modeName, defaultState, stateOverride = undefined
 const brushtools = {
     groups: {
         color: {
-            /*rainbow: {
-                name: "Rainbow",
-                description: "The brush color is a rainbow color depending on your pen pressure.",
-                enabled: false,
-                options: {
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)){
-                        mode.disable();
-                    }
-                    brushtools.groups.color.rainbow.enabled = true;
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                },
-                disable: () => {
-                    brushtools.groups.color.rainbow.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const colors = brushtools.getColorsHue();
-                        const index = Math.round(event.pressure * (colors.length - 1));
-                        const color = colors[index][2].hex;
-                        colcode = parseInt(color.toString().replace("#", ""), 16) + 10000;
-                        if (colcode != 10000 + 16777215) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                    }
-                }
-            },
-            brightness: {
-                name: "Brightness",
-                description: "The brightness of a selected color varies with pen pressure.",
-                enabled: false,
-                options: {
-                },
-                enable: () => {
-                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
-                        mode.disable();
-                    }
-                    gamemodes.modes.find(mode => mode.name == "Monochrome").options.destroy();
-                    brushtools.groups.color.brightness.enabled = true;
-                },
-                disable: () => {
-                    brushtools.groups.color.brightness.enabled = false;
-                },
-                pointermoveCallback: (event) => {
-                    if (event.pressure > 0 && event.pointerType == "pen") {
-                        const selected = QS("#color-preview-primary").style.fill;
-                        const matchGroup = brushtools.colorGroups.find(group => group.some(col => col == selected));
-                        const index = Math.round(event.pressure * (matchGroup.length - 1));
-                        const color = new Color({ rgb: matchGroup[index] });
-                        colcode = parseInt(color.hex.toString().replace("#", ""), 16) + 10000;
-                        document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-                    }
-                }
-            },*/
             rainbowcircle: {
                 name: "Rainbow Cycle",
                 description: "Cycles through bright rainbow colors, no pen needed.",
@@ -430,7 +377,62 @@ const brushtools = {
                     }
                 }
             }
-        }
+        },
+        grid: {
+            grid: {
+                name: "Grid Lines",
+                description: "Enabling this will draw a grid on the canvas, with selected properties and the current brush size and color.",
+                enabled: stateFromLocalstorage("grid.gridlines", false),
+                options: {
+                    columns: {
+                        val: stateFromLocalstorage("grid.gridlines.options.cols", 16),
+                        type: "num",
+                        save: value => stateFromLocalstorage("grid.gridlines.options.cols", undefined, value)
+                    },
+                    rows: {
+                        val: stateFromLocalstorage("grid.gridlines.options.rows", 12),
+                        type: "num",
+                        save: value => stateFromLocalstorage("grid.gridlines.options.rows", undefined, value)
+                    },
+                },
+                enable: () => {
+
+                    QS("div[data-tooltip=Brush]")?.click();
+
+                    const rows = brushtools.groups.grid.grid.options.rows.val;
+                    const cols = brushtools.groups.grid.grid.options.columns.val;
+                    const canvasRect = brushtools.canvas.getBoundingClientRect();
+
+                    const colWidth = canvasRect.width / cols;
+                    const rowWidth = canvasRect.height / rows;
+
+                    const eventAtPos = (x, y) => {
+                        let event = new PointerEvent("pointermove");
+                        event = Object.defineProperty(event, "pointerType", { value: "mouse" });
+                        event = Object.defineProperty(event, "clientX", { value: canvasRect.left + x });
+                        event = Object.defineProperty(event, "clientY", { value: canvasRect.top + y });
+                        return event;
+                    }
+
+                    for (let row = 1; row < rows; row++) {
+                        const from = eventAtPos(0, row * rowWidth);
+                        const to = eventAtPos(canvasRect.width, row * rowWidth);
+                        brushtools.line(from, to);
+                    }
+
+                    for (let col = 1; col < cols; col++) {
+                        const from = eventAtPos(col * colWidth, 0);
+                        const to = eventAtPos(col * colWidth, canvasRect.height);
+                        brushtools.line(from, to);
+                    }
+
+                    brushtools.modal.close();
+                },
+                disable: () => {
+                    /* nothing to do */
+                }
+            },
+        },
     },
     line: (eventFrom, eventTo) => {
         //let down = Object.defineProperty(eventFrom, "pressure", { value: pressure });
@@ -440,8 +442,8 @@ const brushtools = {
         let up = Object.defineProperty(eventTo, "button", { value: 0 });
 
         brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", down));
-        brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", up));
-        brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", up));
+        document.dispatchEvent(new PointerEvent("pointermove", up));
+        document.dispatchEvent(new PointerEvent("pointerup", up));
     },
     currentDown: false,
     canvas: null,
@@ -508,7 +510,7 @@ const brushtools = {
                 display: grid;
                 grid-column-gap:2em;
                 width: 100%;
-                grid-template-columns: 1fr 1fr 1fr;"></div>`);
+                grid-template-columns: 1fr 1fr 1fr 1fr;"></div>`);
 
         const updateStates = () => {
             for (let [name, group] of Object.entries(brushtools.groups)) {
@@ -520,7 +522,7 @@ const brushtools = {
         }
 
         for (let [name, group] of Object.entries(brushtools.groups)) {
-            const groupContainer = elemFromString(`<div><h3>Adjust ${name}:</h3></div>`);
+            const groupContainer = elemFromString(`<div><h3 style="text-transform: capitalize">${name} tools:</h3></div>`);
             for (let [name, mode] of Object.entries(group)) {
 
                 /* if already enabled,call setup */
