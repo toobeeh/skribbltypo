@@ -43,7 +43,7 @@ let bundle = `
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/res/icon/128MaxFit.png
 // @version ${mainfest.version}.${Date.now().toString().substring(0, 9)}
-// @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.userscript.js
+// @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
 // @run-at document-start
@@ -136,7 +136,7 @@ const execTypo = async () => {
     /* parse doc and add new base uri + polyfill for tabs api */
     popupDoc.innerHTML = popupHTML;
     popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
-        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/d416e4f61888b48a9650e74cf716559904e2fcbf/popup/" />'
+        '<base href="https://rawcdn.githack.com/toobeeh/skribbltypo/cf478d8b402044398e52e72cad0a843815a46594/popup/" />'
     );
     popupDoc.querySelector("head").insertAdjacentHTML("afterbegin",
         \`<script>
