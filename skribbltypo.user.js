@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 24.4.5.168882353
+// @version 24.4.5.168882472
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -3418,38 +3418,40 @@ let imageOptions = {
         let webhooks = socket.data.user.webhooks;
 
         // add buttons to post image
-        if (!webhooks || webhooks.length <= 0) sharePopup.innerHTML = "Ooops! <br> None of your added DC servers has a webhook connected. <br> Ask an admin to add one.";
-        webhooks.forEach(async (w) => {
-            // add share button for image
-            let shareImg = document.createElement("button");
-            let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
-            shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
-            shareImg.classList.add("flatUI", "green", "air");
-            shareImg.addEventListener("click", async () => {
+        if (webhooks === undefined || webhooks.length <= 0) sharePopup.innerHTML += "ImagePoster lets you share images directly to discord. <br><br>You need to be logged in with palantir and in a server that uses ImagePost..";
+        else {
+            webhooks.forEach(async (w) => {
+                // add share button for image
+                let shareImg = document.createElement("button");
+                let serverName = socket.data.user.member.Guilds.find(g => g.GuildID == w.ServerID).GuildName;
+                shareImg.innerHTML = "[" + serverName + "] <br>" + w.Name;
+                shareImg.classList.add("flatUI", "green", "air");
+                shareImg.addEventListener("click", async () => {
 
-                // close popup first to avoid spamming
-                sharePopup.style.display = "none";
-                let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
-                let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
+                    // close popup first to avoid spamming
+                    sharePopup.style.display = "none";
+                    let title = QS("#postNameInput").value.replaceAll("_", " ⎽ ");
+                    let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
 
-                // send to socket
-                await socket.emitEvent("post image", {
-                    accessToken: localStorage.accessToken,
-                    serverID: w.ServerID,
-                    imageURI: imageShareString,
-                    webhookName: w.Name,
-                    postOptions: {
-                        onlyImage: QS("#sendImageOnly").checked,
-                        drawerName: imageShareStringDrawer,
-                        posterName: loginName,
-                        title: title
-                    }
+                    // send to socket
+                    await socket.emitEvent("post image", {
+                        accessToken: localStorage.accessToken,
+                        serverID: w.ServerID,
+                        imageURI: imageShareString,
+                        webhookName: w.Name,
+                        postOptions: {
+                            onlyImage: QS("#sendImageOnly").checked,
+                            drawerName: imageShareStringDrawer,
+                            posterName: loginName,
+                            title: title
+                        }
+                    });
+
+                    new Toast("Posted image on Discord.", 2000);
                 });
-
-                new Toast("Posted image on Discord.", 2000);
+                sharePopup.appendChild(shareImg);
             });
-            sharePopup.appendChild(shareImg);
-        });
+        }
         Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
     },
     initAll: () => {
@@ -3559,7 +3561,7 @@ let patchNode = async (node) => {
         const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
-                <span>Hello there ❤️✏️<br>Image agent is back online! <br>Enable the feature in the extension popup to find image templates when it's your turn to draw.</span>
+                <span>Hello there ❤️✏️<br>Check out the new tools "grid" and "rainbow stroke" in the brush lab!</span>
                 <div class="panel" id="typoHints" style="cursor:pointer; width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
