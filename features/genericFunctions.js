@@ -40,16 +40,23 @@ const newCustomEvent = (type, detail = {}) => {
 const login = () => {
     localStorage.removeItem("member");
     localStorage.removeItem("accessToken");
-    window.addEventListener("message", async msg => {
-        // save access token
+    const handler = async msg => {
+
+        // check if right message
+        if (!msg.data.accessToken) return;
         localStorage.accessToken = msg.data.accessToken;
         socket.sck.disconnect();
         document.addEventListener("palantirLoaded", () => {
             uiTweaks.updateAccountElements();
         }, { once: true });
         socket.init();
-    }, { once: true });
-    window.open('https://tobeh.host/Orthanc/auth/ext/', 'Log in to Palantir', 'height=650,width=500,right=0,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+        window.removeEventListener("message", handler);
+    };
+
+    if (window.lastTypoLoginHandler) window.removeEventListener("message", window.lastTypoLoginHandler);
+    window.lastTypoLoginHandler = handler;
+    window.addEventListener("message", handler);
+    window.open('https://www.typo.rip/auth', 'Log in to Palantir', 'height=650,width=500,right=0,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
 }
 
 const logout = () => {
