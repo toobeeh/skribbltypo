@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 24.5.0.168882496
+// @version 24.5.1.169766103
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "24.5.0 usrsc"};
+            return {version: "24.5.1 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -948,16 +948,23 @@ const newCustomEvent = (type, detail = {}) => {
 const login = () => {
     localStorage.removeItem("member");
     localStorage.removeItem("accessToken");
-    window.addEventListener("message", async msg => {
-        // save access token
+    const handler = async msg => {
+
+        // check if right message
+        if (!msg.data.accessToken) return;
         localStorage.accessToken = msg.data.accessToken;
         socket.sck.disconnect();
         document.addEventListener("palantirLoaded", () => {
             uiTweaks.updateAccountElements();
         }, { once: true });
         socket.init();
-    }, { once: true });
-    window.open('https://tobeh.host/Orthanc/auth/ext/', 'Log in to Palantir', 'height=650,width=500,right=0,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+        window.removeEventListener("message", handler);
+    };
+
+    if (window.lastTypoLoginHandler) window.removeEventListener("message", window.lastTypoLoginHandler);
+    window.lastTypoLoginHandler = handler;
+    window.addEventListener("message", handler);
+    window.open('https://www.typo.rip/auth', 'Log in to Palantir', 'height=650,width=500,right=0,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
 }
 
 const logout = () => {
