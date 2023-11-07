@@ -1217,3 +1217,23 @@ bounceload {
     filter: drop-shadow(-3px 3px 0 rgba(0, 0, 0, .3)) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
     rotate: -90deg;
 }
+
+#awardsAnchor{
+    position: absolute;
+    top: 55px;
+    right: 0;
+}
+
+#awardsAnchor .icon {
+    height: 48px;
+    width: 48px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    opacity: .7;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+}
+#awardsAnchor .icon:hover {
+    opacity: 1;
+}

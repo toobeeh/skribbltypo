@@ -13,7 +13,7 @@
  * Right!! Almost everything is split into easy-to-understand procedural initialized modules, capsulated and called here in service.js.
  */
 // Comment section: Todo list .. close this section in your IDE
-{ 
+{
     /*
      * Todo and bugs:
      *  ----fix conflict with image poster (container freespace) 
@@ -57,7 +57,7 @@ patcher.disconnect(); // stop patcher observing
 setDefaults(false); // Set default settings
 
 // communication with popup.js
-chrome.runtime.onMessage.addListener(message => { 
+chrome.runtime.onMessage.addListener(message => {
     if (message == "getSettings") chrome.runtime.sendMessage({ settings: JSON.stringify(localStorage) });
     else performCommand(message + "--");
 });
@@ -69,6 +69,7 @@ imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 gamemodes.setup();
 brushtools.setup();
+awards.setup();
 //pressure.initEvents(); // init pressure
 document.dispatchEvent(new Event("addTypoTooltips"));
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js

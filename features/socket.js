@@ -50,7 +50,6 @@ const socket = {
             socket.sck.on("specialdrop", (data) => {
                 data.event = data.event + " response";
                 drops.specialDrop(() => socket.emitEvent(data.event, data));
-                //socket.emitEvent(data.event, data);
             });
             socket.sck.on("server message", (data) => {
                 addChatMessage(data.payload.title, data.payload.message);
