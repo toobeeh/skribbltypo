@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.0.1.169938756
+// @version 25.0.1.169940057
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -4899,6 +4899,52 @@ bounceload {
     opacity: 1;
 }
 
+#awardsAnchor:focus #awardsInventory {
+    background: var(--COLOR_CHAT_BG_BASE);
+    padding: 1em;
+    top: 50px;
+    right: 1em;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    align-items: center;
+    border-radius: .5em;
+    border-top-right-radius: 0;
+}
+
+#awardsAnchor:focus #awardsInventory:after {
+    position: absolute;
+    content: '';
+    top: -.8em;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: .8em solid transparent;
+    border-right: .8em solid transparent;
+    border-bottom: .8em solid var(--COLOR_CHAT_BG_BASE);
+}
+
+#awardsAnchor .grid {
+    display:grid;
+    grid-gap: 1em;
+    place-items: center;
+}
+
+#awardsAnchor .grid .award {
+    height: 36px;
+    width: 36px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    position: relative;
+}
+
+#awardsAnchor:not(:focus) #awardsInventory {
+    display:none;
+}
+
 /*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
 
 .pickr {
@@ -8640,9 +8686,10 @@ const brushtools = {
 // handles the award feature
 // depends on: genericfunctions.js, socket.js
 const awards = {
-    state: true,
+    state: null,
     ui: null,
     inventory: [],
+    all: [],
     toggleState: async to => {
         if (to === awards.state) return;
 
@@ -8670,7 +8717,20 @@ const awards = {
             awards.inventory = [];
         }
     },
-    setup: () => {
+    openPicker: () => {
+        awards.ui.querySelector(".grid").innerHTML = awards.inventory.map(a => {
+            const award = awards.all.find(f => f.id == a[0]);
+            return `<div class="award" data-id="${a[1][0]}" style="background-image:url(${award.url})"></div>`;
+        }).join("");
+        [...awards.ui.querySelectorAll(".grid .award")].forEach(a => a.addEventListener("click", () => {
+            const id = Number(a.getAttribute("data-id"));
+            console.log(id);
+            awards.ui.blur();
+            awards.toggleState(false);
+        }));
+        awards.ui.focus();
+    },
+    setup: async () => {
 
         let enabler = new MutationObserver((mutations) => {
             console.log(QS("#game-rate").style.display);
@@ -8687,12 +8747,22 @@ const awards = {
             awards.toggleState(true);
         });
 
-        awards.ui = elemFromString(`<div id="awardsAnchor" data-typo-tooltip='Award this special drawing' data-tooltipdir='W'>
+        awards.ui = elemFromString(`<div tabindex="0" id="awardsAnchor" data-typo-tooltip='Award this special drawing' data-tooltipdir='W'>
             <div class="icon"></div>
+            <div id="awardsInventory">
+                <h2 style="display:none">Award Inventory</h2>
+                <div class="grid"></div>
+            </div>
         </div>     
         `);
         awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/noChallenge.gif") + ")";
+        awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker());
         QS("#game-canvas").appendChild(awards.ui);
+
+        await waitMs(2000);
+        awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
+        awards.all = await (await fetch("https://api.typo.rip/awards")).json();
+        awards.toggleState(true);
     }
 }
 
