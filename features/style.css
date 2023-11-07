@@ -1237,3 +1237,49 @@ bounceload {
 #awardsAnchor .icon:hover {
     opacity: 1;
 }
+
+#awardsAnchor:focus #awardsInventory {
+    background: var(--COLOR_CHAT_BG_BASE);
+    padding: 1em;
+    top: 50px;
+    right: 1em;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    align-items: center;
+    border-radius: .5em;
+    border-top-right-radius: 0;
+}
+
+#awardsAnchor:focus #awardsInventory:after {
+    position: absolute;
+    content: '';
+    top: -.8em;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: .8em solid transparent;
+    border-right: .8em solid transparent;
+    border-bottom: .8em solid var(--COLOR_CHAT_BG_BASE);
+}
+
+#awardsAnchor .grid {
+    display:grid;
+    grid-gap: 1em;
+    place-items: center;
+}
+
+#awardsAnchor .grid .award {
+    height: 36px;
+    width: 36px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    position: relative;
+}
+
+#awardsAnchor:not(:focus) #awardsInventory {
+    display:none;
+}
