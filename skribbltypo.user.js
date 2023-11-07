@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 24.5.1.169766103
+// @version 25.0.1.169938756
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "24.5.1 usrsc"};
+            return {version: "25.0.1 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -2828,7 +2828,6 @@ const socket = {
             socket.sck.on("specialdrop", (data) => {
                 data.event = data.event + " response";
                 drops.specialDrop(() => socket.emitEvent(data.event, data));
-                //socket.emitEvent(data.event, data);
             });
             socket.sck.on("server message", (data) => {
                 addChatMessage(data.payload.title, data.payload.message);
@@ -4878,6 +4877,26 @@ bounceload {
 .lobbyNavIcon.exit {
     filter: drop-shadow(-3px 3px 0 rgba(0, 0, 0, .3)) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
     rotate: -90deg;
+}
+
+#awardsAnchor{
+    position: absolute;
+    top: 55px;
+    right: 0;
+}
+
+#awardsAnchor .icon {
+    height: 48px;
+    width: 48px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    opacity: .7;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+}
+#awardsAnchor .icon:hover {
+    opacity: 1;
 }
 
 /*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
@@ -8617,6 +8636,66 @@ const brushtools = {
     }
 }
 
+// #content features/awards.js
+// handles the award feature
+// depends on: genericfunctions.js, socket.js
+const awards = {
+    state: true,
+    ui: null,
+    inventory: [],
+    toggleState: async to => {
+        if (to === awards.state) return;
+
+        // check if valid rewardee and show ui
+        if (to) {
+            const lobbyRewardees = socket.data.publicData.onlineItems.filter(item => item.ItemType === "rewardee" && item.LobbyKey === lobbies.lobbyProperties.Key);
+            const drawer = lobbies.lobbyProperties.Players.find(p => p.Drawing === true);
+            if (drawer === undefined || drawer.Sender) throw new Error("no drawer according to report or self");
+            const rewardee = lobbyRewardees.find(r => r.LobbyPlayerID === Number(drawer.LobbyPlayerID));
+            if (rewardee !== undefined) {
+                // check if user has awards to give
+                const result = await socket.emitEvent("get awards", undefined, true);
+                if (result.awards.length > 0) {
+                    awards.inventory = result.awards;
+                    awards.state = true;
+                    awards.ui.style.display = "";
+                }
+            }
+        }
+
+        // hide ui
+        else {
+            awards.state = false;
+            awards.ui.style.display = "none";
+            awards.inventory = [];
+        }
+    },
+    setup: () => {
+
+        let enabler = new MutationObserver((mutations) => {
+            console.log(QS("#game-rate").style.display);
+            if (QS("#game-rate").style.display !== "none") awards.toggleState(true);
+        });
+        enabler.observe(QS("#game-rate"), { attributes: true, attributeFilter: ['style'] });
+
+        // hide controls
+        document.addEventListener("drawingFinished", async (data) => {
+            awards.toggleState(false);
+        });
+        document.addEventListener("lobbyConnected", () => {
+            awards.toggleState(false);
+            awards.toggleState(true);
+        });
+
+        awards.ui = elemFromString(`<div id="awardsAnchor" data-typo-tooltip='Award this special drawing' data-tooltipdir='W'>
+            <div class="icon"></div>
+        </div>     
+        `);
+        awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/noChallenge.gif") + ")";
+        QS("#game-canvas").appendChild(awards.ui);
+    }
+}
+
 // #content content.js
 ﻿/*
  *
@@ -8633,7 +8712,7 @@ const brushtools = {
  * Right!! Almost everything is split into easy-to-understand procedural initialized modules, capsulated and called here in service.js.
  */
 // Comment section: Todo list .. close this section in your IDE
-{ 
+{
     /*
      * Todo and bugs:
      *  ----fix conflict with image poster (container freespace) 
@@ -8677,7 +8756,7 @@ patcher.disconnect(); // stop patcher observing
 setDefaults(false); // Set default settings
 
 // communication with popup.js
-chrome.runtime.onMessage.addListener(message => { 
+chrome.runtime.onMessage.addListener(message => {
     if (message == "getSettings") chrome.runtime.sendMessage({ settings: JSON.stringify(localStorage) });
     else performCommand(message + "--");
 });
@@ -8689,6 +8768,7 @@ imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 gamemodes.setup();
 brushtools.setup();
+awards.setup();
 //pressure.initEvents(); // init pressure
 document.dispatchEvent(new Event("addTypoTooltips"));
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js
