@@ -35,15 +35,51 @@ const awards = {
     openPicker: () => {
         awards.ui.querySelector(".grid").innerHTML = awards.inventory.map(a => {
             const award = awards.all.find(f => f.id == a[0]);
-            return `<div class="award" data-id="${a[1][0]}" style="background-image:url(${award.url})"></div>`;
+            return `<div class="award" data-id="${a[1][0]}" data-award="${a[0]}" style="background-image:url(${award.url})"></div>`;
         }).join("");
         [...awards.ui.querySelectorAll(".grid .award")].forEach(a => a.addEventListener("click", () => {
+            const awardId = Number(a.getAttribute("data-award"));
             const id = Number(a.getAttribute("data-id"));
             console.log(id);
             awards.ui.blur();
             awards.toggleState(false);
+            awards.presentAward(awardId);
         }));
         awards.ui.focus();
+    },
+    presentAward: id => {
+        const award = awards.all.find(a => a.id == id);
+        if (award === undefined) return;
+
+        const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
+        QS("#game-canvas").appendChild(object);
+        const animation = object.animate([
+            {
+                opacity: 0,
+                backgroundSize: "100%"
+            },
+            {
+                opacity: 1,
+                backgroundSize: "30px"
+            },
+            {
+                opacity: 1,
+                backgroundSize: "48px"
+            },
+            {
+                opacity: 1,
+                backgroundSize: "48px"
+            },
+            {
+                opacity: 0,
+                backgroundSize: "48px"
+            },
+        ], {
+            duration: 3000,
+            easing: "ease-out"
+        });
+        animation.onfinish = () => object.remove();
+
     },
     setup: async () => {
 

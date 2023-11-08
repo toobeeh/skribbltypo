@@ -1283,3 +1283,11 @@ bounceload {
 #awardsAnchor:not(:focus) #awardsInventory {
     display:none;
 }
+
+#awardPresentation {
+    position: absolute;
+    background-position: center;
+    inset: 0;
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
