@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.0.1.169944222
+// @version 25.0.1.169954742
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -2866,6 +2866,16 @@ const socket = {
                 socket.data.publicData.onlineScenes = data.payload.onlineScenes;
                 socket.data.publicData.onlineItems = data.payload.onlineItems;
             });
+            socket.sck.on("drawingAwarded", data => {
+                const lobbyKey = data.payload.lobbyKey;
+                const lobbyPlayerId = data.payload.lobbyPlayerId;
+                const fromLobbyPlayerId = data.payload.from;
+                const awardId = data.payload.awardId;
+
+                if (lobbies.lobbyProperties.Key == lobbyKey) {
+                    awards.presentAward(awardId, fromLobbyPlayerId, lobbyPlayerId);
+                }
+            });
             let updateTimeout = null;
             socket.sck.on("active lobbies", (data) => {
                 socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
@@ -2883,7 +2893,7 @@ const socket = {
                 login = JSON.parse(localStorage.member).UserLogin;
                 accessToken = false;
             } catch { }
-            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 10000);
+            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 30000);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
@@ -7733,7 +7743,7 @@ let imageAgent = {// func to set the image in the agentdiv
         let word = getCurrentWordOrHint();
         // if player isnt drawing
         if (word.includes("_") || word == "" || localStorage.agent == "false"
-            || !QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".player-name")?.textContent?.endsWith("(You)")) {
+            || !QS(".avatar .drawing[style*=block]")?.closest(".player").querySelector(".player-name")?.textContent?.endsWith("(You)")) {
             imageAgent.agent.src = "";
             QS("#imageAgent").style.display = "none";
             scrollMessages(true);
@@ -8699,13 +8709,15 @@ const awards = {
     inventory: [],
     all: [],
     toggleState: async to => {
-        if (to === awards.state) return;
 
         // check if valid rewardee and show ui
         if (to) {
             const lobbyRewardees = socket.data.publicData.onlineItems.filter(item => item.ItemType === "rewardee" && item.LobbyKey === lobbies.lobbyProperties.Key);
             const drawer = lobbies.lobbyProperties.Players.find(p => p.Drawing === true);
-            if (drawer === undefined || drawer.Sender) throw new Error("no drawer according to report or self");
+            if (drawer === undefined || drawer.Sender) {
+                awards.toggleState(false);
+                return;
+            }
             const rewardee = lobbyRewardees.find(r => r.LobbyPlayerID === Number(drawer.LobbyPlayerID));
             if (rewardee !== undefined) {
                 // check if user has awards to give
@@ -8714,35 +8726,52 @@ const awards = {
                     awards.inventory = result.awards;
                     awards.state = true;
                     awards.ui.style.display = "";
+
+                    awards.openPicker = () => {
+
+                        // build clickable icons
+                        awards.ui.querySelector(".grid").innerHTML = awards.inventory.map(a => {
+                            const award = awards.all.find(f => f.id == a[0]);
+                            return `<div class="award" data-id="${a[1][0]}" data-award="${a[0]}" style="background-image:url(${award.url})"></div>`;
+                        }).join("");
+
+                        // add eventlisteners
+                        [...awards.ui.querySelectorAll(".grid .award")].forEach(a => a.addEventListener("click", async () => {
+                            const awardId = Number(a.getAttribute("data-award"));
+                            const id = Number(a.getAttribute("data-id"));
+                            awards.ui.blur();
+                            awards.toggleState(false);
+                            await socket.emitEvent("give award", { lobbyPlayerId: rewardee.LobbyPlayerID, awardInventoryId: id }, true);
+                        }));
+                        awards.ui.focus();
+                    };
                 }
+                else {
+                    awards.toggleState(false);
+                    return;
+                }
+            }
+            else {
+                awards.toggleState(false);
+                return;
             }
         }
 
-        // hide ui
+        // if awards not activated, hide ui
         else {
+            awards.awardee = undefined;
             awards.state = false;
             awards.ui.style.display = "none";
             awards.inventory = [];
+            awards.openPicker = undefined;
         }
     },
-    openPicker: () => {
-        awards.ui.querySelector(".grid").innerHTML = awards.inventory.map(a => {
-            const award = awards.all.find(f => f.id == a[0]);
-            return `<div class="award" data-id="${a[1][0]}" data-award="${a[0]}" style="background-image:url(${award.url})"></div>`;
-        }).join("");
-        [...awards.ui.querySelectorAll(".grid .award")].forEach(a => a.addEventListener("click", () => {
-            const awardId = Number(a.getAttribute("data-award"));
-            const id = Number(a.getAttribute("data-id"));
-            console.log(id);
-            awards.ui.blur();
-            awards.toggleState(false);
-            awards.presentAward(awardId);
-        }));
-        awards.ui.focus();
-    },
-    presentAward: id => {
+    openPicker: undefined,
+    presentAward: (id, from, to) => {
         const award = awards.all.find(a => a.id == id);
         if (award === undefined) return;
+
+        const getIdname = id => document.querySelector(`[playerid='${id}'] .player-name`).textContent.replace("(You)", "").trim();
 
         const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
         QS("#game-canvas").appendChild(object);
@@ -8772,7 +8801,7 @@ const awards = {
             easing: "ease-out"
         });
         animation.onfinish = () => object.remove();
-
+        addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a " + award.name + "!");
     },
     setup: async () => {
 
@@ -8800,13 +8829,14 @@ const awards = {
         </div>     
         `);
         awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/noChallenge.gif") + ")";
-        awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker());
+        awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker?.());
         QS("#game-canvas").appendChild(awards.ui);
 
-        await waitMs(2000);
-        awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
+        // await waitMs(5000);
+        // awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
+
         awards.all = await (await fetch("https://api.typo.rip/awards")).json();
-        awards.toggleState(true);
+        awards.toggleState(false);
     }
 }
 
