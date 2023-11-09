@@ -6,13 +6,15 @@ const awards = {
     inventory: [],
     all: [],
     toggleState: async to => {
-        if (to === awards.state) return;
 
         // check if valid rewardee and show ui
         if (to) {
             const lobbyRewardees = socket.data.publicData.onlineItems.filter(item => item.ItemType === "rewardee" && item.LobbyKey === lobbies.lobbyProperties.Key);
             const drawer = lobbies.lobbyProperties.Players.find(p => p.Drawing === true);
-            if (drawer === undefined || drawer.Sender) throw new Error("no drawer according to report or self");
+            if (drawer === undefined || drawer.Sender) {
+                awards.toggleState(false);
+                return;
+            }
             const rewardee = lobbyRewardees.find(r => r.LobbyPlayerID === Number(drawer.LobbyPlayerID));
             if (rewardee !== undefined) {
                 // check if user has awards to give
@@ -21,35 +23,52 @@ const awards = {
                     awards.inventory = result.awards;
                     awards.state = true;
                     awards.ui.style.display = "";
+
+                    awards.openPicker = () => {
+
+                        // build clickable icons
+                        awards.ui.querySelector(".grid").innerHTML = awards.inventory.map(a => {
+                            const award = awards.all.find(f => f.id == a[0]);
+                            return `<div class="award" data-id="${a[1][0]}" data-award="${a[0]}" style="background-image:url(${award.url})"></div>`;
+                        }).join("");
+
+                        // add eventlisteners
+                        [...awards.ui.querySelectorAll(".grid .award")].forEach(a => a.addEventListener("click", async () => {
+                            const awardId = Number(a.getAttribute("data-award"));
+                            const id = Number(a.getAttribute("data-id"));
+                            awards.ui.blur();
+                            awards.toggleState(false);
+                            await socket.emitEvent("give award", { lobbyPlayerId: rewardee.LobbyPlayerID, awardInventoryId: id }, true);
+                        }));
+                        awards.ui.focus();
+                    };
                 }
+                else {
+                    awards.toggleState(false);
+                    return;
+                }
+            }
+            else {
+                awards.toggleState(false);
+                return;
             }
         }
 
-        // hide ui
+        // if awards not activated, hide ui
         else {
+            awards.awardee = undefined;
             awards.state = false;
             awards.ui.style.display = "none";
             awards.inventory = [];
+            awards.openPicker = undefined;
         }
     },
-    openPicker: () => {
-        awards.ui.querySelector(".grid").innerHTML = awards.inventory.map(a => {
-            const award = awards.all.find(f => f.id == a[0]);
-            return `<div class="award" data-id="${a[1][0]}" data-award="${a[0]}" style="background-image:url(${award.url})"></div>`;
-        }).join("");
-        [...awards.ui.querySelectorAll(".grid .award")].forEach(a => a.addEventListener("click", () => {
-            const awardId = Number(a.getAttribute("data-award"));
-            const id = Number(a.getAttribute("data-id"));
-            console.log(id);
-            awards.ui.blur();
-            awards.toggleState(false);
-            awards.presentAward(awardId);
-        }));
-        awards.ui.focus();
-    },
-    presentAward: id => {
+    openPicker: undefined,
+    presentAward: (id, from, to) => {
         const award = awards.all.find(a => a.id == id);
         if (award === undefined) return;
+
+        const getIdname = id => document.querySelector(`[playerid='${id}'] .player-name`).textContent.replace("(You)", "").trim();
 
         const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
         QS("#game-canvas").appendChild(object);
@@ -79,7 +98,7 @@ const awards = {
             easing: "ease-out"
         });
         animation.onfinish = () => object.remove();
-
+        addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a " + award.name + "!");
     },
     setup: async () => {
 
@@ -107,12 +126,13 @@ const awards = {
         </div>     
         `);
         awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/noChallenge.gif") + ")";
-        awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker());
+        awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker?.());
         QS("#game-canvas").appendChild(awards.ui);
 
-        await waitMs(2000);
-        awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
+        // await waitMs(5000);
+        // awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
+
         awards.all = await (await fetch("https://api.typo.rip/awards")).json();
-        awards.toggleState(true);
+        awards.toggleState(false);
     }
 }

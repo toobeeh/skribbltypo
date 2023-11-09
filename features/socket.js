@@ -88,6 +88,16 @@ const socket = {
                 socket.data.publicData.onlineScenes = data.payload.onlineScenes;
                 socket.data.publicData.onlineItems = data.payload.onlineItems;
             });
+            socket.sck.on("drawingAwarded", data => {
+                const lobbyKey = data.payload.lobbyKey;
+                const lobbyPlayerId = data.payload.lobbyPlayerId;
+                const fromLobbyPlayerId = data.payload.from;
+                const awardId = data.payload.awardId;
+
+                if (lobbies.lobbyProperties.Key == lobbyKey) {
+                    awards.presentAward(awardId, fromLobbyPlayerId, lobbyPlayerId);
+                }
+            });
             let updateTimeout = null;
             socket.sck.on("active lobbies", (data) => {
                 socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
@@ -105,7 +115,7 @@ const socket = {
                 login = JSON.parse(localStorage.member).UserLogin;
                 accessToken = false;
             } catch { }
-            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 10000);
+            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 30000);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
