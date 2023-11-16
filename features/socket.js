@@ -93,9 +93,10 @@ const socket = {
                 const lobbyPlayerId = data.payload.lobbyPlayerId;
                 const fromLobbyPlayerId = data.payload.from;
                 const awardId = data.payload.awardId;
+                const awardInvId = data.payload.awardInventoryId;
 
                 if (lobbies.lobbyProperties.Key == lobbyKey) {
-                    awards.presentAward(awardId, fromLobbyPlayerId, lobbyPlayerId);
+                    awards.presentAward(awardId, awardInvId, fromLobbyPlayerId, lobbyPlayerId);
                 }
             });
             let updateTimeout = null;

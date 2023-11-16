@@ -47,7 +47,7 @@
         "features/uiTweaks.js",
         "features/drops.js",
         "features/capture.js",
-        "features/typro.js",
+        "features/cloud.js",
         "features/imageTools.js",
         "features/emojis.js",
         "features/agent.js",

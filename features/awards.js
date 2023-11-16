@@ -4,6 +4,7 @@ const awards = {
     state: null,
     ui: null,
     inventory: [],
+    cloudAwardLink: undefined,
     all: [],
     toggleState: async to => {
 
@@ -64,10 +65,11 @@ const awards = {
         }
     },
     openPicker: undefined,
-    presentAward: (id, from, to) => {
+    presentAward: (id, invId, from, to) => {
         const award = awards.all.find(a => a.id == id);
         if (award === undefined) return;
 
+        const isAwardee = lobbies.lobbyProperties.Players.find(p => p.Sender === true && p.LobbyPlayerID == to);
         const getIdname = id => document.querySelector(`[playerid='${id}'] .player-name`).textContent.replace("(You)", "").trim();
 
         const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
@@ -98,7 +100,11 @@ const awards = {
             easing: "ease-out"
         });
         animation.onfinish = () => object.remove();
-        addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a " + award.name + "!");
+        if (isAwardee) {
+            awards.cloudAwardLink = invId;
+            addChatMessage("", getIdname(from) + " awarded your drawing with a '" + award.name + "'!");
+        }
+        else addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a '" + award.name + "'!");
     },
     setup: async () => {
 
