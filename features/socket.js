@@ -208,6 +208,7 @@ const socket = {
         }, 1000);
     },
     leaveLobby: async () => {
+        awards.toggleState(false);
         try {
             socket.dropSocket.close();
             socket.dropSocket = undefined;

@@ -1273,7 +1273,7 @@ bounceload {
     grid-template-rows: repeat(6, auto);
 }
 
-#awardsAnchor .grid .award {
+#awardsAnchor .grid .award, .awardChatIcon {
     height: 36px;
     width: 36px;
     background-size: contain;
