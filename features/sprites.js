@@ -94,6 +94,26 @@ const sprites = {
 
         });
     },
+    updateAwards: () => {
+        const lobbyAwards = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "award");
+
+        [...QSA(".players-list .player-icons")].forEach(icons => {
+            const playerId = Number(icons.closest(".player")?.getAttribute("playerid"));
+            if (Number.isNaN(playerId)) return;
+            let playerIcons = lobbyAwards.filter(a => a.LobbyPlayerID == playerId);
+
+            [...icons.querySelectorAll(".award")].forEach(existingIcon => {
+                const awardId = Number(existingIcon.getAttribute("awardId"));
+                if (!playerIcons.some(icon => icon.Slot == awardId)) existingIcon.remove();
+                else playerIcons = playerIcons.filter(icon => icon.Slot != awardId);
+            });
+
+            playerIcons.forEach(icon => {
+                const award = awards.all.find(a => a.id == icon.Slot);
+                icons.insertAdjacentHTML("beforeend", `<div class="icon typo award visible" awardId="${award.id}" style="background-image: url(${award.url})"></div>`);
+            });
+        });
+    },
     updateScenes: () => {
         const playerlist = QS("#game-players");
         let scenesCSS = elemFromString("<style id='scenesRules'></style>");
@@ -148,6 +168,7 @@ const sprites = {
         sprites.getPlayerList();
         sprites.updateSprites();
         sprites.updateScenes();
+        sprites.updateAwards();
     },
     getSprites: () => {
         sprites.availableSprites = socket.data.publicData.sprites;

@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 24.5.1.169766103
+// @version 25.0.1.170014414
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "24.5.1 usrsc"};
+            return {version: "25.0.1 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -619,6 +619,26 @@ const sprites = {
 
         });
     },
+    updateAwards: () => {
+        const lobbyAwards = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "award");
+
+        [...QSA(".players-list .player-icons")].forEach(icons => {
+            const playerId = Number(icons.closest(".player")?.getAttribute("playerid"));
+            if (Number.isNaN(playerId)) return;
+            let playerIcons = lobbyAwards.filter(a => a.LobbyPlayerID == playerId);
+
+            [...icons.querySelectorAll(".award")].forEach(existingIcon => {
+                const awardId = Number(existingIcon.getAttribute("awardId"));
+                if (!playerIcons.some(icon => icon.Slot == awardId)) existingIcon.remove();
+                else playerIcons = playerIcons.filter(icon => icon.Slot != awardId);
+            });
+
+            playerIcons.forEach(icon => {
+                const award = awards.all.find(a => a.id == icon.Slot);
+                icons.insertAdjacentHTML("beforeend", `<div class="icon typo award visible" awardId="${award.id}" style="background-image: url(${award.url})"></div>`);
+            });
+        });
+    },
     updateScenes: () => {
         const playerlist = QS("#game-players");
         let scenesCSS = elemFromString("<style id='scenesRules'></style>");
@@ -673,6 +693,7 @@ const sprites = {
         sprites.getPlayerList();
         sprites.updateSprites();
         sprites.updateScenes();
+        sprites.updateAwards();
     },
     getSprites: () => {
         sprites.availableSprites = socket.data.publicData.sprites;
@@ -2828,7 +2849,6 @@ const socket = {
             socket.sck.on("specialdrop", (data) => {
                 data.event = data.event + " response";
                 drops.specialDrop(() => socket.emitEvent(data.event, data));
-                //socket.emitEvent(data.event, data);
             });
             socket.sck.on("server message", (data) => {
                 addChatMessage(data.payload.title, data.payload.message);
@@ -2867,6 +2887,17 @@ const socket = {
                 socket.data.publicData.onlineScenes = data.payload.onlineScenes;
                 socket.data.publicData.onlineItems = data.payload.onlineItems;
             });
+            socket.sck.on("drawingAwarded", data => {
+                const lobbyKey = data.payload.lobbyKey;
+                const lobbyPlayerId = data.payload.lobbyPlayerId;
+                const fromLobbyPlayerId = data.payload.from;
+                const awardId = data.payload.awardId;
+                const awardInvId = data.payload.awardInventoryId;
+
+                if (lobbies.lobbyProperties.Key == lobbyKey) {
+                    awards.presentAward(awardId, awardInvId, fromLobbyPlayerId, lobbyPlayerId);
+                }
+            });
             let updateTimeout = null;
             socket.sck.on("active lobbies", (data) => {
                 socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
@@ -2884,7 +2915,7 @@ const socket = {
                 login = JSON.parse(localStorage.member).UserLogin;
                 accessToken = false;
             } catch { }
-            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 10000);
+            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 30000);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
@@ -4878,6 +4909,80 @@ bounceload {
 .lobbyNavIcon.exit {
     filter: drop-shadow(-3px 3px 0 rgba(0, 0, 0, .3)) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
     rotate: -90deg;
+}
+
+#awardsAnchor{
+    position: absolute;
+    top: 55px;
+    right: 0;
+}
+
+#awardsAnchor .icon {
+    height: 48px;
+    width: 48px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    opacity: .7;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+}
+#awardsAnchor .icon:hover {
+    opacity: 1;
+}
+
+#awardsAnchor:focus #awardsInventory {
+    background: var(--COLOR_CHAT_BG_BASE);
+    padding: 1em;
+    top: 50px;
+    right: 1em;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    align-items: center;
+    border-radius: .5em;
+    border-top-right-radius: 0;
+}
+
+#awardsAnchor:focus #awardsInventory:after {
+    position: absolute;
+    content: '';
+    top: -.8em;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-left: .8em solid transparent;
+    border-right: .8em solid transparent;
+    border-bottom: .8em solid var(--COLOR_CHAT_BG_BASE);
+}
+
+#awardsAnchor .grid {
+    display:grid;
+    grid-gap: 1em;
+    place-items: center;
+}
+
+#awardsAnchor .grid .award {
+    height: 36px;
+    width: 36px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    position: relative;
+}
+
+#awardsAnchor:not(:focus) #awardsInventory {
+    display:none;
+}
+
+#awardPresentation {
+    position: absolute;
+    background-position: center;
+    inset: 0;
+    background-repeat: no-repeat;
+    pointer-events: none;
 }
 
 /*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
@@ -7088,7 +7193,7 @@ const captureCanvas = {
                 QS("#game-canvas canvas").style.pointerEvents = "";
                 return;
             }
-            if (dc.length == 1 && dc[0] == 3)QS(".toolbar-group-actions .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
+            if (dc.length == 1 && dc[0] == 3) QS(".toolbar-group-actions .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
             else document.dispatchEvent(newCustomEvent("performDrawCommand", { detail: dc }));
             captureCanvas.capturedCommands.push(dc);
             await waitMs(3);
@@ -7116,18 +7221,24 @@ const captureCanvas = {
                 word: data.detail,
                 hint: "(" + data.detail.length + ")"
             });
-            await socket.emitEvent("store drawing", {
-                meta: {
-                    name: data.detail,
-                    author: getCurrentOrLastDrawer(),
-                    own: getCurrentOrLastDrawer() == socket.clientData.playerName,
-                    language: lobbies.lobbyProperties.Language,
-                    private: lobbies.lobbyProperties.Private,
-                    thumbnail: await scaleDataURL(QS("#game-canvas canvas").toDataURL("2d"), QS("#game-canvas canvas").width / 10, QS("#game-canvas canvas").height / 10)
-                },
-                commands: captureCanvas.capturedCommands,
-                uri: QS("#game-canvas canvas").toDataURL()
-            }, true, 5000);
+
+            try {
+                await socket.emitEvent("store drawing", {
+                    meta: {
+                        name: data.detail,
+                        author: getCurrentOrLastDrawer(),
+                        own: getCurrentOrLastDrawer() == socket.clientData.playerName,
+                        language: lobbies.lobbyProperties.Language,
+                        private: lobbies.lobbyProperties.Private,
+                        thumbnail: await scaleDataURL(QS("#game-canvas canvas").toDataURL("2d"), QS("#game-canvas canvas").width / 10, QS("#game-canvas canvas").height / 10)
+                    },
+                    linkAwardId: awards.cloudAwardLink,
+                    commands: captureCanvas.capturedCommands,
+                    uri: QS("#game-canvas canvas").toDataURL()
+                }, true, 5000);
+            }
+            catch { }
+            awards.cloudAwardLink = undefined;
         });
     }
 }
@@ -7152,7 +7263,7 @@ const captureCanvas = {
 xt: get color of index
 */
 
-// #content features/typro.js
+// #content features/cloud.js
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
@@ -7660,7 +7771,7 @@ let imageAgent = {// func to set the image in the agentdiv
         let word = getCurrentWordOrHint();
         // if player isnt drawing
         if (word.includes("_") || word == "" || localStorage.agent == "false"
-            || !QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".player-name")?.textContent?.endsWith("(You)")) {
+            || !QS(".avatar .drawing[style*=block]")?.closest(".player").querySelector(".player-name")?.textContent?.endsWith("(You)")) {
             imageAgent.agent.src = "";
             QS("#imageAgent").style.display = "none";
             scrollMessages(true);
@@ -8617,6 +8728,152 @@ const brushtools = {
     }
 }
 
+// #content features/awards.js
+// handles the award feature
+// depends on: genericfunctions.js, socket.js
+const awards = {
+    state: null,
+    ui: null,
+    inventory: [],
+    cloudAwardLink: undefined,
+    all: [],
+    toggleState: async to => {
+
+        // check if valid rewardee and show ui
+        if (to) {
+            const lobbyRewardees = socket.data.publicData.onlineItems.filter(item => item.ItemType === "rewardee" && item.LobbyKey === lobbies.lobbyProperties.Key);
+            const drawer = lobbies.lobbyProperties.Players.find(p => p.Drawing === true);
+            if (drawer === undefined || drawer.Sender) {
+                awards.toggleState(false);
+                return;
+            }
+            const rewardee = lobbyRewardees.find(r => r.LobbyPlayerID === Number(drawer.LobbyPlayerID));
+            if (rewardee !== undefined) {
+                // check if user has awards to give
+                const result = await socket.emitEvent("get awards", undefined, true);
+                if (result.awards.length > 0) {
+                    awards.inventory = result.awards;
+                    awards.state = true;
+                    awards.ui.style.display = "";
+
+                    awards.openPicker = () => {
+
+                        // build clickable icons
+                        awards.ui.querySelector(".grid").innerHTML = awards.inventory.map(a => {
+                            const award = awards.all.find(f => f.id == a[0]);
+                            return `<div class="award" data-id="${a[1][0]}" data-award="${a[0]}" style="background-image:url(${award.url})"></div>`;
+                        }).join("");
+
+                        // add eventlisteners
+                        [...awards.ui.querySelectorAll(".grid .award")].forEach(a => a.addEventListener("click", async () => {
+                            const awardId = Number(a.getAttribute("data-award"));
+                            const id = Number(a.getAttribute("data-id"));
+                            awards.ui.blur();
+                            awards.toggleState(false);
+                            await socket.emitEvent("give award", { lobbyPlayerId: rewardee.LobbyPlayerID, awardInventoryId: id }, true);
+                        }));
+                        awards.ui.focus();
+                    };
+                }
+                else {
+                    awards.toggleState(false);
+                    return;
+                }
+            }
+            else {
+                awards.toggleState(false);
+                return;
+            }
+        }
+
+        // if awards not activated, hide ui
+        else {
+            awards.awardee = undefined;
+            awards.state = false;
+            awards.ui.style.display = "none";
+            awards.inventory = [];
+            awards.openPicker = undefined;
+        }
+    },
+    openPicker: undefined,
+    presentAward: (id, invId, from, to) => {
+        const award = awards.all.find(a => a.id == id);
+        if (award === undefined) return;
+
+        const isAwardee = lobbies.lobbyProperties.Players.find(p => p.Sender === true && p.LobbyPlayerID == to);
+        const getIdname = id => document.querySelector(`[playerid='${id}'] .player-name`).textContent.replace("(You)", "").trim();
+
+        const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
+        QS("#game-canvas").appendChild(object);
+        const animation = object.animate([
+            {
+                opacity: 0,
+                backgroundSize: "100%"
+            },
+            {
+                opacity: 1,
+                backgroundSize: "30px"
+            },
+            {
+                opacity: 1,
+                backgroundSize: "48px"
+            },
+            {
+                opacity: 1,
+                backgroundSize: "48px"
+            },
+            {
+                opacity: 0,
+                backgroundSize: "48px"
+            },
+        ], {
+            duration: 3000,
+            easing: "ease-out"
+        });
+        animation.onfinish = () => object.remove();
+        if (isAwardee) {
+            awards.cloudAwardLink = invId;
+            addChatMessage("", getIdname(from) + " awarded your drawing with a '" + award.name + "'!");
+        }
+        else addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a '" + award.name + "'!");
+    },
+    setup: async () => {
+
+        let enabler = new MutationObserver((mutations) => {
+            console.log(QS("#game-rate").style.display);
+            if (QS("#game-rate").style.display !== "none") awards.toggleState(true);
+        });
+        enabler.observe(QS("#game-rate"), { attributes: true, attributeFilter: ['style'] });
+
+        // hide controls
+        document.addEventListener("drawingFinished", async (data) => {
+            awards.toggleState(false);
+        });
+        document.addEventListener("lobbyConnected", () => {
+            awards.toggleState(false);
+            awards.toggleState(true);
+        });
+
+        awards.ui = elemFromString(`<div tabindex="0" id="awardsAnchor" data-typo-tooltip='Award this special drawing' data-tooltipdir='W'>
+            <div class="icon"></div>
+            <div id="awardsInventory">
+                <h2 style="display:none">Award Inventory</h2>
+                <div class="grid"></div>
+            </div>
+        </div>     
+        `);
+        awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/noChallenge.gif") + ")";
+        awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker?.());
+        QS("#game-canvas").appendChild(awards.ui);
+
+        // await waitMs(5000);
+        // awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
+
+        awards.all = await (await fetch("https://api.typo.rip/awards")).json();
+        awards.toggleState(false);
+    }
+}
+
 // #content content.js
 ﻿/*
  *
@@ -8633,7 +8890,7 @@ const brushtools = {
  * Right!! Almost everything is split into easy-to-understand procedural initialized modules, capsulated and called here in service.js.
  */
 // Comment section: Todo list .. close this section in your IDE
-{ 
+{
     /*
      * Todo and bugs:
      *  ----fix conflict with image poster (container freespace) 
@@ -8677,7 +8934,7 @@ patcher.disconnect(); // stop patcher observing
 setDefaults(false); // Set default settings
 
 // communication with popup.js
-chrome.runtime.onMessage.addListener(message => { 
+chrome.runtime.onMessage.addListener(message => {
     if (message == "getSettings") chrome.runtime.sendMessage({ settings: JSON.stringify(localStorage) });
     else performCommand(message + "--");
 });
@@ -8689,6 +8946,7 @@ imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 gamemodes.setup();
 brushtools.setup();
+awards.setup();
 //pressure.initEvents(); // init pressure
 document.dispatchEvent(new Event("addTypoTooltips"));
 uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, backbutton, random color dice.. from uiTweaks.js

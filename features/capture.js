@@ -18,7 +18,7 @@ const captureCanvas = {
                 QS("#game-canvas canvas").style.pointerEvents = "";
                 return;
             }
-            if (dc.length == 1 && dc[0] == 3)QS(".toolbar-group-actions .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
+            if (dc.length == 1 && dc[0] == 3) QS(".toolbar-group-actions .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
             else document.dispatchEvent(newCustomEvent("performDrawCommand", { detail: dc }));
             captureCanvas.capturedCommands.push(dc);
             await waitMs(3);
@@ -46,18 +46,24 @@ const captureCanvas = {
                 word: data.detail,
                 hint: "(" + data.detail.length + ")"
             });
-            await socket.emitEvent("store drawing", {
-                meta: {
-                    name: data.detail,
-                    author: getCurrentOrLastDrawer(),
-                    own: getCurrentOrLastDrawer() == socket.clientData.playerName,
-                    language: lobbies.lobbyProperties.Language,
-                    private: lobbies.lobbyProperties.Private,
-                    thumbnail: await scaleDataURL(QS("#game-canvas canvas").toDataURL("2d"), QS("#game-canvas canvas").width / 10, QS("#game-canvas canvas").height / 10)
-                },
-                commands: captureCanvas.capturedCommands,
-                uri: QS("#game-canvas canvas").toDataURL()
-            }, true, 5000);
+
+            try {
+                await socket.emitEvent("store drawing", {
+                    meta: {
+                        name: data.detail,
+                        author: getCurrentOrLastDrawer(),
+                        own: getCurrentOrLastDrawer() == socket.clientData.playerName,
+                        language: lobbies.lobbyProperties.Language,
+                        private: lobbies.lobbyProperties.Private,
+                        thumbnail: await scaleDataURL(QS("#game-canvas canvas").toDataURL("2d"), QS("#game-canvas canvas").width / 10, QS("#game-canvas canvas").height / 10)
+                    },
+                    linkAwardId: awards.cloudAwardLink,
+                    commands: captureCanvas.capturedCommands,
+                    uri: QS("#game-canvas canvas").toDataURL()
+                }, true, 5000);
+            }
+            catch { }
+            awards.cloudAwardLink = undefined;
         });
     }
 }

@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & Discord integration",
-  "version": "24.5.1",
+  "version": "25.0.1",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
@@ -47,13 +47,14 @@
         "features/uiTweaks.js",
         "features/drops.js",
         "features/capture.js",
-        "features/typro.js",
+        "features/cloud.js",
         "features/imageTools.js",
         "features/emojis.js",
         "features/agent.js",
         "features/gamemode.js",
         "features/brushtools.js",
         "features/vision.js",
+        "features/awards.js",
         "content.js"
       ]
     },
