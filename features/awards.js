@@ -72,39 +72,46 @@ const awards = {
         const isAwardee = lobbies.lobbyProperties.Players.find(p => p.Sender === true && p.LobbyPlayerID == to);
         const getIdname = id => document.querySelector(`[playerid='${id}'] .player-name`).textContent.replace("(You)", "").trim();
 
-        const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
-        QS("#game-canvas").appendChild(object);
-        const animation = object.animate([
-            {
-                opacity: 0,
-                backgroundSize: "100%"
-            },
-            {
-                opacity: 1,
-                backgroundSize: "30px"
-            },
-            {
-                opacity: 1,
-                backgroundSize: "48px"
-            },
-            {
-                opacity: 1,
-                backgroundSize: "48px"
-            },
-            {
-                opacity: 0,
-                backgroundSize: "48px"
-            },
-        ], {
-            duration: 3000,
-            easing: "ease-out"
-        });
-        animation.onfinish = () => object.remove();
+        if (localStorage.awardfx == "true") {
+            const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
+            QS("#game-canvas").appendChild(object);
+            const animation = object.animate([
+                {
+                    opacity: 0,
+                    backgroundSize: "100%"
+                },
+                {
+                    opacity: 1,
+                    backgroundSize: "30px"
+                },
+                {
+                    opacity: 1,
+                    backgroundSize: "48px"
+                },
+                {
+                    opacity: 1,
+                    backgroundSize: "48px"
+                },
+                {
+                    opacity: 0,
+                    backgroundSize: "48px"
+                },
+            ], {
+                duration: 3000,
+                easing: "ease-out"
+            });
+            animation.onfinish = () => object.remove();
+        }
+
+        let msg;
         if (isAwardee) {
             awards.cloudAwardLink = invId;
-            addChatMessage("", getIdname(from) + " awarded your drawing with a '" + award.name + "'!");
+            msg = getIdname(from) + " awarded your drawing with a '" + award.name + "'!";
         }
-        else addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a '" + award.name + "'!");
+        else msg = getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a '" + award.name + "'!";
+
+        QS(".chat-content").appendChild(elemFromString(`<div style='display:flex; color: var(--COLOR_CHAT_TEXT_DRAWING); background-color: inherit'><div class="awardChatIcon" style="display: grid; place-content: center; width:3em; margin-left:1em; background-image:url(${award.url})"></div> <p style="flex-grow:1; padding-left: 1em;background-color: inherit"> ${msg} </div> </div>`));
+        scrollMessages(true);
     },
     setup: async () => {
 
@@ -138,7 +145,12 @@ const awards = {
         // await waitMs(5000);
         // awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
 
-        awards.all = await (await fetch("https://api.typo.rip/awards")).json();
+        // workaround to using without permission temporarily - depends on cloudflare worker
+        const isFirefox = chrome.runtime.getURL('').startsWith('moz-extension://');
+        if (isFirefox) {
+            awards.all = await (await fetch("https://tobeh.host/newapi/awards")).json();
+        }
+        else awards.all = await (await fetch("https://api.typo.rip/awards")).json();
         awards.toggleState(false);
     }
 }

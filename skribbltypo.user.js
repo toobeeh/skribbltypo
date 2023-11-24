@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.0.1.170014414
+// @version 25.0.2.170083012
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "25.0.1 usrsc"};
+            return {version: "25.0.2 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1219,6 +1219,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.quickreact || override) localStorage.quickreact = "true";
     if (!localStorage.chatcommands || override) localStorage.chatcommands = "true";
     if (!localStorage.vip || override) localStorage.vip = "[]";
+    if (!localStorage.awardfx) localStorage.awardfx = "true";
     if (!localStorage.markup || override) localStorage.markup = "false";
     if (!localStorage.markupcolor || override) localStorage.markupcolor = "254";
     if (!localStorage.randominterval || override) localStorage.randominterval = 50;
@@ -2908,14 +2909,7 @@ const socket = {
                 }, 200);
             });
             const accessToken = localStorage.accessToken;
-            let login = null;
-            if (!accessToken) try {
-                // if access token not found, log in with login.
-                // may be removed in future for security favors!
-                login = JSON.parse(localStorage.member).UserLogin;
-                accessToken = false;
-            } catch { }
-            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 30000);
+            let loginstate = await socket.emitEvent("login", { accessToken: accessToken, client: localStorage.client }, true, 30000);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;
@@ -3007,6 +3001,7 @@ const socket = {
         }, 1000);
     },
     leaveLobby: async () => {
+        awards.toggleState(false);
         try {
             socket.dropSocket.close();
             socket.dropSocket = undefined;
@@ -4961,9 +4956,12 @@ bounceload {
     display:grid;
     grid-gap: 1em;
     place-items: center;
+    direction: rtl;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(6, auto);
 }
 
-#awardsAnchor .grid .award {
+#awardsAnchor .grid .award, .awardChatIcon {
     height: 36px;
     width: 36px;
     background-size: contain;
@@ -5405,12 +5403,14 @@ bounceload {
     /* init popup polyfill */
     const popupHTML = `﻿<!doctype html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="popup.css">
     <script src="jquery.js"></script>
     <style id="sliderThumbColorStyle"></style>
 </head>
+
 <body>
     <div class="flexcol">
         <h1>Typo Dashboard</h1>
@@ -5435,7 +5435,8 @@ bounceload {
                 <div id="login" class="skribbl">
                     <div id="loginHead" class="label back">Enter your login:</div>
                     <div class="flexrow flexrowMenu">
-                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="loginEnter" placeholder="12345678" />
+                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="loginEnter"
+                            placeholder="12345678" />
                         <button type="button" class="active" id="loginSubmit">Login</button>
                     </div>
                 </div>
@@ -5449,7 +5450,8 @@ bounceload {
                     </div>
                     <br />
                     <div class="flexrow flexrowMenu">
-                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="observeToken" placeholder="12345678" />
+                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="observeToken"
+                            placeholder="12345678" />
                         <button type="button" class="active" id="verifyToken">Verify & Add Server</button>
                     </div>
                     <br />
@@ -5469,8 +5471,11 @@ bounceload {
                     </div>
                     <div class="flexrow flexrowMenu">
                         <button type="button" id="drops">Drops</button>
-                        <button type="button" id="typoink">Typo Pressure</button>
                         <button type="button" id="controls">Controls</button>
+                    </div>
+                    <div class="flexrow flexrowMenu">
+                        <button type="button" id="typoink">Typo Pressure</button>
+                        <button type="button" id="awardfx">Award FX</button>
                     </div>
                     <div class="flexrow flexrowMenu">
                         <!--<button type="button" id="backbutton">Back-Button</button>-->
@@ -5500,7 +5505,7 @@ bounceload {
                 <br />
                 <div class="flexcol">
 
-                    <div class="label">Tablet sensitivity  </div>
+                    <div class="label">Tablet sensitivity </div>
                     <div class="sliderBox" id="sens">
                         <span class="sliderBar"><span class="sliderFill"></span></span>
                         <input type="range" class="slider" min="0" max="100" />
@@ -5512,26 +5517,28 @@ bounceload {
                         <input type="range" class="slider" min="10" max="500" />
                     </div>
 
-                    <div class="label">Markup color  </div>
+                    <div class="label">Markup color </div>
                     <div class="sliderBox" id="markupcolor">
                         <span class="sliderBar"><span class="sliderFill"></span></span>
                         <input type="range" class="slider" min="0" max="357" />
                     </div>
 
-                    <div style="display:none" class="label">Tablet sensitivity  </div>
-                    <div  style="display:none" class="sliderBox" id="sensitivity">
+                    <div style="display:none" class="label">Tablet sensitivity </div>
+                    <div style="display:none" class="sliderBox" id="sensitivity">
                         <span class="sliderBar"><span class="sliderFill"></span></span>
                         <input type="range" class="slider" min="0" max="100" />
                     </div>
 
                     <div>
                         <div class="label">Color palettes</div>
-                        <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap; place-content:center;" id="palettes">
+                        <div class="flexrow flexrowMenu skribbl" style="flex-wrap:wrap; place-content:center;"
+                            id="palettes">
                             <button type="button" id="palette_originalPalette">Original Palette</button>
                             <!-- <button type="button" id="palette_oldSkribbl">Old Skribbl</button> -->
                         </div>
                         <div class="flexrow flexrowMenu">
-                            <input type="text" autocomplete="off" style="width:12ex; flex-basis:unset" id="paletteJSON" placeholder="{ ... }" /> 
+                            <input type="text" autocomplete="off" style="width:12ex; flex-basis:unset" id="paletteJSON"
+                                placeholder="{ ... }" />
                             <button type="button" class="active" id="enterJSON">Add palette JSON</button>
                         </div>
                     </div>
@@ -5541,7 +5548,7 @@ bounceload {
             </div>
         </div>
         <br />
-        
+
         <hr class="skribbl" />
 
         <div id="footer" class="flexcol">
@@ -5554,10 +5561,10 @@ bounceload {
                 </button>
             </div>
         </div>
-    <script src="popup.js"></script>
+        <script src="popup.js"></script>
 </body>
-</html>
-`;
+
+</html>`;
     const popupDoc = document.createElement("html");
 
     /* parse doc and add new base uri + polyfill for tabs api */
@@ -5650,10 +5657,27 @@ const commands = [
                 localStorage.charbar = "false";
             },
             actionAfter: (args) => {
-                setTimeout(()=>QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup")),500);
+                setTimeout(() => QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup")), 500);
             },
             response: (state) => {
                 return (state ? "Enabled" : "Disabled") + " char count.";
+            }
+        }
+    }, {
+        command: "awardfx",
+        options: {
+            type: "toggle",
+            description: "Sets the award animation.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.awardfx = "true";
+            },
+            actionDisable: () => {
+                localStorage.awardfx = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " award anmation.";
             }
         }
     }, {
@@ -8803,39 +8827,46 @@ const awards = {
         const isAwardee = lobbies.lobbyProperties.Players.find(p => p.Sender === true && p.LobbyPlayerID == to);
         const getIdname = id => document.querySelector(`[playerid='${id}'] .player-name`).textContent.replace("(You)", "").trim();
 
-        const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
-        QS("#game-canvas").appendChild(object);
-        const animation = object.animate([
-            {
-                opacity: 0,
-                backgroundSize: "100%"
-            },
-            {
-                opacity: 1,
-                backgroundSize: "30px"
-            },
-            {
-                opacity: 1,
-                backgroundSize: "48px"
-            },
-            {
-                opacity: 1,
-                backgroundSize: "48px"
-            },
-            {
-                opacity: 0,
-                backgroundSize: "48px"
-            },
-        ], {
-            duration: 3000,
-            easing: "ease-out"
-        });
-        animation.onfinish = () => object.remove();
+        if (localStorage.awardfx == "true") {
+            const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
+            QS("#game-canvas").appendChild(object);
+            const animation = object.animate([
+                {
+                    opacity: 0,
+                    backgroundSize: "100%"
+                },
+                {
+                    opacity: 1,
+                    backgroundSize: "30px"
+                },
+                {
+                    opacity: 1,
+                    backgroundSize: "48px"
+                },
+                {
+                    opacity: 1,
+                    backgroundSize: "48px"
+                },
+                {
+                    opacity: 0,
+                    backgroundSize: "48px"
+                },
+            ], {
+                duration: 3000,
+                easing: "ease-out"
+            });
+            animation.onfinish = () => object.remove();
+        }
+
+        let msg;
         if (isAwardee) {
             awards.cloudAwardLink = invId;
-            addChatMessage("", getIdname(from) + " awarded your drawing with a '" + award.name + "'!");
+            msg = getIdname(from) + " awarded your drawing with a '" + award.name + "'!";
         }
-        else addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a '" + award.name + "'!");
+        else msg = getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a '" + award.name + "'!";
+
+        QS(".chat-content").appendChild(elemFromString(`<div style='display:flex; color: var(--COLOR_CHAT_TEXT_DRAWING); background-color: inherit'><div class="awardChatIcon" style="display: grid; place-content: center; width:3em; margin-left:1em; background-image:url(${award.url})"></div> <p style="flex-grow:1; padding-left: 1em;background-color: inherit"> ${msg} </div> </div>`));
+        scrollMessages(true);
     },
     setup: async () => {
 
@@ -8869,7 +8900,12 @@ const awards = {
         // await waitMs(5000);
         // awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
 
-        awards.all = await (await fetch("https://api.typo.rip/awards")).json();
+        // workaround to using without permission temporarily - depends on cloudflare worker
+        const isFirefox = chrome.runtime.getURL('').startsWith('moz-extension://');
+        if (isFirefox) {
+            awards.all = await (await fetch("https://tobeh.host/newapi/awards")).json();
+        }
+        else awards.all = await (await fetch("https://api.typo.rip/awards")).json();
         awards.toggleState(false);
     }
 }

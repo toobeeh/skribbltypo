@@ -1268,9 +1268,12 @@ bounceload {
     display:grid;
     grid-gap: 1em;
     place-items: center;
+    direction: rtl;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(6, auto);
 }
 
-#awardsAnchor .grid .award {
+#awardsAnchor .grid .award, .awardChatIcon {
     height: 36px;
     width: 36px;
     background-size: contain;

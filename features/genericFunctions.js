@@ -290,6 +290,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.quickreact || override) localStorage.quickreact = "true";
     if (!localStorage.chatcommands || override) localStorage.chatcommands = "true";
     if (!localStorage.vip || override) localStorage.vip = "[]";
+    if (!localStorage.awardfx) localStorage.awardfx = "true";
     if (!localStorage.markup || override) localStorage.markup = "false";
     if (!localStorage.markupcolor || override) localStorage.markupcolor = "254";
     if (!localStorage.randominterval || override) localStorage.randominterval = 50;

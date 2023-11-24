@@ -25,10 +25,27 @@ const commands = [
                 localStorage.charbar = "false";
             },
             actionAfter: (args) => {
-                setTimeout(()=>QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup")),500);
+                setTimeout(() => QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup")), 500);
             },
             response: (state) => {
                 return (state ? "Enabled" : "Disabled") + " char count.";
+            }
+        }
+    }, {
+        command: "awardfx",
+        options: {
+            type: "toggle",
+            description: "Sets the award animation.",
+            actionBefore: null,
+            actionEnable: () => {
+                localStorage.awardfx = "true";
+            },
+            actionDisable: () => {
+                localStorage.awardfx = "false";
+            },
+            actionAfter: null,
+            response: (state) => {
+                return (state ? "Enabled" : "Disabled") + " award anmation.";
             }
         }
     }, {
