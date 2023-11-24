@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.0.1.169954742
+// @version 25.0.1.170014414
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -619,6 +619,26 @@ const sprites = {
 
         });
     },
+    updateAwards: () => {
+        const lobbyAwards = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "award");
+
+        [...QSA(".players-list .player-icons")].forEach(icons => {
+            const playerId = Number(icons.closest(".player")?.getAttribute("playerid"));
+            if (Number.isNaN(playerId)) return;
+            let playerIcons = lobbyAwards.filter(a => a.LobbyPlayerID == playerId);
+
+            [...icons.querySelectorAll(".award")].forEach(existingIcon => {
+                const awardId = Number(existingIcon.getAttribute("awardId"));
+                if (!playerIcons.some(icon => icon.Slot == awardId)) existingIcon.remove();
+                else playerIcons = playerIcons.filter(icon => icon.Slot != awardId);
+            });
+
+            playerIcons.forEach(icon => {
+                const award = awards.all.find(a => a.id == icon.Slot);
+                icons.insertAdjacentHTML("beforeend", `<div class="icon typo award visible" awardId="${award.id}" style="background-image: url(${award.url})"></div>`);
+            });
+        });
+    },
     updateScenes: () => {
         const playerlist = QS("#game-players");
         let scenesCSS = elemFromString("<style id='scenesRules'></style>");
@@ -673,6 +693,7 @@ const sprites = {
         sprites.getPlayerList();
         sprites.updateSprites();
         sprites.updateScenes();
+        sprites.updateAwards();
     },
     getSprites: () => {
         sprites.availableSprites = socket.data.publicData.sprites;
@@ -2871,9 +2892,10 @@ const socket = {
                 const lobbyPlayerId = data.payload.lobbyPlayerId;
                 const fromLobbyPlayerId = data.payload.from;
                 const awardId = data.payload.awardId;
+                const awardInvId = data.payload.awardInventoryId;
 
                 if (lobbies.lobbyProperties.Key == lobbyKey) {
-                    awards.presentAward(awardId, fromLobbyPlayerId, lobbyPlayerId);
+                    awards.presentAward(awardId, awardInvId, fromLobbyPlayerId, lobbyPlayerId);
                 }
             });
             let updateTimeout = null;
@@ -7171,7 +7193,7 @@ const captureCanvas = {
                 QS("#game-canvas canvas").style.pointerEvents = "";
                 return;
             }
-            if (dc.length == 1 && dc[0] == 3)QS(".toolbar-group-actions .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
+            if (dc.length == 1 && dc[0] == 3) QS(".toolbar-group-actions .tool div.icon[style*='clear.gif']").dispatchEvent(newCustomEvent("click"));
             else document.dispatchEvent(newCustomEvent("performDrawCommand", { detail: dc }));
             captureCanvas.capturedCommands.push(dc);
             await waitMs(3);
@@ -7199,18 +7221,24 @@ const captureCanvas = {
                 word: data.detail,
                 hint: "(" + data.detail.length + ")"
             });
-            await socket.emitEvent("store drawing", {
-                meta: {
-                    name: data.detail,
-                    author: getCurrentOrLastDrawer(),
-                    own: getCurrentOrLastDrawer() == socket.clientData.playerName,
-                    language: lobbies.lobbyProperties.Language,
-                    private: lobbies.lobbyProperties.Private,
-                    thumbnail: await scaleDataURL(QS("#game-canvas canvas").toDataURL("2d"), QS("#game-canvas canvas").width / 10, QS("#game-canvas canvas").height / 10)
-                },
-                commands: captureCanvas.capturedCommands,
-                uri: QS("#game-canvas canvas").toDataURL()
-            }, true, 5000);
+
+            try {
+                await socket.emitEvent("store drawing", {
+                    meta: {
+                        name: data.detail,
+                        author: getCurrentOrLastDrawer(),
+                        own: getCurrentOrLastDrawer() == socket.clientData.playerName,
+                        language: lobbies.lobbyProperties.Language,
+                        private: lobbies.lobbyProperties.Private,
+                        thumbnail: await scaleDataURL(QS("#game-canvas canvas").toDataURL("2d"), QS("#game-canvas canvas").width / 10, QS("#game-canvas canvas").height / 10)
+                    },
+                    linkAwardId: awards.cloudAwardLink,
+                    commands: captureCanvas.capturedCommands,
+                    uri: QS("#game-canvas canvas").toDataURL()
+                }, true, 5000);
+            }
+            catch { }
+            awards.cloudAwardLink = undefined;
         });
     }
 }
@@ -7235,7 +7263,7 @@ const captureCanvas = {
 xt: get color of index
 */
 
-// #content features/typro.js
+// #content features/cloud.js
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
@@ -8707,6 +8735,7 @@ const awards = {
     state: null,
     ui: null,
     inventory: [],
+    cloudAwardLink: undefined,
     all: [],
     toggleState: async to => {
 
@@ -8767,10 +8796,11 @@ const awards = {
         }
     },
     openPicker: undefined,
-    presentAward: (id, from, to) => {
+    presentAward: (id, invId, from, to) => {
         const award = awards.all.find(a => a.id == id);
         if (award === undefined) return;
 
+        const isAwardee = lobbies.lobbyProperties.Players.find(p => p.Sender === true && p.LobbyPlayerID == to);
         const getIdname = id => document.querySelector(`[playerid='${id}'] .player-name`).textContent.replace("(You)", "").trim();
 
         const object = elemFromString(`<div id="awardPresentation" style="background-image: url(${award.url})"></div>`);
@@ -8801,7 +8831,11 @@ const awards = {
             easing: "ease-out"
         });
         animation.onfinish = () => object.remove();
-        addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a " + award.name + "!");
+        if (isAwardee) {
+            awards.cloudAwardLink = invId;
+            addChatMessage("", getIdname(from) + " awarded your drawing with a '" + award.name + "'!");
+        }
+        else addChatMessage("", getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a '" + award.name + "'!");
     },
     setup: async () => {
 
