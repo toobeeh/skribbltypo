@@ -109,14 +109,7 @@ const socket = {
                 }, 200);
             });
             const accessToken = localStorage.accessToken;
-            let login = null;
-            if (!accessToken) try {
-                // if access token not found, log in with login.
-                // may be removed in future for security favors!
-                login = JSON.parse(localStorage.member).UserLogin;
-                accessToken = false;
-            } catch { }
-            let loginstate = await socket.emitEvent("login", { loginToken: login, accessToken: accessToken, client: localStorage.client }, true, 30000);
+            let loginstate = await socket.emitEvent("login", { accessToken: accessToken, client: localStorage.client }, true, 30000);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
                 socket.data.activeLobbies = loginstate.activeLobbies;

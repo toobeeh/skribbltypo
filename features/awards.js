@@ -111,6 +111,7 @@ const awards = {
         else msg = getIdname(from) + " awarded the drawing of " + getIdname(to) + " with a '" + award.name + "'!";
 
         QS(".chat-content").appendChild(elemFromString(`<div style='display:flex; color: var(--COLOR_CHAT_TEXT_DRAWING); background-color: inherit'><div class="awardChatIcon" style="display: grid; place-content: center; width:3em; margin-left:1em; background-image:url(${award.url})"></div> <p style="flex-grow:1; padding-left: 1em;background-color: inherit"> ${msg} </div> </div>`));
+        scrollMessages(true);
     },
     setup: async () => {
 
@@ -144,7 +145,12 @@ const awards = {
         // await waitMs(5000);
         // awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
 
-        awards.all = await (await fetch("https://api.typo.rip/awards")).json();
+        // workaround to using without permission temporarily - depends on cloudflare worker
+        const isFirefox = chrome.runtime.getURL('').startsWith('moz-extension://');
+        if (isFirefox) {
+            awards.all = await (await fetch("https://tobeh.host/newapi/awards")).json();
+        }
+        else awards.all = await (await fetch("https://api.typo.rip/awards")).json();
         awards.toggleState(false);
     }
 }
