@@ -38,7 +38,7 @@ let drops = {
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
-            background-image: url(https://media.discordapp.net/attachments/740191494975258644/1055490440515833866/SantaSleighDrop.gif);
+            background-image: url(https://i.imgur.com/a0jNtCf.png);
             animation: rotate 6s;
             animation-iteration-count: infinite;
             animation-timing-function: ease-in-out;
@@ -67,7 +67,7 @@ let drops = {
         if (localStorage.drops == "false" || sessionStorage.inStream == "true" || !lobbies.joined) return;
         drops.currentDrop = drop;
         let dropElem = drops.dropContainer;
-        if (drop.eventDropID == 0 || drops.mode === "league") dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
+        if (drop.eventDropID == 0 || drops.mode === "league") dropElem.style.backgroundImage = 'url("https://static.typo.rip/drops/drop.gif")';
         else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.eventDropID).URL + '")';
         dropElem.style.display = "block";
         dropElem.style.left = Math.round(5 + Math.random() * 90) + "%";
@@ -131,7 +131,7 @@ let drops = {
         dropContainer.style.backgroundSize = "contain";
         dropContainer.style.cursor = "pointer";
         dropContainer.style.display = "none";
-        dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
+        dropContainer.style.backgroundImage = "url('https://static.typo.rip/drops/drop.gif')";
         dropContainer.addEventListener("pointerdown", async (event) => {
             if (!event.isTrusted) {
                 // send webhook
