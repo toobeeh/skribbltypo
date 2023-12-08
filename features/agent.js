@@ -10,7 +10,7 @@ let imageAgent = {// func to set the image in the agentdiv
         let word = getCurrentWordOrHint();
         let search = (exclusive ? "" : word + "+") + searchCriteria;
         search = replaceUmlaute(search);
-        imageAgent.agent.src = "https://cdn.discordapp.com/attachments/1031284926596796526/1052264435739271188/load.gif";
+        imageAgent.agent.src = chrome.runtime.getURL("res/load.gif");
 
         let param = encodeURIComponent(search);
         const server = "https://agent.typo.rip/"
