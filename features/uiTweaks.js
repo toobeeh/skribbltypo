@@ -161,17 +161,20 @@ const uiTweaks = {
             canvasGame.setAttribute("data-zoom", 1);
             canvasGame.parentElement.style.height = "";
             canvasGame.parentElement.style.width = "";
-            canvasGame.parentElement.style.boxShadow = "";
+            //canvasGame.parentElement.style.boxShadow = "";
             canvasGame.style.width = "100%";
             canvasGame.style.top = "";
             canvasGame.style.left = "";
             document.removeEventListener("keydown", changeZoom);
+            [...QSA(".zoomNote")].forEach(n => n.remove());
             zoomActive = false;
             // document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
         }
         let toggleZoom = (event, skipctrl = false) => {
+            if (!isCurrentlyDrawing()) return;
             if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
                 event.preventDefault();
+                event.stopPropagation();
                 if (skipctrl || !zoomActive && !QS("#game-toolbar").classList.contains("hidden")) {
                     zoomActive = true;
                     const zoom = Number(sessionStorage.zoom) > 1 ? Number(sessionStorage.zoom) : 3;
@@ -182,7 +185,10 @@ const uiTweaks = {
                     let bRect = canvasGame.getBoundingClientRect();
                     canvasGame.parentElement.style.height = /* bRect.height + */ "600px";
                     canvasGame.parentElement.style.width = /* bRect.width + */ "800px";
-                    canvasGame.parentElement.style.boxShadow = "black 0px 0px 25px 5px";
+                    if (!QS(".zoomNote")) {
+                        QS("#game-word .description").insertAdjacentHTML("beforeend", "<span class='zoomNote'> (ZOOM MODE ACTIVE)</span>");
+                    }
+                    //canvasGame.parentElement.style.boxShadow = "black 0px 0px 25px 5px";
                     // zoom canvas
                     canvasGame.style.width = (zoom * 100) + "%";
                     // get position offset
@@ -197,6 +203,9 @@ const uiTweaks = {
                         }
                     }
                     document.addEventListener("keydown", changeZoom);
+
+                    // undo brush action glitch
+                    //document.addEventListener("pointerup", () => setTimeout(() => QS("[data-tooltip=Undo]").click(), 100), { once: true });
                 }
                 else {
                     uiTweaks.resetZoom();
@@ -204,7 +213,11 @@ const uiTweaks = {
             }
         }
         document.addEventListener("pointerdown", toggleZoom);
-        document.querySelector("body").addEventListener("logCanvasClear", (e) => { if (zoomActive) toggleZoom(e, true); });
+        document.addEventListener("logCanvasClear", (e) => { uiTweaks.resetZoom(); });
+
+        // disable pointer events when ctrl pressed
+        document.addEventListener("keydown", (e) => canvasGame.style.pointerEvents = e.ctrlKey ? "none" : "");
+        document.addEventListener("keyup", (e) => canvasGame.style.pointerEvents = e.ctrlKey ? "none" : "");
     },
     initColorPalettes: () => {
         // add color palettes
@@ -591,10 +604,15 @@ const uiTweaks = {
                 preview.clear();
                 preview.gameCanvas.insertAdjacentElement("afterend", preview.canvas);
                 preview.gameCanvas.style.pointerEvents = "none";
+
+                if (!QS(".slNote")) {
+                    QS("#game-word .description").insertAdjacentHTML("beforeend", "<span class='slNote'> (STRAIGHT MODE ACTIVE)</span>");
+                }
             },
             stop: () => {
                 preview.canvas.remove();
                 preview.gameCanvas.style.pointerEvents = "";
+                QS(".slNote")?.remove();
             },
             clear: () => preview.context().clearRect(0, 0, 800, 600),
             line: (x, y, x1, y1, color = "black", size = 5) => {
@@ -643,16 +661,9 @@ const uiTweaks = {
             let state = straight;
             straight = straight && event.which !== 16;
             snap = straight && snap;
-            if (!straight && !pointerdown) preview.stop();
+            if (!straight/*  && !pointerdown */) preview.stop();
             if (!straight && state) lastRelease = Date.now();
             if (!straight) lastDirectClient = [null, null];
-        });
-        document.addEventListener("keyup", (event) => {
-            let state = straight;
-            straight = straight && event.which !== 16;
-            snap = straight && snap;
-            if (!straight && !pointerdown) preview.stop();
-            if (!straight && state) lastRelease = Date.now();
         });
         // get snap end coordinates
         const snapDestination = (x, y, x1, y1) => {
@@ -670,11 +681,12 @@ const uiTweaks = {
                 lastDown = getRealCoordinates(event.offsetX, event.offsetY);
             }
         });
-        preview.canvas.addEventListener("pointerup", (event) => {
-            event.preventDefault();
-            event.stopPropagation();
+        document.addEventListener("pointerup", (event) => {
             pointerdown = false;
-            if (straight) {
+            // check for event target to filter out generated events that are used for actual drawing
+            if (straight && event.target !== preview.gameCanvas) {
+                event.preventDefault();
+                event.stopPropagation();
                 preview.clear();
                 lastDown = [null, null];
                 let dest = [event.clientX, event.clientY];
@@ -684,10 +696,11 @@ const uiTweaks = {
                 preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", dest[0], dest[1]));
             }
         });
-        preview.canvas.addEventListener("pointermove", (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            if (straight) {
+        document.addEventListener("pointermove", (event) => {
+            // update preview only if cursor moved on preview
+            if (straight && event.target == preview.canvas) {
+                event.preventDefault();
+                event.stopPropagation();
                 const col = QS("#color-preview-primary").style.fill;
                 const size = [4, 14, 30, 40][[...QSA(".size")].findIndex(size => size.classList.contains("selected"))]
                 if (lastDown[0]) {

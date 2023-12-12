@@ -93,7 +93,7 @@ let typro = {
                 let removeConfirm = false;
                 remove.addEventListener("click", async () => {
                     if (!removeConfirm) { remove.innerHTML = "Really?"; removeConfirm = true; return; }
-                    await socket.emitEvent("remove drawing", { id: drawing.id });
+                    await socket.emitEvent("remove drawing", { id: drawing.uuid });
                     new Toast("Deleted drawing from the cloud.");
                     container.remove();
                 });
