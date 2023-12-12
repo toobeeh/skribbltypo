@@ -161,17 +161,20 @@ const uiTweaks = {
             canvasGame.setAttribute("data-zoom", 1);
             canvasGame.parentElement.style.height = "";
             canvasGame.parentElement.style.width = "";
-            canvasGame.parentElement.style.boxShadow = "";
+            //canvasGame.parentElement.style.boxShadow = "";
             canvasGame.style.width = "100%";
             canvasGame.style.top = "";
             canvasGame.style.left = "";
             document.removeEventListener("keydown", changeZoom);
+            [...QSA(".zoomNote")].forEach(n => n.remove());
             zoomActive = false;
             // document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
         }
         let toggleZoom = (event, skipctrl = false) => {
+            if (!isCurrentlyDrawing()) return;
             if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
                 event.preventDefault();
+                event.stopPropagation();
                 if (skipctrl || !zoomActive && !QS("#game-toolbar").classList.contains("hidden")) {
                     zoomActive = true;
                     const zoom = Number(sessionStorage.zoom) > 1 ? Number(sessionStorage.zoom) : 3;
@@ -182,7 +185,10 @@ const uiTweaks = {
                     let bRect = canvasGame.getBoundingClientRect();
                     canvasGame.parentElement.style.height = /* bRect.height + */ "600px";
                     canvasGame.parentElement.style.width = /* bRect.width + */ "800px";
-                    canvasGame.parentElement.style.boxShadow = "black 0px 0px 25px 5px";
+                    if (!QS(".zoomNote")) {
+                        QS("#game-word .description").insertAdjacentHTML("beforeend", "<span class='zoomNote'> (ZOOM ACTIVE)</span>");
+                    }
+                    //canvasGame.parentElement.style.boxShadow = "black 0px 0px 25px 5px";
                     // zoom canvas
                     canvasGame.style.width = (zoom * 100) + "%";
                     // get position offset
@@ -197,6 +203,9 @@ const uiTweaks = {
                         }
                     }
                     document.addEventListener("keydown", changeZoom);
+
+                    // undo brush action glitch
+                    //document.addEventListener("pointerup", () => setTimeout(() => QS("[data-tooltip=Undo]").click(), 100), { once: true });
                 }
                 else {
                     uiTweaks.resetZoom();
@@ -204,7 +213,11 @@ const uiTweaks = {
             }
         }
         document.addEventListener("pointerdown", toggleZoom);
-        document.querySelector("body").addEventListener("logCanvasClear", (e) => { if (zoomActive) toggleZoom(e, true); });
+        document.addEventListener("logCanvasClear", (e) => { uiTweaks.resetZoom(); });
+
+        // disable pointer events when ctrl pressed
+        document.addEventListener("keydown", (e) => canvasGame.style.pointerEvents = e.ctrlKey ? "none" : "");
+        document.addEventListener("keyup", (e) => canvasGame.style.pointerEvents = e.ctrlKey ? "none" : "");
     },
     initColorPalettes: () => {
         // add color palettes
