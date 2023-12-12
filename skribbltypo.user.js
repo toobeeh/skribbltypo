@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.0.2.170083012
+// @version 25.0.4.170205777
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "25.0.2 usrsc"};
+            return {version: "25.0.4 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -1198,7 +1198,7 @@ const setDefaults = (override = false) => {
     if (!localStorage.member || override) localStorage.member = "";
     if (!localStorage.client || override) localStorage.client = Date.now();
     if (!localStorage.visualOptions || override) localStorage.visualOptions = "{}";
-    if (!localStorage.themes || override) localStorage.themes = `[{"name":"Original","options":{"urlLogo":"","urlBackground":"","containerImages":"","fontColor":"","fontColorButtons":"","fontStyle":"","containerBackgroundsCheck":false,"containerBackgrounds":"","inputBackgroundsCheck":false,"inputBackgrounds":"","containerOutlinesCheck":false,"containerOutlines":"","inputOutlinesCheck":false,"inputOutlines":"","hideFooter":false,"hideCaptcha":false,"hideMeta":false,"hideAvatarLogo":false,"hideInGameLogo":false,"hideAvatarSprites":false}},{"name":"Dark Discord","options":{"urlLogo":"","urlBackground":"https://cdn.discordapp.com/attachments/715996980849147968/814955491876012032/dcdark.png); background-size: 800px;(","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Karla:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#2C2F3375","inputBackgroundsCheck":true,"inputBackgrounds":"#00000075","containerOutlinesCheck":true,"containerOutlines":"transparent !important; border-left: 4px solid #7289DA !important; ","inputOutlinesCheck":true,"inputOutlines":"transparent !important; border-left: 3px solid #363636 !important; ","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}},{"name":"Alpha","options":{"urlLogo":"https://imgur.com/k8e70AG.png","urlBackground":"https://i.imgur.com/UNZtzl6.jpg","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Mulish:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#ffffff50","inputBackgroundsCheck":true,"inputBackgrounds":"#00000040","containerOutlinesCheck":true,"containerOutlines":"","inputOutlinesCheck":true,"inputOutlines":"","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}}]`;
+    //if (!localStorage.themes || override) localStorage.themes = `[{"name":"Original","options":{"urlLogo":"","urlBackground":"","containerImages":"","fontColor":"","fontColorButtons":"","fontStyle":"","containerBackgroundsCheck":false,"containerBackgrounds":"","inputBackgroundsCheck":false,"inputBackgrounds":"","containerOutlinesCheck":false,"containerOutlines":"","inputOutlinesCheck":false,"inputOutlines":"","hideFooter":false,"hideCaptcha":false,"hideMeta":false,"hideAvatarLogo":false,"hideInGameLogo":false,"hideAvatarSprites":false}},{"name":"Dark Discord","options":{"urlLogo":"","urlBackground":"https://cdn.discordapp.com/attachments/715996980849147968/814955491876012032/dcdark.png); background-size: 800px;(","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Karla:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#2C2F3375","inputBackgroundsCheck":true,"inputBackgrounds":"#00000075","containerOutlinesCheck":true,"containerOutlines":"transparent !important; border-left: 4px solid #7289DA !important; ","inputOutlinesCheck":true,"inputOutlines":"transparent !important; border-left: 3px solid #363636 !important; ","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}},{"name":"Alpha","options":{"urlLogo":"https://imgur.com/k8e70AG.png","urlBackground":"https://i.imgur.com/UNZtzl6.jpg","containerImages":"","fontColor":"white","fontColorButtons":"white","fontStyle":"Mulish:wght@400;600","containerBackgroundsCheck":true,"containerBackgrounds":"#ffffff50","inputBackgroundsCheck":true,"inputBackgrounds":"#00000040","containerOutlinesCheck":true,"containerOutlines":"","inputOutlinesCheck":true,"inputOutlines":"","hideFooter":true,"hideCaptcha":true,"hideMeta":true,"hideAvatarLogo":true,"hideInGameLogo":true,"hideAvatarSprites":false}}]`;
     if (!localStorage.themesv2 || override) localStorage.themesv2 = "[]";
     if (!localStorage.controls || override) localStorage.controls = "true";
     if (!localStorage.restrictLobby || override) localStorage.restrictLobby = "";
@@ -3964,22 +3964,22 @@ typosocial a {
 
 typosocial[media=discord] {
     background-color: #5865F2;
-    background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885972636239282246/discord_logo_icon_181298.png);
+    background-image: url(https://i.imgur.com/fcmzSFM.png);
 }
 
 typosocial[media=website] {
     background-color: #7058f2;
-    background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885973183977619476/256CircleFit.png);
+    background-image: url(https://i.imgur.com/ASLeKqW.png);
 }
 
 typosocial[media=patreon] {
     background-color: #FF424D;
-    background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885975333990461490/5396969-black-patreon-logo-png-1-sound-of-the-future-patreon-logo-png-1600_1600_preview.png);
+    background-image: url(https://i.imgur.com/ecCj7in.png);
 }
 
 typosocial[media=github] {
     background-color: black;
-    background-image: url(https://cdn.discordapp.com/attachments/334696834322661376/885977424863584256/Untitled-1.png);
+    background-image: url(https://i.imgur.com/zPvAfQY.png);
 }
 
 #home .news .head,
@@ -7070,7 +7070,7 @@ let drops = {
             background-repeat: no-repeat;
             background-position: center;
             background-size: contain;
-            background-image: url(https://media.discordapp.net/attachments/740191494975258644/1055490440515833866/SantaSleighDrop.gif);
+            background-image: url(https://i.imgur.com/a0jNtCf.png);
             animation: rotate 6s;
             animation-iteration-count: infinite;
             animation-timing-function: ease-in-out;
@@ -7099,7 +7099,7 @@ let drops = {
         if (localStorage.drops == "false" || sessionStorage.inStream == "true" || !lobbies.joined) return;
         drops.currentDrop = drop;
         let dropElem = drops.dropContainer;
-        if (drop.eventDropID == 0 || drops.mode === "league") dropElem.style.backgroundImage = 'url("https://tobeh.host/Orthanc/sprites/gif/drop.gif")';
+        if (drop.eventDropID == 0 || drops.mode === "league") dropElem.style.backgroundImage = 'url("https://static.typo.rip/drops/drop.gif")';
         else dropElem.style.backgroundImage = 'url("' + drops.eventDrops.find(e => e.EventDropID == drop.eventDropID).URL + '")';
         dropElem.style.display = "block";
         dropElem.style.left = Math.round(5 + Math.random() * 90) + "%";
@@ -7163,7 +7163,7 @@ let drops = {
         dropContainer.style.backgroundSize = "contain";
         dropContainer.style.cursor = "pointer";
         dropContainer.style.display = "none";
-        dropContainer.style.backgroundImage = "url('https://tobeh.host/Orthanc/sprites/gif/drop.gif')";
+        dropContainer.style.backgroundImage = "url('https://static.typo.rip/drops/drop.gif')";
         dropContainer.addEventListener("pointerdown", async (event) => {
             if (!event.isTrusted) {
                 // send webhook
@@ -7771,7 +7771,7 @@ let imageAgent = {// func to set the image in the agentdiv
         let word = getCurrentWordOrHint();
         let search = (exclusive ? "" : word + "+") + searchCriteria;
         search = replaceUmlaute(search);
-        imageAgent.agent.src = "https://cdn.discordapp.com/attachments/1031284926596796526/1052264435739271188/load.gif";
+        imageAgent.agent.src = chrome.runtime.getURL("res/load.gif");
 
         let param = encodeURIComponent(search);
         const server = "https://agent.typo.rip/"
