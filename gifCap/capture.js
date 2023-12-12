@@ -2,48 +2,50 @@
 let capturedCommands;
 let filename;
 let resolution;
-let hits = 0;
+let frames = 0;
 let msg = {};
-const frames = 15;
+const frameDelayMs = 50;
 
 self.addEventListener('message', function (e) {
     let data = e.data;
     capturedCommands = data.capturedCommands;
     filename = data.filename;
     let length = data.gifLength;
-    capturedCommands.forEach((a) => hits += a.length);
-    //calc resolution for 15fps and 0.5 ms delay between frames ()
-    resolution = Math.round((hits / frames) / length);
+    frames = (length * 1000 / frameDelayMs);
+    resolution = Math.round(capturedCommands.length / frames);
     capture();
 }, false);
 
 async function capture() {
-    console.log("Started timeout");
     await setTimeout(() => {
         console.log("Started rendering");
         let canvasDummy = new OffscreenCanvas(800, 600);
         let canvasContext = canvasDummy.getContext("2d");
+
         //create command-able skribbl canvas
         let canvasPainter = new Z([canvasDummy]);
         let encoder = new GIFEncoder();
         encoder.setRepeat(0);
-        encoder.setDelay(0.5);
+        encoder.setDelay(frameDelayMs);
         encoder.start();
-        let commandHits = 0;
+
         // perform commands on canvas and take frames 
-        for (let command = 0, length = capturedCommands.length; command < length; command++) {
+        for (let command = 0; command < capturedCommands.length; command++) {
             if (capturedCommands[command]) {
                 canvasPainter.performDrawCommand(capturedCommands[command]);
-                commandHits++;
-                if (commandHits % resolution == 0) {
+
+                // take every n steps and put to gif
+                if (command % resolution == 0) {
+                    encoder.setDelay(frameDelayMs);
                     encoder.addFrame(canvasContext);
-                    msg.progress = commandHits / hits;
+                    msg.progress = command / capturedCommands.length;
                     self.postMessage(msg);
                 }
             }
         }
-        encoder.setDelay(500);
+
         // add end result
+        encoder.setDelay(500);
         encoder.addFrame(canvasContext);
 
         encoder.finish();
