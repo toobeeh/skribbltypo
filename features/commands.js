@@ -436,6 +436,23 @@ const commands = [
             }
         }
     }, {
+        command: "login",
+        options: {
+            type: "action",
+            description: "Logs in with a given palantir access token. Argument: token (empty to log out)",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+                if (!args || args.length == 0) localStorage.removeItem("accessToken");
+                else localStorage.setItem("accessToken", args);
+            },
+            response: (args) => {
+                window.location.reload();
+                return "Reloading...";
+            }
+        }
+    }, {
         command: "usepalette",
         options: {
             type: "action",
@@ -526,6 +543,22 @@ const commands = [
             },
             response: (args) => {
                 return "";
+            }
+        }
+    }, {
+        command: "reconnect",
+        options: {
+            type: "action",
+            description: "Reconnects to the typo server.",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: () => {
+                socket.disconnect();
+                setTimeout(() => socket.init(), 2000);
+            },
+            response: (args) => {
+                return "Reconnection initiated.";
             }
         }
     }, {
