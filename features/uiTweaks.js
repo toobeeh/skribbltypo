@@ -711,7 +711,6 @@ const uiTweaks = {
                 const col = QS("#color-preview-primary").style.fill;
                 const size = [4, 14, 30, 40][[...QSA(".size")].findIndex(size => size.classList.contains("selected"))]
                 if (lastDown[0]) {
-                    console.log(event.offsetX, event.offsetY, event.target);
                     let real = getRealCoordinates(event.offsetX, event.offsetY);
                     if (!snap) preview.line(lastDown[0], lastDown[1], real[0], real[1], col, size);
                     else {
