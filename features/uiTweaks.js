@@ -661,16 +661,9 @@ const uiTweaks = {
             let state = straight;
             straight = straight && event.which !== 16;
             snap = straight && snap;
-            if (!straight && !pointerdown) preview.stop();
+            if (!straight/*  && !pointerdown */) preview.stop();
             if (!straight && state) lastRelease = Date.now();
             if (!straight) lastDirectClient = [null, null];
-        });
-        document.addEventListener("keyup", (event) => {
-            let state = straight;
-            straight = straight && event.which !== 16;
-            snap = straight && snap;
-            if (!straight && !pointerdown) preview.stop();
-            if (!straight && state) lastRelease = Date.now();
         });
         // get snap end coordinates
         const snapDestination = (x, y, x1, y1) => {
