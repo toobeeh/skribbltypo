@@ -9,7 +9,9 @@ Details about features & functionality can be found on the [Website](https://chr
 Typo is available for all major browsers in one or another way.
 - For chrome and all chromium based browsers, you can get it from the chrome store or use the zip in the releases section.
 - For firefox, use the "add typo" link on the website or use the signed xpi file from the releases section.
-- For all other browsers (including safari on iOS and iPadOS), you can use the userscript in the repo root with a userscript manager of your choice.
+- For all other browsers (including safari on iOS and iPadOS using the "Stay" userscript manager), you can use the userscript in the repo root with a userscript manager of your choice.
+
+> **Typo targets chrome/chromium and is not actively tested on any other platforms.**
 
 ## 🔀 Contribution & Code Quality
 > First a disclaimer: This extension emerged from a pretty bad codebase (which i am responsible for), and although it had some minor refactors the architecture and code quality is not that great.
@@ -22,7 +24,8 @@ However, if you want to contribute or have some feedback, it is a good idea to m
 
 If you want to report some bugs, feel free to open an issue.
 
-## 🧩 Structure
+## 🧩 Architecture
+Typo consists of plain JS files (content scripts) that are run at various DOM lifecycle events.
 To get an idea what code is run at which point, have a brief look at the manifest.  
 
 **patcher.js** modifies DOM during load, eg replacing the game JS or adding instantly visible elements.  
@@ -32,6 +35,9 @@ Features are located in the **features** directory and are objects, each object 
 **color.js** simplifies color conversions, **commands.js** toggles features based on commands from the popup.  
 **errors.js** provides a way to log js errors and send them via a Discord webhook.  
 **gamePatch.js** is the patched game.js from skribbl.
+
+The userscript version is a merge of all files and patches the web-extension API usage with polyfills.  
+To have a close look at that, head to the userscript-gen.js in the repo root.
 
 ## 🎚️ Patching the game.js
 Since typo is using advanced features to modify the behavior of skribbl, the original client-code of skribbl is being patched. 
@@ -55,6 +61,7 @@ Here is an overview of new & legacy repositories which are in use to some extent
 - *Tirith (backend)* is a NEST application which aims to replace Orthanc in the near future. Used also by the Tirith frontend.
 - *typo-agent-scraper* is a microservice to provide image sources for the image agent.
 - *Palantir* is a discord bot that integrates skribbltypo to discord and lets user manage their account in a social and interactive way.
+- *Ithil-Rebirth* is a node.js/TS socket.io backend server for direct event-based communication with clients of the typo extension.
 
 ### Deployment
 - *typo-compose* is a git repository which features a setup of various docker-composes to establish an easy-to-deploy ecosystem. This is currently used on the vps where all containers are hosted.  
