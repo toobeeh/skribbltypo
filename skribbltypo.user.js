@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.0.6.170259992
+// @version 25.0.7.170263810
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "25.0.6 usrsc"};
+            return {version: "25.0.7 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -6891,7 +6891,7 @@ const uiTweaks = {
         };
         const chatInput = QS(".chat-container input");
         let straight = false;
-        let lastRelease = 0;
+        let lastPress = 0;
         let snap = false;
         let pointerdown = false;
         let lastDown = [null, null];
@@ -6916,18 +6916,20 @@ const uiTweaks = {
         }
         // listen for shift down
         document.addEventListener("keydown", (event) => {
-            if (document.activeElement == chatInput) return;
+            if (document.activeElement == chatInput || !isCurrentlyDrawing()) return;
             let state = straight;
             straight = straight || event.which === 16;
             if (straight && !state) preview.use();
-            if (straight && !state && Date.now() - lastRelease < 300) snap = true;
+            if (straight && !state && Date.now() - lastPress < 300) snap = true;
+            if (straight && !state && event.which === 16) {
+                lastPress = Date.now();
+            }
         });
         document.addEventListener("keyup", (event) => {
             let state = straight;
             straight = straight && event.which !== 16;
             snap = straight && snap;
             if (!straight/*  && !pointerdown */) preview.stop();
-            if (!straight && state) lastRelease = Date.now();
             if (!straight) lastDirectClient = [null, null];
         });
         // get snap end coordinates
