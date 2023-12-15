@@ -625,7 +625,8 @@ const uiTweaks = {
                 ctx.lineWidth = size;
                 ctx.stroke();
             }
-        }
+        };
+        const chatInput = QS(".chat-container input");
         let straight = false;
         let lastRelease = 0;
         let snap = false;
@@ -652,6 +653,7 @@ const uiTweaks = {
         }
         // listen for shift down
         document.addEventListener("keydown", (event) => {
+            if (document.activeElement == chatInput) return;
             let state = straight;
             straight = straight || event.which === 16;
             if (straight && !state) preview.use();
