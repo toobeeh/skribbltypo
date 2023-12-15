@@ -628,7 +628,7 @@ const uiTweaks = {
         };
         const chatInput = QS(".chat-container input");
         let straight = false;
-        let lastRelease = 0;
+        let lastPress = 0;
         let snap = false;
         let pointerdown = false;
         let lastDown = [null, null];
@@ -653,18 +653,20 @@ const uiTweaks = {
         }
         // listen for shift down
         document.addEventListener("keydown", (event) => {
-            if (document.activeElement == chatInput) return;
+            if (document.activeElement == chatInput || !isCurrentlyDrawing()) return;
             let state = straight;
             straight = straight || event.which === 16;
             if (straight && !state) preview.use();
-            if (straight && !state && Date.now() - lastRelease < 300) snap = true;
+            if (straight && !state && Date.now() - lastPress < 300) snap = true;
+            if (straight && !state && event.which === 16) {
+                lastPress = Date.now();
+            }
         });
         document.addEventListener("keyup", (event) => {
             let state = straight;
             straight = straight && event.which !== 16;
             snap = straight && snap;
             if (!straight/*  && !pointerdown */) preview.stop();
-            if (!straight && state) lastRelease = Date.now();
             if (!straight) lastDirectClient = [null, null];
         });
         // get snap end coordinates
