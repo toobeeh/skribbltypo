@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.0.5.170239597
+// @version 25.0.6.170259992
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "25.0.5 usrsc"};
+            return {version: "25.0.6 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -6888,7 +6888,8 @@ const uiTweaks = {
                 ctx.lineWidth = size;
                 ctx.stroke();
             }
-        }
+        };
+        const chatInput = QS(".chat-container input");
         let straight = false;
         let lastRelease = 0;
         let snap = false;
@@ -6915,6 +6916,7 @@ const uiTweaks = {
         }
         // listen for shift down
         document.addEventListener("keydown", (event) => {
+            if (document.activeElement == chatInput) return;
             let state = straight;
             straight = straight || event.which === 16;
             if (straight && !state) preview.use();
