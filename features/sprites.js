@@ -75,7 +75,7 @@ const sprites = {
                         spriteContainer.classList.add("special");
                         spriteContainer.classList.add("typoSpecialSlot");
                         spriteContainer.style.zIndex = slot.slot;
-                        spriteContainer.style.backgroundImage = slot.shift ? "url(https://tobeh.host/modulateSprite.php?url=" + spriteUrl + "&hue=" + slot.shift.ItemID + ")" : "url(" + spriteUrl + ")";
+                        spriteContainer.style.backgroundImage = slot.shift ? "url(https://static.typo.rip/sprites/rainbow/modulate.php?url=" + spriteUrl + "&hue=" + slot.shift.ItemID + ")" : "url(" + spriteUrl + ")";
                         player.avatarContainer.appendChild(spriteContainer);
                         // set style depending on listing
                         if (spriteContainer.closest("#containerLobbyPlayers")) spriteContainer.style.backgroundSize = "contain";
@@ -180,7 +180,7 @@ const sprites = {
         let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
         let url = sprites.getSpriteURL(id);
         let shift = shifts.find(s => s[0] == id);
-        if (shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
+        if (shift) url = "https://static.typo.rip/sprites/rainbow/modulate.php?url=" + url + "&hue=" + shift[1];
         return url;
     },
     setLandingSprites: (authenticated = false) => {

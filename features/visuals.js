@@ -222,22 +222,9 @@ const visuals = {
     form: undefined,
     getElem: undefined,
     shareTheme: async (theme) => {
-        return new Promise((resolve, reject) => {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        console.log("Theme share id: " + xhr.responseText);
-                        resolve(xhr.responseText);
-                    } else {
-                        reject(null);
-                    }
-                }
-            };
-            xhr.open("POST", "https://tobeh.host/Orthanc/themeapi/share/index.php", true); // Replace with the URL of your PHP script
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.send("theme=" + encodeURIComponent(theme));
-        });
+
+        const response = await typoApiFetch("themes/share", "POST", {}, theme);
+        return response.id;
     },
     refreshThemeBrowser: () => {
         (async () => {
@@ -254,14 +241,14 @@ const visuals = {
                 return a;
             }
 
-            const themes = await (await fetch("https://tobeh.host/Orthanc/themeapi/all/")).json();
+            const themes = await typoApiFetch("themes");
 
             /* update themes */
 
             for (let t of themes) {
                 let added = visuals.themes.find(theme => theme.meta.id == t.id);
                 if (added && added.meta.version && added.meta.version < t.version) {
-                    let updated = await (await fetch("https://tobeh.host/Orthanc/themeapi/get/?id=" + t.id)).json();
+                    let updated = await typoApiFetch("themes/" + t.id);
 
                     const defaults = getEmptyTheme();
                     const merged = merge(updated, defaults);
@@ -288,7 +275,7 @@ const visuals = {
                 container.appendChild(entry);
                 entry.querySelector(".downloadTheme").addEventListener("click", async () => {
 
-                    const theme = await (await fetch("https://tobeh.host/Orthanc/themeapi/download/?id=" + t.id)).json();
+                    const theme = await typoApiFetch("themes/" + t.id + "/use");
 
                     const defaults = getEmptyTheme();
                     const merged = merge(theme, defaults);
@@ -356,7 +343,7 @@ const visuals = {
                 }
             });
             entry.querySelector(".shareTheme").addEventListener("click", async () => {
-                let url = await visuals.shareTheme(JSON.stringify(theme));
+                let url = await visuals.shareTheme(theme);
                 new Toast("Share ID copied to clipboard! Use it in the 'Browse Themes' tab");
                 navigator.clipboard.writeText(url);
 
@@ -949,8 +936,7 @@ const visuals = {
             try {
                 let link = elem("#themeShareLink").value;
                 let id = link.split("/").reverse()[0];
-                let text = await (await fetch("https://tobeh.host/Orthanc/themeapi/get/?id=" + id)).text();
-                let theme = JSON.parse(text);
+                let theme = await typoApiFetch("themes/" + id);
 
                 const defaults = getEmptyTheme();
                 const merged = merge(theme, defaults);

@@ -1,58 +1,8 @@
 let settings = null;
 let skribbl = true;
-let palantirMember = null;
 let tabID = 0;
 if (typeof (localStorage) !== "object") { // localstoray polyfill dummy for safari
     this.localStorage = [];
-}
-
-const setMemberTab = (member) => {
-    if (member) {
-        document.querySelector("#login").style.display = "none";
-        document.querySelector("#server").style.display = "";
-        document.querySelector("#loginName").textContent = "Logged in: '" + member.UserName + "'";
-        document.querySelector("#authGuilds").innerHTML = member.Guilds.map(
-            guild => `<div class="label" style="cursor:pointer" data-guild="${guild.GuildID}" data-token="${guild.ObserveToken}">${guild.GuildName}</div>`).join("");
-        document.querySelectorAll("#authGuilds > div").forEach(btn => {
-            let removeGuild = false;
-            let guildName = btn.innerText;
-            let token = btn.getAttribute("data-token");
-            btn.addEventListener("pointerdown", async () => {
-                if (removeGuild == false) {
-                    btn.textContent = "Remove " + guildName + "?";
-                    removeGuild = true;
-                    setTimeout(() => {
-                        btn.textContent = guildName;
-                        removeGuild = false;
-                    }, 2000);
-                }
-                else {
-                    let removeResponse = await (await fetch('https://tobeh.host/Orthanc/verify/', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': '*/*',
-                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                        },
-                        body: "remove=true&observeToken=" + token + "&member=" + encodeURIComponent(JSON.stringify(member))
-                    }
-                    )).json();
-                    if (removeResponse.Valid) {
-                        // reload skribbl
-                        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                            chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
-                        });
-                        // update guilds
-                        palantirMember = removeResponse.Member;
-                        setMemberTab(removeResponse.Member);
-                    }
-                }
-            });
-        });
-    }
-    else {
-        document.querySelector("#login").style.display = "";
-        document.querySelector("#server").style.display = "none";
-    }
 }
 
 // check if skribbl is opened & adjust visible content, then do all setup stuff
@@ -61,8 +11,10 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         skribbl = true;
         // remove conent that doesnt belong to skribbl
         document.querySelectorAll(".sketchful:not(.skribbl)").forEach((node) => { node.remove(); });
+
         // check if settings string was received - if not, indicates that the popup didnt sync with skribbl (after update for example)
         setTimeout(function () { if (!settings && skribbl) document.querySelector("h1").innerHTML = "Updated... <br/>Reload Skribbl!"; }, 500);
+
         // set events to toggle tabs
         document.querySelectorAll(".tabSelection .tabTitle").forEach((tab) => tab.addEventListener("click", () => {
             let activeTab = document.querySelector(".tabActive");
@@ -80,74 +32,12 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
         chrome.runtime.onMessage.addListener((request, sender) => {
             tabID = sender.tab.id;
             settings = JSON.parse(request.settings);
+
             // set button states
             document.querySelectorAll("#mainSettings button").forEach(btn => {
                 if (settings[btn.id] == "true") btn.classList.add("active");
             });
-            // prepare palantir page if logged in
-            palantirMember = settings.member != "" ? JSON.parse(settings.member) : null;
-            if (palantirMember) {
-                setMemberTab(palantirMember);
-            }
-            // set login function
-            document.querySelector("#loginSubmit").addEventListener("pointerdown", async () => {
-                const enter = document.querySelector("#loginEnter");
-                let login = parseInt(enter.value);
-                if (login == NaN || login < 0 || login > 99999999) {
-                    enter.style.color = "#f04747";
-                    return;
-                }
-                const loginResponse = await (await fetch('https://tobeh.host/Orthanc/login/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': '*/*',
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    },
-                    body: "login=" + login
-                })).json();
-                if (!loginResponse.Valid) {
-                    enter.style.color = "#f04747";
-                    return;
-                }
-                // update member
-                chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-                    chrome.tabs.sendMessage(tabs[0].id, "setmember " + JSON.stringify(loginResponse.Member));
-                });
-                // reload skribbl
-                chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                    chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
-                });
-                palantirMember = loginResponse.Member;
-                setMemberTab(palantirMember);
-            });
-            // set add server function
-            document.querySelector("#verifyToken").addEventListener("pointerdown", async () => {
-                const enter = document.querySelector("#observeToken");
-                let token = parseInt(enter.value);
-                if (token == NaN || token < 0 || token > 99999999) {
-                    enter.style.color = "#f04747";
-                    return;
-                }
-                const verifyResponse = await (await fetch('https://tobeh.host/Orthanc/verify/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': '*/*',
-                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                    },
-                    body: "observeToken=" + token + "&member=" + encodeURIComponent(JSON.stringify(palantirMember))
-                }
-                )).json();
-                if (!verifyResponse.Valid) {
-                    enter.style.color = "#f04747";
-                    return;
-                }
-                // reload skribbl
-                chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-                    chrome.tabs.update(tabs[0].id, { url: tabs[0].url });
-                });
-                palantirMember = verifyResponse.Member;
-                setMemberTab(palantirMember);
-            });
+
             // init slider events
             document.querySelectorAll(".sliderBox").forEach(slider => {
                 const sliderInput = slider.querySelector("input");
@@ -169,6 +59,7 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
                 setSliderFill(Number(settings[slider.id]));
                 sliderInput.value = Number(settings[slider.id]);
             });
+
             // add slider thumb color change for color slider
             setThumbCol = (val) => {
                 const hsl = val + ", 100%, 90%";
@@ -176,6 +67,7 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
             }
             document.querySelector("#markupcolor input").addEventListener("input", (e) => { setThumbCol(e.target.value); });
             setThumbCol(document.querySelector("#markupcolor input").value);
+
             // show color palettes
             const addPaletteButton = (palette) => {
                 const id = "palette_" + palette.name;
@@ -190,6 +82,7 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
                 }
                 catch { }
             }
+
             // add palette events
             const initPaletteEvents = (btn) => {
                 btn.addEventListener("click", () => {
@@ -230,6 +123,7 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
             document.querySelectorAll("#palettes > button").forEach(btn => {
                 initPaletteEvents(btn);
             });
+
             // add add palette event
             document.querySelector("#enterJSON").addEventListener("click", () => {
                 const json = document.querySelector("#paletteJSON").value;
@@ -253,6 +147,7 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
                 }
             });
         });
+
         // add togglebutton events
         document.querySelectorAll("#mainSettings button").forEach(btn => {
             btn.addEventListener("pointerdown", () => {
@@ -263,54 +158,11 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
                 chrome.tabs.sendMessage(tabID, (state ? "disable " : "enable ") + setting);
             });
         });
+
         // request setting string from skribbl
         chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
             chrome.tabs.sendMessage(tabs[0].id, "getSettings");
         });
-    }
-    else if (tabs[0].url.includes("sketchful.io")) {
-        skribbl = false;
-        // remove content that doesnt belong to sketchful
-        document.querySelectorAll(".skribbl:not(.sketchful)").forEach((node) => { node.remove(); });
-        document.querySelector("#tabDiscord").classList.add("tabActive");
-        document.querySelector("#palantirSettings").style.display = "block";
-
-        // load settings from skribbl
-        let skribblSettings = JSON.parse(localStorage.skribblSettings);
-        let member = JSON.parse(skribblSettings.member);
-
-        // show palantir user
-        if (member) document.querySelector("#sketchfulLogin").textContent = member.UserName;
-        else document.querySelector("#sketchfulLogin").textContent = "Go to skribbl and log in with your token!";
-        if (member.Guilds.length > 0) {
-            let guildContainer = document.querySelector("#sketchfulGuilds");
-            guildContainer.innerHTML = "";
-            member.Guilds.forEach(g => { guildContainer.innerHTML += "<div class='label'>" + g.GuildName + "</div>" });
-        }
-
-        // sketchful allow toggle
-        if (!localStorage.sketchfulAllow) localStorage.sketchfulAllow = "false";
-        let sketchfulAllowButton = document.querySelector("#palantirToggleSketchful");
-        if (localStorage.sketchfulAllow == "true") sketchfulAllowButton.classList.add("active");
-        const updateSketchfulUser = (member, userallow) => {
-            data = {
-                member: member,
-                userallow: userallow
-            };
-            chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
-                chrome.tabs.sendMessage(tabs[0].id, { updateUser: true, data: JSON.stringify(data) });
-            });
-        }
-        // callback for sketchful toggle
-        sketchfulAllowButton.addEventListener("click", () => {
-            if (localStorage.sketchfulAllow == "true") {
-                sketchfulAllowButton.className = '';
-                localStorage.sketchfulAllow = "false"
-            }
-            else { sketchfulAllowButton.className = 'active'; localStorage.sketchfulAllow = "true" }
-            updateSketchfulUser(member, localStorage.sketchfulAllow);
-        });
-        updateSketchfulUser(member, localStorage.sketchfulAllow);
     }
     else {
         skribbl = false;

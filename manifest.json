@@ -82,15 +82,6 @@
         "features/style.css",
         "picker/colr_pickr.min.css"
       ]
-    },
-    {
-      "matches": [
-        "*://sketchful.io/",
-        "*://sketchful.io/*"
-      ],
-      "js": [
-        "features/sketchfulReport.js"
-      ]
     }
   ]
 }

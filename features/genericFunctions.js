@@ -1,4 +1,21 @@
-// generic re-usable functions which have no dependencies
+// general util functions which have no dependencies
+
+async function typoApiFetch(path, method = "GET", params = {}, body = undefined) {
+    const searchParams = new URLSearchParams(params);
+
+    const isFirefox = chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
+    const apiBase = isFirefox ? "https://tobeh.host/newapi" : "https://api.typo.rip";
+    const url = apiBase + (path.startsWith("/") ? "" : "/") + path;
+
+    return (await fetch(url, {
+        searchParams: searchParams,
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: body ? JSON.stringify(body) : undefined
+    })).json();
+}
 
 //Queryselector bindings
 const QS = document.querySelector.bind(document);
