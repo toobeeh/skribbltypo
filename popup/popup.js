@@ -186,6 +186,6 @@ chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
     credits.parentElement.onclick = () => window.open("https://discord.com/invite/pAapmUmWAM");
     credits.onmouseover = () => { credits.innerHTML = "call me maybe?"; };
     credits.onmouseout = () => { credits.innerHTML = cont; };
-    website.addEventListener("click", () => chrome.tabs.create({ url: "https://typo.rip/" }));
+    website.addEventListener("click", () => chrome.tabs.create({ url: "https://www.typo.rip" }));
 });
 

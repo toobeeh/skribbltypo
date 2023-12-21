@@ -512,7 +512,7 @@ Clicking "TAB" will auto-focus the chat input.<br>
 <br><br><h3>And of course... all known bugs were fixed.<h3>
 </div>`;
 
-const privacyRawHTML = `<div style="width:100%"><h4><a href="https://typo.rip#privacy">A more detailed privacy statement is available on https://typo.rip#privacy</a></h4><br>
+const privacyRawHTML = `<div style="width:100%"><h4><a href="https://www.typo.rip/privacy">A more detailed privacy statement is available on https://www.typo.rip/privacy</a></h4><br>
     <code><h4>Without connecting Palantir, Typo will collect and store NO data.</h4>
     <h4>Collected data is ONLY used for feature-related purposes.</h4>
     <h5>However, for Palantir-features like Sprites, Discord Lobbies and Typo Gallery Cloud, collecting data is inevitable.</h5></code>
