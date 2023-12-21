@@ -1,11 +1,11 @@
 
 // ==UserScript==
 // @name skribbltypo 
-// @website https://typo.rip
+// @website https://www.typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.1.0.170307976
+// @version 25.1.0.170318531
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -1441,7 +1441,7 @@ Clicking "TAB" will auto-focus the chat input.<br>
 <br><br><h3>And of course... all known bugs were fixed.<h3>
 </div>`;
 
-const privacyRawHTML = `<div style="width:100%"><h4><a href="https://typo.rip#privacy">A more detailed privacy statement is available on https://typo.rip#privacy</a></h4><br>
+const privacyRawHTML = `<div style="width:100%"><h4><a href="https://www.typo.rip/privacy">A more detailed privacy statement is available on https://www.typo.rip/privacy</a></h4><br>
     <code><h4>Without connecting Palantir, Typo will collect and store NO data.</h4>
     <h4>Collected data is ONLY used for feature-related purposes.</h4>
     <h5>However, for Palantir-features like Sprites, Discord Lobbies and Typo Gallery Cloud, collecting data is inevitable.</h5></code>
@@ -3517,8 +3517,8 @@ console.log(`%c
                                                     |___/  |_|     %cby tobeh#7437 %c
 
         ➜ Typo & all its backend is open source: https://github.com/toobeeh/skribbltypo
-        ➜ Join the community: https://typo.rip/discord
-        ➜ Find more infos at: https://typo.rip/
+        ➜ Join the community: https://discord.com/invite/pAapmUmWAM
+        ➜ Find more infos at: https://www.typo.rip/
         ➜ Support development: https://patreon.com/skribbltypo
                                                                     
                                                     `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
@@ -3607,8 +3607,8 @@ let patchNode = async (node) => {
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
                 <div style="display: grid; grid-template-columns: 50% 50%;">
-                    <typosocial media="discord"><a target="_blank" href='https://typo.rip/discord'>Typo Discord</a></typosocial>
-                    <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a></typosocial>
+                    <typosocial media="discord"><a target="_blank" href='https://discord.com/invite/pAapmUmWAM'>Typo Discord</a></typosocial>
+                    <typosocial media="website"><a target="_blank"  href='https://www.typo.rip'>Typo Website</a></typosocial>
                     <typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a></typosocial>
                     <typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial>
                 </div>
