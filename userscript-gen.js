@@ -38,7 +38,7 @@ mainfest.content_scripts.forEach(script => {
 let bundle = `
 // ==UserScript==
 // @name skribbltypo 
-// @website https://typo.rip
+// @website https://www.typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png

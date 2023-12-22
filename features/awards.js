@@ -146,11 +146,7 @@ const awards = {
         // awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
 
         // workaround to using without permission temporarily - depends on cloudflare worker
-        const isFirefox = chrome.runtime.getURL('').startsWith('moz-extension://');
-        if (isFirefox) {
-            awards.all = await (await fetch("https://tobeh.host/newapi/awards")).json();
-        }
-        else awards.all = await (await fetch("https://api.typo.rip/awards")).json();
+        awards.all = await typoApiFetch("awards");
         awards.toggleState(false);
     }
 }

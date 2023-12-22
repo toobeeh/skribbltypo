@@ -13,8 +13,8 @@ console.log(`%c
                                                     |___/  |_|     %cby tobeh#7437 %c
 
         ➜ Typo & all its backend is open source: https://github.com/toobeeh/skribbltypo
-        ➜ Join the community: https://typo.rip/discord
-        ➜ Find more infos at: https://typo.rip/
+        ➜ Join the community: https://discord.com/invite/pAapmUmWAM
+        ➜ Find more infos at: https://www.typo.rip/
         ➜ Support development: https://patreon.com/skribbltypo
                                                                     
                                                     `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
@@ -103,8 +103,8 @@ let patchNode = async (node) => {
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
                 <div style="display: grid; grid-template-columns: 50% 50%;">
-                    <typosocial media="discord"><a target="_blank" href='https://typo.rip/discord'>Typo Discord</a></typosocial>
-                    <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a></typosocial>
+                    <typosocial media="discord"><a target="_blank" href='https://discord.com/invite/pAapmUmWAM'>Typo Discord</a></typosocial>
+                    <typosocial media="website"><a target="_blank"  href='https://www.typo.rip'>Typo Website</a></typosocial>
                     <typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a></typosocial>
                     <typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial>
                 </div>

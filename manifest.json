@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & Discord integration",
-  "version": "25.0.7",
+  "version": "25.1.0",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
@@ -81,15 +81,6 @@
       "css": [
         "features/style.css",
         "picker/colr_pickr.min.css"
-      ]
-    },
-    {
-      "matches": [
-        "*://sketchful.io/",
-        "*://sketchful.io/*"
-      ],
-      "js": [
-        "features/sketchfulReport.js"
       ]
     }
   ]

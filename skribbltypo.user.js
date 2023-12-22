@@ -1,11 +1,11 @@
 
 // ==UserScript==
 // @name skribbltypo 
-// @website https://typo.rip
+// @website https://www.typo.rip
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.0.7.170263810
+// @version 25.1.0.170318531
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "25.0.7 usrsc"};
+            return {version: "25.1.0 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -600,7 +600,7 @@ const sprites = {
                         spriteContainer.classList.add("special");
                         spriteContainer.classList.add("typoSpecialSlot");
                         spriteContainer.style.zIndex = slot.slot;
-                        spriteContainer.style.backgroundImage = slot.shift ? "url(https://tobeh.host/modulateSprite.php?url=" + spriteUrl + "&hue=" + slot.shift.ItemID + ")" : "url(" + spriteUrl + ")";
+                        spriteContainer.style.backgroundImage = slot.shift ? "url(https://static.typo.rip/sprites/rainbow/modulate.php?url=" + spriteUrl + "&hue=" + slot.shift.ItemID + ")" : "url(" + spriteUrl + ")";
                         player.avatarContainer.appendChild(spriteContainer);
                         // set style depending on listing
                         if (spriteContainer.closest("#containerLobbyPlayers")) spriteContainer.style.backgroundSize = "contain";
@@ -705,7 +705,7 @@ const sprites = {
         let shifts = socket.data.user.rainbowSprites ? socket.data.user.rainbowSprites.split(",").map(s => s.split(":")) : [];
         let url = sprites.getSpriteURL(id);
         let shift = shifts.find(s => s[0] == id);
-        if (shift) url = "https://tobeh.host/modulateSprite.php?url=" + url + "&hue=" + shift[1];
+        if (shift) url = "https://static.typo.rip/sprites/rainbow/modulate.php?url=" + url + "&hue=" + shift[1];
         return url;
     },
     setLandingSprites: (authenticated = false) => {
@@ -927,7 +927,24 @@ const sprites = {
 };
 
 // #content features/genericFunctions.js
-// generic re-usable functions which have no dependencies
+// general util functions which have no dependencies
+
+async function typoApiFetch(path, method = "GET", params = {}, body = undefined) {
+    const searchParams = new URLSearchParams(params);
+
+    const isFirefox = chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
+    const apiBase = isFirefox ? "https://tobeh.host/newapi" : "https://api.typo.rip";
+    const url = apiBase + (path.startsWith("/") ? "" : "/") + path;
+
+    return (await fetch(url, {
+        searchParams: searchParams,
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: body ? JSON.stringify(body) : undefined
+    })).json();
+}
 
 //Queryselector bindings
 const QS = document.querySelector.bind(document);
@@ -1424,7 +1441,7 @@ Clicking "TAB" will auto-focus the chat input.<br>
 <br><br><h3>And of course... all known bugs were fixed.<h3>
 </div>`;
 
-const privacyRawHTML = `<div style="width:100%"><h4><a href="https://typo.rip#privacy">A more detailed privacy statement is available on https://typo.rip#privacy</a></h4><br>
+const privacyRawHTML = `<div style="width:100%"><h4><a href="https://www.typo.rip/privacy">A more detailed privacy statement is available on https://www.typo.rip/privacy</a></h4><br>
     <code><h4>Without connecting Palantir, Typo will collect and store NO data.</h4>
     <h4>Collected data is ONLY used for feature-related purposes.</h4>
     <h5>However, for Palantir-features like Sprites, Discord Lobbies and Typo Gallery Cloud, collecting data is inevitable.</h5></code>
@@ -1671,22 +1688,9 @@ const visuals = {
     form: undefined,
     getElem: undefined,
     shareTheme: async (theme) => {
-        return new Promise((resolve, reject) => {
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        console.log("Theme share id: " + xhr.responseText);
-                        resolve(xhr.responseText);
-                    } else {
-                        reject(null);
-                    }
-                }
-            };
-            xhr.open("POST", "https://tobeh.host/Orthanc/themeapi/share/index.php", true); // Replace with the URL of your PHP script
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.send("theme=" + encodeURIComponent(theme));
-        });
+
+        const response = await typoApiFetch("themes/share", "POST", {}, theme);
+        return response.id;
     },
     refreshThemeBrowser: () => {
         (async () => {
@@ -1703,14 +1707,14 @@ const visuals = {
                 return a;
             }
 
-            const themes = await (await fetch("https://tobeh.host/Orthanc/themeapi/all/")).json();
+            const themes = await typoApiFetch("themes");
 
             /* update themes */
 
             for (let t of themes) {
                 let added = visuals.themes.find(theme => theme.meta.id == t.id);
                 if (added && added.meta.version && added.meta.version < t.version) {
-                    let updated = await (await fetch("https://tobeh.host/Orthanc/themeapi/get/?id=" + t.id)).json();
+                    let updated = await typoApiFetch("themes/" + t.id);
 
                     const defaults = getEmptyTheme();
                     const merged = merge(updated, defaults);
@@ -1737,7 +1741,7 @@ const visuals = {
                 container.appendChild(entry);
                 entry.querySelector(".downloadTheme").addEventListener("click", async () => {
 
-                    const theme = await (await fetch("https://tobeh.host/Orthanc/themeapi/download/?id=" + t.id)).json();
+                    const theme = await typoApiFetch("themes/" + t.id + "/use");
 
                     const defaults = getEmptyTheme();
                     const merged = merge(theme, defaults);
@@ -1805,7 +1809,7 @@ const visuals = {
                 }
             });
             entry.querySelector(".shareTheme").addEventListener("click", async () => {
-                let url = await visuals.shareTheme(JSON.stringify(theme));
+                let url = await visuals.shareTheme(theme);
                 new Toast("Share ID copied to clipboard! Use it in the 'Browse Themes' tab");
                 navigator.clipboard.writeText(url);
 
@@ -2398,8 +2402,7 @@ const visuals = {
             try {
                 let link = elem("#themeShareLink").value;
                 let id = link.split("/").reverse()[0];
-                let text = await (await fetch("https://tobeh.host/Orthanc/themeapi/get/?id=" + id)).text();
-                let theme = JSON.parse(text);
+                let theme = await typoApiFetch("themes/" + id);
 
                 const defaults = getEmptyTheme();
                 const merged = merge(theme, defaults);
@@ -3514,8 +3517,8 @@ console.log(`%c
                                                     |___/  |_|     %cby tobeh#7437 %c
 
         ➜ Typo & all its backend is open source: https://github.com/toobeeh/skribbltypo
-        ➜ Join the community: https://typo.rip/discord
-        ➜ Find more infos at: https://typo.rip/
+        ➜ Join the community: https://discord.com/invite/pAapmUmWAM
+        ➜ Find more infos at: https://www.typo.rip/
         ➜ Support development: https://patreon.com/skribbltypo
                                                                     
                                                     `, "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color: lightblue", "color:#2596be; font-family:'Arial'; font-weight:bold; font-style:italic; letter-spacing:2em", "color:#f39656")
@@ -3604,8 +3607,8 @@ let patchNode = async (node) => {
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
                 <div style="display: grid; grid-template-columns: 50% 50%;">
-                    <typosocial media="discord"><a target="_blank" href='https://typo.rip/discord'>Typo Discord</a></typosocial>
-                    <typosocial media="website"><a target="_blank"  href='https://typo.rip'>Typo Website</a></typosocial>
+                    <typosocial media="discord"><a target="_blank" href='https://discord.com/invite/pAapmUmWAM'>Typo Discord</a></typosocial>
+                    <typosocial media="website"><a target="_blank"  href='https://www.typo.rip'>Typo Website</a></typosocial>
                     <typosocial media="patreon"><a target="_blank"  href='https://patreon.com/skribbltypo'>Typo Patreon</a></typosocial>
                     <typosocial media="github"><a target="_blank"  href='https://github.com/toobeeh/skribbltypo'>Typo GitHub</a></typosocial>
                 </div>
@@ -5419,52 +5422,12 @@ bounceload {
 <body>
     <div class="flexcol">
         <h1>Typo Dashboard</h1>
-        <div class="tabSelection flexrow skribbl sketchful">
+        <div class="tabSelection flexrow skribbl">
             <div class="tabTitle tabActive skribbl" id="tabDashboard">Feature - Toggles</div>
             <div style="display:none" class="tabTitle" id="tabDiscord">Discord / Palantir</div>
             <div class="tabTitle skribbl" id="tabAdvanced">Advanced</div>
         </div>
-        <div class="tabContent skribbl sketchful">
-            <div id="palantirSettings" class="sketchful skribbl">
-                <br />
-                <br />
-                <div id="sketchfulInfo" class="sketchful">
-                    <div id="sketchfulLogin" class="label back"></div>
-                    <div class="flexrow flexrowMenu" style="flex-wrap:wrap" id="sketchfulGuilds">
-                        <div class="label">No servers added! <br />Enter a server token on skribbl.</div>
-                    </div>
-                    <div class="flexrow flexrowMenu">
-                        <button type="button" id="palantirToggleSketchful">Discord Bot Status</button>
-                    </div>
-                </div>
-                <div id="login" class="skribbl">
-                    <div id="loginHead" class="label back">Enter your login:</div>
-                    <div class="flexrow flexrowMenu">
-                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="loginEnter"
-                            placeholder="12345678" />
-                        <button type="button" class="active" id="loginSubmit">Login</button>
-                    </div>
-                </div>
-
-                <div id="server" class="skribbl" style="display:none">
-                    <div id="loginName" class="label">Tobeh#7437</div>
-                    <div class="label back">Connected Discord Servers</div><br />
-
-                    <div class="flexrow flexrowMenu" style="flex-wrap:wrap" id="authGuilds">
-                        <div class="label">No servers added! Enter a server token below</div>
-                    </div>
-                    <br />
-                    <div class="flexrow flexrowMenu">
-                        <input type="text" autocomplete="off" style="width:15ex; flex-basis:unset" id="observeToken"
-                            placeholder="12345678" />
-                        <button type="button" class="active" id="verifyToken">Verify & Add Server</button>
-                    </div>
-                    <br />
-                </div>
-                <br />
-                <br />
-
-            </div>
+        <div class="tabContent skribbl">
 
             <div id="mainSettings" class="skribbl">
                 <br />
@@ -8956,11 +8919,7 @@ const awards = {
         // awards.inventory = (await socket.emitEvent("get awards", undefined, true)).awards;
 
         // workaround to using without permission temporarily - depends on cloudflare worker
-        const isFirefox = chrome.runtime.getURL('').startsWith('moz-extension://');
-        if (isFirefox) {
-            awards.all = await (await fetch("https://tobeh.host/newapi/awards")).json();
-        }
-        else awards.all = await (await fetch("https://api.typo.rip/awards")).json();
+        awards.all = await typoApiFetch("awards");
         awards.toggleState(false);
     }
 }

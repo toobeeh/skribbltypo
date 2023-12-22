@@ -1,4 +1,21 @@
-// generic re-usable functions which have no dependencies
+// general util functions which have no dependencies
+
+async function typoApiFetch(path, method = "GET", params = {}, body = undefined) {
+    const searchParams = new URLSearchParams(params);
+
+    const isFirefox = chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
+    const apiBase = isFirefox ? "https://tobeh.host/newapi" : "https://api.typo.rip";
+    const url = apiBase + (path.startsWith("/") ? "" : "/") + path;
+
+    return (await fetch(url, {
+        searchParams: searchParams,
+        method: method,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: body ? JSON.stringify(body) : undefined
+    })).json();
+}
 
 //Queryselector bindings
 const QS = document.querySelector.bind(document);
@@ -495,7 +512,7 @@ Clicking "TAB" will auto-focus the chat input.<br>
 <br><br><h3>And of course... all known bugs were fixed.<h3>
 </div>`;
 
-const privacyRawHTML = `<div style="width:100%"><h4><a href="https://typo.rip#privacy">A more detailed privacy statement is available on https://typo.rip#privacy</a></h4><br>
+const privacyRawHTML = `<div style="width:100%"><h4><a href="https://www.typo.rip/privacy">A more detailed privacy statement is available on https://www.typo.rip/privacy</a></h4><br>
     <code><h4>Without connecting Palantir, Typo will collect and store NO data.</h4>
     <h4>Collected data is ONLY used for feature-related purposes.</h4>
     <h5>However, for Palantir-features like Sprites, Discord Lobbies and Typo Gallery Cloud, collecting data is inevitable.</h5></code>
