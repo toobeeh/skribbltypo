@@ -180,7 +180,7 @@ const lobbies = {
 			}
 
 			// set as searching with timeout for report
-			if (lobbies.userAllow && !lobbies.joined) {
+			if (lobbies.userAllow && !lobbies.joined && socket.authenticated == true) {
 				await socket.joinLobby(lobbies.lobbyProperties.Key);
 				await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
 				lobbies.joined = true;

@@ -76,11 +76,11 @@ const commands = [
             actionEnable: () => {
                 localStorage.palantir = "true";
                 lobbies.userAllow = true;
-                if (lobbies.inGame && !lobbies.joined) {
+                if (lobbies.inGame && !lobbies.joined && socket.authenticated == true) {
                     socket.joinLobby(lobbies.lobbyProperties.Key);
                     lobbies.joined = true;
                 }
-                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
+                if (lobbies.inGame && lobbies.joined == true) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
             },
             actionDisable: () => {
                 localStorage.palantir = "false";
