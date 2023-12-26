@@ -185,6 +185,7 @@ const sprites = {
     },
     setLandingSprites: (authenticated = false) => {
         QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
+        QS(".avatar-customizer").style.backgroundImage = "";
         if (authenticated) {
             let ownsprites = socket.data.user.sprites.toString().split(",");
             let activeSprites = ownsprites.filter(s => s.includes("."));

@@ -172,7 +172,7 @@ const getCurrentOrLastDrawer = () => {
 
 // check if the player is currently drawing
 const isCurrentlyDrawing = () => {
-    return QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".player-name")?.textContent.includes("(You)") ?? false;
+    return QS(".avatar .drawing[style*=block]")?.closest(".player").querySelector(".player-name")?.textContent.includes("(You)") ?? false;
 }
 
 const getCurrentWordOrHint = () => {

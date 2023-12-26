@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.1.0.170318531
+// @version 25.1.1.170360678
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "25.1.0 usrsc"};
+            return {version: "25.1.1 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -710,6 +710,7 @@ const sprites = {
     },
     setLandingSprites: (authenticated = false) => {
         QSA(".avatar-customizer .spriteSlot").forEach(elem => elem.remove());
+        QS(".avatar-customizer").style.backgroundImage = "";
         if (authenticated) {
             let ownsprites = socket.data.user.sprites.toString().split(",");
             let activeSprites = ownsprites.filter(s => s.includes("."));
@@ -1101,7 +1102,7 @@ const getCurrentOrLastDrawer = () => {
 
 // check if the player is currently drawing
 const isCurrentlyDrawing = () => {
-    return QS(".avatar .drawing[style*=block]").closest(".player").querySelector(".player-name")?.textContent.includes("(You)") ?? false;
+    return QS(".avatar .drawing[style*=block]")?.closest(".player").querySelector(".player-name")?.textContent.includes("(You)") ?? false;
 }
 
 const getCurrentWordOrHint = () => {
@@ -3235,7 +3236,7 @@ const lobbies = {
 			}
 
 			// set as searching with timeout for report
-			if (lobbies.userAllow && !lobbies.joined) {
+			if (lobbies.userAllow && !lobbies.joined && socket.authenticated == true) {
 				await socket.joinLobby(lobbies.lobbyProperties.Key);
 				await socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
 				lobbies.joined = true;
@@ -5676,11 +5677,11 @@ const commands = [
             actionEnable: () => {
                 localStorage.palantir = "true";
                 lobbies.userAllow = true;
-                if (lobbies.inGame && !lobbies.joined) {
+                if (lobbies.inGame && !lobbies.joined && socket.authenticated == true) {
                     socket.joinLobby(lobbies.lobbyProperties.Key);
                     lobbies.joined = true;
                 }
-                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
+                if (lobbies.inGame && lobbies.joined == true) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
             },
             actionDisable: () => {
                 localStorage.palantir = "false";
