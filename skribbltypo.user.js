@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 25.1.1.170360678
+// @version 26.0.0.170833961
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "25.1.1 usrsc"};
+            return {version: "26.0.0 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -933,7 +933,7 @@ const sprites = {
 async function typoApiFetch(path, method = "GET", params = {}, body = undefined) {
     const searchParams = new URLSearchParams(params);
 
-    const isFirefox = chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
+    const isFirefox = false; // chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
     const apiBase = isFirefox ? "https://tobeh.host/newapi" : "https://api.typo.rip";
     const url = apiBase + (path.startsWith("/") ? "" : "/") + path;
 
@@ -3587,7 +3587,7 @@ let patchNode = async (node) => {
         node.src = ""; /* to be sure */
         // insert patched script
         let script = document.createElement("script");
-        script.src = chrome.extension.getURL("gamePatch.js");
+        script.src = chrome.runtime.getURL("gamePatch.js");
         node.parentElement.appendChild(script);
         // add var to get access typo ressources in css
         document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
