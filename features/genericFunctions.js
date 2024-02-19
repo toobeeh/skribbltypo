@@ -3,7 +3,7 @@
 async function typoApiFetch(path, method = "GET", params = {}, body = undefined) {
     const searchParams = new URLSearchParams(params);
 
-    const isFirefox = chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
+    const isFirefox = false; // chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
     const apiBase = isFirefox ? "https://tobeh.host/newapi" : "https://api.typo.rip";
     const url = apiBase + (path.startsWith("/") ? "" : "/") + path;
 

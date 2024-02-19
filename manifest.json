@@ -1,8 +1,8 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & Discord integration",
-  "version": "25.1.1",
+  "version": "26.0.0",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
@@ -16,24 +16,26 @@
       "update_url": "https://tobeh.host/typo/firefox/updates.json"
     }
   },
-  "browser_action": {
+  "action": {
     "default_title": "Skribbl Typo",
     "default_icon": "res/icon/128MaxFit.png",
-    "title": "Dashboard",
     "default_popup": "popup/popup.html"
   },
   "web_accessible_resources": [
-    "gamePatch.js",
-    "res/*",
-    "gifCap/*",
-    "features/*"
+    {
+      "resources": [
+        "gamePatch.js",
+        "res/*",
+        "gifCap/*",
+        "features/*"
+      ],
+      "matches": [
+        "*://skribbl.io/*"
+      ]
+    }
   ],
   "permissions": [
-    "activeTab",
-    "*://tobeh.host/*",
-    "*://typo.rip/*",
-    "*://allorigins.win/*",
-    "*://*.herokuapp.com/*"
+    "activeTab"
   ],
   "content_scripts": [
     {
