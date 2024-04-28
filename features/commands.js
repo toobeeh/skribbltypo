@@ -576,6 +576,74 @@ const commands = [
                 return "Overlay opened.";
             }
         }
+    }, {
+        command: "aigen",
+        options: {
+            type: "action",
+            description: "Draws an ai-generated set of lines",
+            actionBefore: null,
+            actionEnable: null,
+            actionDisable: null,
+            actionAfter: (args) => {
+
+                (async ()=>{
+                    /*const input = `
+                        Imagine you have a canvas of a width of 800px and a height of 600px.
+                        You are an artist wo draws pictures only using a set of lines.
+                        Your objective is to draw an object which the user tells you.
+
+                        Respond with a JSON representation of the list of lines you would use.
+                        The response should have following format:
+                        - an array of lines
+                        - each lines consists of four coordinates on the canvas: x1, y1, x2, y2.
+
+                        This is an example output:
+                        [[0,0,100,100],[100,100,200,200]]
+
+                        Respond only with the JSON array for image of the house, and with nothing else.
+                        You must use at least 50 lines to draw the object.
+                        This corresponds at least 50 items in the JSON array.
+                    `;
+                    const response = await fetch('https://api.openai.com/v1/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + key
+                        },
+                        body: JSON.stringify({
+                            model: 'gpt-3.5-turbo', // Change the model if needed
+                            prompt: input,
+                            max_tokens: 1000
+                        })
+                    });
+
+                    const data = await response.json();
+                    const output = data.choices[0].text.trim();
+                    console.log(output);*/
+
+                    const data = JSON.parse(args);
+
+                    const canvasRect = brushtools.canvas.getBoundingClientRect();
+                    const eventAtPos = (x, y) => {
+                        let event = new PointerEvent("pointermove");
+                        event = Object.defineProperty(event, "pointerType", { value: "mouse" });
+                        event = Object.defineProperty(event, "clientX", { value: canvasRect.left + x });
+                        event = Object.defineProperty(event, "clientY", { value: canvasRect.top + y });
+                        return event;
+                    }
+                    data.forEach(line => {
+                        const from = eventAtPos(line[0], line[1]);
+                        const to = eventAtPos(line[2], line[3]);
+                        brushtools.line(from, to);
+                    });
+
+
+                })();
+            },
+            response: (args) => {
+                return "Generating image...";
+            }
+        }
     }
 
 ];
