@@ -27,7 +27,7 @@
                 },
                 {
                     "source": "##COLORS##",
-                    "target": "([a-zA-Z0-9&_\\-$]+) = \\[\\[255, 255, 255\\], \\[0, 0, 0\\],"
+                    "target": "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]"
                 },
                 {
                     "source": "##SECFILL##",
@@ -39,7 +39,7 @@
                 },
                 {
                     "source": "##PUSHCMD##",
-                    "target": "\\.getContext\\(\"2d\", {\\s*willReadFrequently[^}]*}\\)\\s*, ([a-zA-Z0-9&_\\-$]+) = \\[\\]"
+                    "target": ".getContext\\(\"2d\", {\\s*willReadFrequently[^}]*}\\)\\s*,\\s*([a-zA-Z0-9&_\\-$]+) = \\[\\]"
                 },
                 {
                     "source": "##PERFOUTER##",
@@ -78,7 +78,7 @@
                 },
                 {
                     "source": "##COLORS##",
-                    "target": "([a-zA-Z0-9&_\\-$]+) = \\[\\[255, 255, 255\\], \\[0, 0, 0\\],"
+                    "target": "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]"
                 },
                 {
                     "source": "##COLORCODE##",
@@ -97,7 +97,7 @@
             "replacements": [
                 {
                     "source": "##COLORCODE##",
-                    "target": "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+),\\s+? [^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill ="
+                    "target": "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill ="
                 },
                 {
                     "source": "##SETCOLOR##",
@@ -116,7 +116,7 @@
             "replacements": [
                 {
                     "source": "##COLORCODE##",
-                    "target": "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+),\\s+? [^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill ="
+                    "target": "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill ="
                 },
                 {
                     "source": "##SETCOLOR##",
@@ -188,11 +188,11 @@
             "replacements": [],
             "injections": [
                 {
-                    "position": "(function [a-zA-Z0-9&_\\-$]+?\\(\\) {)[^}]+?\"#FFF\",\\s+ [a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width",
+                    "position": "(function [a-zA-Z0-9&_\\-$]+?\\(\\) {)[^}]+?\"#FFF\",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width",
                     "code": "/* TYPOMOD\n         desc: store data before clear */\n        const data = document.querySelector(\"#game-canvas canvas\").toDataURL();\n/* TYPOEND */"
                 },
                 {
-                    "position": "(\"#FFF\",\\s+ [a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width[^)]+?\\))",
+                    "position": "(\"#FFF\",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width[^)]+?\\))",
                     "code": "/* TYPOMOD\n         desc: dispatch clear event */\n        ;document.dispatchEvent(new CustomEvent(\"logCanvasClear\", { detail: data }));\n/* TYPOEND */"
                 }
             ]
@@ -225,15 +225,15 @@
                 },
                 {
                     "source": "##COLR##",
-                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
+                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
                 },
                 {
                     "source": "##COLG##",
-                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - ([a-zA-Z0-9&_\\-$]+?)\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
+                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - ([a-zA-Z0-9&_\\-$])+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
                 },
                 {
                     "source": "##COLB##",
-                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s+,\\s+[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - ([a-zA-Z0-9&_\\-$])+?;"
+                    "target": "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - ([a-zA-Z0-9&_\\-$])+?;"
                 }
             ],
             "injections": [
@@ -248,7 +248,7 @@
             "replacements": [
                 {
                     "source": "##SOCKET##",
-                    "target": "\\(([a-zA-Z0-9&_\\-$]+?) = [^}]+?closeOnBeforeunload[^{]+\\.on\\(\"connect\", function\\s*\\(\\) \\{"
+                    "target": "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\""
                 }
             ],
             "injections": [
@@ -263,12 +263,12 @@
             "replacements": [
                 {
                     "source": "##SOCKET##",
-                    "target": "\\(([a-zA-Z0-9&_\\-$]+?) = [^}]+?closeOnBeforeunload[^{]+\\.on\\(\"connect\", function\\s*\\(\\) \\{"
+                    "target": "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\""
                 }
             ],
             "injections": [
                 {
-                    "position": "(\\.on\\(\"disconnect\", function\\s*\\(\\) {)",
+                    "position": "(\\.on\\(\"disconnect\", function[^{]*{)",
                     "code": "/* TYPOMOD\n                 DESC: no msg if disconnect intentionally */\n                if(!##SOCKET##.typoDisconnect)\n                /*TYPOEND*/"
                 }
             ]

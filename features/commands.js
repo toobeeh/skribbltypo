@@ -577,7 +577,6 @@ const commands = [
             }
         }
     }
-
 ];
 
 const performCommand = (command) => {
