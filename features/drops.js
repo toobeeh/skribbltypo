@@ -72,7 +72,7 @@ let drops = {
         dropElem.style.display = "block";
         dropElem.style.left = Math.round(5 + Math.random() * 90) + "%";
         dropElem.style.filter = drops.mode === "normal" ? "" : "hue-rotate(100deg) saturate(1.5)";
-        //hide drop after 5s and emit timeout
+        //hide drop after 1.95s and emit timeout
         setTimeout(async () => {
             if (drops.currentDrop && !drops.claimedDrop) {
                 addChatMessage("Whoops...", "The drop timed out :o");
@@ -81,28 +81,30 @@ let drops = {
                 dropElem.style.display = "none";
             }
 
-        }, 5000);
+        }, 1950);
     },
     clearDrop: (result) => {
         if (localStorage.drops == "false" || sessionStorage.inStream == "true") return;
         let dropElem = drops.dropContainer;
         let winner = result.caughtPlayer;
-        if (result.leagueWeight > 0) {
+        let weight = Math.round(Number(result.leagueWeight));
+        if (weight > 30) {
             if (result.claimTicket == drops.currentDrop.claimTicket) {
-                addChatMessage("Nice one!", "You caught a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+                addChatMessage("Nice one!", "You caught a " + weight + "% rated drop.");
                 drops.caughtLeagueDrop = true;
             }
             else {
-                if (localStorage.dropmsgs == "true") addChatMessage("", winner + " claimed a " + Math.round(Number(result.leagueWeight)) + "% rated league drop.");
+                if (localStorage.dropmsgs == "true") addChatMessage("", winner + " claimed a " + weight + "% rated drop.");
             }
         }
         else {
             if (result.claimTicket == drops.currentDrop.claimTicket) {
-                addChatMessage("Yeee!", "You were the fastest to catch the drop!");
+                addChatMessage("Yeee!", "You caught the final drop!");
                 drops.selfCaught = true;
             }
-            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the regular drop :(");
-            else addChatMessage("", winner + " caught the regular drop.");
+            else if (!drops.claimedDrop && !drops.caughtLeagueDrop) addChatMessage("Whoops..", winner + " caught the final drop :(");
+            else addChatMessage("", winner + " caught the final drop.");
+            drops.currentDrop = null;
             dropElem.style.display = "none";
         }
     },
