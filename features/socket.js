@@ -7,7 +7,7 @@ const socket = {
     },
     data: {
         publicData: {},
-        activeLobbies: [],
+        lobbyLinks: [],
         user: {}
     },
     sck: null,
@@ -101,8 +101,8 @@ const socket = {
             });
             let updateTimeout = null;
             socket.sck.on("active lobbies", (data) => {
-                socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
-                socket.data.activeLobbies.push(data.payload.activeGuildLobbies);
+                socket.data.lobbyLinks = socket.data.lobbyLinks.filter(link => link.guildId != data.payload.guild);
+                data.payload.activeGuildLobbies.forEach(item => socket.data.lobbyLinks.push(item));
                 let updateIn = updateTimeout = setTimeout(() => {
                     if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 100ms
                     lobbies.lobbyContainer = lobbies.setLobbyContainer();
@@ -112,7 +112,7 @@ const socket = {
             let loginstate = await socket.emitEvent("login", { accessToken: accessToken, client: localStorage.client }, true, 30000);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
-                socket.data.activeLobbies = loginstate.activeLobbies;
+                socket.data.lobbyLinks = loginstate.lobbyLinks;
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
@@ -206,7 +206,7 @@ const socket = {
             socket.dropSocket.close();
             socket.dropSocket = undefined;
             let response = await socket.emitEvent("leave lobby", { joined: lobbies.joined }, true);
-            socket.data.activeLobbies = response.activeLobbies;
+            socket.data.lobbyLinks = response.lobbyLinks;
         }
         catch (e) { console.log("Error leaving playing status:" + e.toString()); }
     },

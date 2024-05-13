@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.2.171477252
+// @version 26.0.3.171561425
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.0.2 usrsc"};
+            return {version: "26.0.3 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -2816,7 +2816,7 @@ const socket = {
     },
     data: {
         publicData: {},
-        activeLobbies: [],
+        lobbyLinks: [],
         user: {}
     },
     sck: null,
@@ -2910,8 +2910,8 @@ const socket = {
             });
             let updateTimeout = null;
             socket.sck.on("active lobbies", (data) => {
-                socket.data.activeLobbies = socket.data.activeLobbies.filter(guildLobbies => guildLobbies.guildID != data.payload.activeGuildLobbies.guildID);
-                socket.data.activeLobbies.push(data.payload.activeGuildLobbies);
+                socket.data.lobbyLinks = socket.data.lobbyLinks.filter(link => link.guildId != data.payload.guild);
+                data.payload.activeGuildLobbies.forEach(item => socket.data.lobbyLinks.push(item));
                 let updateIn = updateTimeout = setTimeout(() => {
                     if (updateIn != updateTimeout) return; // if fast updates happen (each guild lobby is put separate) wait 100ms
                     lobbies.lobbyContainer = lobbies.setLobbyContainer();
@@ -2921,7 +2921,7 @@ const socket = {
             let loginstate = await socket.emitEvent("login", { accessToken: accessToken, client: localStorage.client }, true, 30000);
             if (loginstate.authorized == true) {
                 socket.authenticated = true;
-                socket.data.activeLobbies = loginstate.activeLobbies;
+                socket.data.lobbyLinks = loginstate.lobbyLinks;
                 socket.data.user = (await socket.emitEvent("get user", null, true)).user;
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
@@ -3015,7 +3015,7 @@ const socket = {
             socket.dropSocket.close();
             socket.dropSocket = undefined;
             let response = await socket.emitEvent("leave lobby", { joined: lobbies.joined }, true);
-            socket.data.activeLobbies = response.activeLobbies;
+            socket.data.lobbyLinks = response.lobbyLinks;
         }
         catch (e) { console.log("Error leaving playing status:" + e.toString()); }
     },
@@ -3094,16 +3094,12 @@ const lobbies = {
 	setLobbyContainer: () => {
 		// get online players with lobby links
 		let onlinePlayers = [];
-		socket.data.activeLobbies.forEach(
-			guild => guild.guildLobbies.forEach(
-				lobby => lobby.Players.forEach(
-					player => player.Sender
-						&& !onlinePlayers.some(onlineplayer => onlineplayer.id == player.ID)
-						&& onlinePlayers.push({
-							id: player.ID, name: player.Name, key: lobby.Key, link: lobby.Link, players: lobby.Players.length, private: lobby.Private
-						}))));
+		socket.data.lobbyLinks.forEach(
+			invite => {
+				if(!onlinePlayers.some(added => added.link === invite.link && added.username === invite.username)) onlinePlayers.push(invite);
+			});
 		let playerButtons = "";
-		onlinePlayers.forEach(player => playerButtons += `<button lobby="${player.key}" link="${player.link}" slots=${player.players} private=${player.private} class="flatUI green min air" style="margin: .5em">${player.name}</button>`);
+		onlinePlayers.forEach(player => playerButtons += `<button link="${player.link}" slotAvailable=${player.slotAvailable} class="flatUI green min air" style="margin: .5em">${player.username}</button>`);
 		if (playerButtons == "") playerButtons = "<span>None of your friends are online :(</span>";
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
@@ -3117,16 +3113,11 @@ const lobbies = {
 			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
 		}
 		container.addEventListener("click", e => {
-			console.log("click")
-			let key = e.target.getAttribute("lobby");
-			let players = e.target.getAttribute("slots");
-			let private = e.target.getAttribute("private");
+			let link = e.target.getAttribute("link");
+			let slotAvailable = e.target.getAttribute("slotAvailable");
 			let name = e.target.innerText;
-			if (!key) return;
-			let link = e.target.getAttribute("link")?.split("?")[1];
 			if (link) {
-				if (link.length > 10) new Toast("Lobby access is restricted.");
-				else if (private != 'false' || Number(players) < 8) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
+				if (slotAvailable) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link.split("?")[1] }));
 				else {
 
 					let modal = new Modal(elemFromString(`<div><img src="https://c.tenor.com/fAQuR0VNdDIAAAAC/cat-cute.gif"></div>`), () => {
@@ -3135,12 +3126,12 @@ const lobbies = {
 					}, "Waiting for a free slot to play with " + name, "40vw", "15em");
 
 					search.setSearch(() => {
-						if (!QS("[lobby=" + key + "]")) {
+						if (!QS("[link=" + link + "]")) {
 							search.searchData.ended();
 							new Toast("The lobby has ended :(");
 						}
-						console.log(Number(QS("[lobby=" + key + "]").getAttribute("slots")));
-						let success = Number(QS("[lobby=" + key + "]").getAttribute("slots")) < 8;
+						console.log(Number(QS("[link=" + link + "]").getAttribute("slotAvailable")));
+						let success = Number(QS("[link=" + link + "]").getAttribute("slotAvailable")) < 1;
 						if (success) document.dispatchEvent(newCustomEvent("joinLobby", { detail: link }));
 						return success;
 					}, async () => {
