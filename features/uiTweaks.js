@@ -92,28 +92,6 @@ const uiTweaks = {
         // Add event listener to word mutations
         (new MutationObserver(refreshCharBar)).observe(QS("#game-word"), { attributes: true, childList: true, subtree: true, characterData: true });
     },
-    initRandomColorDice: () => {
-        // add random color image
-        const rand = elemFromString(`<div id="randomColor" class="tool clickable" data-typo-tooltip='Random Colors' data-tooltipdir='N'>
-<div class="icon" style="background-image: url(img/randomize.gif); background-size:90%;">
-</div></div>`);
-        //rand.style.display = localStorage.random == "true" ? "" : "none";
-        QS("#typotoolbar").insertAdjacentElement("beforeEnd", rand);
-        QS(".colors:not(.custom)").addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
-        uiTweaks.randomInterval = 0;
-        rand.addEventListener("click", function () {
-            clearInterval(uiTweaks.randomInterval);
-            let nthChild = rand.getAttribute("data-monochrome");
-            let items = [
-                ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : ""))
-            ].filter(item =>
-                item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
-            );
-            uiTweaks.randomInterval = setInterval(() => {
-                items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
-            }, Number(localStorage.randominterval));
-        });
-    },
     initColorPicker: () => {
         // color picker
         let toolbar = QS("#typotoolbar");
@@ -791,7 +769,6 @@ const uiTweaks = {
         uiTweaks.initToolsMod(localStorage.typotoolbar == "true");
         uiTweaks.initTypoTools();
         uiTweaks.initWordHint();
-        uiTweaks.initRandomColorDice();
         uiTweaks.initClipboardCopy();
         uiTweaks.initColorPicker();
         uiTweaks.initCanvasZoom();

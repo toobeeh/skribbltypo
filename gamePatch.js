@@ -2,22 +2,22 @@
     const Y = 26,
       z = 57,
       H = 51,
-      U = [Y, z, H],
-      B = 0,
-      G = 1,
-      F = 2,
-      K = 5,
-      _ = 0,
-      V = 1,
-      X = 2,
-      j = 3,
-      Z = 4,
-      J = 5,
-      Q = 6,
-      ee = 7;
-    const te = 1,
-      ne = 2,
-      ae = {
+      n = [Y, z, H],
+      U = 0,
+      B = 1,
+      G = 2,
+      F = 5,
+      K = 0,
+      _ = 1,
+      V = 2,
+      X = 3,
+      j = 4,
+      Z = 5,
+      J = 6,
+      Q = 7;
+    const ee = 1,
+      te = 2,
+      ne = {
           LANG: 0,
           SLOTS: 1,
           DRAWTIME: 2,
@@ -27,7 +27,7 @@
           WORDMODE: 6,
           CUSTOMWORDSONLY: 7
       },
-      oe = {
+      ae = {
           NORMAL: 0,
           HIDDEN: 1,
           COMBINATION: 2
@@ -36,9 +36,9 @@
       // desc: create re-useable functions
       , typo = {
           joinLobby: undefined,        createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
-              // IDENTIFY x.value.split: #home .container-name-lang input -> Zn
+              // IDENTIFY x.value.split: #home .container-name-lang input -> Jn
               // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> p
-              return { id: id, name: name.length != 0 ? name : (Zn.value.split("#")[0] != "" ? Zn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? p.avatar : avatar, score: score, guessed: guessed };
+              return { id: id, name: name.length != 0 ? name : (Jn.value.split("#")[0] != "" ? Jn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? p.avatar : avatar, score: score, guessed: guessed };
           },
           createFakeLobbyData: (
             settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
@@ -48,7 +48,7 @@
             users = [],
             state = { id: 4, time: 999, data: { id: 0, word: "Anything" } }) => {
               if (users.length == 0) users = [typo.createFakeUser()];
-              return { settings: settings, id: id, me: me, owner: owner, users: users, state: state };
+              return { settings: settings, id: id, me: me, owner: owner, round: 0, users: users, state: state };
           },
           disconnect: undefined,
           lastConnect: 0,
@@ -58,34 +58,34 @@
                   //Xn(true);
                   setTimeout(() => {
                       if(abort) return; typo.lastConnect = Date.now();
-                      //Qn.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
+                      //ea.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
                       //##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1
                       if(e.detail) window.history.pushState({path:window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
-                      typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//na(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
+                      typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//aa(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
                       document.dispatchEvent(new Event("joinedLobby"));
                   }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
               });
               document.addEventListener("leaveLobby", () => {
                   if (typo.disconnect) typo.disconnect();
-                  else ga() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
+                  else fa() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
               });
               document.addEventListener("setColor", (e) => {
                   let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
-                  let match = Dt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS
+                  let match = $t.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS
                   let code = match >= 0 ? match : e.detail.code;
-                  if (e.detail.secondary) Bt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
-                  else Ut(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
+                  if (e.detail.secondary) Ft(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
+                  else Gt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
               });
               document.addEventListener("performDrawCommand", (e) => {
                   k.push(e.detail); // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
-                  Jt(nn(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
+                  en(on(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
               });
               document.addEventListener("addTypoTooltips", () => {
                   [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
                       elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
                       elem.removeAttribute("data-typo-tooltip");
-                      elem.addEventListener("mouseenter", (e) => Pe(e.target)); // IDENTIFY: x(e.target):
-                      elem.addEventListener("mouseleave", (e) => Ye()); // IDENTIFY: (e) => x():
+                      elem.addEventListener("mouseenter", (e) => ze(e.target)); // IDENTIFY: x(e.target):
+                      elem.addEventListener("mouseleave", (e) => He()); // IDENTIFY: (e) => x():
 
                   });
               });
@@ -102,39 +102,39 @@
           }
       }
     // TYPOEND,
-    re = ["Normal", "Hidden", "Combination"],
-      ie = ["English", "German", "Bulgarian", "Czech", "Danish", "Dutch", "Finnish", "French", "Estonian", "Greek", "Hebrew", "Hungarian", "Italian", "Japanese", "Korean", "Latvian", "Macedonian", "Norwegian", "Portuguese", "Polish", "Romanian", "Russian", "Serbian", "Slovakian", "Spanish", "Swedish", "Tagalog", "Turkish"];
+    oe = ["Normal", "Hidden", "Combination"],
+      re = ["English", "German", "Bulgarian", "Czech", "Danish", "Dutch", "Finnish", "French", "Estonian", "Greek", "Hebrew", "Hungarian", "Italian", "Japanese", "Korean", "Latvian", "Macedonian", "Norwegian", "Portuguese", "Polish", "Romanian", "Russian", "Serbian", "Slovakian", "Spanish", "Swedish", "Tagalog", "Turkish"];
     if (h.localStorageAvailable = !1, void 0 !== c) try {
         c.setItem("feature_test", "yes"), "yes" === c.getItem("feature_test") && (c.removeItem("feature_test"), h.localStorageAvailable = !0)
     } catch (e) {}
     var d = [];
 
-    function le(e) {
+    function ie(e) {
         for (var t = 0; t < d.length; t++)
             if (d[t].name == e) return d[t]
     }
 
-    function se(e, t, n, a, o) {
+    function le(e, t, n, a, o) {
         var r, i, l = t,
-          s = (h.localStorageAvailable && (r = c.getItem("hotkey_" + e)) && (t = r), le(e));
+          s = (h.localStorageAvailable && (r = c.getItem("hotkey_" + e)) && (t = r), ie(e));
         return s ? (s.key = t, s.def = l, s.desc = n) : (s = {
             name: e,
             desc: n,
             key: t,
             def: l,
-            listing: R("item"),
+            listing: $("item"),
             changed: [],
             cb: []
-        }, d.push(s), Ze(r = R("key", s.name), "text"), s.listing.appendChild(r), (i = u.createElement("input")).value = s.key, s.listing.appendChild(i), E(i, "keydown", function(e) {
+        }, d.push(s), Qe(r = $("key", s.name), "text"), s.listing.appendChild(r), (i = u.createElement("input")).value = s.key, s.listing.appendChild(i), E(i, "keydown", function(e) {
             for (var t = e.key, n = 0; n < d.length; n++)
                 if (d[n].key == t) return void e.preventDefault();
             i.value = t, s.key = t;
             for (n = 0; n < s.changed.length; n++) s.changed[n](s);
-            return ce(), e.preventDefault(), !1
+            return se(), e.preventDefault(), !1
         }), y[g].querySelector("#hotkey-list").appendChild(s.listing)), a && s.cb.push(a), o && s.changed.push(o), s
     }
 
-    function ce() {
+    function se() {
         if (h.localStorageAvailable)
             for (var e = 0; e < d.length; e++) h.localStorage.setItem("hotkey_" + d[e].name, d[e].key)
     }
@@ -148,13 +148,13 @@
         undefined
     };
 
-    function n(e, t) {
+    function a(e, t) {
         e = c.getItem(e);
         return null == e ? t : e
     }
 
-    function a() {
-        h.localStorageAvailable ? (c.setItem("name", Zn.value), c.setItem("lang", Jn.value), c.setItem("displaylang", p.displayLang), c.setItem("volume", p.volume), c.setItem("dark", 1 == p.dark ? 1 : 0), c.setItem("filter", 1 == p.filterChat ? 1 : 0), c.setItem("pressure", 1 == p.pressureSensitivity ? 1 : 0), c.setItem("ava", JSON.stringify(p.avatar)), c.setItem("keyboard", Ue.value), c.setItem("keyboardlayout", Be.value), console.log("Settings saved.")) : console.log("Settings not saved. LocalStorage unavailable.")
+    function ce() {
+        h.localStorageAvailable ? (c.setItem("name", Jn.value), c.setItem("lang", Qn.value), c.setItem("displaylang", p.displayLang), c.setItem("volume", p.volume), c.setItem("dark", 1 == p.dark ? 1 : 0), c.setItem("filter", 1 == p.filterChat ? 1 : 0), c.setItem("pressure", 1 == p.pressureSensitivity ? 1 : 0), c.setItem("ava", JSON.stringify(p.avatar)), c.setItem("keyboard", Ge.value), c.setItem("keyboardlayout", Fe.value), console.log("Settings saved.")) : console.log("Settings not saved. LocalStorage unavailable.")
     }
 
     function E(e, t, n) {
@@ -162,7 +162,7 @@
             for (var l = 0; l < r.length; l++) o[i].addEventListener(r[l], n)
     }
 
-    function R(e, t) {
+    function $(e, t) {
         var n = u.createElement("div");
         if (void 0 !== e)
             for (var a = e.split(" "), o = 0; o < a.length; o++) n.classList.add(a[o]);
@@ -176,17 +176,17 @@
         return void 0 !== n && (a.textContent = n), a
     }
 
-    function $(e) {
+    function R(e) {
         for (; e.firstChild;) e.removeChild(e.firstChild)
     }
 
     function ue(e, t, n) {
-        var a = R("avatar"),
-          o = R("color"),
-          r = R("eyes"),
-          i = R("mouth"),
-          l = R("special"),
-          s = R("owner");
+        var a = $("avatar"),
+          o = $("color"),
+          r = $("eyes"),
+          i = $("mouth"),
+          l = $("special"),
+          s = $("owner");
         return s.style.display = n ? "block" : "none", a.appendChild(o), a.appendChild(r), a.appendChild(i), a.appendChild(l), a.appendChild(s), a.parts = [o, r, i], he(a, e), a
     }
 
@@ -208,31 +208,36 @@
         e.querySelector(".owner").style.display = t ? "block" : "none"
     }
 
-    function me(e, t, n, a) {
+    function me(e, t) {
+        e.className = "avatar";
+        for (var n of t) e.classList.add("filter-" + n)
+    }
+
+    function ge(e, t, n, a) {
         var o = {
-            element: R("dots"),
+            element: $("dots"),
             dots: [],
             selected: 0,
             change: a
         };
         return e.appendChild(o.element), n.push(o.element), E(n, "DOMMouseScroll wheel", function(e) {
             var t;
-            1 < o.dots.length && (t = -e.deltaY || e.wheelDeltaY, t = Math.sign(t), fe(o, Math.min(o.dots.length - 1, Math.max(0, o.selected - t)), !0)), e.preventDefault(), e.stopPropagation()
-        }), ge(o, t), o
+            1 < o.dots.length && (t = -e.deltaY || e.wheelDeltaY, t = Math.sign(t), ye(o, Math.min(o.dots.length - 1, Math.max(0, o.selected - t)), !0)), e.preventDefault(), e.stopPropagation()
+        }), fe(o, t), o
     }
 
-    function ge(e, t) {
-        $(e.element), e.dots = [];
+    function fe(e, t) {
+        R(e.element), e.dots = [];
         for (var n = 0; n < t; n++) {
-            var a = R("dot");
-            a.index = n, a.appendChild(R("inner")), E(a, "click", function() {
-                fe(e, this.index, !0)
+            var a = $("dot");
+            a.index = n, a.appendChild($("inner")), E(a, "click", function() {
+                ye(e, this.index, !0)
             }), e.element.appendChild(a), e.dots.push(a)
         }
-        e.selected < 0 && (e.selected = 0), e.selected >= t && (e.selected = t - 1), fe(e, e.selected, !1)
+        e.selected < 0 && (e.selected = 0), e.selected >= t && (e.selected = t - 1), ye(e, e.selected, !1)
     }
 
-    function fe(e, t, n) {
+    function ye(e, t, n) {
         if (0 <= t && t < e.dots.length) {
             e.selected = t;
             for (var a = 0; a < e.dots.length; a++) e.dots[a].classList.remove("active");
@@ -240,123 +245,123 @@
         }
     }
     const m = 0,
-      ye = 1,
-      ve = 2,
-      be = 3,
+      ve = 1,
+      be = 2,
+      ke = 3,
       g = 4,
-      ke = 5;
+      Se = 5;
     var f = u.querySelector("#modal"),
-      Se = f.querySelector(".modal-title .text"),
-      we = f.querySelector(".modal-content"),
+      we = f.querySelector(".modal-title .text"),
+      Ce = f.querySelector(".modal-content"),
       y = [];
 
-    function Ce(e) {
+    function qe(e) {
         y[m].querySelector(".buttons button.mute").textContent = I(e ? "Unmute" : "Mute")
     }
 
-    function i(e, t) {
+    function xe(e, t) {
         f.style.display = "block";
         for (var n = 0; n < y.length; n++) y[n].style.display = "none";
         y[e].style.display = "flex";
         var a = y[e];
         switch (e) {
-            case ye:
-                Se.textContent = I("Something went wrong!"), a.querySelector(".message").textContent = t;
-                break;
             case ve:
-                Se.textContent = I("Disconnected!"), a.querySelector(".message").textContent = t;
-                break;
-            case m:
-                Se.textContent = t.id == x ? I("$ (You)", t.name) : t.name;
-                var o = (W(x).flags & On) == On,
-                  r = (t.flags & On) == On,
-                  i = a.querySelector(".buttons"),
-                  r = (i.style.display = t.id == x || r ? "none" : "flex", i.querySelector(".button-pair").style.display = x == Wn || o ? "flex" : "none", i.querySelector("button.report").style.display = t.reported ? "none" : "", Ce(t.muted), a.querySelector(".report-menu").style.display = "none", a.querySelector(".invite").style.display = x == t.id ? "flex" : "none", we.querySelector(".player")),
-                  o = (r.style.display = "", $(r), ue(t.avatar));
-                pe(o, Wn == t.id), r.appendChild(o);
-                break;
-            case ke:
-                Se.textContent = I("Rooms"), roomsUpdate(t);
+                we.textContent = I("Something went wrong!"), a.querySelector(".message").textContent = t;
                 break;
             case be:
-                Se.textContent = 0 == Yn ? "Public Room" : "Private Room", $(a);
-                for (var l = ["Language", "Players", "Drawtime", "Rounds", "Word count", "Hint count", "Word mode", "Custom words only"], s = R("settings"), n = 0; n < Pn.length; n++) {
-                    var c = R("setting"),
+                we.textContent = I("Disconnected!"), a.querySelector(".message").textContent = t;
+                break;
+            case m:
+                we.textContent = t.id == M ? I("$ (You)", t.name) : t.name;
+                var o = (W(M).flags & w) == w,
+                  r = (t.flags & w) == w,
+                  i = a.querySelector(".buttons"),
+                  r = (i.style.display = t.id == M || r ? "none" : "flex", i.querySelector(".button-pair").style.display = M == Pn || o ? "flex" : "none", i.querySelector("button.report").style.display = t.reported ? "none" : "", qe(t.muted), a.querySelector(".report-menu").style.display = "none", a.querySelector(".invite").style.display = M == t.id ? "flex" : "none", Ce.querySelector(".player")),
+                  o = (r.style.display = "", R(r), ue(t.avatar));
+                pe(o, Pn == t.id), me(o, Ga(t)), r.appendChild(o);
+                break;
+            case Se:
+                we.textContent = I("Rooms"), roomsUpdate(t);
+                break;
+            case ke:
+                we.textContent = 0 == zn ? "Public Room" : "Private Room", R(a);
+                for (var l = ["Language", "Players", "Drawtime", "Rounds", "Word count", "Hint count", "Word mode", "Custom words only"], s = $("settings"), n = 0; n < Yn.length; n++) {
+                    var c = $("setting"),
                       d = de("img", "icon"),
-                      d = (d.src = "/img/setting_" + n + ".gif", c.appendChild(d), c.appendChild(de("span", "name", l[n] + ":")), Pn[n]);
-                    n == ae.CUSTOMWORDSONLY && (d = d ? "Yes" : "No"), n == ae.SLOTS && (d = w.length + "/" + d), n == ae.LANG && (d = ie[d]), n == ae.WORDMODE && (d = re[d]), n == ae.DRAWTIME && (d += "s"), c.appendChild(de("span", "value", d)), s.appendChild(c)
+                      d = (d.src = "/img/setting_" + n + ".gif", c.appendChild(d), c.appendChild(de("span", "name", l[n] + ":")), Yn[n]);
+                    n == ne.CUSTOMWORDSONLY && (d = d ? "Yes" : "No"), n == ne.SLOTS && (d = x.length + "/" + d), n == ne.LANG && (d = re[d]), n == ne.WORDMODE && (d = oe[d]), n == ne.DRAWTIME && (d += "s"), c.appendChild(de("span", "value", d)), s.appendChild(c)
                 }
                 a.appendChild(s);
                 i = u.querySelector("#game-invite").cloneNode(!0);
-                E(i.querySelector("#copy-invite"), "click", go), a.appendChild(i);
+                E(i.querySelector("#copy-invite"), "click", yo), a.appendChild(i);
                 break;
             case g:
-                Se.textContent = I("Settings"), a.querySelector("#select-pressure-sensitivity").value = p.pressureSensitivity
+                we.textContent = I("Settings"), a.querySelector("#select-pressure-sensitivity").value = p.pressureSensitivity
         }
     }
 
-    function qe() {
+    function Me() {
         f.style.display = "none"
     }
-    y[m] = f.querySelector(".modal-container-player"), y[ye] = f.querySelector(".modal-container-info"), y[ve] = f.querySelector(".modal-container-info"), y[be] = f.querySelector(".modal-container-room"), y[g] = f.querySelector(".modal-container-settings"), E(h, "click", function(e) {
-        e.target == f && qe()
-    }), E([f.querySelector(".close"), y[ye].querySelector("button.ok")], "click", qe);
-    var xe = u.querySelector("#game-chat form"),
-      Me = u.querySelector("#game-chat form input"),
-      Le = u.querySelector("#game-chat .chat-content");
-    const De = 0;
-    const Ee = 2,
-      Re = 3,
-      $e = 4,
-      Ie = 5,
-      Ae = 6,
-      Te = 7,
-      Ne = ["BASE", "GUESSED", "CLOSE", "DRAWING", "JOIN", "LEAVE", "OWNER", "GUESSCHAT"];
+    y[m] = f.querySelector(".modal-container-player"), y[ve] = f.querySelector(".modal-container-info"), y[be] = f.querySelector(".modal-container-info"), y[ke] = f.querySelector(".modal-container-room"), y[g] = f.querySelector(".modal-container-settings"), E(h, "click", function(e) {
+        e.target == f && Me()
+    }), E([f.querySelector(".close"), y[ve].querySelector("button.ok")], "click", Me);
+    var Le = u.querySelector("#game-chat form"),
+      De = u.querySelector("#game-chat form input"),
+      Ee = u.querySelector("#game-chat .chat-content");
+    const $e = 0;
+    const Re = 2,
+      Ie = 3,
+      Ae = 4,
+      Te = 5,
+      Ne = 6,
+      Oe = 7,
+      We = ["BASE", "GUESSED", "CLOSE", "DRAWING", "JOIN", "LEAVE", "OWNER", "GUESSCHAT"];
 
     function v(e) {
-        return "var(--COLOR_CHAT_TEXT_" + Ne[e] + ")"
+        return "var(--COLOR_CHAT_TEXT_" + We[e] + ")"
     }
 
-    function Oe() {
-        Le.scrollTop = Le.scrollHeight + 100
+    function Pe() {
+        Ee.scrollTop = Ee.scrollHeight + 100
     }
 
     function b(e, t, n, a) {
         var o = u.createElement("p"),
           r = u.createElement("b"),
           a = (r.textContent = a ? e : e + ": ", o.appendChild(r), o.style.color = n, u.createElement("span")),
-          e = (a.textContent = t, o.appendChild(a), Le.scrollHeight - Le.scrollTop - Le.clientHeight <= 20);
-        if (Le.appendChild(o), e && Oe(), 0 < p.chatDeleteQuota)
-            for (; Le.childElementCount > p.chatDeleteQuota;) Le.firstElementChild.remove();
+          e = (a.textContent = t, o.appendChild(a), Ee.scrollHeight - Ee.scrollTop - Ee.clientHeight <= 20);
+        if (Ee.appendChild(o), e && Pe(), 0 < p.chatDeleteQuota)
+            for (; Ee.childElementCount > p.chatDeleteQuota;) Ee.firstElementChild.remove();
         return o
     }
-    var l = void 0,
-      We = void 0;
+    var i = void 0,
+      Ye = void 0;
 
-    function Pe(e) {
-        Ye();
-        for (var t = (We = e).dataset.tooltip, n = e.dataset.tooltipdir || "N", a = ((l = R("tooltip")).appendChild(R("tooltip-arrow")), l.appendChild(R("tooltip-content", I(t))), !1), o = e; o;) {
+    function ze(e) {
+        He();
+        for (var t = (Ye = e).dataset.tooltip, n = e.dataset.tooltipdir || "N", a = ((i = $("tooltip")).appendChild($("tooltip-arrow")), i.appendChild($("tooltip-content", I(t))), !1), o = e; o;) {
             if ("fixed" == h.getComputedStyle(o).position) {
                 a = !0;
                 break
             }
             o = o.parentElement
         }
-        l.style.position = a ? "fixed" : "absolute";
+        i.style.position = a ? "fixed" : "absolute";
         var t = e.getBoundingClientRect(),
           e = ("E" == (n = "W" == (n = "S" == (n = "N" == n && t.top - h.scrollY < 48 ? "S" : n) && t.bottom - h.scrollY > u.documentElement.clientHeight - 48 ? "N" : n) && t.left - h.scrollX < 48 ? "E" : n) && t.right - h.scrollX > u.documentElement.clientWidth - 48 && (n = "W"), t.left),
           r = t.top;
-        "N" == n && (e = (t.left + t.right) / 2), "S" == n && (e = (t.left + t.right) / 2, r = t.bottom), "E" == n && (e = t.right, r = (t.top + t.bottom) / 2), "W" == n && (r = (t.top + t.bottom) / 2), a || (e += h.scrollX, r += h.scrollY), l.classList.add(n), l.style.left = e + "px", l.style.top = r + "px", u.body.appendChild(l)
+        "N" == n && (e = (t.left + t.right) / 2), "S" == n && (e = (t.left + t.right) / 2, r = t.bottom), "E" == n && (e = t.right, r = (t.top + t.bottom) / 2), "W" == n && (r = (t.top + t.bottom) / 2), a || (e += h.scrollX, r += h.scrollY), i.classList.add(n), i.style.left = e + "px", i.style.top = r + "px", u.body.appendChild(i)
     }
 
-    function Ye() {
-        l && (l.remove(), We = l = void 0)
+    function He() {
+        i && (i.remove(), Ye = i = void 0)
     }
 
-    function ze() {
-        l && (l.querySelector(".tooltip-content").textContent = I(We.dataset.tooltip))
+    function Ue() {
+        i && (i.querySelector(".tooltip-content").textContent = I(Ye.dataset.tooltip))
     }
-    const He = [{
+    const Be = [{
         code: "en",
         name: "English",
         layout: [
@@ -405,9 +410,9 @@
             ["Z", "X", "C", "V", "B", "N", "M"]
         ]
     }];
-    var Ue = u.querySelector("#select-mobile-keyboard-enabled"),
-      Be = u.querySelector("#select-mobile-keyboard-layout"),
-      Ge = {
+    var Ge = u.querySelector("#select-mobile-keyboard-enabled"),
+      Fe = u.querySelector("#select-mobile-keyboard-layout"),
+      Ke = {
           elements: {
               main: u.querySelector("#game-keyboard"),
               input: u.querySelector("#game-keyboard .input"),
@@ -429,14 +434,14 @@
               return e.toLocaleUpperCase(this.lang)
           },
           init: function(e) {
-              this.lang = e.code, this.caps = !1, this.columns = 0, this.elements.keys = [], $(this.elements.rows);
+              this.lang = e.code, this.caps = !1, this.columns = 0, this.elements.keys = [], R(this.elements.rows);
               var t = e.layout,
                 i = this;
 
               function n(e, t, n) {
                   var a, o = de("button", "key"),
                     r = "PointerEvent" in h ? "pointerdown" : "click";
-                  return Fe.has(t) ? (a = Fe.get(t), o.classList.add(a.class), o.appendChild(de("span", "material-icons", a.icon)), E(o, r, function(e) {
+                  return _e.has(t) ? (a = _e.get(t), o.classList.add(a.class), o.appendChild(de("span", "material-icons", a.icon)), E(o, r, function(e) {
                       a.callback(i)
                   })) : (o.textContent = i.getKeyLowercase(t), E(o, r, function(e) {
                       i.inputAdd(t)
@@ -448,17 +453,17 @@
               for (var l = ["-", "space", ".", "enter"], r = 0; r < l.length; r++) n(a, l[r])
           },
           addRow: function() {
-              var e = R("row");
+              var e = $("row");
               return this.elements.rows.appendChild(e), this.rows.push(e), e
           },
           inputChanged: function() {
-              Ge.elements.input.querySelector("span").textContent = Ge.input
+              Ke.elements.input.querySelector("span").textContent = Ke.input
           },
           inputAdd: function(e) {
               this.input += this.caps ? this.getKeyUppercase(e) : this.getKeyLowercase(e), this.inputChanged(), this.caps && this.toggleCaps()
           },
           enter: function() {
-              0 < this.input.length && (yo(this.input), this.input = "", this.inputChanged())
+              0 < this.input.length && (bo(this.input), this.input = "", this.inputChanged())
           },
           toggleCaps: function() {
               this.caps = !this.caps;
@@ -469,58 +474,58 @@
               this.elements.caps.classList.toggle("enabled", this.caps)
           }
       };
-    const Fe = new Map;
+    const _e = new Map;
 
-    function Ke() {
-        1 == Ue.value ? u.documentElement.dataset.mobileKeyboard = "" : delete u.documentElement.dataset.mobileKeyboard
+    function Ve() {
+        1 == Ge.value ? u.documentElement.dataset.mobileKeyboard = "" : delete u.documentElement.dataset.mobileKeyboard
     }
-    Fe.set("backspace", {
+    _e.set("backspace", {
         class: "wide",
         icon: "backspace",
         callback: function(e) {
             0 < e.input.length && (e.input = e.input.slice(0, -1), e.inputChanged())
         }
-    }), Fe.set("caps", {
+    }), _e.set("caps", {
         class: "wide",
         icon: "keyboard_capslock",
         callback: function(e) {
             e.toggleCaps()
         }
-    }), Fe.set("enter", {
+    }), _e.set("enter", {
         class: "wide",
         icon: "keyboard_return",
         callback: function(e) {
             e.enter()
         }
-    }), Fe.set("space", {
+    }), _e.set("space", {
         class: "extra-wide",
         icon: "space_bar",
         callback: function(e) {
             e.input += " ", e.inputChanged()
         }
     });
-    for (var e = 0; e < He.length; e++) {
-        var _e = de("option");
-        _e.textContent = He[e].name, _e.value = He[e].code, Be.appendChild(_e)
+    for (var e = 0; e < Be.length; e++) {
+        var Xe = de("option");
+        Xe.textContent = Be[e].name, Xe.value = Be[e].code, Fe.appendChild(Xe)
     }
-    E(Be, "change", function(e) {
-        for (var t = void 0, n = 0; n < He.length; n++) He[n].code == this.value && (t = He[n]);
-        null != t && Ge.init(t)
-    }), E([Ue, Be], "change", function(e) {
-        a(), Ke()
-    }), E(Ge.elements.input, "click", function() {
-        Ge.isOpen || (u.documentElement.dataset.mobileKeyboardOpen = "", Va(), Oe(), Ge.isOpen = !0)
-    }), Ge.init(He[0]);
-    var Ve = {},
-      Xe = [];
+    E(Fe, "change", function(e) {
+        for (var t = void 0, n = 0; n < Be.length; n++) Be[n].code == this.value && (t = Be[n]);
+        null != t && Ke.init(t)
+    }), E([Ge, Fe], "change", function(e) {
+        ce(), Ve()
+    }), E(Ke.elements.input, "click", function() {
+        Ke.isOpen || (u.documentElement.dataset.mobileKeyboardOpen = "", ja(), Pe(), Ke.isOpen = !0)
+    }), Ke.init(Be[0]);
+    var je = {},
+      Ze = [];
 
-    function je(e, t) {
+    function Je(e, t) {
         e = e[t];
         return null != e && "" != e ? e : t
     }
 
     function I(e, t) {
-        var n = je(Ve[p.displayLang], e),
+        var n = Je(je[p.displayLang], e),
           a = "",
           o = 0;
         Array.isArray(t) || (t = [t]);
@@ -531,21 +536,21 @@
         return a
     }
 
-    function Ze(e, t) {
+    function Qe(e, t) {
         if ("children" == t)
             for (var n = 0; n < e.children.length; n++) {
                 var a = e.children[n].dataset.translate;
-                Ze(e.children[n], null == a ? "text" : a)
+                Qe(e.children[n], null == a ? "text" : a)
             } else {
             var o = "";
-            "text" == t && (o = e.textContent), 0 < (o = "placeholder" == t ? e.placeholder : o).length ? Xe.push({
+            "text" == t && (o = e.textContent), 0 < (o = "placeholder" == t ? e.placeholder : o).length ? Ze.push({
                 key: o,
                 element: e,
                 type: t
             }) : (console.log("Empty key passed to translate with!"), console.log(e))
         }
     }
-    Ve.en = {}, Ve.de = {
+    je.en = {}, je.de = {
         "You have been kicked!": "Du wurdest gekickt!",
         "You have been banned!": "Du wurdest gebannt!",
         "You muted '$'!": "Du hast '$' stummgeschalten!",
@@ -679,58 +684,58 @@
         On: "An",
         Off: "Aus"
     };
-    const Je = 0,
-      Qe = 1;
     const et = 0,
-      tt = 2,
-      nt = 1;
-    const at = 4,
-      ot = 40;
-    var rt = [4, 10, 20, 32, 40],
-      it = u.querySelector("#game-toolbar"),
-      lt = it.querySelector(".toolbar-group-tools"),
-      st = it.querySelector(".toolbar-group-actions"),
-      ct = u.querySelector("#game-toolbar .sizes .size-preview"),
-      dt = u.querySelector("#game-toolbar .sizes .container"),
-      ut = u.querySelector("#game-toolbar .colors");
+      tt = 1;
+    const nt = 0,
+      at = 2,
+      ot = 1;
+    const rt = 4,
+      it = 40;
+    var lt = [4, 10, 20, 32, 40],
+      st = u.querySelector("#game-toolbar"),
+      ct = st.querySelector(".toolbar-group-tools"),
+      dt = st.querySelector(".toolbar-group-actions"),
+      ut = u.querySelector("#game-toolbar .sizes .size-preview"),
+      ht = u.querySelector("#game-toolbar .sizes .container"),
+      pt = u.querySelector("#game-toolbar .colors");
 
-    function ht(e, t) {
-        var n, a, o, r = R("tool clickable"),
-          i = (r.appendChild(R("icon")), r.appendChild(R("key")), t),
+    function mt(e, t) {
+        var n, a, o, r = $("tool clickable"),
+          i = (r.appendChild($("icon")), r.appendChild($("key")), t),
           l = (i.id = e, (i.element = r).toolIndex = e, r.querySelector(".icon").style.backgroundImage = "url(/img/" + t.graphic + ")", n = r, o = t.name, a = "S", n.dataset.tooltip = o, n.dataset.tooltipdir = a, E(n, "pointerenter", function(e) {
-              Pe(e.target)
+              ze(e.target)
           }), E(n, "pointerleave", function(e) {
-              Ye()
+              He()
           }), o = t.isAction ? (r.addEventListener("click", function(e) {
-              zt(this.toolIndex)
-          }), st.appendChild(r), mt[e] = i, se(t.name, t.keydef, "", function() {
-              zt(e)
+              Ut(this.toolIndex)
+          }), dt.appendChild(r), ft[e] = i, le(t.name, t.keydef, "", function() {
+              Ut(e)
           }, function(e) {
               l.textContent = e.key
           })) : (r.addEventListener("click", function(e) {
-              Ht(this.toolIndex)
-          }), lt.appendChild(r), pt[e] = i, se(t.name, t.keydef, "", function() {
-              Ht(i.id)
+              Bt(this.toolIndex)
+          }), ct.appendChild(r), gt[e] = i, le(t.name, t.keydef, "", function() {
+              Bt(i.id)
           }, function(e) {
               l.textContent = e.key
           })), r.querySelector(".key"));
         l.textContent = o.key, t.hide && (r.style.display = "none")
     }
-    var pt = [],
-      mt = (ht(et, {
+    var gt = [],
+      ft = (mt(nt, {
           isAction: !1,
           name: "Brush",
           keydef: "B",
           graphic: "pen.gif",
           cursor: 0
-      }), ht(nt, {
+      }), mt(ot, {
           isAction: !1,
           name: "Fill",
           keydef: "F",
           graphic: "fill.gif",
           cursor: "url(/img/fill_cur.png) 7 38, default"
       }), []),
-      C = (ht(0, {
+      C = (mt(0, {
           isAction: !0,
           name: "Undo",
           keydef: "U",
@@ -738,71 +743,71 @@
           action: function() {
               {
                   var e;
-                  M == x && 0 < bt.length && (bt.pop(), 0 < bt.length ? (Xt(e = bt[bt.length - 1]), s && s.emit("data", {
-                      id: Pa,
+                  L == M && 0 < St.length && (St.pop(), 0 < St.length ? (Zt(e = St[St.length - 1]), l && l.emit("data", {
+                      id: Ya,
                       data: e
-                  })) : en())
+                  })) : nn())
               }
           }
-      }), ht(1, {
+      }), mt(1, {
           isAction: !0,
           name: "Clear",
           keydef: "C",
           graphic: "clear.gif",
-          action: en
+          action: nn
       })
-        /*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*ht(2, {
+        /*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*mt(2, {
         isAction: !0,
         name: "Switcher",
         graphic: "",
         action: ()=>{document.dispatchEvent(new Event("toggleColor"));}
     })*/ /*TYPOEND*/
-        , /*TYPOMOD DESC: add action for brushlab*/ ht(3, {
+        , /*TYPOMOD DESC: add action for brushlab*/ mt(3, {
           isAction: !0,
           name: "Lab",
           graphic: "",keydef:'L',
           action: ()=>{document.dispatchEvent(new Event("openBrushLab"));}
       }) /*TYPOEND*/, u.querySelector("#game-canvas canvas")),
-      gt = C.getContext("2d", {
+      yt = C.getContext("2d", {
           willReadFrequently: !0
       }),
       k = [],
-      ft = 0,
-      yt = 0,
-      vt = [],
+      vt = 0,
+      bt = 0,
+      kt = [],
       r = [0, 9999, 9999, 0, 0],
-      bt = [],
+      St = [],
       S = [0, 0],
-      kt = [0, 0],
-      St = 0,
-      wt = u.createElement("canvas"),
-      o = (wt.width = ot + 2, wt.height = ot + 2, wt.getContext("2d"));
+      wt = [0, 0],
+      Ct = 0,
+      qt = u.createElement("canvas"),
+      o = (qt.width = it + 2, qt.height = it + 2, qt.getContext("2d"));
 
-    function Ct() {
-        var e = pt[xt].cursor;
-        if (L.id == Z && M == x) {
-            if (xt == et) {
-                var t = wt.width,
-                  n = Rt;
+    function xt() {
+        var e = gt[Lt].cursor;
+        if (D.id == j && L == M) {
+            if (Lt == nt) {
+                var t = qt.width,
+                  n = It;
                 if (n <= 0) return;
                 o.clearRect(0, 0, t, t);
 // TYPOMOD
 // desc: cursor with custom color
-                var a = Mt < 10000 ? Dt[Mt] : typo.hexToRgb((Mt - 10000).toString(16).padStart(6, "0"));
+                var a = Dt < 10000 ? $t[Dt] : typo.hexToRgb((Dt - 10000).toString(16).padStart(6, "0"));
 // TYPOEND
 
                 a = [(a = 1 == p.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
                 o.fillStyle = "rgba(" + a[0] + "," + a[1] + "," + a[2] + "," + a[3] + ")", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.fill(), o.strokeStyle = "#FFF", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.stroke(), o.strokeStyle = "#000", o.beginPath(), o.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), o.stroke();
-                a = t / 2, e = "url(" + wt.toDataURL() + ")" + a + " " + a + ", default"
+                a = t / 2, e = "url(" + qt.toDataURL() + ")" + a + " " + a + ", default"
             }
         } else e = "default";
         C.style.cursor = e
     }
-    var qt = 0,
-      xt = 0,
-      Mt = 0,
+    var Mt = 0,
       Lt = 0,
-      Dt = [
+      Dt = 0,
+      Et = 0,
+      $t = [
           [255, 255, 255],
           [0, 0, 0],
           [193, 193, 193],
@@ -830,84 +835,84 @@
           [160, 82, 45],
           [99, 48, 13]
       ],
-      Et = ["White", "Black", "Light Gray", "Gray", "Red", "Dark Red", "Orange", "Dark Orange", "Yellow", "Dark Yellow", "Green", "Dark Green", "Mint", "Dark Mint", "Skyblue", "Dark Skyblue", "Seablue", "Dark Seablue", "Purple", "Dark Purple", "Pink", "Dark Pink", "Beige", "Dark Beige", "Brown", "Dark Brown"],
-      Rt = 0,
-      $t = -1,
-      It = [];
+      Rt = ["White", "Black", "Light Gray", "Gray", "Red", "Dark Red", "Orange", "Dark Orange", "Yellow", "Dark Yellow", "Green", "Dark Green", "Mint", "Dark Mint", "Skyblue", "Dark Skyblue", "Seablue", "Dark Seablue", "Purple", "Dark Purple", "Pink", "Dark Pink", "Beige", "Dark Beige", "Brown", "Dark Brown"],
+      It = 0,
+      At = -1,
+      Tt = [];
 
-    function At(e) {
-        return 20 + (e - at) / (ot - at) * 80
+    function Nt(e) {
+        return 20 + (e - rt) / (it - rt) * 80
     }
-    for (e = 0; e < rt.length; e++) {
-        var Tt = R("size clickable"),
-          Nt = R("icon"),
-          Ot = (Nt.style.backgroundSize = At(rt[e]) + "%", {
+    for (e = 0; e < lt.length; e++) {
+        var Ot = $("size clickable"),
+          Wt = $("icon"),
+          Pt = (Wt.style.backgroundSize = Nt(lt[e]) + "%", {
               id: e,
-              size: rt[e],
-              element: Tt,
-              elementIcon: Nt
+              size: lt[e],
+              element: Ot,
+              elementIcon: Wt
           });
-        Tt.appendChild(Nt), dt.appendChild(Tt), Tt.size = Ot, It.push(Ot)
+        Ot.appendChild(Wt), ht.appendChild(Ot), Ot.size = Pt, Tt.push(Pt)
     }
-    for (var Wt = [R("top"), R("bottom")], e = 0; e < Dt.length / 2; e++) Wt[0].appendChild(Kt(2 * e)), Wt[1].appendChild(Kt(2 * e + 1)), u.querySelector("#game-toolbar .colors-mobile .top").appendChild(Kt(2 * e)), u.querySelector("#game-toolbar .colors-mobile .bottom").appendChild(Kt(2 * e + 1));
-    for (e = 0; e < Wt.length; e++) ut.appendChild(Wt[e]);
+    for (var Yt = [$("top"), $("bottom")], e = 0; e < $t.length / 2; e++) Yt[0].appendChild(Vt(2 * e)), Yt[1].appendChild(Vt(2 * e + 1)), u.querySelector("#game-toolbar .colors-mobile .top").appendChild(Vt(2 * e)), u.querySelector("#game-toolbar .colors-mobile .bottom").appendChild(Vt(2 * e + 1));
+    for (e = 0; e < Yt.length; e++) pt.appendChild(Yt[e]);
 
-    function Pt(e) {
-        Rt = q(e, at, ot);
-        for (var t = It[It.length - 1], n = t.size, a = 0; a < It.length; a++) {
-            var o = It[a],
-              r = Math.abs(Rt - o.size);
+    function zt(e) {
+        It = q(e, rt, it);
+        for (var t = Tt[Tt.length - 1], n = t.size, a = 0; a < Tt.length; a++) {
+            var o = Tt[a],
+              r = Math.abs(It - o.size);
             r <= n && (n = r, t = o, 0), o.element.classList.remove("selected")
         }
-        t.element.classList.add("selected"), it.querySelector(".size-preview .icon").style.backgroundSize = At(Rt) + "%", Ct()
+        t.element.classList.add("selected"), st.querySelector(".size-preview .icon").style.backgroundSize = Nt(It) + "%", xt()
     }
 
-    function Yt(e) {
+    function Ht(e) {
         e.classList.remove("clicked"), e.offsetWidth, e.classList.add("clicked")
     }
 
-    function zt(e) {
-        Yt(mt[e].element), mt[e].action()
-    }
-
-    function Ht(e, t) {
-        Yt(pt[e].element), e == xt && !t || (pt[qt = xt].element.classList.remove("selected"), pt[e].element.classList.add("selected"), xt = e, Ct())
-    }
-
     function Ut(e) {
+        Ht(ft[e].element), ft[e].action()
+    }
+
+    function Bt(e, t) {
+        Ht(gt[e].element), e == Lt && !t || (gt[Mt = Lt].element.classList.remove("selected"), gt[e].element.classList.add("selected"), Lt = e, xt())
+    }
+
+    function Gt(e) {
         var t =
-          e > 10000 ? _t(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : _t(Dt[e]);
-        Mt = e, u.querySelector("#color-preview-primary").style.fill = t, u.querySelector("#game-toolbar .color-picker-mobile .preview").style.backgroundColor = t, Ct()
+          e > 10000 ? Xt(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Xt($t[e]);
+        Dt = e, u.querySelector("#color-preview-primary").style.fill = t, u.querySelector("#game-toolbar .color-picker-mobile .preview").style.backgroundColor = t, xt()
     }
 
-    function Bt(e) {
+    function Ft(e) {
         var t =
-          e > 10000 ? _t(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : _t(Dt[e]);
-        Lt = e, u.querySelector("#color-preview-secondary").style.fill = t, Ct()
+          e > 10000 ? Xt(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Xt($t[e]);
+        Et = e, u.querySelector("#color-preview-secondary").style.fill = t, xt()
     }
 
-    function Gt() {
-        var e = Mt;
-        Ut(Lt), Bt(e)
+    function Kt() {
+        var e = Dt;
+        Gt(Et), Ft(e)
     }
 
-    function Ft() {
-        dt.classList.remove("open")
-    }
-
-    function Kt(e) {
-        var t = R("color");
-        return t.style.backgroundColor = _t(Dt[e]), t.colorIndex = e, t
-    }
-
-    function _t(e) {
-        return "rgb(" + e[0] + "," + e[1] + "," + e[2] + ")"
+    function _t() {
+        ht.classList.remove("open")
     }
 
     function Vt(e) {
+        var t = $("color");
+        return t.style.backgroundColor = Xt($t[e]), t.colorIndex = e, t
+    }
+
+    function Xt(e) {
+        return "rgb(" + e[0] + "," + e[1] + "," + e[2] + ")"
+    }
+
+    function jt(e) {
         /*TYPOMOD
         desc: if color code > 1000 -> customcolor*/if(e < 1000)
-            e = q(e, 0, Dt.length), e = Dt[e];
+            e = q(e, 0, $t.length), e = $t[e];
         else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         return {
             r: e[0],
@@ -916,79 +921,79 @@
         }
     }
 
-    function Xt(e) {
-        if (k = k.slice(0, e), !(x != M && yt < e)) {
+    function Zt(e) {
+        if (k = k.slice(0, e), !(M != L && bt < e)) {
             /* TYPOMOD
                     desc: replace draw commands because of redo*/        const keepCommands = k;
             /* TYPOEND*/
-            r = Zt();
-            e = Math.floor(k.length / jt);
-            vt = vt.slice(0, e), rn();
-            for (var t = 0; t < vt.length; t++) {
-                var n = vt[t];
-                gt.putImageData(n.data, n.bounds[1], n.bounds[2])
+            r = Qt();
+            e = Math.floor(k.length / Jt);
+            kt = kt.slice(0, e), sn();
+            for (var t = 0; t < kt.length; t++) {
+                var n = kt[t];
+                yt.putImageData(n.data, n.bounds[1], n.bounds[2])
             }
-            for (t = vt.length * jt; t < k.length; t++) Jt(nn(k[t]), k[t]);
-            ft = Math.min(k.length, ft), yt = Math.min(k.length, yt)
+            for (t = kt.length * Jt; t < k.length; t++) en(on(k[t]), k[t]);
+            vt = Math.min(k.length, vt), bt = Math.min(k.length, bt)
 
             /* TYPOMOD
                      log kept commands*/
             document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));
             /* TYPOEND*/}
     }
-    const jt = 50;
+    const Jt = 50;
 
-    function Zt() {
+    function Qt() {
         return [0, 9999, 9999, 0, 0]
     }
 
-    function Jt(e) {
+    function en(e) {
         var t, n, a, o;
-        r[0] += 1, r[1] = Math.min(r[1], e[0]), r[2] = Math.min(r[2], e[1]), r[3] = Math.max(r[3], e[2]), r[4] = Math.max(r[4], e[3]), r[0] >= jt && (t = r[1], n = r[2], a = r[3], o = r[4], (a - t <= 0 || o - n <= 0) && (t = e[0], n = e[1], a = e[2], o = e[3]), e = gt.getImageData(t, n, a - t, o - n), vt.push({
+        r[0] += 1, r[1] = Math.min(r[1], e[0]), r[2] = Math.min(r[2], e[1]), r[3] = Math.max(r[3], e[2]), r[4] = Math.max(r[4], e[3]), r[0] >= Jt && (t = r[1], n = r[2], a = r[3], o = r[4], (a - t <= 0 || o - n <= 0) && (t = e[0], n = e[1], a = e[2], o = e[3]), e = yt.getImageData(t, n, a - t, o - n), kt.push({
             data: e,
             bounds: r
-        }), r = Zt())
-    }
-
-    function Qt(e) {
-        return (e || 0 < k.length || 0 < bt.length || 0 < ft || 0 < yt) && (k = [], bt = [], ft = yt = 0, r = Zt(), vt = [], rn(), 1)
-    }
-
-    function en() {
-        M == x && Qt() && s && s.emit("data", {
-            id: Wa
-        })
+        }), r = Qt())
     }
 
     function tn(e) {
+        return (e || 0 < k.length || 0 < St.length || 0 < vt || 0 < bt) && (k = [], St = [], vt = bt = 0, r = Qt(), kt = [], sn(), 1)
+    }
+
+    function nn() {
+        L == M && tn() && l && l.emit("data", {
+            id: Pa
+        })
+    }
+
+    function an(e) {
         var t, n, a, o, r, i;
-        ((t = e)[0] != Je ? t[0] == Qe && 0 <= t[2] && t[2] < C.width && 0 <= t[3] && t[3] < C.height : (a = t[3], o = t[4], r = t[5], i = t[6], t = Math.ceil(t[2] / 2), n = (a + r) / 2, o = (o + i) / 2, r = Math.abs(r - a) / 2, a = Math.abs(i - i) / 2, (i = {
+        ((t = e)[0] != et ? t[0] == tt && 0 <= t[2] && t[2] < C.width && 0 <= t[3] && t[3] < C.height : (a = t[3], o = t[4], r = t[5], i = t[6], t = Math.ceil(t[2] / 2), n = (a + r) / 2, o = (o + i) / 2, r = Math.abs(r - a) / 2, a = Math.abs(i - i) / 2, (i = {
             x1: -(t + r),
             y1: -(t + r),
             x2: C.width + t + r,
             y2: C.height + t + a
-        }).x1 < n && n < i.x2 && i.y1 < o && o < i.y2)) ? (k.push(e), x == M && Jt(nn(e)))
+        }).x1 < n && n < i.x2 && i.y1 < o && o < i.y2)) ? (k.push(e), M == L && en(on(e)))
           /* TYPOMOD
                    log draw commands */
           & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }))
           /* TYPOEND */: console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS")
     }
 
-    function nn(e) {
+    function on(e) {
         var t = [0, 0, C.width, C.height];
         switch (e[0]) {
-            case Je:
-                var n = q(Math.floor(e[2]), at, ot),
+            case et:
+                var n = q(Math.floor(e[2]), rt, it),
                   a = Math.ceil(n / 2),
                   o = q(Math.floor(e[3]), -a, C.width + a),
                   r = q(Math.floor(e[4]), -a, C.height + a),
                   i = q(Math.floor(e[5]), -a, C.width + a),
                   a = q(Math.floor(e[6]), -a, C.height + a),
-                  l = Vt(e[1]);
-                t[0] = q(o - n, 0, C.width), t[1] = q(r - n, 0, C.height), t[2] = q(i + n, 0, C.width), t[3] = q(a + n, 0, C.height), on(o, r, i, a, n, l.r, l.g, l.b);
+                  l = jt(e[1]);
+                t[0] = q(o - n, 0, C.width), t[1] = q(r - n, 0, C.height), t[2] = q(i + n, 0, C.width), t[3] = q(a + n, 0, C.height), ln(o, r, i, a, n, l.r, l.g, l.b);
                 break;
-            case Qe:
-                var l = Vt(e[1]),
+            case tt:
+                var l = jt(e[1]),
                   o = q(Math.floor(e[2]), 0, C.width),
                   r = q(Math.floor(e[3]), 0, C.height),
                   i = o,
@@ -996,7 +1001,7 @@
                   s = l.r,
                   c = l.g,
                   d = l.b,
-                  u = gt.getImageData(0, 0, C.width, C.height),
+                  u = yt.getImageData(0, 0, C.width, C.height),
                   h = [
                       [i, a]
                   ],
@@ -1013,9 +1018,9 @@
                     }
                     for (var g, f, y, v, b, k, S = u.height, w = u.width; h.length;) {
                         for (g = h.pop(), f = g[0], y = g[1], v = 4 * (y * w + f); 0 <= y-- && m(v);) v -= 4 * w;
-                        for (v += 4 * w, ++y, k = b = !1; y++ < S - 1 && m(v);) an(u, v, s, c, d), 0 < f && (m(v - 4) ? b || (h.push([f - 1, y]), b = !0) : b = b && !1), f < w - 1 && (m(v + 4) ? k || (h.push([f + 1, y]), k = !0) : k = k && !1), v += 4 * w
+                        for (v += 4 * w, ++y, k = b = !1; y++ < S - 1 && m(v);) rn(u, v, s, c, d), 0 < f && (m(v - 4) ? b || (h.push([f - 1, y]), b = !0) : b = b && !1), f < w - 1 && (m(v + 4) ? k || (h.push([f + 1, y]), k = !0) : k = k && !1), v += 4 * w
                     }
-                    gt.putImageData(u, 0, 0)
+                    yt.putImageData(u, 0, 0)
                 }
         }
         return t
@@ -1025,11 +1030,11 @@
         return e < t ? t : n < e ? n : e
     }
 
-    function an(e, t, n, a, o) {
+    function rn(e, t, n, a, o) {
         0 <= t && t < e.data.length && (e.data[t] = n, e.data[t + 1] = a, e.data[t + 2] = o, e.data[t + 3] = 255)
     }
 
-    function on(e, t, n, a, o, r, i, l) {
+    function ln(e, t, n, a, o, r, i, l) {
         function s(e, t) {
             for (var n = -c; n <= c; n++)
                 for (var a, o = -c; o <= c; o++) n * n + o * o < d && 0 <= (a = 4 * ((t + o) * m.width + e + n)) && a < m.data.length && (m.data[a] = r, m.data[1 + a] = i, m.data[2 + a] = l, m.data[3 + a] = 255)
@@ -1040,7 +1045,7 @@
           u = Math.min(t, a) - c,
           h = Math.max(e, n) + c,
           p = Math.max(t, a) + c,
-          m = (e -= o, t -= u, n -= o, a -= u, gt.getImageData(o, u, h - o, p - u));
+          m = (e -= o, t -= u, n -= o, a -= u, yt.getImageData(o, u, h - o, p - u));
         if (e == n && t == a) s(e, t);
         else {
             s(e, t), s(n, a);
@@ -1053,42 +1058,42 @@
                 var k = b << 1; - f < k && (b -= f, e += y), k < g && (b += g, t += v), s(e, t)
             }
         }
-        gt.putImageData(m, o, u)
+        yt.putImageData(m, o, u)
     }
 
-    function rn() {
+    function sn() {
         /* TYPOMOD
                  desc: store data before clear */
         const data = document.querySelector("#game-canvas canvas").toDataURL();
         /* TYPOEND */
-        gt.fillStyle = "#FFF", gt.fillRect(0, 0, C.width, C.height)
+        yt.fillStyle = "#FFF", yt.fillRect(0, 0, C.width, C.height)
         /* TYPOMOD
                  desc: dispatch clear event */
         ;document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));
         /* TYPOEND */
     }
 
-    function ln(e, t, n) {
-        ((t = n ? !t : t) ? Ut : Bt)(e)
+    function cn(e, t, n) {
+        ((t = n ? !t : t) ? Gt : Ft)(e)
     }
-    E(it, "contextmenu", function(e) {
+    E(st, "contextmenu", function(e) {
         return e.preventDefault(), !1
     }), E("#game-toolbar .sizes .size", "click", function(e) {
         var t;
-        t = this.size.id, Yt((t = It[t]).element), Pt(t.size), Ft()
+        t = this.size.id, Ht((t = Tt[t]).element), zt(t.size), _t()
     }), E([C], "DOMMouseScroll wheel", function(e) {
         e.preventDefault();
         e = -e.deltaY || e.wheelDeltaY, e = Math.sign(e);
-        Pt(Rt + 2 * e)
-    }), se("Swap", "S", "Swap the primary and secondary color.", Gt), E(it.querySelector(".color-picker .preview"), "click", function(e) {
-        Gt()
-    }), E(it.querySelector(".color-picker-mobile .preview"), "click", function(e) {
-        it.querySelector(".colors-mobile").classList.toggle("open")
-    }), E(ct, "click", function(e) {
-        dt.classList.toggle("open")
+        zt(It + 2 * e)
+    }), le("Swap", "S", "Swap the primary and secondary color.", Kt), E(st.querySelector(".color-picker .preview"), "click", function(e) {
+        Kt()
+    }), E(st.querySelector(".color-picker-mobile .preview"), "click", function(e) {
+        st.querySelector(".colors-mobile").classList.toggle("open")
+    }), E(ut, "click", function(e) {
+        ht.classList.toggle("open")
     }), E(u, "keydown", function(e) {
-        if ("Enter" == e.code) return Me.focus(), 0;
-        if ("input" == u.activeElement.tagName.toLowerCase() || "textarea" == u.activeElement.tagName.toLowerCase() || -1 != $t) return 0;
+        if ("Enter" == e.code) return De.focus(), 0;
+        if ("input" == u.activeElement.tagName.toLowerCase() || "textarea" == u.activeElement.tagName.toLowerCase() || -1 != At) return 0;
         for (var t = e.key.toLowerCase().replace("key", ""), n = 0; n < d.length; n++)
             if (d[n].key.toLowerCase() == t) {
                 for (var a = 0; a < d[n].cb.length; a++) d[n].cb[a](d[n]);
@@ -1097,100 +1102,100 @@
     }), E(C, "contextmenu", function(e) {
         return e.preventDefault(), !1
     });
-    var sn = "Left-/Rightclick to choose a color!",
-      cn = null;
+    var dn = "Left-/Rightclick to choose a color!",
+      un = null;
 
-    function dn(e, t, n, a) {
+    function hn(e, t, n, a) {
         var o = C.getBoundingClientRect(),
           e = Math.floor((e - o.left) / o.width * C.width),
           t = Math.floor((t - o.top) / o.height * C.height);
-        a ? (St = n, kt[0] = S[0] = e, kt[1] = S[1] = t) : (kt[0] = S[0], kt[1] = S[1], St = n, S[0] = e, S[1] = t)
+        a ? (Ct = n, wt[0] = S[0] = e, wt[1] = S[1] = t) : (wt[0] = S[0], wt[1] = S[1], Ct = n, S[0] = e, S[1] = t)
     }
     "PointerEvent" in h ? (E("#game-toolbar .colors * .color", "pointerenter", function(e) {
-        var t = sn + "\n" + Et[this.colorIndex];
-        u.querySelector("#game-toolbar .colors").dataset.tooltip = t, ze()
+        var t = dn + "\n" + Rt[this.colorIndex];
+        u.querySelector("#game-toolbar .colors").dataset.tooltip = t, Ue()
     }), E("#game-toolbar .colors * .color", "pointerdown", function(e) {
-        ln(this.colorIndex, 0 == e.button, e.altKey)
+        cn(this.colorIndex, 0 == e.button, e.altKey)
     }), E("#game-toolbar .colors-mobile * .color", "pointerdown", function(e) {
-        ln(this.colorIndex, 0 == e.button, e.altKey), it.querySelector(".colors-mobile").classList.remove("open")
+        cn(this.colorIndex, 0 == e.button, e.altKey), st.querySelector(".colors-mobile").classList.remove("open")
     }), E(C, "pointerdown", function(e) {
-        if ((0 == e.button || 2 == e.button || 5 == e.button) && -1 == $t) switch (e.pointerType) {
+        if ((0 == e.button || 2 == e.button || 5 == e.button) && -1 == At) switch (e.pointerType) {
             case "mouse":
-                pn(e.button, e.clientX, e.clientY, !0, -1);
+                gn(e.button, e.clientX, e.clientY, !0, -1);
                 break;
             case "pen":
-                pn(e.button, e.clientX, e.clientY, !0, e.pressure);
+                gn(e.button, e.clientX, e.clientY, !0, e.pressure);
                 break;
             case "touch":
-                null == cn && (cn = e.pointerId, pn(e.button, e.clientX, e.clientY, !0, -1))
+                null == un && (un = e.pointerId, gn(e.button, e.clientX, e.clientY, !0, -1))
         }
     }), E(u, "pointermove", function(e) {
         switch (e.pointerType) {
             case "mouse":
-                hn(e.clientX, e.clientY, !1, -1);
+                mn(e.clientX, e.clientY, !1, -1);
                 break;
             case "pen":
-                hn(e.clientX, e.clientY, !1, e.pressure);
+                mn(e.clientX, e.clientY, !1, e.pressure);
                 break;
             case "touch":
-                cn == e.pointerId && hn(e.clientX, e.clientY, !1, -1)
+                un == e.pointerId && mn(e.clientX, e.clientY, !1, -1)
         }
     }), E(u, "pointerup", function(e) {
-        "touch" == e.pointerType ? cn == e.pointerId && (cn = null, mn(e.button)) : mn(e.button)
+        "touch" == e.pointerType ? un == e.pointerId && (un = null, fn(e.button)) : fn(e.button)
     })) : (E("#game-toolbar .colors * .color", "mouseenter", function(e) {
-        var t = sn + "\n" + Et[this.colorIndex];
-        u.querySelector("#game-toolbar .colors").dataset.tooltip = t, ze()
+        var t = dn + "\n" + Rt[this.colorIndex];
+        u.querySelector("#game-toolbar .colors").dataset.tooltip = t, Ue()
     }), E("#game-toolbar .colors * .color", "click", function(e) {
-        ln(this.colorIndex, 0 == e.button, e.altKey)
+        cn(this.colorIndex, 0 == e.button, e.altKey)
     }), E("#game-toolbar .colors-mobile * .color", "click", function(e) {
-        ln(this.colorIndex, 0 == e.button, e.altKey), it.querySelector(".colors-mobile").classList.remove("open")
+        cn(this.colorIndex, 0 == e.button, e.altKey), st.querySelector(".colors-mobile").classList.remove("open")
     }), E(C, "mousedown", function(e) {
-        e.preventDefault(), 0 != e.button && 2 != e.button || -1 != $t || pn(e.button, e.clientX, e.clientY, !0, -1)
+        e.preventDefault(), 0 != e.button && 2 != e.button || -1 != At || gn(e.button, e.clientX, e.clientY, !0, -1)
     }), E(u, "mouseup", function(e) {
-        e.preventDefault(), mn(e.button)
+        e.preventDefault(), fn(e.button)
     }), E(u, "mousemove", function(e) {
-        hn(e.clientX, e.clientY, !1, -1)
+        mn(e.clientX, e.clientY, !1, -1)
     }), E(C, "touchstart", function(e) {
         e.preventDefault();
         e = e.changedTouches;
-        0 < e.length && null == cn && (cn = e[0].identitfier, pn(0, e[0].clientX, e[0].clientY, !0, e[0].force))
+        0 < e.length && null == un && (un = e[0].identitfier, gn(0, e[0].clientX, e[0].clientY, !0, e[0].force))
     }), E(C, "touchend touchcancel", function(e) {
         e.preventDefault();
         for (var t = e.changedTouches, n = 0; n < t.length; n++)
-            if (t[n].identitfier == cn) {
-                mn($t);
+            if (t[n].identitfier == un) {
+                fn(At);
                 break
             }
     }), E(C, "touchmove", function(e) {
         e.preventDefault();
         for (var t = e.changedTouches, n = 0; n < t.length; n++)
-            if (t[n].identitfier == cn) {
-                hn(t[n].clientX, t[n].clientY, !1, t[n].force);
+            if (t[n].identitfier == un) {
+                mn(t[n].clientX, t[n].clientY, !1, t[n].force);
                 break
             }
     }));
-    var un = 0;
+    var pn = 0;
 
-    function hn(e, t, n, a) {
-        dn(e, t, a = p.pressureSensitivity ? a : -1, n), gn(!1)
+    function mn(e, t, n, a) {
+        hn(e, t, a = p.pressureSensitivity ? a : -1, n), yn(!1)
     }
 
-    function pn(e, t, n, a, o) {
-        p.pressureSensitivity || (o = -1), k.length, $t = e, dn(t, n, o, a), gn(!0)
+    function gn(e, t, n, a, o) {
+        p.pressureSensitivity || (o = -1), k.length, At = e, hn(t, n, o, a), yn(!0)
     }
 
-    function mn(e) {
-        -1 == e || 0 != e && 2 != e && 5 != e || $t != e || (un != k.length && (un = k.length, bt.push(un)), cn = null, $t = -1)
+    function fn(e) {
+        -1 == e || 0 != e && 2 != e && 5 != e || At != e || (pn != k.length && (pn = k.length, St.push(pn)), un = null, At = -1)
     }
 
-    function gn(e) {
-        if (L.id == Z && M == x && -1 != $t) {
-            var t = 0 == $t ? Mt : Lt,
+    function yn(e) {
+        if (D.id == j && L == M && -1 != At) {
+            var t = 0 == At ? Dt : Et,
               n = null;
             if (e) {
                 var e = function(e, t) {
-                    for (var n = (e = gt.getImageData(e, t, 1, 1)).data[0], a = e.data[1], o = e.data[2], r = 0; r < Dt.length; r++) {
-                        var i = Dt[r],
+                    for (var n = (e = yt.getImageData(e, t, 1, 1)).data[0], a = e.data[1], o = e.data[2], r = 0; r < $t.length; r++) {
+                        var i = $t[r],
                           l = i[0] - n,
                           s = i[1] - a,
                           i = i[2] - o;
@@ -1202,45 +1207,45 @@
                     /* TYPOEND */
                     return r
                 }(S[0], S[1]);
-                if (xt == nt) {
+                if (Lt == ot) {
                     if (e == t) return;
-                    l = t, s = S[0], c = S[1], n = [Qe, l, s, c]
+                    l = t, s = S[0], c = S[1], n = [tt, l, s, c]
                 }
-                if (xt == tt) return (0 == $t ? Ut : Bt)(e), void Ht(qt)
+                if (Lt == at) return (0 == At ? Gt : Ft)(e), void Bt(Mt)
             }
-            xt == et && (l = Rt, 0 <= St && (l = (l - at) * q(St, 0, 1) + at),
+            Lt == nt && (l = It, 0 <= Ct && (l = (l - rt) * q(Ct, 0, 1) + rt),
               /* TYPOMOD use typo pressure */
-              (()=>{if(0 <= St && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(St, sensitivity); l = Math.round(calcSkribblSize(levelled));}
-              })(),s = Math.ceil(.5 * l), c = q(Math.floor(kt[0]), -s, C.width + s), e = q(Math.floor(kt[1]), -s, C.height + s), r = q(Math.floor(S[0]), -s, C.width + s), i = q(Math.floor(S[1]), -s, C.height + s), t = t, a = l, o = c, e = e, r = r, i = i, n = [Je, t, a, o, e, r, i]), null != n && tn(n)
+              (()=>{if(0 <= Ct && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(Ct, sensitivity); l = Math.round(calcSkribblSize(levelled));}
+              })(),s = Math.ceil(.5 * l), c = q(Math.floor(wt[0]), -s, C.width + s), e = q(Math.floor(wt[1]), -s, C.height + s), r = q(Math.floor(S[0]), -s, C.width + s), i = q(Math.floor(S[1]), -s, C.height + s), t = t, a = l, o = c, e = e, r = r, i = i, n = [et, t, a, o, e, r, i]), null != n && an(n)
         }
         var a, o, r, i, l, s, c
     }
     setInterval(function() {
         var e, t;
-        s && L.id == Z && M == x && 0 < k.length - ft && (e = ft + 8, t = k.slice(ft, e), s.emit("data", {
-            id: Oa,
+        l && D.id == j && L == M && 0 < k.length - vt && (e = vt + 8, t = k.slice(vt, e), l.emit("data", {
+            id: Wa,
             data: t
-        }), ft = Math.min(e, k.length))
+        }), vt = Math.min(e, k.length))
     }, 50), setInterval(function() {
-        s && L.id == Z && M != x && yt < k.length && (Jt(nn(k[yt]), k[yt]), yt++)
+        l && D.id == j && L != M && bt < k.length && (en(on(k[bt]), k[bt]), bt++)
     }, 3);
-    var fn = u.querySelector("#game-canvas .overlay"),
-      yn = u.querySelector("#game-canvas .overlay-content"),
+    var vn = u.querySelector("#game-canvas .overlay"),
+      bn = u.querySelector("#game-canvas .overlay-content"),
       A = u.querySelector("#game-canvas .overlay-content .text"),
-      vn = u.querySelector("#game-canvas .overlay-content .words"),
-      bn = u.querySelector("#game-canvas .overlay-content .reveal"),
+      kn = u.querySelector("#game-canvas .overlay-content .words"),
+      Sn = u.querySelector("#game-canvas .overlay-content .reveal"),
       T = u.querySelector("#game-canvas .overlay-content .result"),
-      kn = u.querySelector("#game-canvas .overlay-content .room"),
-      Sn = -100,
-      wn = 0,
-      Cn = void 0;
+      wn = u.querySelector("#game-canvas .overlay-content .room"),
+      Cn = -100,
+      qn = 0,
+      xn = void 0;
 
-    function qn(e, a, o) {
-        var r, i, l = Sn,
-          s = wn,
+    function Mn(e, a, o) {
+        var r, i, l = Cn,
+          s = qn,
           c = e.top - l,
           d = e.opacity - s;
-        Math.abs(c) < .001 && Math.abs(d) < .001 ? o && o() : (r = void 0, i = 0, Cn = h.requestAnimationFrame(function e(t) {
+        Math.abs(c) < .001 && Math.abs(d) < .001 ? o && o() : (r = void 0, i = 0, xn = h.requestAnimationFrame(function e(t) {
             var n = t - (r = null == r ? t : r),
               t = (r = t, (i = Math.min(i + n, a)) / a),
               n = (n = t) < .5 ? .5 * function(e, t) {
@@ -1248,50 +1253,50 @@
               }(2 * n, 1.2 * 1.5) : .5 * (function(e, t) {
                   return e * e * ((t + 1) * e + t)
               }(2 * n - 2, 1.2 * 1.5) + 2);
-            Sn = l + c * n, wn = s + t * t * (3 - 2 * t) * d, yn.style.top = Sn + "%", fn.style.opacity = wn, i == a ? o && o() : Cn = h.requestAnimationFrame(e)
+            Cn = l + c * n, qn = s + t * t * (3 - 2 * t) * d, bn.style.top = Cn + "%", vn.style.opacity = qn, i == a ? o && o() : xn = h.requestAnimationFrame(e)
         }))
     }
 
-    function xn(e) {
+    function Ln(e) {
         e.classList.add("show")
     }
     /* TYPOMOD
          desc: add event handlers for typo features */
     E(".avatar-customizer .container", "pointerdown", () => {
-        la(typo.createFakeLobbyData());});
+        sa(typo.createFakeLobbyData());});
     /* TYPOEND */
 
-    function Mn(e) {
-        for (var t = 0; t < yn.children.length; t++) yn.children[t].classList.remove("show");
+    function Dn(e) {
+        for (var t = 0; t < bn.children.length; t++) bn.children[t].classList.remove("show");
         switch (e.id) {
-            case ee:
-                xn(kn);
-                break;
-            case X:
-                xn(A), A.textContent = I("Round $", e.data + 1);
-                break;
-            case _:
-                xn(A), A.textContent = I("Waiting for players...");
+            case Q:
+                Ln(wn);
                 break;
             case V:
-                xn(A), A.textContent = I("Game starting in a few seconds...");
+                Ln(A), A.textContent = I("Round $", e.data + 1);
                 break;
-            case J:
-                xn(bn), bn.querySelector("p span.word").textContent = e.data.word, bn.querySelector(".reason").textContent = function(e) {
+            case K:
+                Ln(A), A.textContent = I("Waiting for players...");
+                break;
+            case _:
+                Ln(A), A.textContent = I("Game starting in a few seconds...");
+                break;
+            case Z:
+                Ln(Sn), Sn.querySelector("p span.word").textContent = e.data.word, Sn.querySelector(".reason").textContent = function(e) {
                     switch (e) {
-                        case B:
+                        case U:
                             return I("Everyone guessed the word!");
-                        case F:
-                            return I("The drawer left the game!");
                         case G:
+                            return I("The drawer left the game!");
+                        case B:
                             return I("Time is up!");
-                        case K:
+                        case F:
                             return I("Drawer got skipped!");
                         default:
                             return "Error!"
                     }
                 }(e.data.reason);
-                for (var n = bn.querySelector(".player-container"), a = ($(n), []), o = 0; o < e.data.scores.length; o += 3) {
+                for (var n = Sn.querySelector(".player-container"), a = (R(n), []), o = 0; o < e.data.scores.length; o += 3) {
                     var r = e.data.scores[o + 0],
                       i = (e.data.scores[o + 1], e.data.scores[o + 2]);
                     (s = W(r)) && a.push({
@@ -1303,15 +1308,15 @@
                     return t.score - e.score
                 });
                 for (o = 0; o < Math.min(a.length, 12); o++) {
-                    var l = R("player"),
+                    var l = $("player"),
                       s = a[o],
-                      c = (l.appendChild(R("name", s.name)), R("score", (0 < s.score ? "+" : "") + s.score));
+                      c = (l.appendChild($("name", s.name)), $("score", (0 < s.score ? "+" : "") + s.score));
                     s.score <= 0 && c.classList.add("zero"), l.appendChild(c), n.appendChild(l)
                 }
                 break;
-            case Q:
-                xn(T);
-                for (var d = [T.querySelector(".podest-1"), T.querySelector(".podest-2"), T.querySelector(".podest-3"), T.querySelector(".ranks")], o = 0; o < 4; o++) $(d[o]);
+            case J:
+                Ln(T);
+                for (var d = [T.querySelector(".podest-1"), T.querySelector(".podest-2"), T.querySelector(".podest-3"), T.querySelector(".ranks")], o = 0; o < 4; o++) R(d[o]);
                 if (0 < e.data.length) {
                     for (var u = [
                         [],
@@ -1332,65 +1337,65 @@
                               g = p[0].player.score,
                               f = 96,
                               y = d[h],
-                              l = R("avatar-container"),
-                              v = (y.appendChild(l), R("border"));
-                            v.appendChild(R("rank-place", "#" + (h + 1))), v.appendChild(R("rank-name", m)), v.appendChild(R("rank-score", I("$ points", g))), y.appendChild(v), 0 == h && l.appendChild(R("trophy"));
+                              l = $("avatar-container"),
+                              v = (y.appendChild(l), $("border"));
+                            v.appendChild($("rank-place", "#" + (h + 1))), v.appendChild($("rank-name", m)), v.appendChild($("rank-score", I("$ points", g))), y.appendChild(v), 0 == h && l.appendChild($("trophy"));
                             for (o = 0; o < p.length; o++)(k = ue((s = p[o]).player.avatar, 0, 0 == h)).style.left = 15 * -(p.length - 1) + 30 * o + "%", 0 == h && (k.classList.add("winner"), k.style.animationDelay = -2.35 * o + "s"), l.appendChild(k)
                         }
                     }
                     for (var b = Math.min(5, u[3].length), o = 0; o < b; o++) {
                         var s = u[3][o],
                           f = 48,
-                          y = R("rank"),
+                          y = $("rank"),
                           k = ue(s.player.avatar, 0, !1);
-                        y.appendChild(k), y.appendChild(R("rank-place", "#" + (s.rank + 1))), y.appendChild(R("rank-name", s.player.name)), y.appendChild(R("rank-score", I("$ points", s.player.score))), d[3].appendChild(y)
+                        y.appendChild(k), y.appendChild($("rank-place", "#" + (s.rank + 1))), y.appendChild($("rank-name", s.player.name)), y.appendChild($("rank-score", I("$ points", s.player.score))), d[3].appendChild(y)
                     }
                     0 < u[0].length ? (D = u[0].map(function(e) {
                         return e.player.name
                     }).join(", "), T.querySelector(".winner-name").textContent = (0 < u[0].length ? D : "<user left>") + " ", T.querySelector(".winner-text").textContent = 1 == u[0].length ? I("is the winner!") : I("are the winners!")) : (T.querySelector(".winner-name").textContent = "", T.querySelector(".winner-text").textContent = I("Nobody won!"))
                 } else T.querySelector(".winner-name").textContent = "", T.querySelector(".winner-text").textContent = I("Nobody won!");
                 break;
-            case j:
+            case X:
                 if (e.data.words)
-                    if (xn(A), xn(vn), $(vn), Pn[ae.WORDMODE] == oe.COMBINATION) {
+                    if (Ln(A), Ln(kn), R(kn), Yn[ne.WORDMODE] == ae.COMBINATION) {
                         A.textContent = I("Choose the first word");
                         for (var S = e.data.words.length / 2, w = [], C = [], q = 0, o = 0; o < S; o++) {
-                            var x = R("word", e.data.words[o]),
-                              M = (x.index = o, R("word", e.data.words[o + S]));
+                            var x = $("word", e.data.words[o]),
+                              M = (x.index = o, $("word", e.data.words[o + S]));
                             M.index = o, M.style.display = "none", M.style.animationDelay = .03 * o + "s", w.push(x), C.push(M), E(x, "click", function() {
                                 q = this.index;
                                 for (var e = 0; e < S; e++) w[e].style.display = "none", C[e].style.display = "";
                                 A.textContent = I("Choose the second word")
                             }), E(M, "click", function() {
-                                fa([q, this.index])
-                            }), vn.appendChild(x), vn.appendChild(M)
+                                ya([q, this.index])
+                            }), kn.appendChild(x), kn.appendChild(M)
                         }
                     } else {
                         A.textContent = I("Choose a word");
                         for (o = 0; o < e.data.words.length; o++) {
-                            var L = R("word", e.data.words[o]);
+                            var L = $("word", e.data.words[o]);
                             L.index = o, E(L, "click", function() {
-                                fa(this.index)
-                            }), vn.appendChild(L)
+                                ya(this.index)
+                            }), kn.appendChild(L)
                         }
                     }
                 else {
-                    xn(A);
+                    Ln(A);
                     var D = (s = W(e.data.id)) ? s.name : I("User"),
                       D = (A.textContent = "", A.appendChild(de("span", void 0, I("$ is choosing a word!", D))), ue(s ? s.avatar : [0, 0, 0, 0], 0, !1));
                     D.style.width = "2em", D.style.height = "2em", A.appendChild(D)
                 }
         }
     }
-    const Ln = 0,
-      Dn = 1,
-      En = 2,
-      Rn = 3,
-      $n = 4,
-      In = 5,
-      An = 6;
+    const En = 0,
+      $n = 1,
+      Rn = 2,
+      In = 3,
+      An = 4,
+      Tn = 5,
+      Nn = 6;
 
-    function Tn(e, t) {
+    function On(e, t) {
         this.url = t, this.buffer = null, this.loaded = !1;
         var n = this,
           a = new XMLHttpRequest;
@@ -1403,66 +1408,66 @@
         }, a.send()
     }
 
-    function Nn() {
+    function Wn() {
         this.context = null, this.gain = null, this.sounds = new Map, h.addEventListener("load", this.load.bind(this), !1)
     }
-    Nn.prototype.addSound = function(e, t) {
-        this.sounds.set(e, new Tn(this, t))
-    }, Nn.prototype.loadSounds = function() {
-        this.addSound(Ln, "/audio/roundStart.ogg"), this.addSound(Dn, "/audio/roundEndSuccess.ogg"), this.addSound(En, "/audio/roundEndFailure.ogg"), this.addSound(Rn, "/audio/join.ogg"), this.addSound($n, "/audio/leave.ogg"), this.addSound(In, "/audio/playerGuessed.ogg"), this.addSound(An, "/audio/tick.ogg")
-    }, Nn.prototype.playSound = function(e) {
+    Wn.prototype.addSound = function(e, t) {
+        this.sounds.set(e, new On(this, t))
+    }, Wn.prototype.loadSounds = function() {
+        this.addSound(En, "/audio/roundStart.ogg"), this.addSound($n, "/audio/roundEndSuccess.ogg"), this.addSound(Rn, "/audio/roundEndFailure.ogg"), this.addSound(In, "/audio/join.ogg"), this.addSound(An, "/audio/leave.ogg"), this.addSound(Tn, "/audio/playerGuessed.ogg"), this.addSound(Nn, "/audio/tick.ogg")
+    }, Wn.prototype.playSound = function(e) {
         var t, n;
         null == this.context ? this.load() : "running" != this.context.state ? this.context.resume().then(function() {
             this.playSound(e)
         }) : null != this.context && 0 < p.volume && this.sounds.has(e) && (t = this.sounds.get(e)).loaded && ((n = this.context.createBufferSource()).buffer = t.buffer, n.connect(this.gain), n.start(0))
-    }, Nn.prototype.setVolume = function(e) {
+    }, Wn.prototype.setVolume = function(e) {
         y[g].querySelector("#volume .title .icon").classList.toggle("muted", e <= 0), y[g].querySelector("#volume .volume-value").textContent = e <= 0 ? "Muted" : e + "%", this.gain && (this.gain.gain.value = e / 100)
-    }, Nn.prototype.load = function() {
+    }, Wn.prototype.load = function() {
         if (null == this.context) try {
             h.AudioContext = h.AudioContext || h.webkitAudioContext, this.context = new AudioContext, this.gain = this.context.createGain(), this.gain.connect(this.context.destination), this.setVolume(p.volume), console.log("AudioContext created."), this.loadSounds()
         } catch (e) {
             console.log("Error creating AudioContext.", e), this.context = null
         }
     };
-    const On = 4;
-    _;
-    var s, w = [],
-      x = 0,
-      Wn = -1,
-      M = -1,
-      Pn = [],
-      L = {
+    const w = 4;
+    K;
+    var l, x = [],
+      M = 0,
+      Pn = -1,
+      L = -1,
+      Yn = [],
+      D = {
           id: -1,
           time: 0,
           data: 0
       },
-      Yn = -1,
-      zn = 0,
-      Hn = void 0,
-      D = new Nn,
-      N = void 0,
-      Un = !1,
+      zn = -1,
+      Hn = 0,
+      Un = void 0,
+      N = new Wn,
+      s = void 0,
       Bn = !1,
-      Gn = u.querySelector("#game-wrapper"),
-      ct = u.querySelector("#game-canvas .room"),
-      Fn = u.querySelector("#game-players"),
-      Kn = u.querySelector("#game-chat"),
-      _n = (u.querySelector("#game-board"), u.querySelector("#game-bar")),
-      Vn = Fn.querySelector(".players-list"),
-      Xn = Fn.querySelector(".players-footer"),
-      jn = u.querySelector("#game-round"),
+      Gn = !1,
+      Fn = u.querySelector("#game-wrapper"),
+      ut = u.querySelector("#game-canvas .room"),
+      Kn = u.querySelector("#game-players"),
+      _n = u.querySelector("#game-chat"),
+      Vn = (u.querySelector("#game-board"), u.querySelector("#game-bar")),
+      Xn = Kn.querySelector(".players-list"),
+      jn = Kn.querySelector(".players-footer"),
+      Zn = u.querySelector("#game-round"),
       O = [u.querySelector("#game-word .description"), u.querySelector("#game-word .word"), u.querySelector("#game-word .hints .container")],
-      Zn = u.querySelector("#home .container-name-lang input"),
-      Jn = u.querySelector("#home .container-name-lang select"),
-      Qn = u.querySelector("#home .panel .button-play"),
-      ea = u.querySelector("#home .panel .button-create");
-    const ta = 11 == (t = new Date).getMonth() && 19 <= (t = t.getDate()) && t <= 26;
+      Jn = u.querySelector("#home .container-name-lang input"),
+      Qn = u.querySelector("#home .container-name-lang select"),
+      ea = u.querySelector("#home .panel .button-play"),
+      ta = u.querySelector("#home .panel .button-create");
+    const na = 11 == (t = new Date).getMonth() && 19 <= (t = t.getDate()) && t <= 26;
 
-    function na(e) {
-        Un = e, u.querySelector("#load").style.display = e ? "block" : "none"
+    function aa(e) {
+        Bn = e, u.querySelector("#load").style.display = e ? "block" : "none"
     }
 
-    function aa(e, t, n, a) {
+    function oa(e, t, n, a) {
         var o, r;
         e = e, t = t, o = function(e, t) {
             switch (e) {
@@ -1473,10 +1478,10 @@
                     });
                 case 503:
                 case 0:
-                    a && i(ye, I("Servers are currently undergoing maintenance!") + "\n\rStatus: " + e + "\n\rPlease try again later!");
+                    a && xe(ve, I("Servers are currently undergoing maintenance!") + "\n\rStatus: " + e + "\n\rPlease try again later!");
                     break;
                 default:
-                    a && i(ye, I("An unknown error occurred ('$')", e) + "\n\r" + I("Please try again later!"))
+                    a && xe(ve, I("An unknown error occurred ('$')", e) + "\n\r" + I("Please try again later!"))
             }
             n({
                 success: !1,
@@ -1486,8 +1491,8 @@
             4 == this.readyState && o(this.status, this.response)
         }, r.open("POST", e, !0), r.setRequestHeader("Content-type", "application/x-www-form-urlencoded"), r.send(t)
     }
-    ta;
-    var oa = null;
+    na;
+    var ra = null;
     adplayer = null;
     try {
         aiptag.cmd.player.push(function() {
@@ -1501,7 +1506,7 @@
                     return u.getElementById("preroll")
                 },
                 AIP_COMPLETE: function(e) {
-                    oa()
+                    ra()
                 },
                 AIP_REMOVE: function() {}
             })
@@ -1510,10 +1515,10 @@
         console.log("ad push failed: "), console.log(e)
     }
 
-    function ra(t) {
+    function ia(t) {
         var e, n, a = !1;
         if (h.localStorageAvailable && (n = c.getItem("lastAd"), e = new Date, c.setItem("lastAd", e.toString()), null == n ? n = e : (n = new Date(Date.parse(n)), a = 1 <= Math.abs(n - e) / 1e3 / 60)), a) try {
-            aiptag && adplayer && void 0 !== adplayer && null !== adplayer && "undefined" !== adplayer ? (oa = t, aiptag.cmd.player.push(function() {
+            aiptag && adplayer && void 0 !== adplayer && null !== adplayer && "undefined" !== adplayer ? (ra = t, aiptag.cmd.player.push(function() {
                 adplayer.startPreRoll()
             })) : t()
         } catch (e) {
@@ -1521,33 +1526,33 @@
         } else t()
     }
 
-    function ia(e, t, n) {
-        D.context && D.context.resume && D.context.resume(), s && ga();
+    function la(e, t, n) {
+        N.context && N.context.resume && N.context.resume(), l && fa();
         var a, o = 0,
           r = {
               transports: ["websocket", "polling"],
               closeOnBeforeunload: !1
           };
-        "URL" in h && "127.0.0.1" != (a = new URL(e)).hostname && "localhost" != a.hostname && (r.path = "/" + a.port + "/", e = a.protocol + "//" + a.hostname), (s = P(e, r)).on("connect", function() {
+        "URL" in h && "127.0.0.1" != (a = new URL(e)).hostname && "localhost" != a.hostname && (r.path = "/" + a.port + "/", e = a.protocol + "//" + a.hostname), (l = P(e, r)).on("connect", function() {
             /* TYPOMOD
                          desc: disconnect socket & leave lobby */
-            document.addEventListener('socketEmit', event => s.emit('data', {id: event.detail.id, data: event.detail.data}));
+            document.addEventListener('socketEmit', event => l.emit('data', {id: event.detail.id, data: event.detail.data}));
             typo.disconnect = () => {
-                if (s) {
-                    s.typoDisconnect = true;
-                    s.on("disconnect", () => {
+                if (l) {
+                    l.typoDisconnect = true;
+                    l.on("disconnect", () => {
                         typo.disconnect = undefined;
                         document.dispatchEvent(new Event("leftLobby"));
                     });
-                    s.off("data");
-                    s.reconnect = false;
-                    s.disconnect();
+                    l.off("data");
+                    l.reconnect = false;
+                    l.disconnect();
                 }
                 else document.dispatchEvent(new Event("leftLobby"));
             }
             /* TYPOEND */
-            na(!1), s.on("joinerr", function(e) {
-                ga(), i(ye, function(e) {
+            aa(!1), l.on("joinerr", function(e) {
+                fa(), xe(ve, function(e) {
                     switch (e) {
                         case 1:
                             return I("Room not found!");
@@ -1569,180 +1574,180 @@
                             return I("An unknown error ('$') occured!", e)
                     }
                 }(e))
-            }), s.on("data", Ua);
-            var e = Zn.value.split("#"),
+            }), l.on("data", Ba);
+            var e = Jn.value.split("#"),
               e = {
                   join: t,
                   create: n ? 1 : 0,
                   name: e[0],
-                  lang: Jn.value,
+                  lang: Qn.value,
                   code: e[1],
                   avatar: p.avatar
               };
-            s.emit("login", e)
-        }), s.on("reason", function(e) {
+            l.emit("login", e)
+        }), l.on("reason", function(e) {
             o = e
-        }), s.on("disconnect", function(e) {
+        }), l.on("disconnect", function(e) {
             /* TYPOMOD
                              DESC: no msg if disconnect intentionally */
-            if(!s.typoDisconnect)
+            if(!l.typoDisconnect)
               /*TYPOEND*/
                 switch (console.log("socket disconnect: " + e), o) {
-                    case te:
-                        i(ve, I("You have been kicked!"));
+                    case ee:
+                        xe(be, I("You have been kicked!"));
                         break;
-                    case ne:
-                        i(ve, I("You have been banned!"));
+                    case te:
+                        xe(be, I("You have been banned!"));
                         break;
                     default:
-                        i(ve, I("Connection lost!") + "\n" + e)
+                        xe(be, I("Connection lost!") + "\n" + e)
                 }
-            ga()
-        }), s.on("connect_error", function(e) {
-            ga(), na(!1), i(ye, e.message)
+            fa()
+        }), l.on("connect_error", function(e) {
+            fa(), aa(!1), xe(ve, e.message)
         })
     }
 
-    function la(e) {
+    function sa(e) {
         var t;
-        D.playSound(Rn), Ht(et, !0), Pt(12), Ut(1), Bt(0), Qt(!0), $(Le), u.querySelector("#home").style.display = "none", u.querySelector("#game").style.display = "flex", x = e.me, Yn = e.type, Hn = e.id, u.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id, t = e.settings, Pn = t, sa(), $(Vn), w = [];
-        for (var n = 0; n < e.users.length; n++) Ba(e.users[n], !1);
-        if (Va(), Xa(), da(e.round), ka(e.owner), ha(e.state, !0), !Bn) {
+        N.playSound(In), Bt(nt, !0), zt(12), Gt(1), Ft(0), tn(!0), R(Ee), u.querySelector("#home").style.display = "none", u.querySelector("#game").style.display = "flex", M = e.me, zn = e.type, Un = e.id, u.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id, t = e.settings, Yn = t, ca(), R(Xn), x = [];
+        for (var n = 0; n < e.users.length; n++) Fa(e.users[n], !1);
+        if (ja(), Za(), ua(e.round), Sa(e.owner), pa(e.state, !0), !Gn) {
             try {
                 (adsbygoogle = h.adsbygoogle || []).push({}), (adsbygoogle = h.adsbygoogle || []).push({})
             } catch (e) {
                 console.log("google ad request failed"), console.log(e)
             }
-            Bn = !0
+            Gn = !0
         }
     }
 
-    function sa() {
-        da(zn);
-        for (var e, t = 0; t < Ja.length; t++) {
-            var n = Ja[t];
-            n.index && (e = Pn[(n = n).index], "checkbox" == n.element.type ? n.element.checked = !!e : n.element.value = e)
+    function ca() {
+        ua(Hn);
+        for (var e, t = 0; t < eo.length; t++) {
+            var n = eo[t];
+            n.index && (e = Yn[(n = n).index], "checkbox" == n.element.type ? n.element.checked = !!e : n.element.value = e)
         }
     }
 
-    function ca(e, t, n) {
-        Pn[e] = t, n && s && s.emit("data", {
-            id: Ea,
+    function da(e, t, n) {
+        Yn[e] = t, n && l && l.emit("data", {
+            id: $a,
             data: {
                 id: e,
                 val: t
             }
-        }), sa()
+        }), ca()
     }
 
-    function da(e) {
-        var e = (zn = e) + 1,
-          t = Pn[ae.ROUNDS];
-        jn.textContent = I("Round $ of $", [e, t]), _n.querySelector(".mobile .round span").textContent = e + "/" + t
+    function ua(e) {
+        var e = (Hn = e) + 1,
+          t = Yn[ne.ROUNDS];
+        Zn.textContent = I("Round $ of $", [e, t]), Vn.querySelector(".mobile .round span").textContent = e + "/" + t
     }
 
-    function ua() {
-        for (var e = 0; e < w.length; e++) w[e].score = 0;
-        for (e = 0; e < w.length; e++) ja(w[e], !1), Za(w[e], !1);
-        Xa()
+    function ha() {
+        for (var e = 0; e < x.length; e++) x[e].score = 0;
+        for (e = 0; e < x.length; e++) Ja(x[e], !1), Qa(x[e], !1);
+        Za()
     }
 
-    function ha(e, t) {
+    function pa(e, t) {
         var n, a;
-        if (n = L = e, null != Cn && (h.cancelAnimationFrame(Cn), Cn = void 0), n.id == Z ? qn({
+        if (n = D = e, null != xn && (h.cancelAnimationFrame(xn), xn = void 0), n.id == j ? Mn({
             top: -100,
             opacity: 0
         }, 600, function() {
-            fn.classList.remove("show")
-        }) : fn.classList.contains("show") ? qn({
+            vn.classList.remove("show")
+        }) : vn.classList.contains("show") ? Mn({
             top: -100,
             opacity: 1
         }, 600, function() {
-            Mn(n), qn({
+            Dn(n), Mn({
                 top: 0,
                 opacity: 1
             }, 600)
-        }) : (fn.classList.add("show"), Mn(n), qn({
+        }) : (vn.classList.add("show"), Dn(n), Mn({
             top: 0,
             opacity: 1
-        }, 600)), a = e.time, lo(), so(a), ro = setInterval(function() {
-            so(Math.max(0, io - 1));
+        }, 600)), a = e.time, co(), uo(a), lo = setInterval(function() {
+            uo(Math.max(0, so - 1));
             var e = -1;
-            L.id == Z && (e = no), L.id == j && (e = ao), oo.style.animationName = io < e ? io % 2 == 0 ? "rot_left" : "rot_right" : "none", io < e && D.playSound(An), io <= 0 && lo()
-        }, 1e3), Gn.classList.add("toolbar-hidden"), Ct(), ma(!1), e.id == ee ? (ua(), Gn.classList.add("room")) : Gn.classList.remove("room"), e.id == X && (da(e.data), 0 == e.data) && ua(), e.id == J) {
-            x != M && ba(e.data.word);
+            D.id == j && (e = oo), D.id == X && (e = ro), io.style.animationName = so < e ? so % 2 == 0 ? "rot_left" : "rot_right" : "none", so < e && N.playSound(Nn), so <= 0 && co()
+        }, 1e3), Fn.classList.add("toolbar-hidden"), xt(), ga(!1), e.id == Q ? (ha(), Fn.classList.add("room")) : Fn.classList.remove("room"), e.id == V && (ua(e.data), 0 == e.data) && ha(), e.id == Z) {
+            M != L && ka(e.data.word);
             for (var o = 0; o < e.data.scores.length; o += 3) {
                 var r = e.data.scores[o + 0],
                   i = e.data.scores[o + 1];
                 e.data.scores[o + 2];
                 (c = W(r)) && (c.score = i)
             }
-            Xa();
-            for (var l = !0, o = 0; o < w.length; o++)
-                if (w[o].guessed) {
+            Za();
+            for (var l = !0, o = 0; o < x.length; o++)
+                if (x[o].guessed) {
                     l = !1;
                     break
-                } l ? D.playSound(En) : D.playSound(Dn), b(I("The word was '$'", e.data.word), "", v($e), !0)
+                } l ? N.playSound(Rn) : N.playSound($n), b(I("The word was '$'", e.data.word), "", v(Ae), !0)
             /* TYPOMOD
                          desc: log finished drawing */
             ;document.dispatchEvent(new CustomEvent("drawingFinished", { detail: e.data.word }));
             /* TYPOEND */
-        } else e.id != Z && (O[0].textContent = I("WAITING"), O[0].classList.add("waiting"), O[1].style.display = "none", O[2].style.display = "none");
-        if (e.id == Z) {
-            if (M = e.data.id, D.playSound(Ln), Qt(!0), e.data.drawCommands && (k = e.data.drawCommands), b(I("$ is drawing now!", W(M).name), "", v(Re), !0), M != x && Kn.querySelector("input").focus(), !t)
-                for (o = 0; o < w.length; o++) ja(w[o], !1);
-            O[0].classList.remove("waiting"), M == x ? (a = e.data.word, O[0].textContent = I("DRAW THIS"), O[1].style.display = "", O[2].style.display = "none", O[1].textContent = a, Gn.classList.remove("toolbar-hidden"), Ct()) : (ma(!0), ya(e.data.word, !1), va(e.data.hints))
+        } else e.id != j && (O[0].textContent = I("WAITING"), O[0].classList.add("waiting"), O[1].style.display = "none", O[2].style.display = "none");
+        if (e.id == j) {
+            if (L = e.data.id, N.playSound(En), tn(!0), e.data.drawCommands && (k = e.data.drawCommands), b(I("$ is drawing now!", W(L).name), "", v(Ie), !0), L != M && _n.querySelector("input").focus(), !t)
+                for (o = 0; o < x.length; o++) Ja(x[o], !1);
+            O[0].classList.remove("waiting"), L == M ? (a = e.data.word, O[0].textContent = I("DRAW THIS"), O[1].style.display = "", O[2].style.display = "none", O[1].textContent = a, Fn.classList.remove("toolbar-hidden"), xt()) : (ga(!0), va(e.data.word, !1), ba(e.data.hints))
         } else {
-            M = -1;
-            for (o = 0; o < w.length; o++) ja(w[o], !1)
+            L = -1;
+            for (o = 0; o < x.length; o++) Ja(x[o], !1)
         }
-        if (e.id == Q && 0 < e.data.length) {
+        if (e.id == J && 0 < e.data.length) {
             for (var s = [], i = 0, o = 0; o < e.data.length; o++) {
                 var c, d = e.data[o][0],
                   u = e.data[o][1];
                 (c = W(d)) && 0 == u && (i = c.score, s.push(c.name))
             }
-            1 == s.length ? b(I("$ won with a score of $!", [s[0], i]), "", v(Ae), !0) : 1 < s.length && b(I("$ and $ won with a score of $!", [s.slice(0, -1).join(", "), s[s.length - 1], i]), "", v(Ae), !0)
+            1 == s.length ? b(I("$ won with a score of $!", [s[0], i]), "", v(Ne), !0) : 1 < s.length && b(I("$ and $ won with a score of $!", [s.slice(0, -1).join(", "), s[s.length - 1], i]), "", v(Ne), !0)
         }
-        for (o = 0; o < w.length; o++) Za(w[o], w[o].id == M);
-        Va()
-    }
-
-    function pa(e) {
-        s && s.connected && L.id == Z && (s.emit("data", {
-            id: qa,
-            data: e
-        }), ma(!1))
+        for (o = 0; o < x.length; o++) Qa(x[o], x[o].id == L);
+        ja()
     }
 
     function ma(e) {
+        l && l.connected && D.id == j && (l.emit("data", {
+            id: xa,
+            data: e
+        }), ga(!1))
+    }
+
+    function ga(e) {
         u.querySelector("#game-rate").style.display = e ? "" : "none"
     }
 
-    function ga() {
-        console.log("lobby left"), s && s.close(), Qt(!(s = void 0)), lo(), w = [], Pn = [], L = {
-            id: M = Wn = -1,
-            time: x = 0,
+    function fa() {
+        console.log("lobby left"), l && l.close(), tn(!(l = void 0)), co(), x = [], Yn = [], D = {
+            id: L = Pn = -1,
+            time: M = 0,
             data: 0
         }, u.querySelector("#home").style.display = "", u.querySelector("#game").style.display = "none"
     }
 
-    function fa(e) {
-        s && s.connected && L.id == j && s.emit("data", {
-            id: Na,
+    function ya(e) {
+        l && l.connected && D.id == X && l.emit("data", {
+            id: Oa,
             data: e
         })
     }
 
-    function ya(e, t) {
+    function va(e, t) {
         for (var n = e.length - 1, a = 0; a < e.length; a++) n += e[a];
-        var o = !t && 1 == Pn[ae.WORDMODE];
-        o && (n = 3), O[0].textContent = I(o ? "WORD HIDDEN" : "GUESS THIS"), O[1].style.display = "none", O[2].style.display = "", $(O[2]), O[2].hints = [];
-        for (a = 0; a < n; a++) O[2].hints[a] = R("hint", o ? "?" : "_"), O[2].appendChild(O[2].hints[a]);
-        o || O[2].appendChild(R("word-length", e.join(" ")))
+        var o = !t && 1 == Yn[ne.WORDMODE];
+        o && (n = 3), O[0].textContent = I(o ? "WORD HIDDEN" : "GUESS THIS"), O[1].style.display = "none", O[2].style.display = "", R(O[2]), O[2].hints = [];
+        for (a = 0; a < n; a++) O[2].hints[a] = $("hint", o ? "?" : "_"), O[2].appendChild(O[2].hints[a]);
+        o || O[2].appendChild($("word-length", e.join(" ")))
     }
 
-    function va(e) {
+    function ba(e) {
         for (var t = O[2].hints, n = 0; n < e.length; n++) {
             var a = e[n][0],
               o = e[n][1];
@@ -1750,138 +1755,138 @@
         }
     }
 
-    function ba(e) {
-        (!O[2].hints || O[2].hints.length < e.length) && ya([e.length], !0);
-        for (var t = [], n = 0; n < e.length; n++) t.push([n, e.charAt(n)]);
-        va(t)
-    }
-
     function ka(e) {
-        Wn = e;
-        for (var t = 0; t < w.length; t++) pe(w[t].element, w[t].id == Wn), Ka(w[t], 0, w[t].id == Wn);
-        var n = x != Wn;
-        u.querySelector("#start-game").disabled = n;
-        for (var a = 0; a < Ja.length; a++) Ja[a].element.disabled = n;
-        e = W(Wn);
-        e && b(I("$ is now the room owner!", e.name), "", v(Ae), !0)
+        (!O[2].hints || O[2].hints.length < e.length) && va([e.length], !0);
+        for (var t = [], n = 0; n < e.length; n++) t.push([n, e.charAt(n)]);
+        ba(t)
     }
-    const Sa = 1,
-      wa = 2,
-      Ca = 5,
-      qa = 8,
-      xa = 9,
-      Ma = 90,
-      La = 10,
-      Da = 11,
-      Ea = 12,
-      Ra = 13,
-      $a = 14,
-      Ia = 15,
-      Aa = 16,
-      Ta = 17,
-      Na = 18,
-      Oa = 19,
-      Wa = 20,
-      Pa = 21;
-    const Ya = 30,
-      za = 31,
-      Ha = 32;
 
-    function Ua(e) {
+    function Sa(e) {
+        Pn = e;
+        for (var t = 0; t < x.length; t++) pe(x[t].element, x[t].id == Pn), Va(x[t], 0, x[t].id == Pn);
+        var n = M != Pn;
+        u.querySelector("#start-game").disabled = n;
+        for (var a = 0; a < eo.length; a++) eo[a].element.disabled = n;
+        e = W(Pn);
+        e && b(I("$ is now the room owner!", e.name), "", v(Ne), !0)
+    }
+    const wa = 1,
+      Ca = 2,
+      qa = 5,
+      xa = 8,
+      Ma = 9,
+      La = 90,
+      Da = 10,
+      Ea = 11,
+      $a = 12,
+      Ra = 13,
+      Ia = 14,
+      Aa = 15,
+      Ta = 16,
+      Na = 17,
+      Oa = 18,
+      Wa = 19,
+      Pa = 20,
+      Ya = 21;
+    const za = 30,
+      Ha = 31,
+      Ua = 32;
+
+    function Ba(e) {
         var t = e.id,
           n = e.data;
         switch (t) {
-            case La:
+            case Da:
                 /* TYPOMOD
                                  desc: send lobbydata*/
                 document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: n }));
                 /* TYPOEND*/
-                la(n);
-                break;
-            case Da:
-                ha(n);
+                sa(n);
                 break;
             case Ea:
-                ca(n.id, n.val, !1);
-                break;
-            case Ra:
-                va(n);
+                pa(n);
                 break;
             case $a:
-                so(n);
+                da(n.id, n.val, !1);
                 break;
-            case Sa:
-                var a = Ba(n, !0);
-                Xa(), a.joinTimeout = setTimeout(() => {
-                    b(I("$ joined the room!", a.name), "", v($e), !0), D.playSound(Rn), a.joinTimeout = void 0
-                }, 0 == Yn ? 1e3 : 0);
+            case Ra:
+                ba(n);
                 break;
-            case xa:
-                (a = W(n.id)) && (a.avatar = n.avatar, he(a.element.avatar, a.avatar));
-                break;
-            case Ma:
-                (a = W(n.id)) && (a.name = n.name, a.element.querySelector(".player-name").textContent = n.name);
+            case Ia:
+                uo(n);
                 break;
             case wa:
+                var a = Fa(n, !0);
+                Za(), a.joinTimeout = setTimeout(() => {
+                    b(I("$ joined the room!", a.name), "", v(Ae), !0), N.playSound(In), a.joinTimeout = void 0
+                }, 0 == zn ? 1e3 : 0);
+                break;
+            case Ma:
+                (a = W(n.id)) && (a.avatar = n.avatar, he(a.element.avatar, a.avatar));
+                break;
+            case La:
+                (a = W(n.id)) && (a.name = n.name, a.element.querySelector(".player-name").textContent = n.name);
+                break;
+            case Ca:
                 (a = function(e) {
-                    for (var t = 0; t < w.length; t++) {
-                        var n = w[t];
-                        if (n.id == e) return w.splice(t, 1), n.element.remove(), Xa(), Va(), n
+                    for (var t = 0; t < x.length; t++) {
+                        var n = x[t];
+                        if (n.id == e) return x.splice(t, 1), n.element.remove(), Za(), ja(), n
                     }
                     return
                 }(n.id)) && (null == a.joinTimeout ? (b(function(e, t) {
                     switch (e) {
                         default:
                             return I("$ left the room!", t);
-                        case te:
+                        case ee:
                             return I("$ has been kicked!", t);
-                        case ne:
+                        case te:
                             return I("$ has been banned!", t)
                     }
-                }(n.reason, a.name), "", v(Ie), !0), D.playSound($n)) : (clearTimeout(a.joinTimeout), a.joinTimeout = void 0), n.id != M || n.reason != te && n.reason != ne || Qt(!0));
+                }(n.reason, a.name), "", v(Te), !0), N.playSound(An)) : (clearTimeout(a.joinTimeout), a.joinTimeout = void 0), n.id != L || n.reason != ee && n.reason != te || tn(!0));
                 break;
-            case Ca:
+            case qa:
                 var o = W(n[0]),
                   r = W(n[1]),
                   i = n[2],
                   l = n[3];
-                o && r && b(I("$ is voting to kick $ ($/$)", [o.name, r.name, i, l]), "", v(Ee), !0);
-                break;
-            case Ia:
-                (a = W(n.id)) && (b(I("$ guessed the word!", a.name), "", v($e), !0).classList.add("guessed"), ja(a, !0), D.playSound(In), n.id == x) && ba(n.word);
-                break;
-            case qa:
-                (a = W(n.id)) && (o = a, r = 0 == n.vote ? "thumbsdown.gif" : "thumbsup.gif", (i = R("icon")).style.backgroundImage = "url(/img/" + r + ")", r = Fa(o, i).getBoundingClientRect(), o = .9 * (r.bottom - r.top), i.style.width = o + "px", i.style.height = o + "px", n.vote ? b(I("$ liked the drawing!", a.name), "", v($e), !0) : b(I("$ disliked the drawing!", a.name), "", v(Ie), !0));
-                break;
-            case Ta:
-                ka(n);
+                o && r && b(I("$ is voting to kick $ ($/$)", [o.name, r.name, i, l]), "", v(Re), !0);
                 break;
             case Aa:
-                b(I("$ is close!", n), "", v(Ee), !0);
+                (a = W(n.id)) && (b(I("$ guessed the word!", a.name), "", v(Ae), !0).classList.add("guessed"), Ja(a, !0), N.playSound(Tn), n.id == M) && ka(n.word);
                 break;
-            case Ya:
-                Ga(W(n.id), n.msg);
+            case xa:
+                (a = W(n.id)) && (o = a, r = 0 == n.vote ? "thumbsdown.gif" : "thumbsup.gif", (i = $("icon")).style.backgroundImage = "url(/img/" + r + ")", r = _a(o, i).getBoundingClientRect(), o = .9 * (r.bottom - r.top), i.style.width = o + "px", i.style.height = o + "px", n.vote ? b(I("$ liked the drawing!", a.name), "", v(Ae), !0) : b(I("$ disliked the drawing!", a.name), "", v(Te), !0));
                 break;
-            case Ha:
-                b(I("Spam detected! You're sending messages too quickly."), "", v(Ie), !0);
+            case Na:
+                Sa(n);
+                break;
+            case Ta:
+                b(I("$ is close!", n), "", v(Re), !0);
                 break;
             case za:
+                Ka(W(n.id), n.msg);
+                break;
+            case Ua:
+                b(I("Spam detected! You're sending messages too quickly."), "", v(Te), !0);
+                break;
+            case Ha:
                 switch (n.id) {
                     case 0:
-                        b(I("You need at least 2 players to start the game!"), "", v(Ie), !0);
+                        b(I("You need at least 2 players to start the game!"), "", v(Te), !0);
                         break;
                     case 100:
-                        b(I("Server restarting in about $ seconds!", n.data), "", v(Ie), !0)
+                        b(I("Server restarting in about $ seconds!", n.data), "", v(Te), !0)
                 }
                 break;
-            case Oa:
-                for (var s = 0; s < n.length; s++) tn(n[s]);
-                break;
             case Wa:
-                Qt(!0);
+                for (var s = 0; s < n.length; s++) an(n[s]);
                 break;
             case Pa:
-                Xt(n);
+                tn(!0);
+                break;
+            case Ya:
+                Zt(n);
                 break;
             default:
                 return void console.log("Unimplemented data packed received with id " + t)
@@ -1889,13 +1894,17 @@
     }
 
     function W(e) {
-        for (var t = 0; t < w.length; t++) {
-            var n = w[t];
+        for (var t = 0; t < x.length; t++) {
+            var n = x[t];
             if (n.id == e) return n
         }
     }
 
-    function Ba(e, t) {
+    function Ga(e) {
+        return (e.flags & w) == w ? ["glow", "hue-rotate"] : []
+    }
+
+    function Fa(e, t) {
         var n = {
               id: e.id,
               flags: e.flags,
@@ -1908,66 +1917,64 @@
               votekick: !1,
               reported: !1,
               page: 0,
-              element: R("player"),
+              element: $("player"),
               bubble: void 0
           },
-          e = (w.push(n), (n.flags & On) == On),
-          a = (e && (n.element.classList.add("admin"), n.interval = setInterval(function() {
-              n.avatar[0] = (n.avatar[0] + 1) % U[0], he(r, n.avatar)
-          }, 250)), n.id == x ? I("$ (You)", n.name) : n.name),
-          o = R("player-avatar-container"),
+          e = (x.push(n), n.id == M ? I("$ (You)", n.name) : n.name),
+          a = (n.flags & w) == w,
+          o = (a && n.element.classList.add("admin"), $("player-avatar-container")),
           r = ue(n.avatar),
-          o = (n.element.drawing = R("drawing"), (n.element.avatar = r).appendChild(n.element.drawing), o.appendChild(r), n.element.appendChild(o), Vn.appendChild(n.element), R("player-info")),
-          a = R("player-name", a),
-          a = (n.id == x && a.classList.add("me"), o.appendChild(a), o.appendChild(R("player-rank", "#" + n.rank)), o.appendChild(R("player-score", I("$ points", n.score))), e && o.appendChild(R("player-tag", "THE CREATOR")), n.element.appendChild(o), E(n.element, "click", function() {
-              N = n, i(m, n)
-          }), R("player-icons")),
-          e = R("icon owner"),
-          o = R("icon muted");
+          o = (n.element.drawing = $("drawing"), (n.element.avatar = r).appendChild(n.element.drawing), o.appendChild(r), n.element.appendChild(o), Xn.appendChild(n.element), me(r, Ga(n)), $("player-info")),
+          r = $("player-name", e),
+          e = (n.id == M && r.classList.add("me"), o.appendChild(r), o.appendChild($("player-rank", "#" + n.rank)), o.appendChild($("player-score", I("$ points", n.score))), a && o.appendChild($("player-tag", "ADMIN")), n.element.appendChild(o), E(n.element, "click", function() {
+              s = n, xe(m, n)
+          }), $("player-icons")),
+          r = $("icon owner"),
+          a = $("icon muted");
         /* TYPOMOD
                  desc: set ID to player to identify */
         n.element.setAttribute("playerid", n.id);
         /* TYPOEND */
-        return a.appendChild(e), a.appendChild(o), n.element.appendChild(a), n.element.icons = [e, o], ja(n, n.guessed), t && Va(), n
+        return e.appendChild(r), e.appendChild(a), n.element.appendChild(e), n.element.icons = [r, a], Ja(n, n.guessed), t && ja(), n
     }
 
-    function Ga(e, t) {
+    function Ka(e, t) {
         var n, a, o;
-        !e.muted && (o = ((a = W(x)).flags & On) == On, n = e.id == M || e.guessed, x == M || a.guessed || !n || o) && (a = (e.flags & On) == On, o = De, n && (o = Te), a && (o = Ie), Fa(e, R("text", t)), b(e.name, t, v(o))
+        !e.muted && (o = ((a = W(M)).flags & w) == w, n = e.id == L || e.guessed, M == L || a.guessed || !n || o) && (a = (e.flags & w) == w, o = $e, n && (o = Oe), a && (o = Te), _a(e, $("text", t)), b(e.name, t, v(o))
           .setAttribute("playerid", e.id))
     }
 
-    function Fa(e, t) {
+    function _a(e, t) {
         e.bubble && (clearTimeout(e.bubble.timeout), e.bubble.remove(), e.bubble = void 0);
-        var n = R("player-bubble"),
-          a = R("content");
-        return a.appendChild(t), n.appendChild(R("arrow")), n.appendChild(a), e.element.appendChild(n), e.bubble = n, e.bubble.timeout = setTimeout(function() {
+        var n = $("player-bubble"),
+          a = $("content");
+        return a.appendChild(t), n.appendChild($("arrow")), n.appendChild(a), e.element.appendChild(n), e.bubble = n, e.bubble.timeout = setTimeout(function() {
             e.bubble.remove(), e.bubble = void 0
         }, 1500), n
     }
 
-    function Ka(e, t, n) {
+    function Va(e, t, n) {
         n ? e.element.icons[t].classList.add("visible") : e.element.icons[t].classList.remove("visible")
     }
-    var _a = void 0;
+    var Xa = void 0;
 
-    function Va() {
-        L.id, ee;
-        for (var e = getComputedStyle(u.documentElement).getPropertyValue("--PLAYERS_PER_PAGE"), t = (e <= 0 && (t = Math.max(48, Vn.clientHeight), e = Math.floor(t / 48)), Math.ceil(w.length / e)), n = 0; n < w.length; n++) w[n].page = Math.floor(n / e);
-        null == _a ? _a = me(Xn, t, [Fn], function(e, t, n) {
-            for (var a = [], o = 0; o < w.length; o++) {
-                var r = (i = w[o]).page == t;
+    function ja() {
+        D.id, Q;
+        for (var e = getComputedStyle(u.documentElement).getPropertyValue("--PLAYERS_PER_PAGE"), t = (e <= 0 && (t = Math.max(48, Xn.clientHeight), e = Math.floor(t / 48)), Math.ceil(x.length / e)), n = 0; n < x.length; n++) x[n].page = Math.floor(n / e);
+        null == Xa ? Xa = ge(jn, t, [Kn], function(e, t, n) {
+            for (var a = [], o = 0; o < x.length; o++) {
+                var r = (i = x[o]).page == t;
                 i.element.style.display = r ? "" : "none", r && a.push(i.element)
             }
             if (0 < a.length) {
                 for (var i, o = 0; o < a.length; o++)(i = a[o]).classList.remove("first"), i.classList.remove("last"), o % 2 == 0 ? i.classList.remove("odd") : i.classList.add("odd");
                 a[0].classList.add("first"), a[a.length - 1].classList.add("last")
             }
-        }) : ge(_a, t), _a.element.style.display = 1 < t ? "" : "none"
+        }) : fe(Xa, t), Xa.element.style.display = 1 < t ? "" : "none"
     }
 
-    function Xa() {
-        for (var e = [], t = 0; t < w.length; t++) e.push(w[t]);
+    function Za() {
+        for (var e = [], t = 0; t < x.length; t++) e.push(x[t]);
         e.sort(function(e, t) {
             return t.score - e.score
         });
@@ -1977,59 +1984,59 @@
         }
     }
 
-    function ja(e, t) {
+    function Ja(e, t) {
         (e.guessed = t) ? e.element.classList.add("guessed"): e.element.classList.remove("guessed")
     }
 
-    function Za(e, t) {
+    function Qa(e, t) {
         e.element.drawing.style.display = t ? "block" : "none"
     }
-    var Ja = [];
-    for (var Qa = ct.querySelectorAll('*[id^="item-"]'), eo = 0; eo < Qa.length; eo++) {
-        var to = {
-            id: Qa[eo].id.replace("item-settings-", ""),
-            element: Qa[eo],
-            index: Qa[eo].dataset.setting
+    var eo = [];
+    for (var to = ut.querySelectorAll('*[id^="item-"]'), no = 0; no < to.length; no++) {
+        var ao = {
+            id: to[no].id.replace("item-settings-", ""),
+            element: to[no],
+            index: to[no].dataset.setting
         };
-        Qa[eo].item = to, Ja.push(to), E(Qa[eo].item.element, "change", function() {
+        to[no].item = ao, eo.push(ao), E(to[no].item.element, "change", function() {
             var e = this.value;
-            "checkbox" == this.type && (e = this.checked ? 1 : 0), null != this.item.index && ca(this.item.index, e, !0)
+            "checkbox" == this.type && (e = this.checked ? 1 : 0), null != this.item.index && da(this.item.index, e, !0)
         })
     }
-    const no = 10,
-      ao = 4;
-    var oo = u.querySelector("#game-clock"),
-      ro = null,
-      io = 0;
+    const oo = 10,
+      ro = 4;
+    var io = u.querySelector("#game-clock"),
+      lo = null,
+      so = 0;
 
-    function lo() {
-        ro && (clearInterval(ro), ro = null)
+    function co() {
+        lo && (clearInterval(lo), lo = null)
     }
 
-    function so(e) {
-        io = e, oo.textContent = io, _n.querySelector(".mobile .drawtime span").textContent = io + "s"
+    function uo(e) {
+        so = e, io.textContent = so, Vn.querySelector(".mobile .drawtime span").textContent = so + "s"
     }
-    var co, t = u.querySelector("#tutorial"),
-      uo = t.querySelectorAll(".page"),
-      ho = me(t.querySelector(".navigation"), uo.length, [t.querySelector(".pages")], function(e, t, n) {
-          n && clearInterval(po);
-          for (var a = 0; a < uo.length; a++) uo[a].classList.remove("active");
-          uo[t].classList.add("active")
+    var ho, t = u.querySelector("#tutorial"),
+      po = t.querySelectorAll(".page"),
+      mo = ge(t.querySelector(".navigation"), po.length, [t.querySelector(".pages")], function(e, t, n) {
+          n && clearInterval(go);
+          for (var a = 0; a < po.length; a++) po[a].classList.remove("active");
+          po[t].classList.add("active")
       }),
-      po = setInterval(function() {
-          ho.selected < 4 ? fe(ho, ho.selected + 1, !1) : fe(ho, 0, !1)
+      go = setInterval(function() {
+          mo.selected < 4 ? ye(mo, mo.selected + 1, !1) : ye(mo, 0, !1)
       }, 3500),
-      ct = u.querySelector("#game-settings");
+      ut = u.querySelector("#game-settings");
     u.querySelector("#audio"), u.querySelector("#lightbulb");
 
-    function mo() {
+    function fo() {
         var e = .01 * h.innerHeight;
         u.documentElement.style.setProperty("--vh", e + "px")
     }
 
-    function go() {
-        b(I("Copied room link to clipboard!"), "", v(Ee), !0);
-        var e = "https://skribbl.io/?" + Hn;
+    function yo() {
+        b(I("Copied room link to clipboard!"), "", v(Re), !0);
+        var e = "https://skribbl.io/?" + Un;
         if (navigator.clipboard) navigator.clipboard.writeText(e).then(function() {
             console.log("Async: Copying to clipboard was successful!")
         }, function(e) {
@@ -2048,146 +2055,146 @@
         }
     }
 
-    function fo(e) {
-        var t = xe.querySelector(".characters");
+    function vo(e) {
+        var t = Le.querySelector(".characters");
         0 == (t.textContent = e) ? t.classList.remove("visible") : t.classList.add("visible")
     }
 
-    function yo(e) {
-        s && s.connected ? s.emit("data", {
-            id: Ya,
+    function bo(e) {
+        l && l.connected ? l.emit("data", {
+            id: za,
             data: e
-        }) : Ga(W(x), e)
+        }) : Ka(W(M), e)
     }
-    E(ct, "click", function() {
-        i(g)
+    E(ut, "click", function() {
+        xe(g)
     }), E(h, "resize", function() {
-        mo(), Va()
+        fo(), ja()
     }), h.onunload = function() {
-        console.log("huh"), s && ga()
+        console.log("huh"), l && fa()
     }, E(u, "PointerEvent" in h ? "pointerdown" : "click", function(e) {
-        Ge.elements.main.contains(e.target) || Ge.isOpen && (delete u.documentElement.dataset.mobileKeyboardOpen, Va(), Ge.isOpen = !1), u.querySelector("#game-toolbar .sizes").contains(e.target) || Ft()
-    }), E([Zn, Jn], "change", a), E(Qn, "click",
+        Ke.elements.main.contains(e.target) || Ke.isOpen && (delete u.documentElement.dataset.mobileKeyboardOpen, ja(), Ke.isOpen = !1), u.querySelector("#game-toolbar .sizes").contains(e.target) || _t()
+    }), E([Jn, Qn], "change", ce), E(ea, "click",
       typo.joinLobby = function() {
           var t, e, n, a, o;
           n = h.location.href,
-            typo.lastConnect = Date.now(), o = "", n = n.split("?"), t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o, Un || (e = "" != t ? "id=" + t : "lang=" + Jn.value, qe(), na(!0), ra(function() {
-              aa(location.origin + "/api/play", e, function(e) {
-                  na(!1), e.success && ia(e.data, t)
+            typo.lastConnect = Date.now(), o = "", n = n.split("?"), t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o, Bn || (e = "" != t ? "id=" + t : "lang=" + Qn.value, Me(), aa(!0), ia(function() {
+              oa(location.origin + "/api/play", e, function(e) {
+                  aa(!1), e.success && la(e.data, t)
               }, !0)
           }))
-      }), E(ea, "click", function() {
-        Un || (qe(), na(!0), ra(function() {
-            aa(location.origin + "/api/play", "lang=" + Jn.value, function(e) {
-                e.success ? ia(e.data, 0, 1) : na(!1)
+      }), E(ta, "click", function() {
+        Bn || (Me(), aa(!0), ia(function() {
+            oa(location.origin + "/api/play", "lang=" + Qn.value, function(e) {
+                e.success ? la(e.data, 0, 1) : aa(!1)
             }, !0)
         }))
     }), E(u.querySelector("#game-rate .like"), "click", function() {
-        pa(1)
+        ma(1)
     }), E(u.querySelector("#game-rate .dislike"), "click", function() {
-        pa(0)
+        ma(0)
     }), E(u.querySelector("#start-game"), "click", function() {
-        if (s) {
+        if (l) {
             var e = u.querySelector("#item-settings-customwords").value.split(","),
               t = "";
             if (5 <= e.length) {
                 for (var n = 0; n < e.length; n++) e[n] = e[n].trim();
                 t = e.join(",")
             }
-            s.emit("data", {
+            l.emit("data", {
                 id: 22,
                 data: t
             })
         }
-    }), E([u.querySelector("#copy-invite"), u.querySelector("#modal-player-button-invite")], "click", go), E(y[m].querySelector("button.kick"), "click", function() {
-        qe(), null != N && N.id != x && s && s.emit("data", {
+    }), E([u.querySelector("#copy-invite"), u.querySelector("#modal-player-button-invite")], "click", yo), E(y[m].querySelector("button.kick"), "click", function() {
+        Me(), null != s && s.id != M && l && l.emit("data", {
             id: 3,
-            data: N.id
+            data: s.id
         })
     }), E(y[m].querySelector("button.ban"), "click", function() {
-        qe(), null != N && N.id != x && s && s.emit("data", {
+        Me(), null != s && s.id != M && l && l.emit("data", {
             id: 4,
-            data: N.id
+            data: s.id
         })
     }), E(y[m].querySelector("button.votekick"), "click", function() {
-        qe(), null != N && N.id != x && s && (N.id == Wn ? b(I("You can not votekick the lobby owner!"), "", v(Ie), !0) : s.emit("data", {
-            id: Ca,
-            data: N.id
+        Me(), null != s && s.id != M && l && (s.id == Pn ? b(I("You can not votekick the lobby owner!"), "", v(Te), !0) : l.emit("data", {
+            id: qa,
+            data: s.id
         }))
     }), E(y[m].querySelector("button.mute"), "click", function() {
-        null != N && N.id != x && (N.muted = !N.muted, Ka(N, 1, N.muted), N.muted ? b(I("You muted '$'!", N.name), "", v(Ie), !0) : b(I("You unmuted '$'!", N.name), "", v(Ie), !0), s && s.emit("data", {
+        null != s && s.id != M && (s.muted = !s.muted, Va(s, 1, s.muted), s.muted ? b(I("You muted '$'!", s.name), "", v(Te), !0) : b(I("You unmuted '$'!", s.name), "", v(Te), !0), l && l.emit("data", {
             id: 7,
-            data: N.id
-        }), Ce(N.muted))
+            data: s.id
+        }), qe(s.muted))
     }), E(y[m].querySelector("button.report"), "click", function() {
         y[m].querySelector(".buttons").style.display = "none", y[m].querySelector(".player").style.display = "none", y[m].querySelector(".report-menu").style.display = "";
         for (var e = y[m].querySelectorAll(".report-menu input"), t = 0; t < e.length; t++) e[t].checked = !1
     }), E(y[m].querySelector("button#report-send"), "click", function() {
         var e = 0;
-        y[m].querySelector("#report-reason-toxic").checked && (e |= 1), y[m].querySelector("#report-reason-spam").checked && (e |= 2), y[m].querySelector("#report-reason-bot").checked && (e |= 4), 0 < e && (null != N && N.id != x && (N.reported = !0, s && s.emit("data", {
+        y[m].querySelector("#report-reason-toxic").checked && (e |= 1), y[m].querySelector("#report-reason-spam").checked && (e |= 2), y[m].querySelector("#report-reason-bot").checked && (e |= 4), 0 < e && (null != s && s.id != M && (s.reported = !0, l && l.emit("data", {
             id: 6,
             data: {
-                id: N.id,
+                id: s.id,
                 reasons: e
             }
-        }), b(I("Your report for '$' has been sent!", N.name), "", v(Ee), !0)), qe())
+        }), b(I("Your report for '$' has been sent!", s.name), "", v(Re), !0)), Me())
     }), E(y[g].querySelector("#volume input"), "change", function(e) {
-        p.volume = e.target.value, D.setVolume(p.volume), D.playSound(In), a()
+        p.volume = e.target.value, N.setVolume(p.volume), N.playSound(Tn), ce()
     }), E(y[g].querySelector("#select-pressure-sensitivity"), "change", function(e) {
-        p.pressureSensitivity = e.target.value, a()
+        p.pressureSensitivity = e.target.value, ce()
     }), E(y[g].querySelector("button.reset"), "click", function() {
         for (var e = 0; e < d.length; e++) {
             var t = d[e];
             t.key = t.def, t.listing.querySelector("input").value = t.key;
             for (var n = 0; n < t.changed.length; n++) t.changed[n](t)
         }
-        ce()
+        se()
     }), E(u.querySelector("#game-keyboard button.settings"), "click", function(e) {
-        i(g)
-    }), E(Me, "focusin focus", function(e) {
+        xe(g)
+    }), E(De, "focusin focus", function(e) {
         e.preventDefault()
-    }), E(Me, "input", function(e) {
-        fo(Me.value.length)
-    }), E(xe, "submit", function(e) {
-        const input = Me; let rest = input.value.substring(100);
+    }), E(De, "input", function(e) {
+        vo(De.value.length)
+    }), E(Le, "submit", function(e) {
+        const input = De; let rest = input.value.substring(100);
         input.value = input.value.substring(0,100);
         if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event("submit"));},180);
-        return e.preventDefault(), Me.value && yo(Me.value), xe.reset(), fo(0), !1
-    }), mo(), h.localStorageAvailable ? (Zn.value = n("name", ""), Jn.value = function(e) {
+        return e.preventDefault(), De.value && bo(De.value), Le.reset(), vo(0), !1
+    }), fo(), h.localStorageAvailable ? (Jn.value = a("name", ""), Qn.value = function(e) {
         for (var t = u.querySelectorAll("#home .panel .container-name-lang select option"), n = 0; n < t.length; n++)
             if (t[n].value == e) return t[n].value;
         return 0
-    }(n("lang", 0)), p.displayLang = n("displaylang", "en"), p.volume = parseInt(n("volume", 100)), p.filterChat = 1 == parseInt(n("filter", 1)) ? 1 : 0, p.pressureSensitivity = 1 == parseInt(n("pressure", 1)) ? 1 : 0, p.avatar = (t = "ava", ct = p.avatar, null == (t = c.getItem(t)) ? ct : JSON.parse(t)), Ue.value = n("keyboard", 1), Be.value = n("keyboardlayout", "en"), Ke(), y[g].querySelector("#volume input").value = p.volume, D.setVolume(p.volume), console.log("Settings loaded.")) : console.log("Settings not loaded. LocalStorage unavailable.");
-    for (var vo = u.querySelectorAll("[data-translate]"), bo = 0; bo < vo.length; bo++) {
-        var ko = vo[bo];
-        Ze(ko, ko.dataset.translate)
+    }(a("lang", 0)), p.displayLang = a("displaylang", "en"), p.volume = parseInt(a("volume", 100)), p.filterChat = 1 == parseInt(a("filter", 1)) ? 1 : 0, p.pressureSensitivity = 1 == parseInt(a("pressure", 1)) ? 1 : 0, p.avatar = (t = "ava", ut = p.avatar, null == (t = c.getItem(t)) ? ut : JSON.parse(t)), Ge.value = a("keyboard", 1), Fe.value = a("keyboardlayout", "en"), Ve(), y[g].querySelector("#volume input").value = p.volume, N.setVolume(p.volume), console.log("Settings loaded.")) : console.log("Settings not loaded. LocalStorage unavailable.");
+    for (var ko = u.querySelectorAll("[data-translate]"), So = 0; So < ko.length; So++) {
+        var wo = ko[So];
+        Qe(wo, wo.dataset.translate)
     }
-    for (var So = Ve[p.displayLang], wo = 0; wo < Xe.length; wo++) {
-        var Co = Xe[wo],
-          qo = je(So, Co.key);
-        "text" == Co.type && (Co.element.textContent = qo), "placeholder" == Co.type && (Co.element.placeholder = qo)
+    for (var Co = je[p.displayLang], qo = 0; qo < Ze.length; qo++) {
+        var xo = Ze[qo],
+          Mo = Je(Co, xo.key);
+        "text" == xo.type && (xo.element.textContent = Mo), "placeholder" == xo.type && (xo.element.placeholder = Mo)
     }
 
-    function xo(e) {
-        co.parts[e].classList.remove("bounce"), co.parts[e].offsetWidth, co.parts[e].classList.add("bounce")
+    function Lo(e) {
+        ho.parts[e].classList.remove("bounce"), ho.parts[e].offsetWidth, ho.parts[e].classList.add("bounce")
     }
-    E(Qn = u.querySelectorAll("[data-tooltip]"), "pointerenter", function(e) {
-        Pe(e.target)
-    }), E(Qn, "pointerleave", function(e) {
-        Ye()
-    }), ct = (ea = u.querySelector("#home .avatar-customizer")).querySelector(".container"), t = ea.querySelectorAll(".arrows.left .arrow"), Qn = ea.querySelectorAll(".arrows.right .arrow"), ea = ea.querySelectorAll(".randomize"), (co = ue(p.avatar)).classList.add("fit"), ct.appendChild(co), E(t, "click", function() {
+    E(ea = u.querySelectorAll("[data-tooltip]"), "pointerenter", function(e) {
+        ze(e.target)
+    }), E(ea, "pointerleave", function(e) {
+        He()
+    }), ut = (ta = u.querySelector("#home .avatar-customizer")).querySelector(".container"), t = ta.querySelectorAll(".arrows.left .arrow"), ea = ta.querySelectorAll(".arrows.right .arrow"), ta = ta.querySelectorAll(".randomize"), (ho = ue(p.avatar)).classList.add("fit"), ut.appendChild(ho), E(t, "click", function() {
         var e = parseInt(this.dataset.avatarIndex);
-        --p.avatar[e], p.avatar[e] < 0 && (p.avatar[e] = U[e] - 1), xo(e), he(co, p.avatar), a()
-    }), E(Qn, "click", function() {
-        var e = parseInt(this.dataset.avatarIndex);
-        p.avatar[e] += 1, p.avatar[e] >= U[e] && (p.avatar[e] = 0), xo(e), he(co, p.avatar), a()
+        --p.avatar[e], p.avatar[e] < 0 && (p.avatar[e] = n[e] - 1), Lo(e), he(ho, p.avatar), ce()
     }), E(ea, "click", function() {
-        p.avatar[0] = Math.floor(Math.random() * U[0]), p.avatar[1] = Math.floor(Math.random() * U[1]), p.avatar[2] = Math.floor(Math.random() * U[2]), xo(1), xo(2), he(co, p.avatar), a()
+        var e = parseInt(this.dataset.avatarIndex);
+        p.avatar[e] += 1, p.avatar[e] >= n[e] && (p.avatar[e] = 0), Lo(e), he(ho, p.avatar), ce()
+    }), E(ta, "click", function() {
+        p.avatar[0] = Math.floor(Math.random() * n[0]), p.avatar[1] = Math.floor(Math.random() * n[1]), p.avatar[2] = Math.floor(Math.random() * n[2]), Lo(1), Lo(2), he(ho, p.avatar), ce()
     });
-    for (var Mo = Math.round(8 * Math.random()), Lo = u.querySelector("#home .logo-big .avatar-container"), Do = 0; Do < 8; Do++) {
-        var Eo = [0, 0, 0, -1],
-          Eo = (Eo[0] = Do, Eo[1] = Math.round(100 * Math.random()) % z, Eo[2] = Math.round(100 * Math.random()) % H, 100 * Math.random() < 1 && (Eo[3] = Math.floor(20 * Math.random())), ta && 100 * Math.random() < 35 && (Eo[3] = 96 + Math.floor(4 * Math.random())), ue(Eo, 0, Mo == Do));
-        Eo.index = Do, Lo.appendChild(Eo), E(Eo, "click", function() {
+    for (var Do = Math.round(8 * Math.random()), Eo = u.querySelector("#home .logo-big .avatar-container"), $o = 0; $o < 8; $o++) {
+        var Ro = [0, 0, 0, -1],
+          Ro = (Ro[0] = $o, Ro[1] = Math.round(100 * Math.random()) % z, Ro[2] = Math.round(100 * Math.random()) % H, 100 * Math.random() < 1 && (Ro[3] = Math.floor(20 * Math.random())), na && 100 * Math.random() < 35 && (Ro[3] = 96 + Math.floor(4 * Math.random())), ue(Ro, 0, Do == $o));
+        Ro.index = $o, Eo.appendChild(Ro), E(Ro, "click", function() {
             var e = [this.index, 0, 0, -1];
             e[1] = Math.round(100 * Math.random()) % z, e[2] = Math.round(100 * Math.random()) % H, 1e3 * Math.random() < 10 && (e[3] = Math.floor(20 * Math.random())), he(this, e), this.classList.remove("clicked"), this.offsetWidth, this.classList.add("clicked")
         })
