@@ -62,7 +62,7 @@ let imageOptions = {
     initContainer: () => {
         // new imageoptions container on the right side
         let imgtools = elemFromString(`<div id="imageOptions"></div>`);
-        QS("#game-players").appendChild(imgtools);
+        QS("#game-chat").appendChild(imgtools);
         imageOptions.optionsContainer = imgtools;
     },
     downloadDataURL: async (url, name = "skribbl-unknown", scale = 1) => {
@@ -238,8 +238,38 @@ let imageOptions = {
         }
         Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
     },
+    initFullscreen: () => {
+        // add fullscreen btn
+        let fulls = elemFromString("<img data-typo-tooltip='Fullscreen' data-tooltipdir='N'  style='cursor:pointer;' src='" + chrome.runtime.getURL("/res/fullscreen.gif") + "'>");
+        fulls.addEventListener("click", () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            else {
+                if (QS("#game").style.display == "none") {
+                    new Toast("Fullscreen mode is only available in-game.", 2000);
+                    return;
+                }
+                document.documentElement.requestFullscreen();
+                document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
+                    div#game-board, #game-container{flex-grow:1}
+                    #game-wrapper{width:100%; padding:1em}
+                    #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
+                    #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
+                    .logo-small{display:none !important}  
+                    *::-webkit-scrollbar{display:none}</style>`);
+            }
+        });
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) {
+                QS("#fullscreenRules").remove();
+            }
+        });
+        imageOptions.optionsContainer.appendChild(fulls);
+    },
     initAll: () => {
         imageOptions.initContainer();
+        imageOptions.initFullscreen();
         imageOptions.initDownloadOptions();
     }
 }

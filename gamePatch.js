@@ -46,7 +46,7 @@
             me = 0,
             owner = 0,
             users = [],
-            state = { id: 4, time: 999, data: { id: 0, word: "Anything" } }) => {
+            state = { id: 4, time: 0, data: { id: 0, word: "Anything" } }) => {
               if (users.length == 0) users = [typo.createFakeUser()];
               return { settings: settings, id: id, me: me, owner: owner, round: 0, users: users, state: state };
           },

@@ -502,7 +502,7 @@ label input[type="checkbox"].flatUI:checked:after {
     height: 48px;
     background-color: var(--COLOR_CHAT_BG_BASE);
     width: 100%;
-    bottom: -55px;
+    bottom: -54px;
     border-radius: 3px;
     display: flex;
     padding: .4em 0px;
@@ -1293,4 +1293,32 @@ bounceload {
     inset: 0;
     background-repeat: no-repeat;
     pointer-events: none;
+}
+
+body > div.pcr-app.visible > div.pcr-interaction:after {
+    content: "Only typo users can see custom colors!";
+    font-size: .8em;
+    padding-top: .5em;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+.colors.color-tools {
+    margin-left: var(--BORDER_GAP);
+}
+
+.color-tools .color {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+    background-repeat: no-repeat;
+    background-size: 90%;
+    background-position: center;
+    background-color: var(--COLOR_TOOL_BASE);
+}
+
+.color-tools .bottom .color {
+    border-top: 1px solid lightgray;
+}
+
+.color-tools .top .color {
+    border-bottom: 1px solid lightgray;
 }
