@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.3.171723391
+// @version 26.0.3.171724466
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -3311,7 +3311,7 @@ let imageOptions = {
     initContainer: () => {
         // new imageoptions container on the right side
         let imgtools = elemFromString(`<div id="imageOptions"></div>`);
-        QS("#game-players").appendChild(imgtools);
+        QS("#game-chat").appendChild(imgtools);
         imageOptions.optionsContainer = imgtools;
     },
     downloadDataURL: async (url, name = "skribbl-unknown", scale = 1) => {
@@ -3487,8 +3487,38 @@ let imageOptions = {
         }
         Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
     },
+    initFullscreen: () => {
+        // add fullscreen btn
+        let fulls = elemFromString("<img data-typo-tooltip='Fullscreen' data-tooltipdir='N'  style='cursor:pointer;' src='" + chrome.runtime.getURL("/res/fullscreen.gif") + "'>");
+        fulls.addEventListener("click", () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            else {
+                if (QS("#game").style.display == "none") {
+                    new Toast("Fullscreen mode is only available in-game.", 2000);
+                    return;
+                }
+                document.documentElement.requestFullscreen();
+                document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
+                    div#game-board, #game-container{flex-grow:1}
+                    #game-wrapper{width:100%; padding:1em}
+                    #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
+                    #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
+                    .logo-small{display:none !important}  
+                    *::-webkit-scrollbar{display:none}</style>`);
+            }
+        });
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) {
+                QS("#fullscreenRules").remove();
+            }
+        });
+        imageOptions.optionsContainer.appendChild(fulls);
+    },
     initAll: () => {
         imageOptions.initContainer();
+        imageOptions.initFullscreen();
         imageOptions.initDownloadOptions();
     }
 }
@@ -4190,7 +4220,7 @@ label input[type="checkbox"].flatUI:checked:after {
     height: 48px;
     background-color: var(--COLOR_CHAT_BG_BASE);
     width: 100%;
-    bottom: -55px;
+    bottom: -54px;
     border-radius: 3px;
     display: flex;
     padding: .4em 0px;
@@ -4981,6 +5011,34 @@ bounceload {
     inset: 0;
     background-repeat: no-repeat;
     pointer-events: none;
+}
+
+body > div.pcr-app.visible > div.pcr-interaction:after {
+    content: "Only typo users can see custom colors!";
+    font-size: .8em;
+    padding-top: .5em;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+.colors.color-tools {
+    margin-left: var(--BORDER_GAP);
+}
+
+.color-tools .color {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+    background-repeat: no-repeat;
+    background-size: 90%;
+    background-position: center;
+    background-color: var(--COLOR_TOOL_BASE);
+}
+
+.color-tools .bottom .color {
+    border-top: 1px solid lightgray;
+}
+
+.color-tools .top .color {
+    border-bottom: 1px solid lightgray;
 }
 
 /*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
@@ -6309,43 +6367,6 @@ const uiTweaks = {
         // Add event listener to word mutations
         (new MutationObserver(refreshCharBar)).observe(QS("#game-word"), { attributes: true, childList: true, subtree: true, characterData: true });
     },
-    initColorPicker: () => {
-        // color picker
-        let toolbar = QS("#typotoolbar");
-        let picker = elemFromString(`<div id="colPicker" class="tool clickable" data-typo-tooltip='Color Picker' data-tooltipdir='N'>
-<div class="icon" style="background-image: url(${chrome.runtime.getURL("res/mag.gif")});">
-</div></div>`);
-        //picker.style.display = localStorage.random == "true" ? "" : "none";
-        toolbar.insertAdjacentElement("beforeend", picker);
-        const pickr = Pickr.create({
-            el: picker,
-            useAsButton: true,
-            theme: 'nano',
-            components: {
-                // Main components
-                preview: true,
-                hue: true,
-                // Input / output Options
-                interaction: {
-                    input: true,
-                }
-            }
-        });
-        let dontDispatch = false;
-        pickr.on("change", color => {
-            colcode = parseInt(color.toHEXA().toString().replace("#", ""), 16) + 10000;
-            if (!dontDispatch) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-            dontDispatch = false;
-        });
-        document.querySelector(".colors").addEventListener("click", () => {
-            dontDispatch = true;
-            pickr.setColor(QS("#color-preview-primary").style.fill);
-        });
-        document.addEventListener("setColor", (detail) => {
-            dontDispatch = true;
-            pickr.setColor(QS("#color-preview-primary").style.fill);
-        });
-    },
     initCanvasZoom: () => {
         // init precise drawing mode
         let canvasGame = QS("#game-canvas canvas");
@@ -6500,35 +6521,6 @@ const uiTweaks = {
         document.body.appendChild(elemFromString("<div id='controls'></div>"));
         QS("#controls").style.cssText = "z-index: 50;position: fixed;display: flex; flex-direction:column; left: 9px; top: 9px";
         QS("#controls").style.display = localStorage.controls == "true" ? "flex" : "none";
-        // add fullscreen btn
-        let fulls = elemFromString("<div data-typo-tooltip='Fullscreen' data-tooltipdir='E'  style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/fullscreen.gif")
-            + ") center no-repeat;'></div>");
-        fulls.addEventListener("click", () => {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            }
-            else {
-                if (QS("#game").style.display == "none") {
-                    new Toast("Fullscreen mode is only available in-game.", 2000);
-                    return;
-                }
-                document.documentElement.requestFullscreen();
-                document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
-                    div#game-board, #game-container{flex-grow:1}
-                    #game-wrapper{width:100%; padding:1em}
-                    #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
-                    #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
-                    .logo-small{display:none !important}  
-                    *::-webkit-scrollbar{display:none}</style>`);
-            }
-        });
-        document.addEventListener("fullscreenchange", () => {
-            if (!document.fullscreenElement) {
-                QS("#fullscreenRules").remove();
-            }
-        });
-        QS("#controls").append(fulls);
 
         // add typro
         let typroCloud = elemFromString("<div data-typo-tooltip='Typo Cloud' data-tooltipdir='E'  style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
@@ -6725,11 +6717,6 @@ const uiTweaks = {
             else setTimeout(() => popup.style.display = "none", 20);
         });
         QS("#game-chat").appendChild(popup);
-    },
-    initToolsMod: (enable = true) => {
-        return; // disable for now
-        if (enable) QS("#game-toolbar").classList.add("typomod");
-        else QS("#game-toolbar").classList.remove("typomod");
     },
     initClipboardCopy: () => {
         document.addEventListener("keydown", async (e) => {
@@ -6963,19 +6950,47 @@ const uiTweaks = {
             sprites.resetCabin(false);
         }
     },
-    initTypoTools: () => {
-        const container = elemFromString(`<div id="typotoolbar" class="toolbar-group-tools" style="
-            position: absolute;
-            left: calc(100% + 5px);
-            height: 100%;
-        "></div>`);
-        QS("#game-toolbar").appendChild(container);
-        container.parentElement.parentElement.style.position = "relative";
-        container.style.display = localStorage.typotools == "true" ? "" : "none";
+    initColorTools: () => {
+        QS(".colors").insertAdjacentElement("afterend", elemFromString(`<div class="colors color-tools">
+            <div class="top">
+              <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/crosshair.gif);"></div>
+            </div>
+            <div class="bottom">
+              <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/inspect.gif);"></div>
+            </div>
+            </div>`
+        ));
 
-        // move tools
-        setTimeout(() => container.appendChild(QS(`.tool[data-tooltip="Lab"]`)), 500);
-
+        // color picker
+        const picker = QS("#color-free-picker");
+        const pickr = Pickr.create({
+            el: picker,
+            useAsButton: true,
+            theme: 'nano',
+            components: {
+                // Main components
+                preview: true,
+                hue: true,
+                // Input / output Options
+                interaction: {
+                    input: true,
+                }
+            }
+        });
+        let dontDispatch = false;
+        pickr.on("change", color => {
+            colcode = parseInt(color.toHEXA().toString().replace("#", ""), 16) + 10000;
+            if (!dontDispatch) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
+            dontDispatch = false;
+        });
+        document.querySelector(".colors").addEventListener("click", () => {
+            dontDispatch = true;
+            pickr.setColor(QS("#color-preview-primary").style.fill);
+        });
+        document.addEventListener("setColor", (detail) => {
+            dontDispatch = true;
+            pickr.setColor(QS("#color-preview-primary").style.fill);
+        });
     },
     initAll: () => {
         // clear ads for space 
@@ -6983,11 +6998,9 @@ const uiTweaks = {
         //document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
         // mel i love you i would never do this
         uiTweaks.initGameNavigation();
-        uiTweaks.initToolsMod(localStorage.typotoolbar == "true");
-        uiTweaks.initTypoTools();
+        uiTweaks.initColorTools();
         uiTweaks.initWordHint();
         uiTweaks.initClipboardCopy();
-        uiTweaks.initColorPicker();
         uiTweaks.initCanvasZoom();
         uiTweaks.initColorPalettes();
         uiTweaks.initLobbyDescriptionForm();
