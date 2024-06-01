@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.3.171561425
+// @version 26.0.3.171723391
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -5471,11 +5471,11 @@ bounceload {
                         <input type="range" class="slider" min="0" max="100" />
                     </div>
 
-                    <div class="label">Random interval </div>
+                   <!-- <div class="label">Random interval </div>
                     <div class="sliderBox" id="randominterval">
                         <span class="sliderBar"><span class="sliderFill"></span></span>
                         <input type="range" class="slider" min="10" max="500" />
-                    </div>
+                    </div>-->
 
                     <div class="label">Markup color </div>
                     <div class="sliderBox" id="markupcolor">
@@ -6309,28 +6309,6 @@ const uiTweaks = {
         // Add event listener to word mutations
         (new MutationObserver(refreshCharBar)).observe(QS("#game-word"), { attributes: true, childList: true, subtree: true, characterData: true });
     },
-    initRandomColorDice: () => {
-        // add random color image
-        const rand = elemFromString(`<div id="randomColor" class="tool clickable" data-typo-tooltip='Random Colors' data-tooltipdir='N'>
-<div class="icon" style="background-image: url(img/randomize.gif); background-size:90%;">
-</div></div>`);
-        //rand.style.display = localStorage.random == "true" ? "" : "none";
-        QS("#typotoolbar").insertAdjacentElement("beforeEnd", rand);
-        QS(".colors:not(.custom)").addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
-        uiTweaks.randomInterval = 0;
-        rand.addEventListener("click", function () {
-            clearInterval(uiTweaks.randomInterval);
-            let nthChild = rand.getAttribute("data-monochrome");
-            let items = [
-                ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : ""))
-            ].filter(item =>
-                item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
-            );
-            uiTweaks.randomInterval = setInterval(() => {
-                items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
-            }, Number(localStorage.randominterval));
-        });
-    },
     initColorPicker: () => {
         // color picker
         let toolbar = QS("#typotoolbar");
@@ -7008,7 +6986,6 @@ const uiTweaks = {
         uiTweaks.initToolsMod(localStorage.typotoolbar == "true");
         uiTweaks.initTypoTools();
         uiTweaks.initWordHint();
-        uiTweaks.initRandomColorDice();
         uiTweaks.initClipboardCopy();
         uiTweaks.initColorPicker();
         uiTweaks.initCanvasZoom();
@@ -7986,7 +7963,7 @@ const gamemodes = {
                     const itemWidth = getComputedStyle(QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div > div")).width;
                     const itemCount = QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div").children.length;
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
-                    QS("#randomColor").setAttribute("data-monochrome", randomIndex);
+                    QS("#game-canvas").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
                             `#game-toolbar div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
@@ -8063,7 +8040,7 @@ const brushtools = {
         color: {
             rainbowcircle: {
                 name: "Rainbow Cycle",
-                description: "Cycles through bright rainbow colors, no pen needed.",
+                description: "Cycles through bright rainbow colors.",
                 enabled: stateFromLocalstorage("color.rainbowcircle", false),
                 options: {
                 },
@@ -8141,6 +8118,47 @@ const brushtools = {
                     }
                     brushtools.groups.color.rainbowstroke.lastIndex = index;
                     document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(colors[index], 16) + 10000 } }));
+                }
+            },
+            randomColor: {
+                name: "Random Colors",
+                description: "The color changes randomly while drawing.",
+                enabled: stateFromLocalstorage("color.randomcolor", false),
+                options: {
+                    interval: {
+                        val: stateFromLocalstorage("color.randomcolor", 50),
+                        type: "num",
+                        save: value => {
+                            stateFromLocalstorage("color.randomcolor", undefined, Math.max(10,value));
+                            if(brushtools.groups.color.randomColor.enabled) {
+                                brushtools.groups.color.randomColor.disable();
+                                brushtools.groups.color.randomColor.enable();
+                            }
+                        }
+                    }
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.color.randomColor.enabled = stateFromLocalstorage("color.randomcolor", undefined, true);
+
+                    let nthChild = QS("#game-canvas").getAttribute("data-monochrome");
+                    let items = [
+                        ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : ""))
+                    ].filter(item =>
+                      item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
+                    );
+
+                    brushtools.groups.color.randomColor.interval = setInterval(() => {
+                        items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
+                    }, brushtools.groups.color.randomColor.options.interval.val);
+                    QS(".colors:not(.custom)").addEventListener("pointerdown", brushtools.groups.color.randomColor.disable, {once: true});
+                },
+                disable: () => {
+                    clearInterval(brushtools.groups.color.randomColor.interval);
+                    QS(".colors:not(.custom)").removeEventListener("pointerdown", brushtools.groups.color.randomColor.disable);
+                    brushtools.groups.color.randomColor.enabled = stateFromLocalstorage("color.randomcolor", undefined, false);
                 }
             }
         },
