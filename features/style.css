@@ -812,20 +812,25 @@ input::-webkit-inner-spin-button {
     border-radius: var(--BORDER_RADIUS);
     width: 100%;
     background-color: var(--COLOR_CHAT_BG_BASE);
-    padding: .1em;
+    padding: .2em;
     margin-bottom: var(--BORDER_GAP);
+    display: flex;
+    flex-direction: column;
+    gap: .2em;
+    align-items: center;
+}
+
+#imageAgent>div>img:not([src]) {
+    display: none;
 }
 
 #imageAgent>*:not(img) {
     width: 90%;
-    margin: 0 5%;
     display: flex;
     justify-content: space-evenly;
 }
 
 #imageAgent>div>img {
-    margin-top: 1em;
-    margin-bottom: 1em;
     max-height: 20vh;
     max-width: 90%;
 }
