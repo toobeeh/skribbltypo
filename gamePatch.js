@@ -756,6 +756,11 @@
           graphic: "clear.gif",
           action: nn
       })
+        , /*TYPOMOD DESC: add tool for pipette*/ mt(3, {
+          isAction: !1,
+          name: "Pipette",
+          graphic: "",keydef:'P',
+      }) /*TYPOEND*/
         /*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*mt(2, {
         isAction: !0,
         name: "Switcher",

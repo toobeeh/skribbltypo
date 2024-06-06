@@ -716,6 +716,34 @@ const uiTweaks = {
             dontDispatch = true;
             pickr.setColor(QS("#color-preview-primary").style.fill);
         });
+
+        // pipette
+        // activate skribbl tool on pipette btn click
+        QS("#color-canvas-picker").addEventListener("click", () => {
+            QS("[data-tooltip=Pipette]").click();
+        });
+
+        // update cursor when pipette changed activity
+        new MutationObserver((e) => {
+            if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                    QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                }
+            }
+        }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+
+        QS("#game-canvas canvas").addEventListener("click", (e) => {
+            if(!document.querySelector(".toolbar-group-tools [data-tooltip=Pipette].selected")) return;
+
+            const b = e.target.getBoundingClientRect();
+            const scale = e.target.width / parseFloat(b.width);
+            const x = (e.clientX - b.left) * scale;
+            const y = (e.clientY - b.top) * scale;
+            const rgba = e.target.getContext("2d").getImageData(x,y,1,1).data;
+            const color = new Color({r: rgba[0], g:rgba[1], b:rgba[2]}).hex.replace("#", "");
+
+            document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(color, 16) + 10000 } }));
+        });
     },
     initAll: () => {
         // clear ads for space 

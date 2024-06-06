@@ -349,6 +349,10 @@
                 {
                     "position": "(isAction: !0,[^}]+Clear[^}]+}\\))",
                     "code": "/*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*##ADDACTION##(2, {\n        isAction: !0,\n        name: \"Switcher\",\n        graphic: \"\",\n        action: ()=>{document.dispatchEvent(new Event(\"toggleColor\"));}\n    })*/ /*TYPOEND*/"
+                },
+                {
+                    "position": "(isAction: !0,[^}]+Clear[^}]+}\\))",
+                    "code": ", /*TYPOMOD DESC: add tool for pipette*/ ##ADDACTION##(3, {\n        isAction: !1,\n        name: \"Pipette\",\n        graphic: \"\",keydef:'P',\n    }) /*TYPOEND*/"
                 }
             ]
         },

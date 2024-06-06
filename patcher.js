@@ -85,7 +85,9 @@ let patchNode = async (node) => {
         script.src = chrome.runtime.getURL("gamePatch.js");
         node.parentElement.appendChild(script);
         // add var to get access typo ressources in css
-        document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
+        document.head.appendChild(elemFromString(`<style>
+           :root{--typobrush:url(${chrome.runtime.getURL("res/wand.gif")})}
+        </style>`));
 
     }
     if (node.classList && node.classList.contains("button-play")) {

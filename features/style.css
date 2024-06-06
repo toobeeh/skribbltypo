@@ -1322,3 +1322,11 @@ body > div.pcr-app.visible > div.pcr-interaction:after {
 .color-tools .top .color {
     border-bottom: 1px solid lightgray;
 }
+
+[data-tooltip=Pipette] {
+    display: none !important;
+}
+
+#game-toolbar:has(.toolbar-group-tools [data-tooltip=Pipette].selected) #color-canvas-picker {
+    background-color: var(--COLOR_TOOL_ACTIVE);
+}
