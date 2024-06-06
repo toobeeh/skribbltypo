@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.3.171724466
+// @version 26.0.3.171769857
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -3611,7 +3611,9 @@ let patchNode = async (node) => {
         script.src = chrome.runtime.getURL("gamePatch.js");
         node.parentElement.appendChild(script);
         // add var to get access typo ressources in css
-        document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
+        document.head.appendChild(elemFromString(`<style>
+           :root{--typobrush:url(${chrome.runtime.getURL("res/wand.gif")})}
+        </style>`));
 
     }
     if (node.classList && node.classList.contains("button-play")) {
@@ -5040,6 +5042,15 @@ body > div.pcr-app.visible > div.pcr-interaction:after {
 .color-tools .top .color {
     border-bottom: 1px solid lightgray;
 }
+
+[data-tooltip=Pipette] {
+    display: none !important;
+}
+
+#game-toolbar:has(.toolbar-group-tools [data-tooltip=Pipette].selected) #color-canvas-picker {
+    background-color: var(--COLOR_TOOL_ACTIVE);
+}
+
 
 /*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
 
@@ -6990,6 +7001,34 @@ const uiTweaks = {
         document.addEventListener("setColor", (detail) => {
             dontDispatch = true;
             pickr.setColor(QS("#color-preview-primary").style.fill);
+        });
+
+        // pipette
+        // activate skribbl tool on pipette btn click
+        QS("#color-canvas-picker").addEventListener("click", () => {
+            QS("[data-tooltip=Pipette]").click();
+        });
+
+        // update cursor when pipette changed activity
+        new MutationObserver((e) => {
+            if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                    QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                }
+            }
+        }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+
+        QS("#game-canvas canvas").addEventListener("click", (e) => {
+            if(!document.querySelector(".toolbar-group-tools [data-tooltip=Pipette].selected")) return;
+
+            const b = e.target.getBoundingClientRect();
+            const scale = e.target.width / parseFloat(b.width);
+            const x = (e.clientX - b.left) * scale;
+            const y = (e.clientY - b.top) * scale;
+            const rgba = e.target.getContext("2d").getImageData(x,y,1,1).data;
+            const color = new Color({r: rgba[0], g:rgba[1], b:rgba[2]}).hex.replace("#", "");
+
+            document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(color, 16) + 10000 } }));
         });
     },
     initAll: () => {
