@@ -1115,7 +1115,7 @@ const visuals = {
     },
     applyOptions: (theme) => {
 
-        if (theme.meta?.id) {
+        if (theme.meta?.id !== undefined) {
             localStorage.activeTheme = theme.meta.id;
             localStorage.activeOldTheme = undefined;
         }

@@ -809,12 +809,11 @@ input::-webkit-inner-spin-button {
 }
 
 #imageAgent {
-    border-radius: 1em;
+    border-radius: var(--BORDER_RADIUS);
     width: 100%;
-    background-color: var(--COLOR_PANEL_BG);
-    backdrop-filter: blur(4px);
-    padding: .5em;
-    margin-bottom: 1em;
+    background-color: var(--COLOR_CHAT_BG_BASE);
+    padding: .1em;
+    margin-bottom: var(--BORDER_GAP);
 }
 
 #imageAgent>*:not(img) {
@@ -826,6 +825,7 @@ input::-webkit-inner-spin-button {
 
 #imageAgent>div>img {
     margin-top: 1em;
+    margin-bottom: 1em;
     max-height: 20vh;
     max-width: 90%;
 }
@@ -1321,6 +1321,12 @@ body > div.pcr-app.visible > div.pcr-interaction:after {
 
 .color-tools .top .color {
     border-bottom: 1px solid lightgray;
+}
+.color-tools .color:hover:after{
+    border: none !important;
+}
+.color-tools .color:hover {
+    background-color: var(--COLOR_TOOL_HOVER);
 }
 
 [data-tooltip=Pipette] {
