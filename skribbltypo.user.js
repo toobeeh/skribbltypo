@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.3.171769857
+// @version 26.0.3.171800899
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -2582,7 +2582,7 @@ const visuals = {
     },
     applyOptions: (theme) => {
 
-        if (theme.meta?.id) {
+        if (theme.meta?.id !== undefined) {
             localStorage.activeTheme = theme.meta.id;
             localStorage.activeOldTheme = undefined;
         }
@@ -4189,10 +4189,10 @@ label input[type="checkbox"].flatUI:checked:after {
 #gamemodePopup {
     position: absolute;
     background-color: var(--COLOR_PANEL_BG);
-    color: var(--COLOR_GAMEBAR_TEXT);
+    color: var(--COLOR_PANEL_TEXT);
     backdrop-filter: blur(4px);
     overflow: hidden;
-    z-index: 5;
+    z-index: 20;
     width: 90%;
     outline: none;
     border-radius: 0.5em;
@@ -4529,23 +4529,28 @@ input::-webkit-inner-spin-button {
 }
 
 #imageAgent {
-    border-radius: 1em;
+    border-radius: var(--BORDER_RADIUS);
     width: 100%;
-    background-color: var(--COLOR_PANEL_BG);
-    backdrop-filter: blur(4px);
-    padding: .5em;
-    margin-bottom: 1em;
+    background-color: var(--COLOR_CHAT_BG_BASE);
+    padding: .2em;
+    margin-bottom: var(--BORDER_GAP);
+    display: flex;
+    flex-direction: column;
+    gap: .2em;
+    align-items: center;
+}
+
+#imageAgent>div>img:not([src]) {
+    display: none;
 }
 
 #imageAgent>*:not(img) {
     width: 90%;
-    margin: 0 5%;
     display: flex;
     justify-content: space-evenly;
 }
 
 #imageAgent>div>img {
-    margin-top: 1em;
     max-height: 20vh;
     max-width: 90%;
 }
@@ -5041,6 +5046,12 @@ body > div.pcr-app.visible > div.pcr-interaction:after {
 
 .color-tools .top .color {
     border-bottom: 1px solid lightgray;
+}
+.color-tools .color:hover:after{
+    border: none !important;
+}
+.color-tools .color:hover {
+    background-color: var(--COLOR_TOOL_HOVER);
 }
 
 [data-tooltip=Pipette] {
@@ -7538,15 +7549,15 @@ let imageTools = {
     optionsPopup: null,
     initImageOptionsButton: () => {
         // add image options button
-        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/potion.gif")}" id="imgTools" style="cursor: pointer;" data-typo-tooltip="Image Tools" data-tooltipdir="N">`);
+        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/dna_white.gif")}" id="imgTools" style="cursor: pointer;" data-typo-tooltip="Image Laboratory" data-tooltipdir="N">`);
         imageOptions.optionsContainer.appendChild(toolsIcon);
 
         toolsIcon.addEventListener("click", () => {
             imageTools.optionsPopup.style.display = "";
             if (!localStorage.imageTools) {
-                alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
+                alert("'Image Laboratory' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
                 localStorage.imageTools = "READ IT";
-            };
+            }
             imageTools.optionsPopup.focus();
             [...document.querySelectorAll("#itoolsButtons button")].forEach(p => {
                 if (QS("#game-toolbar.hidden")) {
@@ -7565,7 +7576,7 @@ let imageTools = {
     initImageOptionsPopup: () => {
         // add image options popup
         let optionsPopup = elemFromString(`<div id="optionsPopup" tabIndex="-1" style="display:none">
-Image tools
+Image Laboratory
     <button class="flatUI blue air" id="itoolsTempSave">Save current</button>
     <button class="flatUI orange air" id="itoolsDownload">Download current</button>
     <button class="flatUI orange air" id="itoolsLoad">Load file(s)</button>
@@ -7853,7 +7864,7 @@ let imageAgent = {// func to set the image in the agentdiv
 <button class="flatUI blue min air">Map</button>
 <button class="flatUI blue min air">Word</button>
 </div>
-<input type="text" class="flatUI" placeholder="Search text with 'enter'">
+<input type="text" placeholder="Search text with 'enter'">
 <div><img></div>
 
 </div>`);
