@@ -7,15 +7,15 @@ let imageTools = {
     optionsPopup: null,
     initImageOptionsButton: () => {
         // add image options button
-        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/potion.gif")}" id="imgTools" style="cursor: pointer;" data-typo-tooltip="Image Tools" data-tooltipdir="N">`);
+        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/dna_white.gif")}" id="imgTools" style="cursor: pointer;" data-typo-tooltip="Image Laboratory" data-tooltipdir="N">`);
         imageOptions.optionsContainer.appendChild(toolsIcon);
 
         toolsIcon.addEventListener("click", () => {
             imageTools.optionsPopup.style.display = "";
             if (!localStorage.imageTools) {
-                alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
+                alert("'Image Laboratory' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
                 localStorage.imageTools = "READ IT";
-            };
+            }
             imageTools.optionsPopup.focus();
             [...document.querySelectorAll("#itoolsButtons button")].forEach(p => {
                 if (QS("#game-toolbar.hidden")) {
@@ -34,7 +34,7 @@ let imageTools = {
     initImageOptionsPopup: () => {
         // add image options popup
         let optionsPopup = elemFromString(`<div id="optionsPopup" tabIndex="-1" style="display:none">
-Image tools
+Image Laboratory
     <button class="flatUI blue air" id="itoolsTempSave">Save current</button>
     <button class="flatUI orange air" id="itoolsDownload">Download current</button>
     <button class="flatUI orange air" id="itoolsLoad">Load file(s)</button>

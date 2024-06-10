@@ -469,10 +469,10 @@ label input[type="checkbox"].flatUI:checked:after {
 #gamemodePopup {
     position: absolute;
     background-color: var(--COLOR_PANEL_BG);
-    color: var(--COLOR_GAMEBAR_TEXT);
+    color: var(--COLOR_PANEL_TEXT);
     backdrop-filter: blur(4px);
     overflow: hidden;
-    z-index: 5;
+    z-index: 20;
     width: 90%;
     outline: none;
     border-radius: 0.5em;
