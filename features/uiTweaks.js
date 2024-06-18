@@ -322,8 +322,8 @@ const uiTweaks = {
         let restrict = elemFromString("<div id='restrictLobby' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
         controls.append(restrict);
         let updateIcon = () => {
-            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/unrestricted.gif") + ")";
-            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/restricted.gif") + ")";
+            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-unrestricted.gif") + ")";
+            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-restricted.gif") + ")";
         }
         updateIcon();
         restrict.addEventListener("click", () => {
