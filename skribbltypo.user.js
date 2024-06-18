@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.3.171800899
+// @version 26.0.3.171874905
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -6619,8 +6619,8 @@ const uiTweaks = {
         let restrict = elemFromString("<div id='restrictLobby' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
         controls.append(restrict);
         let updateIcon = () => {
-            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/unrestricted.gif") + ")";
-            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/restricted.gif") + ")";
+            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-unrestricted.gif") + ")";
+            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-restricted.gif") + ")";
         }
         updateIcon();
         restrict.addEventListener("click", () => {
