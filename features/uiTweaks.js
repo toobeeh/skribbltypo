@@ -113,7 +113,14 @@ const uiTweaks = {
         }
         let toggleZoom = (event, skipctrl = false) => {
             if (!isCurrentlyDrawing()) return;
+
             if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
+
+                if (document.fullscreenElement) {
+                    new Toast("Zoom is not available while using fullscreen mode.", 2000);
+                    return;
+                }
+
                 event.preventDefault();
                 event.stopPropagation();
                 if (skipctrl || !zoomActive && !QS("#game-toolbar").classList.contains("hidden")) {

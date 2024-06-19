@@ -252,12 +252,38 @@ let imageOptions = {
                 }
                 document.documentElement.requestFullscreen();
                 document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
-                    div#game-board, #game-container{flex-grow:1}
-                    #game-wrapper{width:100%; padding:1em}
-                    #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
-                    #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
-                    .logo-small{display:none !important}  
-                    *::-webkit-scrollbar{display:none}</style>`);
+                    @media(min-aspect-ratio: 16/10) {
+                        div#game-canvas {
+                            height: calc(100vh - 2*48px - 4*var(--BORDER_GAP));
+                            width: calc((100vh - 2*48px - 4*var(--BORDER_GAP)) * 4/3);
+                        }
+                        
+                        div#game {
+                            position: fixed;
+                            inset: 0;
+                        }
+                    }
+                    
+                    @media(max-aspect-ratio: 16/10) {
+                        div#game-wrapper {
+                          width: 100%;
+                        }
+                        
+                        div#controls {
+                            bottom: 9px;
+                            top: unset !important;
+                        }
+                        
+                        div#game-chat {
+                            width: 100%;
+                        }
+                    }
+                    
+                    div#game-logo {
+                        display: none;
+                    }
+                    
+            </style>`);
             }
         });
         document.addEventListener("fullscreenchange", () => {
