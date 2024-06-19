@@ -117,11 +117,11 @@ const socket = {
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
 
-                if (lobbies.inGame && !lobbies.joined) {
+                if (lobbies.inGame && !lobbies.joined && lobbies.userAllow) {
                     socket.joinLobby(lobbies.lobbyProperties.Key);
                     lobbies.joined = true;
                 }
-                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
+                if (lobbies.inGame && lobbies.userAllow) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
             }
             else document.dispatchEvent(newCustomEvent("palantirLoaded"));
             lobbies.lobbyContainer = lobbies.setLobbyContainer();
