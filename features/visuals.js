@@ -1120,6 +1120,8 @@ const visuals = {
             localStorage.activeOldTheme = undefined;
         }
 
+        const ingameBgWasActive = QS("#typoThemeBg")?.classList.contains("ingame") ?? false;
+
         /* remove old visual rules */
         QS("#visualRules")?.remove();
         QS(".fontImport")?.remove();
@@ -1265,6 +1267,7 @@ const visuals = {
 
         /* add typo background */
         const bg = elemFromString(`<div id="typoThemeBg"></div>`);
+        if(ingameBgWasActive) bg.classList.add("ingame");
         QS("#typoThemeBg")?.remove();
         document.body.appendChild(bg);
 
