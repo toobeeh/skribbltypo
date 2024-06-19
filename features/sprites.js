@@ -118,11 +118,23 @@ const sprites = {
         const playerlist = QS("#game-players");
         let scenesCSS = elemFromString("<style id='scenesRules'></style>");
 
+        // scene shifts for this lobby
+        let shifts = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "sceneShift");
+
         sprites.onlineScenes.forEach(scene => {
             if (scene.LobbyKey == socket.clientData.lobbyKey) {
+                let url = sprites.availableScenes.find(av => av.ID == scene.Sprite).URL;
+                const sceneShift = shifts.find(shift => shift.LobbyPlayerID == scene.LobbyPlayerID);
+                if(sceneShift) {
+                    url = `https://static.typo.rip/sprites/rainbow/modulate.php?url=${url}&hue=${sceneShift.ItemID}`;
+                    const rotate = ((360/200) * sceneShift.ItemID - 180) * -1;
+                    scenesCSS.innerHTML += `
+                    #game-players div.player:not(.guessed)[playerid='${scene.LobbyPlayerID}'] .player-info {filter: hue-rotate(${rotate}deg) !important}`;
+                }
+
                 scenesCSS.innerHTML += `
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] {
-                    background-image: url(${sprites.availableScenes.find(av => av.ID == scene.Sprite).URL}) !important;
+                    background-image: url(${url}) !important;
                     background-size: auto 100% !important;
                     background-position: center center !important;
                     background-repeat: no-repeat !important;

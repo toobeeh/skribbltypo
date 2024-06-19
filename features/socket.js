@@ -87,6 +87,16 @@ const socket = {
                 socket.data.publicData.onlineSprites = data.payload.onlineSprites;
                 socket.data.publicData.onlineScenes = data.payload.onlineScenes;
                 socket.data.publicData.onlineItems = data.payload.onlineItems;
+
+                /*// TODO REMOVE
+                socket.data.publicData.onlineItems.push({
+                    ItemType: "sceneShift",
+                    Slot: 1,
+                    ItemID: 20,
+                    LobbyKey: socket.clientData.lobbyKey,
+                    LobbyPlayerID: 0,
+                    Date: Date.now()
+                });*/
             });
             socket.sck.on("drawingAwarded", data => {
                 const lobbyKey = data.payload.lobbyKey;
