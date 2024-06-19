@@ -267,8 +267,6 @@ const uiTweaks = {
         //    + ") center no-repeat;'></div>");
         //brushmagicButton.addEventListener("click", brushtools.showSettings);
         //QS("#controls").append(brushmagicButton);
-
-        document.dispatchEvent(new Event("addTypoTooltips"));
     },
     initDefaultKeybinds: () => {
         const chatInput = QS('.chat-container input');
@@ -319,7 +317,7 @@ const uiTweaks = {
     },
     initLobbyRestriction: () => {
         let controls = QS("#controls");
-        let restrict = elemFromString("<div id='restrictLobby' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
+        let restrict = elemFromString("<div id='restrictLobby' data-tooltipdir='E' data-typo-tooltip='Lobby Privacy' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
         controls.append(restrict);
         let updateIcon = () => {
             if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-unrestricted.gif") + ")";
@@ -767,6 +765,8 @@ const uiTweaks = {
         uiTweaks.initChooseCountdown();
         uiTweaks.initStraightLines();
         uiTweaks.initPenPointer();
+
+        document.dispatchEvent(new Event("addTypoTooltips"));
 
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
 

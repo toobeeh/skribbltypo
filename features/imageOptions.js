@@ -89,7 +89,7 @@ let imageOptions = {
     },
     initDownloadOptions: () => {
         // add DL button for gif
-        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
+        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy-drive.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
         // popup for sharing image
         const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
     Save Image<br><br><label for="sendImageOnly">
