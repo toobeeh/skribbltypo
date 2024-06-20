@@ -263,7 +263,7 @@ const uiTweaks = {
 
         // add appearance options
         let visualsButton = elemFromString("<div data-typo-tooltip='Themes' data-tooltipdir='E' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/visuals.gif")
+            + chrome.runtime.getURL("/res/themes.gif")
             + ") center no-repeat;'></div>");
         visualsButton.addEventListener("click", visuals.show);
         QS("#controls").append(visualsButton);

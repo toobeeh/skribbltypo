@@ -138,7 +138,7 @@ const awards = {
             </div>
         </div>     
         `);
-        awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/noChallenge.gif") + ")";
+        awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/award.gif") + ")";
         awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker?.());
         QS("#game-canvas").appendChild(awards.ui);
 
