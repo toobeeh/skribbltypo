@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.3.171874905
+// @version 26.0.3.171891378
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -643,11 +643,23 @@ const sprites = {
         const playerlist = QS("#game-players");
         let scenesCSS = elemFromString("<style id='scenesRules'></style>");
 
+        // scene shifts for this lobby
+        let shifts = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "sceneTheme");
+
         sprites.onlineScenes.forEach(scene => {
             if (scene.LobbyKey == socket.clientData.lobbyKey) {
+                let url = sprites.availableScenes.find(av => av.ID == scene.Sprite).URL;
+                const sceneShift = shifts.find(shift => shift.LobbyPlayerID == scene.LobbyPlayerID);
+                if(sceneShift) {
+                    url = `https://static.typo.rip/sprites/rainbow/modulate.php?url=${url}&hue=${sceneShift.ItemID}`;
+                    const rotate = ((360/200) * sceneShift.ItemID - 180) * -1;
+                    scenesCSS.innerHTML += `
+                    #game-players div.player:not(.guessed)[playerid='${scene.LobbyPlayerID}'] .player-info {filter: hue-rotate(${rotate}deg) !important}`;
+                }
+
                 scenesCSS.innerHTML += `
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] {
-                    background-image: url(${sprites.availableScenes.find(av => av.ID == scene.Sprite).URL}) !important;
+                    background-image: url(${url}) !important;
                     background-size: auto 100% !important;
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
@@ -2587,6 +2599,8 @@ const visuals = {
             localStorage.activeOldTheme = undefined;
         }
 
+        const ingameBgWasActive = QS("#typoThemeBg")?.classList.contains("ingame") ?? false;
+
         /* remove old visual rules */
         QS("#visualRules")?.remove();
         QS(".fontImport")?.remove();
@@ -2732,6 +2746,7 @@ const visuals = {
 
         /* add typo background */
         const bg = elemFromString(`<div id="typoThemeBg"></div>`);
+        if(ingameBgWasActive) bg.classList.add("ingame");
         QS("#typoThemeBg")?.remove();
         document.body.appendChild(bg);
 
@@ -2896,6 +2911,16 @@ const socket = {
                 socket.data.publicData.onlineSprites = data.payload.onlineSprites;
                 socket.data.publicData.onlineScenes = data.payload.onlineScenes;
                 socket.data.publicData.onlineItems = data.payload.onlineItems;
+
+                /*// TODO REMOVE
+                socket.data.publicData.onlineItems.push({
+                    ItemType: "sceneTheme",
+                    Slot: 1,
+                    ItemID: 20,
+                    LobbyKey: socket.clientData.lobbyKey,
+                    LobbyPlayerID: 0,
+                    Date: Date.now()
+                });*/
             });
             socket.sck.on("drawingAwarded", data => {
                 const lobbyKey = data.payload.lobbyKey;
@@ -2926,11 +2951,11 @@ const socket = {
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
 
-                if (lobbies.inGame && !lobbies.joined) {
+                if (lobbies.inGame && !lobbies.joined && lobbies.userAllow) {
                     socket.joinLobby(lobbies.lobbyProperties.Key);
                     lobbies.joined = true;
                 }
-                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
+                if (lobbies.inGame && lobbies.userAllow) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
             }
             else document.dispatchEvent(newCustomEvent("palantirLoaded"));
             lobbies.lobbyContainer = lobbies.setLobbyContainer();
@@ -3338,7 +3363,7 @@ let imageOptions = {
     },
     initDownloadOptions: () => {
         // add DL button for gif
-        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
+        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy-drive.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
         // popup for sharing image
         const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
     Save Image<br><br><label for="sendImageOnly">
@@ -3501,12 +3526,38 @@ let imageOptions = {
                 }
                 document.documentElement.requestFullscreen();
                 document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
-                    div#game-board, #game-container{flex-grow:1}
-                    #game-wrapper{width:100%; padding:1em}
-                    #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
-                    #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
-                    .logo-small{display:none !important}  
-                    *::-webkit-scrollbar{display:none}</style>`);
+                    @media(min-aspect-ratio: 16/10) {
+                        div#game-canvas {
+                            height: calc(100vh - 2*48px - 4*var(--BORDER_GAP));
+                            width: calc((100vh - 2*48px - 4*var(--BORDER_GAP)) * 4/3);
+                        }
+                        
+                        div#game {
+                            position: fixed;
+                            inset: 0;
+                        }
+                    }
+                    
+                    @media(max-aspect-ratio: 16/10) {
+                        div#game-wrapper {
+                          width: 100%;
+                        }
+                        
+                        div#controls {
+                            bottom: 9px;
+                            top: unset !important;
+                        }
+                        
+                        div#game-chat {
+                            width: 100%;
+                        }
+                    }
+                    
+                    div#game-logo {
+                        display: none;
+                    }
+                    
+            </style>`);
             }
         });
         document.addEventListener("fullscreenchange", () => {
@@ -6410,7 +6461,14 @@ const uiTweaks = {
         }
         let toggleZoom = (event, skipctrl = false) => {
             if (!isCurrentlyDrawing()) return;
+
             if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
+
+                if (document.fullscreenElement) {
+                    new Toast("Zoom is not available while using fullscreen mode.", 2000);
+                    return;
+                }
+
                 event.preventDefault();
                 event.stopPropagation();
                 if (skipctrl || !zoomActive && !QS("#game-toolbar").classList.contains("hidden")) {
@@ -6564,8 +6622,6 @@ const uiTweaks = {
         //    + ") center no-repeat;'></div>");
         //brushmagicButton.addEventListener("click", brushtools.showSettings);
         //QS("#controls").append(brushmagicButton);
-
-        document.dispatchEvent(new Event("addTypoTooltips"));
     },
     initDefaultKeybinds: () => {
         const chatInput = QS('.chat-container input');
@@ -6616,7 +6672,7 @@ const uiTweaks = {
     },
     initLobbyRestriction: () => {
         let controls = QS("#controls");
-        let restrict = elemFromString("<div id='restrictLobby' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
+        let restrict = elemFromString("<div id='restrictLobby' data-tooltipdir='E' data-typo-tooltip='Lobby Privacy' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
         controls.append(restrict);
         let updateIcon = () => {
             if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-unrestricted.gif") + ")";
@@ -7064,6 +7120,8 @@ const uiTweaks = {
         uiTweaks.initChooseCountdown();
         uiTweaks.initStraightLines();
         uiTweaks.initPenPointer();
+
+        document.dispatchEvent(new Event("addTypoTooltips"));
 
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
 
@@ -7908,6 +7966,26 @@ const gamemodes = {
                 observeAction: () => {
                     // update opacity based on self drawing or not
                     QS("#game-canvas canvas").style.opacity = QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ? 1 : 0;
+                }
+            }
+        },{
+            name: "Drunk Vision",
+            options: {
+                description: "The canvas is blurred - you can only vaguely see what people draw!",
+                init: () => {
+                },
+                initWithAction: true,
+                destroy: () => {
+                    QS("#game-canvas canvas").style.filter = "";
+                },
+                observeSelector: "#game-players .players-list",
+                observeOptions: {
+                    attributes: true,
+                    subtree: true
+                },
+                observeAction: () => {
+                    // update filter based on self drawing or not
+                    QS("#game-canvas canvas").style.filter = QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ? "" : "blur(20px)";
                 }
             }
         }, {
