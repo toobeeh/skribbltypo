@@ -119,7 +119,7 @@ const sprites = {
         let scenesCSS = elemFromString("<style id='scenesRules'></style>");
 
         // scene shifts for this lobby
-        let shifts = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "sceneShift");
+        let shifts = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "sceneTheme");
 
         sprites.onlineScenes.forEach(scene => {
             if (scene.LobbyKey == socket.clientData.lobbyKey) {

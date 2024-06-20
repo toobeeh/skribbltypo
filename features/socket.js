@@ -90,7 +90,7 @@ const socket = {
 
                 /*// TODO REMOVE
                 socket.data.publicData.onlineItems.push({
-                    ItemType: "sceneShift",
+                    ItemType: "sceneTheme",
                     Slot: 1,
                     ItemID: 20,
                     LobbyKey: socket.clientData.lobbyKey,
