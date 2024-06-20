@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.3.171891378
+// @version 26.1.0.171891668
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.0.3 usrsc"};
+            return {version: "26.1.0 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -3618,6 +3618,7 @@ const waitForDocAndPalantir = async () => {
         await sprites.init(); // init sprites
         drops.initDrops(); // init drops
         imageOptions.initImagePoster();
+        document.dispatchEvent(new Event("addTypoTooltips"));
         uiTweaks.updateAccountElements(); // set account elements as cabin and landing sprites
         if (localStorage.restrictLobby == "" && socket.data.user.member) {
             QS("#restrictLobby").dispatchEvent(new Event("click"));
@@ -3677,7 +3678,7 @@ let patchNode = async (node) => {
         const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
-                <span>Hello there ❤️✏️<br>Check out the new tools "grid" and "rainbow stroke" in the brush lab!</span>
+                <span>Hello there ❤️✏️<br>Typo got a new look - enjoy the all-new icons!</span>
                 <div class="panel" id="typoHints" style="cursor:pointer; width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
@@ -4997,7 +4998,7 @@ bounceload {
 #awardsAnchor{
     position: absolute;
     top: 55px;
-    right: 0;
+    right: 5px;
 }
 
 #awardsAnchor .icon {
@@ -6611,7 +6612,7 @@ const uiTweaks = {
 
         // add appearance options
         let visualsButton = elemFromString("<div data-typo-tooltip='Themes' data-tooltipdir='E' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/visuals.gif")
+            + chrome.runtime.getURL("/res/themes.gif")
             + ") center no-repeat;'></div>");
         visualsButton.addEventListener("click", visuals.show);
         QS("#controls").append(visualsButton);
@@ -9063,7 +9064,7 @@ const awards = {
             </div>
         </div>     
         `);
-        awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/noChallenge.gif") + ")";
+        awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/award.gif") + ")";
         awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker?.());
         QS("#game-canvas").appendChild(awards.ui);
 
