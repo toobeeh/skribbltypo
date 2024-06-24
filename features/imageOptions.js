@@ -62,7 +62,7 @@ let imageOptions = {
     initContainer: () => {
         // new imageoptions container on the right side
         let imgtools = elemFromString(`<div id="imageOptions"></div>`);
-        QS("#game-players").appendChild(imgtools);
+        QS("#game-chat").appendChild(imgtools);
         imageOptions.optionsContainer = imgtools;
     },
     downloadDataURL: async (url, name = "skribbl-unknown", scale = 1) => {
@@ -89,7 +89,7 @@ let imageOptions = {
     },
     initDownloadOptions: () => {
         // add DL button for gif
-        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
+        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy-drive.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
         // popup for sharing image
         const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
     Save Image<br><br><label for="sendImageOnly">
@@ -238,8 +238,64 @@ let imageOptions = {
         }
         Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
     },
+    initFullscreen: () => {
+        // add fullscreen btn
+        let fulls = elemFromString("<img data-typo-tooltip='Fullscreen' data-tooltipdir='N'  style='cursor:pointer;' src='" + chrome.runtime.getURL("/res/fullscreen.gif") + "'>");
+        fulls.addEventListener("click", () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            else {
+                if (QS("#game").style.display == "none") {
+                    new Toast("Fullscreen mode is only available in-game.", 2000);
+                    return;
+                }
+                document.documentElement.requestFullscreen();
+                document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
+                    @media(min-aspect-ratio: 16/10) {
+                        div#game-canvas {
+                            height: calc(100vh - 2*48px - 4*var(--BORDER_GAP));
+                            width: calc((100vh - 2*48px - 4*var(--BORDER_GAP)) * 4/3);
+                        }
+                        
+                        div#game {
+                            position: fixed;
+                            inset: 0;
+                        }
+                    }
+                    
+                    @media(max-aspect-ratio: 16/10) {
+                        div#game-wrapper {
+                          width: 100%;
+                        }
+                        
+                        div#controls {
+                            bottom: 9px;
+                            top: unset !important;
+                        }
+                        
+                        div#game-chat {
+                            width: 100%;
+                        }
+                    }
+                    
+                    div#game-logo {
+                        display: none;
+                    }
+                    
+            </style>`);
+            }
+        });
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) {
+                QS("#fullscreenRules").remove();
+            }
+        });
+        imageOptions.optionsContainer.appendChild(fulls);
+    },
     initAll: () => {
         imageOptions.initContainer();
+        imageOptions.initFullscreen();
         imageOptions.initDownloadOptions();
     }
 }

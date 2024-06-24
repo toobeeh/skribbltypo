@@ -41,6 +41,7 @@ const waitForDocAndPalantir = async () => {
         await sprites.init(); // init sprites
         drops.initDrops(); // init drops
         imageOptions.initImagePoster();
+        document.dispatchEvent(new Event("addTypoTooltips"));
         uiTweaks.updateAccountElements(); // set account elements as cabin and landing sprites
         if (localStorage.restrictLobby == "" && socket.data.user.member) {
             QS("#restrictLobby").dispatchEvent(new Event("click"));
@@ -85,7 +86,9 @@ let patchNode = async (node) => {
         script.src = chrome.runtime.getURL("gamePatch.js");
         node.parentElement.appendChild(script);
         // add var to get access typo ressources in css
-        document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
+        document.head.appendChild(elemFromString(`<style>
+           :root{--typobrush:url(${chrome.runtime.getURL("res/wand.gif")})}
+        </style>`));
 
     }
     if (node.classList && node.classList.contains("button-play")) {
@@ -98,7 +101,7 @@ let patchNode = async (node) => {
         const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
-                <span>Hello there ❤️✏️<br>Check out the new tools "grid" and "rainbow stroke" in the brush lab!</span>
+                <span>Hello there ❤️✏️<br>Typo got a new look - enjoy the all-new icons!</span>
                 <div class="panel" id="typoHints" style="cursor:pointer; width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>

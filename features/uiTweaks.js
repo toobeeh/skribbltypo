@@ -92,65 +92,6 @@ const uiTweaks = {
         // Add event listener to word mutations
         (new MutationObserver(refreshCharBar)).observe(QS("#game-word"), { attributes: true, childList: true, subtree: true, characterData: true });
     },
-    initRandomColorDice: () => {
-        // add random color image
-        const rand = elemFromString(`<div id="randomColor" class="tool clickable" data-typo-tooltip='Random Colors' data-tooltipdir='N'>
-<div class="icon" style="background-image: url(img/randomize.gif); background-size:90%;">
-</div></div>`);
-        //rand.style.display = localStorage.random == "true" ? "" : "none";
-        QS("#typotoolbar").insertAdjacentElement("beforeEnd", rand);
-        QS(".colors:not(.custom)").addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
-        uiTweaks.randomInterval = 0;
-        rand.addEventListener("click", function () {
-            clearInterval(uiTweaks.randomInterval);
-            let nthChild = rand.getAttribute("data-monochrome");
-            let items = [
-                ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : ""))
-            ].filter(item =>
-                item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
-            );
-            uiTweaks.randomInterval = setInterval(() => {
-                items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
-            }, Number(localStorage.randominterval));
-        });
-    },
-    initColorPicker: () => {
-        // color picker
-        let toolbar = QS("#typotoolbar");
-        let picker = elemFromString(`<div id="colPicker" class="tool clickable" data-typo-tooltip='Color Picker' data-tooltipdir='N'>
-<div class="icon" style="background-image: url(${chrome.runtime.getURL("res/mag.gif")});">
-</div></div>`);
-        //picker.style.display = localStorage.random == "true" ? "" : "none";
-        toolbar.insertAdjacentElement("beforeend", picker);
-        const pickr = Pickr.create({
-            el: picker,
-            useAsButton: true,
-            theme: 'nano',
-            components: {
-                // Main components
-                preview: true,
-                hue: true,
-                // Input / output Options
-                interaction: {
-                    input: true,
-                }
-            }
-        });
-        let dontDispatch = false;
-        pickr.on("change", color => {
-            colcode = parseInt(color.toHEXA().toString().replace("#", ""), 16) + 10000;
-            if (!dontDispatch) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-            dontDispatch = false;
-        });
-        document.querySelector(".colors").addEventListener("click", () => {
-            dontDispatch = true;
-            pickr.setColor(QS("#color-preview-primary").style.fill);
-        });
-        document.addEventListener("setColor", (detail) => {
-            dontDispatch = true;
-            pickr.setColor(QS("#color-preview-primary").style.fill);
-        });
-    },
     initCanvasZoom: () => {
         // init precise drawing mode
         let canvasGame = QS("#game-canvas canvas");
@@ -172,7 +113,14 @@ const uiTweaks = {
         }
         let toggleZoom = (event, skipctrl = false) => {
             if (!isCurrentlyDrawing()) return;
+
             if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
+
+                if (document.fullscreenElement) {
+                    new Toast("Zoom is not available while using fullscreen mode.", 2000);
+                    return;
+                }
+
                 event.preventDefault();
                 event.stopPropagation();
                 if (skipctrl || !zoomActive && !QS("#game-toolbar").classList.contains("hidden")) {
@@ -305,35 +253,6 @@ const uiTweaks = {
         document.body.appendChild(elemFromString("<div id='controls'></div>"));
         QS("#controls").style.cssText = "z-index: 50;position: fixed;display: flex; flex-direction:column; left: 9px; top: 9px";
         QS("#controls").style.display = localStorage.controls == "true" ? "flex" : "none";
-        // add fullscreen btn
-        let fulls = elemFromString("<div data-typo-tooltip='Fullscreen' data-tooltipdir='E'  style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/fullscreen.gif")
-            + ") center no-repeat;'></div>");
-        fulls.addEventListener("click", () => {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            }
-            else {
-                if (QS("#game").style.display == "none") {
-                    new Toast("Fullscreen mode is only available in-game.", 2000);
-                    return;
-                }
-                document.documentElement.requestFullscreen();
-                document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
-                    div#game-board, #game-container{flex-grow:1}
-                    #game-wrapper{width:100%; padding:1em}
-                    #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
-                    #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
-                    .logo-small{display:none !important}  
-                    *::-webkit-scrollbar{display:none}</style>`);
-            }
-        });
-        document.addEventListener("fullscreenchange", () => {
-            if (!document.fullscreenElement) {
-                QS("#fullscreenRules").remove();
-            }
-        });
-        QS("#controls").append(fulls);
 
         // add typro
         let typroCloud = elemFromString("<div data-typo-tooltip='Typo Cloud' data-tooltipdir='E'  style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
@@ -344,7 +263,7 @@ const uiTweaks = {
 
         // add appearance options
         let visualsButton = elemFromString("<div data-typo-tooltip='Themes' data-tooltipdir='E' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/visuals.gif")
+            + chrome.runtime.getURL("/res/themes.gif")
             + ") center no-repeat;'></div>");
         visualsButton.addEventListener("click", visuals.show);
         QS("#controls").append(visualsButton);
@@ -355,8 +274,6 @@ const uiTweaks = {
         //    + ") center no-repeat;'></div>");
         //brushmagicButton.addEventListener("click", brushtools.showSettings);
         //QS("#controls").append(brushmagicButton);
-
-        document.dispatchEvent(new Event("addTypoTooltips"));
     },
     initDefaultKeybinds: () => {
         const chatInput = QS('.chat-container input');
@@ -407,11 +324,11 @@ const uiTweaks = {
     },
     initLobbyRestriction: () => {
         let controls = QS("#controls");
-        let restrict = elemFromString("<div id='restrictLobby' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
+        let restrict = elemFromString("<div id='restrictLobby' data-tooltipdir='E' data-typo-tooltip='Lobby Privacy' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
         controls.append(restrict);
         let updateIcon = () => {
-            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/unrestricted.gif") + ")";
-            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/restricted.gif") + ")";
+            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-unrestricted.gif") + ")";
+            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-restricted.gif") + ")";
         }
         updateIcon();
         restrict.addEventListener("click", () => {
@@ -530,11 +447,6 @@ const uiTweaks = {
             else setTimeout(() => popup.style.display = "none", 20);
         });
         QS("#game-chat").appendChild(popup);
-    },
-    initToolsMod: (enable = true) => {
-        return; // disable for now
-        if (enable) QS("#game-toolbar").classList.add("typomod");
-        else QS("#game-toolbar").classList.remove("typomod");
     },
     initClipboardCopy: () => {
         document.addEventListener("keydown", async (e) => {
@@ -768,19 +680,75 @@ const uiTweaks = {
             sprites.resetCabin(false);
         }
     },
-    initTypoTools: () => {
-        const container = elemFromString(`<div id="typotoolbar" class="toolbar-group-tools" style="
-            position: absolute;
-            left: calc(100% + 5px);
-            height: 100%;
-        "></div>`);
-        QS("#game-toolbar").appendChild(container);
-        container.parentElement.parentElement.style.position = "relative";
-        container.style.display = localStorage.typotools == "true" ? "" : "none";
+    initColorTools: () => {
+        QS(".colors").insertAdjacentElement("afterend", elemFromString(`<div class="colors color-tools">
+            <div class="top">
+              <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/crosshair.gif);"></div>
+            </div>
+            <div class="bottom">
+              <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/inspect.gif);"></div>
+            </div>
+            </div>`
+        ));
 
-        // move tools
-        setTimeout(() => container.appendChild(QS(`.tool[data-tooltip="Lab"]`)), 500);
+        // color picker
+        const picker = QS("#color-free-picker");
+        const pickr = Pickr.create({
+            el: picker,
+            useAsButton: true,
+            theme: 'nano',
+            components: {
+                // Main components
+                preview: true,
+                hue: true,
+                // Input / output Options
+                interaction: {
+                    input: true,
+                }
+            }
+        });
+        let dontDispatch = false;
+        pickr.on("change", color => {
+            colcode = parseInt(color.toHEXA().toString().replace("#", ""), 16) + 10000;
+            if (!dontDispatch) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
+            dontDispatch = false;
+        });
+        document.querySelector(".colors").addEventListener("click", () => {
+            dontDispatch = true;
+            pickr.setColor(QS("#color-preview-primary").style.fill);
+        });
+        document.addEventListener("setColor", (detail) => {
+            dontDispatch = true;
+            pickr.setColor(QS("#color-preview-primary").style.fill);
+        });
 
+        // pipette
+        // activate skribbl tool on pipette btn click
+        QS("#color-canvas-picker").addEventListener("click", () => {
+            QS("[data-tooltip=Pipette]").click();
+        });
+
+        // update cursor when pipette changed activity
+        new MutationObserver((e) => {
+            if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                    QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                }
+            }
+        }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+
+        QS("#game-canvas canvas").addEventListener("click", (e) => {
+            if(!document.querySelector(".toolbar-group-tools [data-tooltip=Pipette].selected")) return;
+
+            const b = e.target.getBoundingClientRect();
+            const scale = e.target.width / parseFloat(b.width);
+            const x = (e.clientX - b.left) * scale;
+            const y = (e.clientY - b.top) * scale;
+            const rgba = e.target.getContext("2d").getImageData(x,y,1,1).data;
+            const color = new Color({r: rgba[0], g:rgba[1], b:rgba[2]}).hex.replace("#", "");
+
+            document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(color, 16) + 10000 } }));
+        });
     },
     initAll: () => {
         // clear ads for space 
@@ -788,12 +756,9 @@ const uiTweaks = {
         //document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
         // mel i love you i would never do this
         uiTweaks.initGameNavigation();
-        uiTweaks.initToolsMod(localStorage.typotoolbar == "true");
-        uiTweaks.initTypoTools();
+        uiTweaks.initColorTools();
         uiTweaks.initWordHint();
-        uiTweaks.initRandomColorDice();
         uiTweaks.initClipboardCopy();
-        uiTweaks.initColorPicker();
         uiTweaks.initCanvasZoom();
         uiTweaks.initColorPalettes();
         uiTweaks.initLobbyDescriptionForm();
@@ -807,6 +772,8 @@ const uiTweaks = {
         uiTweaks.initChooseCountdown();
         uiTweaks.initStraightLines();
         uiTweaks.initPenPointer();
+
+        document.dispatchEvent(new Event("addTypoTooltips"));
 
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
 

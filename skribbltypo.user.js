@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.0.3.171561425
+// @version 26.1.0.171891668
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.0.3 usrsc"};
+            return {version: "26.1.0 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -643,11 +643,23 @@ const sprites = {
         const playerlist = QS("#game-players");
         let scenesCSS = elemFromString("<style id='scenesRules'></style>");
 
+        // scene shifts for this lobby
+        let shifts = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "sceneTheme");
+
         sprites.onlineScenes.forEach(scene => {
             if (scene.LobbyKey == socket.clientData.lobbyKey) {
+                let url = sprites.availableScenes.find(av => av.ID == scene.Sprite).URL;
+                const sceneShift = shifts.find(shift => shift.LobbyPlayerID == scene.LobbyPlayerID);
+                if(sceneShift) {
+                    url = `https://static.typo.rip/sprites/rainbow/modulate.php?url=${url}&hue=${sceneShift.ItemID}`;
+                    const rotate = ((360/200) * sceneShift.ItemID - 180) * -1;
+                    scenesCSS.innerHTML += `
+                    #game-players div.player:not(.guessed)[playerid='${scene.LobbyPlayerID}'] .player-info {filter: hue-rotate(${rotate}deg) !important}`;
+                }
+
                 scenesCSS.innerHTML += `
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] {
-                    background-image: url(${sprites.availableScenes.find(av => av.ID == scene.Sprite).URL}) !important;
+                    background-image: url(${url}) !important;
                     background-size: auto 100% !important;
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
@@ -2582,10 +2594,12 @@ const visuals = {
     },
     applyOptions: (theme) => {
 
-        if (theme.meta?.id) {
+        if (theme.meta?.id !== undefined) {
             localStorage.activeTheme = theme.meta.id;
             localStorage.activeOldTheme = undefined;
         }
+
+        const ingameBgWasActive = QS("#typoThemeBg")?.classList.contains("ingame") ?? false;
 
         /* remove old visual rules */
         QS("#visualRules")?.remove();
@@ -2732,6 +2746,7 @@ const visuals = {
 
         /* add typo background */
         const bg = elemFromString(`<div id="typoThemeBg"></div>`);
+        if(ingameBgWasActive) bg.classList.add("ingame");
         QS("#typoThemeBg")?.remove();
         document.body.appendChild(bg);
 
@@ -2896,6 +2911,16 @@ const socket = {
                 socket.data.publicData.onlineSprites = data.payload.onlineSprites;
                 socket.data.publicData.onlineScenes = data.payload.onlineScenes;
                 socket.data.publicData.onlineItems = data.payload.onlineItems;
+
+                /*// TODO REMOVE
+                socket.data.publicData.onlineItems.push({
+                    ItemType: "sceneTheme",
+                    Slot: 1,
+                    ItemID: 20,
+                    LobbyKey: socket.clientData.lobbyKey,
+                    LobbyPlayerID: 0,
+                    Date: Date.now()
+                });*/
             });
             socket.sck.on("drawingAwarded", data => {
                 const lobbyKey = data.payload.lobbyKey;
@@ -2926,11 +2951,11 @@ const socket = {
                 localStorage.member = JSON.stringify(socket.data.user.member);
                 document.dispatchEvent(newCustomEvent("palantirLoaded"));
 
-                if (lobbies.inGame && !lobbies.joined) {
+                if (lobbies.inGame && !lobbies.joined && lobbies.userAllow) {
                     socket.joinLobby(lobbies.lobbyProperties.Key);
                     lobbies.joined = true;
                 }
-                if (lobbies.inGame) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
+                if (lobbies.inGame && lobbies.userAllow) socket.setLobby(lobbies.lobbyProperties, lobbies.lobbyProperties.Key);
             }
             else document.dispatchEvent(newCustomEvent("palantirLoaded"));
             lobbies.lobbyContainer = lobbies.setLobbyContainer();
@@ -3311,7 +3336,7 @@ let imageOptions = {
     initContainer: () => {
         // new imageoptions container on the right side
         let imgtools = elemFromString(`<div id="imageOptions"></div>`);
-        QS("#game-players").appendChild(imgtools);
+        QS("#game-chat").appendChild(imgtools);
         imageOptions.optionsContainer = imgtools;
     },
     downloadDataURL: async (url, name = "skribbl-unknown", scale = 1) => {
@@ -3338,7 +3363,7 @@ let imageOptions = {
     },
     initDownloadOptions: () => {
         // add DL button for gif
-        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
+        const downloadOptions = elemFromString(`<img src="${chrome.runtime.getURL("res/floppy-drive.gif")}" id="downloadImg" style="cursor: pointer;"  data-typo-tooltip="Save Drawing" data-tooltipdir="N">`);
         // popup for sharing image
         const downloadPopup = elemFromString(`<div id="downloadPopup" tabIndex="-1" style="display:none">
     Save Image<br><br><label for="sendImageOnly">
@@ -3487,8 +3512,64 @@ let imageOptions = {
         }
         Array.from(sharePopup.children).concat(sharePopup).forEach((c) => c.addEventListener("focusout", () => { setTimeout(() => { if (!sharePopup.contains(document.activeElement)) sharePopup.style.display = "none" }, 20); }));
     },
+    initFullscreen: () => {
+        // add fullscreen btn
+        let fulls = elemFromString("<img data-typo-tooltip='Fullscreen' data-tooltipdir='N'  style='cursor:pointer;' src='" + chrome.runtime.getURL("/res/fullscreen.gif") + "'>");
+        fulls.addEventListener("click", () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            else {
+                if (QS("#game").style.display == "none") {
+                    new Toast("Fullscreen mode is only available in-game.", 2000);
+                    return;
+                }
+                document.documentElement.requestFullscreen();
+                document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
+                    @media(min-aspect-ratio: 16/10) {
+                        div#game-canvas {
+                            height: calc(100vh - 2*48px - 4*var(--BORDER_GAP));
+                            width: calc((100vh - 2*48px - 4*var(--BORDER_GAP)) * 4/3);
+                        }
+                        
+                        div#game {
+                            position: fixed;
+                            inset: 0;
+                        }
+                    }
+                    
+                    @media(max-aspect-ratio: 16/10) {
+                        div#game-wrapper {
+                          width: 100%;
+                        }
+                        
+                        div#controls {
+                            bottom: 9px;
+                            top: unset !important;
+                        }
+                        
+                        div#game-chat {
+                            width: 100%;
+                        }
+                    }
+                    
+                    div#game-logo {
+                        display: none;
+                    }
+                    
+            </style>`);
+            }
+        });
+        document.addEventListener("fullscreenchange", () => {
+            if (!document.fullscreenElement) {
+                QS("#fullscreenRules").remove();
+            }
+        });
+        imageOptions.optionsContainer.appendChild(fulls);
+    },
     initAll: () => {
         imageOptions.initContainer();
+        imageOptions.initFullscreen();
         imageOptions.initDownloadOptions();
     }
 }
@@ -3537,6 +3618,7 @@ const waitForDocAndPalantir = async () => {
         await sprites.init(); // init sprites
         drops.initDrops(); // init drops
         imageOptions.initImagePoster();
+        document.dispatchEvent(new Event("addTypoTooltips"));
         uiTweaks.updateAccountElements(); // set account elements as cabin and landing sprites
         if (localStorage.restrictLobby == "" && socket.data.user.member) {
             QS("#restrictLobby").dispatchEvent(new Event("click"));
@@ -3581,7 +3663,9 @@ let patchNode = async (node) => {
         script.src = chrome.runtime.getURL("gamePatch.js");
         node.parentElement.appendChild(script);
         // add var to get access typo ressources in css
-        document.head.appendChild(elemFromString(`<style>:root{--typobrush:url(${chrome.runtime.getURL("res/brush.gif")})}</style>`));
+        document.head.appendChild(elemFromString(`<style>
+           :root{--typobrush:url(${chrome.runtime.getURL("res/wand.gif")})}
+        </style>`));
 
     }
     if (node.classList && node.classList.contains("button-play")) {
@@ -3594,7 +3678,7 @@ let patchNode = async (node) => {
         const leftCard = elemFromString(`<div class='panel patched' > 
             <div style="display:flex;height:100%;flex-direction:column;justify-content:space-between;" id="leftPanelContent">
                 <h2><span> Changelog</span><span>Typo News </span></h2>
-                <span>Hello there ❤️✏️<br>Check out the new tools "grid" and "rainbow stroke" in the brush lab!</span>
+                <span>Hello there ❤️✏️<br>Typo got a new look - enjoy the all-new icons!</span>
                 <div class="panel" id="typoHints" style="cursor:pointer; width:unset; border:none !important; font-size:0.8em;"><b>BTW, did you know?</b>
                     <br><span>${hints[Math.floor(Math.random() * hints.length)]}</span>
                 </div>
@@ -4157,10 +4241,10 @@ label input[type="checkbox"].flatUI:checked:after {
 #gamemodePopup {
     position: absolute;
     background-color: var(--COLOR_PANEL_BG);
-    color: var(--COLOR_GAMEBAR_TEXT);
+    color: var(--COLOR_PANEL_TEXT);
     backdrop-filter: blur(4px);
     overflow: hidden;
-    z-index: 5;
+    z-index: 20;
     width: 90%;
     outline: none;
     border-radius: 0.5em;
@@ -4190,7 +4274,7 @@ label input[type="checkbox"].flatUI:checked:after {
     height: 48px;
     background-color: var(--COLOR_CHAT_BG_BASE);
     width: 100%;
-    bottom: -55px;
+    bottom: -54px;
     border-radius: 3px;
     display: flex;
     padding: .4em 0px;
@@ -4497,23 +4581,28 @@ input::-webkit-inner-spin-button {
 }
 
 #imageAgent {
-    border-radius: 1em;
+    border-radius: var(--BORDER_RADIUS);
     width: 100%;
-    background-color: var(--COLOR_PANEL_BG);
-    backdrop-filter: blur(4px);
-    padding: .5em;
-    margin-bottom: 1em;
+    background-color: var(--COLOR_CHAT_BG_BASE);
+    padding: .2em;
+    margin-bottom: var(--BORDER_GAP);
+    display: flex;
+    flex-direction: column;
+    gap: .2em;
+    align-items: center;
+}
+
+#imageAgent>div>img:not([src]) {
+    display: none;
 }
 
 #imageAgent>*:not(img) {
     width: 90%;
-    margin: 0 5%;
     display: flex;
     justify-content: space-evenly;
 }
 
 #imageAgent>div>img {
-    margin-top: 1em;
     max-height: 20vh;
     max-width: 90%;
 }
@@ -4909,7 +4998,7 @@ bounceload {
 #awardsAnchor{
     position: absolute;
     top: 55px;
-    right: 0;
+    right: 5px;
 }
 
 #awardsAnchor .icon {
@@ -4982,6 +5071,49 @@ bounceload {
     background-repeat: no-repeat;
     pointer-events: none;
 }
+
+body > div.pcr-app.visible > div.pcr-interaction:after {
+    content: "Only typo users can see custom colors!";
+    font-size: .8em;
+    padding-top: .5em;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+.colors.color-tools {
+    margin-left: var(--BORDER_GAP);
+}
+
+.color-tools .color {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+    background-repeat: no-repeat;
+    background-size: 90%;
+    background-position: center;
+    background-color: var(--COLOR_TOOL_BASE);
+}
+
+.color-tools .bottom .color {
+    border-top: 1px solid lightgray;
+}
+
+.color-tools .top .color {
+    border-bottom: 1px solid lightgray;
+}
+.color-tools .color:hover:after{
+    border: none !important;
+}
+.color-tools .color:hover {
+    background-color: var(--COLOR_TOOL_HOVER);
+}
+
+[data-tooltip=Pipette] {
+    display: none !important;
+}
+
+#game-toolbar:has(.toolbar-group-tools [data-tooltip=Pipette].selected) #color-canvas-picker {
+    background-color: var(--COLOR_TOOL_ACTIVE);
+}
+
 
 /*! Pickr 1.8.1 MIT | https://github.com/Simonwep/pickr */
 
@@ -5471,11 +5603,11 @@ bounceload {
                         <input type="range" class="slider" min="0" max="100" />
                     </div>
 
-                    <div class="label">Random interval </div>
+                   <!-- <div class="label">Random interval </div>
                     <div class="sliderBox" id="randominterval">
                         <span class="sliderBar"><span class="sliderFill"></span></span>
                         <input type="range" class="slider" min="10" max="500" />
-                    </div>
+                    </div>-->
 
                     <div class="label">Markup color </div>
                     <div class="sliderBox" id="markupcolor">
@@ -6309,65 +6441,6 @@ const uiTweaks = {
         // Add event listener to word mutations
         (new MutationObserver(refreshCharBar)).observe(QS("#game-word"), { attributes: true, childList: true, subtree: true, characterData: true });
     },
-    initRandomColorDice: () => {
-        // add random color image
-        const rand = elemFromString(`<div id="randomColor" class="tool clickable" data-typo-tooltip='Random Colors' data-tooltipdir='N'>
-<div class="icon" style="background-image: url(img/randomize.gif); background-size:90%;">
-</div></div>`);
-        //rand.style.display = localStorage.random == "true" ? "" : "none";
-        QS("#typotoolbar").insertAdjacentElement("beforeEnd", rand);
-        QS(".colors:not(.custom)").addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
-        uiTweaks.randomInterval = 0;
-        rand.addEventListener("click", function () {
-            clearInterval(uiTweaks.randomInterval);
-            let nthChild = rand.getAttribute("data-monochrome");
-            let items = [
-                ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : ""))
-            ].filter(item =>
-                item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
-            );
-            uiTweaks.randomInterval = setInterval(() => {
-                items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
-            }, Number(localStorage.randominterval));
-        });
-    },
-    initColorPicker: () => {
-        // color picker
-        let toolbar = QS("#typotoolbar");
-        let picker = elemFromString(`<div id="colPicker" class="tool clickable" data-typo-tooltip='Color Picker' data-tooltipdir='N'>
-<div class="icon" style="background-image: url(${chrome.runtime.getURL("res/mag.gif")});">
-</div></div>`);
-        //picker.style.display = localStorage.random == "true" ? "" : "none";
-        toolbar.insertAdjacentElement("beforeend", picker);
-        const pickr = Pickr.create({
-            el: picker,
-            useAsButton: true,
-            theme: 'nano',
-            components: {
-                // Main components
-                preview: true,
-                hue: true,
-                // Input / output Options
-                interaction: {
-                    input: true,
-                }
-            }
-        });
-        let dontDispatch = false;
-        pickr.on("change", color => {
-            colcode = parseInt(color.toHEXA().toString().replace("#", ""), 16) + 10000;
-            if (!dontDispatch) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
-            dontDispatch = false;
-        });
-        document.querySelector(".colors").addEventListener("click", () => {
-            dontDispatch = true;
-            pickr.setColor(QS("#color-preview-primary").style.fill);
-        });
-        document.addEventListener("setColor", (detail) => {
-            dontDispatch = true;
-            pickr.setColor(QS("#color-preview-primary").style.fill);
-        });
-    },
     initCanvasZoom: () => {
         // init precise drawing mode
         let canvasGame = QS("#game-canvas canvas");
@@ -6389,7 +6462,14 @@ const uiTweaks = {
         }
         let toggleZoom = (event, skipctrl = false) => {
             if (!isCurrentlyDrawing()) return;
+
             if ((event.ctrlKey || skipctrl) && localStorage.zoomdraw == "true") {
+
+                if (document.fullscreenElement) {
+                    new Toast("Zoom is not available while using fullscreen mode.", 2000);
+                    return;
+                }
+
                 event.preventDefault();
                 event.stopPropagation();
                 if (skipctrl || !zoomActive && !QS("#game-toolbar").classList.contains("hidden")) {
@@ -6522,35 +6602,6 @@ const uiTweaks = {
         document.body.appendChild(elemFromString("<div id='controls'></div>"));
         QS("#controls").style.cssText = "z-index: 50;position: fixed;display: flex; flex-direction:column; left: 9px; top: 9px";
         QS("#controls").style.display = localStorage.controls == "true" ? "flex" : "none";
-        // add fullscreen btn
-        let fulls = elemFromString("<div data-typo-tooltip='Fullscreen' data-tooltipdir='E'  style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/fullscreen.gif")
-            + ") center no-repeat;'></div>");
-        fulls.addEventListener("click", () => {
-            if (document.fullscreenElement) {
-                document.exitFullscreen();
-            }
-            else {
-                if (QS("#game").style.display == "none") {
-                    new Toast("Fullscreen mode is only available in-game.", 2000);
-                    return;
-                }
-                document.documentElement.requestFullscreen();
-                document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
-                    div#game-board, #game-container{flex-grow:1}
-                    #game-wrapper{width:100%; padding:1em}
-                    #controls{position:fixed; flex-direction:row !important;bottom:9px;top:unset !important;left:unset !important; right:9px;} 
-                    #game{position:fixed; justify-content:center;left:0; width:100vw; height:100vh; padding: 0 1em; overflow-y:scroll} 
-                    .logo-small{display:none !important}  
-                    *::-webkit-scrollbar{display:none}</style>`);
-            }
-        });
-        document.addEventListener("fullscreenchange", () => {
-            if (!document.fullscreenElement) {
-                QS("#fullscreenRules").remove();
-            }
-        });
-        QS("#controls").append(fulls);
 
         // add typro
         let typroCloud = elemFromString("<div data-typo-tooltip='Typo Cloud' data-tooltipdir='E'  style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
@@ -6561,7 +6612,7 @@ const uiTweaks = {
 
         // add appearance options
         let visualsButton = elemFromString("<div data-typo-tooltip='Themes' data-tooltipdir='E' style='height:48px;width:48px;cursor:pointer; background-size:contain; background: url("
-            + chrome.runtime.getURL("/res/visuals.gif")
+            + chrome.runtime.getURL("/res/themes.gif")
             + ") center no-repeat;'></div>");
         visualsButton.addEventListener("click", visuals.show);
         QS("#controls").append(visualsButton);
@@ -6572,8 +6623,6 @@ const uiTweaks = {
         //    + ") center no-repeat;'></div>");
         //brushmagicButton.addEventListener("click", brushtools.showSettings);
         //QS("#controls").append(brushmagicButton);
-
-        document.dispatchEvent(new Event("addTypoTooltips"));
     },
     initDefaultKeybinds: () => {
         const chatInput = QS('.chat-container input');
@@ -6624,11 +6673,11 @@ const uiTweaks = {
     },
     initLobbyRestriction: () => {
         let controls = QS("#controls");
-        let restrict = elemFromString("<div id='restrictLobby' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
+        let restrict = elemFromString("<div id='restrictLobby' data-tooltipdir='E' data-typo-tooltip='Lobby Privacy' style='z-index:50;display:none;flex: 0 0 auto;cursor:pointer; user-select: none; width:48px; height:48px; background: center no-repeat'></div>");
         controls.append(restrict);
         let updateIcon = () => {
-            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/unrestricted.gif") + ")";
-            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/restricted.gif") + ")";
+            if (localStorage.restrictLobby == "unrestricted") restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-unrestricted.gif") + ")";
+            else restrict.style.backgroundImage = "url(" + chrome.runtime.getURL("res/lock-restricted.gif") + ")";
         }
         updateIcon();
         restrict.addEventListener("click", () => {
@@ -6747,11 +6796,6 @@ const uiTweaks = {
             else setTimeout(() => popup.style.display = "none", 20);
         });
         QS("#game-chat").appendChild(popup);
-    },
-    initToolsMod: (enable = true) => {
-        return; // disable for now
-        if (enable) QS("#game-toolbar").classList.add("typomod");
-        else QS("#game-toolbar").classList.remove("typomod");
     },
     initClipboardCopy: () => {
         document.addEventListener("keydown", async (e) => {
@@ -6985,19 +7029,75 @@ const uiTweaks = {
             sprites.resetCabin(false);
         }
     },
-    initTypoTools: () => {
-        const container = elemFromString(`<div id="typotoolbar" class="toolbar-group-tools" style="
-            position: absolute;
-            left: calc(100% + 5px);
-            height: 100%;
-        "></div>`);
-        QS("#game-toolbar").appendChild(container);
-        container.parentElement.parentElement.style.position = "relative";
-        container.style.display = localStorage.typotools == "true" ? "" : "none";
+    initColorTools: () => {
+        QS(".colors").insertAdjacentElement("afterend", elemFromString(`<div class="colors color-tools">
+            <div class="top">
+              <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/crosshair.gif);"></div>
+            </div>
+            <div class="bottom">
+              <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/inspect.gif);"></div>
+            </div>
+            </div>`
+        ));
 
-        // move tools
-        setTimeout(() => container.appendChild(QS(`.tool[data-tooltip="Lab"]`)), 500);
+        // color picker
+        const picker = QS("#color-free-picker");
+        const pickr = Pickr.create({
+            el: picker,
+            useAsButton: true,
+            theme: 'nano',
+            components: {
+                // Main components
+                preview: true,
+                hue: true,
+                // Input / output Options
+                interaction: {
+                    input: true,
+                }
+            }
+        });
+        let dontDispatch = false;
+        pickr.on("change", color => {
+            colcode = parseInt(color.toHEXA().toString().replace("#", ""), 16) + 10000;
+            if (!dontDispatch) document.dispatchEvent(newCustomEvent("setColor", { detail: { code: colcode } }));
+            dontDispatch = false;
+        });
+        document.querySelector(".colors").addEventListener("click", () => {
+            dontDispatch = true;
+            pickr.setColor(QS("#color-preview-primary").style.fill);
+        });
+        document.addEventListener("setColor", (detail) => {
+            dontDispatch = true;
+            pickr.setColor(QS("#color-preview-primary").style.fill);
+        });
 
+        // pipette
+        // activate skribbl tool on pipette btn click
+        QS("#color-canvas-picker").addEventListener("click", () => {
+            QS("[data-tooltip=Pipette]").click();
+        });
+
+        // update cursor when pipette changed activity
+        new MutationObserver((e) => {
+            if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                    QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                }
+            }
+        }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+
+        QS("#game-canvas canvas").addEventListener("click", (e) => {
+            if(!document.querySelector(".toolbar-group-tools [data-tooltip=Pipette].selected")) return;
+
+            const b = e.target.getBoundingClientRect();
+            const scale = e.target.width / parseFloat(b.width);
+            const x = (e.clientX - b.left) * scale;
+            const y = (e.clientY - b.top) * scale;
+            const rgba = e.target.getContext("2d").getImageData(x,y,1,1).data;
+            const color = new Color({r: rgba[0], g:rgba[1], b:rgba[2]}).hex.replace("#", "");
+
+            document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(color, 16) + 10000 } }));
+        });
     },
     initAll: () => {
         // clear ads for space 
@@ -7005,12 +7105,9 @@ const uiTweaks = {
         //document.querySelectorAll('a[href*="tower"]').forEach(function (ad) { ad.remove(); });
         // mel i love you i would never do this
         uiTweaks.initGameNavigation();
-        uiTweaks.initToolsMod(localStorage.typotoolbar == "true");
-        uiTweaks.initTypoTools();
+        uiTweaks.initColorTools();
         uiTweaks.initWordHint();
-        uiTweaks.initRandomColorDice();
         uiTweaks.initClipboardCopy();
-        uiTweaks.initColorPicker();
         uiTweaks.initCanvasZoom();
         uiTweaks.initColorPalettes();
         uiTweaks.initLobbyDescriptionForm();
@@ -7024,6 +7121,8 @@ const uiTweaks = {
         uiTweaks.initChooseCountdown();
         uiTweaks.initStraightLines();
         uiTweaks.initPenPointer();
+
+        document.dispatchEvent(new Event("addTypoTooltips"));
 
         QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
 
@@ -7509,15 +7608,15 @@ let imageTools = {
     optionsPopup: null,
     initImageOptionsButton: () => {
         // add image options button
-        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/potion.gif")}" id="imgTools" style="cursor: pointer;" data-typo-tooltip="Image Tools" data-tooltipdir="N">`);
+        const toolsIcon = elemFromString(`<img src="${chrome.runtime.getURL("res/dna_white.gif")}" id="imgTools" style="cursor: pointer;" data-typo-tooltip="Image Laboratory" data-tooltipdir="N">`);
         imageOptions.optionsContainer.appendChild(toolsIcon);
 
         toolsIcon.addEventListener("click", () => {
             imageTools.optionsPopup.style.display = "";
             if (!localStorage.imageTools) {
-                alert("'Image tools' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
+                alert("'Image Laboratory' allow you to save drawings so they can be re-drawn in skribbl.\nUse the blue button to copy an image on fly or download and open images with the orange buttons.\nWhen you're drawing, you can paste them by clicking the green buttons.\nDO NOT TRY TO ANNOY OTHERS WITH THIS.");
                 localStorage.imageTools = "READ IT";
-            };
+            }
             imageTools.optionsPopup.focus();
             [...document.querySelectorAll("#itoolsButtons button")].forEach(p => {
                 if (QS("#game-toolbar.hidden")) {
@@ -7536,7 +7635,7 @@ let imageTools = {
     initImageOptionsPopup: () => {
         // add image options popup
         let optionsPopup = elemFromString(`<div id="optionsPopup" tabIndex="-1" style="display:none">
-Image tools
+Image Laboratory
     <button class="flatUI blue air" id="itoolsTempSave">Save current</button>
     <button class="flatUI orange air" id="itoolsDownload">Download current</button>
     <button class="flatUI orange air" id="itoolsLoad">Load file(s)</button>
@@ -7824,7 +7923,7 @@ let imageAgent = {// func to set the image in the agentdiv
 <button class="flatUI blue min air">Map</button>
 <button class="flatUI blue min air">Word</button>
 </div>
-<input type="text" class="flatUI" placeholder="Search text with 'enter'">
+<input type="text" placeholder="Search text with 'enter'">
 <div><img></div>
 
 </div>`);
@@ -7868,6 +7967,26 @@ const gamemodes = {
                 observeAction: () => {
                     // update opacity based on self drawing or not
                     QS("#game-canvas canvas").style.opacity = QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ? 1 : 0;
+                }
+            }
+        },{
+            name: "Drunk Vision",
+            options: {
+                description: "The canvas is blurred - you can only vaguely see what people draw!",
+                init: () => {
+                },
+                initWithAction: true,
+                destroy: () => {
+                    QS("#game-canvas canvas").style.filter = "";
+                },
+                observeSelector: "#game-players .players-list",
+                observeOptions: {
+                    attributes: true,
+                    subtree: true
+                },
+                observeAction: () => {
+                    // update filter based on self drawing or not
+                    QS("#game-canvas canvas").style.filter = QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ? "" : "blur(20px)";
                 }
             }
         }, {
@@ -7986,7 +8105,7 @@ const gamemodes = {
                     const itemWidth = getComputedStyle(QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div > div")).width;
                     const itemCount = QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div").children.length;
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
-                    QS("#randomColor").setAttribute("data-monochrome", randomIndex);
+                    QS("#game-canvas").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
                             `#game-toolbar div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
@@ -8063,7 +8182,7 @@ const brushtools = {
         color: {
             rainbowcircle: {
                 name: "Rainbow Cycle",
-                description: "Cycles through bright rainbow colors, no pen needed.",
+                description: "Cycles through bright rainbow colors.",
                 enabled: stateFromLocalstorage("color.rainbowcircle", false),
                 options: {
                 },
@@ -8141,6 +8260,47 @@ const brushtools = {
                     }
                     brushtools.groups.color.rainbowstroke.lastIndex = index;
                     document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(colors[index], 16) + 10000 } }));
+                }
+            },
+            randomColor: {
+                name: "Random Colors",
+                description: "The color changes randomly while drawing.",
+                enabled: stateFromLocalstorage("color.randomcolor", false),
+                options: {
+                    interval: {
+                        val: stateFromLocalstorage("color.randomcolor", 50),
+                        type: "num",
+                        save: value => {
+                            stateFromLocalstorage("color.randomcolor", undefined, Math.max(10,value));
+                            if(brushtools.groups.color.randomColor.enabled) {
+                                brushtools.groups.color.randomColor.disable();
+                                brushtools.groups.color.randomColor.enable();
+                            }
+                        }
+                    }
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.color.randomColor.enabled = stateFromLocalstorage("color.randomcolor", undefined, true);
+
+                    let nthChild = QS("#game-canvas").getAttribute("data-monochrome");
+                    let items = [
+                        ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : ""))
+                    ].filter(item =>
+                      item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
+                    );
+
+                    brushtools.groups.color.randomColor.interval = setInterval(() => {
+                        items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
+                    }, brushtools.groups.color.randomColor.options.interval.val);
+                    QS(".colors:not(.custom)").addEventListener("pointerdown", brushtools.groups.color.randomColor.disable, {once: true});
+                },
+                disable: () => {
+                    clearInterval(brushtools.groups.color.randomColor.interval);
+                    QS(".colors:not(.custom)").removeEventListener("pointerdown", brushtools.groups.color.randomColor.disable);
+                    brushtools.groups.color.randomColor.enabled = stateFromLocalstorage("color.randomcolor", undefined, false);
                 }
             }
         },
@@ -8904,7 +9064,7 @@ const awards = {
             </div>
         </div>     
         `);
-        awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/noChallenge.gif") + ")";
+        awards.ui.querySelector(".icon").style.backgroundImage = "url(" + chrome.runtime.getURL("res/award.gif") + ")";
         awards.ui.querySelector(".icon").addEventListener("click", () => awards.openPicker?.());
         QS("#game-canvas").appendChild(awards.ui);
 

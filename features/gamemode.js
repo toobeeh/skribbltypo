@@ -20,6 +20,26 @@ const gamemodes = {
                     QS("#game-canvas canvas").style.opacity = QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ? 1 : 0;
                 }
             }
+        },{
+            name: "Drunk Vision",
+            options: {
+                description: "The canvas is blurred - you can only vaguely see what people draw!",
+                init: () => {
+                },
+                initWithAction: true,
+                destroy: () => {
+                    QS("#game-canvas canvas").style.filter = "";
+                },
+                observeSelector: "#game-players .players-list",
+                observeOptions: {
+                    attributes: true,
+                    subtree: true
+                },
+                observeAction: () => {
+                    // update filter based on self drawing or not
+                    QS("#game-canvas canvas").style.filter = QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ? "" : "blur(20px)";
+                }
+            }
         }, {
             name: "Deaf Guess",
             options: {
@@ -136,7 +156,7 @@ const gamemodes = {
                     const itemWidth = getComputedStyle(QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div > div")).width;
                     const itemCount = QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div").children.length;
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
-                    QS("#randomColor").setAttribute("data-monochrome", randomIndex);
+                    QS("#game-canvas").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
                             `#game-toolbar div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))

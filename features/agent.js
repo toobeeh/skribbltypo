@@ -52,7 +52,7 @@ let imageAgent = {// func to set the image in the agentdiv
 <button class="flatUI blue min air">Map</button>
 <button class="flatUI blue min air">Word</button>
 </div>
-<input type="text" class="flatUI" placeholder="Search text with 'enter'">
+<input type="text" placeholder="Search text with 'enter'">
 <div><img></div>
 
 </div>`);

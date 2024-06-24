@@ -17,7 +17,7 @@ const brushtools = {
         color: {
             rainbowcircle: {
                 name: "Rainbow Cycle",
-                description: "Cycles through bright rainbow colors, no pen needed.",
+                description: "Cycles through bright rainbow colors.",
                 enabled: stateFromLocalstorage("color.rainbowcircle", false),
                 options: {
                 },
@@ -95,6 +95,47 @@ const brushtools = {
                     }
                     brushtools.groups.color.rainbowstroke.lastIndex = index;
                     document.dispatchEvent(newCustomEvent("setColor", { detail: { code: parseInt(colors[index], 16) + 10000 } }));
+                }
+            },
+            randomColor: {
+                name: "Random Colors",
+                description: "The color changes randomly while drawing.",
+                enabled: stateFromLocalstorage("color.randomcolor", false),
+                options: {
+                    interval: {
+                        val: stateFromLocalstorage("color.randomcolor", 50),
+                        type: "num",
+                        save: value => {
+                            stateFromLocalstorage("color.randomcolor", undefined, Math.max(10,value));
+                            if(brushtools.groups.color.randomColor.enabled) {
+                                brushtools.groups.color.randomColor.disable();
+                                brushtools.groups.color.randomColor.enable();
+                            }
+                        }
+                    }
+                },
+                enable: () => {
+                    for (let [name, mode] of Object.entries(brushtools.groups.color)) {
+                        mode.disable();
+                    }
+                    brushtools.groups.color.randomColor.enabled = stateFromLocalstorage("color.randomcolor", undefined, true);
+
+                    let nthChild = QS("#game-canvas").getAttribute("data-monochrome");
+                    let items = [
+                        ...QSA(".colors:not([style*=display]) .color" + (nthChild ? ":nth-child(" + nthChild + ")" : ""))
+                    ].filter(item =>
+                      item.style.backgroundColor != "rgb(255, 255, 255)" && item.style.backgroundColor != "rgb(0, 0, 0)"
+                    );
+
+                    brushtools.groups.color.randomColor.interval = setInterval(() => {
+                        items[Math.floor(Math.random() * items.length)]?.dispatchEvent(new PointerEvent("pointerdown", { button: 0, altKey: false }));
+                    }, brushtools.groups.color.randomColor.options.interval.val);
+                    QS(".colors:not(.custom)").addEventListener("pointerdown", brushtools.groups.color.randomColor.disable, {once: true});
+                },
+                disable: () => {
+                    clearInterval(brushtools.groups.color.randomColor.interval);
+                    QS(".colors:not(.custom)").removeEventListener("pointerdown", brushtools.groups.color.randomColor.disable);
+                    brushtools.groups.color.randomColor.enabled = stateFromLocalstorage("color.randomcolor", undefined, false);
                 }
             }
         },
