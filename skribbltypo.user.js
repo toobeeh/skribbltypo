@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.1.0.171891668
+// @version 26.1.1.171926618
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.1.0 usrsc"};
+            return {version: "26.1.1 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -3526,7 +3526,7 @@ let imageOptions = {
                 }
                 document.documentElement.requestFullscreen();
                 document.head.insertAdjacentHTML("beforeEnd", `<style id='fullscreenRules'>
-                    @media(min-aspect-ratio: 16/10) {
+                    @media(min-aspect-ratio: 2/1) {
                         div#game-canvas {
                             height: calc(100vh - 2*48px - 4*var(--BORDER_GAP));
                             width: calc((100vh - 2*48px - 4*var(--BORDER_GAP)) * 4/3);
@@ -3535,10 +3535,11 @@ let imageOptions = {
                         div#game {
                             position: fixed;
                             inset: 0;
+                            margin: 0 !important;
                         }
                     }
                     
-                    @media(max-aspect-ratio: 16/10) {
+                    @media(max-aspect-ratio: 2/1) {
                         div#game-wrapper {
                           width: 100%;
                         }
