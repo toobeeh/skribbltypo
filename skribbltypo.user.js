@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.1.2.171950476
+// @version 26.1.3.171950546
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.1.2 usrsc"};
+            return {version: "26.1.3 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -7037,10 +7037,10 @@ const uiTweaks = {
     initColorTools: () => {
         QS(".colors").insertAdjacentElement("afterend", elemFromString(`<div class="colors color-tools">
             <div class="top">
-              <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/crosshair.gif);"></div>
+              <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(${chrome.runtime.getURL("res/crosshair.gif")});"></div>
             </div>
             <div class="bottom">
-              <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/inspect.gif);"></div>
+              <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(${chrome.runtime.getURL("res/inspect.gif")});"></div>
             </div>
             </div>`
         ));
