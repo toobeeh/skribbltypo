@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.1.1.171926618
+// @version 26.1.2.171950476
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.1.1 usrsc"};
+            return {version: "26.1.2 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -745,7 +745,11 @@ const sprites = {
             let container = QS(".avatar-customizer");
             let scene = socket.data.user.scenes ? socket.data.user.scenes.toString().split(",").filter(s => s[0] == ".")[0] : undefined;
             if (scene != undefined) {
-                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".", ""))).URL;
+                const sceneID = scene.replace(".", "").split(":")[0];
+                const sceneShift = scene.split(":")[1];
+                console.log(sceneID, sceneShift);
+                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == sceneID).URL;
+                if(sceneShift) url = "https://static.typo.rip/sprites/rainbow/modulate.php?url=" + url + "&hue=" + sceneShift;
                 container.style.cssText = `    
                     background-repeat: no-repeat;
                     background-image: url(${url});

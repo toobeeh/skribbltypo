@@ -220,7 +220,11 @@ const sprites = {
             let container = QS(".avatar-customizer");
             let scene = socket.data.user.scenes ? socket.data.user.scenes.toString().split(",").filter(s => s[0] == ".")[0] : undefined;
             if (scene != undefined) {
-                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == Number(scene.replace(".", ""))).URL;
+                const sceneID = scene.replace(".", "").split(":")[0];
+                const sceneShift = scene.split(":")[1];
+                console.log(sceneID, sceneShift);
+                let url = socket.data.publicData.scenes.find(_scene => _scene.ID == sceneID).URL;
+                if(sceneShift) url = "https://static.typo.rip/sprites/rainbow/modulate.php?url=" + url + "&hue=" + sceneShift;
                 container.style.cssText = `    
                     background-repeat: no-repeat;
                     background-image: url(${url});
