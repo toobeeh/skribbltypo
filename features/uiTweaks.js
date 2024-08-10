@@ -683,10 +683,10 @@ const uiTweaks = {
     initColorTools: () => {
         QS(".colors").insertAdjacentElement("afterend", elemFromString(`<div class="colors color-tools">
             <div class="top">
-              <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/crosshair.gif);"></div>
+              <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(${chrome.runtime.getURL("res/crosshair.gif")});"></div>
             </div>
             <div class="bottom">
-              <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(chrome-extension://oiglaccedhkoghhdfjdjgfcnhioapnef/res/inspect.gif);"></div>
+              <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(${chrome.runtime.getURL("res/inspect.gif")});"></div>
             </div>
             </div>`
         ));
