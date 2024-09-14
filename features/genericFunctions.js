@@ -1,6 +1,6 @@
 // general util functions which have no dependencies
 
-async function typoApiFetch(path, method = "GET", params = {}, body = undefined) {
+async function typoApiFetch(path, method = "GET", params = {}, body = undefined, userToken = undefined) {
     const searchParams = new URLSearchParams(params);
 
     const isFirefox = false; // chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
@@ -11,7 +11,8 @@ async function typoApiFetch(path, method = "GET", params = {}, body = undefined)
         searchParams: searchParams,
         method: method,
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': userToken ? `Bearer ${userToken}` : undefined
         },
         body: body ? JSON.stringify(body) : undefined
     })).json();
@@ -45,6 +46,8 @@ const solveMatchHash = (hash, key) => {
     const match = unhashed.join("") == key;
     return match;
 }
+
+const localDateToUtc = ms => new Date(new Date(ms).toISOString().replace("Z", "")).getTime();
 
 // polyfill customevent
 const newCustomEvent = (type, detail = {}) => {
