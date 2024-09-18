@@ -132,17 +132,17 @@ jobs:
         run: mkdir -p dist
 
       - name: "Copy XPI to dist"
-        run: cp ${{ steps.web-ext-sign.outputs.target }} ./dist/typo-firefox-signed-release-${{ env.VERSION }}.xpi
+        run: cp ${{ steps.web-ext-sign.outputs.target }} ./dist/typo-firefox-release-${{ env.VERSION }}.xpi
 
       - name: "Create updates.json"
         run: |
           echo '{
             "addons": {
-              "your-addon-id@example.com": {
+              "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}": {
                 "updates": [
                   {
                     "version": "'${{ env.VERSION }}'",
-                    "update_link": "https://your-username.github.io/your-repo/typo-firefox-signed-release-${{ env.VERSION }}.xpi"
+                    "update_link": "https://toobeeh.github.io/skribbltypo/typo-firefox-release-${{ env.VERSION }}.xpi"
                   }
                 ]
               }
