@@ -18,7 +18,21 @@ let typro = {
                 let container = document.createElement("div");
                 container.id = drawing.id;
 
-                const meta = await (await fetch(drawing.metaUrl)).json();
+                loadFailed = false;
+                let meta = {
+                    "author": "-",
+                    "language": "-",
+                    "name": "Image Not Found",
+                    "own": false,
+                    "private": false,
+                    "date": "Sun Sep 15 2024 23:03:20 GMT+0000 (Coordinated Universal Time)"
+                };
+                try {
+                    meta = await (await fetch(drawing.metaUrl)).json();
+                }
+                catch (e) {
+                    loadFailed = true;
+                }
 
                 container.classList.add(JSON.stringify(meta.name).replaceAll(" ", "_"));
                 container.classList.add(JSON.stringify(meta.author).replaceAll(" ", "_"));
@@ -29,7 +43,7 @@ let typro = {
                 let thumb = document.createElement("img");
                 thumb.style.backgroundImage = "url(" + typro.thumbnail + ")";
                 thumb.style.backgroundSize = "cover";
-                thumb.src = drawing.imageUrl;
+                thumb.src = loadFailed? typro.thumbnail : drawing.imageUrl;
                 let overlay = elemFromString(`<div></div>`);
                 overlay.appendChild(elemFromString("<h3>" + meta.name + " by " + meta.author + "</h3>"));
                 overlay.appendChild(elemFromString("<h3>" + new Date(meta.date).toLocaleString() + "</h3>"));
@@ -95,7 +109,9 @@ let typro = {
                 let removeConfirm = false;
                 remove.addEventListener("click", async () => {
                     if (!removeConfirm) { remove.innerHTML = "Really?"; removeConfirm = true; return; }
-                    await socket.emitEvent("remove drawing", { id: drawing.uuid });
+
+                    await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}/${drawing.id}`, "DELETE", undefined, undefined, localStorage.accessToken, false);
+
                     new Toast("Deleted drawing from the cloud.");
                     container.remove();
                 });

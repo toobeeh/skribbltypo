@@ -1,13 +1,13 @@
 // general util functions which have no dependencies
 
-async function typoApiFetch(path, method = "GET", params = {}, body = undefined, userToken = undefined) {
+async function typoApiFetch(path, method = "GET", params = {}, body = undefined, userToken = undefined, parseResponse = true) {
     const searchParams = new URLSearchParams(params);
 
     const isFirefox = false; // chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
     const apiBase = isFirefox ? "https://tobeh.host/newapi" : "https://api.typo.rip";
     const url = apiBase + (path.startsWith("/") ? "" : "/") + path;
 
-    return (await fetch(url, {
+    const request = await fetch(url, {
         searchParams: searchParams,
         method: method,
         headers: {
@@ -15,7 +15,10 @@ async function typoApiFetch(path, method = "GET", params = {}, body = undefined,
             'Authorization': userToken ? `Bearer ${userToken}` : undefined
         },
         body: body ? JSON.stringify(body) : undefined
-    })).json();
+    });
+
+    if(parseResponse) return await request.json();
+    return request.text();
 }
 
 //Queryselector bindings
