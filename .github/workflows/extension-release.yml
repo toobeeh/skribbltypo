@@ -127,7 +127,7 @@ jobs:
           asset_name: typo-firefox-signed-release-${{env.VERSION}}.xpi
           asset_content_type: application/x-xpinstall
 
-      # Publish to GitHub Pages
+      # create GitHub Pages release
       - name: "Create dist directory"
         run: mkdir -p dist
 
@@ -153,3 +153,15 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           path: ./dist
+
+
+  deploy-pages:
+    needs: publish-firefox
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
