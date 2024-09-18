@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.2.0.172632339
+// @version 26.2.0.172665162
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -946,14 +946,14 @@ const sprites = {
 // #content features/genericFunctions.js
 // general util functions which have no dependencies
 
-async function typoApiFetch(path, method = "GET", params = {}, body = undefined, userToken = undefined) {
+async function typoApiFetch(path, method = "GET", params = {}, body = undefined, userToken = undefined, parseResponse = true) {
     const searchParams = new URLSearchParams(params);
 
     const isFirefox = false; // chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
     const apiBase = isFirefox ? "https://tobeh.host/newapi" : "https://api.typo.rip";
     const url = apiBase + (path.startsWith("/") ? "" : "/") + path;
 
-    return (await fetch(url, {
+    const request = await fetch(url, {
         searchParams: searchParams,
         method: method,
         headers: {
@@ -961,7 +961,10 @@ async function typoApiFetch(path, method = "GET", params = {}, body = undefined,
             'Authorization': userToken ? `Bearer ${userToken}` : undefined
         },
         body: body ? JSON.stringify(body) : undefined
-    })).json();
+    });
+
+    if(parseResponse) return await request.json();
+    return request.text();
 }
 
 //Queryselector bindings
@@ -3066,11 +3069,6 @@ const socket = {
             return { caught: false };
         }
     },
-    getStoredDrawings: async (query = {}, limit = 5000) => {
-        Object.keys(query).forEach(key => query[key] === undefined && delete query[key]);
-        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query }, true, 10000)).images;
-        return drawings;
-    },
     setSpriteSlot: async (slot, sprite) => {
         let user = (await socket.emitEvent("set slot", { slot: slot, sprite: sprite }, true, 10000)).user;
         return user;
@@ -3131,7 +3129,7 @@ const lobbies = {
 				if(!onlinePlayers.some(added => added.link === invite.link && added.username === invite.username)) onlinePlayers.push(invite);
 			});
 		let playerButtons = "";
-		onlinePlayers.forEach(player => playerButtons += `<button link="${player.link}" slotAvailable=${player.slotAvailable} class="flatUI green min air" style="margin: .5em">${player.username}</button>`);
+		onlinePlayers.forEach(player => playerButtons += `<button data-typo-tooltip="${player.slotAvailable} slots" link="${player.link}" slotAvailable=${player.slotAvailable} class="flatUI green min air" style="margin: .5em">${player.username}</button>`);
 		if (playerButtons == "") playerButtons = "<span>None of your friends are online :(</span>";
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
@@ -3144,6 +3142,7 @@ const lobbies = {
 		else {
 			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
 		}
+		/*document.dispatchEvent(new Event("addTypoTooltips"));*/
 		container.addEventListener("click", e => {
 			let link = e.target.getAttribute("link");
 			let slotAvailable = e.target.getAttribute("slotAvailable");
@@ -7365,7 +7364,18 @@ const captureCanvas = {
             });
 
             try {
-                await socket.emitEvent("store drawing", {
+
+                await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}`, "POST", undefined, {
+                    name: data.detail,
+                    author: getCurrentOrLastDrawer(),
+                    inPrivate: lobbies.lobbyProperties.Private,
+                    language: lobbies.lobbyProperties.Language,
+                    isOwn: getCurrentOrLastDrawer() == socket.clientData.playerName,
+                    commands: captureCanvas.capturedCommands,
+                    imageBase64: QS("#game-canvas canvas").toDataURL().replace("data:image/png;base64,", "")
+                }, localStorage.accessToken);
+
+                /*await socket.emitEvent("store drawing", {
                     meta: {
                         name: data.detail,
                         author: getCurrentOrLastDrawer(),
@@ -7377,7 +7387,7 @@ const captureCanvas = {
                     linkAwardId: awards.cloudAwardLink,
                     commands: captureCanvas.capturedCommands,
                     uri: QS("#game-canvas canvas").toDataURL()
-                }, true, 5000);
+                }, true, 5000);*/
             }
             catch { }
             awards.cloudAwardLink = undefined;
@@ -7426,7 +7436,21 @@ let typro = {
                 let container = document.createElement("div");
                 container.id = drawing.id;
 
-                const meta = await (await fetch(drawing.metaUrl)).json();
+                loadFailed = false;
+                let meta = {
+                    "author": "-",
+                    "language": "-",
+                    "name": "Image Not Found",
+                    "own": false,
+                    "private": false,
+                    "date": "Sun Sep 15 2024 23:03:20 GMT+0000 (Coordinated Universal Time)"
+                };
+                try {
+                    meta = await (await fetch(drawing.metaUrl)).json();
+                }
+                catch (e) {
+                    loadFailed = true;
+                }
 
                 container.classList.add(JSON.stringify(meta.name).replaceAll(" ", "_"));
                 container.classList.add(JSON.stringify(meta.author).replaceAll(" ", "_"));
@@ -7437,7 +7461,7 @@ let typro = {
                 let thumb = document.createElement("img");
                 thumb.style.backgroundImage = "url(" + typro.thumbnail + ")";
                 thumb.style.backgroundSize = "cover";
-                thumb.src = drawing.imageUrl;
+                thumb.src = loadFailed? typro.thumbnail : drawing.imageUrl;
                 let overlay = elemFromString(`<div></div>`);
                 overlay.appendChild(elemFromString("<h3>" + meta.name + " by " + meta.author + "</h3>"));
                 overlay.appendChild(elemFromString("<h3>" + new Date(meta.date).toLocaleString() + "</h3>"));
@@ -7503,7 +7527,9 @@ let typro = {
                 let removeConfirm = false;
                 remove.addEventListener("click", async () => {
                     if (!removeConfirm) { remove.innerHTML = "Really?"; removeConfirm = true; return; }
-                    await socket.emitEvent("remove drawing", { id: drawing.uuid });
+
+                    await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}/${drawing.id}`, "DELETE", undefined, undefined, localStorage.accessToken, false);
+
                     new Toast("Deleted drawing from the cloud.");
                     container.remove();
                 });
