@@ -127,14 +127,7 @@ jobs:
           asset_name: typo-firefox-signed-release-${{env.VERSION}}.xpi
           asset_content_type: application/x-xpinstall
 
-  publish-firefox-github-pages:
-    needs: publish-firefox
-    name: "Publish firefox to GitHub Pages"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      # Publish to GitHub Pages
       - name: "Create dist directory"
         run: mkdir -p dist
 
@@ -145,11 +138,11 @@ jobs:
         run: |
           echo '{
             "addons": {
-              "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}": {
+              "your-addon-id@example.com": {
                 "updates": [
                   {
                     "version": "'${{ env.VERSION }}'",
-                    "update_link": "https://toobeeh.github.io/skribbltypo/typo-firefox-release-${{ env.VERSION }}.xpi"
+                    "update_link": "https://your-username.github.io/your-repo/typo-firefox-signed-release-${{ env.VERSION }}.xpi"
                   }
                 ]
               }
@@ -159,4 +152,4 @@ jobs:
       - name: Upload to GitHub Pages
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./dist  # Path to your static site files
+          path: ./dist
