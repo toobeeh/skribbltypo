@@ -4,20 +4,42 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9e9b573d-8e4e-4744-9830-0499474c0d7e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/old/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/.prettierignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/.prettierrc" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/src/background/background.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/src/content/content.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/src/global.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/src/manifest.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/src/popup/popup.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/tsconfig.node.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/old/vite.config.ts" afterDir="false" />
+    <list default="true" id="9e9b573d-8e4e-4744-9830-0499474c0d7e" name="Changes" comment="init project">
+      <change afterPath="$PROJECT_DIR$/src/content/core/events/applicationEvent.decorator.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/core/events/applicationEvent.interface.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/core/events/event-listener.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/core/events/event-processor.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/core/events/events.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/core/events/processors/playClicked.event.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/core/lifetime/lifecycle.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/core/lifetime/lifecycleEvents.interface.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/core/logger/logger.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/content/features/test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/assets/chunk-3a08b211.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/assets/chunk-5135a214.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/assets/chunk-5648bee1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/assets/content.ts-loader-21281b59.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/assets/popup-26eed93e.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/icons/logo.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/icons/logo.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/img/logo-128.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/img/logo-16.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/img/logo-34.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/img/logo-48.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/manifest.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/popup.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/service-worker-loader.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/eslint.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/eslint.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/background/background.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/background/background.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/content.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/content.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/manifest.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/manifest.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/popup/popup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/popup/popup.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vite.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,8 +50,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="package.json" />
-        <option value="TypeScript File" />
         <option value="HTML File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
@@ -48,6 +70,9 @@
     &quot;accountId&quot;: &quot;65327a73-77e3-4959-971d-8ac3706bda98&quot;
   }
 }</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
@@ -68,23 +93,36 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;npm.build.executor&quot;: &quot;Run&quot;,
+    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
     &quot;npm.lint.executor&quot;: &quot;Run&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\tobeh\\repos\\skribbltypo-ts\\node_modules\\prettier&quot;,
     &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\tobeh\\repos\\skribbltypo-ts\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\tobeh\repos\skribbltypo-ts\src\content\core\events" />
       <recent name="C:\Users\tobeh\repos\skribbltypo-ts" />
       <recent name="C:\Users\tobeh\repos\skribbltypo-ts\old" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.lint">
+  <component name="RunManager" selected="npm.dev">
     <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
       <scripts>
         <script value="build" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
       </scripts>
       <node-interpreter value="project" />
       <envs />
@@ -102,8 +140,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="npm.lint" />
+        <item itemvalue="npm.dev" />
         <item itemvalue="npm.build" />
+        <item itemvalue="npm.lint" />
       </list>
     </recent_temporary>
   </component>
@@ -123,10 +162,71 @@
       <option name="presentableId" value="Default" />
       <updated>1726999191158</updated>
       <workItem from="1726999192389" duration="6434000" />
+      <workItem from="1727005766179" duration="10581000" />
+      <workItem from="1727026773331" duration="17439000" />
     </task>
+    <task id="LOCAL-00001" summary="init project">
+      <option name="closed" value="true" />
+      <created>1727007744866</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1727007744867</updated>
+    </task>
+    <task id="LOCAL-00002" summary="init project">
+      <option name="closed" value="true" />
+      <created>1727007898693</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1727007898693</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="skribbltypo-ts" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="skribbltypo-ts" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="init project" />
+    <option name="LAST_COMMIT_MESSAGE" value="init project" />
   </component>
 </project>

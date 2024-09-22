@@ -11,6 +11,7 @@ export default tseslint.config(
   {rules: {
       "semi": "error",
       "grouped-accessor-pairs": "error",
+      "quotes": ["error", "double"],
     }
   }
 );
