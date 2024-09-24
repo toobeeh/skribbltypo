@@ -1,18 +1,22 @@
-import { ApplicationEvent } from "./applicationEvent.interface";
 import { inject, injectable } from "inversify";
 import { EventsService } from "./events.service";
 import { EventProcessor } from "./event-processor";
 import { filter } from "rxjs";
-import { LoggerService } from "../logger/logger.service";
+import { loggerFactory } from "../logger/loggerFactory.interface";
+import { ApplicationEvent } from "./applicationEvent";
 
 @injectable()
-export class EventListener<TEvent extends ApplicationEvent> {
+export abstract class EventListener<TData, TEvent extends ApplicationEvent<TData>> {
+
+  protected abstract readonly _processor: EventProcessor<TData, TEvent>;
 
   /**
    * Reference to the event observable that filters all events from the event service that are of this type
    * @private
    */
   private readonly _events$;
+
+  private readonly _logger;
 
   /**
    * Observable that emits all events of this type
@@ -22,15 +26,14 @@ export class EventListener<TEvent extends ApplicationEvent> {
   }
 
   constructor(
-    @inject(EventProcessor) private readonly _processor: EventProcessor<TEvent>,
     @inject(EventsService) private readonly _eventsService: EventsService,
-    @inject(LoggerService) protected readonly _logger: LoggerService,
+    @inject(loggerFactory) loggerFactory: loggerFactory,
   ) {
-    this._logger.bindTo(this);
+    this._logger = loggerFactory(this);
 
     /* filter all events from the central event pipe */
     this._events$ = _eventsService.events$.pipe(
-      filter((event) => _processor.isProcessorEvent(event))
+      filter((event) => this._processor.isProcessorEvent(event))
     );
   }
 }

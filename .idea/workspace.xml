@@ -4,11 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9e9b573d-8e4e-4744-9830-0499474c0d7e" name="Changes" comment="implement event handler DI prototype">
-      <change afterPath="$PROJECT_DIR$/src/content/core/logger/loggerFactory.interface.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="9e9b573d-8e4e-4744-9830-0499474c0d7e" name="Changes" comment="add logger factory">
+      <change afterPath="$PROJECT_DIR$/src/content/core/events/applicationEvent.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/util/types/type.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/content.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/content.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/core/events/applicationEvent.decorator.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/core/events/applicationEvent.interface.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/core/events/event-listener.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/core/events/event-listener.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/core/events/event-processor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/core/events/event-processor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/core/events/events.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/core/events/events.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/core/events/processors/playClicked.event.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/core/events/processors/playClicked.event.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/content/core/lifetime/lifecycle.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/core/lifetime/lifecycle.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/core/logger/loggerFactory.interface.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/core/logger/loggerFactory.interface.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/content/features/test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/features/test.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,25 +59,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;skribbltypo-ts&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/tobeh/repos/skribbltypo-ts&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.build.executor&quot;: &quot;Run&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;npm.lint.executor&quot;: &quot;Run&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\tobeh\\repos\\skribbltypo-ts\\node_modules\\prettier&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\tobeh\\repos\\skribbltypo-ts\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "skribbltypo-ts",
+    "last_opened_file_path": "C:/Users/tobeh/repos/skribbltypo-ts",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.standard": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.standard": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.build.executor": "Run",
+    "npm.dev.executor": "Run",
+    "npm.lint.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\tobeh\\repos\\skribbltypo-ts\\node_modules\\prettier",
+    "settings.editor.selected.configurable": "settings.javascript.linters.eslint",
+    "ts.external.directory.path": "C:\\Users\\tobeh\\repos\\skribbltypo-ts\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\tobeh\repos\skribbltypo-ts\src\content\core\events" />
@@ -77,7 +88,7 @@
       <recent name="C:\Users\tobeh\repos\skribbltypo-ts\old" />
     </key>
   </component>
-  <component name="RunManager" selected="npm.dev">
+  <component name="RunManager" selected="npm.lint">
     <configuration name="build" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
       <command value="run" />
@@ -110,9 +121,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="npm.lint" />
         <item itemvalue="npm.dev" />
         <item itemvalue="npm.build" />
-        <item itemvalue="npm.lint" />
       </list>
     </recent_temporary>
   </component>
@@ -133,7 +144,7 @@
       <updated>1726999191158</updated>
       <workItem from="1726999192389" duration="6434000" />
       <workItem from="1727005766179" duration="10581000" />
-      <workItem from="1727026773331" duration="19625000" />
+      <workItem from="1727026773331" duration="23643000" />
     </task>
     <task id="LOCAL-00001" summary="init project">
       <option name="closed" value="true" />
@@ -159,7 +170,15 @@
       <option name="project" value="LOCAL" />
       <updated>1727046995854</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="add logger factory">
+      <option name="closed" value="true" />
+      <created>1727165851084</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1727165851084</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -206,6 +225,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init project" />
     <MESSAGE value="implement event handler DI prototype" />
-    <option name="LAST_COMMIT_MESSAGE" value="implement event handler DI prototype" />
+    <MESSAGE value="add logger factory" />
+    <option name="LAST_COMMIT_MESSAGE" value="add logger factory" />
   </component>
 </project>

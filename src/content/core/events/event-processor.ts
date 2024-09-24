@@ -2,12 +2,17 @@ import { inject, injectable } from "inversify";
 import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "./events.service";
 import { Observable } from "rxjs";
-import { ApplicationEvent } from "./applicationEvent.interface";
+import { ApplicationEvent } from "./applicationEvent";
+import { Type } from "../../../util/types/type";
+import { loggerFactory } from "../logger/loggerFactory.interface";
 
-export type EventProcessorImplementationType =  new (...args: ConstructorParameters<typeof EventProcessor>) => EventProcessor<ApplicationEvent>;
+export type EventProcessorImplementationType<TData> =
+  new (...args: ConstructorParameters<typeof EventProcessor>) => EventProcessor<TData, ApplicationEvent<TData>>;
 
 @injectable()
-export abstract class EventProcessor<TEvent extends ApplicationEvent> {
+export abstract class EventProcessor<TData, TEvent extends ApplicationEvent<TData>> {
+
+  private readonly _logger;
 
   /**
    * Observable that contains all events of this type
@@ -16,15 +21,15 @@ export abstract class EventProcessor<TEvent extends ApplicationEvent> {
   private readonly _events$;
 
   /**
-   * Name of the event this processor is responsible for
+   * Type of the event this processor emits
    */
-  public abstract readonly eventName: TEvent["name"];
+  public abstract readonly eventType: Type<ApplicationEvent<TData>>;
 
   constructor(
-    @inject(LoggerService) protected readonly _logger: LoggerService,
+    @inject(loggerFactory) loggerFactory: loggerFactory,
     @inject(EventsService) private readonly _eventsService: EventsService
   ) {
-    this._logger.bindTo(this);
+    this._logger = loggerFactory(this);
 
     /* create event stream from implementation */
     this._events$ = this.streamEvents();
@@ -36,16 +41,16 @@ export abstract class EventProcessor<TEvent extends ApplicationEvent> {
   }
 
   /**
-   * Create a observable that streams all events of this type
+   * Create an observable that streams all events of this type
    * @protected
    */
   protected abstract streamEvents(): Observable<TEvent>;
 
   /**
-   * Check if the event is of the type this processor is responsible for
+   * Check if an event is of the type this processor emits
    * @param event
    */
-  public isProcessorEvent(event: ApplicationEvent): event is TEvent {
-    return event.name === this.eventName;
+  public isProcessorEvent(event: ApplicationEvent<unknown>): event is TEvent {
+    return event instanceof this.eventType;
   }
 }

@@ -35,40 +35,44 @@ export class LoggerService {
   /**
    * Logs a message to the console.
    * @param message The message to log.
+   * @param data Additional data that will be inspectable in the console.
    */
-  debug(message: unknown) {
+  debug(message: unknown, ...data: unknown[]) {
     if(this._levels[LoggerService._level] > this._levels["debug"]) return;
 
-    console.log(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [DEB]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.debug, message);
+    console.log(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [DEB]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.debug, message, ...data);
   }
 
   /**
    * Logs a message to the console.
    * @param message The message to log.
+   * @param data Additional data that will be inspectable in the console.
    */
-  info(message: unknown) {
+  info(message: unknown, ...data: unknown[]) {
     if(this._levels[LoggerService._level] > this._levels["info"]) return;
 
-    console.log(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [INFO] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.info, message);
+    console.log(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [INFO] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.info, message, ...data);
   }
 
   /**
    * Logs a warning to the console.
    * @param message The warning to log.
+   * @param data Additional data that will be inspectable in the console.
    */
-  warn(message: unknown) {
+  warn(message: unknown, ...data: unknown[]) {
     if(this._levels[LoggerService._level] > this._levels["warn"]) return;
 
-    console.warn(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [WARN] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.warn, message);
+    console.warn(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [WARN] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.warn, message, ...data);
   }
 
   /**
    * Logs an error to the console.
    * @param message The error to log.
+   * @param data Additional data that will be inspectable in the console.
    */
-  error(message: unknown) {
+  error(message: unknown, ...data: unknown[]) {
     if(this._levels[LoggerService._level] > this._levels["error"]) return;
 
-    console.error(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [ERR]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.error, message);
+    console.error(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [ERR]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.error, message, ...data);
   }
 }

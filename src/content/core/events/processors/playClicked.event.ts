@@ -1,29 +1,40 @@
 import { EventProcessor } from "../event-processor";
 import { Observable, Subject } from "rxjs";
-import { injectable } from "inversify";
-import { ApplicationEvent } from "../applicationEvent.interface";
-import { ApplicationEventProcessor } from "../applicationEvent.decorator";
+import { inject, injectable } from "inversify";
+import { ApplicationEvent } from "../applicationEvent";
+import { EventListener } from "../event-listener";
 
-export const PlayClickedEvent = Symbol("PlayClickedEvent");
-export interface PlayClickedEvent extends ApplicationEvent {
-  name: "playClicked";
-  data: {
-    url: string;
-  };
+interface playClickedData {
+  url: string;
 }
 
-@ApplicationEventProcessor(PlayClickedEvent)
+export class PlayClickedEvent extends ApplicationEvent<playClickedData> {
+  public readonly name = "playClicked";
+
+  constructor(public readonly data: playClickedData) {
+    super();
+  }
+}
+
 @injectable()
-export class PlayClickedEventProcessor extends EventProcessor<PlayClickedEvent>
+export class PlayClickedEventProcessor extends EventProcessor<playClickedData, PlayClickedEvent>
 {
-  public readonly eventName = "playClicked";
+  public readonly eventType = PlayClickedEvent;
 
   protected streamEvents(): Observable<PlayClickedEvent> {
     const obs = new Subject<PlayClickedEvent>();
     document.addEventListener("click", () => {
-      obs.next({name: "playClicked", data: {url: window.location.href}});
+      obs.next(new PlayClickedEvent({ url: window.location.href }));
     });
 
     return obs;
   }
+}
+
+@injectable()
+export class PlayClickedEventListener extends EventListener<playClickedData, PlayClickedEvent> {
+
+  @inject(PlayClickedEventProcessor)
+  protected readonly _processor!: PlayClickedEventProcessor;
+
 }

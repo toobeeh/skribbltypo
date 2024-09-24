@@ -3,12 +3,20 @@ import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../events/events.service";
 import { Observable, ReplaySubject, Subject } from "rxjs";
 import { LifecycleEvent } from "./lifecycleEvents.interface";
-import { EventProcessor, EventProcessorImplementationType } from "../events/event-processor";
+import { EventProcessorImplementationType } from "../events/event-processor";
 import { EventListener } from "../events/event-listener";
-import { getApplicationEventTypeInjectionSymbol } from "../events/applicationEvent.decorator";
 import { TestFeature } from "../../features/test";
-import { ApplicationEvent } from "../events/applicationEvent.interface";
+import { ApplicationEvent } from "../events/applicationEvent";
 import { loggerFactory } from "../logger/loggerFactory.interface";
+import { Type } from "../../../util/types/type";
+
+/**
+ * Data interface for the event registration
+ */
+interface EventRegistration<TData, TEvent extends ApplicationEvent<TData>> {
+   processorType: EventProcessorImplementationType<TData>;
+   listenerType: Type<EventListener<TData, TEvent>>;
+}
 
 export class LifecycleService {
 
@@ -27,7 +35,7 @@ export class LifecycleService {
    public constructor() {
       this.bindCoreServices();
 
-      this._logger = this._diContainer.get(LoggerService).bindTo(this);
+      this._logger = this._diContainer.get<loggerFactory>(loggerFactory)(this);
       this._events = this._diContainer.get(EventsService);
 
       this._logger.debug("LifecycleService initialized");
@@ -106,17 +114,14 @@ export class LifecycleService {
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
    }
 
-   public registerEventProcessors(...processors: EventProcessorImplementationType[]) {
-      processors.forEach((processor) => {
+   public registerEventProcessors<T extends ApplicationEvent<unknown>>(...events: EventRegistration<unknown, T>[]) {
+      events.forEach((event) => {
 
-         const injectionSymbol = getApplicationEventTypeInjectionSymbol(processor);
+         /* add processor to container as singleton */
+         this._diContainer.bind(event.processorType).toSelf().inSingletonScope();
 
-         /* add processor to container as singleton, needs a named (with injection symbol for type) parent to inject this specific implementation */
-         this._diContainer.bind<EventProcessor<ApplicationEvent>>(EventProcessor).to(processor).inSingletonScope().whenParentNamed(injectionSymbol);
-
-         /* bind respective event listener with this injection symbol for listener type */
-         this._diContainer.bind(EventListener).toSelf().inRequestScope().whenTargetNamed(injectionSymbol);
-         this._logger.info(injectionSymbol);
+         /* bind respective event listener */
+         this._diContainer.bind(event.listenerType).toSelf().inRequestScope();
       });
 
       /* TODO remove test */
