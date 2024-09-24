@@ -1,5 +1,4 @@
 import { inject, injectable } from "inversify";
-import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "./events.service";
 import { Observable } from "rxjs";
 import { ApplicationEvent } from "./applicationEvent";

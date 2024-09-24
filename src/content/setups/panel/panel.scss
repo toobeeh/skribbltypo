@@ -1,0 +1,22 @@
+#home .panel.typo-panel {
+    margin-top:1em;
+    display: flex;
+    flex-direction: column;
+    align-items: normal;
+    justify-content: flex-start;
+    color: var(--COLOR_PANEL_TEXT);
+
+    .panel-header {
+        display:flex;
+        justify-content:space-between;
+        font-weight: 600;
+
+        h2 {
+            cursor: pointer;
+
+            &.inactive {
+                opacity: 0.5;
+            }
+        }
+    }
+}

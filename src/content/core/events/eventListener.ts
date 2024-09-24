@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { EventsService } from "./events.service";
-import { EventProcessor } from "./event-processor";
+import { EventProcessor } from "./eventProcessor";
 import { filter } from "rxjs";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 import { ApplicationEvent } from "./applicationEvent";

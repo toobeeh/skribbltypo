@@ -23,3 +23,7 @@
 
 # secrets
 secrets.*.js
+
+openapitools.json
+src/api/.openapi-generator
+src/api/.openapi-generator-ignore

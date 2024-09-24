@@ -1,29 +1,22 @@
-export type LifecycleEventName = "docStart" | "domLoaded" | "nodeAdded";
+export type LifecycleEventName = "patchExecuted" | "scriptStopped";
 
 interface LifecycleEventBase {
   name: LifecycleEventName;
   data: unknown;
 }
 
-export interface DomLoadedLifecycleEvent extends LifecycleEventBase {
-  name: "domLoaded";
+export interface PatchExecutedLifecycleEvent extends LifecycleEventBase {
+  name: "patchExecuted";
   data: {
     document: Document
   };
 }
 
-export interface DocStartLifecycleEvent extends LifecycleEventBase {
-  name: "docStart";
+export interface ScriptStoppedLifecycleEvent extends LifecycleEventBase {
+  name: "scriptStopped";
   data: {
     document: Document
   };
 }
 
-export interface NodeAddedLifecycleEvent extends LifecycleEventBase {
-  name: "nodeAdded";
-  data: {
-    node: HTMLElement;
-  };
-}
-
-export type LifecycleEvent = DomLoadedLifecycleEvent | DocStartLifecycleEvent | NodeAddedLifecycleEvent;
+export type LifecycleEvent = PatchExecutedLifecycleEvent | ScriptStoppedLifecycleEvent;

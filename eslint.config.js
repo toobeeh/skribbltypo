@@ -7,7 +7,7 @@ export default tseslint.config(
   ...tseslint.configs.stylistic,
   {languageOptions: { globals: globals.browser,/* parserOptions: { project: "./tsconfig.json" }*/ }},
   {files: ["**!/!*.{ts,svelte}"]},
-  {ignores: ["dist/**/*", "node_modules/**/*", "eslint.config.js"]},
+  {ignores: ["dist/**/*", "node_modules/**/*", "eslint.config.js", "public", "src/api/**/*"]},
   {rules: {
       "semi": "error",
       "grouped-accessor-pairs": "error",

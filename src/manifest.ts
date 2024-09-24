@@ -26,16 +26,20 @@ export default defineManifest({
   },
   content_scripts: [
     {
-      matches: ["https://github.com/*"],
-      js: ["src/content/content.ts"],
-      run_at: "document_start"
-    },
+      matches: ["https://skribbl.io/*"],
+      js: ["src/content/content.ts", "src/content/interceptor.ts"],
+      run_at: "document_start",
+    }
   ],
   web_accessible_resources: [
     {
       resources: ["img/logo-16.png", "img/logo-34.png", "img/logo-48.png", "img/logo-128.png"],
       matches: [],
     },
+    {
+      matches: ["https://skribbl.io/*"],
+      resources: ["**/*.js.map", "gamePatch.js"]
+    }
   ],
   permissions: ["storage"],
 });

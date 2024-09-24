@@ -9,15 +9,17 @@
     "node": ">=14.18.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build --watch",
     "build": "npm run lint && vite build",
     "preview": "vite preview",
     "fmt": "prettier --write '**/*.{svelte,ts,json,css,scss,md}'",
-    "lint": "eslint . "
+    "lint": "eslint . ",
+    "generate:api": "openapi-generator-cli generate -i https://api.typo.rip/openapi.json -g typescript-fetch -o src/api/ -p=removeOperationIdPrefix=true"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.19",
     "@eslint/js": "^9.11.0",
+    "@openapitools/openapi-generator-cli": "^2.13.5",
     "@sveltejs/vite-plugin-svelte": "2.4.6",
     "@types/chrome": "^0.0.246",
     "@typescript-eslint/eslint-plugin": "^8.6.0",
@@ -28,6 +30,7 @@
     "gulp-zip": "^6.0.0",
     "prettier": "^3.0.3",
     "prettier-plugin-svelte": "^3.0.3",
+    "sass": "^1.79.3",
     "svelte": "^4.2.1",
     "svelte-preprocess": "^5.0.4",
     "tslib": "^2.6.2",
@@ -39,6 +42,7 @@
     "@abraham/reflection": "^0.12.0",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "vite-plugin-checker": "^0.8.0"
   }
 }

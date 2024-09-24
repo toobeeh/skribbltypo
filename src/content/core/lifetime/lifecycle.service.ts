@@ -3,12 +3,13 @@ import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../events/events.service";
 import { Observable, ReplaySubject, Subject } from "rxjs";
 import { LifecycleEvent } from "./lifecycleEvents.interface";
-import { EventProcessorImplementationType } from "../events/event-processor";
-import { EventListener } from "../events/event-listener";
-import { TestFeature } from "../../features/test";
+import { EventProcessorImplementationType } from "../events/eventProcessor";
+import { EventListener } from "../events/eventListener";
 import { ApplicationEvent } from "../events/applicationEvent";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 import { Type } from "../../../util/types/type";
+import { TypoFeature } from "../feature/feature";
+import { Setup } from "../setup/setup";
 
 /**
  * Data interface for the event registration
@@ -32,6 +33,8 @@ export class LifecycleService {
    private readonly _logger;
    private readonly _events;
 
+   private readonly _features: Type<TypoFeature<LifecycleEvent>>[] = [];
+
    public constructor() {
       this.bindCoreServices();
 
@@ -41,6 +44,7 @@ export class LifecycleService {
       this._logger.debug("LifecycleService initialized");
 
       this.setupEvents();
+      this.setupFeatureLifecycle();
    }
 
    /**
@@ -68,36 +72,35 @@ export class LifecycleService {
          this._eventsWithHistory$.next(event);
       });
 
-      /* initially fire page load event */
-      this._logger.debug("docStart event fired");
-      this._events$.next({
-         name: "docStart",
-         data: { document }
-      });
-
-      /* listen for dom load */
-      document.addEventListener("DOMContentLoaded", () => {
-         this._logger.debug("domLoaded event fired");
+      /* listen for dom load or dispatch immediately if already laoded */
+      document.addEventListener("patchExecuted", () => {
+         this._logger.debug("patchExecuted event fired");
          this._events$.next({
-            name: "domLoaded",
+            name: "patchExecuted",
             data: { document }
          });
       });
 
-      /* create a mutation observer and emit events */
-      const observer = new MutationObserver((mutations) => {
-         mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-               if(node instanceof HTMLElement) {
-                  this._events$.next({
-                     name: "nodeAdded",
-                     data: { node }
-                  });
-               }
-            });
+      /* listen for dom load or dispatch immediately if already laoded */
+      document.addEventListener("scriptStopped", () => {
+
+         this._logger.debug("scriptStopped event fired");
+         this._events$.next({
+            name: "scriptStopped",
+            data: { document }
          });
       });
-      observer.observe(document.body, { childList: true, subtree: true });
+   }
+
+   private setupFeatureLifecycle() {
+      this._events$.subscribe((event) => {
+         this._features.forEach(featureType => {
+            const feature = this._diContainer.get(featureType);
+            if(feature.canActivateWithEvent(event)) {
+               feature.activate(event);
+            }
+         });
+      });
    }
 
    /**
@@ -123,9 +126,18 @@ export class LifecycleService {
          /* bind respective event listener */
          this._diContainer.bind(event.listenerType).toSelf().inRequestScope();
       });
+   }
 
-      /* TODO remove test */
-      this._diContainer.bind(TestFeature).toSelf();
-      this._diContainer.get(TestFeature);
+   public registerFeatures<T extends LifecycleEvent>(...features: Type<TypoFeature<T>>[]){
+      features.forEach((feature) => {
+         this._diContainer.bind(feature).toSelf().inSingletonScope();
+         this._features.push(feature as unknown as Type<TypoFeature<LifecycleEvent>>);
+      });
+   }
+
+   public registerSetups(...setups: Type<Setup<unknown>>[]){
+      setups.forEach((setup) => {
+         this._diContainer.bind(setup).toSelf().inSingletonScope();
+      });
    }
 }
