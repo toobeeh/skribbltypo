@@ -4,42 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9e9b573d-8e4e-4744-9830-0499474c0d7e" name="Changes" comment="init project">
-      <change afterPath="$PROJECT_DIR$/src/content/core/events/applicationEvent.decorator.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/core/events/applicationEvent.interface.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/core/events/event-listener.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/core/events/event-processor.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/core/events/events.service.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/core/events/processors/playClicked.event.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/core/lifetime/lifecycle.service.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/core/lifetime/lifecycleEvents.interface.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/core/logger/logger.service.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/content/features/test.ts" afterDir="false" />
+    <list default="true" id="9e9b573d-8e4e-4744-9830-0499474c0d7e" name="Changes" comment="implement event handler DI prototype">
+      <change afterPath="$PROJECT_DIR$/src/content/core/logger/loggerFactory.interface.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/chunk-3a08b211.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/chunk-5135a214.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/chunk-5648bee1.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/content.ts-loader-21281b59.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/assets/popup-26eed93e.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/icons/logo.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/icons/logo.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/img/logo-128.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/img/logo-16.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/img/logo-34.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/img/logo-48.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/manifest.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/popup.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/service-worker-loader.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/eslint.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/eslint.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/background/background.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/background/background.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/content/content.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/content.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/manifest.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/manifest.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/popup/popup.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/popup/popup.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/vite.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/core/lifetime/lifecycle.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/core/lifetime/lifecycle.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/content/features/test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/content/features/test.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +133,7 @@
       <updated>1726999191158</updated>
       <workItem from="1726999192389" duration="6434000" />
       <workItem from="1727005766179" duration="10581000" />
-      <workItem from="1727026773331" duration="17439000" />
+      <workItem from="1727026773331" duration="19625000" />
     </task>
     <task id="LOCAL-00001" summary="init project">
       <option name="closed" value="true" />
@@ -181,7 +151,15 @@
       <option name="project" value="LOCAL" />
       <updated>1727007898693</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="implement event handler DI prototype">
+      <option name="closed" value="true" />
+      <created>1727046995854</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1727046995854</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -227,6 +205,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init project" />
-    <option name="LAST_COMMIT_MESSAGE" value="init project" />
+    <MESSAGE value="implement event handler DI prototype" />
+    <option name="LAST_COMMIT_MESSAGE" value="implement event handler DI prototype" />
   </component>
 </project>

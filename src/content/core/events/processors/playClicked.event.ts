@@ -26,5 +26,4 @@ export class PlayClickedEventProcessor extends EventProcessor<PlayClickedEvent>
 
     return obs;
   }
-
 }

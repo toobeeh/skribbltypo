@@ -8,6 +8,7 @@ import { EventListener } from "../events/event-listener";
 import { getApplicationEventTypeInjectionSymbol } from "../events/applicationEvent.decorator";
 import { TestFeature } from "../../features/test";
 import { ApplicationEvent } from "../events/applicationEvent.interface";
+import { loggerFactory } from "../logger/loggerFactory.interface";
 
 export class LifecycleService {
 
@@ -97,6 +98,11 @@ export class LifecycleService {
     */
    private bindCoreServices() {
       this._diContainer.bind(LoggerService).toSelf();
+      this._diContainer.bind<loggerFactory>(loggerFactory).toFactory<LoggerService, [object]>((context) => {
+          return (loggerContext: object) => {
+              return context.container.get(LoggerService).bindTo(loggerContext);
+          };
+      });
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
    }
 
