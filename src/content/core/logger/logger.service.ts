@@ -32,6 +32,11 @@ export class LoggerService {
     return this;
   }
 
+  private getTimestamp() {
+    const date = new Date();
+    return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}`;
+  }
+
   /**
    * Logs a message to the console.
    * @param message The message to log.
@@ -40,7 +45,7 @@ export class LoggerService {
   debug(message: unknown, ...data: unknown[]) {
     if(this._levels[LoggerService._level] > this._levels["debug"]) return;
 
-    console.log(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [DEB]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.debug, message, ...data);
+    console.log(`%c ${this.getTimestamp()} %c[${this._prefix}] [DEB]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.debug, message, ...data);
   }
 
   /**
@@ -51,7 +56,7 @@ export class LoggerService {
   info(message: unknown, ...data: unknown[]) {
     if(this._levels[LoggerService._level] > this._levels["info"]) return;
 
-    console.log(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [INFO] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.info, message, ...data);
+    console.log(`%c ${this.getTimestamp()} %c[${this._prefix}] [INFO] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.info, message, ...data);
   }
 
   /**
@@ -62,7 +67,7 @@ export class LoggerService {
   warn(message: unknown, ...data: unknown[]) {
     if(this._levels[LoggerService._level] > this._levels["warn"]) return;
 
-    console.warn(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [WARN] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.warn, message, ...data);
+    console.warn(`%c ${this.getTimestamp()} %c[${this._prefix}] [WARN] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.warn, message, ...data);
   }
 
   /**
@@ -73,6 +78,6 @@ export class LoggerService {
   error(message: unknown, ...data: unknown[]) {
     if(this._levels[LoggerService._level] > this._levels["error"]) return;
 
-    console.error(`%c ${new Date().toLocaleTimeString()} %c[${this._prefix}] [ERR]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.error, message, ...data);
+    console.error(`%c ${this.getTimestamp()} %c[${this._prefix}] [ERR]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.error, message, ...data);
   }
 }
