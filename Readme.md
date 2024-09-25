@@ -53,7 +53,7 @@ src
 The content script is the main part of the extension, which interacts with the skribbl.io page.  
 It has the most complex structure; divided into *core*, *setup*, *events* and *features*.  
 - *core* contains services and abstractions that are used throughout the application
-- *setup* contains modules that are responsible for setting up dependencies for application
+- *setup* contains modules that are responsible for setting up dependencies for the application
 - *events* contains modules that process events on the page
 - *features* contains modules that implement specific features on the page
 
@@ -62,14 +62,13 @@ The core module contains the lifecycle class, which is the entrypoint to the con
 It manages the different stages and the dependency injection container for the application.
 
 Core also contains abstractions of the feature, event and setup modules, which are implemented in the respective folders.  
-Furthermore, there are several services (`*.service.ts) that can be injected by features, events and setups; like the member service or api factory.
+Furthermore, there are several services (`*.service.ts`) that can be injected by features, events and setups; like the member service or api factory.
 
 #### Setup
 A setup module (`*.setup.ts`) consists of a single asynchronous operation and a return value.  
-Setups can be injected by features or other setups to express dependencies.  
+Setups can be injected by features or other setups to express a dependency chain.
 Setups can be awaited in the activation of a feature, loading the data of the respective setup.  
 Setups are singletons; once they are executed, their promise always returns their initial result.  
-Setups can also depend on each other, to express a dependency chain.
 
 #### Events
 Events are split into *processors* and *listeners* (both in `*.event.ts`).  
@@ -79,13 +78,14 @@ An injected event listener will only return data of their event type.
 Event processors will only start processing when an event listener is injected.
 
 #### Features
-Features (both in `*.feature.ts`) are the main part of the application.  
+Features (`*.feature.ts`) are the main part of the application.  
 Features can make use of core services, events, setups and reactive svelte components, but must not depend on other features.  
-Features are singletons and implement a activate/destroy inteface which indicates start and end of their lifecycle;
+Features are singletons and implement an activate/destroy inteface which indicates start and end of their lifecycle;
 furthermore they can be paused via run/freeze (not implemented yet).
 
 #### Svelte Components
 Svelte is the framework that is used to build UI in features and setups.  
 Additionally, reusable components can be created in the `src/lib` folder.  
 Svelte components should be created in their feature/setup module, and should reside in the respective folder.  
-Features and Setups should pass themselves(`this`) as a prop to the component, to separate controller and template.  
+Features and Setups should pass themselves (`this`) as a prop to the component, to separate controller and template, 
+and execute as few code as possible in the svelte script tag.  
