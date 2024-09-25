@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 import { EventsService } from "./events.service";
 import { Observable } from "rxjs";
 import { ApplicationEvent } from "./applicationEvent";
-import { Type } from "../../../util/types/type";
+import type { Type } from "../../../util/types/type";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 
 export type EventProcessorImplementationType<TData> =

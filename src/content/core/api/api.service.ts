@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { BaseAPI, Configuration } from "../../../api";
-import { Type } from "../../../util/types/type";
+import type { Type } from "../../../util/types/type";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 
 @injectable()

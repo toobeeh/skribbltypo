@@ -2,7 +2,7 @@ import { fromObservable } from "../../../util/store/fromObservable";
 import { MemberService } from "../../core/member/member.service";
 import UserInfo from "./user-info.svelte";
 import { TypoFeature } from "../../core/feature/feature";
-import {
+import type {
   ScriptStoppedLifecycleEvent,
 } from "../../core/lifetime/lifecycleEvents.interface";
 import { inject } from "inversify";

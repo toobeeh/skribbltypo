@@ -1,7 +1,7 @@
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import path from "path";
-import sveltePreprocess from "svelte-preprocess";
+import { sveltePreprocess } from "svelte-preprocess";
 import checker from "vite-plugin-checker";
 import { buildExtension } from "./css-resources.plugin";
 import manifest from "./src/manifest";
@@ -16,8 +16,9 @@ export default defineConfig(({ mode }) => {
     },
     css: {
       preprocessorOptions: {
-        sass: {
-          api: "modern-compiler"
+        scss: {
+          api: "modern-compiler",
+          silenceDeprecations: ["legacy-js-api"],
         }
       }
     },

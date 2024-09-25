@@ -5,12 +5,12 @@ import { EventsService } from "../events/events.service";
 import { Observable, ReplaySubject, Subject } from "rxjs";
 import { MemberService } from "../member/member.service";
 import { TokenService } from "../token/token.service";
-import { LifecycleEvent } from "./lifecycleEvents.interface";
-import { EventProcessorImplementationType } from "../events/eventProcessor";
+import type { LifecycleEvent } from "./lifecycleEvents.interface";
+import type { EventProcessorImplementationType } from "../events/eventProcessor";
 import { EventListener } from "../events/eventListener";
 import { ApplicationEvent } from "../events/applicationEvent";
 import { loggerFactory } from "../logger/loggerFactory.interface";
-import { Type } from "../../../util/types/type";
+import type { Type } from "../../../util/types/type";
 import { TypoFeature } from "../feature/feature";
 import { Setup } from "../setup/setup";
 

@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { loggerFactory } from "../logger/loggerFactory.interface";
-import { LifecycleEvent } from "../lifetime/lifecycleEvents.interface";
+import type { LifecycleEvent } from "../lifetime/lifecycleEvents.interface";
 
 export type featureActivationEventCheck<TEvent extends LifecycleEvent> = (event: TEvent) => boolean;
 

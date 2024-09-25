@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, filter } from "rxjs";
-import { MemberDto, MembersApi } from "../../../api";
+import { type MemberDto, MembersApi } from "../../../api";
 import { ApiService } from "../api/api.service";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 import { TokenService } from "../token/token.service";

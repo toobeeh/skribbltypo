@@ -16,7 +16,8 @@
     "types": ["reflect-metadata", "chrome"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "noEmit": true
+    "noEmit": true,
+    "verbatimModuleSyntax": true
   },
   "exclude": ["node_modules", "dist", "public", "src/manifest.ts"],
   "include": ["src", "package.json"],

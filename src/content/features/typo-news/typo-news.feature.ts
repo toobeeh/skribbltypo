@@ -1,5 +1,5 @@
 import { TypoFeature } from "../../core/feature/feature";
-import {
+import type {
   ScriptStoppedLifecycleEvent,
 } from "../../core/lifetime/lifecycleEvents.interface";
 import { inject } from "inversify";
