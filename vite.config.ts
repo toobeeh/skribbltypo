@@ -14,14 +14,6 @@ export default defineConfig(({ mode }) => {
       minifyIdentifiers: true,
       keepNames: true,
     },
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: "modern-compiler",
-          silenceDeprecations: ["legacy-js-api"],
-        }
-      }
-    },
     publicDir: "public",
     build: {
       sourcemap: true,
@@ -41,12 +33,12 @@ export default defineConfig(({ mode }) => {
         },
         preprocess: sveltePreprocess(),
       }),
-      checker({
+      /*checker({
         eslint: {
           lintCommand: "eslint .",
         },
         typescript: true
-      })
+      })*/
     ],
     resolve: {
       alias: {

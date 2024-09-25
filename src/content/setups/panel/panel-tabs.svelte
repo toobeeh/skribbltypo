@@ -31,7 +31,7 @@
 
 <div class="panel-header">
   {#each tabs as tab}
-    <h2 class:inactive={tab !== activeTab} on:click={() => activeTab = tab}>{tab.name}</h2>
+    <h2 class:inactive={tab !== activeTab} tabindex="0" role="button" on:keydown={() => activeTab = tab} on:click={() => activeTab = tab}>{tab.name}</h2>
   {/each}
 </div>
 

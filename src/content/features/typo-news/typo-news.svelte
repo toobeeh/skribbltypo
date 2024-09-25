@@ -18,5 +18,6 @@
 <div class="typo-news">
   <div class="news">{feature.news}</div>
 
+  <input type="button" value="Open popup" on:click={() => feature.modalTest()}>
 
 </div>

@@ -16,6 +16,8 @@ export class UserInfoFeature extends TypoFeature<ScriptStoppedLifecycleEvent> {
   @inject(MemberService)
   private readonly _memberService!: MemberService;
 
+  private _element?: UserInfo;
+
   public readonly name = "User info";
   public readonly description = "Show user information beneath the avatar selection";
   public readonly activateOn = "scriptStopped";
@@ -25,7 +27,7 @@ export class UserInfoFeature extends TypoFeature<ScriptStoppedLifecycleEvent> {
 
   protected async onActivate() {
     const elements = await this._elements.complete();
-    new UserInfo({
+    this._element = new UserInfo({
       target: elements.avatarPanel,
       anchor: elements.playButton,
       props: {
@@ -35,7 +37,7 @@ export class UserInfoFeature extends TypoFeature<ScriptStoppedLifecycleEvent> {
   }
 
   protected onDestroy(): void {
-    throw new Error("Method not implemented.");
+    this._element?.$destroy();
   }
 
   get memberStore() {

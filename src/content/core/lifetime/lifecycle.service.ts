@@ -4,6 +4,7 @@ import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../events/events.service";
 import { Observable, ReplaySubject, Subject } from "rxjs";
 import { MemberService } from "../member/member.service";
+import { ModalService } from "../modal/modal.service";
 import { TokenService } from "../token/token.service";
 import type { LifecycleEvent } from "./lifecycleEvents.interface";
 import type { EventProcessorImplementationType } from "../events/eventProcessor";
@@ -121,6 +122,7 @@ export class LifecycleService {
       this._diContainer.bind(ApiService).toSelf().inSingletonScope();
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
       this._diContainer.bind(MemberService).toSelf().inSingletonScope();
+      this._diContainer.bind(ModalService).toSelf();
    }
 
    public registerEventProcessors<T extends ApplicationEvent<unknown>>(...events: EventRegistration<unknown, T>[]) {

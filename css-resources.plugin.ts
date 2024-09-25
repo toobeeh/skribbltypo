@@ -13,7 +13,7 @@ import ManifestV3 = chrome.runtime.ManifestV3;
  */
 export const buildExtension = (options: ManifestV3Export): PluginOption[] => {
   const mv3 = options as unknown as ManifestV3;
-  mv3.content_scripts[0].js.push("css-urls.ts");
+  mv3.content_scripts[0].js.push("cssgen/css-urls.ts");
   const crxOriginal = crx({ manifest: mv3 as unknown as ManifestV3Export });
 
   return [
@@ -63,7 +63,8 @@ export const buildExtension = (options: ManifestV3Export): PluginOption[] => {
       `;
 
         /* save output*/
-        const tsOutputPath = path.resolve(__dirname, "css-urls.ts");
+        fs.mkdirSync(path.resolve(__dirname, "cssgen"), { recursive: true });
+        const tsOutputPath = path.resolve(__dirname, "cssgen/css-urls.ts");
         fs.writeFileSync(tsOutputPath, tsContent, "utf-8");
       }
     },
@@ -74,8 +75,9 @@ export const buildExtension = (options: ManifestV3Export): PluginOption[] => {
       name: "delete-css-injector",
       enforce: "post",
       buildEnd() {
-        const tsOutputPath = path.resolve(__dirname, "css-urls.ts");
+        const tsOutputPath = path.resolve(__dirname, "cssgen/css-urls.ts");
         fs.unlinkSync(tsOutputPath);
+        fs.rmdirSync(path.resolve(__dirname, "cssgen"));
       }
     }
   ];

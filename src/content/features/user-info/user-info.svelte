@@ -37,6 +37,7 @@
           height: 1.2em;
           image-rendering: auto;
           aspect-ratio: 1;
+          content: var(--file-icons-128maxfit-png);
         }
       }
     }
@@ -77,7 +78,7 @@
 
     <div class="member-info-header">
       <a href="https://www.typo.rip">
-        <img alt="typo icon" src="{chrome.runtime.getURL('icons/128MaxFit.png')}"/>
+        <img alt="typo icon" src=""/>
         {$member.userName}
       </a>
       <a href="https://www.typo.rip/user">Manage</a>

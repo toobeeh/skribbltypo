@@ -20,6 +20,8 @@
 .env.production.local
 .history
 *.log
+/.cssgen
+/cssgen
 
 # secrets
 secrets.*.js
