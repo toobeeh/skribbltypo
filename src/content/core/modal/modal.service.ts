@@ -1,6 +1,5 @@
 import { inject, injectable } from "inversify";
-import { BehaviorSubject } from "rxjs";
-import type { ComponentProps, ComponentType, SvelteComponent } from "svelte";
+import type { ComponentProps, SvelteComponent } from "svelte";
 import type { Type } from "../../../util/types/type";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 import Modal from "./modal.svelte";
@@ -26,7 +25,6 @@ export class ModalService {
     const componentData: componentData<TComponent> = {componentType: componentType, props: args};
     const modal = new Modal({
       target: document.body,
-      anchor: document.body.firstElementChild!,
       props: {
         componentData: componentData,
         closeHandler: () => {

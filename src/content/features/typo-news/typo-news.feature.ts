@@ -1,4 +1,3 @@
-import type { ComponentProps } from "svelte";
 import { TypoFeature } from "../../core/feature/feature";
 import type {
   ScriptStoppedLifecycleEvent,
