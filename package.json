@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "vite build --watch",
+    "dev-hmr": "vite",
     "build": "npm run lint && vite build",
     "preview": "vite preview",
     "fmt": "prettier --write '**/*.{svelte,ts,json,css,scss,md}'",
