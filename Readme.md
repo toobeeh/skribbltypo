@@ -62,13 +62,19 @@ The core module contains the lifecycle class, which is the entrypoint to the con
 It manages the different stages and the dependency injection container for the application.
 
 Core also contains abstractions of the feature, event and setup modules, which are implemented in the respective folders.  
-Furthermore, there are several services (`*.service.ts`) that can be injected by features, events and setups; like the member service or api factory.
+Furthermore, there are several services (`*.service.ts`) that can be injected by features, events and setups:
+- ApiService provides typed api clients for the skribbltypo api
+- MemberService holds the current logged in user
+- ModalService provides an interface to show svelte components in a modal
+- LoggerService logs formatted messages to the console
 
 #### Setup
 A setup module (`*.setup.ts`) consists of a single asynchronous operation and a return value.  
 Setups can be injected by features or other setups to express a dependency chain.
 Setups can be awaited in the activation of a feature, loading the data of the respective setup.  
 Setups are singletons; once they are executed, their promise always returns their initial result.  
+Examples for setups are the panel setup, which creates the start page panels used by several features, 
+or the elements setup which queries the most important elements from the page and provides them to features.
 
 #### Events
 Events are split into *processors* and *listeners* (both in `*.event.ts`).  
@@ -80,7 +86,7 @@ Event processors will only start processing when an event listener is injected.
 #### Features
 Features (`*.feature.ts`) are the main part of the application.  
 Features can make use of core services, events, setups and reactive svelte components, but must not depend on other features.  
-Features are singletons and implement an activate/destroy inteface which indicates start and end of their lifecycle;
+Features are singletons and implement an activate/destroy interface which indicates start and end of their lifecycle;
 furthermore they can be paused via run/freeze (not implemented yet).
 
 #### Svelte Components
