@@ -1,7 +1,10 @@
 import { Container } from "inversify";
+import { ApiService } from "../api/api.service";
 import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../events/events.service";
 import { Observable, ReplaySubject, Subject } from "rxjs";
+import { MemberService } from "../member/member.service";
+import { TokenService } from "../token/token.service";
 import { LifecycleEvent } from "./lifecycleEvents.interface";
 import { EventProcessorImplementationType } from "../events/eventProcessor";
 import { EventListener } from "../events/eventListener";
@@ -114,7 +117,10 @@ export class LifecycleService {
               return context.container.get(LoggerService).bindTo(loggerContext);
           };
       });
+      this._diContainer.bind(TokenService).toSelf().inSingletonScope();
+      this._diContainer.bind(ApiService).toSelf().inSingletonScope();
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
+      this._diContainer.bind(MemberService).toSelf().inSingletonScope();
    }
 
    public registerEventProcessors<T extends ApplicationEvent<unknown>>(...events: EventRegistration<unknown, T>[]) {

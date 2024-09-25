@@ -3,8 +3,6 @@ import { requireElement } from "../../../util/document/requiredQuerySelector";
 import { createElement, elements } from "../../../util/document/elements";
 import PanelTabs from "./panel-tabs.svelte";
 
-import "./panel.scss";
-
 export class PanelSetup extends Setup<{ leftPanel: HTMLElement, rightPanel: HTMLElement }> {
 
   protected async runSetup(): Promise<{ leftPanel: HTMLElement; rightPanel: HTMLElement }> {
@@ -23,7 +21,7 @@ export class PanelSetup extends Setup<{ leftPanel: HTMLElement, rightPanel: HTML
     new PanelTabs({
       target: panels.rightPanel,
       props: {
-        tabs: [{ name: "Lobbies", id: "lobbies" }, { name: "Sprite Cabin", id: "cabin" }]
+        tabs: [{ name: "Lobbies", id: "lobbies" }, { name: "Filters", id: "filter" }, { name: "Sprite Cabin", id: "cabin" }]
       }
     });
 

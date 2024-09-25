@@ -11,14 +11,13 @@ export default defineManifest({
   version: packageData.version,
   manifest_version: 3,
   icons: {
-    16: "img/logo-16.png",
-    32: "img/logo-34.png",
-    48: "img/logo-48.png",
-    128: "img/logo-128.png",
+    16: "icons/16Fit.png",
+    32: "icons/32CircleFit.png",
+    128: "icons/128MaxFit.png",
   },
   action: {
     default_popup: "popup.html",
-    default_icon: "img/logo-48.png",
+    default_icon: "icons/128MaxFit.png",
   },
   background: {
     service_worker: "src/background/background.ts",
@@ -33,8 +32,8 @@ export default defineManifest({
   ],
   web_accessible_resources: [
     {
-      resources: ["img/logo-16.png", "img/logo-34.png", "img/logo-48.png", "img/logo-128.png"],
-      matches: [],
+      resources: ["icons/16Fit.png", "icons/32CircleFit.png", "icons/128MaxFit.png", "img/**"],
+      matches: ["https://skribbl.io/*"],
     },
     {
       matches: ["https://skribbl.io/*"],

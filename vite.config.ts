@@ -1,24 +1,28 @@
 import { defineConfig } from "vite";
-import { crx } from "@crxjs/vite-plugin";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import path from "path";
 import sveltePreprocess from "svelte-preprocess";
-import manifest from "./src/manifest";
 import checker from "vite-plugin-checker";
+import { buildExtension } from "./css-resources.plugin";
+import manifest from "./src/manifest";
 
 export default defineConfig(({ mode }) => {
   const production = mode === "production";
 
   return {
     esbuild: {
-      minifyIdentifiers: false,
+      minifyIdentifiers: true,
       keepNames: true,
+    },
+    css: {
+      preprocessorOptions: {
+        sass: {
+          api: "modern-compiler"
+        }
+      }
     },
     publicDir: "public",
     build: {
-      watch: {
-        include: ["public/styles/**"]
-      },
       sourcemap: true,
       emptyOutDir: true,
       outDir: "dist",
@@ -29,7 +33,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
-      crx({ manifest }),
+      buildExtension(manifest),
       svelte({
         compilerOptions: {
           dev: !production,
@@ -41,7 +45,7 @@ export default defineConfig(({ mode }) => {
           lintCommand: "eslint .",
         },
         typescript: true
-      }),
+      })
     ],
     resolve: {
       alias: {

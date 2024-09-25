@@ -20,7 +20,10 @@ export class TypoNewsFeature extends TypoFeature<ScriptStoppedLifecycleEvent> {
   protected async onActivate() {
     const elements = await this._elements.complete();
     this._component = new TypoNews({
-      target: elements.newsTab
+      target: elements.newsTab,
+      props: {
+        feature: this
+      }
     });
   }
 
@@ -30,4 +33,7 @@ export class TypoNewsFeature extends TypoFeature<ScriptStoppedLifecycleEvent> {
 
   protected onFreeze = this.skipStep;
   protected onRun = this.skipStep;
+
+  public readonly news = "Hello there ❤️✏️\n" +
+    "Typo got a new look - enjoy the all-new icons!";
 }

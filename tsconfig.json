@@ -18,7 +18,7 @@
     "emitDecoratorMetadata": true,
     "noEmit": true
   },
-  "exclude": ["node_modules", "dist", "public"],
+  "exclude": ["node_modules", "dist", "public", "src/manifest.ts"],
   "include": ["src", "package.json"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

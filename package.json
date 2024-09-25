@@ -9,7 +9,7 @@
     "node": ">=14.18.0"
   },
   "scripts": {
-    "dev": "vite build --watch",
+    "dev": "vite build",
     "build": "npm run lint && vite build",
     "preview": "vite preview",
     "fmt": "prettier --write '**/*.{svelte,ts,json,css,scss,md}'",

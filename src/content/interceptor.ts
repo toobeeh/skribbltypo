@@ -51,8 +51,21 @@ const contentScriptLoaded = new Promise<void>((resolve) => {
   });
 });
 
+/* promise that resolves when auth token processing is handled */
+const tokenProcessed = new Promise<void>(async (resolve) => {
+
+  const url = new URL(window.location.href);
+  const tokenParam = url.searchParams.get("accessToken");
+  if(tokenParam !== null) {
+    await chrome.runtime.sendMessage({ type: "set token", token: tokenParam });
+    url.searchParams.delete("accessToken");
+    window.history.replaceState({}, "", url.toString());
+  }
+  resolve();
+});
+
 /* wait until original game js removed and content ready */
-Promise.all([scriptStopped, contentScriptLoaded]).then(() => {
+Promise.all([scriptStopped, contentScriptLoaded, tokenProcessed]).then(() => {
   document.dispatchEvent(new CustomEvent("scriptStopped"));
 
   const patch = document.createElement("script");
