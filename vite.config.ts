@@ -33,12 +33,12 @@ export default defineConfig(({ mode }) => {
         },
         preprocess: sveltePreprocess(),
       }),
-      /*checker({
+      checker({
         eslint: {
           lintCommand: "eslint .",
         },
         typescript: true
-      })*/
+      })
     ],
     resolve: {
       alias: {
