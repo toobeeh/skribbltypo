@@ -21,7 +21,7 @@ using the plugins svelte for ui component designs and crx as a browser extension
 > but this is likely subject to race conditions on the page due to inperformant content script injection.
 4. Load the extension in your browser via the `dist` directory as an unpacked extension.
 5. Open skribbl.io; every time the bundle is recompiled, the extension & page have to be reloaded
-> Using hmr page & extension are automatically, but sometimes not reliable.
+> Using hmr, the page & extension are automatically reloaded, but sometimes not reliable.
 
 ### Vite custom plugin
 In general, the vite crx plugin is used to bundle the extension based on the specified manifest.  
