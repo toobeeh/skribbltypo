@@ -3,7 +3,7 @@ import { BehaviorSubject, filter } from "rxjs";
 import { type MemberDto, MembersApi } from "../../../api";
 import { ApiService } from "../api/api.service";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
-import { TokenService } from "../../events/token/token.service";
+import { TokenService } from "../token/token.service";
 
 @injectable()
 export class MemberService {

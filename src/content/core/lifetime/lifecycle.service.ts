@@ -3,7 +3,7 @@ import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../event/events.service";
 import { Observable, ReplaySubject, Subject } from "rxjs";
 import type { LifecycleEvent } from "./lifecycleEvents.interface";
-import type { EventProcessorImplementationType } from "../event/eventProcessor";
+import { EventProcessor} from "../event/eventProcessor";
 import { EventListener } from "../event/eventListener";
 import { ApplicationEvent } from "../event/applicationEvent";
 import { loggerFactory } from "../logger/loggerFactory.interface";
@@ -14,8 +14,8 @@ import { Setup } from "../setup/setup";
 /**
  * Data interface for the event registration
  */
-interface EventRegistration<TData, TEvent extends ApplicationEvent<TData>> {
-   processorType: EventProcessorImplementationType<TData>;
+export interface EventRegistration<TData, TEvent extends ApplicationEvent<TData>> {
+   processorType: Type<EventProcessor<TData, TEvent>>;
    listenerType: Type<EventListener<TData, TEvent>>;
 }
 
@@ -117,7 +117,7 @@ export class LifecycleService {
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
    }
 
-   public registerEventProcessors<T extends ApplicationEvent<unknown>>(...events: EventRegistration<unknown, T>[]) {
+   public registerEventProcessors(...events: EventRegistration<unknown, ApplicationEvent<unknown>>[]) {
       events.forEach((event) => {
 
          /* add processor to container as singleton */
