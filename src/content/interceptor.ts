@@ -13,7 +13,6 @@ const scriptStopped = new Promise<void>((resolve) => {
           script.type = "javascript/blocked"; // block for chrome
           script.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true }); // block for firefox
           script.remove();
-
           scriptObserver.disconnect();
           resolve();
         }
@@ -37,8 +36,6 @@ const contentScriptLoaded = new Promise<void>((resolve) => {
   const contentLoadedObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === "attributes" && mutation.attributeName === "typo-script-loaded") {
-
-        // Do something here, for example, stop observing if no longer needed
         contentLoadedObserver.disconnect();
         resolve();
       }

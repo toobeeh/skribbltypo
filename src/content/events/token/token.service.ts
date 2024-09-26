@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { BehaviorSubject } from "rxjs";
-import { ApiService } from "../api/api.service";
-import { loggerFactory } from "../logger/loggerFactory.interface";
+import { ApiService } from "../../services/api/api.service";
+import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 
 @injectable()
 export class TokenService {

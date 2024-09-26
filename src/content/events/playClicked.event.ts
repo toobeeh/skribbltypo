@@ -1,8 +1,8 @@
-import { EventProcessor } from "../eventProcessor";
+import { EventProcessor } from "../core/event/eventProcessor";
 import { Observable, Subject } from "rxjs";
 import { inject, injectable } from "inversify";
-import { ApplicationEvent } from "../applicationEvent";
-import { EventListener } from "../eventListener";
+import { ApplicationEvent } from "../core/event/applicationEvent";
+import { EventListener } from "../core/event/eventListener";
 
 interface playClickedData {
   url: string;

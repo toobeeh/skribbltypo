@@ -1,15 +1,11 @@
 import { Container } from "inversify";
-import { ApiService } from "../api/api.service";
 import { LoggerService } from "../logger/logger.service";
-import { EventsService } from "../events/events.service";
+import { EventsService } from "../event/events.service";
 import { Observable, ReplaySubject, Subject } from "rxjs";
-import { MemberService } from "../member/member.service";
-import { ModalService } from "../modal/modal.service";
-import { TokenService } from "../token/token.service";
 import type { LifecycleEvent } from "./lifecycleEvents.interface";
-import type { EventProcessorImplementationType } from "../events/eventProcessor";
-import { EventListener } from "../events/eventListener";
-import { ApplicationEvent } from "../events/applicationEvent";
+import type { EventProcessorImplementationType } from "../event/eventProcessor";
+import { EventListener } from "../event/eventListener";
+import { ApplicationEvent } from "../event/applicationEvent";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 import type { Type } from "../../../util/types/type";
 import { TypoFeature } from "../feature/feature";
@@ -118,11 +114,7 @@ export class LifecycleService {
               return context.container.get(LoggerService).bindTo(loggerContext);
           };
       });
-      this._diContainer.bind(TokenService).toSelf().inSingletonScope();
-      this._diContainer.bind(ApiService).toSelf().inSingletonScope();
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
-      this._diContainer.bind(MemberService).toSelf().inSingletonScope();
-      this._diContainer.bind(ModalService).toSelf();
    }
 
    public registerEventProcessors<T extends ApplicationEvent<unknown>>(...events: EventRegistration<unknown, T>[]) {
@@ -146,6 +138,17 @@ export class LifecycleService {
    public registerSetups(...setups: Type<Setup<unknown>>[]){
       setups.forEach((setup) => {
          this._diContainer.bind(setup).toSelf().inSingletonScope();
+      });
+   }
+
+   public registerServices(...services: { type: Type<unknown>, scope: "singleton" | "scoped" }[]) {
+      services.forEach((service) => {
+         if(service.scope === "singleton") {
+            this._diContainer.bind(service.type).toSelf().inSingletonScope();
+         }
+         else {
+            this._diContainer.bind(service.type).toSelf();
+         }
       });
    }
 }

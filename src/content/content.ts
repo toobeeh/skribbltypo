@@ -1,32 +1,59 @@
 import "@abraham/reflection";
 import { LifecycleService } from "./core/lifetime/lifecycle.service";
 import { LoggerService } from "./core/logger/logger.service";
-import { PlayClickedEventListener, PlayClickedEventProcessor } from "./core/events/processors/playClicked.event";
+import { PlayClickedEventListener, PlayClickedEventProcessor } from "./events/playClicked.event";
+import { TokenService } from "./events/token/token.service";
 import { UserInfoFeature } from "./features/user-info/user-info.feature";
 import { TypoNewsFeature } from "./features/typo-news/typo-news.feature";
+import { ApiService } from "./services/api/api.service";
+import { MemberService } from "./services/member/member.service";
+import { ModalService } from "./services/modal/modal.service";
 import { PanelSetup } from "./setups/panel/panel.setup";
 import { ElementsSetup } from "./setups/elements/elements.setup";
 
 import "./content.scss";
 
+/* set log level to debug initially */
 LoggerService.level = "debug";
+
+/* start application container */
 const lifecycle = new LifecycleService();
 
-lifecycle.registerSetups(PanelSetup, ElementsSetup);
-lifecycle.registerFeatures(UserInfoFeature, TypoNewsFeature);
+/* register services to the application */
+lifecycle.registerServices(
+  {type: ModalService, scope: "scoped"},
+  {type: ApiService, scope: "singleton"},
+  {type: MemberService, scope: "singleton"},
+  {type: TokenService, scope: "singleton"}
+);
+
+/* register setup dependencies to the application */
+lifecycle.registerSetups(
+  PanelSetup,
+  ElementsSetup
+);
+
+/* register event processors and their listeners */
+lifecycle.registerEventProcessors(
+  {processorType: PlayClickedEventProcessor, listenerType: PlayClickedEventListener}
+);
+
+/* register application features */
+lifecycle.registerFeatures(
+  UserInfoFeature,
+  TypoNewsFeature
+);
 
 lifecycle.eventsWithHistory$.subscribe((event) => {
 
   if(event.name === "scriptStopped") {
     console.log(event);
-
-    lifecycle.registerEventProcessors({processorType: PlayClickedEventProcessor, listenerType: PlayClickedEventListener});
   }
 
   if(event.name === "patchExecuted") {
     console.log(event);
   }
-
 });
 
+/* indicate for interceptor that content script has loaded */
 document.body.setAttribute("typo-script-loaded", "true");

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { componentData } from "./modal.service";
-  import type { ComponentProps, SvelteComponent } from "svelte";
+  import type { SvelteComponent } from "svelte";
 
   export let componentData: componentData<SvelteComponent>;
   export let closeHandler: () => void;
@@ -80,6 +80,7 @@
       padding-right: 2em;
 
       > div:last-child {
+        user-select: none;
         position: relative;
         top: -2vh;
         cursor: pointer;

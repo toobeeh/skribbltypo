@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import { BaseAPI, Configuration } from "../../../api";
 import type { Type } from "../../../util/types/type";
-import { loggerFactory } from "../logger/loggerFactory.interface";
+import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 
 @injectable()
 export class ApiService {

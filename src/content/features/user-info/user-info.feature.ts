@@ -1,5 +1,5 @@
 import { fromObservable } from "../../../util/store/fromObservable";
-import { MemberService } from "../../core/member/member.service";
+import { MemberService } from "../../services/member/member.service";
 import UserInfo from "./user-info.svelte";
 import { TypoFeature } from "../../core/feature/feature";
 import type {

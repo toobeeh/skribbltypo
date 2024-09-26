@@ -39,6 +39,7 @@ The project is divided into folders for the type of extension script and utiliti
 src
 ├──content        -- content script sources
 │   ├──core
+│   ├──services
 │   ├──setups
 │   ├──events
 │   └──features
@@ -62,11 +63,16 @@ The core module contains the lifecycle class, which is the entrypoint to the con
 It manages the different stages and the dependency injection container for the application.
 
 Core also contains abstractions of the feature, event and setup modules, which are implemented in the respective folders.  
-Furthermore, there are several services (`*.service.ts`) that can be injected by features, events and setups:
-- ApiService provides typed api clients for the skribbltypo api
-- MemberService holds the current logged in user
-- ModalService provides an interface to show svelte components in a modal
+Furthermore, there are a few services (`*.service.ts`) that are vital to the abstract classes:
+- EventService acts as a central pipe between event processors and listeners
 - LoggerService logs formatted messages to the console
+
+#### Services
+Services (`*.service.ts`) are modules that follow no specific lifecycle or purpose, and can be injected anywhere in the application.  
+Services can be either singleton or scoped; any service that is nt tied to a core functionality should reside in the services folder.  
+
+In contrast to features, services may depend on other services and can be injected to features.  
+Any functionality that can be reused should be implemented as service instead of a feature.
 
 #### Setup
 A setup module (`*.setup.ts`) consists of a single asynchronous operation and a return value.  

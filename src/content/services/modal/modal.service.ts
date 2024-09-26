@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 import type { ComponentProps, SvelteComponent } from "svelte";
 import type { Type } from "../../../util/types/type";
-import { loggerFactory } from "../logger/loggerFactory.interface";
+import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import Modal from "./modal.svelte";
 
 export interface componentData<TComponent extends SvelteComponent> {

@@ -3,7 +3,7 @@ import type {
   ScriptStoppedLifecycleEvent,
 } from "../../core/lifetime/lifecycleEvents.interface";
 import { inject } from "inversify";
-import { ModalService } from "../../core/modal/modal.service";
+import { ModalService } from "../../services/modal/modal.service";
 import TypoNews from "./typo-news.svelte";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 
