@@ -5,7 +5,7 @@ export interface skribblLobby {
     drawTime: number, // [2]
     rounds: number, // [3]
   },
-  id: string,
+  id: string | null, // null if practice
   private: boolean,
   meId: number,
   ownerId: number | null,
@@ -29,7 +29,7 @@ export interface skribblPlayer {
 
 export const parseSkribblLobbyDataEvent = (event: CustomEvent, languages: Map<number, string>): skribblLobby => {
   return {
-    id: event.detail.id,
+    id: event.detail.id ?? null,
     private: event.detail.type === 1,
     meId: event.detail.me,
     ownerId: event.detail.owner == -1 ? null : event.detail.owner,

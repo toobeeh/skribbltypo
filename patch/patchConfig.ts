@@ -61,7 +61,111 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "(COMBINATION: 2\n\\s+?})",
-          code: "// TYPOMOD \n    // desc: create re-useable functions\n    , typo = {\n        joinLobby: undefined,        createFakeUser: (id = 0, name = \"\", avatar = [], score = 0, guessed = false) => {\n            // IDENTIFY x.value.split: #home .container-name-lang input -> ##CONTNAMEIN##\n            // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> ##SETTINGS##\n            return { id: id, name: name.length != 0 ? name : (##CONTNAMEIN##.value.split(\"#\")[0] != \"\" ? ##CONTNAMEIN##.value.split(\"#\")[0] : \"Dummy\"), avatar: avatar.length == 0 ? ##SETTINGS##.avatar : avatar, score: score, guessed: guessed };\n        },\n        createFakeLobbyData: (\n            settings = [\"PRACTISE\", \"en\", 1, 1, 80, 3, 3, 2, 0, false],\n            id = \"FAKE\",\n            me = 0,\n            owner = 0,\n            users = [],\n            state = { id: 4, time: 0, data: { id: 0, word: \"Anything\" } }) => {\n            if (users.length == 0) users = [typo.createFakeUser()];\n            return { settings: settings, id: id, me: me, owner: owner, round: 0, users: users, state: state };\n        },\n        disconnect: undefined,\n        lastConnect: 0,\n        initListeners: (() => {\n            let abort=false; document.addEventListener(\"abortJoin\", () => abort = true); document.addEventListener(\"joinLobby\", (e) => {\n                abort=false;let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);\n                //Xn(true);\n                setTimeout(() => {\n                    if(abort) return; typo.lastConnect = Date.now();\n                    //##BTNPLAY##.dispatchEvent(new Event(\"click\")); // IDENTIFY x.dispatchEvent: querySelector(\"#home .panel .button-play\") -> BTNPLAY\n                    //##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1   \n                    if(e.detail) window.history.pushState({path:window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : \"\"); // IDENTIFY x(e.det..): ? \"id=\" + -> JOINLOBBY\n                    typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//##LOADING##(false); // IDENTIFY x(false): querySelector(\"#load\").style.display -> LOADING\n                    document.dispatchEvent(new Event(\"joinedLobby\"));\n                }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);\n            });\n            document.addEventListener(\"leaveLobby\", () => {\n                if (typo.disconnect) typo.disconnect();\n                else ##GOHOME##() | document.dispatchEvent(new Event(\"leftLobby\")); // IDENTIFY x(): querySelector(\"#home\").style.display = \"\" -> GOHOME\n            });\n            document.addEventListener(\"setColor\", (e) => {\n                let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, \"0\"));\n                let match = ##COLORS##.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS\n                let code = match >= 0 ? match : e.detail.code;\n                if (e.detail.secondary) ##SECFILL##(code); // IDENTIFY x(e.detail.code): querySelector(\"#color-preview-secondary\").style.fill -> SECFILL\n                else ##PRIMFILL##(code); // IDENTIFY x(e.detail.code): querySelector(\"#color-preview-primary\").style.fill -> PRIMFILL\n            });\n            document.addEventListener(\"performDrawCommand\", (e) => {\n                ##PUSHCMD##.push(e.detail); // IDENTIFY x.push(e.detail): .getContext(\"2d\"), x = [] -> PUSHCMD\n                ##PERFOUTER##(##PERFINNER##(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER\n                     });\n                document.addEventListener(\"addTypoTooltips\", () => {\n                [...document.querySelectorAll(\"[data-typo-tooltip]\")].forEach(elem => {\n                    elem.setAttribute(\"data-tooltip\", elem.getAttribute(\"data-typo-tooltip\"));\n                    elem.removeAttribute(\"data-typo-tooltip\");\n                    elem.addEventListener(\"mouseenter\", (e) => ##SHWOTOOLTIP##(e.target)); // IDENTIFY: x(e.target): \n                    elem.addEventListener(\"mouseleave\", (e) => ##HIDETOOLTIP##()); // IDENTIFY: (e) => x(): \n \n                });\n});        \n})(),\n        hexToRgb: (hex) => {\n            let arrBuff = new ArrayBuffer(4);\n            let vw = new DataView(arrBuff);\n            vw.setUint32(0, parseInt(hex, 16), false);\n            let arrByte = new Uint8Array(arrBuff);\n            return [arrByte[1], arrByte[2], arrByte[3]];\n        },\n        rgbToHex: (r, g, b) => {\n            return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);\n        }\n    }\n    // TYPOEND"
+          code: `
+                // TYPOMOD 
+                // desc: create re-useable functions
+                , typo = {
+                    joinLobby: undefined,
+                    createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
+                        // IDENTIFY x.value.split: #home .container-name-lang input -> ##CONTNAMEIN##
+                        // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> ##SETTINGS##
+                        return { 
+                            id: id, 
+                            name: name.length != 0 ? name : (##CONTNAMEIN##.value.split("#")[0] != "" ? ##CONTNAMEIN##.value.split("#")[0] : "Dummy"), 
+                            avatar: avatar.length == 0 ? ##SETTINGS##.avatar : avatar, 
+                            score: score, 
+                            guessed: guessed 
+                        };
+                    },
+                    createFakeLobbyData: (
+                        settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
+                        id = null,
+                        me = 0,
+                        owner = 0,
+                        users = [],
+                        state = { id: 4, time: 0, data: { id: 0, word: "Anything" } }) => {
+                        if (users.length == 0) users = [typo.createFakeUser()];
+                        return { 
+                            settings: settings, 
+                            id: id, 
+                            me: me, 
+                            owner: owner, 
+                            round: 0, 
+                            users: users, 
+                            state: state 
+                        };
+                    },
+                    disconnect: undefined,
+                    lastConnect: 0,
+                    initListeners: (() => {
+                        let abort = false; 
+                        document.addEventListener("abortJoin", () => abort = true); 
+                        document.addEventListener("joinLobby", (e) => {
+                            abort = false;
+                            let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
+                            // Xn(true);
+                            setTimeout(() => {
+                                if (abort) return; 
+                                typo.lastConnect = Date.now();
+                                // ##BTNPLAY##.dispatchEvent(new Event("click")); 
+                                // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
+                                // ##PRIVATELBBY## = !1 
+                                // IDENTIFY: x:  = !1   
+                                if (e.detail) window.history.pushState({path: window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);
+                                // ##JOINLOBBY##(e.detail?.join ? e.detail.join : "");
+                                // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
+                                typo.joinLobby(); 
+                                window.history.pushState({path: window.location.origin}, '', window.location.origin);
+                                // ##LOADING##(false); 
+                                // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
+                                document.dispatchEvent(new Event("joinedLobby"));
+                            }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
+                        });
+                        document.addEventListener("leaveLobby", () => {
+                            if (typo.disconnect) typo.disconnect();
+                            else ##GOHOME##() | document.dispatchEvent(new Event("leftLobby"));
+                            // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
+                        });
+                        document.addEventListener("setColor", (e) => {
+                            let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
+                            let match = ##COLORS##.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
+                            // IDENTIFY [0, 59, 120], -> COLORS
+                            let code = match >= 0 ? match : e.detail.code;
+                            if (e.detail.secondary) ##SECFILL##(code); 
+                            // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
+                            else ##PRIMFILL##(code);
+                            // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
+                        });
+                        document.addEventListener("performDrawCommand", (e) => {
+                            ##PUSHCMD##.push(e.detail); 
+                            // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
+                            ##PERFOUTER##(##PERFINNER##(e.detail)); 
+                            // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
+                        });
+                        document.addEventListener("addTypoTooltips", () => {
+                            [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
+                                elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
+                                elem.removeAttribute("data-typo-tooltip");
+                                elem.addEventListener("mouseenter", (e) => ##SHWOTOOLTIP##(e.target)); 
+                                // IDENTIFY: x(e.target):
+                                elem.addEventListener("mouseleave", (e) => ##HIDETOOLTIP##()); 
+                                // IDENTIFY: (e) => x():
+                            });
+                        });
+                    })(),
+                    hexToRgb: (hex) => {
+                        let arrBuff = new ArrayBuffer(4);
+                        let vw = new DataView(arrBuff);
+                        vw.setUint32(0, parseInt(hex, 16), false);
+                        let arrByte = new Uint8Array(arrBuff);
+                        return [arrByte[1], arrByte[2], arrByte[3]];
+                    },
+                    rgbToHex: (r, g, b) => {
+                        return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                    }
+                }
+                // TYPOEND
+                `
         }
       ]
     },
@@ -212,7 +316,15 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "(e.classList.add\\(\"show\"\\)\\s+})",
-          code: "/* TYPOMOD \n     desc: add event handlers for typo features */\n    ##SELECTORFCT##(\".avatar-customizer .container\", \"pointerdown\", () => {\n        ##JOIN##(typo.createFakeLobbyData());}); \n    /* TYPOEND */"
+          code: `
+                /* TYPOMOD desc: add event handlers for typo features */
+                ##SELECTORFCT##(".avatar-customizer .container", "pointerdown", () => {
+                const data = typo.createFakeLobbyData();
+                document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
+                ##JOIN##(data);
+                });
+                /* TYPOEND */
+                `
         }
       ]
     },
@@ -344,15 +456,52 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
-          code: ", /*TYPOMOD DESC: add action for brushlab*/ ##ADDACTION##(3, {\n        isAction: !0,\n        name: \"Lab\",\n        graphic: \"\",keydef:'L',\n        action: ()=>{document.dispatchEvent(new Event(\"openBrushLab\"));}\n    }) /*TYPOEND*/"
+          code: `
+                /*TYPOMOD DESC: add action for brushlab*/ 
+                ,
+                ##ADDACTION##(3, {
+                    isAction: !0,
+                    name: "Lab",
+                    graphic: "",
+                    keydef: 'L',
+                    action: () => {
+                        document.dispatchEvent(new Event("openBrushLab"));
+                    }
+                }) 
+                /*TYPOEND*/
+                `
         },
         {
           position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
-          code: "/*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*##ADDACTION##(2, {\n        isAction: !0,\n        name: \"Switcher\",\n        graphic: \"\",\n        action: ()=>{document.dispatchEvent(new Event(\"toggleColor\"));}\n    })*/ /*TYPOEND*/"
+          code: `
+                /* TYPOMOD DESC: add action for colorswitch */ 
+                /* 
+                ,
+                ##ADDACTION##(2, {
+                    isAction: !0,
+                    name: "Switcher",
+                    graphic: "",
+                    action: () => {
+                        document.dispatchEvent(new Event("toggleColor"));
+                    }
+                })
+                */ 
+                /* TYPOEND */
+                `
         },
         {
           position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
-          code: ", /*TYPOMOD DESC: add tool for pipette*/ ##ADDACTION##(3, {\n        isAction: !1,\n        name: \"Pipette\",\n        graphic: \"\",keydef:'P',\n    }) /*TYPOEND*/"
+          code: `
+                /*TYPOMOD DESC: add tool for pipette*/ 
+                ,
+                ##ADDACTION##(3, {
+                    isAction: !1,
+                    name: "Pipette",
+                    graphic: "",
+                    keydef: 'P',
+                }) 
+                /*TYPOEND*/
+                `
         }
       ]
     },
@@ -382,7 +531,7 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "([a-zA-Z0-9&_\\-$]+\\.location\\.href,)",
-          code: "typo.lastConnect = Date.now(),"
+          code: `typo.lastConnect = Date.now(),`
         }
       ]
     },
@@ -411,7 +560,18 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "(\\s)[a-zA-Z0-9&_\\-$]+ = Math\\.ceil\\(\\.5[^}]*",
-          code: " /* TYPOMOD use typo pressure */ \n(()=>{if(0 <= ##PRESSURE## && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(##PRESSURE##, sensitivity); ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));}\n})(),"
+          code: `
+              /* TYPOMOD use typo pressure */
+              (() => {
+                  if (0 <= ##PRESSURE## && localStorage.typoink == 'true') {
+                      const calcSkribblSize = (val) => Number(val) * 36 + 4;
+                      const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
+                      const sensitivity = 100 - Number(localStorage.sens);
+                      let levelled = calcLevelledSize(##PRESSURE##, sensitivity);
+                      ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));
+                  }
+              })(),
+              `
         }
       ]
     },
@@ -426,7 +586,7 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "(\\(\"text\", [^}]+name, [^\\)]+\\)\\))",
-          code: ".setAttribute(\"playerid\", ##PLAYER##.id)"
+          code: `.setAttribute("playerid", ##PLAYER##.id)`
         }
       ]
     }

@@ -33,75 +33,108 @@
       COMBINATION: 2
     }
 // TYPOMOD 
-    // desc: create re-useable functions
-    , typo = {
-        joinLobby: undefined,        createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
-            // IDENTIFY x.value.split: #home .container-name-lang input -> Jn
-            // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> p
-            return { id: id, name: name.length != 0 ? name : (Jn.value.split("#")[0] != "" ? Jn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? p.avatar : avatar, score: score, guessed: guessed };
-        },
-        createFakeLobbyData: (
-            settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
-            id = "FAKE",
-            me = 0,
-            owner = 0,
-            users = [],
-            state = { id: 4, time: 0, data: { id: 0, word: "Anything" } }) => {
-            if (users.length == 0) users = [typo.createFakeUser()];
-            return { settings: settings, id: id, me: me, owner: owner, round: 0, users: users, state: state };
-        },
-        disconnect: undefined,
-        lastConnect: 0,
-        initListeners: (() => {
-            let abort=false; document.addEventListener("abortJoin", () => abort = true); document.addEventListener("joinLobby", (e) => {
-                abort=false;let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
-                //Xn(true);
-                setTimeout(() => {
-                    if(abort) return; typo.lastConnect = Date.now();
-                    //ea.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
-                    //##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1   
-                    if(e.detail) window.history.pushState({path:window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
-                    typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//aa(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
-                    document.dispatchEvent(new Event("joinedLobby"));
-                }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
-            });
-            document.addEventListener("leaveLobby", () => {
-                if (typo.disconnect) typo.disconnect();
-                else fa() | document.dispatchEvent(new Event("leftLobby")); // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
-            });
-            document.addEventListener("setColor", (e) => {
-                let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
-                let match = $t.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS
-                let code = match >= 0 ? match : e.detail.code;
-                if (e.detail.secondary) Ft(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
-                else Gt(code); // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
-            });
-            document.addEventListener("performDrawCommand", (e) => {
-                k.push(e.detail); // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
-                en(on(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
-                     });
-                document.addEventListener("addTypoTooltips", () => {
-                [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
-                    elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
-                    elem.removeAttribute("data-typo-tooltip");
-                    elem.addEventListener("mouseenter", (e) => ze(e.target)); // IDENTIFY: x(e.target): 
-                    elem.addEventListener("mouseleave", (e) => He()); // IDENTIFY: (e) => x(): 
- 
-                });
-});        
-})(),
-        hexToRgb: (hex) => {
-            let arrBuff = new ArrayBuffer(4);
-            let vw = new DataView(arrBuff);
-            vw.setUint32(0, parseInt(hex, 16), false);
-            let arrByte = new Uint8Array(arrBuff);
-            return [arrByte[1], arrByte[2], arrByte[3]];
-        },
-        rgbToHex: (r, g, b) => {
-            return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-        }
-    }
-    // TYPOEND,
+                // desc: create re-useable functions
+                , typo = {
+                    joinLobby: undefined,
+                    createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
+                        // IDENTIFY x.value.split: #home .container-name-lang input -> Jn
+                        // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> p
+                        return { 
+                            id: id, 
+                            name: name.length != 0 ? name : (Jn.value.split("#")[0] != "" ? Jn.value.split("#")[0] : "Dummy"), 
+                            avatar: avatar.length == 0 ? p.avatar : avatar, 
+                            score: score, 
+                            guessed: guessed 
+                        };
+                    },
+                    createFakeLobbyData: (
+                        settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
+                        id = null,
+                        me = 0,
+                        owner = 0,
+                        users = [],
+                        state = { id: 4, time: 0, data: { id: 0, word: "Anything" } }) => {
+                        if (users.length == 0) users = [typo.createFakeUser()];
+                        return { 
+                            settings: settings, 
+                            id: id, 
+                            me: me, 
+                            owner: owner, 
+                            round: 0, 
+                            users: users, 
+                            state: state 
+                        };
+                    },
+                    disconnect: undefined,
+                    lastConnect: 0,
+                    initListeners: (() => {
+                        let abort = false; 
+                        document.addEventListener("abortJoin", () => abort = true); 
+                        document.addEventListener("joinLobby", (e) => {
+                            abort = false;
+                            let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
+                            // Xn(true);
+                            setTimeout(() => {
+                                if (abort) return; 
+                                typo.lastConnect = Date.now();
+                                // ea.dispatchEvent(new Event("click")); 
+                                // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
+                                // ##PRIVATELBBY## = !1 
+                                // IDENTIFY: x:  = !1   
+                                if (e.detail) window.history.pushState({path: window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);
+                                // ##JOINLOBBY##(e.detail?.join ? e.detail.join : "");
+                                // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
+                                typo.joinLobby(); 
+                                window.history.pushState({path: window.location.origin}, '', window.location.origin);
+                                // aa(false); 
+                                // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
+                                document.dispatchEvent(new Event("joinedLobby"));
+                            }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
+                        });
+                        document.addEventListener("leaveLobby", () => {
+                            if (typo.disconnect) typo.disconnect();
+                            else fa() | document.dispatchEvent(new Event("leftLobby"));
+                            // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
+                        });
+                        document.addEventListener("setColor", (e) => {
+                            let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
+                            let match = $t.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
+                            // IDENTIFY [0, 59, 120], -> COLORS
+                            let code = match >= 0 ? match : e.detail.code;
+                            if (e.detail.secondary) Ft(code); 
+                            // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
+                            else Gt(code);
+                            // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
+                        });
+                        document.addEventListener("performDrawCommand", (e) => {
+                            k.push(e.detail); 
+                            // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
+                            en(on(e.detail)); 
+                            // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
+                        });
+                        document.addEventListener("addTypoTooltips", () => {
+                            [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
+                                elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
+                                elem.removeAttribute("data-typo-tooltip");
+                                elem.addEventListener("mouseenter", (e) => ze(e.target)); 
+                                // IDENTIFY: x(e.target):
+                                elem.addEventListener("mouseleave", (e) => He()); 
+                                // IDENTIFY: (e) => x():
+                            });
+                        });
+                    })(),
+                    hexToRgb: (hex) => {
+                        let arrBuff = new ArrayBuffer(4);
+                        let vw = new DataView(arrBuff);
+                        vw.setUint32(0, parseInt(hex, 16), false);
+                        let arrByte = new Uint8Array(arrBuff);
+                        return [arrByte[1], arrByte[2], arrByte[3]];
+                    },
+                    rgbToHex: (r, g, b) => {
+                        return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                    }
+                }
+                // TYPOEND,
     oe = ["Normal", "Hidden", "Combination"],
     re = ["English", "German", "Bulgarian", "Czech", "Danish", "Dutch", "Finnish", "French", "Estonian", "Greek", "Hebrew", "Hungarian", "Italian", "Japanese", "Korean", "Latvian", "Macedonian", "Norwegian", "Portuguese", "Polish", "Romanian", "Russian", "Serbian", "Slovakian", "Spanish", "Swedish", "Tagalog", "Turkish"];
   if (h.localStorageAvailable = !1, void 0 !== c) try {
@@ -756,23 +789,40 @@
       graphic: "clear.gif",
       action: nn
     })
-, /*TYPOMOD DESC: add tool for pipette*/ mt(3, {
-        isAction: !1,
-        name: "Pipette",
-        graphic: "",keydef:'P',
-    }) /*TYPOEND*/
-/*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*mt(2, {
-        isAction: !0,
-        name: "Switcher",
-        graphic: "",
-        action: ()=>{document.dispatchEvent(new Event("toggleColor"));}
-    })*/ /*TYPOEND*/
-, /*TYPOMOD DESC: add action for brushlab*/ mt(3, {
-        isAction: !0,
-        name: "Lab",
-        graphic: "",keydef:'L',
-        action: ()=>{document.dispatchEvent(new Event("openBrushLab"));}
-    }) /*TYPOEND*/, u.querySelector("#game-canvas canvas")),
+/*TYPOMOD DESC: add tool for pipette*/ 
+                ,
+                mt(3, {
+                    isAction: !1,
+                    name: "Pipette",
+                    graphic: "",
+                    keydef: 'P',
+                }) 
+                /*TYPOEND*/
+/* TYPOMOD DESC: add action for colorswitch */ 
+                /* 
+                ,
+                mt(2, {
+                    isAction: !0,
+                    name: "Switcher",
+                    graphic: "",
+                    action: () => {
+                        document.dispatchEvent(new Event("toggleColor"));
+                    }
+                })
+                */ 
+                /* TYPOEND */
+/*TYPOMOD DESC: add action for brushlab*/ 
+                ,
+                mt(3, {
+                    isAction: !0,
+                    name: "Lab",
+                    graphic: "",
+                    keydef: 'L',
+                    action: () => {
+                        document.dispatchEvent(new Event("openBrushLab"));
+                    }
+                }) 
+                /*TYPOEND*/, u.querySelector("#game-canvas canvas")),
     yt = C.getContext("2d", {
       willReadFrequently: !0
     }),
@@ -1219,9 +1269,16 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
         if (Lt == at) return (0 == At ? Gt : Ft)(e), void Bt(Mt)
       }
       Lt == nt && (l = It, 0 <= Ct && (l = (l - rt) * q(Ct, 0, 1) + rt), 
-/* TYPOMOD use typo pressure */ 
-(()=>{if(0 <= Ct && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(Ct, sensitivity); l = Math.round(calcSkribblSize(levelled));}
-})(),s = Math.ceil(.5 * l), c = q(Math.floor(wt[0]), -s, C.width + s), e = q(Math.floor(wt[1]), -s, C.height + s), r = q(Math.floor(S[0]), -s, C.width + s), i = q(Math.floor(S[1]), -s, C.height + s), t = t, a = l, o = c, e = e, r = r, i = i, n = [et, t, a, o, e, r, i]), null != n && an(n)
+/* TYPOMOD use typo pressure */
+              (() => {
+                  if (0 <= Ct && localStorage.typoink == 'true') {
+                      const calcSkribblSize = (val) => Number(val) * 36 + 4;
+                      const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
+                      const sensitivity = 100 - Number(localStorage.sens);
+                      let levelled = calcLevelledSize(Ct, sensitivity);
+                      l = Math.round(calcSkribblSize(levelled));
+                  }
+              })(),s = Math.ceil(.5 * l), c = q(Math.floor(wt[0]), -s, C.width + s), e = q(Math.floor(wt[1]), -s, C.height + s), r = q(Math.floor(S[0]), -s, C.width + s), i = q(Math.floor(S[1]), -s, C.height + s), t = t, a = l, o = c, e = e, r = r, i = i, n = [et, t, a, o, e, r, i]), null != n && an(n)
     }
     var a, o, r, i, l, s, c
   }
@@ -1265,11 +1322,13 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
   function Ln(e) {
     e.classList.add("show")
   }
-/* TYPOMOD 
-     desc: add event handlers for typo features */
-    E(".avatar-customizer .container", "pointerdown", () => {
-        sa(typo.createFakeLobbyData());}); 
-    /* TYPOEND */
+/* TYPOMOD desc: add event handlers for typo features */
+                E(".avatar-customizer .container", "pointerdown", () => {
+                const data = typo.createFakeLobbyData();
+                document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
+                sa(data);
+                });
+                /* TYPOEND */
 
   function Dn(e) {
     for (var t = 0; t < bn.children.length; t++) bn.children[t].classList.remove("show");

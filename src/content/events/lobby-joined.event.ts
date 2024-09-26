@@ -28,6 +28,13 @@ export class LobbyJoinedEventProcessor extends EventProcessor<skribblLobby, Lobb
       events.next(new LobbyJoinedEvent(lobby));
     });
 
+    /* listen for practice lobby joined events from patched game */
+    document.addEventListener("practiceJoined", async (data) => {
+      const gameSettings = await this._gameSettingsSetup.complete();
+      const lobby = parseSkribblLobbyDataEvent(data as CustomEvent, gameSettings.languageSettings);
+      events.next(new LobbyJoinedEvent(lobby));
+    });
+
     return events;
   }
 }
