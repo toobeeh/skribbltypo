@@ -34,7 +34,6 @@ export class LobbyJoinedEventProcessor extends EventProcessor<skribblLobby, Lobb
 
     return events;
   }
-
 }
 
 @injectable()
