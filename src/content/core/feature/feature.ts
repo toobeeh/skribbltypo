@@ -5,22 +5,27 @@ import type { LifecycleEvent } from "../lifetime/lifecycleEvents.interface";
 export type featureActivationEventCheck<TEvent extends LifecycleEvent> = (event: TEvent) => boolean;
 
 @injectable()
-export abstract class TypoFeature<TActivationLifecycleEvent extends LifecycleEvent> {
+export abstract class TypoFeature {
 
   private _isActivated = false;
   private is_Run = false;
 
   public abstract readonly name: string;
   public abstract readonly description: string;
-  public abstract readonly activateOn: TActivationLifecycleEvent["name"];
 
-  protected readonly featureActivationChecks: featureActivationEventCheck<TActivationLifecycleEvent>[] = [];
+  protected onRun(): Promise<void> | void {
+    this._logger.debug("onRun not implemented");
+  }
+  protected onFreeze(): Promise<void> | void {
+    this._logger.debug("onFreeze not implemented");
+  }
 
-  protected abstract onRun(): Promise<void> | void;
-  protected abstract onFreeze(): Promise<void> | void;
-
-  protected abstract onActivate(event: TActivationLifecycleEvent): Promise<void> | void;
-  protected abstract onDestroy(): Promise<void> | void;
+  protected onActivate(): Promise<void> | void {
+    this._logger.debug("onActivate not implemented");
+  }
+  protected onDestroy(): Promise<void> | void {
+    this._logger.debug("onDestroy not implemented");
+  };
 
   protected readonly _logger;
 
@@ -28,18 +33,6 @@ export abstract class TypoFeature<TActivationLifecycleEvent extends LifecycleEve
     @inject(loggerFactory) loggerFactory: loggerFactory
   ) {
     this._logger = loggerFactory(this);
-  }
-
-  /**
-   * Skip feature lifecycle step
-   * @protected
-   */
-  protected skipStep() {
-    this._logger.debug("No action in lifecycle step");
-  };
-
-  public canActivateWithEvent(event: LifecycleEvent): event is TActivationLifecycleEvent {
-      return event.name === this.activateOn;
   }
 
   /**
@@ -85,21 +78,15 @@ export abstract class TypoFeature<TActivationLifecycleEvent extends LifecycleEve
    * Activate the feature.
    * The feature will be activated and run.
    */
-  public async activate(event: TActivationLifecycleEvent) {
+  public async activate() {
     if(this._isActivated) {
       this._logger.warn("Attempted to activate feature while already activated");
       throw new Error("Feature is already activated");
     }
 
-    const checksSucceeded =this.featureActivationChecks.length === 0 ||  this.featureActivationChecks.every(check => check(event));
-    if(!checksSucceeded) {
-      /*this._logger.debug("Rejected activation event", event);*/
-      return;
-    }
+    this._logger.info("Activating feature");
 
-    this._logger.info("Activating feature", event);
-
-    const activate = this.onActivate(event);
+    const activate = this.onActivate();
     if(activate instanceof Promise) await activate;
 
    const run = this.onRun();

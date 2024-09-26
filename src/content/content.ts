@@ -12,6 +12,7 @@ import { TypoNewsFeature } from "./features/typo-news/typo-news.feature";
 import { ApiService } from "./services/api/api.service";
 import { MemberService } from "./services/member/member.service";
 import { ModalService } from "./services/modal/modal.service";
+import { GamePatchReadySetup } from "./setups/game-patch-ready/game-patch.setup";
 import { GameSettingsSetup } from "./setups/game-settings/game-settings.setup";
 import { PanelSetup } from "./setups/panel/panel.setup";
 import { ElementsSetup } from "./setups/elements/elements.setup";
@@ -37,7 +38,8 @@ lifecycle.registerServices(
 lifecycle.registerSetups(
   PanelSetup,
   ElementsSetup,
-  GameSettingsSetup
+  GameSettingsSetup,
+  GamePatchReadySetup
 );
 
 /* register event processors and their listeners */
@@ -53,17 +55,6 @@ lifecycle.registerFeatures(
   TypoNewsFeature,
   LobbyNavigationFeature
 );
-
-lifecycle.eventsWithHistory$.subscribe((event) => {
-
-  if(event.name === "scriptStopped") {
-    console.log(event);
-  }
-
-  if(event.name === "patchExecuted") {
-    console.log(event);
-  }
-});
 
 /* indicate for interceptor that content script has loaded */
 document.body.setAttribute("typo-script-loaded", "true");

@@ -93,7 +93,8 @@ Event processors will only start processing when an event listener is injected.
 Features (`*.feature.ts`) are the main part of the application.  
 Features can make use of core services, events, setups and reactive svelte components, but must not depend on other features.  
 Features are singletons and implement an activate/destroy interface which indicates start and end of their lifecycle;
-furthermore they can be paused via run/freeze (not implemented yet).
+furthermore they can be paused via run/freeze (not implemented yet).  
+Features are instantiated as soon as they are registered; to delay activation further, setups can be used.
 
 #### Svelte Components
 Svelte is the framework that is used to build UI in features and setups.  

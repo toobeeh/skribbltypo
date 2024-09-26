@@ -33,7 +33,7 @@ export class LifecycleService {
    private readonly _logger;
    private readonly _events;
 
-   private readonly _features: Type<TypoFeature<LifecycleEvent>>[] = [];
+   private readonly _features: Type<TypoFeature>[] = [];
 
    public constructor() {
       this.bindCoreServices();
@@ -42,9 +42,7 @@ export class LifecycleService {
       this._events = this._diContainer.get(EventsService);
 
       this._logger.debug("LifecycleService initialized");
-
       this.setupEvents();
-      this.setupFeatureLifecycle();
    }
 
    /**
@@ -92,17 +90,6 @@ export class LifecycleService {
       });
    }
 
-   private setupFeatureLifecycle() {
-      this._events$.subscribe((event) => {
-         this._features.forEach(featureType => {
-            const feature = this._diContainer.get(featureType);
-            if(feature.canActivateWithEvent(event)) {
-               feature.activate(event);
-            }
-         });
-      });
-   }
-
    /**
     * Binds core services to the dependency injection container.
     * @private
@@ -128,10 +115,16 @@ export class LifecycleService {
       });
    }
 
-   public registerFeatures<T extends LifecycleEvent>(...features: Type<TypoFeature<T>>[]){
+   public registerFeatures(...features: Type<TypoFeature>[]){
       features.forEach((feature) => {
+
+         /* add feature to container */
          this._diContainer.bind(feature).toSelf().inSingletonScope();
-         this._features.push(feature as unknown as Type<TypoFeature<LifecycleEvent>>);
+         this._features.push(feature);
+
+         /* activate feature; feature can delay activation by expressing dependencies via setups */
+         const featureInstance = this._diContainer.get(feature);
+         featureInstance.activate();
       });
    }
 

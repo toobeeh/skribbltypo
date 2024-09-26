@@ -17,7 +17,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noEmit": true,
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "noImplicitOverride": true
   },
   "exclude": ["node_modules", "dist", "public", "src/manifest.ts"],
   "include": ["src", "package.json"],

@@ -20,6 +20,9 @@ export abstract class Setup<TData>{
     if(this._setupPromise === undefined){
       this._logger.info("Running setup");
       this._setupPromise = this.runSetup();
+      this._setupPromise.then(() => {
+        this._logger.info("Setup completed");
+      });
     }
 
     return this._setupPromise;
