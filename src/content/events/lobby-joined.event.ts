@@ -8,11 +8,7 @@ import type { EventRegistration } from "../core/lifetime/lifecycle.service";
 import { GameSettingsSetup } from "../setups/game-settings/game-settings.setup";
 
 export class LobbyJoinedEvent extends ApplicationEvent<skribblLobby> {
-  public readonly name = "lobbyJoined";
-
-  constructor(public readonly data: skribblLobby) {
-    super();
-  }
+  constructor(public readonly data: skribblLobby) { super(); }
 }
 
 @injectable()
@@ -38,9 +34,7 @@ export class LobbyJoinedEventProcessor extends EventProcessor<skribblLobby, Lobb
 
 @injectable()
 export class LobbyJoinedEventListener extends EventListener<skribblLobby, LobbyJoinedEvent> {
-
-  @inject(LobbyJoinedEventProcessor)
-  protected readonly _processor!: LobbyJoinedEventProcessor;
+  @inject(LobbyJoinedEventProcessor) protected readonly _processor!: LobbyJoinedEventProcessor;
 }
 
 export const lobbyJoinedEventRegistration: EventRegistration<skribblLobby, LobbyJoinedEvent> = {

@@ -6,11 +6,7 @@ import { EventProcessor } from "../core/event/eventProcessor";
 import type { EventRegistration } from "../core/lifetime/lifecycle.service";
 
 export class LobbyLeftEvent extends ApplicationEvent<null> {
-  public readonly name = "lobbyLeft";
-
-  constructor(public readonly data: null) {
-    super();
-  }
+  constructor(public readonly data: null) { super(); }
 }
 
 @injectable()
@@ -32,9 +28,7 @@ export class LobbyLeftEventProcessor extends EventProcessor<null, LobbyLeftEvent
 
 @injectable()
 export class LobbyLeftEventListener extends EventListener<null, LobbyLeftEvent> {
-
-  @inject(LobbyLeftEventProcessor)
-  protected readonly _processor!: LobbyLeftEventProcessor;
+  @inject(LobbyLeftEventProcessor) protected readonly _processor!: LobbyLeftEventProcessor;
 }
 
 export const lobbyLeftEventRegistration: EventRegistration<null, LobbyLeftEvent> = {

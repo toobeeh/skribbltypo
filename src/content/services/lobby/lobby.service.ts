@@ -24,10 +24,11 @@ export class LobbyService {
       lobbyJoined.events$
     ).subscribe((event) => {
       this._logger.info("Lobby event", event);
+      this._currentLobby.next(event.data);
     });
   }
 
-  public joinLobby(id: string){
+  public joinLobby(id?: string){
     if(this._currentLobby.value !== null) {
       this._logger.warn("Attempted to join a lobby while already in one");
       throw new Error("Already in a lobby");

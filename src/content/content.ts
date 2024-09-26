@@ -3,7 +3,6 @@ import { LifecycleService } from "./core/lifetime/lifecycle.service";
 import { LoggerService } from "./core/logger/logger.service";
 import { lobbyJoinedEventRegistration } from "./events/lobby-joined.event";
 import { lobbyLeftEventRegistration } from "./events/lobby-left.event";
-import { PlayClickedEventListener, PlayClickedEventProcessor } from "./events/playClicked.event";
 import { LobbyNavigationFeature } from "./features/lobby-navigation/lobby-navigation.feature";
 import { LobbyService } from "./services/lobby/lobby.service";
 import { TokenService } from "./services/token/token.service";
@@ -44,7 +43,6 @@ lifecycle.registerSetups(
 
 /* register event processors and their listeners */
 lifecycle.registerEventProcessors(
-  {processorType: PlayClickedEventProcessor, listenerType: PlayClickedEventListener},
   lobbyJoinedEventRegistration,
   lobbyLeftEventRegistration
 );

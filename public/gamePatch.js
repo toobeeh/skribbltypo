@@ -1357,7 +1357,7 @@
                     }
                     0 < u[0].length ? (D = u[0].map(function(e) {
                         return e.player.name
-                    }).join(", "), T.querySelector(".winner-name").textContent = (0 < u[0].length ? D : "<user left>") + " ", T.querySelector(".winner-text").textContent = 1 == u[0].length ? I("is the winner!") : I("are the winners!")) : (T.querySelector(".winner-name").textContent = "", T.querySelector(".winner-text").textContent = I("Nobody won!"))
+                    }).join(", "), T.querySelector(".winner-name").textContent = (0 < u[0].length ? D : "<user left>") + " ", T.querySelector(".winner-text").textContent = 1 == u[0].length ? I("is the winner!") : I("are the winners!")) : (T.querySelector(".winner-name").textContent = "", T.querySelector(".winner-text").textContent = I("Nobody won!"))
                 } else T.querySelector(".winner-name").textContent = "", T.querySelector(".winner-text").textContent = I("Nobody won!");
                 break;
             case X:
