@@ -36,9 +36,9 @@
     // desc: create re-useable functions
     , typo = {
         joinLobby: undefined,        createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
-            // IDENTIFY x.value.split: #home .container-name-lang input -> undefined
-            // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> undefined
-            return { id: id, name: name.length != 0 ? name : (undefined.value.split("#")[0] != "" ? undefined.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? undefined.avatar : avatar, score: score, guessed: guessed };
+            // IDENTIFY x.value.split: #home .container-name-lang input -> Jn
+            // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> p
+            return { id: id, name: name.length != 0 ? name : (Jn.value.split("#")[0] != "" ? Jn.value.split("#")[0] : "Dummy"), avatar: avatar.length == 0 ? p.avatar : avatar, score: score, guessed: guessed };
         },
         createFakeLobbyData: (
             settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
@@ -58,10 +58,10 @@
                 //Xn(true);
                 setTimeout(() => {
                     if(abort) return; typo.lastConnect = Date.now();
-                    //undefined.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
+                    //ea.dispatchEvent(new Event("click")); // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
                     //##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1   
                     if(e.detail) window.history.pushState({path:window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : ""); // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
-                    typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//undefined(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
+                    typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//aa(false); // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
                     document.dispatchEvent(new Event("joinedLobby"));
                 }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
             });

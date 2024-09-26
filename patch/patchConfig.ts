@@ -1,0 +1,434 @@
+export const gameJsPatchConfig = {
+  name: "Skribbl Source Code Patch",
+  description: "The patch config to modify skribbls source code for typo. Works with tobeh's tool PatchEx",
+  groups: [
+    {
+      name: "Insert Typo Functions at top",
+      replacements: [
+        {
+          source: "##CONTNAMEIN##",
+          target: "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.container-name-lang input\""
+        },
+        {
+          source: "##SETTINGS##",
+          target: "var ([a-zA-Z0-9&_\\-$]+) = {\\s+avatar: \\[Math.round\\(100 \\* Math.random\\(\\)\\) %"
+        },
+        {
+          source: "##BTNPLAY##",
+          target: "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.panel \\.button-play\"\\)"
+        },
+        {
+          source: "##LOADING##",
+          target: "([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?,\\s+.*querySelector\\(\\\"#load\\\"\\).style.display ="
+        },
+        {
+          source: "##GOHOME##",
+          target: "function ([a-zA-Z0-9&_\\-$]+)\\(\\) \\{[^}]+?data: 0\\s+?}[^}]+?\\.querySelector\\(\"#home\"\\).style.display ="
+        },
+        {
+          source: "##COLORS##",
+          target: "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]"
+        },
+        {
+          source: "##SECFILL##",
+          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-secondary\"\\).style.fill ="
+        },
+        {
+          source: "##PRIMFILL##",
+          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-primary\"\\).style.fill ="
+        },
+        {
+          source: "##PUSHCMD##",
+          target: ".getContext\\(\"2d\", {\\s*willReadFrequently[^}]*}\\)\\s*,\\s*([a-zA-Z0-9&_\\-$]+) = \\[\\]"
+        },
+        {
+          source: "##PERFOUTER##",
+          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?data[^}]+?bounds:"
+        },
+        {
+          source: "##PERFINNER##",
+          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?\\[0, 0, [a-zA-Z0-9&_\\-$]+\\.width, [a-zA-Z0-9&_\\-$]+\\.height\\]"
+        },
+        {
+          source: "##SHWOTOOLTIP##",
+          target: "function ([a-zA-Z0-9&_\\-$]+)\\(e\\) \\{[^}]+?[a-zA-Z0-9&_\\-$]+\\(\\)[^}]+?\\.dataset\\.tooltip"
+        },
+        {
+          source: "##HIDETOOLTIP##",
+          target: "function [a-zA-Z0-9&_\\-$]+\\(e\\) \\{[^}]+?([a-zA-Z0-9&_\\-$]+)\\(\\)[^}]+?\\.dataset\\.tooltip"
+        }
+      ],
+      injections: [
+        {
+          position: "(COMBINATION: 2\n\\s+?})",
+          code: "// TYPOMOD \n    // desc: create re-useable functions\n    , typo = {\n        joinLobby: undefined,        createFakeUser: (id = 0, name = \"\", avatar = [], score = 0, guessed = false) => {\n            // IDENTIFY x.value.split: #home .container-name-lang input -> ##CONTNAMEIN##\n            // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> ##SETTINGS##\n            return { id: id, name: name.length != 0 ? name : (##CONTNAMEIN##.value.split(\"#\")[0] != \"\" ? ##CONTNAMEIN##.value.split(\"#\")[0] : \"Dummy\"), avatar: avatar.length == 0 ? ##SETTINGS##.avatar : avatar, score: score, guessed: guessed };\n        },\n        createFakeLobbyData: (\n            settings = [\"PRACTISE\", \"en\", 1, 1, 80, 3, 3, 2, 0, false],\n            id = \"FAKE\",\n            me = 0,\n            owner = 0,\n            users = [],\n            state = { id: 4, time: 0, data: { id: 0, word: \"Anything\" } }) => {\n            if (users.length == 0) users = [typo.createFakeUser()];\n            return { settings: settings, id: id, me: me, owner: owner, round: 0, users: users, state: state };\n        },\n        disconnect: undefined,\n        lastConnect: 0,\n        initListeners: (() => {\n            let abort=false; document.addEventListener(\"abortJoin\", () => abort = true); document.addEventListener(\"joinLobby\", (e) => {\n                abort=false;let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);\n                //Xn(true);\n                setTimeout(() => {\n                    if(abort) return; typo.lastConnect = Date.now();\n                    //##BTNPLAY##.dispatchEvent(new Event(\"click\")); // IDENTIFY x.dispatchEvent: querySelector(\"#home .panel .button-play\") -> BTNPLAY\n                    //##PRIVATELBBY## = !1 // IDENTIFY: x:  = !1   \n                    if(e.detail) window.history.pushState({path:window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);////##JOINLOBBY##(e.detail?.join ? e.detail.join : \"\"); // IDENTIFY x(e.det..): ? \"id=\" + -> JOINLOBBY\n                    typo.joinLobby(); window.history.pushState({path:window.location.origin}, '', window.location.origin);//##LOADING##(false); // IDENTIFY x(false): querySelector(\"#load\").style.display -> LOADING\n                    document.dispatchEvent(new Event(\"joinedLobby\"));\n                }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);\n            });\n            document.addEventListener(\"leaveLobby\", () => {\n                if (typo.disconnect) typo.disconnect();\n                else ##GOHOME##() | document.dispatchEvent(new Event(\"leftLobby\")); // IDENTIFY x(): querySelector(\"#home\").style.display = \"\" -> GOHOME\n            });\n            document.addEventListener(\"setColor\", (e) => {\n                let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, \"0\"));\n                let match = ##COLORS##.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]); // IDENTIFY [0, 59, 120], -> COLORS\n                let code = match >= 0 ? match : e.detail.code;\n                if (e.detail.secondary) ##SECFILL##(code); // IDENTIFY x(e.detail.code): querySelector(\"#color-preview-secondary\").style.fill -> SECFILL\n                else ##PRIMFILL##(code); // IDENTIFY x(e.detail.code): querySelector(\"#color-preview-primary\").style.fill -> PRIMFILL\n            });\n            document.addEventListener(\"performDrawCommand\", (e) => {\n                ##PUSHCMD##.push(e.detail); // IDENTIFY x.push(e.detail): .getContext(\"2d\"), x = [] -> PUSHCMD\n                ##PERFOUTER##(##PERFINNER##(e.detail)); // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER\n                     });\n                document.addEventListener(\"addTypoTooltips\", () => {\n                [...document.querySelectorAll(\"[data-typo-tooltip]\")].forEach(elem => {\n                    elem.setAttribute(\"data-tooltip\", elem.getAttribute(\"data-typo-tooltip\"));\n                    elem.removeAttribute(\"data-typo-tooltip\");\n                    elem.addEventListener(\"mouseenter\", (e) => ##SHWOTOOLTIP##(e.target)); // IDENTIFY: x(e.target): \n                    elem.addEventListener(\"mouseleave\", (e) => ##HIDETOOLTIP##()); // IDENTIFY: (e) => x(): \n \n                });\n});        \n})(),\n        hexToRgb: (hex) => {\n            let arrBuff = new ArrayBuffer(4);\n            let vw = new DataView(arrBuff);\n            vw.setUint32(0, parseInt(hex, 16), false);\n            let arrByte = new Uint8Array(arrBuff);\n            return [arrByte[1], arrByte[2], arrByte[3]];\n        },\n        rgbToHex: (r, g, b) => {\n            return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);\n        }\n    }\n    // TYPOEND"
+        }
+      ]
+    },
+    {
+      name: "Custom Cursor Color",
+      replacements: [
+        {
+          source: "patchcode#customcursor([^,]+,)",
+          target: "(\\s)"
+        },
+        {
+          source: "##COLORINDEX##",
+          target: "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+,\\s+?[a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#color-preview-primary\"\\)\\.style.fill ="
+        },
+        {
+          source: "##COLORS##",
+          target: "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]"
+        },
+        {
+          source: "##COLORCODE##",
+          target: "\\.75 \\* ([a-zA-Z0-9&_\\-$]+)"
+        }
+      ],
+      injections: [
+        {
+          position: "(clearRect\\(0, 0, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\);)\\s+var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\s*,",
+          code: "// TYPOMOD\n// desc: cursor with custom color\nvar ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.hexToRgb((##COLORINDEX## - 10000).toString(16).padStart(6, \"0\"));\n// TYPOEND \npatchcode#customcursor"
+        }
+      ]
+    },
+    {
+      name: "Primary Custom Color",
+      replacements: [
+        {
+          source: "##COLORCODE##",
+          target: "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill ="
+        },
+        {
+          source: "##SETCOLOR##",
+          target: ":\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill ="
+        }
+      ],
+      injections: [
+        {
+          position: "(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill =",
+          code: "##COLORCODE## > 10000 ? ##SETCOLOR##(typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, \"0\"))) :"
+        }
+      ]
+    },
+    {
+      name: "Secondary Custom Color",
+      replacements: [
+        {
+          source: "##COLORCODE##",
+          target: "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill ="
+        },
+        {
+          source: "##SETCOLOR##",
+          target: ":\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill ="
+        }
+      ],
+      injections: [
+        {
+          position: "(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill =",
+          code: "##COLORCODE## > 10000 ? ##SETCOLOR##(typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, \"0\"))) :"
+        }
+      ]
+    },
+    {
+      name: "Detect Custom Colors",
+      replacements: [
+        {
+          source: "##COLORCODE##",
+          target: "function [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+)\\) {[^}]+?return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:"
+        }
+      ],
+      injections: [
+        {
+          position: "(function [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\) {)[^}]+?return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:",
+          code: "/*TYPOMOD   \ndesc: if color code > 1000 -> customcolor*/if(##COLORCODE## < 1000)"
+        },
+        {
+          position: "([^{]+?length[^}]+?;)\\s+return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:",
+          code: "else ##COLORCODE## = typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, \"0\"));/* TYPOEND */"
+        }
+      ]
+    },
+    {
+      name: "Save Undo Draw Commands",
+      replacements: [
+        {
+          source: "##COMMANDS##",
+          target: "if\\s\\([a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+)\\.[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\["
+        }
+      ],
+      injections: [
+        {
+          position: "(if[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[[\\s\\S]+?)}\\s+}\\s+const",
+          code: "/* TYPOMOD \n         log kept commands*/\n        document.dispatchEvent(new CustomEvent(\"logRedo\", { detail: keepCommands }));\n        /* TYPOEND*/"
+        },
+        {
+          position: "(if[^{]+?{)[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[",
+          code: "/* TYPOMOD\n        desc: replace draw commands because of redo*/        const keepCommands = ##COMMANDS##;\n        /* TYPOEND*/"
+        }
+      ]
+    },
+    {
+      name: "Log Draw Commands",
+      replacements: [
+        {
+          source: "##COMMAND##",
+          target: "(e)"
+        }
+      ],
+      injections: [
+        {
+          position: "( ): console.log\\(\"IGNORED COMMAND OUT OF CANVAS BOUNDS\"\\)",
+          code: "/* TYPOMOD \n         log draw commands */\n       & document.dispatchEvent(new CustomEvent(\"logDrawCommand\", { detail: ##COMMAND## })) \n        /* TYPOEND */"
+        }
+      ]
+    },
+    {
+      name: "Log Canvas Clear",
+      replacements: [],
+      injections: [
+        {
+          position: "(function [a-zA-Z0-9&_\\-$]+?\\(\\) {)[^}]+?\"#FFF\",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width",
+          code: "/* TYPOMOD\n         desc: store data before clear */\n        const data = document.querySelector(\"#game-canvas canvas\").toDataURL();\n/* TYPOEND */"
+        },
+        {
+          position: "(\"#FFF\",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width[^)]+?\\))",
+          code: "/* TYPOMOD\n         desc: dispatch clear event */\n        ;document.dispatchEvent(new CustomEvent(\"logCanvasClear\", { detail: data }));\n/* TYPOEND */"
+        }
+      ]
+    },
+    {
+      name: "Add Practise Join",
+      replacements: [
+        {
+          source: "##JOIN##",
+          target: "function ([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?\\) {[^}]+?\\.querySelector\\(\"#home\"\\)\\.style\\.display = \"none\""
+        },
+        {
+          source: "##SELECTORFCT##",
+          target: "([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?, \"mousemove\"[\\s\\S]+?\\}\\);"
+        }
+      ],
+      injections: [
+        {
+          position: "(e.classList.add\\(\"show\"\\)\\s+})",
+          code: "/* TYPOMOD \n     desc: add event handlers for typo features */\n    ##SELECTORFCT##(\".avatar-customizer .container\", \"pointerdown\", () => {\n        ##JOIN##(typo.createFakeLobbyData());}); \n    /* TYPOEND */"
+        }
+      ]
+    },
+    {
+      name: "Pipette Custom Color",
+      replacements: [
+        {
+          source: "##COL##",
+          target: "if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[\\s\\S]+?return ([a-zA-Z0-9&_\\-$]+?)\\s+}"
+        },
+        {
+          source: "##COLR##",
+          target: "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
+        },
+        {
+          source: "##COLG##",
+          target: "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - ([a-zA-Z0-9&_\\-$])+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
+        },
+        {
+          source: "##COLB##",
+          target: "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - ([a-zA-Z0-9&_\\-$])+?;"
+        }
+      ],
+      injections: [
+        {
+          position: "(if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[^}]+?})",
+          code: "/* TYPOMOD\n                     desc: if color is not in array, convert to custom color */\n                    return ##COL## = parseInt(typo.rgbToHex(##COLR##, ##COLG##, ##COLB##), 16) + 10000;\n                    /* TYPOEND */"
+        }
+      ]
+    },
+    {
+      name: "Lobby Navigation",
+      replacements: [
+        {
+          source: "##SOCKET##",
+          target: "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\""
+        }
+      ],
+      injections: [
+        {
+          position: "(\\.on\\(\"connect\", function\\s*\\(\\) \\{)",
+          code: "/* TYPOMOD\n             desc: disconnect socket & leave lobby */\n            document.addEventListener('socketEmit', event => ##SOCKET##.emit('data', {id: event.detail.id, data: event.detail.data}));\n typo.disconnect = () => {\n                if (##SOCKET##) {\n                    ##SOCKET##.typoDisconnect = true;\n                    ##SOCKET##.on(\"disconnect\", () => {\n                        typo.disconnect = undefined;\n                        document.dispatchEvent(new Event(\"leftLobby\"));\n                    });\n                    ##SOCKET##.off(\"data\");\n                    ##SOCKET##.reconnect = false;\n                    ##SOCKET##.disconnect();\n                }\n                else document.dispatchEvent(new Event(\"leftLobby\"));\n            }\n            /* TYPOEND */"
+        }
+      ]
+    },
+    {
+      name: "Handle Disconnect",
+      replacements: [
+        {
+          source: "##SOCKET##",
+          target: "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\""
+        }
+      ],
+      injections: [
+        {
+          position: "(\\.on\\(\"disconnect\", function[^{]*{)",
+          code: "/* TYPOMOD\n                 DESC: no msg if disconnect intentionally */\n                if(!##SOCKET##.typoDisconnect)\n                /*TYPOEND*/"
+        }
+      ]
+    },
+    {
+      name: "Dispatch Draw Finish",
+      replacements: [
+        {
+          source: "##DATA##",
+          target: "The word was '\\$'\", ([a-zA-Z0-9&_\\-$]+?)\\.data\\.word\\), \"\", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\)"
+        }
+      ],
+      injections: [
+        {
+          position: "(The word was '\\$'\", [a-zA-Z0-9&_\\-$]+?\\.data\\.word\\), \"\", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\))",
+          code: "/* TYPOMOD\n             desc: log finished drawing */\n            ;document.dispatchEvent(new CustomEvent(\"drawingFinished\", { detail: ##DATA##.data.word }));\n            /* TYPOEND */"
+        }
+      ]
+    },
+    {
+      name: "Dispatch Lobbydata",
+      replacements: [
+        {
+          source: "##EVENT##",
+          target: "switch \\([a-zA-Z0-9&_\\-$]+?\\) {[\\s\\S]*?(?=break)break[^(]*\\(([^)]*)\\)[^}]*joined the room!"
+        }
+      ],
+      injections: [
+        {
+          position: "(switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)[^}]*joined the room!",
+          code: "/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent(\"lobbyConnected\", { detail: ##EVENT## }));\n                /* TYPOEND*/"
+        }
+      ]
+    },
+    {
+      name: "Add Lobbyplayer ID",
+      replacements: [
+        {
+          source: "##PLAYER##",
+          target: "([a-zA-Z0-9&_\\-$]+?)\\.element, \"click\""
+        }
+      ],
+      injections: [
+        {
+          position: "(\\(\"icon muted\"\\);)",
+          code: "/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute(\"playerid\", ##PLAYER##.id);\n        /* TYPOEND */"
+        }
+      ]
+    },
+    {
+      name: "Add message length splits",
+      replacements: [
+        {
+          source: "##INPUT##",
+          target: "([a-zA-Z0-9&_\\-$]+)\\.value && [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\.value\\),\\s+[a-zA-Z0-9&_\\-$]+\\.reset"
+        }
+      ],
+      injections: [
+        {
+          position: "(\"submit\", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+return [a-zA-Z0-9&_\\-$]+\\.preventDefault",
+          code: "const input = ##INPUT##; let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event(\"submit\"));},180);"
+        }
+      ]
+    },
+    {
+      name: "Add Action Buttons",
+      replacements: [
+        {
+          source: "##ADDACTION##",
+          target: "([a-zA-Z0-9&_\\-$]+?)\\([^}]+{\\s+(isAction: !0,[^}]+Clear[^}]+}\\))"
+        }
+      ],
+      injections: [
+        {
+          position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
+          code: ", /*TYPOMOD DESC: add action for brushlab*/ ##ADDACTION##(3, {\n        isAction: !0,\n        name: \"Lab\",\n        graphic: \"\",keydef:'L',\n        action: ()=>{document.dispatchEvent(new Event(\"openBrushLab\"));}\n    }) /*TYPOEND*/"
+        },
+        {
+          position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
+          code: "/*,*/ /*TYPOMOD DESC: add action for colorswitch*/ /*##ADDACTION##(2, {\n        isAction: !0,\n        name: \"Switcher\",\n        graphic: \"\",\n        action: ()=>{document.dispatchEvent(new Event(\"toggleColor\"));}\n    })*/ /*TYPOEND*/"
+        },
+        {
+          position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
+          code: ", /*TYPOMOD DESC: add tool for pipette*/ ##ADDACTION##(3, {\n        isAction: !1,\n        name: \"Pipette\",\n        graphic: \"\",keydef:'P',\n    }) /*TYPOEND*/"
+        }
+      ]
+    },
+    {
+      name: "Remove Chat Limit",
+      replacements: [
+        {
+          source: "chatDeleteQuota: 100",
+          target: ";"
+        }
+      ],
+      injections: []
+    },
+    {
+      name: "Define join function",
+      replacements: [],
+      injections: [
+        {
+          position: "(\"click\",) function[^}]+\\.location\\.href",
+          code: "typo.joinLobby = "
+        }
+      ]
+    },
+    {
+      name: "Set last joined in regular join",
+      replacements: [],
+      injections: [
+        {
+          position: "([a-zA-Z0-9&_\\-$]+\\.location\\.href,)",
+          code: "typo.lastConnect = Date.now(),"
+        }
+      ]
+    },
+    {
+      name: "Keyup to keydown",
+      replacements: [
+        {
+          source: "(keyup)",
+          target: "(keydown)"
+        }
+      ],
+      injections: []
+    },
+    {
+      name: "Use Typo Pressure",
+      replacements: [
+        {
+          source: "##TYPOSIZE##",
+          target: "[a-zA-Z0-9&_\\-$]+ = Math\\.ceil\\(\\.5 \\* ([a-zA-Z0-9&_\\-$]+)\\)"
+        },
+        {
+          source: "##PRESSURE##",
+          target: "[a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+), 0, 1\\)"
+        }
+      ],
+      injections: [
+        {
+          position: "(\\s)[a-zA-Z0-9&_\\-$]+ = Math\\.ceil\\(\\.5[^}]*",
+          code: " /* TYPOMOD use typo pressure */ \n(()=>{if(0 <= ##PRESSURE## && localStorage.typoink == 'true') {const calcSkribblSize = (val) => Number(val) * 36 + 4;const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10)); const sensitivity = 100 - Number(localStorage.sens);let levelled = calcLevelledSize(##PRESSURE##, sensitivity); ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));}\n})(),"
+        }
+      ]
+    },
+    {
+      name: "Add User ID in chat",
+      replacements: [
+        {
+          source: "##PLAYER##",
+          target: "\\(\"text\", [^\\(]+\\(([a-zA-Z0-9&_\\-$]+)\\.name, [^\\)]+\\)\\)"
+        }
+      ],
+      injections: [
+        {
+          position: "(\\(\"text\", [^}]+name, [^\\)]+\\)\\))",
+          code: ".setAttribute(\"playerid\", ##PLAYER##.id)"
+        }
+      ]
+    }
+  ]
+}
