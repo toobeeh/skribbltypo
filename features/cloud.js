@@ -120,18 +120,18 @@ let typro = {
                 container.appendChild(thumb);
                 container.appendChild(overlay);
 
-                let triggers = [overlay, [...overlay.querySelectorAll("*")]].flat();
+                /*let triggers = [overlay, [...overlay.querySelectorAll("*")]].flat();
                 triggers.forEach(trigger => trigger.addEventListener("pointermove", async () => {
                     // load detailed drawing
                     thumb.style.opacity = "0.2";
                     overlay.style.opacity = "1";
-                    let hide = () => {
-                        thumb.style.opacity = "1";
-                        overlay.style.opacity = "0";
-                        trigger.removeEventListener("pointerleave", hide);
-                    }
-                    trigger.addEventListener("pointerleave", hide);
                 }));
+                let hide = () => {
+                    thumb.style.opacity = "1";
+                    overlay.style.opacity = "0";
+                    overlay.removeEventListener("pointerleave", hide);
+                }
+                overlay.addEventListener("pointerleave", hide);*/
                 contentDrawings.appendChild(container);
             }
             await new Promise((resolve, reject) => {

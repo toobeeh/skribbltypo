@@ -701,6 +701,10 @@ input::-webkit-inner-spin-button {
     width: 30%;
     margin: 0.5em;
     position: relative;
+    z-index:100;
+}
+#imageCloud>div:hover {
+    z-index: 200;
 }
 
 #imageCloud>div>img {
@@ -720,9 +724,13 @@ input::-webkit-inner-spin-button {
     place-items: center;
     justify-content: space-around;
     border-radius: 1em;
-    z-index: 200;
+    z-index: 500;
     background: rgba(0, 0, 0, 0.1);
     flex-direction: column;
+}
+
+#imageCloud > div:hover > div {
+    opacity: 1;
 }
 
 #imageCloud>div>div>div {
