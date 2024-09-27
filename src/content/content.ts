@@ -2,6 +2,8 @@ import "@abraham/reflection";
 import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
 import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-player-changed.event";
 import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
+import { roundStartedEventRegistration } from "@/content/events/round-started.event";
+import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
 import { ToolbarChallengesFeature } from "@/content/features/toolbar-challenges/toolbar-challenges.feature";
 import { ToolbarFullscreenFeature } from "@/content/features/toolbar-fullscreen/toolbar-fullscreen.feature";
 import { ToolbarImageLabFeature } from "@/content/features/toolbar-imagelab/toolbar-imagelab.feature";
@@ -61,7 +63,9 @@ lifecycle.registerEventProcessors(
   lobbyLeftEventRegistration,
   lobbyStateChangedEventRegistration,
   hintsAddedEventRegistration,
-  lobbyPlayerChangedEventRegistration
+  lobbyPlayerChangedEventRegistration,
+  roundStartedEventRegistration,
+  wordGuessedEventRegistration
 );
 
 /* register application features */

@@ -2,6 +2,9 @@ import {
   LobbyPlayerChangedEvent,
   LobbyPlayerChangedEventListener,
 } from "@/content/events/lobby-player-changed.event";
+import { LobbyStateChangedEvent, LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
+import { RoundStartedEvent, RoundStartedEventListener } from "@/content/events/round-started.event";
+import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/word-guessed.event";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, debounceTime, distinctUntilChanged, map, merge, withLatestFrom } from "rxjs";
 import type { skribblLobby } from "@/util/skribbl/lobby";
@@ -22,6 +25,9 @@ export class LobbyService {
     @inject(LobbyJoinedEventListener) private readonly lobbyJoined: LobbyJoinedEventListener,
     @inject(LobbyLeftEventListener) private readonly lobbyLeft: LobbyLeftEventListener,
     @inject(LobbyPlayerChangedEventListener) private readonly lobbyPlayerChanged: LobbyPlayerChangedEventListener,
+    @inject(LobbyStateChangedEventListener) private readonly lobbyStateChanged: LobbyStateChangedEventListener,
+    @inject(RoundStartedEventListener) private readonly roundStarted: RoundStartedEventListener,
+    @inject(WordGuessedEventListener) private readonly wordGuessed: WordGuessedEventListener,
     @inject(ElementsSetup) private readonly elementsSetup: ElementsSetup
   ) {
     this._logger = loggerFactory(this);
@@ -30,7 +36,10 @@ export class LobbyService {
     merge(
       lobbyLeft.events$,
       lobbyJoined.events$,
-      lobbyPlayerChanged.events$
+      lobbyPlayerChanged.events$,
+      lobbyStateChanged.events$,
+      roundStarted.events$,
+      wordGuessed.events$
     ).pipe(
       withLatestFrom(this._currentLobby), /* compare updates with current lobby */
       map(data => ({update: data[0], currentLobby: data[1]})),
@@ -41,12 +50,39 @@ export class LobbyService {
 
       /* lobby left, reset lobby */
       if(update instanceof LobbyLeftEvent) {
-        this._currentLobby.next(null);
+        currentLobby = null;
       }
 
       /* lobby joined, set new lobby */
       else if(update instanceof LobbyJoinedEvent) {
-        this._currentLobby.next(update.data);
+        currentLobby = update.data;
+      }
+
+      /* round ended, update round */
+      else if(currentLobby !== null && update instanceof RoundStartedEvent) {
+        currentLobby.round = update.data;
+      }
+
+      /* word guessed, update players */
+      else if(currentLobby !== null && update instanceof WordGuessedEvent) {
+        const guessed = update.data;
+        currentLobby.players.forEach(player => {
+          if(player.id === guessed.playerId) {
+            player.guessed = true;
+          }
+        });
+      }
+      
+      /* lobby state updated */
+      else if (currentLobby !== null && update instanceof LobbyStateChangedEvent) {
+        const data = update.data;
+        if(data.drawingRevealed) {
+          const scores = new Map<number, number>(data.drawingRevealed.scores.map(score => [score.playerId, score.score]));
+          currentLobby.players.forEach((player) => {
+            player.guessed = false;
+            player.score = scores.get(player.id) ?? player.score;
+          });
+        }
       }
 
       /* player changed, update list */
@@ -55,13 +91,14 @@ export class LobbyService {
         if(data.left) {
           const left = data.left;
           currentLobby.players = currentLobby.players.filter(user => user.id !== left.id);
-          this._currentLobby.next(currentLobby);
         }
         else if(data.joined) {
           currentLobby.players.push(data.joined);
-          this._currentLobby.next(currentLobby);
         }
       }
+
+      /* emit updated lobby */
+      this._currentLobby.next(currentLobby);
     });
 
     this.lobby$.subscribe(data => this._logger.info("Lobby changed", data));
