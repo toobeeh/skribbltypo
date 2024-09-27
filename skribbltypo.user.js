@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.2.0.172743164
+// @version 26.3.0.172743869
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.2.0 usrsc"};
+            return {version: "26.3.0 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -4480,6 +4480,10 @@ input::-webkit-inner-spin-button {
     width: 30%;
     margin: 0.5em;
     position: relative;
+    z-index:100;
+}
+#imageCloud>div:hover {
+    z-index: 200;
 }
 
 #imageCloud>div>img {
@@ -4499,9 +4503,13 @@ input::-webkit-inner-spin-button {
     place-items: center;
     justify-content: space-around;
     border-radius: 1em;
-    z-index: 200;
+    z-index: 500;
     background: rgba(0, 0, 0, 0.1);
     flex-direction: column;
+}
+
+#imageCloud > div:hover > div {
+    opacity: 1;
 }
 
 #imageCloud>div>div>div {
@@ -7542,18 +7550,18 @@ let typro = {
                 container.appendChild(thumb);
                 container.appendChild(overlay);
 
-                let triggers = [overlay, [...overlay.querySelectorAll("*")]].flat();
+                /*let triggers = [overlay, [...overlay.querySelectorAll("*")]].flat();
                 triggers.forEach(trigger => trigger.addEventListener("pointermove", async () => {
                     // load detailed drawing
                     thumb.style.opacity = "0.2";
                     overlay.style.opacity = "1";
-                    let hide = () => {
-                        thumb.style.opacity = "1";
-                        overlay.style.opacity = "0";
-                        trigger.removeEventListener("pointerleave", hide);
-                    }
-                    trigger.addEventListener("pointerleave", hide);
                 }));
+                let hide = () => {
+                    thumb.style.opacity = "1";
+                    overlay.style.opacity = "0";
+                    overlay.removeEventListener("pointerleave", hide);
+                }
+                overlay.addEventListener("pointerleave", hide);*/
                 contentDrawings.appendChild(container);
             }
             await new Promise((resolve, reject) => {
