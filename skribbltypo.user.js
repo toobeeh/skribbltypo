@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.2.0.172665162
+// @version 26.2.0.172743164
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -4701,7 +4701,6 @@ bounceload {
 }
 
 .visionFrame {
-    border: 2px solid black;
     position: fixed;
     width: 50vw;
     height: 50vh;
@@ -4710,13 +4709,13 @@ bounceload {
     left: 25vw;
     grid-template-columns: 4px auto 4px;
     grid-template-rows: 4em auto 4px;
-    border-radius: 8px;
     z-index: 2000;
     pointer-events: none;
     cursor: grab;
-    box-shadow: rgb(0 0 0) 0px 0px 0px 2px inset, rgb(255 255 255 / 50%) 0px 0px 3px -1px;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .25));
     min-height: 10em;
     min-width: 10em;
+    border: none;
 }
 
 .visionContent {
@@ -4745,19 +4744,21 @@ bounceload {
 }
 
 .visionBorder {
-    background: black;
     pointer-events: all;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.rightResize {
     cursor: e-resize;
     grid-column-start: 3;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.bottomResize {
     cursor: s-resize;
     grid-column-start: 2;
     grid-row-start: 3;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.allResize {
@@ -4767,22 +4768,25 @@ bounceload {
 }
 
 .visionHead {
+    background: var(--COLOR_PANEL_BG) !important;
     position: relative;
     grid-row-start: 1;
     grid-column-start: 1;
     grid-column-end: 4;
-    background: black;
     pointer-events: all;
-    padding: .5em;
+    background: black;
+    padding: 0.5em;
+    border-radius: .5em .5em 0em 0em;
 }
 
 .visionControl {
     position: absolute;
-    top: .5em;
-    right: .5em;
-    color: red;
+    top: 0.5em;
+    right: 0.5em;
     font-size: 1.5em;
     cursor: pointer;
+    color: white;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .25));
 }
 
 .visionHead input:is([type=text], [type=range]) {
