@@ -1,7 +1,7 @@
 import { inject } from "inversify";
 import { Setup } from "../../core/setup/setup";
 import { requireElement } from "../../../util/document/requiredQuerySelector";
-import { createElement, elements } from "../../../util/document/elements";
+import { createElement, appendElement } from "../../../util/document/appendElement";
 import { GamePatchReadySetup } from "../game-patch-ready/game-patch.setup";
 import PanelTabs from "./panel-tabs.svelte";
 
@@ -14,8 +14,8 @@ export class PanelSetup extends Setup<{ leftPanel: HTMLElement, rightPanel: HTML
     await this._gameReadySetup.complete();
 
     const panels = {
-      rightPanel: elements(createElement("<div class='panel panel-right typo-panel'></div>"), "afterend", requireElement(".panel")),
-      leftPanel: elements(createElement("<div class='panel panel-left typo-panel'></div>"), "beforebegin", requireElement(".panel"))
+      rightPanel: appendElement(createElement("<div class='panel panel-right typo-panel'></div>"), "afterend", requireElement(".panel")),
+      leftPanel: appendElement(createElement("<div class='panel panel-left typo-panel'></div>"), "beforebegin", requireElement(".panel"))
     };
 
     new PanelTabs({

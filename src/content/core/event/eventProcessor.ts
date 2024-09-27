@@ -11,7 +11,7 @@ export type EventProcessorImplementationType<TData> =
 @injectable()
 export abstract class EventProcessor<TData, TEvent extends ApplicationEvent<TData>> {
 
-  private readonly _logger;
+  protected readonly _logger;
 
   /**
    * Type of the event this processor emits
@@ -30,6 +30,8 @@ export abstract class EventProcessor<TData, TEvent extends ApplicationEvent<TDat
    */
   @postConstruct()
   public start() {
+
+    this._logger.info("Starting event processor");
 
     /* create event stream from implementation */
     const events = this.streamEvents();

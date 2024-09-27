@@ -1,4 +1,4 @@
-export const elements = (sourceElement: HTMLElement, position: InsertPosition, parentElement: HTMLElement) => {
+export const appendElement = (sourceElement: HTMLElement, position: InsertPosition, parentElement: HTMLElement) => {
   parentElement.insertAdjacentElement(position, sourceElement);
   return sourceElement;
 };

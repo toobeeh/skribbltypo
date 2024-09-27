@@ -18,7 +18,12 @@
     "emitDecoratorMetadata": true,
     "noEmit": true,
     "verbatimModuleSyntax": true,
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": ["src", "package.json"],
   "exclude": ["node_modules", "dist", "public", "src/manifest.ts"],

@@ -3,17 +3,17 @@ import { requireElement } from "../../../util/document/requiredQuerySelector";
 import { inject } from "inversify";
 import { GamePatchReadySetup } from "../game-patch-ready/game-patch.setup";
 import { PanelSetup } from "../panel/panel.setup";
+import { ToolbarSetup } from "../toolbar/toolbar.setup";
 
 /**
  * Function to make dynamic return type
  * @param panels
+ * @param toolbar
  */
-function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>){
+function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement){
   return {
     panelContainer: requireElement(".panels"),
     avatarPanel: requireElement(".panel:not(.typo-panel)"),
-    rightPanel: panels.rightPanel,
-    leftPanel: panels.leftPanel,
     newsTab: requireElement(".panel-tab-news"),
     changelogTab: requireElement(".panel-tab-changelog"),
     lobbiesTab: requireElement(".panel-tab-lobbies"),
@@ -23,7 +23,10 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>){
     gameSettings: requireElement("#game-settings"),
     home: requireElement("#home"),
     game: requireElement("#game"),
+    gameWrapper: requireElement("#game-wrapper"),
     load: requireElement("#load"),
+    ...panels,
+    toolbar
   };
 }
 export type typoElements = ReturnType<typeof getElements>;
@@ -31,11 +34,13 @@ export type typoElements = ReturnType<typeof getElements>;
 export class ElementsSetup extends Setup<typoElements> {
 
   @inject(PanelSetup) private _panelSetup!: PanelSetup;
+  @inject(ToolbarSetup) private _toolbarSetup!: ToolbarSetup;
   @inject(GamePatchReadySetup) private _gameReadySetup!: GamePatchReadySetup;
 
   protected async runSetup(): Promise<ReturnType<typeof getElements>> {
     await this._gameReadySetup.complete();
     const panels = await this._panelSetup.complete();
-    return getElements(panels);
+    const toolbar = await this._toolbarSetup.complete();
+    return getElements(panels, toolbar);
   }
 }

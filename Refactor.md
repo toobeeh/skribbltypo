@@ -466,6 +466,20 @@ enable custom colors in the color toolbar
 - [ ] *SOCKET*
 - [ ] *AUTH*
 - [ ] *STATE*
+- 
+#### 🖌️ Drawing choose time bar
+a bar visualizing remaining time to choose a word
+- [ ] *PRE_LOAD*
+- [ ] *ON_LOAD*
+- [ ] *STAT_UI*
+- [x] *DYNC_UI*
+- [ ] *TYPO_EVT*
+- [x] *SKRB_EVT*
+- [ ] *PATCH* custom color support
+- [ ] *API*
+- [ ] *SOCKET*
+- [ ] *AUTH*
+- [ ] *STATE*
 
 
 ### 🧩 Typo Features

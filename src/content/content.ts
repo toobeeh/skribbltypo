@@ -1,4 +1,13 @@
 import "@abraham/reflection";
+import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
+import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-player-changed.event";
+import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
+import { ToolbarChallengesFeature } from "@/content/features/toolbar-challenges/toolbar-challenges.feature";
+import { ToolbarFullscreenFeature } from "@/content/features/toolbar-fullscreen/toolbar-fullscreen.feature";
+import { ToolbarImageLabFeature } from "@/content/features/toolbar-imagelab/toolbar-imagelab.feature";
+import { ToolbarImagePostFeature } from "@/content/features/toolbar-imagepost/toolbar-imagepost.feature";
+import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save.feature";
+import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LifecycleService } from "./core/lifetime/lifecycle.service";
 import { LoggerService } from "./core/logger/logger.service";
 import { lobbyJoinedEventRegistration } from "./events/lobby-joined.event";
@@ -18,6 +27,7 @@ import { ElementsSetup } from "./setups/elements/elements.setup";
 
 import "./content.scss";
 import { SkribblMessageRelaySetup } from "./setups/skribbl-message-relay/skribbl-message-relay.setup";
+import { ToolbarSetup } from "./setups/toolbar/toolbar.setup";
 
 /* set log level to debug initially */
 LoggerService.level = "debug";
@@ -31,7 +41,8 @@ lifecycle.registerServices(
   {type: ApiService, scope: "singleton"},
   {type: MemberService, scope: "singleton"},
   {type: TokenService, scope: "singleton"},
-  {type: LobbyService, scope: "singleton"}
+  {type: LobbyService, scope: "singleton"},
+  {type: DrawingService, scope: "singleton"}
 );
 
 /* register setup dependencies to the application */
@@ -40,20 +51,29 @@ lifecycle.registerSetups(
   ElementsSetup,
   GameSettingsSetup,
   GamePatchReadySetup,
-  SkribblMessageRelaySetup
+  SkribblMessageRelaySetup,
+  ToolbarSetup,
 );
 
 /* register event processors and their listeners */
 lifecycle.registerEventProcessors(
   lobbyJoinedEventRegistration,
-  lobbyLeftEventRegistration
+  lobbyLeftEventRegistration,
+  lobbyStateChangedEventRegistration,
+  hintsAddedEventRegistration,
+  lobbyPlayerChangedEventRegistration
 );
 
 /* register application features */
 lifecycle.registerFeatures(
   UserInfoFeature,
   TypoNewsFeature,
-  LobbyNavigationFeature
+  LobbyNavigationFeature,
+  ToolbarSaveFeature,
+  ToolbarImagePostFeature,
+  ToolbarChallengesFeature,
+  ToolbarFullscreenFeature,
+  ToolbarImageLabFeature
 );
 
 /* indicate for interceptor that content script has loaded */

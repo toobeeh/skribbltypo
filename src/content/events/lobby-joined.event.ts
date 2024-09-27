@@ -28,6 +28,8 @@ export class LobbyJoinedEventProcessor extends EventProcessor<skribblLobby, Lobb
     skribblMessages.subscribe((event) => {
       if(event.id === 10){
         const lobby = parseSkribblLobbyDataEvent(event.data, gameSettings.languageSettings);
+
+        this._logger.info("Lobby joined", lobby);
         events.next(new LobbyJoinedEvent(lobby));
       }
     });
@@ -35,7 +37,9 @@ export class LobbyJoinedEventProcessor extends EventProcessor<skribblLobby, Lobb
     /* listen for practice lobby joined events from patched game */
     document.addEventListener("practiceJoined", async (data) => {
       const gameSettings = await this._gameSettingsSetup.complete();
-      const lobby = parseSkribblLobbyDataEvent(data as CustomEvent, gameSettings.languageSettings);
+      const lobby = parseSkribblLobbyDataEvent((data as CustomEvent).detail, gameSettings.languageSettings);
+
+      this._logger.info("Practice lobby joined", lobby);
       events.next(new LobbyJoinedEvent(lobby));
     });
 

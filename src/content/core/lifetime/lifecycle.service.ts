@@ -8,7 +8,7 @@ import { EventProcessor} from "../event/eventProcessor";
 import { EventListener } from "../event/eventListener";
 import { ApplicationEvent } from "../event/applicationEvent";
 import { loggerFactory } from "../logger/loggerFactory.interface";
-import type { Type } from "../../../util/types/type";
+import type { Type } from "@/util/types/type";
 import { TypoFeature } from "../feature/feature";
 import { Setup } from "../setup/setup";
 

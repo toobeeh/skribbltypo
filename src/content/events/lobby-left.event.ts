@@ -19,6 +19,8 @@ export class LobbyLeftEventProcessor extends EventProcessor<null, LobbyLeftEvent
 
     /* listen for skribbl lobby left events from patched game */
     document.addEventListener("leftLobby", async () => {
+
+      this._logger.info("Lobby left");
       events.next(new LobbyLeftEvent(null));
     });
 
