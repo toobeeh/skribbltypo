@@ -21,6 +21,9 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>){
     playButton: requireElement(".panel:not(.typo-panel) .button-play"),
     gameBar: requireElement("#game-bar"),
     gameSettings: requireElement("#game-settings"),
+    home: requireElement("#home"),
+    game: requireElement("#game"),
+    load: requireElement("#load"),
   };
 }
 export type typoElements = ReturnType<typeof getElements>;

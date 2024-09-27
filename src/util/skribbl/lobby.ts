@@ -27,19 +27,19 @@ export interface skribblPlayer {
   flags: number
 }
 
-export const parseSkribblLobbyDataEvent = (event: CustomEvent, languages: Map<number, string>): skribblLobby => {
+export const parseSkribblLobbyDataEvent = (data: any, languages: Map<number, string>): skribblLobby => { // eslint-disable-line @typescript-eslint/no-explicit-any
   return {
-    id: event.detail.id ?? null,
-    private: event.detail.type === 1,
-    meId: event.detail.me,
-    ownerId: event.detail.owner == -1 ? null : event.detail.owner,
-    round: event.detail.round,
+    id: data.id ?? null,
+    private: data.type === 1,
+    meId: data.me,
+    ownerId: data.owner == -1 ? null : data.owner,
+    round: data.round + 1,
     settings: {
-      language: languages.get(event.detail.settings[0]) ?? "",
-      players: event.detail.settings[1],
-      drawTime: event.detail.settings[2],
-      rounds: event.detail.settings[3]
+      language: languages.get(data.settings[0]) ?? "",
+      players: data.settings[1],
+      drawTime: data.settings[2],
+      rounds: data.settings[3]
     },
-    players: event.detail.users as never
+    players: data.users as never
   };
 };

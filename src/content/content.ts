@@ -17,6 +17,7 @@ import { PanelSetup } from "./setups/panel/panel.setup";
 import { ElementsSetup } from "./setups/elements/elements.setup";
 
 import "./content.scss";
+import { SkribblMessageRelaySetup } from "./setups/skribbl-message-relay/skribbl-message-relay.setup";
 
 /* set log level to debug initially */
 LoggerService.level = "debug";
@@ -38,7 +39,8 @@ lifecycle.registerSetups(
   PanelSetup,
   ElementsSetup,
   GameSettingsSetup,
-  GamePatchReadySetup
+  GamePatchReadySetup,
+  SkribblMessageRelaySetup
 );
 
 /* register event processors and their listeners */

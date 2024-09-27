@@ -35,6 +35,11 @@
 // TYPOMOD 
                 // desc: create re-useable functions
                 , typo = {
+                    messagePort: (()=>{
+                      const channel = new MessageChannel();
+                      window.postMessage("skribblMessagePort", "*", [channel.port2]);
+                      return channel.port1;
+                    })(),
                     joinLobby: undefined,
                     createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
                         // IDENTIFY x.value.split: #home .container-name-lang input -> Jn
@@ -1599,22 +1604,28 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
       };
     "URL" in h && "127.0.0.1" != (a = new URL(e)).hostname && "localhost" != a.hostname && (r.path = "/" + a.port + "/", e = a.protocol + "//" + a.hostname), (l = P(e, r)).on("connect", function() {
 /* TYPOMOD
-             desc: disconnect socket & leave lobby */
-            document.addEventListener('socketEmit', event => l.emit('data', {id: event.detail.id, data: event.detail.data}));
- typo.disconnect = () => {
-                if (l) {
-                    l.typoDisconnect = true;
-                    l.on("disconnect", () => {
-                        typo.disconnect = undefined;
+                     desc: disconnect socket & leave lobby */
+                document.addEventListener('socketEmit', event => 
+                    l.emit('data', { id: event.detail.id, data: event.detail.data })
+                );
+                
+                typo.disconnect = () => {
+                    if (l) {
+                        l.typoDisconnect = true;
+                        l.on("disconnect", () => {
+                            typo.disconnect = undefined;
+                            document.dispatchEvent(new Event("leftLobby"));
+                        });
+                        l.off("data");
+                        l.reconnect = false;
+                        l.disconnect();
+                    } else {
                         document.dispatchEvent(new Event("leftLobby"));
-                    });
-                    l.off("data");
-                    l.reconnect = false;
-                    l.disconnect();
+                    }
                 }
-                else document.dispatchEvent(new Event("leftLobby"));
-            }
-            /* TYPOEND */
+                l.on("data", data => typo.messagePort.postMessage(data));
+                typo.messagePort.onmessage = data => l.emit("data", data.data);
+                /* TYPOEND */
       aa(!1), l.on("joinerr", function(e) {
         fa(), xe(ve, function(e) {
           switch (e) {

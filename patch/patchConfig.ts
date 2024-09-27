@@ -65,6 +65,11 @@ export const gameJsPatchConfig = {
                 // TYPOMOD 
                 // desc: create re-useable functions
                 , typo = {
+                    messagePort: (()=>{
+                      const channel = new MessageChannel();
+                      window.postMessage("skribblMessagePort", "*", [channel.port2]);
+                      return channel.port1;
+                    })(),
                     joinLobby: undefined,
                     createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
                         // IDENTIFY x.value.split: #home .container-name-lang input -> ##CONTNAMEIN##
@@ -366,7 +371,31 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "(\\.on\\(\"connect\", function\\s*\\(\\) \\{)",
-          code: "/* TYPOMOD\n             desc: disconnect socket & leave lobby */\n            document.addEventListener('socketEmit', event => ##SOCKET##.emit('data', {id: event.detail.id, data: event.detail.data}));\n typo.disconnect = () => {\n                if (##SOCKET##) {\n                    ##SOCKET##.typoDisconnect = true;\n                    ##SOCKET##.on(\"disconnect\", () => {\n                        typo.disconnect = undefined;\n                        document.dispatchEvent(new Event(\"leftLobby\"));\n                    });\n                    ##SOCKET##.off(\"data\");\n                    ##SOCKET##.reconnect = false;\n                    ##SOCKET##.disconnect();\n                }\n                else document.dispatchEvent(new Event(\"leftLobby\"));\n            }\n            /* TYPOEND */"
+          code: `
+                /* TYPOMOD
+                     desc: disconnect socket & leave lobby */
+                document.addEventListener('socketEmit', event => 
+                    ##SOCKET##.emit('data', { id: event.detail.id, data: event.detail.data })
+                );
+                
+                typo.disconnect = () => {
+                    if (##SOCKET##) {
+                        ##SOCKET##.typoDisconnect = true;
+                        ##SOCKET##.on("disconnect", () => {
+                            typo.disconnect = undefined;
+                            document.dispatchEvent(new Event("leftLobby"));
+                        });
+                        ##SOCKET##.off("data");
+                        ##SOCKET##.reconnect = false;
+                        ##SOCKET##.disconnect();
+                    } else {
+                        document.dispatchEvent(new Event("leftLobby"));
+                    }
+                }
+                l.on("data", data => typo.messagePort.postMessage(data));
+                typo.messagePort.onmessage = data => l.emit("data", data.data);
+                /* TYPOEND */
+`
         }
       ]
     },

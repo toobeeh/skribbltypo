@@ -2,6 +2,7 @@ import { Container } from "inversify";
 import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../event/events.service";
 import { Observable, ReplaySubject, Subject } from "rxjs";
+import { isEarlySetup } from "../setup/earlySetup.decorator";
 import type { LifecycleEvent } from "./lifecycleEvents.interface";
 import { EventProcessor} from "../event/eventProcessor";
 import { EventListener } from "../event/eventListener";
@@ -131,6 +132,11 @@ export class LifecycleService {
    public registerSetups(...setups: Type<Setup<unknown>>[]){
       setups.forEach((setup) => {
          this._diContainer.bind(setup).toSelf().inSingletonScope();
+
+         /* if setup is marked as early, run immediately */
+         if(isEarlySetup(setup)) {
+            this._diContainer.get(setup).complete();
+         }
       });
    }
 

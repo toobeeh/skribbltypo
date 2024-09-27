@@ -1,4 +1,4 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, postConstruct } from "inversify";
 import { EventsService } from "./events.service";
 import { Observable } from "rxjs";
 import { ApplicationEvent } from "./applicationEvent";
@@ -14,12 +14,6 @@ export abstract class EventProcessor<TData, TEvent extends ApplicationEvent<TDat
   private readonly _logger;
 
   /**
-   * Observable that contains all events of this type
-   * @private
-   */
-  private readonly _events$;
-
-  /**
    * Type of the event this processor emits
    */
   public abstract readonly eventType: Type<ApplicationEvent<TData>>;
@@ -29,12 +23,28 @@ export abstract class EventProcessor<TData, TEvent extends ApplicationEvent<TDat
     @inject(EventsService) private readonly _eventsService: EventsService
   ) {
     this._logger = loggerFactory(this);
+  }
+
+  /**
+   * Start listening to events after dependency injection finished
+   */
+  @postConstruct()
+  public start() {
 
     /* create event stream from implementation */
-    this._events$ = this.streamEvents();
+    const events = this.streamEvents();
+    if(events instanceof Promise) {
+      events.then((stream) => this.publishEvents(stream));
+    }
+    else {
+      this.publishEvents(events);
+    }
+  }
+
+  private publishEvents(events$: Observable<TEvent>){
 
     /* publish events to the central pipe */
-    this._events$.subscribe((event) => {
+    events$.subscribe((event) => {
       this._eventsService.publishEvent(event);
     });
   }
@@ -43,7 +53,7 @@ export abstract class EventProcessor<TData, TEvent extends ApplicationEvent<TDat
    * Create an observable that streams all events of this type
    * @protected
    */
-  protected abstract streamEvents(): Observable<TEvent>;
+  protected abstract streamEvents(): Observable<TEvent> | Promise<Observable<TEvent>>;
 
   /**
    * Check if an event is of the type this processor emits

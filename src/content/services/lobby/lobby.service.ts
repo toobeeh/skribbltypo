@@ -4,6 +4,7 @@ import type { skribblLobby } from "../../../util/skribbl/lobby";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import { LobbyJoinedEventListener } from "../../events/lobby-joined.event";
 import { LobbyLeftEventListener } from "../../events/lobby-left.event";
+import { ElementsSetup } from "../../setups/elements/elements.setup";
 
 @injectable()
 export class LobbyService {
@@ -15,7 +16,8 @@ export class LobbyService {
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
     @inject(LobbyJoinedEventListener) private readonly lobbyJoined: LobbyJoinedEventListener,
-    @inject(LobbyLeftEventListener) private readonly lobbyLeft: LobbyLeftEventListener
+    @inject(LobbyLeftEventListener) private readonly lobbyLeft: LobbyLeftEventListener,
+    @inject(ElementsSetup) private readonly elementsSetup: ElementsSetup
   ) {
     this._logger = loggerFactory(this);
 
@@ -28,11 +30,18 @@ export class LobbyService {
     });
   }
 
-  public joinLobby(id?: string){
+  public async joinLobby(id?: string){
+
     if(this._currentLobby.value !== null) {
       this._logger.warn("Attempted to join a lobby while already in one");
       throw new Error("Already in a lobby");
     }
+
+    /* show loading */
+    const elements = await this.elementsSetup.complete();
+    elements.load.style.display = "block";
+    elements.home.style.display = "none";
+
     document.dispatchEvent(new CustomEvent("joinLobby", {detail: id}));
   }
 
