@@ -6,7 +6,7 @@ export class DeveloperModeFeature extends TypoFeature {
 
   @inject(GlobalSettingsService) private readonly _settings!: GlobalSettingsService;
 
-  override featureEnabledDefault = false;
+  protected override readonly featureEnabledDefault = false;
   public readonly name = "Developer Mode";
   public readonly description = "Adds some additional settings & experimental things";
   public readonly featureId = 16;

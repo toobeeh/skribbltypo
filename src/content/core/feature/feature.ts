@@ -45,6 +45,7 @@ export abstract class TypoFeature {
 
   @postConstruct()
   public init() {
+    this._isActivatedSetting.setDefaultValue(this.featureEnabledDefault); // derived class properties are not earlier available!
     this._isActivatedSetting.getValue().then((value) => {
       this._logger.debug("Feature loaded with activation state", value);
       if(value) this.activate();

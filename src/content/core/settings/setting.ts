@@ -9,7 +9,7 @@ export class ExtensionSetting<TValue extends string | number | boolean> {
 
   constructor(
     private readonly key: string,
-    private readonly defaultValue: TValue,
+    private defaultValue: TValue,
     private readonly feature?: TypoFeature
   ) {
     this.feature = feature;
@@ -24,7 +24,7 @@ export class ExtensionSetting<TValue extends string | number | boolean> {
 
   public async getValue(): Promise<TValue> {
     const string = await chrome.runtime.sendMessage({ type: "get setting", key: this.globalKey });
-    if(string === undefined || null) return this.defaultValue;
+    if(string === undefined || string === null) return this.defaultValue;
     const value = JSON.parse(string) as TValue;
     return value;
   }
@@ -41,6 +41,10 @@ export class ExtensionSetting<TValue extends string | number | boolean> {
 
   public get description() {
     return this._description;
+  }
+
+  public setDefaultValue(value: TValue) {
+    this.defaultValue = value;
   }
 
   public withName(name: string) {

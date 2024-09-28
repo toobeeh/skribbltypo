@@ -18,9 +18,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   else if(request.type === "get setting"){
-    chrome.storage.sync.get(request.key, (data) => {
-      sendResponse(data[request.key]);
-    });
+    (async () => {
+      const data = await chrome.storage.sync.get(request.key as string);
+      const item = data[request.key] ?? null;
+      sendResponse(item);
+    })();
     return true;
   }
 
