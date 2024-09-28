@@ -19,8 +19,6 @@
     return feature;
   }
 
-  $: logLevels = Object.fromEntries(logLevelSettings) as [TypoFeature, Writable<string>][];
-
 </script>
 
 <style lang="scss">
