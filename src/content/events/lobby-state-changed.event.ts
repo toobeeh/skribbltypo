@@ -8,6 +8,10 @@ import type { EventRegistration } from "../core/lifetime/lifecycle.service";
 import { GameSettingsSetup } from "../setups/game-settings/game-settings.setup";
 import { SkribblMessageRelaySetup } from "../setups/skribbl-message-relay/skribbl-message-relay.setup";
 
+/**
+ * Event emitted when the lobby state changes
+ * The state is eg drawing, choosing words, words revealed, etc.
+ */
 export class LobbyStateChangedEvent extends ApplicationEvent<lobbyStateUpdate> {
   constructor(public readonly data: lobbyStateUpdate) { super(); }
 }

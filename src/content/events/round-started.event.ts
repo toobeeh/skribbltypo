@@ -6,6 +6,10 @@ import { EventProcessor } from "../core/event/eventProcessor";
 import type { EventRegistration } from "../core/lifetime/lifecycle.service";
 import { SkribblMessageRelaySetup } from "../setups/skribbl-message-relay/skribbl-message-relay.setup";
 
+/**
+ * Event that is emitted when a new round starts.
+ * Data is the new round number.
+ */
 export class RoundStartedEvent extends ApplicationEvent<number> {
   constructor(public readonly data: number) { super(); }
 }

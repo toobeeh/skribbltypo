@@ -11,6 +11,10 @@ export interface wordGuessed {
   word?: string
 }
 
+/**
+ * Event that is emitted when a player guesses a word.
+ * If the client is the player, the result is also included.
+ */
 export class WordGuessedEvent extends ApplicationEvent<wordGuessed> {
   constructor(public readonly data: wordGuessed) { super(); }
 }

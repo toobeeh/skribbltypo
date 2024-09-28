@@ -5,6 +5,10 @@ import { EventListener } from "../core/event/eventListener";
 import { EventProcessor } from "../core/event/eventProcessor";
 import type { EventRegistration } from "../core/lifetime/lifecycle.service";
 
+/**
+ * Event emitted when the user leaves a lobby
+ * Practice leave is also emitted as synthetic event
+ */
 export class LobbyLeftEvent extends ApplicationEvent<null> {
   constructor(public readonly data: null) { super(); }
 }

@@ -25,6 +25,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     game: requireElement("#game"),
     gameWrapper: requireElement("#game-wrapper"),
     load: requireElement("#load"),
+    canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
     ...panels,
     toolbar
   };

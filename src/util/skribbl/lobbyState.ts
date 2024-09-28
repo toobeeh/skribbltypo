@@ -12,11 +12,7 @@ export interface lobbyStateUpdate {
     maxTime: number,
     drawerId: number,
   },
-  hintsUpdated?: {
-    newHints:[string, number][],
-  }
-
-
+  initialDrawerId?: number
 }
 
 export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined => { // eslint-disable-line  @typescript-eslint/no-explicit-any
@@ -31,9 +27,7 @@ export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined =
           maxTime: data.time as number,
           drawerId: data.data.id as number
         },
-        hintsUpdated: {
-          newHints: data.data.hints as [string, number][]
-        }
+        initialDrawerId: data.data.id as number | undefined
       };
     }
 
@@ -44,15 +38,6 @@ export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined =
           reason: data.data.reason === 1 ? "outOfTime" : "allGuessed",
           word: data.data.word as string,
           scores: arrayChunk(data.data.scores as number[], 3).map(([playerId, score, rewarded]) => ({playerId, score, rewarded}))
-        }
-      };
-    }
-
-    /* new hints added */
-    case 13: {
-      return {
-        hintsUpdated: {
-          newHints: data.data.hints as [string, number][]
         }
       };
     }

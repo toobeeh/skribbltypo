@@ -1,8 +1,10 @@
 import { DrawingService } from "@/content/services/drawing/drawing.service";
+import { LobbyService } from "@/content/services/lobby/lobby.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import { downloadBlob } from "@/util/download";
 import { inject } from "inversify";
-import { Subscription } from "rxjs";
+import { combineLatest, Subscription, take } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarSave from "./toolbar-save.svelte";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
@@ -11,6 +13,7 @@ import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 export class ToolbarSaveFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
+  @inject(LobbyService) private readonly _lobbyService!: LobbyService;
 
   public readonly name = "Save Image";
   public readonly description =
@@ -76,8 +79,26 @@ export class ToolbarSaveFeature extends TypoFeature {
     this._logger.debug("Saving in cloud");
   }
 
-  saveAsPng() {
-    this._logger.debug("Saving as png");
+  async saveAsPng() {
+    combineLatest({
+      blob: this._drawingService.getCurrentImageBlob(),
+      meta: this._drawingService.imageState$.pipe(take(1)),
+      lobby: this._lobbyService.lobby$.pipe(take(1)),
+    }).subscribe(({ blob, meta, lobby }) => {
+      if(!meta) {
+        this._logger.error("Failed to get image meta data, no drawing active?");
+        return;
+      }
+
+      if(!lobby) {
+        this._logger.error("Failed to get lobby, not joined?");
+        return;
+      }
+
+      const drawer = lobby.players.find(player => player.id === meta.drawerId)?.name ?? "unknown";
+
+      downloadBlob(blob, `skribbl-${meta.word.hints}-by-${drawer}.png`);
+    });
   }
 
   saveAsGif() {

@@ -15,6 +15,9 @@ export interface lobbyPlayerChanged {
   }
 }
 
+/**
+ * Event that is emitted when a player joins or leaves the lobby
+ */
 export class LobbyPlayerChangedEvent extends ApplicationEvent<lobbyPlayerChanged> {
   constructor(public readonly data: lobbyPlayerChanged) { super(); }
 }

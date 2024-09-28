@@ -18,7 +18,7 @@ export class LobbyService {
 
   private readonly _logger;
 
-  private _currentLobby = new BehaviorSubject<skribblLobby | null>(null);
+  private _currentLobby$ = new BehaviorSubject<skribblLobby | null>(null);
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -41,7 +41,7 @@ export class LobbyService {
       roundStarted.events$,
       wordGuessed.events$
     ).pipe(
-      withLatestFrom(this._currentLobby), /* compare updates with current lobby */
+      withLatestFrom(this._currentLobby$), /* compare updates with current lobby */
       map(data => ({update: data[0], currentLobby: data[1]})),
     ).subscribe(({update, currentLobby}) => {
 
@@ -98,7 +98,7 @@ export class LobbyService {
       }
 
       /* emit updated lobby */
-      this._currentLobby.next(currentLobby);
+      this._currentLobby$.next(currentLobby);
     });
 
     this.lobby$.subscribe(data => this._logger.info("Lobby changed", data));
@@ -106,7 +106,7 @@ export class LobbyService {
 
   public async joinLobby(id?: string){
 
-    if(this._currentLobby.value !== null) {
+    if(this._currentLobby$.value !== null) {
       this._logger.warn("Attempted to join a lobby while already in one");
       throw new Error("Already in a lobby");
     }
@@ -120,7 +120,7 @@ export class LobbyService {
   }
 
   public leaveLobby(){
-    if(this._currentLobby.value === null) {
+    if(this._currentLobby$.value === null) {
       this._logger.warn("Attempted to leave a lobby while not in one");
       throw new Error("Not in a lobby");
     }
@@ -128,7 +128,7 @@ export class LobbyService {
   }
 
   public get lobby$(){
-    return this._currentLobby.pipe(
+    return this._currentLobby$.pipe(
       debounceTime(100), /* debounce to prevent spamming */
       distinctUntilChanged((curr, prev) => JSON.stringify(curr) === JSON.stringify(prev)) /* if join-leave spam debounced, take only changes */
     );

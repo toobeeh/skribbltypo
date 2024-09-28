@@ -6,12 +6,16 @@ import { EventProcessor } from "../core/event/eventProcessor";
 import type { EventRegistration } from "../core/lifetime/lifecycle.service";
 import { SkribblMessageRelaySetup } from "../setups/skribbl-message-relay/skribbl-message-relay.setup";
 
-export class HintsAddedEvent extends ApplicationEvent<[string, number][]> {
-  constructor(public readonly data: [string, number][]) { super(); }
+/**
+ * Event that contains hint characters at their position, when new hints are added
+ * On lobby join, already existing hints are emitted
+ */
+export class HintsAddedEvent extends ApplicationEvent<[number, string][]> {
+  constructor(public readonly data: [number, string][]) { super(); }
 }
 
 @injectable()
-export class HintsAddedEventProcessor extends EventProcessor<[string, number][], HintsAddedEvent>
+export class HintsAddedEventProcessor extends EventProcessor<[number, string][], HintsAddedEvent>
 {
   @inject(SkribblMessageRelaySetup) _skribblMessageRelaySetup!: SkribblMessageRelaySetup;
 
@@ -22,13 +26,17 @@ export class HintsAddedEventProcessor extends EventProcessor<[string, number][],
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
 
     skribblMessages.subscribe((event) => {
+
+      /* inital lobby hints */
       if(event.id === 10){
-        const hints = (event.data.state.hints ?? []) as [string, number][];
+        const hints = (event.data.state.hints ?? []) as [number, string][];
         this._logger.info("Lobby joined", hints);
         events.next(new HintsAddedEvent(hints));
       }
+
+      /* new hints added */
       else if (event.id === 13){
-        const hints = (event.data ?? []) as [string, number][];
+        const hints = (event.data ?? []) as [number, string][];
         this._logger.info("Hints added", hints);
         events.next(new HintsAddedEvent(hints));
       }
@@ -38,11 +46,11 @@ export class HintsAddedEventProcessor extends EventProcessor<[string, number][],
 }
 
 @injectable()
-export class HintsAddedEventListener extends EventListener<[string, number][], HintsAddedEvent> {
+export class HintsAddedEventListener extends EventListener<[number, string][], HintsAddedEvent> {
   @inject(HintsAddedEventProcessor) protected readonly _processor!: HintsAddedEventProcessor;
 }
 
-export const hintsAddedEventRegistration: EventRegistration<[string, number][], HintsAddedEvent> = {
+export const hintsAddedEventRegistration: EventRegistration<[number, string][], HintsAddedEvent> = {
   listenerType: HintsAddedEventListener,
   processorType: HintsAddedEventProcessor
 };

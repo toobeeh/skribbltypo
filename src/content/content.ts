@@ -1,4 +1,5 @@
 import "@abraham/reflection";
+import { drawEventRegistration } from "@/content/events/draw.event";
 import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
 import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-player-changed.event";
 import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
@@ -65,7 +66,8 @@ lifecycle.registerEventProcessors(
   hintsAddedEventRegistration,
   lobbyPlayerChangedEventRegistration,
   roundStartedEventRegistration,
-  wordGuessedEventRegistration
+  wordGuessedEventRegistration,
+  drawEventRegistration
 );
 
 /* register application features */
