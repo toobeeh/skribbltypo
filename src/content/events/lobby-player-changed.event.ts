@@ -4,7 +4,7 @@ import { Observable, Subject } from "rxjs";
 import { ApplicationEvent } from "../core/event/applicationEvent";
 import { EventListener } from "../core/event/eventListener";
 import { EventProcessor } from "../core/event/eventProcessor";
-import type { EventRegistration } from "../core/lifetime/lifecycle.service";
+import type { EventRegistration } from "@/content/core/extension-container/extension-container";
 import { SkribblMessageRelaySetup } from "../setups/skribbl-message-relay/skribbl-message-relay.setup";
 
 export interface lobbyPlayerChanged {
@@ -34,6 +34,8 @@ export class LobbyPlayerChangedEventProcessor extends EventProcessor<lobbyPlayer
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
 
     skribblMessages.subscribe((event) => {
+
+      /* player joined lobby */
       if(event.id === 1){
         const data: lobbyPlayerChanged = {
           joined: event.data as skribblPlayer
@@ -42,6 +44,8 @@ export class LobbyPlayerChangedEventProcessor extends EventProcessor<lobbyPlayer
         this._logger.info("Player joined", data);
         events.next(new LobbyPlayerChangedEvent(data));
       }
+
+      /* player left lobby */
       else if (event.id === 2){
         const data: lobbyPlayerChanged = {
           left: {

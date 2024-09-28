@@ -3,7 +3,7 @@ import { Observable, Subject } from "rxjs";
 import { ApplicationEvent } from "../core/event/applicationEvent";
 import { EventListener } from "../core/event/eventListener";
 import { EventProcessor } from "../core/event/eventProcessor";
-import type { EventRegistration } from "../core/lifetime/lifecycle.service";
+import type { EventRegistration } from "@/content/core/extension-container/extension-container";
 
 /**
  * Event emitted when the user leaves a lobby

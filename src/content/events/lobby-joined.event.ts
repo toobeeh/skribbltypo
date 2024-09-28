@@ -4,7 +4,7 @@ import { parseSkribblLobbyDataEvent, type skribblLobby } from "../../util/skribb
 import { ApplicationEvent } from "../core/event/applicationEvent";
 import { EventListener } from "../core/event/eventListener";
 import { EventProcessor } from "../core/event/eventProcessor";
-import type { EventRegistration } from "../core/lifetime/lifecycle.service";
+import type { EventRegistration } from "@/content/core/extension-container/extension-container";
 import { GameSettingsSetup } from "../setups/game-settings/game-settings.setup";
 import { SkribblMessageRelaySetup } from "../setups/skribbl-message-relay/skribbl-message-relay.setup";
 

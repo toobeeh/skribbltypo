@@ -1,9 +1,7 @@
 import { Container } from "inversify";
 import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../event/events.service";
-import { Observable, ReplaySubject, Subject } from "rxjs";
 import { isEarlySetup } from "../setup/earlySetup.decorator";
-import type { LifecycleEvent } from "./lifecycleEvents.interface";
 import { EventProcessor} from "../event/eventProcessor";
 import { EventListener } from "../event/eventListener";
 import { ApplicationEvent } from "../event/applicationEvent";
@@ -20,16 +18,13 @@ export interface EventRegistration<TData, TEvent extends ApplicationEvent<TData>
    listenerType: Type<EventListener<TData, TEvent>>;
 }
 
-export class LifecycleService {
+export class ExtensionContainer {
 
    /**
     * Root dependency injection container.
     * @private
     */
    private readonly _diContainer = new Container();
-
-   private readonly _events$ = new Subject<LifecycleEvent>;
-   private readonly _eventsWithHistory$ = new ReplaySubject<LifecycleEvent>();
 
    private readonly _logger;
    private readonly _events;
@@ -42,53 +37,7 @@ export class LifecycleService {
       this._logger = this._diContainer.get<loggerFactory>(loggerFactory)(this);
       this._events = this._diContainer.get(EventsService);
 
-      this._logger.debug("LifecycleService initialized");
-      this.setupEvents();
-   }
-
-   /**
-    * Observable which emits lifecycle events as they happen.
-    */
-   public get events$(): Observable<LifecycleEvent> {
-      return this._events$;
-   }
-
-   /**
-    * Observable which emits lifecycle events, inclusive all events that happened before.
-    */
-   public get eventsWithHistory$(): Observable<LifecycleEvent> {
-      return this._eventsWithHistory$;
-   }
-
-   /**
-    * Sets up the lifecycle events subjects
-    * @private
-    */
-   private setupEvents() {
-
-      /* emit to history when event happened */
-      this._events$.subscribe((event) => {
-         this._eventsWithHistory$.next(event);
-      });
-
-      /* listen for dom load or dispatch immediately if already laoded */
-      document.addEventListener("patchExecuted", () => {
-         this._logger.debug("patchExecuted event fired");
-         this._events$.next({
-            name: "patchExecuted",
-            data: { document }
-         });
-      });
-
-      /* listen for dom load or dispatch immediately if already laoded */
-      document.addEventListener("scriptStopped", () => {
-
-         this._logger.debug("scriptStopped event fired");
-         this._events$.next({
-            name: "scriptStopped",
-            data: { document }
-         });
-      });
+      this._logger.debug("Extension container initialized");
    }
 
    /**
@@ -114,6 +63,7 @@ export class LifecycleService {
          /* bind respective event listener */
          this._diContainer.bind(event.listenerType).toSelf().inRequestScope();
       });
+      return this;
    }
 
    public registerFeatures(...features: Type<TypoFeature>[]){
@@ -127,6 +77,7 @@ export class LifecycleService {
          const featureInstance = this._diContainer.get(feature);
          featureInstance.activate();
       });
+      return this;
    }
 
    public registerSetups(...setups: Type<Setup<unknown>>[]){
@@ -138,6 +89,7 @@ export class LifecycleService {
             this._diContainer.get(setup).complete();
          }
       });
+      return this;
    }
 
    public registerServices(...services: { type: Type<unknown>, scope: "singleton" | "scoped" }[]) {
@@ -149,5 +101,6 @@ export class LifecycleService {
             this._diContainer.bind(service.type).toSelf();
          }
       });
+      return this;
    }
 }

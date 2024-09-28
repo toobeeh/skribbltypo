@@ -59,8 +59,8 @@ It has the most complex structure; divided into *core*, *setup*, *events* and *f
 - *features* contains modules that implement specific features on the page
 
 #### Core 
-The core module contains the lifecycle class, which is the entrypoint to the content script.  
-It manages the different stages and the dependency injection container for the application.
+The core module contains the extension container class, which is the entrypoint to the content script.  
+It manages the dependency injection container for the application and is the central point for configuration.
 
 Core also contains abstractions of the feature, event and setup modules, which are implemented in the respective folders.  
 Furthermore, there are a few services (`*.service.ts`) that are vital to the abstract classes:

@@ -1,9 +1,9 @@
+import type { EventRegistration } from "@/content/core/extension-container/extension-container";
 import { inject, injectable } from "inversify";
 import { Observable, Subject } from "rxjs";
 import { ApplicationEvent } from "../core/event/applicationEvent";
 import { EventListener } from "../core/event/eventListener";
 import { EventProcessor } from "../core/event/eventProcessor";
-import type { EventRegistration } from "../core/lifetime/lifecycle.service";
 import { SkribblMessageRelaySetup } from "../setups/skribbl-message-relay/skribbl-message-relay.setup";
 
 export interface wordGuessed {
