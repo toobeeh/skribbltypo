@@ -1,4 +1,4 @@
-import { FeaturesService } from "@/content/core/feature/fetures.service";
+import { FeaturesService } from "@/content/core/feature/features.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject } from "inversify";
@@ -16,6 +16,7 @@ export class ControlsSettingsFeature extends TypoFeature {
   public readonly description =
     "Manage the features of typo";
   public override readonly toggleEnabled = false;
+  public readonly featureId = 1;
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

@@ -13,6 +13,7 @@ export class ToolbarChallengesFeature extends TypoFeature {
   public readonly name = "Challenges";
   public readonly description =
     "Adds the option to enable game modifications to make the game more challenging";
+  public readonly featureId = 8;
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

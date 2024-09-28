@@ -10,6 +10,7 @@ export class ToolbarFullscreenFeature extends TypoFeature {
   public readonly name = "Fullscreen";
   public readonly description =
     "Adds a toggle in-game to quickly enter/exit the browser fullscreen mode";
+  public readonly featureId = 9;
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

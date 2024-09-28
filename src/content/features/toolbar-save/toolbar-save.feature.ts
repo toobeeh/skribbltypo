@@ -18,6 +18,7 @@ export class ToolbarSaveFeature extends TypoFeature {
   public readonly name = "Save Image";
   public readonly description =
     "Adds an icon to the typo toolbar to save the current image locally, to cloud, as gif or as draw command file";
+  public readonly featureId = 12;
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

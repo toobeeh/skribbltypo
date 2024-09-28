@@ -41,12 +41,18 @@
       min-width: clamp(20em, 20em, 100%);
       max-width: clamp(20em, 20em, 100%);
       background-color: var(--COLOR_PANEL_HI);
-      border-radius: 1rem;
+      border-radius: 3px;
       display: flex;
       flex-direction: column;
       gap: 1rem;
       padding: 1rem;
       flex: 1 1 0px;
+
+      .description{
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+      }
 
       .name-toggle {
         display:flex;
@@ -109,7 +115,7 @@
       </div>
 
       <!--description-->
-      <div>{feat.description}</div>
+      <div class="description">{feat.description}</div>
     </div>
 
   {/each}

@@ -11,6 +11,7 @@ export class PanelCabinFeature extends TypoFeature {
 
   public readonly name = "Sprite Cabin";
   public readonly description = "Displays a drag-n-drop interface on the start page to customize your sprite combo";
+  public readonly featureId = 3;
 
   protected override async onActivate() {
     const elements = await this._elements.complete();

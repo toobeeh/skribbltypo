@@ -14,6 +14,7 @@ export class UserInfoFeature extends TypoFeature {
 
   public readonly name = "User Info";
   public readonly description = "Shows information about the logged-in user beneath the avatar selection";
+  public readonly featureId = 13;
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();

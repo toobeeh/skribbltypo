@@ -98,7 +98,7 @@
   }
 
   div.content-top {
-    backdrop-filter: blur(4px);
+    /*backdrop-filter: blur(4px);*/
     position: fixed;
     top: 7vh;
     z-index: 9999;
@@ -128,7 +128,7 @@
 </style>
 
 <div class="backdrop" role="presentation" class:closing={closing} on:click={() => close()}></div>
-<div class="content-top" class:closing={closing}></div>
+<div class="content-top" role="presentation" class:closing={closing} on:click={() => close()}></div>
 
 <div class="content" class:closing={closing}>
   

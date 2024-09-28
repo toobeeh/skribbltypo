@@ -11,6 +11,7 @@ export class LobbyNavigationFeature extends TypoFeature {
 
   public readonly name = "Lobby Navigation";
   public readonly description = "Show a navigation bar in-game to exit or skip the current lobby";
+  public readonly featureId = 2;
 
   private _component?: LobbyNavigation;
 

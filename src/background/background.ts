@@ -16,4 +16,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   else if (request.type === "set token") {
     chrome.storage.sync.set({ token: request.token });
   }
+
+  else if(request.type === "get setting"){
+    chrome.storage.sync.get(request.key, (data) => {
+      sendResponse(data[request.key]);
+    });
+    return true;
+  }
+
+  else if(request.type === "set setting"){
+    chrome.storage.sync.set({ [request.key]: request.value });
+  }
 });

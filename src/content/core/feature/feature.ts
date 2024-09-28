@@ -1,8 +1,12 @@
-import { inject, injectable } from "inversify";
+import { ExtensionSetting } from "@/content/core/settings/setting";
+import { inject, injectable, postConstruct } from "inversify";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 
 @injectable()
 export abstract class TypoFeature {
+
+  protected readonly featureEnabledDefault: boolean = true;
+  private _isActivatedSetting = new ExtensionSetting<boolean>("isActivated", this.featureEnabledDefault, this);
 
   private _isActivated = false;
   private _isRun = false;
@@ -10,6 +14,11 @@ export abstract class TypoFeature {
   public abstract readonly name: string;
   public abstract readonly description: string;
   public readonly toggleEnabled: boolean = true;
+
+  /**
+   * unique feature ID, to store settings
+   */
+  public abstract readonly featureId: number;
 
   protected onRun(): Promise<void> | void {
     this._logger.debug("onRun not implemented");
@@ -33,11 +42,19 @@ export abstract class TypoFeature {
     this._logger = loggerFactory(this);
   }
 
+  @postConstruct()
+  public init() {
+    this._isActivatedSetting.getValue().then((value) => {
+      this._logger.debug("Feature loaded with activation state", value);
+      if(value) this.activate();
+    });
+  }
+
   /**
    * Run the feature.
    * The feature needs to be activated before running.
    */
-  public run() {
+  public async run() {
     if(!this._isActivated) {
       this._logger.warn("Attempted to activate feature without activation");
       throw new Error("Feature is not activated");
@@ -49,7 +66,9 @@ export abstract class TypoFeature {
     }
 
     this._logger.info("Running feature");
-    this.onRun();
+    const run = this.onRun();
+    if(run instanceof Promise) await run;
+
     this._isRun = true;
   }
 
@@ -58,7 +77,7 @@ export abstract class TypoFeature {
    * The feature needs to be activated before freezing.
    * A frozen feature can be activated again.
    */
-  public freeze() {
+  public async freeze() {
     if(!this._isActivated) {
       this._logger.warn("Attempted to freeze feature without activation");
       throw new Error("Feature is not activated");
@@ -70,7 +89,9 @@ export abstract class TypoFeature {
     }
 
     this._logger.info("Freezing feature");
-    this.onFreeze();
+    const freeze = this.onFreeze();
+    if(freeze instanceof Promise) await freeze;
+
     this._isRun = false;
   }
 
@@ -89,9 +110,10 @@ export abstract class TypoFeature {
     const activate = this.onActivate();
     if(activate instanceof Promise) await activate;
     this._isActivated = true;
+    await this._isActivatedSetting.setValue(true);
 
-   const run = this.onRun();
-   if(run instanceof Promise) await run;
+    const run = this.onRun();
+    if(run instanceof Promise) await run;
     this._isRun = true;
   }
 
@@ -115,6 +137,7 @@ export abstract class TypoFeature {
     const destroy = this.onDestroy();
     if(destroy instanceof Promise) await destroy;
     this._isActivated = false;
+    await this._isActivatedSetting.setValue(false);
   }
 
   public get state() {

@@ -1,4 +1,4 @@
-import { FeaturesService } from "@/content/core/feature/fetures.service";
+import { FeaturesService } from "@/content/core/feature/features.service";
 import { Container } from "inversify";
 import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../event/events.service";

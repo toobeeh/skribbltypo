@@ -11,6 +11,7 @@ export class PanelFiltersFeature extends TypoFeature {
 
   public readonly name = "Lobby Filters";
   public readonly description = "Lets you create custom filters for a quick lobby search";
+  public readonly featureId = 5;
 
   protected override async onActivate() {
     const elements = await this._elements.complete();

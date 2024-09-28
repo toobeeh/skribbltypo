@@ -13,6 +13,7 @@ export class ToolbarImagePostFeature extends TypoFeature {
   public readonly name = "Image Poster";
   public readonly description =
     "Adds an icon to the typo toolbar to send images from your lobby directly to one of your connected discord servers";
+  public readonly featureId = 11;
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

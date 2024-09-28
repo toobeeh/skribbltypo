@@ -13,6 +13,7 @@ export class PanelNewsFeature extends TypoFeature {
 
   public readonly name = "Typo News";
   public readonly description = "Displays updates and typo hints on the start page";
+  public readonly featureId = 7;
 
   protected override async onActivate() {
     const elements = await this._elements.complete();

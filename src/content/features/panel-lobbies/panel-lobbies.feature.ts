@@ -11,6 +11,7 @@ export class PanelLobbiesFeature extends TypoFeature {
 
   public readonly name = "Lobby List";
   public readonly description = "Displays online players from your connected discord servers on the start page";
+  public readonly featureId = 6;
 
   protected override async onActivate() {
     const elements = await this._elements.complete();

@@ -13,6 +13,7 @@ export class ToolbarImageLabFeature extends TypoFeature {
   public readonly name = "Image Laboratory";
   public readonly description =
     "Adds an icon to the typo toolbar to save or paste skribbl drawings (SKDs) to a lobby";
+  public readonly featureId = 10;
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

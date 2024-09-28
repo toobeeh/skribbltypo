@@ -11,6 +11,7 @@ export class PanelChangelogFeature extends TypoFeature {
 
   public readonly name = "Changelog";
   public readonly description = "Displays a list of changes since the last updates on the start page";
+  public readonly featureId = 4;
 
   protected override async onActivate() {
     const elements = await this._elements.complete();
