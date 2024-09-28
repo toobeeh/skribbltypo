@@ -74,6 +74,3 @@ Promise.all([scriptStopped, contentScriptLoaded, tokenProcessed]).then(() => {
   };
   document.body.appendChild(patch);
 });
-
-
-

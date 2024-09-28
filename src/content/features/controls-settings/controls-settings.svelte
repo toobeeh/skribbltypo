@@ -1,8 +1,10 @@
 <script lang="ts">
   import type { TypoFeature } from "@/content/core/feature/feature";
   import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
+  import { type Writable } from "svelte/store";
 
   export let feature: ControlsSettingsFeature;
+  const devMode = feature.devModeStore;
 
   const toggleFeature = async (feature: TypoFeature) => {
     if(feature.toggleEnabled === false) return feature;
@@ -16,7 +18,9 @@
 
     return feature;
   }
-  
+
+  $: logLevels = Object.fromEntries(logLevelSettings) as [TypoFeature, Writable<string>][];
+
 </script>
 
 <style lang="scss">
@@ -47,8 +51,23 @@
       gap: 1rem;
       padding: 1rem;
       flex: 1 1 0px;
+      position: relative;
 
-      .description{
+      &.devMode .feature-id {
+        display: block;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        user-select: none;
+        opacity: .5;
+        padding: .2rem;
+      }
+
+      .feature-id {
+        display: none;
+      }
+
+      .description {
         flex-grow: 1;
         display: flex;
         align-items: center;
@@ -99,7 +118,7 @@
   {#each feature.features as feat}
 
     <!-- container box for a feature, works as toggle-->
-    <div class="typo-feature-item"
+    <div class="typo-feature-item" class:devMode={$devMode}
     >
       <!-- icon with name -->
       <div class="name-toggle" role="button" tabindex="0"
@@ -115,7 +134,12 @@
       </div>
 
       <!--description-->
-      <div class="description">{feat.description}</div>
+      <div class="description">
+        {feat.description}
+      </div>
+
+      <!-- feature id in dev mode -->
+      <div class="feature-id">#{feat.featureId}</div>
     </div>
 
   {/each}

@@ -4,9 +4,13 @@ import { hintsAddedEventRegistration } from "@/content/events/hints-added.event"
 import { imageResetEventRegistration } from "@/content/events/image-reset.event";
 import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-player-changed.event";
 import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
+import { messageReceivedEventRegistration } from "@/content/events/message-received.event";
+import { messageSentEventRegistration } from "@/content/events/message-sent.event";
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
+import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
+import { DeveloperModeFeature } from "@/content/features/developer-mode/developer-mode.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
@@ -18,6 +22,7 @@ import { ToolbarImagePostFeature } from "@/content/features/toolbar-imagepost/to
 import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save.feature";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
+import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { LoggerService } from "./core/logger/logger.service";
@@ -51,7 +56,8 @@ new ExtensionContainer()
     {type: MemberService, scope: "singleton"},
     {type: TokenService, scope: "singleton"},
     {type: LobbyService, scope: "singleton"},
-    {type: DrawingService, scope: "singleton"}
+    {type: DrawingService, scope: "singleton"},
+    {type: GlobalSettingsService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
@@ -72,7 +78,9 @@ new ExtensionContainer()
     roundStartedEventRegistration,
     wordGuessedEventRegistration,
     drawEventRegistration,
-    imageResetEventRegistration
+    imageResetEventRegistration,
+    messageSentEventRegistration,
+    messageReceivedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,
@@ -87,7 +95,9 @@ new ExtensionContainer()
     PanelChangelogFeature,
     PanelLobbiesFeature,
     PanelCabinFeature,
-    PanelFiltersFeature
+    PanelFiltersFeature,
+    ChatRecallFeature,
+    DeveloperModeFeature
 );
 
 /* indicate for interceptor that content script has loaded */

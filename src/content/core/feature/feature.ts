@@ -7,6 +7,7 @@ export abstract class TypoFeature {
 
   protected readonly featureEnabledDefault: boolean = true;
   private _isActivatedSetting = new ExtensionSetting<boolean>("isActivated", this.featureEnabledDefault, this);
+  private _logLevelSetting = new ExtensionSetting<string>("logLevel", "", this);
 
   private _isActivated = false;
   private _isRun = false;
@@ -48,6 +49,17 @@ export abstract class TypoFeature {
       this._logger.debug("Feature loaded with activation state", value);
       if(value) this.activate();
     });
+
+    this._logLevelSetting.changes$.subscribe((value) => {
+      if(value !== "info" && value !== "debug" && value !== "warn" && value !== "error") {
+        return;
+      }
+      this._logger.level = value;
+    });
+  }
+
+  public get logLevel(){
+    return this._logLevelSetting;
   }
 
   /**

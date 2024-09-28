@@ -1,6 +1,8 @@
 import { FeaturesService } from "@/content/core/feature/features.service";
+import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
 import { Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
@@ -11,6 +13,7 @@ export class ControlsSettingsFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ModalService) private readonly _modalService!: ModalService;
   @inject(FeaturesService) private readonly _featuresService!: FeaturesService;
+  @inject(GlobalSettingsService) private readonly _settings!: GlobalSettingsService;
 
   public readonly name = "Typo Settings";
   public readonly description =
@@ -54,5 +57,9 @@ export class ControlsSettingsFeature extends TypoFeature {
 
   public get features(){
     return this._featuresService.features;
+  }
+
+  public get devModeStore() {
+    return fromObservable(this._settings.settings.devMode.changes$, false);
   }
 }

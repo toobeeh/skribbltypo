@@ -18,6 +18,14 @@ export class LoggerService {
     this._level = level;
   }
 
+  private _level?: level;
+  public set level(level: level | undefined) {
+    this._level = level;
+  }
+  public get level(): level {
+    return this._level ?? LoggerService._level;
+  }
+
   private readonly _prefix = "skribbltypo";
   private readonly _levels: {[key in level]: number} = {
     "debug": 1 ,
@@ -43,7 +51,7 @@ export class LoggerService {
    * @param data Additional data that will be inspectable in the console.
    */
   debug(message: unknown, ...data: unknown[]) {
-    if(this._levels[LoggerService._level] > this._levels["debug"]) return;
+    if(this._levels[this.level] > this._levels["debug"]) return;
 
     console.log(`%c ${this.getTimestamp()} %c[${this._prefix}] [DEB]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.debug, message, ...data);
   }
@@ -54,7 +62,7 @@ export class LoggerService {
    * @param data Additional data that will be inspectable in the console.
    */
   info(message: unknown, ...data: unknown[]) {
-    if(this._levels[LoggerService._level] > this._levels["info"]) return;
+    if(this._levels[this.level] > this._levels["info"]) return;
 
     console.log(`%c ${this.getTimestamp()} %c[${this._prefix}] [INFO] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.info, message, ...data);
   }
@@ -65,7 +73,7 @@ export class LoggerService {
    * @param data Additional data that will be inspectable in the console.
    */
   warn(message: unknown, ...data: unknown[]) {
-    if(this._levels[LoggerService._level] > this._levels["warn"]) return;
+    if(this._levels[this.level] > this._levels["warn"]) return;
 
     console.warn(`%c ${this.getTimestamp()} %c[${this._prefix}] [WARN] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.warn, message, ...data);
   }
@@ -76,7 +84,7 @@ export class LoggerService {
    * @param data Additional data that will be inspectable in the console.
    */
   error(message: unknown, ...data: unknown[]) {
-    if(this._levels[LoggerService._level] > this._levels["error"]) return;
+    if(this._levels[this.level] > this._levels["error"]) return;
 
     console.error(`%c ${this.getTimestamp()} %c[${this._prefix}] [ERR]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.error, message, ...data);
   }
