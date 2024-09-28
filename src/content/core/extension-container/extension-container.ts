@@ -1,3 +1,4 @@
+import { FeaturesService } from "@/content/core/feature/fetures.service";
 import { Container } from "inversify";
 import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../event/events.service";
@@ -28,14 +29,14 @@ export class ExtensionContainer {
 
    private readonly _logger;
    private readonly _events;
-
-   private readonly _features: Type<TypoFeature>[] = [];
+   private readonly _features;
 
    public constructor() {
       this.bindCoreServices();
 
       this._logger = this._diContainer.get<loggerFactory>(loggerFactory)(this);
       this._events = this._diContainer.get(EventsService);
+      this._features = this._diContainer.get(FeaturesService);
 
       this._logger.debug("Extension container initialized");
    }
@@ -52,6 +53,7 @@ export class ExtensionContainer {
           };
       });
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
+      this._diContainer.bind(FeaturesService).toSelf().inSingletonScope();
    }
 
    public registerEventProcessors(...events: EventRegistration<unknown, ApplicationEvent<unknown>>[]) {
@@ -71,11 +73,8 @@ export class ExtensionContainer {
 
          /* add feature to container */
          this._diContainer.bind(feature).toSelf().inSingletonScope();
-         this._features.push(feature);
-
-         /* activate feature; feature can delay activation by expressing dependencies via setups */
          const featureInstance = this._diContainer.get(feature);
-         featureInstance.activate();
+         this._features.registerFeature(featureInstance);
       });
       return this;
    }

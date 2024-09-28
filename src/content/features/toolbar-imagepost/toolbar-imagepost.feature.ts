@@ -10,9 +10,9 @@ import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 export class ToolbarImagePostFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
 
-  public readonly name = "Post Image";
+  public readonly name = "Image Poster";
   public readonly description =
-    "Send images of you lobby directly to one of your connected discord servers";
+    "Adds an icon to the typo toolbar to send images from your lobby directly to one of your connected discord servers";
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

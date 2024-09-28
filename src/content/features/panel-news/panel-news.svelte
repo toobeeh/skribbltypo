@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { TypoNewsFeature } from "./typo-news.feature.js";
-  export let feature: TypoNewsFeature;
+  import { PanelNewsFeature } from "./panel-news.feature";
+  export let feature: PanelNewsFeature;
 </script>
 
 <style lang="scss">
@@ -11,13 +11,11 @@
 
     > .news {
       white-space: pre;
+      text-wrap: pretty;
     }
   }
 </style>
 
 <div class="typo-news">
   <div class="news">{feature.news}</div>
-
-  <input type="button" value="Open popup" on:click={() => feature.modalTest()}>
-
 </div>

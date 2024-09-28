@@ -6,6 +6,11 @@ import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-play
 import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
+import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
+import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
+import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
+import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
+import { PanelLobbiesFeature } from "@/content/features/panel-lobbies/panel-lobbies.feature";
 import { ToolbarChallengesFeature } from "@/content/features/toolbar-challenges/toolbar-challenges.feature";
 import { ToolbarFullscreenFeature } from "@/content/features/toolbar-fullscreen/toolbar-fullscreen.feature";
 import { ToolbarImageLabFeature } from "@/content/features/toolbar-imagelab/toolbar-imagelab.feature";
@@ -13,6 +18,7 @@ import { ToolbarImagePostFeature } from "@/content/features/toolbar-imagepost/to
 import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save.feature";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
+import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { LoggerService } from "./core/logger/logger.service";
 import { lobbyJoinedEventRegistration } from "./events/lobby-joined.event";
@@ -21,7 +27,7 @@ import { LobbyNavigationFeature } from "./features/lobby-navigation/lobby-naviga
 import { LobbyService } from "./services/lobby/lobby.service";
 import { TokenService } from "./services/token/token.service";
 import { UserInfoFeature } from "./features/user-info/user-info.feature";
-import { TypoNewsFeature } from "./features/typo-news/typo-news.feature";
+import { PanelNewsFeature } from "@/content/features/panel-news/panel-news.feature";
 import { ApiService } from "./services/api/api.service";
 import { MemberService } from "./services/member/member.service";
 import { ModalService } from "./services/modal/modal.service";
@@ -54,7 +60,8 @@ new ExtensionContainer()
     GamePatchReadySetup,
     SkribblMessageRelaySetup,
     ToolbarSetup,
-    SkribblEmitRelaySetup
+    SkribblEmitRelaySetup,
+    ControlsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
@@ -69,13 +76,18 @@ new ExtensionContainer()
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,
-    TypoNewsFeature,
+    PanelNewsFeature,
     LobbyNavigationFeature,
     ToolbarSaveFeature,
     ToolbarImagePostFeature,
     ToolbarChallengesFeature,
     ToolbarFullscreenFeature,
-    ToolbarImageLabFeature
+    ToolbarImageLabFeature,
+    ControlsSettingsFeature,
+    PanelChangelogFeature,
+    PanelLobbiesFeature,
+    PanelCabinFeature,
+    PanelFiltersFeature
 );
 
 /* indicate for interceptor that content script has loaded */

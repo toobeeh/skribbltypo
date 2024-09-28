@@ -1,4 +1,4 @@
-import { fromObservable } from "../../../util/store/fromObservable";
+import { fromObservable } from "@/util/store/fromObservable";
 import { MemberService } from "../../services/member/member.service";
 import UserInfo from "./user-info.svelte";
 import { TypoFeature } from "../../core/feature/feature";
@@ -12,8 +12,8 @@ export class UserInfoFeature extends TypoFeature {
 
   private _element?: UserInfo;
 
-  public readonly name = "User info";
-  public readonly description = "Show user information beneath the avatar selection";
+  public readonly name = "User Info";
+  public readonly description = "Shows information about the logged-in user beneath the avatar selection";
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -24,6 +24,10 @@ export class UserInfoFeature extends TypoFeature {
         feature: this
       },
     });
+  }
+
+  protected override onDestroy() {
+    this._element?.$destroy();
   }
 
   get memberStore() {

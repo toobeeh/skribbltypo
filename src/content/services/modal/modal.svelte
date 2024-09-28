@@ -61,11 +61,13 @@
     background: var(--COLOR_PANEL_BG);
     z-index: 9999;
     animation: slideIn 0.15s ease-out;
+    backdrop-filter: blur(4px);
 
     display: flex;
     flex-direction: column;
     align-items: center;
     color: var(--COLOR_PANEL_TEXT);
+    padding-bottom: 2rem;
 
     &.closing {
       animation: slideOut 0.15s ease-out;
@@ -96,6 +98,7 @@
   }
 
   div.content-top {
+    backdrop-filter: blur(4px);
     position: fixed;
     top: 7vh;
     z-index: 9999;
@@ -134,6 +137,6 @@
     <h1>{title}</h1>
     <div role="button" tabindex="0" class:closing={closing} on:keypress={(e) => e.key === "Alt" && close()} on:click={() => close()}>×</div>
   </div>
-  
+
   <svelte:component this={componentData.componentType} {...componentData.props} />
 </div>

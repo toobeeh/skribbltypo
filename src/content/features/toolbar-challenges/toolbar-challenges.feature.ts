@@ -12,7 +12,7 @@ export class ToolbarChallengesFeature extends TypoFeature {
 
   public readonly name = "Challenges";
   public readonly description =
-    "Select game modifications to make the game more challenging";
+    "Adds the option to enable game modifications to make the game more challenging";
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

@@ -2,6 +2,7 @@
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
   import type { ToolbarSaveFeature } from "./toolbar-save.feature";
   export let feature: ToolbarSaveFeature;
+  feature.customName = "";
 </script>
 
 <style lang="scss">
@@ -15,6 +16,7 @@
 </style>
 
 <div class="typo-toolbar-save-actions">
+  <input type="text" class="typo" placeholder="Custom image name" bind:value={feature.customName} />
   <FlatButton content="Download PNG" color="green" on:click={() => feature.saveAsPng()}  />
   <FlatButton content="Download GIF" color="green" on:click={() => feature.saveAsGif()} />
   <FlatButton content="Download Draw Commands" color="green" on:click={() => feature.saveAsDrawCommands()} />

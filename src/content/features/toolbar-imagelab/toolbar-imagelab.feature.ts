@@ -10,9 +10,9 @@ import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 export class ToolbarImageLabFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
 
-  public readonly name = "Challenges";
+  public readonly name = "Image Laboratory";
   public readonly description =
-    "Select game modifications to make the game more challenging";
+    "Adds an icon to the typo toolbar to save or paste skribbl drawings (SKDs) to a lobby";
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

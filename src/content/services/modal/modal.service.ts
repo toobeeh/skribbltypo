@@ -21,7 +21,7 @@ export class ModalService {
   }
 
   public showModal<TComponent extends SvelteComponent>(
-    componentType: Type<TComponent>, args: ComponentProps<TComponent>): void {
+    componentType: Type<TComponent>, args: ComponentProps<TComponent>, title: string): void {
     const componentData: componentData<TComponent> = {componentType: componentType, props: args};
     const modal = new Modal({
       target: document.body,
@@ -30,7 +30,7 @@ export class ModalService {
         closeHandler: () => {
           modal.$destroy();
         },
-        title: "Modal Title"
+        title
       }
     });
   }

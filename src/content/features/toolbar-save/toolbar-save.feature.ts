@@ -17,13 +17,22 @@ export class ToolbarSaveFeature extends TypoFeature {
 
   public readonly name = "Save Image";
   public readonly description =
-    "Save the current image locally, to cloud, as gif or as draw command file";
+    "Adds an icon to the typo toolbar to save the current image locally, to cloud, as gif or as draw command file";
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
 
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
+
+  private _customName?: string;
+  public set customName(value: string | undefined){
+    const val = value?.replace(/[^a-z0-9]/gi, "_").toLowerCase() ?? undefined;
+    this._customName = val && val.length > 0 ? val : undefined;
+  }
+  public get customName(){
+    return this._customName;
+  }
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -96,7 +105,7 @@ export class ToolbarSaveFeature extends TypoFeature {
       }
 
       const drawer = lobby.players.find(player => player.id === meta.drawerId)?.name ?? "unknown";
-      downloadBlob(blob, `skribbl-${meta.word.hints}-by-${drawer}.png`);
+      downloadBlob(blob, (this._customName ?? `skribbl-${meta.word.hints}-by-${drawer}`) + ".png");
     });
   }
 
@@ -124,7 +133,7 @@ export class ToolbarSaveFeature extends TypoFeature {
 
       const json = JSON.stringify(commands);
       const drawer = lobby.players.find(player => player.id === meta.drawerId)?.name ?? "unknown";
-      downloadText(json, `skribbl-${meta.word.hints}-by-${drawer}.skd`);
+      downloadText(json, (this._customName ?? `skribbl-${meta.word.hints}-by-${drawer}`) + ".skd");
     });
   }
 

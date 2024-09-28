@@ -12,13 +12,19 @@ h2, h3 {
   --COLOR_BUTTON_NORMAL_TEXT: hsl(0, 0%, 100%);
 }
 
-.color-scrollbar ::-webkit-scrollbar {
+.color-scrollbar::-webkit-scrollbar, .color-scrollbar ::-webkit-scrollbar {
   width: 14px;
   border-radius: 7px;
   background-color: var(--COLOR_PANEL_LO)
 }
 
-.color-scrollbar ::-webkit-scrollbar-thumb {
+.color-scrollbar::-webkit-scrollbar-thumb, .color-scrollbar ::-webkit-scrollbar-thumb {
   border-radius: 7px;
   background-color: var(--COLOR_PANEL_HI)
+}
+
+input.typo[type="text"]{
+  border-radius: .5rem;
+  font-weight: 600;
+  padding: .5rem;
 }

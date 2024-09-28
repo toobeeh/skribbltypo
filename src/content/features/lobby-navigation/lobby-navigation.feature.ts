@@ -6,12 +6,11 @@ import { ElementsSetup } from "../../setups/elements/elements.setup";
 import LobbyNavigation from "./lobby-navigation.svelte";
 
 export class LobbyNavigationFeature extends TypoFeature {
-
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
 
-  public readonly name = "name";
-  public readonly description = "description";
+  public readonly name = "Lobby Navigation";
+  public readonly description = "Show a navigation bar in-game to exit or skip the current lobby";
 
   private _component?: LobbyNavigation;
 
@@ -22,35 +21,41 @@ export class LobbyNavigationFeature extends TypoFeature {
       target: elements.gameBar,
       anchor: elements.gameSettings,
       props: {
-        feature: this
+        feature: this,
       },
     });
   }
 
-  public nextLobby() {
+  protected override onDestroy(): Promise<void> | void {
+    this._component?.$destroy();
+  }
 
+  public nextLobby() {
     /* get first lobby from observable (current) and leave if not null until null received, then join */
-    this._lobbyService.lobby$.pipe(
-      tap(lobby => {
-        if(lobby !== null) {
-          this._lobbyService.leaveLobby();
-        }
-      }),
-      filter(lobby => lobby === null),
-      take(1)
-    ).subscribe(() => {
-      this._lobbyService.joinLobby();
-    });
+    this._lobbyService.lobby$
+      .pipe(
+        tap((lobby) => {
+          if (lobby !== null) {
+            this._lobbyService.leaveLobby();
+          }
+        }),
+        filter((lobby) => lobby === null),
+        take(1),
+      )
+      .subscribe(() => {
+        this._lobbyService.joinLobby();
+      });
   }
 
   public exitLobby() {
-
     /* get first lobby from observable (current) and leave if not null*/
-    this._lobbyService.lobby$.pipe(
-      take(1),
-      filter(lobby => lobby !== null)
-    ).subscribe(() => {
-      this._lobbyService.leaveLobby();
-    });
+    this._lobbyService.lobby$
+      .pipe(
+        take(1),
+        filter((lobby) => lobby !== null),
+      )
+      .subscribe(() => {
+        this._lobbyService.leaveLobby();
+      });
   }
 }

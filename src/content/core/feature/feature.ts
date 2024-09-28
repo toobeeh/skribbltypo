@@ -5,10 +5,11 @@ import { loggerFactory } from "../logger/loggerFactory.interface";
 export abstract class TypoFeature {
 
   private _isActivated = false;
-  private is_Run = false;
+  private _isRun = false;
 
   public abstract readonly name: string;
   public abstract readonly description: string;
+  public readonly toggleEnabled: boolean = true;
 
   protected onRun(): Promise<void> | void {
     this._logger.debug("onRun not implemented");
@@ -42,13 +43,14 @@ export abstract class TypoFeature {
       throw new Error("Feature is not activated");
     }
 
-    if(this.is_Run) {
+    if(this._isRun) {
       this._logger.warn("Attempted to run feature while already running");
       throw new Error("Feature is already running");
     }
 
     this._logger.info("Running feature");
     this.onRun();
+    this._isRun = true;
   }
 
   /**
@@ -62,13 +64,14 @@ export abstract class TypoFeature {
       throw new Error("Feature is not activated");
     }
 
-    if(!this.is_Run) {
+    if(!this._isRun) {
       this._logger.warn("Attempted to freeze feature while not running");
       throw new Error("Feature is not running");
     }
 
     this._logger.info("Freezing feature");
     this.onFreeze();
+    this._isRun = false;
   }
 
   /**
@@ -85,9 +88,11 @@ export abstract class TypoFeature {
 
     const activate = this.onActivate();
     if(activate instanceof Promise) await activate;
+    this._isActivated = true;
 
    const run = this.onRun();
    if(run instanceof Promise) await run;
+    this._isRun = true;
   }
 
   /**
@@ -105,8 +110,14 @@ export abstract class TypoFeature {
 
     const freeze = this.onFreeze();
     if(freeze instanceof Promise) await freeze;
+    this._isRun = false;
 
     const destroy = this.onDestroy();
     if(destroy instanceof Promise) await destroy;
+    this._isActivated = false;
+  }
+
+  public get state() {
+    return this._isActivated ? (this._isRun ? "running" : "frozen") : "destroyed";
   }
 }

@@ -1,5 +1,6 @@
+import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { Setup } from "../../core/setup/setup";
-import { requireElement } from "../../../util/document/requiredQuerySelector";
+import { requireElement } from "@/util/document/requiredQuerySelector";
 import { inject } from "inversify";
 import { GamePatchReadySetup } from "../game-patch-ready/game-patch.setup";
 import { PanelSetup } from "../panel/panel.setup";
@@ -10,7 +11,7 @@ import { ToolbarSetup } from "../toolbar/toolbar.setup";
  * @param panels
  * @param toolbar
  */
-function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement){
+function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement){
   return {
     panelContainer: requireElement(".panels"),
     avatarPanel: requireElement(".panel:not(.typo-panel)"),
@@ -18,6 +19,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     changelogTab: requireElement(".panel-tab-changelog"),
     lobbiesTab: requireElement(".panel-tab-lobbies"),
     cabinTab: requireElement(".panel-tab-cabin"),
+    filterTab: requireElement(".panel-tab-filter"),
     playButton: requireElement(".panel:not(.typo-panel) .button-play"),
     gameBar: requireElement("#game-bar"),
     gameSettings: requireElement("#game-settings"),
@@ -27,7 +29,8 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     load: requireElement("#load"),
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
     ...panels,
-    toolbar
+    toolbar,
+    controls
   };
 }
 export type typoElements = ReturnType<typeof getElements>;
@@ -36,12 +39,14 @@ export class ElementsSetup extends Setup<typoElements> {
 
   @inject(PanelSetup) private _panelSetup!: PanelSetup;
   @inject(ToolbarSetup) private _toolbarSetup!: ToolbarSetup;
+  @inject(ControlsSetup) private _controlsSetup!: ControlsSetup;
   @inject(GamePatchReadySetup) private _gameReadySetup!: GamePatchReadySetup;
 
   protected async runSetup(): Promise<ReturnType<typeof getElements>> {
     await this._gameReadySetup.complete();
     const panels = await this._panelSetup.complete();
     const toolbar = await this._toolbarSetup.complete();
-    return getElements(panels, toolbar);
+    const controls = await this._controlsSetup.complete();
+    return getElements(panels, toolbar, controls);
   }
 }

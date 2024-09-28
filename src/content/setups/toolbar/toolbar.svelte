@@ -6,6 +6,10 @@
     display:flex;
     align-items: center;
     justify-content: space-evenly;
+
+    &:empty {
+      display: none;
+    }
   }
 </style>
 
