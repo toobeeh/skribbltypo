@@ -19,14 +19,22 @@ export interface imageStateUpdate {
   }
 }
 
+export interface savedDrawCommands {
+  name: string;
+  commands: number[][]
+}
+
 @injectable()
 export class DrawingService {
 
   private readonly _logger;
 
+  private savedDrawCommands: savedDrawCommands[] = [];
+
   private _currentImageState$ = new BehaviorSubject<imageStateUpdate | null>(null);
   private _currentCommands$ = new BehaviorSubject<number[][]>([]);
   private _drawerChange$ = new Subject<"start" | "end">();
+  private _savedDrawCommands$ = new BehaviorSubject<savedDrawCommands[]>([]);
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -40,7 +48,7 @@ export class DrawingService {
   ) {
     this._logger = loggerFactory(this);
 
-    /* create observable for all drawing updates */
+    /* create observable for all draw command updates */
     merge(
       lobbyLeft.events$,
       lobbyChanged.events$,
@@ -160,8 +168,18 @@ export class DrawingService {
     return this._currentImageState$.asObservable();
   }
 
+  /**
+   * Observable which emits every change to captured current draw commands
+   */
   public get commands$() {
     return this._currentCommands$.asObservable();
+  }
+
+  /**
+   * Observable which emits every change to saved draw commands
+   */
+  public get savedDrawCommands$() {
+    return this._savedDrawCommands$.asObservable();
   }
 
   /**
@@ -171,10 +189,16 @@ export class DrawingService {
     return this._drawerChange$.asObservable();
   }
 
+  /**
+   * Get the current canvas image as a base64 string
+   */
   public async getCurrentImageBase64() {
     return (await this.elementsSetup.complete()).canvas.toDataURL();
   }
 
+  /**
+   * Get the current canvas image as a blob
+   */
   public async getCurrentImageBlob() {
     return new Promise<Blob>(async (resolve, reject) => {
       (await this.elementsSetup.complete()).canvas.toBlob(blob => {
@@ -182,5 +206,24 @@ export class DrawingService {
         else resolve(blob);
       });
     });
+  }
+
+  /**
+   * Add draw commands to saved commands
+   * @param name
+   * @param commands
+   */
+  public addDrawCommands(name: string, commands: number[][]) {
+    this.savedDrawCommands.push({name, commands});
+    this._savedDrawCommands$.next(this.savedDrawCommands);
+  }
+
+  /**
+   * Remove draw commands from saved commands
+   * @param index
+   */
+  public removeSavedDrawCommands(index: number) {
+    this.savedDrawCommands = this.savedDrawCommands.filter((item, i) => i !== index);
+    this._savedDrawCommands$.next(this.savedDrawCommands);
   }
 }

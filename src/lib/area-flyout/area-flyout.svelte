@@ -121,7 +121,8 @@
       }
     }
 
-    > div {
+    > .content {
+      width: 100%;
       overflow-y: auto;
       padding: 0 1em;
     }
@@ -141,7 +142,7 @@
     </h3>
   {/if}
 
-  <div>
+  <div class="content">
     <svelte:component this={componentData.componentType} {...componentData.props} />
   </div>
 </div>
