@@ -1,62 +1,74 @@
 export const gameJsPatchConfig = {
   name: "Skribbl Source Code Patch",
-  description: "The patch config to modify skribbls source code for typo. Works with tobeh's tool PatchEx",
+  description:
+    "The patch config to modify skribbls source code for typo. Works with tobeh's tool PatchEx",
   groups: [
     {
       name: "Insert Typo Functions at top",
       replacements: [
         {
           source: "##CONTNAMEIN##",
-          target: "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.container-name-lang input\""
+          target:
+            '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\("#home \\.container-name-lang input"',
         },
         {
           source: "##SETTINGS##",
-          target: "var ([a-zA-Z0-9&_\\-$]+) = {\\s+avatar: \\[Math.round\\(100 \\* Math.random\\(\\)\\) %"
+          target:
+            "var ([a-zA-Z0-9&_\\-$]+) = {\\s+avatar: \\[Math.round\\(100 \\* Math.random\\(\\)\\) %",
         },
         {
           source: "##BTNPLAY##",
-          target: "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.panel \\.button-play\"\\)"
+          target:
+            '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\("#home \\.panel \\.button-play"\\)',
         },
         {
           source: "##LOADING##",
-          target: "([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?,\\s+.*querySelector\\(\\\"#load\\\"\\).style.display ="
+          target:
+            '([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?,\\s+.*querySelector\\(\\"#load\\"\\).style.display =',
         },
         {
           source: "##GOHOME##",
-          target: "function ([a-zA-Z0-9&_\\-$]+)\\(\\) \\{[^}]+?data: 0\\s+?}[^}]+?\\.querySelector\\(\"#home\"\\).style.display ="
+          target:
+            'function ([a-zA-Z0-9&_\\-$]+)\\(\\) \\{[^}]+?data: 0\\s+?}[^}]+?\\.querySelector\\("#home"\\).style.display =',
         },
         {
           source: "##COLORS##",
-          target: "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]"
+          target: "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]",
         },
         {
           source: "##SECFILL##",
-          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-secondary\"\\).style.fill ="
+          target:
+            'function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-secondary"\\).style.fill =',
         },
         {
           source: "##PRIMFILL##",
-          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-primary\"\\).style.fill ="
+          target:
+            'function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-primary"\\).style.fill =',
         },
         {
           source: "##PUSHCMD##",
-          target: ".getContext\\(\"2d\", {\\s*willReadFrequently[^}]*}\\)\\s*,\\s*([a-zA-Z0-9&_\\-$]+) = \\[\\]"
+          target:
+            '.getContext\\("2d", {\\s*willReadFrequently[^}]*}\\)\\s*,\\s*([a-zA-Z0-9&_\\-$]+) = \\[\\]',
         },
         {
           source: "##PERFOUTER##",
-          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?data[^}]+?bounds:"
+          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?data[^}]+?bounds:",
         },
         {
           source: "##PERFINNER##",
-          target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?\\[0, 0, [a-zA-Z0-9&_\\-$]+\\.width, [a-zA-Z0-9&_\\-$]+\\.height\\]"
+          target:
+            "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?\\[0, 0, [a-zA-Z0-9&_\\-$]+\\.width, [a-zA-Z0-9&_\\-$]+\\.height\\]",
         },
         {
           source: "##SHWOTOOLTIP##",
-          target: "function ([a-zA-Z0-9&_\\-$]+)\\(e\\) \\{[^}]+?[a-zA-Z0-9&_\\-$]+\\(\\)[^}]+?\\.dataset\\.tooltip"
+          target:
+            "function ([a-zA-Z0-9&_\\-$]+)\\(e\\) \\{[^}]+?[a-zA-Z0-9&_\\-$]+\\(\\)[^}]+?\\.dataset\\.tooltip",
         },
         {
           source: "##HIDETOOLTIP##",
-          target: "function [a-zA-Z0-9&_\\-$]+\\(e\\) \\{[^}]+?([a-zA-Z0-9&_\\-$]+)\\(\\)[^}]+?\\.dataset\\.tooltip"
-        }
+          target:
+            "function [a-zA-Z0-9&_\\-$]+\\(e\\) \\{[^}]+?([a-zA-Z0-9&_\\-$]+)\\(\\)[^}]+?\\.dataset\\.tooltip",
+        },
       ],
       injections: [
         {
@@ -70,13 +82,18 @@ export const gameJsPatchConfig = {
                       window.postMessage("skribblMessagePort", "*", [channel.port2]);
                       return channel.port1;
                     })(),
+                    emitPort: (()=>{
+                      const channel = new MessageChannel();
+                      window.postMessage("skribblEmitPort", "*", [channel.port2]);
+                      return channel.port1;
+                    })(),
                     joinLobby: undefined,
                     createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
                         // IDENTIFY x.value.split: #home .container-name-lang input -> ##CONTNAMEIN##
                         // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> ##SETTINGS##
                         return { 
                             id: id, 
-                            name: name.length != 0 ? name : (##CONTNAMEIN##.value.split("#")[0] != "" ? ##CONTNAMEIN##.value.split("#")[0] : "Dummy"), 
+                            name: name.length != 0 ? name : (##CONTNAMEIN##.value.split("#")[0] != "" ? ##CONTNAMEIN##.value.split("#")[0] : "Player"), 
                             avatar: avatar.length == 0 ? ##SETTINGS##.avatar : avatar, 
                             score: score, 
                             guessed: guessed 
@@ -88,7 +105,7 @@ export const gameJsPatchConfig = {
                         me = 0,
                         owner = 0,
                         users = [],
-                        state = { id: 4, time: 0, data: { id: 0, word: "Anything" } }) => {
+                        state = { id: 4, type: 0, time: 0, data: { id: 0, word: "Anything" } }) => {
                         if (users.length == 0) users = [typo.createFakeUser()];
                         return { 
                             settings: settings, 
@@ -170,207 +187,247 @@ export const gameJsPatchConfig = {
                     }
                 }
                 // TYPOEND
-                `
-        }
-      ]
+                `,
+        },
+      ],
     },
     {
       name: "Custom Cursor Color",
       replacements: [
         {
           source: "patchcode#customcursor([^,]+,)",
-          target: "(\\s)"
+          target: "(\\s)",
         },
         {
           source: "##COLORINDEX##",
-          target: "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+,\\s+?[a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#color-preview-primary\"\\)\\.style.fill ="
+          target:
+            '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+,\\s+?[a-zA-Z0-9&_\\-$]+\\.querySelector\\("#color-preview-primary"\\)\\.style.fill =',
         },
         {
           source: "##COLORS##",
-          target: "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]"
+          target: "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]",
         },
         {
           source: "##COLORCODE##",
-          target: "\\.75 \\* ([a-zA-Z0-9&_\\-$]+)"
-        }
+          target: "\\.75 \\* ([a-zA-Z0-9&_\\-$]+)",
+        },
       ],
       injections: [
         {
-          position: "(clearRect\\(0, 0, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\);)\\s+var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\s*,",
-          code: "// TYPOMOD\n// desc: cursor with custom color\nvar ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.hexToRgb((##COLORINDEX## - 10000).toString(16).padStart(6, \"0\"));\n// TYPOEND \npatchcode#customcursor"
-        }
-      ]
+          position:
+            "(clearRect\\(0, 0, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\);)\\s+var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\s*,",
+          code: '// TYPOMOD\n// desc: cursor with custom color\nvar ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.hexToRgb((##COLORINDEX## - 10000).toString(16).padStart(6, "0"));\n// TYPOEND \npatchcode#customcursor',
+        },
+      ],
     },
     {
       name: "Primary Custom Color",
       replacements: [
         {
           source: "##COLORCODE##",
-          target: "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill ="
+          target:
+            '[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\("#color-preview-primary"\\)\\.style\\.fill =',
         },
         {
           source: "##SETCOLOR##",
-          target: ":\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill ="
-        }
+          target:
+            ':\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\("#color-preview-primary"\\)\\.style\\.fill =',
+        },
       ],
       injections: [
         {
-          position: "(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill =",
-          code: "##COLORCODE## > 10000 ? ##SETCOLOR##(typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, \"0\"))) :"
-        }
-      ]
+          position:
+            '(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\("#color-preview-primary"\\)\\.style\\.fill =',
+          code: '##COLORCODE## > 10000 ? ##SETCOLOR##(typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, "0"))) :',
+        },
+      ],
     },
     {
       name: "Secondary Custom Color",
       replacements: [
         {
           source: "##COLORCODE##",
-          target: "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill ="
+          target:
+            '[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\("#color-preview-secondary"\\)\\.style\\.fill =',
         },
         {
           source: "##SETCOLOR##",
-          target: ":\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill ="
-        }
+          target:
+            ':\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\("#color-preview-secondary"\\)\\.style\\.fill =',
+        },
       ],
       injections: [
         {
-          position: "(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill =",
-          code: "##COLORCODE## > 10000 ? ##SETCOLOR##(typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, \"0\"))) :"
-        }
-      ]
+          position:
+            '(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\("#color-preview-secondary"\\)\\.style\\.fill =',
+          code: '##COLORCODE## > 10000 ? ##SETCOLOR##(typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, "0"))) :',
+        },
+      ],
     },
     {
       name: "Detect Custom Colors",
       replacements: [
         {
           source: "##COLORCODE##",
-          target: "function [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+)\\) {[^}]+?return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:"
-        }
+          target:
+            "function [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+)\\) {[^}]+?return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:",
+        },
       ],
       injections: [
         {
-          position: "(function [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\) {)[^}]+?return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:",
-          code: "/*TYPOMOD   \ndesc: if color code > 1000 -> customcolor*/if(##COLORCODE## < 1000)"
+          position:
+            "(function [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\) {)[^}]+?return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:",
+          code: "/*TYPOMOD   \ndesc: if color code > 1000 -> customcolor*/if(##COLORCODE## < 1000)",
         },
         {
           position: "([^{]+?length[^}]+?;)\\s+return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:",
-          code: "else ##COLORCODE## = typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, \"0\"));/* TYPOEND */"
-        }
-      ]
+          code: 'else ##COLORCODE## = typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, "0"));/* TYPOEND */',
+        },
+      ],
     },
     {
       name: "Save Undo Draw Commands",
       replacements: [
         {
           source: "##COMMANDS##",
-          target: "if\\s\\([a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+)\\.[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\["
-        }
+          target:
+            "if\\s\\([a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+)\\.[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[",
+        },
       ],
       injections: [
         {
-          position: "(if[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[[\\s\\S]+?)}\\s+}\\s+const",
-          code: "/* TYPOMOD \n         log kept commands*/\n        document.dispatchEvent(new CustomEvent(\"logRedo\", { detail: keepCommands }));\n        /* TYPOEND*/"
+          position:
+            "(if[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[[\\s\\S]+?)}\\s+}\\s+const",
+          code: '/* TYPOMOD \n         log kept commands*/\n        document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));\n        /* TYPOEND*/',
         },
         {
-          position: "(if[^{]+?{)[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[",
-          code: "/* TYPOMOD\n        desc: replace draw commands because of redo*/        const keepCommands = ##COMMANDS##;\n        /* TYPOEND*/"
-        }
-      ]
+          position:
+            "(if[^{]+?{)[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[",
+          code: "/* TYPOMOD\n        desc: replace draw commands because of redo*/        const keepCommands = ##COMMANDS##;\n        /* TYPOEND*/",
+        },
+      ],
     },
     {
       name: "Log Draw Commands",
       replacements: [
         {
           source: "##COMMAND##",
-          target: "(e)"
+          target: "(e)",
         }
       ],
       injections: [
         {
-          position: "( ): console.log\\(\"IGNORED COMMAND OUT OF CANVAS BOUNDS\"\\)",
-          code: "/* TYPOMOD \n         log draw commands */\n       & document.dispatchEvent(new CustomEvent(\"logDrawCommand\", { detail: ##COMMAND## })) \n        /* TYPOEND */"
-        }
-      ]
+          position: '( ): console.log\\("IGNORED COMMAND OUT OF CANVAS BOUNDS"\\)',
+          code: `
+          /* TYPOMOD  log draw commands */
+          & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: ##COMMAND## }))
+          /* TYPOEND */`,
+        },
+      ],
     },
     {
       name: "Log Canvas Clear",
       replacements: [],
       injections: [
         {
-          position: "(function [a-zA-Z0-9&_\\-$]+?\\(\\) {)[^}]+?\"#FFF\",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width",
-          code: "/* TYPOMOD\n         desc: store data before clear */\n        const data = document.querySelector(\"#game-canvas canvas\").toDataURL();\n/* TYPOEND */"
+          position:
+            '(function [a-zA-Z0-9&_\\-$]+?\\(\\) {)[^}]+?"#FFF",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width',
+          code: '/* TYPOMOD\n         desc: store data before clear */\n        const data = document.querySelector("#game-canvas canvas").toDataURL();\n/* TYPOEND */',
         },
         {
-          position: "(\"#FFF\",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width[^)]+?\\))",
-          code: "/* TYPOMOD\n         desc: dispatch clear event */\n        ;document.dispatchEvent(new CustomEvent(\"logCanvasClear\", { detail: data }));\n/* TYPOEND */"
-        }
-      ]
+          position:
+            '("#FFF",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width[^)]+?\\))',
+          code: '/* TYPOMOD\n         desc: dispatch clear event */\n        ;document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));\n/* TYPOEND */',
+        },
+      ],
     },
     {
       name: "Add Practise Join",
       replacements: [
         {
           source: "##JOIN##",
-          target: "function ([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?\\) {[^}]+?\\.querySelector\\(\"#home\"\\)\\.style\\.display = \"none\""
+          target:
+            'function ([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?\\) {[^}]+?\\.querySelector\\("#home"\\)\\.style\\.display = "none"',
         },
         {
           source: "##SELECTORFCT##",
-          target: "([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?, \"mousemove\"[\\s\\S]+?\\}\\);"
-        }
+          target: '([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?, "mousemove"[\\s\\S]+?\\}\\);',
+        },
+        {
+          source: "##SOCKET##",
+          target: '\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\("connect"',
+        },
       ],
       injections: [
         {
-          position: "(e.classList.add\\(\"show\"\\)\\s+})",
+          position: '(e.classList.add\\("show"\\)\\s+})',
           code: `
                 /* TYPOMOD desc: add event handlers for typo features */
                 ##SELECTORFCT##(".avatar-customizer .container", "pointerdown", () => {
                 const data = typo.createFakeLobbyData();
-                document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
+                typo.messagePort.postMessage({ id: 10, data });
+                //document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
                 ##JOIN##(data);
                 });
+                
+                ##SOCKET## = new Proxy({},{
+                  emit: (...data) => typo.emitPort.postMessage(data),
+                  other: (...data) => void 0,
+                  get (target, prop) {
+                    if(prop === "emit"){
+                      return this.emit;
+                    }
+                    else return this.other;
+                  }
+                });
                 /* TYPOEND */
-                `
-        }
-      ]
+                `,
+        },
+      ],
     },
     {
       name: "Pipette Custom Color",
       replacements: [
         {
           source: "##COL##",
-          target: "if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[\\s\\S]+?return ([a-zA-Z0-9&_\\-$]+?)\\s+}"
+          target:
+            "if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[\\s\\S]+?return ([a-zA-Z0-9&_\\-$]+?)\\s+}",
         },
         {
           source: "##COLR##",
-          target: "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
+          target:
+            "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;",
         },
         {
           source: "##COLG##",
-          target: "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - ([a-zA-Z0-9&_\\-$])+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;"
+          target:
+            "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - ([a-zA-Z0-9&_\\-$])+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;",
         },
         {
           source: "##COLB##",
-          target: "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - ([a-zA-Z0-9&_\\-$])+?;"
-        }
+          target:
+            "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - ([a-zA-Z0-9&_\\-$])+?;",
+        },
       ],
       injections: [
         {
-          position: "(if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[^}]+?})",
-          code: "/* TYPOMOD\n                     desc: if color is not in array, convert to custom color */\n                    return ##COL## = parseInt(typo.rgbToHex(##COLR##, ##COLG##, ##COLB##), 16) + 10000;\n                    /* TYPOEND */"
-        }
-      ]
+          position:
+            "(if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[^}]+?})",
+          code: "/* TYPOMOD\n                     desc: if color is not in array, convert to custom color */\n                    return ##COL## = parseInt(typo.rgbToHex(##COLR##, ##COLG##, ##COLB##), 16) + 10000;\n                    /* TYPOEND */",
+        },
+      ],
     },
     {
       name: "Lobby Navigation",
       replacements: [
         {
           source: "##SOCKET##",
-          target: "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\""
-        }
+          target: '\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\("connect"',
+        },
       ],
       injections: [
         {
-          position: "(\\.on\\(\"connect\", function\\s*\\(\\) \\{)",
+          position: '(\\.on\\("connect", function\\s*\\(\\) \\{)',
           code: `
                 /* TYPOMOD
                      desc: disconnect socket & leave lobby */
@@ -392,95 +449,107 @@ export const gameJsPatchConfig = {
                         document.dispatchEvent(new Event("leftLobby"));
                     }
                 }
-                l.on("data", data => typo.messagePort.postMessage(data));
-                typo.messagePort.onmessage = data => l.emit("data", data.data);
+                ##SOCKET##.on("data", data => typo.messagePort.postMessage(data));
+                typo.messagePort.onmessage = data => ##SOCKET##.emit("data", data.data);
+                
+                const originalEmit = ##SOCKET##.emit.bind(l);
+                ##SOCKET##.emit = function(...data) {
+                  typo.emitPort.postMessage(data);
+                  originalEmit(...data);
+                };
                 /* TYPOEND */
-`
-        }
-      ]
+`,
+        },
+      ],
     },
     {
       name: "Handle Disconnect",
       replacements: [
         {
           source: "##SOCKET##",
-          target: "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\""
-        }
+          target: '\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\("connect"',
+        },
       ],
       injections: [
         {
-          position: "(\\.on\\(\"disconnect\", function[^{]*{)",
-          code: "/* TYPOMOD\n                 DESC: no msg if disconnect intentionally */\n                if(!##SOCKET##.typoDisconnect)\n                /*TYPOEND*/"
-        }
-      ]
+          position: '(\\.on\\("disconnect", function[^{]*{)',
+          code: "/* TYPOMOD\n                 DESC: no msg if disconnect intentionally */\n                if(!##SOCKET##.typoDisconnect)\n                /*TYPOEND*/",
+        },
+      ],
     },
     {
       name: "Dispatch Draw Finish",
       replacements: [
         {
           source: "##DATA##",
-          target: "The word was '\\$'\", ([a-zA-Z0-9&_\\-$]+?)\\.data\\.word\\), \"\", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\)"
-        }
+          target:
+            'The word was \'\\$\'", ([a-zA-Z0-9&_\\-$]+?)\\.data\\.word\\), "", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\)',
+        },
       ],
       injections: [
         {
-          position: "(The word was '\\$'\", [a-zA-Z0-9&_\\-$]+?\\.data\\.word\\), \"\", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\))",
-          code: "/* TYPOMOD\n             desc: log finished drawing */\n            ;document.dispatchEvent(new CustomEvent(\"drawingFinished\", { detail: ##DATA##.data.word }));\n            /* TYPOEND */"
-        }
-      ]
+          position:
+            '(The word was \'\\$\'", [a-zA-Z0-9&_\\-$]+?\\.data\\.word\\), "", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\))',
+          code: '/* TYPOMOD\n             desc: log finished drawing */\n            ;document.dispatchEvent(new CustomEvent("drawingFinished", { detail: ##DATA##.data.word }));\n            /* TYPOEND */',
+        },
+      ],
     },
     {
       name: "Dispatch Lobbydata",
       replacements: [
         {
           source: "##EVENT##",
-          target: "switch \\([a-zA-Z0-9&_\\-$]+?\\) {[\\s\\S]*?(?=break)break[^(]*\\(([^)]*)\\)[^}]*joined the room!"
-        }
+          target:
+            "switch \\([a-zA-Z0-9&_\\-$]+?\\) {[\\s\\S]*?(?=break)break[^(]*\\(([^)]*)\\)[^}]*joined the room!",
+        },
       ],
       injections: [
         {
-          position: "(switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)[^}]*joined the room!",
-          code: "/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent(\"lobbyConnected\", { detail: ##EVENT## }));\n                /* TYPOEND*/"
-        }
-      ]
+          position:
+            "(switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)[^}]*joined the room!",
+          code: '/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: ##EVENT## }));\n                /* TYPOEND*/',
+        },
+      ],
     },
     {
       name: "Add Lobbyplayer ID",
       replacements: [
         {
           source: "##PLAYER##",
-          target: "([a-zA-Z0-9&_\\-$]+?)\\.element, \"click\""
-        }
+          target: '([a-zA-Z0-9&_\\-$]+?)\\.element, "click"',
+        },
       ],
       injections: [
         {
-          position: "(\\(\"icon muted\"\\);)",
-          code: "/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute(\"playerid\", ##PLAYER##.id);\n        /* TYPOEND */"
-        }
-      ]
+          position: '(\\("icon muted"\\);)',
+          code: '/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute("playerid", ##PLAYER##.id);\n        /* TYPOEND */',
+        },
+      ],
     },
     {
       name: "Add message length splits",
       replacements: [
         {
           source: "##INPUT##",
-          target: "([a-zA-Z0-9&_\\-$]+)\\.value && [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\.value\\),\\s+[a-zA-Z0-9&_\\-$]+\\.reset"
-        }
+          target:
+            "([a-zA-Z0-9&_\\-$]+)\\.value && [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\.value\\),\\s+[a-zA-Z0-9&_\\-$]+\\.reset",
+        },
       ],
       injections: [
         {
-          position: "(\"submit\", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+return [a-zA-Z0-9&_\\-$]+\\.preventDefault",
-          code: "const input = ##INPUT##; let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event(\"submit\"));},180);"
-        }
-      ]
+          position:
+            '("submit", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+return [a-zA-Z0-9&_\\-$]+\\.preventDefault',
+          code: 'const input = ##INPUT##; let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event("submit"));},180);',
+        },
+      ],
     },
     {
       name: "Add Action Buttons",
       replacements: [
         {
           source: "##ADDACTION##",
-          target: "([a-zA-Z0-9&_\\-$]+?)\\([^}]+{\\s+(isAction: !0,[^}]+Clear[^}]+}\\))"
-        }
+          target: "([a-zA-Z0-9&_\\-$]+?)\\([^}]+{\\s+(isAction: !0,[^}]+Clear[^}]+}\\))",
+        },
       ],
       injections: [
         {
@@ -498,7 +567,7 @@ export const gameJsPatchConfig = {
                     }
                 }) 
                 /*TYPOEND*/
-                `
+                `,
         },
         {
           position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
@@ -516,7 +585,7 @@ export const gameJsPatchConfig = {
                 })
                 */ 
                 /* TYPOEND */
-                `
+                `,
         },
         {
           position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
@@ -530,29 +599,29 @@ export const gameJsPatchConfig = {
                     keydef: 'P',
                 }) 
                 /*TYPOEND*/
-                `
-        }
-      ]
+                `,
+        },
+      ],
     },
     {
       name: "Remove Chat Limit",
       replacements: [
         {
           source: "chatDeleteQuota: 100",
-          target: ";"
-        }
+          target: ";",
+        },
       ],
-      injections: []
+      injections: [],
     },
     {
       name: "Define join function",
       replacements: [],
       injections: [
         {
-          position: "(\"click\",) function[^}]+\\.location\\.href",
-          code: "typo.joinLobby = "
-        }
-      ]
+          position: '("click",) function[^}]+\\.location\\.href',
+          code: "typo.joinLobby = ",
+        },
+      ],
     },
     {
       name: "Set last joined in regular join",
@@ -560,31 +629,31 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "([a-zA-Z0-9&_\\-$]+\\.location\\.href,)",
-          code: `typo.lastConnect = Date.now(),`
-        }
-      ]
+          code: `typo.lastConnect = Date.now(),`,
+        },
+      ],
     },
     {
       name: "Keyup to keydown",
       replacements: [
         {
           source: "(keyup)",
-          target: "(keydown)"
-        }
+          target: "(keydown)",
+        },
       ],
-      injections: []
+      injections: [],
     },
     {
       name: "Use Typo Pressure",
       replacements: [
         {
           source: "##TYPOSIZE##",
-          target: "[a-zA-Z0-9&_\\-$]+ = Math\\.ceil\\(\\.5 \\* ([a-zA-Z0-9&_\\-$]+)\\)"
+          target: "[a-zA-Z0-9&_\\-$]+ = Math\\.ceil\\(\\.5 \\* ([a-zA-Z0-9&_\\-$]+)\\)",
         },
         {
           source: "##PRESSURE##",
-          target: "[a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+), 0, 1\\)"
-        }
+          target: "[a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+), 0, 1\\)",
+        },
       ],
       injections: [
         {
@@ -600,24 +669,24 @@ export const gameJsPatchConfig = {
                       ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));
                   }
               })(),
-              `
-        }
-      ]
+              `,
+        },
+      ],
     },
     {
       name: "Add User ID in chat",
       replacements: [
         {
           source: "##PLAYER##",
-          target: "\\(\"text\", [^\\(]+\\(([a-zA-Z0-9&_\\-$]+)\\.name, [^\\)]+\\)\\)"
-        }
+          target: '\\("text", [^\\(]+\\(([a-zA-Z0-9&_\\-$]+)\\.name, [^\\)]+\\)\\)',
+        },
       ],
       injections: [
         {
-          position: "(\\(\"text\", [^}]+name, [^\\)]+\\)\\))",
-          code: `.setAttribute("playerid", ##PLAYER##.id)`
-        }
-      ]
-    }
-  ]
-}
+          position: '(\\("text", [^}]+name, [^\\)]+\\)\\))',
+          code: `.setAttribute("playerid", ##PLAYER##.id)`,
+        },
+      ],
+    },
+  ],
+};

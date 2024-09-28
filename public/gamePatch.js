@@ -40,13 +40,18 @@
                       window.postMessage("skribblMessagePort", "*", [channel.port2]);
                       return channel.port1;
                     })(),
+                    emitPort: (()=>{
+                      const channel = new MessageChannel();
+                      window.postMessage("skribblEmitPort", "*", [channel.port2]);
+                      return channel.port1;
+                    })(),
                     joinLobby: undefined,
                     createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
                         // IDENTIFY x.value.split: #home .container-name-lang input -> Jn
                         // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> p
                         return { 
                             id: id, 
-                            name: name.length != 0 ? name : (Jn.value.split("#")[0] != "" ? Jn.value.split("#")[0] : "Dummy"), 
+                            name: name.length != 0 ? name : (Jn.value.split("#")[0] != "" ? Jn.value.split("#")[0] : "Player"), 
                             avatar: avatar.length == 0 ? p.avatar : avatar, 
                             score: score, 
                             guessed: guessed 
@@ -58,7 +63,7 @@
                         me = 0,
                         owner = 0,
                         users = [],
-                        state = { id: 4, time: 0, data: { id: 0, word: "Anything" } }) => {
+                        state = { id: 4, type: 0, time: 0, data: { id: 0, word: "Anything" } }) => {
                         if (users.length == 0) users = [typo.createFakeUser()];
                         return { 
                             settings: settings, 
@@ -1033,10 +1038,9 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
       x2: C.width + t + r,
       y2: C.height + t + a
     }).x1 < n && n < i.x2 && i.y1 < o && o < i.y2)) ? (k.push(e), M == L && en(on(e))) 
-/* TYPOMOD 
-         log draw commands */
-       & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e })) 
-        /* TYPOEND */: console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS")
+/* TYPOMOD  log draw commands */
+          & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }))
+          /* TYPOEND */: console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS")
   }
 
   function on(e) {
@@ -1330,8 +1334,20 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
 /* TYPOMOD desc: add event handlers for typo features */
                 E(".avatar-customizer .container", "pointerdown", () => {
                 const data = typo.createFakeLobbyData();
-                document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
+                typo.messagePort.postMessage({ id: 10, data });
+                //document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
                 sa(data);
+                });
+                
+                l = new Proxy({},{
+                  emit: (...data) => typo.emitPort.postMessage(data),
+                  other: (...data) => void 0,
+                  get (target, prop) {
+                    if(prop === "emit"){
+                      return this.emit;
+                    }
+                    else return this.other;
+                  }
                 });
                 /* TYPOEND */
 
@@ -1625,6 +1641,12 @@ else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
                 }
                 l.on("data", data => typo.messagePort.postMessage(data));
                 typo.messagePort.onmessage = data => l.emit("data", data.data);
+                
+                const originalEmit = l.emit.bind(l);
+                l.emit = function(...data) {
+                  typo.emitPort.postMessage(data);
+                  originalEmit(...data);
+                };
                 /* TYPOEND */
       aa(!1), l.on("joinerr", function(e) {
         fa(), xe(ve, function(e) {

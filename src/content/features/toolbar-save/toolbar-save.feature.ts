@@ -2,7 +2,7 @@ import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
-import { downloadBlob } from "@/util/download";
+import { downloadBlob, downloadText } from "@/util/download";
 import { inject } from "inversify";
 import { combineLatest, Subscription, take } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
@@ -96,7 +96,6 @@ export class ToolbarSaveFeature extends TypoFeature {
       }
 
       const drawer = lobby.players.find(player => player.id === meta.drawerId)?.name ?? "unknown";
-
       downloadBlob(blob, `skribbl-${meta.word.hints}-by-${drawer}.png`);
     });
   }
@@ -107,6 +106,26 @@ export class ToolbarSaveFeature extends TypoFeature {
 
   saveAsDrawCommands() {
     this._logger.debug("Saving as draw commands");
+
+    combineLatest({
+      meta: this._drawingService.imageState$.pipe(take(1)),
+      lobby: this._lobbyService.lobby$.pipe(take(1)),
+      commands: this._drawingService.commands$.pipe(take(1)),
+    }).subscribe(({meta, lobby, commands}) => {
+      if(!meta) {
+        this._logger.error("Failed to get image meta data, no drawing active?");
+        return;
+      }
+
+      if(!lobby) {
+        this._logger.error("Failed to get lobby, not joined?");
+        return;
+      }
+
+      const json = JSON.stringify(commands);
+      const drawer = lobby.players.find(player => player.id === meta.drawerId)?.name ?? "unknown";
+      downloadText(json, `skribbl-${meta.word.hints}-by-${drawer}.skd`);
+    });
   }
 
   protected override onDestroy(): Promise<void> | void {

@@ -17,6 +17,6 @@
 <div class="typo-toolbar-save-actions">
   <FlatButton content="Download PNG" color="green" on:click={() => feature.saveAsPng()}  />
   <FlatButton content="Download GIF" color="green" on:click={() => feature.saveAsGif()} />
-  <FlatButton content="Download Draw Commands" color="green" on:click={() => feature.saveAsPng()} />
+  <FlatButton content="Download Draw Commands" color="green" on:click={() => feature.saveAsDrawCommands()} />
   <FlatButton content="Save in Cloud" color="blue" on:click={() => feature.saveInCloud()} />
 </div>

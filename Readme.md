@@ -47,6 +47,7 @@ src
 ├──popup          -- popup page sources
 │ 
 ├──api            -- generated api client
+├──lib            -- reusable svelte components
 └──util           -- utility functions
 ```
 
@@ -63,7 +64,7 @@ The core module contains the extension container class, which is the entrypoint 
 It manages the dependency injection container for the application and is the central point for configuration.
 
 Core also contains abstractions of the feature, event and setup modules, which are implemented in the respective folders.  
-Furthermore, there are a few services (`*.service.ts`) that are vital to the abstract classes:
+Furthermore, there are a few services that are vital to the abstract classes:
 - EventService acts as a central pipe between event processors and listeners
 - LoggerService logs formatted messages to the console
 

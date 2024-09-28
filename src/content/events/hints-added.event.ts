@@ -28,8 +28,8 @@ export class HintsAddedEventProcessor extends EventProcessor<[number, string][],
     skribblMessages.subscribe((event) => {
 
       /* inital lobby hints */
-      if(event.id === 10){
-        const hints = (event.data.state.hints ?? []) as [number, string][];
+      if(event.id === 10 && event.data.state.id === 4 && event.data.state.data.hints){
+        const hints = event.data.state.data.hints as [number, string][];
         this._logger.info("Lobby joined", hints);
         events.next(new HintsAddedEvent(hints));
       }

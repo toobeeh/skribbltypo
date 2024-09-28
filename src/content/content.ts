@@ -1,6 +1,7 @@
 import "@abraham/reflection";
 import { drawEventRegistration } from "@/content/events/draw.event";
 import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
+import { imageResetEventRegistration } from "@/content/events/image-reset.event";
 import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-player-changed.event";
 import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
@@ -12,6 +13,7 @@ import { ToolbarImagePostFeature } from "@/content/features/toolbar-imagepost/to
 import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save.feature";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
+import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { LoggerService } from "./core/logger/logger.service";
 import { lobbyJoinedEventRegistration } from "./events/lobby-joined.event";
 import { lobbyLeftEventRegistration } from "./events/lobby-left.event";
@@ -52,6 +54,7 @@ new ExtensionContainer()
     GamePatchReadySetup,
     SkribblMessageRelaySetup,
     ToolbarSetup,
+    SkribblEmitRelaySetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
@@ -61,7 +64,8 @@ new ExtensionContainer()
     lobbyPlayerChangedEventRegistration,
     roundStartedEventRegistration,
     wordGuessedEventRegistration,
-    drawEventRegistration
+    drawEventRegistration,
+    imageResetEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,

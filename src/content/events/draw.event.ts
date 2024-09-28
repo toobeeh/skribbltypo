@@ -1,5 +1,6 @@
+import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { inject, injectable } from "inversify";
-import { Observable, Subject } from "rxjs";
+import { bufferTime, filter, map, merge, Observable, Subject } from "rxjs";
 import { ApplicationEvent } from "../core/event/applicationEvent";
 import { EventListener } from "../core/event/eventListener";
 import { EventProcessor } from "../core/event/eventProcessor";
@@ -18,26 +19,47 @@ export class DrawEvent extends ApplicationEvent<number[][]> {
 export class DrawEventProcessor extends EventProcessor<number[][], DrawEvent>
 {
   @inject(SkribblMessageRelaySetup) _skribblMessageRelaySetup!: SkribblMessageRelaySetup;
+  @inject(SkribblEmitRelaySetup) _skribblEmitRelaySetup!: SkribblEmitRelaySetup;
 
   public readonly eventType = DrawEvent;
 
   protected async streamEvents(): Promise<Observable<DrawEvent>> {
     const events = new Subject<DrawEvent>();
+
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
+    const skribblEmit = await this._skribblEmitRelaySetup.complete();
 
-    skribblMessages.subscribe((event) => {
+    /* merge own and lobby commands */
+    merge(
+      skribblEmit.pipe(
+        filter(data => data.event === "data"),
+        map(data => data.data)),
+      skribblMessages
+    ).pipe(
+      map(event => {
+        /*draw commands event*/
+        if(event.id === 19){
+          if(typeof event.data[0] === "number") {
+            return [event.data as number[]];
+          }
+          else return event.data as number[][];
+        }
 
-      /*draw commands event*/
-      if(event.id === 19){
-        const commands = event.data as number[][];
-        events.next(new DrawEvent(commands));
-      }
-      /*draw commands from lobby joined*/
-      if(event.id === 10 && event.data.data.id === 4 && event.data.data.drawCommands){
-        const commands = event.data.data.drawCommands as number[][];
-        events.next(new DrawEvent(commands));
-      }
+        /*draw commands from lobby joined*/
+        if(event.id === 10 && event.data.state.id === 4 && event.data.state.data.drawCommands){
+          return event.data.data.drawCommands as number[][];
+        }
+
+        return null;
+      }),
+      filter(data => data !== null),
+      bufferTime(100),  /* debounce to prevent excessive observable spam */
+      filter(data => data.length > 0)
+    ).subscribe((data) => {
+      const flat = data.flat(1);
+      events.next(new DrawEvent(flat));
     });
+
     return events;
   }
 }

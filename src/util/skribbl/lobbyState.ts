@@ -8,7 +8,7 @@ export interface lobbyStateUpdate {
   },
   drawingStarted?: {
     word?: string,
-    characters: number,
+    characters: [number],
     maxTime: number,
     drawerId: number,
   },
@@ -23,7 +23,7 @@ export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined =
       return {
         drawingStarted: {
           word: typeof data.data.word === "string" ? data.data.word as string : undefined,
-          characters: typeof data.data.word === "string" ? data.data.word.length : data.data.word[0] as number,
+          characters: typeof data.data.word === "string" ? data.data.word.length : data.data.word as number[],
           maxTime: data.time as number,
           drawerId: data.data.id as number
         },
