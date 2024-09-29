@@ -102,6 +102,7 @@ export class DrawingService {
 
       if(update instanceof LobbyLeftEvent) {
         currentImageState = null;
+        this._drawerChange$.next("end");
       }
       else if(update instanceof LobbyStateChangedEvent) {
 

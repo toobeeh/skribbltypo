@@ -11,6 +11,7 @@ import { wordGuessedEventRegistration } from "@/content/events/word-guessed.even
 import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
 import { DeveloperModeFeature } from "@/content/features/developer-mode/developer-mode.feature";
+import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
@@ -99,7 +100,8 @@ new ExtensionContainer()
     PanelCabinFeature,
     PanelFiltersFeature,
     ChatRecallFeature,
-    DeveloperModeFeature
+    DeveloperModeFeature,
+    ImageAgentFeature
   );
 
 /* indicate for interceptor that content script has loaded */

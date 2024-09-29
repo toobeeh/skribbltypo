@@ -11,6 +11,7 @@ export function fromObservable<TData>(observable: Observable<TData>, initialValu
 
   return {
     subscribe: store.subscribe,
-    unsubscribe: () => subscription.unsubscribe()
+    unsubscribe: () => subscription.unsubscribe(),
+    set: (value: TData) => store.set(value),
   };
 }

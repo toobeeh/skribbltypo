@@ -1,4 +1,3 @@
-import { ExtensionSetting } from "@/content/core/settings/setting";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";

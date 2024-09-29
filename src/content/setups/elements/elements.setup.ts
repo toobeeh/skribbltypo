@@ -29,6 +29,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     gameWrapper: requireElement("#game-wrapper"),
     load: requireElement("#load"),
     chatInput: requireElement("#game-chat .chat-container form input") as HTMLInputElement,
+    chatArea: requireElement("#game-chat"),
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
     ...panels,
     toolbar,

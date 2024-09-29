@@ -76,7 +76,6 @@
   .typo-area-flyout {
 
     position:relative;
-
     color: var(--COLOR_PANEL_TEXT);
     align-self: end;
     z-index: 1;
