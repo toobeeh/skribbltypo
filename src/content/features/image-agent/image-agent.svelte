@@ -36,6 +36,16 @@
       transform: scaleY(0);
     }
 
+    .close-agent {
+      position: absolute;
+      top: 0;
+      right: .5rem;
+      font-size: 1.5rem;
+      font-weight: 900;
+      cursor: pointer;
+      z-index: 1;
+    }
+
     /* background on separate after element because backdrop blur fucks rendering up */
     &:not(.hidden):after {
       background: var(--COLOR_PANEL_BG);
@@ -70,22 +80,12 @@
         align-items: center;
         justify-content: center;
         margin-bottom: 0;
-        position: relative;
 
         > img {
           user-select: none;
           height: 1.8em;
           width: 1.8em;
           filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, .3));
-        }
-
-        .close-agent {
-          position: absolute;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          display: flex;
-          align-items: center;
         }
       }
 
@@ -121,14 +121,6 @@
     <h3>
       <img src="" alt="agent-icon" style="content: var(--file-img-light-gif)" />
       <span>Image Agent</span>
-
-      <!-- close button -->
-      <span class="close-agent">
-        <IconButton icon="file-img-disabled-gif" name="Close" size="1.5rem"
-                    hoverMove={false} greyscaleInactive="{true}"
-                    on:click={() => feature.setHiddenState(true)}
-        />
-      </span>
     </h3>
 
     <div class="agent-inputs">
@@ -156,6 +148,15 @@
       {/if}
     {/await}
   </div>
+
+  <!-- close button -->
+  <span class="close-agent" on:click={() => feature.setHiddenState(true)}>
+        ×
+    <!--<IconButton icon="file-img-disabled-gif" name="Close" size="1.5rem"
+                hoverMove={false} greyscaleInactive="{true}"
+                on:click={() => feature.setHiddenState(true)}
+    />-->
+      </span>
 </div>
 
 <div class:closed={$hidden === false} class="typo-image-agent hidden">
