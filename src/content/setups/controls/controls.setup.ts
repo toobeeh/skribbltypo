@@ -1,7 +1,7 @@
 import { inject } from "inversify";
 import { appendElement, createElement } from "@/util/document/appendElement";
 import { Setup } from "../../core/setup/setup";
-import { GamePatchReadySetup } from "../game-patch-ready/game-patch.setup";
+import { GamePatchReadySetup } from "../game-patch-ready/game-patch-ready.setup";
 import Controls from "./controls.svelte";
 
 export class ControlsSetup extends Setup<HTMLElement> {

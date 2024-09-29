@@ -1,8 +1,8 @@
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
+import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
 import { Setup } from "../../core/setup/setup";
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import { inject } from "inversify";
-import { GamePatchReadySetup } from "../game-patch-ready/game-patch.setup";
 import { PanelSetup } from "../panel/panel.setup";
 import { ToolbarSetup } from "../toolbar/toolbar.setup";
 
@@ -10,6 +10,7 @@ import { ToolbarSetup } from "../toolbar/toolbar.setup";
  * Function to make dynamic return type
  * @param panels
  * @param toolbar
+ * @param controls
  */
 function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement){
   return {
@@ -41,7 +42,7 @@ export class ElementsSetup extends Setup<typoElements> {
   @inject(PanelSetup) private _panelSetup!: PanelSetup;
   @inject(ToolbarSetup) private _toolbarSetup!: ToolbarSetup;
   @inject(ControlsSetup) private _controlsSetup!: ControlsSetup;
-  @inject(GamePatchReadySetup) private _gameReadySetup!: GamePatchReadySetup;
+  @inject(SkribblInitializedSetup) private _gameReadySetup!: SkribblInitializedSetup;
 
   protected async runSetup(): Promise<ReturnType<typeof getElements>> {
     await this._gameReadySetup.complete();

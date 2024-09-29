@@ -25,6 +25,7 @@ import { ExtensionContainer } from "@/content/core/extension-container/extension
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
+import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
 import { LoggerService } from "./core/logger/logger.service";
 import { lobbyJoinedEventRegistration } from "./events/lobby-joined.event";
 import { lobbyLeftEventRegistration } from "./events/lobby-left.event";
@@ -36,7 +37,7 @@ import { PanelNewsFeature } from "@/content/features/panel-news/panel-news.featu
 import { ApiService } from "./services/api/api.service";
 import { MemberService } from "./services/member/member.service";
 import { ModalService } from "./services/modal/modal.service";
-import { GamePatchReadySetup } from "./setups/game-patch-ready/game-patch.setup";
+import { GamePatchReadySetup } from "./setups/game-patch-ready/game-patch-ready.setup";
 import { GameSettingsSetup } from "./setups/game-settings/game-settings.setup";
 import { PanelSetup } from "./setups/panel/panel.setup";
 import { ElementsSetup } from "./setups/elements/elements.setup";
@@ -67,7 +68,8 @@ new ExtensionContainer()
     SkribblMessageRelaySetup,
     ToolbarSetup,
     SkribblEmitRelaySetup,
-    ControlsSetup
+    ControlsSetup,
+    SkribblInitializedSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
@@ -98,7 +100,8 @@ new ExtensionContainer()
     PanelFiltersFeature,
     ChatRecallFeature,
     DeveloperModeFeature
-);
+  );
 
 /* indicate for interceptor that content script has loaded */
 document.body.setAttribute("typo-script-loaded", "true");
+

@@ -1,9 +1,13 @@
 <script lang="ts">
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
   import IconButton from "@/lib/icon-button/icon-button.svelte";
+  import Checkbox from "@/lib/checkbox/checkbox.svelte";
   import type { ToolbarImageLabFeature } from "./toolbar-imagelab.feature";
   export let feature: ToolbarImageLabFeature;
   const store = feature.savedDrawCommandsStore;
+  feature.customName = "";
+
+  const locked = feature.locked;
 </script>
 
 <style lang="scss">
@@ -14,12 +18,32 @@
     align-items: stretch;
     gap: .7rem;
 
+    .lockedHint {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      width: 100%;
+
+      span {
+        flex-grow: 1;
+        user-select: none;
+        font-weight: 600;
+        opacity: .8;
+      }
+    }
+
     .saved-commands {
       display:flex;
       gap: 1rem;
       align-items: center;
 
-      :global(:last-child){
+      &.locked > :global(:last-child){
+        pointer-events: none;
+        opacity: .5;
+      }
+
+      > :global(:last-child){
         flex-grow: 1;
       }
 
@@ -37,18 +61,31 @@
 
 <div class="typo-toolbar-imagelab-actions">
 
+
+  {#if $locked}
+    <div class="lockedHint">
+      <IconButton
+        icon="file-img-disabled-gif" name="Abort" size="1.5rem" hoverMove="{false}"
+        on:click={() => feature.abortPaste()}
+      />
+      <span>Drawing in progress...</span>
+    </div>
+  {/if}
+
   {#each $store as image}
-    <div class="saved-commands">
+    <div class="saved-commands" class:locked={$locked}>
       <div class="remove" >
         <IconButton
           icon="file-img-disabled-gif" name="Remove" size="1.5rem" hoverMove="{false}"
           on:click={() => feature.removeDrawCommands($store, image)}
         />
       </div>
-      <FlatButton content="{image.name}" color="green" on:click={() => feature.addDrawCommandsFromFile()} />
+      <FlatButton content="{image.name}" color="blue" on:click={() => feature.pasteDrawCommands(image)} />
     </div>
   {/each}
 
   <FlatButton content="Load SKD File" color="green" on:click={() => feature.addDrawCommandsFromFile()} />
-  <FlatButton content="Save Current Image" color="blue" on:click={() => feature.saveCurrentDrawCommands()} />
+  <FlatButton content="Save Current Image" color="green" on:click={() => feature.saveCurrentDrawCommands()} />
+  <input type="text" class="typo" placeholder="Custom save name" bind:value={feature.customName} />
+  <Checkbox bind:checked={feature.clearBeforePaste} description="Clear before paste" />
 </div>

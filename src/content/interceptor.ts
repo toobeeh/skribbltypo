@@ -71,6 +71,8 @@ Promise.all([scriptStopped, contentScriptLoaded, tokenProcessed]).then(() => {
 
     /* signalize patched game is ready */
     document.dispatchEvent(new CustomEvent("patchExecuted"));
+    document.body.setAttribute("typo-patch-loaded", "true");
   };
   document.body.appendChild(patch);
 });
+

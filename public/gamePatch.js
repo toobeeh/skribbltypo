@@ -79,6 +79,7 @@
                     lastConnect: 0,
                     initListeners: (() => {
                         let abort = false; 
+                        document.addEventListener("clearDrawing", () => nn());
                         document.addEventListener("abortJoin", () => abort = true); 
                         document.addEventListener("joinLobby", (e) => {
                             abort = false;
@@ -2296,4 +2297,5 @@ const input = De; let rest = input.value.substring(100);
       e[1] = Math.round(100 * Math.random()) % z, e[2] = Math.round(100 * Math.random()) % H, 1e3 * Math.random() < 10 && (e[3] = Math.floor(20 * Math.random())), he(this, e), this.classList.remove("clicked"), this.offsetWidth, this.classList.add("clicked")
     })
   }
+document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");
 }(window, document, localStorage, io);

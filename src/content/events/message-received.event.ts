@@ -22,8 +22,8 @@ export class MessageReceivedEventProcessor extends EventProcessor<string, Messag
   public readonly eventType = MessageReceivedEvent;
 
   protected async streamEvents(): Promise<Observable<MessageReceivedEvent>> {
-    const skribblEmit = await this._skribblMessageRelaySetup.complete();
-    return skribblEmit.pipe(
+    const skribblMessages = await this._skribblMessageRelaySetup.complete();
+    return skribblMessages.serverMessages$.pipe(
       filter((event) => event.id == 30),
       map((event) => new MessageReceivedEvent(event.data))
     );

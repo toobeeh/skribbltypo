@@ -5,6 +5,7 @@
 
   export let areaName: string;
   export let maxHeight: string | undefined = undefined;
+  export let maxWidth: string | undefined = undefined;
   export let componentData: componentData<SvelteComponent>;
   export let title: string | undefined = undefined;
   export let iconName: string | undefined = undefined;
@@ -89,7 +90,7 @@
     align-items: center;
 
     &.closing {
-      animation: slideOut .08s ease-out;
+      animation: slideOut .08s ease-out forwards;
     }
 
     /* background on separate after element because backdrop blur fucks rendering up */
@@ -106,7 +107,7 @@
     }
 
     &.closing:after {
-      animation: slideOut .08s ease-out;
+      animation: slideOut .08s ease-out forwards;
     }
 
     > h3 {
@@ -118,6 +119,7 @@
         user-select: none;
         height: 1.8em;
         width: 1.8em;
+        filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, .3));
       }
     }
 
@@ -130,7 +132,8 @@
 
 </style>
 
-<div class="typo-area-flyout color-scrollbar" class:closing={closing} style="max-height: {maxHeight ? `calc(${maxHeight} - 1em)` : 'auto'}; grid-area: {areaName}"
+<div class="typo-area-flyout color-scrollbar" class:closing={closing}
+     style="max-height: {maxHeight ? `calc(${maxHeight} - 1em)` : 'auto'}; max-width: {maxWidth ? `calc(${maxWidth} - 2em)` : 'auto'}; grid-area: {areaName}"
   bind:this={self}
 >
   {#if title}

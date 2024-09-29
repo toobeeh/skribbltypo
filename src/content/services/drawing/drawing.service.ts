@@ -4,7 +4,10 @@ import { ImageResetEvent, ImageResetEventListener } from "@/content/events/image
 import { LobbyStateChangedEvent, LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
 import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/word-guessed.event";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
+import { convertOldSkd } from "@/util/skribbl/skd";
+import { wait } from "@/util/wait";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, debounceTime, map, merge, Subject, withLatestFrom } from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
@@ -44,7 +47,8 @@ export class DrawingService {
     @inject(DrawEventListener) private readonly draw: DrawEventListener,
     @inject(WordGuessedEventListener) private readonly wordGuessed: WordGuessedEventListener,
     @inject(ImageResetEventListener) private readonly imageReset: ImageResetEventListener,
-    @inject(ElementsSetup) private readonly elementsSetup: ElementsSetup
+    @inject(ElementsSetup) private readonly elementsSetup: ElementsSetup,
+    @inject(SkribblMessageRelaySetup) private readonly skribblMessages: SkribblMessageRelaySetup
   ) {
     this._logger = loggerFactory(this);
 
@@ -213,7 +217,13 @@ export class DrawingService {
    * @param name
    * @param commands
    */
-  public addDrawCommands(name: string, commands: number[][]) {
+  public addDrawCommands(name: string, commands: number[][] | number[][][]) {
+
+    if(commands[0] && Array.isArray(commands[0]) && Array.isArray(commands[0][0])) {
+      commands = convertOldSkd(commands as number[][][]);
+    }
+    else commands = commands as number[][];
+
     this.savedDrawCommands.push({name, commands});
     this._savedDrawCommands$.next(this.savedDrawCommands);
   }
@@ -225,5 +235,18 @@ export class DrawingService {
   public removeSavedDrawCommands(index: number) {
     this.savedDrawCommands = this.savedDrawCommands.filter((item, i) => i !== index);
     this._savedDrawCommands$.next(this.savedDrawCommands);
+  }
+
+  public async pasteDrawCommands(commands: number[][], stopped?: () => boolean) {
+    const paste = (command: number[]) => document.dispatchEvent(new CustomEvent("performDrawCommand", {detail: command}));
+    for(const command of commands) {
+      if(stopped?.()) return;
+      paste(command);
+      await wait(2);
+    }
+  }
+
+  public clearImage() {
+    document.dispatchEvent(new CustomEvent("clearDrawing"));
   }
 }

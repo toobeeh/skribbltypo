@@ -2,12 +2,17 @@ import { type Observable, Subject } from "rxjs";
 import { earlySetup } from "../../core/setup/earlySetup.decorator";
 import { Setup } from "../../core/setup/setup";
 
+export interface messageRelay {
+  serverMessages$: Observable<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+  insertMessage: (message: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
 /**
  * Setup that waits until the game js has been patched
  */
 @earlySetup()
-export class SkribblMessageRelaySetup extends Setup<Observable<any>> {  // eslint-disable-line @typescript-eslint/no-explicit-any
-  protected async runSetup(): Promise<Observable<any>> { // eslint-disable-line @typescript-eslint/no-explicit-any
+export class SkribblMessageRelaySetup extends Setup<messageRelay> {
+  protected async runSetup(): Promise<messageRelay> {
     return new Promise((resolve) => {
       window.addEventListener("message", (data) => {
         if (data.data === "skribblMessagePort") {
@@ -24,7 +29,10 @@ export class SkribblMessageRelaySetup extends Setup<Observable<any>> {  // eslin
 
             observable.next(message.data);
           };
-          resolve(observable);
+          resolve({
+            serverMessages$: observable,
+            insertMessage: (message) => ports[0].postMessage(message)
+          });
         }
       });
     });

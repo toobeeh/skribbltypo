@@ -57,6 +57,7 @@ export class ToolbarImagePostFeature extends TypoFeature {
           componentData: flyoutContent,
           areaName: "chat",
           maxHeight: "600px",
+          maxWidth: "300px",
           title: "Post Image",
           iconName: "file-img-letter-gif",
         },

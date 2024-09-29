@@ -33,7 +33,7 @@ export class LobbyPlayerChangedEventProcessor extends EventProcessor<lobbyPlayer
     const events = new Subject<LobbyPlayerChangedEvent>();
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
 
-    skribblMessages.subscribe((event) => {
+    skribblMessages.serverMessages$.subscribe((event) => {
 
       /* player joined lobby */
       if(event.id === 1){

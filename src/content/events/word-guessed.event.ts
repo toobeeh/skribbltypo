@@ -30,7 +30,7 @@ export class WordGuessedEventProcessor extends EventProcessor<wordGuessed, WordG
     const events = new Subject<WordGuessedEvent>();
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
 
-    skribblMessages.subscribe((event) => {
+    skribblMessages.serverMessages$.subscribe((event) => {
       if(event.id === 15){
         const guessed: wordGuessed = {
           playerId: event.data.id,

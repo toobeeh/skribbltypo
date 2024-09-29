@@ -2,7 +2,7 @@ import { inject } from "inversify";
 import { Setup } from "../../core/setup/setup";
 import { requireElement } from "../../../util/document/requiredQuerySelector";
 import { createElement, appendElement } from "../../../util/document/appendElement";
-import { GamePatchReadySetup } from "../game-patch-ready/game-patch.setup";
+import { GamePatchReadySetup } from "../game-patch-ready/game-patch-ready.setup";
 import PanelTabs from "./panel-tabs.svelte";
 
 export class PanelSetup extends Setup<{ leftPanel: HTMLElement, rightPanel: HTMLElement }> {

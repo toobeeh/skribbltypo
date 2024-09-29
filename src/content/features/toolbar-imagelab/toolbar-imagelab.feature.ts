@@ -1,9 +1,11 @@
+import { ExtensionSetting } from "@/content/core/settings/setting";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { fromObservable } from "@/util/store/fromObservable";
+import { chooseFile } from "@/util/upload";
 import { inject } from "inversify";
-import { combineLatest, Subscription, take } from "rxjs";
+import { BehaviorSubject, combineLatest, Subscription, take } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarImageLab from "./toolbar-imagelab.svelte";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
@@ -20,9 +22,28 @@ export class ToolbarImageLabFeature extends TypoFeature {
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
-
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
+
+  private _customName?: string;
+  public set customName(value: string | undefined){
+    const val = value?.replace(/[^a-z0-9]/gi, "_").toLowerCase() ?? undefined;
+    this._customName = val && val.length > 0 ? val : undefined;
+  }
+  public get customName(){
+    return this._customName;
+  }
+
+  public clearBeforePaste = false;
+
+  private _pasteInProgress = new BehaviorSubject<boolean>(false);
+  public get locked(){
+    return fromObservable(this._pasteInProgress, false);
+  }
+
+  public abortPaste(){
+    this._pasteInProgress.next(false);
+  }
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -60,6 +81,7 @@ export class ToolbarImageLabFeature extends TypoFeature {
           componentData: flyoutContent,
           areaName: "chat",
           maxHeight: "600px",
+          maxWidth: "300px",
           title: "Image Laboratory",
           iconName: "file-img-dna-gif",
         },
@@ -81,8 +103,33 @@ export class ToolbarImageLabFeature extends TypoFeature {
     this._flyoutSubscription?.unsubscribe();
   }
 
-  public addDrawCommandsFromFile() {
-    console.log("hii");
+  public async addDrawCommandsFromFile() {
+    const files = await chooseFile(".skd", true);
+    if(files === null) return;
+
+    // read files as json draw command array
+    const commands = await Promise.all(
+      [...files].map(async (file) => {
+        let commands;
+        try {
+          const text = await file.text();
+          commands = JSON.parse(text);
+          if(typeof commands !== "object" || !Array.isArray(commands)){
+            throw new Error("Invalid format");
+          }
+        }
+        catch(e){
+          this._logger.error("Failed to read file", file, e);
+          throw e;
+        }
+        return {
+          name: file.name,
+          commands
+        };
+      })
+    );
+
+    commands.forEach(c => this._drawingService.addDrawCommands(c.name, c.commands));
   }
 
   public saveCurrentDrawCommands(){
@@ -97,7 +144,7 @@ export class ToolbarImageLabFeature extends TypoFeature {
         throw new Error("state is null");
       }
 
-      this._drawingService.addDrawCommands(state.word.hints, commands);
+      this._drawingService.addDrawCommands(this._customName ?? state.word.hints, commands);
     });
   }
 
@@ -113,5 +160,12 @@ export class ToolbarImageLabFeature extends TypoFeature {
     }
 
     this._drawingService.removeSavedDrawCommands(index);
+  }
+
+  public async pasteDrawCommands(commands: savedDrawCommands){
+    if(this.clearBeforePaste) this._drawingService.clearImage();
+    this._pasteInProgress.next(true);
+    await this._drawingService.pasteDrawCommands(commands.commands, () => !this._pasteInProgress.value);
+    this._pasteInProgress.next(false);
   }
 }

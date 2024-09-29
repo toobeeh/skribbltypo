@@ -72,6 +72,7 @@ export class ToolbarSaveFeature extends TypoFeature {
           componentData: flyoutContent,
           areaName: "chat",
           maxHeight: "600px",
+          maxWidth: "300px",
           title: "Save Image",
           iconName: "file-img-floppy-drive-gif",
         },

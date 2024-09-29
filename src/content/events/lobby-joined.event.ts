@@ -29,7 +29,7 @@ export class LobbyJoinedEventProcessor extends EventProcessor<skribblLobby, Lobb
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
     const gameSettings = await this._gameSettingsSetup.complete();
 
-    skribblMessages.subscribe((event) => {
+    skribblMessages.serverMessages$.subscribe((event) => {
       if(event.id === 10){
         const lobby = parseSkribblLobbyDataEvent(event.data, gameSettings.languageSettings);
 

@@ -70,7 +70,7 @@
     padding-bottom: 2rem;
 
     &.closing {
-      animation: slideOut 0.15s ease-out;
+      animation: slideOut 0.15s ease-out forwards;
     }
 
     .content-title {
@@ -109,7 +109,7 @@
     animation: slideIn 0.15s ease-out;
 
     &.closing {
-      animation: slideOut 0.15s ease-out;
+      animation: slideOut 0.15s ease-out forwards;
     }
   }
 
@@ -121,7 +121,7 @@
     animation: fadeIn 0.15s ease-out;
 
     &.closing {
-      animation: fadeOut 0.15s ease-out;
+      animation: fadeOut 0.15s ease-out forwards;
     }
   }
 

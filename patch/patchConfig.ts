@@ -69,6 +69,11 @@ export const gameJsPatchConfig = {
           target:
             "function [a-zA-Z0-9&_\\-$]+\\(e\\) \\{[^}]+?([a-zA-Z0-9&_\\-$]+)\\(\\)[^}]+?\\.dataset\\.tooltip",
         },
+        {
+          source: "##CLEARACTION##",
+          target:
+            "graphic: \"clear\\.gif\",\\s+action: ([a-zA-Z0-9&_\\-$]+)",
+        },
       ],
       injections: [
         {
@@ -121,6 +126,7 @@ export const gameJsPatchConfig = {
                     lastConnect: 0,
                     initListeners: (() => {
                         let abort = false; 
+                        document.addEventListener("clearDrawing", () => ##CLEARACTION##());
                         document.addEventListener("abortJoin", () => abort = true); 
                         document.addEventListener("joinLobby", (e) => {
                             abort = false;
@@ -685,6 +691,16 @@ export const gameJsPatchConfig = {
         {
           position: '(\\("text", [^}]+name, [^\\)]+\\)\\))',
           code: `.setAttribute("playerid", ##PLAYER##.id)`,
+        },
+      ],
+    },
+    {
+      name: "Add event when skribbl initialized",
+      replacements: [ ],
+      injections: [
+        {
+          position: '}(\\s+)}\\(window, document,',
+          code: `document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");`,
         },
       ],
     },

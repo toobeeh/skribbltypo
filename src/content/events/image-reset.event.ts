@@ -33,7 +33,7 @@ export class ImageResetEventProcessor extends EventProcessor<number, ImageResetE
       skribblEmit.pipe(
         filter(data => data.event === "data"),
         map(data => data.data)),
-      skribblMessages
+      skribblMessages.serverMessages$
     ).subscribe((event) => {
 
       /* clear event*/

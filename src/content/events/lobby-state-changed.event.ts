@@ -28,7 +28,7 @@ export class LobbyStateChangedEventProcessor extends EventProcessor<lobbyStateUp
     const events = new Subject<LobbyStateChangedEvent>();
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
 
-    skribblMessages.subscribe((event) => {
+    skribblMessages.serverMessages$.subscribe((event) => {
 
       /* regular lobby update */
       if(event.id === 11){

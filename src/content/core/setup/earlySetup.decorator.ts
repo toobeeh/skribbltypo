@@ -1,4 +1,4 @@
-import type { Type } from "../../../util/types/type";
+import type { Type } from "@/util/types/type";
 import type { Setup } from "./setup";
 
 const decoratorSymbol = Symbol("earlySetup");

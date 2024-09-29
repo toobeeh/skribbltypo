@@ -34,7 +34,7 @@ export class DrawEventProcessor extends EventProcessor<number[][], DrawEvent>
       skribblEmit.pipe(
         filter(data => data.event === "data"),
         map(data => data.data)),
-      skribblMessages
+      skribblMessages.serverMessages$
     ).pipe(
       map(event => {
         /*draw commands event*/
@@ -47,7 +47,7 @@ export class DrawEventProcessor extends EventProcessor<number[][], DrawEvent>
 
         /*draw commands from lobby joined*/
         if(event.id === 10 && event.data.state.id === 4 && event.data.state.data.drawCommands){
-          return event.data.data.drawCommands as number[][];
+          return event.data.state.data.drawCommands as number[][];
         }
 
         return null;

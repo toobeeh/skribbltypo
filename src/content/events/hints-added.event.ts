@@ -25,7 +25,7 @@ export class HintsAddedEventProcessor extends EventProcessor<[number, string][],
     const events = new Subject<HintsAddedEvent>();
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
 
-    skribblMessages.subscribe((event) => {
+    skribblMessages.serverMessages$.subscribe((event) => {
 
       /* inital lobby hints */
       if(event.id === 10 && event.data.state.id === 4 && event.data.state.data.hints){

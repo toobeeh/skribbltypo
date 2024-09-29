@@ -57,6 +57,7 @@ export class ToolbarChallengesFeature extends TypoFeature {
           componentData: flyoutContent,
           areaName: "chat",
           maxHeight: "600px",
+          maxWidth: "300px",
           title: "Challenges",
           iconName: "file-img-challenge-gif",
         },

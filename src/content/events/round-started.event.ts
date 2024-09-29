@@ -25,7 +25,7 @@ export class RoundStartedEventProcessor extends EventProcessor<number, RoundStar
     const events = new Subject<RoundStartedEvent>();
     const skribblMessages = await this._skribblMessageRelaySetup.complete();
 
-    skribblMessages.subscribe((event) => {
+    skribblMessages.serverMessages$.subscribe((event) => {
       if(event.id === 11 && event.data.id == 2){
         const round =( event.data.data as number) + 1;
         this._logger.info("Round started", round);
