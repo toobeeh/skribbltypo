@@ -9,7 +9,7 @@ import { arrayChunk } from "@/util/arrayChunk";
 import { convertOldSkd } from "@/util/skribbl/skd";
 import { wait } from "@/util/wait";
 import { inject, injectable } from "inversify";
-import { BehaviorSubject, debounceTime, map, merge, Subject, withLatestFrom } from "rxjs";
+import { BehaviorSubject, debounceTime, map, merge, withLatestFrom } from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import { LobbyLeftEvent, LobbyLeftEventListener } from "../../events/lobby-left.event";
 
@@ -36,7 +36,7 @@ export class DrawingService {
 
   private _currentImageState$ = new BehaviorSubject<imageStateUpdate | null>(null);
   private _currentCommands$ = new BehaviorSubject<number[][]>([]);
-  private _drawerChange$ = new Subject<"start" | "end">();
+  private _drawingState$ = new BehaviorSubject<"drawing" | "idle">("idle");
   private _savedDrawCommands$ = new BehaviorSubject<savedDrawCommands[]>([]);
 
   constructor(
@@ -102,7 +102,7 @@ export class DrawingService {
 
       if(update instanceof LobbyLeftEvent) {
         currentImageState = null;
-        this._drawerChange$.next("end");
+        this._drawingState$.next("idle");
       }
       else if(update instanceof LobbyStateChangedEvent) {
 
@@ -120,7 +120,7 @@ export class DrawingService {
           currentImageState.drawerId = update.data.initialDrawerId;
         }
         if(update.data.drawingStarted !== undefined) {
-          this._drawerChange$.next("start");
+          this._drawingState$.next("drawing");
 
           currentImageState.drawerId = update.data.drawingStarted.drawerId;
           currentImageState.word.length = update.data.drawingStarted.characters;
@@ -130,7 +130,7 @@ export class DrawingService {
             update.data.drawingStarted.characters.map(len => "_".repeat(len)).join(" ");
         }
         if (update.data.drawingRevealed !== undefined) {
-          this._drawerChange$.next("end");
+          this._drawingState$.next("idle");
 
           currentImageState.word.solution = update.data.drawingRevealed.word;
           currentImageState.word.hints = update.data.drawingRevealed.word;
@@ -150,7 +150,7 @@ export class DrawingService {
         }
       }
       else if(currentImageState !== null && update instanceof LobbyLeftEvent) {
-        this._drawerChange$.next("end");
+        this._drawingState$.next("idle");
         currentImageState = null;
       }
 
@@ -190,8 +190,8 @@ export class DrawingService {
   /**
    * Observable which emits when the drawer changes
    */
-  public get drawerChange$() {
-    return this._drawerChange$.asObservable();
+  public get drawingState$() {
+    return this._drawingState$.asObservable();
   }
 
   /**

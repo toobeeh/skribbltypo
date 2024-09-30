@@ -40,13 +40,13 @@ export class ImageAgentFeature extends TypoFeature {
   get wordStore() {
 
     /* create observable that emits the current word if the drawer is self */
-    const ownWordChanges = this._drawingService.drawerChange$.pipe(
+    const ownWordChanges = this._drawingService.drawingState$.pipe(
       delay(100), /* delay so that no race condition between latest occurs */
       withLatestFrom(this._lobbyService.lobby$, this._drawingService.imageState$),
       map(([state, lobby, image]) => {
 
         /* if drawing ended or any state faulty, hide always */
-        if(state === "end" || lobby === null || image === null) return null;
+        if(state === "idle" || lobby === null || image === null) return null;
 
         /* else get word if current drawer is player */
         const drawer = lobby?.players.find(p => p.id === image.drawerId);
