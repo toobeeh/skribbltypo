@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Subject } from "rxjs";
 
+  export let disabled: boolean = false;
   export let icon: string;
   export let name: string;
   export let hoverMove: boolean = true;
@@ -17,6 +18,11 @@
     display: block;
     cursor: pointer;
     filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, .3));
+
+    &.disabled {
+      pointer-events: none;
+      opacity: .5;
+    }
 
     img {
       aspect-ratio: 1;
@@ -40,7 +46,8 @@
   }
 </style>
 
-<div class="typo-icon-button" style="order: {order ?? 'auto'}" role="button" data-name="{name}" tabindex="0" class:greyscale={greyscaleInactive}
+<div class="typo-icon-button" style="order: {order ?? 'auto'}" role="button" data-name="{name}" tabindex="0"
+     class:greyscale={greyscaleInactive} class:disabled={disabled}
      on:click
      on:click={() => click.next(void 0)}
      on:keypress={evt => evt.code === "Enter" && click.next(void 0)}

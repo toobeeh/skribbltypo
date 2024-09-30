@@ -43,63 +43,66 @@ export class LobbyService {
     ).pipe(
       withLatestFrom(this._currentLobby$), /* compare updates with current lobby */
       map(data => ({update: data[0], currentLobby: data[1]})),
-    ).subscribe(({update, currentLobby}) => {
+      map(({update, currentLobby}) => {
 
-      /* prevent reference issues */
-      currentLobby = currentLobby === null ? null : structuredClone(currentLobby);
+        /* prevent reference issues */
+        currentLobby = currentLobby === null ? null : structuredClone(currentLobby);
 
-      /* lobby left, reset lobby */
-      if(update instanceof LobbyLeftEvent) {
-        currentLobby = null;
-      }
+        /* lobby left, reset lobby */
+        if(update instanceof LobbyLeftEvent) {
+          currentLobby = null;
+        }
 
-      /* lobby joined, set new lobby */
-      else if(update instanceof LobbyJoinedEvent) {
-        currentLobby = update.data;
-      }
+        /* lobby joined, set new lobby */
+        else if(update instanceof LobbyJoinedEvent) {
+          currentLobby = update.data;
+        }
 
-      /* round ended, update round */
-      else if(currentLobby !== null && update instanceof RoundStartedEvent) {
-        currentLobby.round = update.data;
-      }
+        /* round ended, update round */
+        else if(currentLobby !== null && update instanceof RoundStartedEvent) {
+          currentLobby.round = update.data;
+        }
 
-      /* word guessed, update players */
-      else if(currentLobby !== null && update instanceof WordGuessedEvent) {
-        const guessed = update.data;
-        currentLobby.players.forEach(player => {
-          if(player.id === guessed.playerId) {
-            player.guessed = true;
-          }
-        });
-      }
-      
-      /* lobby state updated */
-      else if (currentLobby !== null && update instanceof LobbyStateChangedEvent) {
-        const data = update.data;
-        if(data.drawingRevealed) {
-          const scores = new Map<number, number>(data.drawingRevealed.scores.map(score => [score.playerId, score.score]));
-          currentLobby.players.forEach((player) => {
-            player.guessed = false;
-            player.score = scores.get(player.id) ?? player.score;
+        /* word guessed, update players */
+        else if(currentLobby !== null && update instanceof WordGuessedEvent) {
+          const guessed = update.data;
+          currentLobby.players.forEach(player => {
+            if(player.id === guessed.playerId) {
+              player.guessed = true;
+            }
           });
         }
-      }
 
-      /* player changed, update list */
-      else if(currentLobby !== null && update instanceof LobbyPlayerChangedEvent) {
-        const data = update.data;
-        if(data.left) {
-          const left = data.left;
-          currentLobby.players = currentLobby.players.filter(user => user.id !== left.id);
+        /* lobby state updated */
+        else if (currentLobby !== null && update instanceof LobbyStateChangedEvent) {
+          const data = update.data;
+          if(data.drawingRevealed) {
+            const scores = new Map<number, number>(data.drawingRevealed.scores.map(score => [score.playerId, score.score]));
+            currentLobby.players.forEach((player) => {
+              player.guessed = false;
+              player.score = scores.get(player.id) ?? player.score;
+            });
+          }
         }
-        else if(data.joined) {
-          currentLobby.players.push(data.joined);
-        }
-      }
 
-      /* emit updated lobby */
-      this._currentLobby$.next(currentLobby);
-    });
+        /* player changed, update list */
+        else if(currentLobby !== null && update instanceof LobbyPlayerChangedEvent) {
+          const data = update.data;
+          if(data.left) {
+            const left = data.left;
+            currentLobby.players = currentLobby.players.filter(user => user.id !== left.id);
+          }
+          else if(data.joined) {
+            currentLobby.players.push(data.joined);
+          }
+        }
+
+        /* emit updated lobby */
+        return currentLobby;
+      }),
+      debounceTime(100), /* debounce to prevent spamming */
+      distinctUntilChanged((curr, prev) => JSON.stringify(curr) === JSON.stringify(prev)) /* if join-leave spam debounced, take only changes */
+    ).subscribe(data => this._currentLobby$.next(data));
 
     this.lobby$.subscribe(data => this._logger.info("Lobby changed", data));
   }
@@ -128,9 +131,6 @@ export class LobbyService {
   }
 
   public get lobby$(){
-    return this._currentLobby$.pipe(
-      debounceTime(100), /* debounce to prevent spamming */
-      distinctUntilChanged((curr, prev) => JSON.stringify(curr) === JSON.stringify(prev)) /* if join-leave spam debounced, take only changes */
-    );
+    return this._currentLobby$.asObservable();
   }
 }

@@ -19,10 +19,10 @@
   .typo-image-agent {
     grid-area: chat;
     align-self: flex-start;
-    width: calc(300px - 1rem);
+    width: calc(300px - .4rem);
     position: relative;
     justify-self: center;
-    margin-top: .5rem;
+    margin-top: .2rem;
     border-radius: 10px;
     transform-origin: top;
     align-items: center;
@@ -91,7 +91,7 @@
 
       > img {
         width: 100%;
-        border-radius: 10px;
+        border-radius: 3px;
         cursor: pointer;
       }
     }

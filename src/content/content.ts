@@ -24,6 +24,7 @@ import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
+import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
@@ -70,7 +71,8 @@ new ExtensionContainer()
     ToolbarSetup,
     SkribblEmitRelaySetup,
     ControlsSetup,
-    SkribblInitializedSetup
+    SkribblInitializedSetup,
+    ApiDataSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,

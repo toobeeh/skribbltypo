@@ -25,6 +25,7 @@ export * from './LobbyDetailsDto';
 export * from './LobbyPlayerDto';
 export * from './MemberDto';
 export * from './MemberSearchDto';
+export * from './MemberWebhookDto';
 export * from './PalantirLobbyDto';
 export * from './PalantirLobbyPlayerDto';
 export * from './PostImageDto';

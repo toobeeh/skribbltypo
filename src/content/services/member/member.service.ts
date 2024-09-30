@@ -1,15 +1,22 @@
 import { inject, injectable } from "inversify";
-import { BehaviorSubject, filter } from "rxjs";
-import { type MemberDto, MembersApi } from "../../../api";
+import { BehaviorSubject, filter, forkJoin, of, switchMap } from "rxjs";
+import { fromPromise } from "rxjs/internal/observable/innerFrom";
+import { type MemberDto, MembersApi, type MemberWebhookDto } from "../../../api";
 import { ApiService } from "../api/api.service";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import { TokenService } from "../token/token.service";
+
+interface memberData {
+  member: MemberDto,
+  webhooks: MemberWebhookDto[]
+}
 
 @injectable()
 export class MemberService {
 
   private readonly _logger;
-  private readonly _member = new BehaviorSubject<MemberDto | null | undefined>(undefined);
+  private readonly _member$ = new BehaviorSubject<MemberDto | null | undefined>(undefined);
+  private readonly _memberData$ = new BehaviorSubject<memberData | null | undefined>(undefined);
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -22,21 +29,37 @@ export class MemberService {
         filter(token => token !== undefined), // only when token is loaded
       )
       .subscribe(token => this.loadMember(token === null));
+
+    /* create stream for additional member data, loads when member changes */
+    this._member$.pipe(
+      switchMap(member => {
+        if(member === null || member === undefined) {
+          return of(member);
+        }
+
+        return forkJoin({
+          webhooks: fromPromise(_apiService.getApi(MembersApi).getMemberGuildWebhooks({ login: Number(member.userLogin) })),
+          member: of(member)
+        });
+      })
+    ).subscribe(data => {
+      this._memberData$.next(data);
+    });
   }
 
   private async loadMember(reset = false): Promise<MemberDto | null> {
 
     if (reset) {
-      this._member.next(null);
+      this._member$.next(null);
       return Promise.resolve(null);
     }
 
     const promise = this._apiService.getApi(MembersApi).getAuthenticatedMember();
     promise.then(member => {
-      this._member.next(member);
+      this._member$.next(member);
     }).catch(() => {
-      if(this._member.value !== null) {
-        this._member.next(null);
+      if(this._member$.value !== null) {
+        this._member$.next(null);
       }
     });
 
@@ -46,8 +69,15 @@ export class MemberService {
   /**
    * Observable which emits the current member.
    */
-  public get member() {
-    return this._member.asObservable();
+  public get member$() {
+    return this._member$.asObservable();
+  }
+
+  /**
+   * Observable which emits the current member and additional data.
+   */
+  public get memberData$() {
+    return this._memberData$.asObservable();
   }
 
   /**

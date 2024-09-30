@@ -32,7 +32,7 @@ export class UserInfoFeature extends TypoFeature {
   }
 
   get memberStore() {
-    return fromObservable(this._memberService.member, null);
+    return fromObservable(this._memberService.member$, null);
   }
 
   public login(){

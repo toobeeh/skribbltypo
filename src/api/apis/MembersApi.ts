@@ -18,6 +18,7 @@ import type {
   AccessTokenDto,
   MemberDto,
   MemberSearchDto,
+  MemberWebhookDto,
   UpdateDiscordID,
 } from '../models/index';
 import {
@@ -27,6 +28,8 @@ import {
     MemberDtoToJSON,
     MemberSearchDtoFromJSON,
     MemberSearchDtoToJSON,
+    MemberWebhookDtoFromJSON,
+    MemberWebhookDtoToJSON,
     UpdateDiscordIDFromJSON,
     UpdateDiscordIDToJSON,
 } from '../models/index';
@@ -53,6 +56,10 @@ export interface GetMemberByDiscordIDRequest {
 }
 
 export interface GetMemberByLoginRequest {
+    login: number;
+}
+
+export interface GetMemberGuildWebhooksRequest {
     login: number;
 }
 
@@ -210,7 +217,7 @@ export class MembersApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Member  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Member  Rate limit default: 30 Requests / 60000 ms TTL
      * Get the currently authenticated member
      */
     async getAuthenticatedMemberRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MemberDto>> {
@@ -237,7 +244,7 @@ export class MembersApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Member  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Member  Rate limit default: 30 Requests / 60000 ms TTL
      * Get the currently authenticated member
      */
     async getAuthenticatedMember(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MemberDto> {
@@ -371,6 +378,49 @@ export class MembersApi extends runtime.BaseAPI {
      */
     async getMemberByLogin(requestParameters: GetMemberByLoginRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MemberDto> {
         const response = await this.getMemberByLoginRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 10 Requests / 60000 ms TTL
+     * Get all webhooks of a member
+     */
+    async getMemberGuildWebhooksRaw(requestParameters: GetMemberGuildWebhooksRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<MemberWebhookDto>>> {
+        if (requestParameters['login'] == null) {
+            throw new runtime.RequiredError(
+                'login',
+                'Required parameter "login" was null or undefined when calling getMemberGuildWebhooks().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearer", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/members/{login}/webhooks`.replace(`{${"login"}}`, encodeURIComponent(String(requestParameters['login']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(MemberWebhookDtoFromJSON));
+    }
+
+    /**
+     *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 10 Requests / 60000 ms TTL
+     * Get all webhooks of a member
+     */
+    async getMemberGuildWebhooks(requestParameters: GetMemberGuildWebhooksRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<MemberWebhookDto>> {
+        const response = await this.getMemberGuildWebhooksRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
