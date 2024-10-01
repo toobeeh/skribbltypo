@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.0.172743900
+// @version 26.3.0.172778165
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -549,7 +549,7 @@ const sprites = {
     },
     getPlayerList: () => { //get the lobby player list and store in lobbyPlayers
         let players = [];
-        let playerContainer = QS("#game-players .players-list");
+        let playerContainer = QS("#game-players");
         //let playerContainerLobby = QS("#containerLobbyPlayers");, ...playerContainerLobby.querySelectorAll(".lobbyPlayer")
         [...playerContainer.querySelectorAll(".player")].forEach(p => {
             let psc = new sprites.PlayerSpriteContainer(
@@ -622,7 +622,7 @@ const sprites = {
     updateAwards: () => {
         const lobbyAwards = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "award");
 
-        [...QSA(".players-list .player-icons")].forEach(icons => {
+        [...QSA("#game-players .player-icons")].forEach(icons => {
             const playerId = Number(icons.closest(".player")?.getAttribute("playerid"));
             if (Number.isNaN(playerId)) return;
             let playerIcons = lobbyAwards.filter(a => a.LobbyPlayerID == playerId);
@@ -664,6 +664,7 @@ const sprites = {
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
                 }
+                #game-players div.player[playerid='${scene.LobbyPlayerID}'] .player-background {opacity: 0}
                 #game-players div.player.guessed[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
@@ -930,7 +931,7 @@ const sprites = {
     },
     init: async () => {
         // make board behind playerlist so it doesnt hide portions of avatars
-        QS("#game-players .players-list").style.zIndex = "1";
+        const c = QS("#game-players").style.zIndex = "1";
         // polling for sprites, observer does not make sense since sprites take a few seconds to be activated
         setInterval(sprites.refreshCallback, 2000);
         let endboardObserver = new MutationObserver(() => { // mutation observer for game end result
@@ -1151,11 +1152,11 @@ const setColorPalette = (colorPalette) => {
         paletteContainer.appendChild(rowElem);
     }
     paletteContainer.addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
-    if (QS("#game-toolbar .color-picker .colors.custom")) {
-        QS("#game-toolbar .color-picker .colors.custom").replaceWith(paletteContainer);
+    if (QS("#game-toolbar .colors.custom")) {
+        QS("#game-toolbar .colors.custom").replaceWith(paletteContainer);
     }
-    else QS("#game-toolbar .color-picker .colors").insertAdjacentElement("afterend", paletteContainer);
-    QS("#game-toolbar .color-picker .colors").style.display = "none";
+    else QS("#game-toolbar .colors").insertAdjacentElement("afterend", paletteContainer);
+    QS("#game-toolbar .colors").style.display = "none";
 }
 
 const createColorPalette = (paletteObject) => {
@@ -1236,6 +1237,21 @@ const leaveLobby = async (next = false) => {
     });
 }
 document.addEventListener("toast", (e) => new Toast(e.detail.text, 1000));
+
+const cyrb53 = (str, seed = 0) => {
+    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for(let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+    h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+    h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+};
 
 
 // set default settings
@@ -2510,7 +2526,7 @@ const visuals = {
         }
         if (options["ingameContainerBackgroundsCheck"] == true) {
             let val = options["ingameContainerBackgrounds"] ? options["ingameContainerBackgrounds"].trim() : "";
-            style.innerHTML += "#game-bar, .clickable,  #game-room .settings, #game-room .players,   .tooltip .tooltip-content, #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar div.color-picker div.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .players-list .player, #game-players .players-list .player.odd {background-color: " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#game-bar, .clickable,  #game-room .settings, #game-room .players,   .tooltip .tooltip-content, #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar divdiv.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .players-list .player, #game-players .players-list .player.odd {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#game-players .players-list .player.odd{background-image: linear-gradient(0, " + (val != "" ? val : "transparent") + ", " + (val != "" ? val : "transparent") + ");}";
             style.innerHTML += "#game-chat .chat-content {background:none}";
             style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; --COLOR_CHAT_BG_BASE: " + val + " !important; } ";
@@ -3119,7 +3135,7 @@ const lobbies = {
 		return players;
 	},
 	getTriggerElements: () => {
-		return [QS("#game-round"), QS("#game-players .players-list"), [...QSA(".avatar .drawing")]].flat();
+		return [QS("#game-round"), QS("#game-players"), [...QSA(".avatar .drawing")]].flat();
 	},
 	setLobbyContainer: () => {
 		// get online players with lobby links
@@ -3212,7 +3228,7 @@ const lobbies = {
 			lobbyObserver.disconnect();
 
 			lobbyObserver.observe(QS("#game-round"), { characterData: true, childList: false, subtree: false, attributes: false });
-			lobbyObserver.observe(QS("#game-players .players-list"), { characterData: true, childList: true, subtree: false, attributes: false });
+			lobbyObserver.observe(QS("#game-players"), { characterData: true, childList: true, subtree: false, attributes: false });
 			lobbyObserver.observe(QS("#game-word .description"), { characterData: false, childList: false, subtree: false, attributes: true });
 			// lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
 
@@ -3665,15 +3681,30 @@ let patchNode = async (node) => {
         node.type = "javascript/blocked"; // block for chrome
         node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true }); // block for firefox
         node.src = ""; /* to be sure */
-        // insert patched script
-        let script = document.createElement("script");
-        script.src = chrome.runtime.getURL("gamePatch.js");
-        node.parentElement.appendChild(script);
+
+        (async () => {
+            const js = await (await fetch("js/game.js")).text();
+            const hash = cyrb53(js);
+            console.log("Game.js hash:", hash);
+
+            let patch = "gamePatch.js";
+            if(hash === 7693644640290134) { // PATCH date 2024-10-01
+                patch = `gamePatch-${hash}.js`;
+            }
+            else {
+                patch = "gamePatch.js"
+            }
+
+            // insert patched script
+            let script = document.createElement("script");
+            script.src = chrome.runtime.getURL(patch);
+            node.parentElement.appendChild(script);
+
+        })();
         // add var to get access typo ressources in css
         document.head.appendChild(elemFromString(`<style>
            :root{--typobrush:url(${chrome.runtime.getURL("res/wand.gif")})}
         </style>`));
-
     }
     if (node.classList && node.classList.contains("button-play")) {
         node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
@@ -4809,13 +4840,13 @@ bounceload {
     height: 100%;
 }
 
-#game #game-players .players-list .player.typo {
+#game #game-players .player.typo {
     height: 60px !important;
     display: flex;
     flex-direction: column;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container {
+#game #game-players .player.typo .player-avatar-container {
     place-items: center;
     position: absolute;
     right: 0;
@@ -4825,13 +4856,13 @@ bounceload {
     display: grid;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container .avatar {
+#game #game-players .player.typo .player-avatar-container .avatar {
     position: absolute;
     width: 48px;
     height: 48px;
 }
 
-#game #game-players .players-list .player.typo .player-info {
+#game #game-players .player.typo .player-info {
     position: unset;
     display: grid;
     place-items: center;
@@ -4841,7 +4872,7 @@ bounceload {
     gap: 4px;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-name {
+#game #game-players .player.typo .player-info .player-name {
     position: unset;
     grid-column: 2;
     grid-row: 1;
@@ -4850,23 +4881,23 @@ bounceload {
     overflow: hidden;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-rank {
+#game #game-players .player.typo .player-info .player-rank {
     position: unset;
     grid-row: 1/-1;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-score {
+#game #game-players .player.typo .player-info .player-score {
     position: unset;
     grid-column: 2;
     align-self: start;
 }
 
-#game #game-players .players-list .player.typo .player-icons {
+#game #game-players .player.typo .player-icons {
     position: absolute;
     padding-left: 4px;
 }
 
-#game #game-players .players-list .player.typo .player-icons .icon {
+#game #game-players .player.typo .player-icons .icon {
     height: 18px;
     width: 18px
 }
@@ -6547,16 +6578,16 @@ const uiTweaks = {
         uiTweaks.palettes.push(smallPalette);
         uiTweaks.palettes.push({
             name: "originalPalette", activate: () => {
-                [...QSA("#game-toolbar .color-picker .colors.custom")].forEach(p => p.remove());
-                QS("#game-toolbar .color-picker .colors").style.display = "";
+                [...QSA("#game-toolbar .colors.custom")].forEach(p => p.remove());
+                QS("#game-toolbar .colors").style.display = "";
             }
         });
         uiTweaks.palettes.find(palette => palette.name == localStorage.palette)?.activate();
     },
     initLobbyDescriptionForm: () => {
         // add Description form 
-        let customwords = QS(".game-room-group.customwords");
-        const input = elemFromString(`<div class="game-room-group" style="height:10%">
+        let customwords = QS(".group-customwords, .game-room-group.customwords");
+        const input = elemFromString(`<div class="group-customwords game-room-group customwords" style="height:10%">
 <div class="game-room-name">Palantir Description</div>
 <textarea style="" id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="Add a description that will show up in the Palantir bot"></textarea>
 </div>`);
@@ -6586,7 +6617,7 @@ const uiTweaks = {
             if (id) {
                 const clickedName = e.target.closest("b");
                 if (clickedName) {
-                    let player = QS(".players-list .player[playerid='" + id + "']");
+                    let player = QS("#game-players .player[playerid='" + id + "']");
                     player.click();
                 }
             }
@@ -6597,7 +6628,7 @@ const uiTweaks = {
             if (attr) {
                 node.querySelector("b").style.cursor = "pointer";
                 if (localStorage.experimental != "true") return;
-                let clone = document.querySelector(".players-list .player[playerid='" + attr + "'] .player-avatar-container").cloneNode(true);
+                let clone = document.querySelector("#game-players .player[playerid='" + attr + "'] .player-avatar-container").cloneNode(true);
                 clone.style.height = "1em";
                 clone.style.width = "1em";
                 clone.style.display = "inline-block";
@@ -6668,13 +6699,13 @@ const uiTweaks = {
                 let removeIDs = (event) => {
                     if (event.key == "AltGraph") {
                         document.removeEventListener("keyup", removeIDs);
-                        QSA(".players-list .player").forEach(player => {
+                        QSA("#game-players .player").forEach(player => {
                             player.querySelector(".player-icons span")?.remove();
                         });
                     }
                 }
                 document.addEventListener("keyup", removeIDs);
-                QSA(".players-list .player").forEach(player => {
+                QSA("#game-players .player").forEach(player => {
                     if (!player.querySelector(".player-icons span")) player.querySelector(".player-icons").insertAdjacentHTML("afterbegin", "<span style='color:inherit'>#" + player.getAttribute("playerid") + " </span>");
                 });
                 return;
@@ -7096,14 +7127,29 @@ const uiTweaks = {
             QS("[data-tooltip=Pipette]").click();
         });
 
-        // update cursor when pipette changed activity
-        new MutationObserver((e) => {
-            if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
-                if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
-                    QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+        if(QS(".toolbar-group-tools [data-tooltip=Pipette]")){
+            // update cursor when pipette changed activity
+            new MutationObserver((e) => {
+                if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                    if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                        QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                    }
                 }
-            }
-        }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+            }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+        }
+        else {
+            document.addEventListener("skribblInitialized", () => {
+                // update cursor when pipette changed activity
+                new MutationObserver((e) => {
+                    if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                        if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                            QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                        }
+                    }
+                }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+            });
+        }
+
 
         QS("#game-canvas canvas").addEventListener("click", (e) => {
             if(!document.querySelector(".toolbar-group-tools [data-tooltip=Pipette].selected")) return;
@@ -8037,7 +8083,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-canvas canvas").style.opacity = 1;
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -8057,7 +8103,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-canvas canvas").style.filter = "";
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -8079,7 +8125,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-chat .chat-container style#gamemodeDeafRules")?.remove()
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -8180,16 +8226,16 @@ const gamemodes = {
                     attributes: true
                 },
                 observeAction: () => {
-                    const itemWidth = getComputedStyle(QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div > div")).width;
-                    const itemCount = QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div").children.length;
+                    const itemWidth = getComputedStyle(QS("#game-toolbar > div.colors:not(.color-tools):not([style*=none]) > div > div")).width;
+                    const itemCount = QS("#game-toolbar > div.colors:not(.color-tools):not([style*=none]) > div").children.length;
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
                     QS("#game-canvas").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                            `#game-toolbar div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
+                            `#game-toolbar > div.colors:not(.color-tools) > div > div.color:not(:nth-child(${randomIndex}))
                             {display:none;}
                          #colPicker{display:none;}
-                         #game-toolbar div.color-picker > div.colors > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
+                         #game-toolbar > div.colors:not(.color-tools) > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
                 }
             }
         }
@@ -8731,11 +8777,11 @@ const brushtools = {
     },
     currentDown: false,
     canvas: null,
-    getColorsHue: () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
+    getColorsHue: () => [...QSA("#game-toolbar > div.picker > div> div.colors:not([style*=none]) > div > div > div")]
         .map(col => new Color({ rgb: col.style.backgroundColor }))
         .map(col => [col.hsl[0], col.hsl[2], col])
         .sort((a, b) => a[0] - b[0]),
-    getColorsWeighted: () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
+    getColorsWeighted: () => [...QSA("#game-toolbar > div.picker > div> div.colors:not([style*=none]) > div > div > div")]
         .map(col => new Color({ rgb: col.style.backgroundColor }))
         .map(col => [Math.sqrt(0.5 * col.hsl[0] * col.hsl[0] + 0.5 * col.hsl[1] * col.hsl[1] + col.hsl[2] * col.hsl[2]), col])
         .sort((a, b) => a[0] - b[0]),
