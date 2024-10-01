@@ -9,6 +9,7 @@ import { messageSentEventRegistration } from "@/content/events/message-sent.even
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
 import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
+import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
 import { DeveloperModeFeature } from "@/content/features/developer-mode/developer-mode.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
@@ -24,6 +25,7 @@ import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
+import { ImageHistoryService } from "@/content/services/image-history/image-history.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
@@ -60,7 +62,8 @@ new ExtensionContainer()
     {type: TokenService, scope: "singleton"},
     {type: LobbyService, scope: "singleton"},
     {type: DrawingService, scope: "singleton"},
-    {type: GlobalSettingsService, scope: "singleton"}
+    {type: GlobalSettingsService, scope: "singleton"},
+    {type: ImageHistoryService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
@@ -103,7 +106,8 @@ new ExtensionContainer()
     PanelFiltersFeature,
     ChatRecallFeature,
     DeveloperModeFeature,
-    ImageAgentFeature
+    ImageAgentFeature,
+    ControlsCloudFeature
   );
 
 /* indicate for interceptor that content script has loaded */

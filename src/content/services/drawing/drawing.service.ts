@@ -52,12 +52,28 @@ export class DrawingService {
   ) {
     this._logger = loggerFactory(this);
 
-    /* create observable for all draw command updates */
+    this.listenDrawCommands();
+    this.listenCurrentImageState();
+
+    this.imageState$.subscribe(data => {
+      this._logger.info("Image state updated", data);
+    });
+
+    this.commands$.pipe(debounceTime(1000)).subscribe(data => {
+      this._logger.debug("Commands updated", data);
+    });
+  }
+
+  /**
+   * create observable for all draw command updates
+   * @private
+   */
+  private listenDrawCommands() {
     merge(
-      lobbyLeft.events$,
-      lobbyChanged.events$,
-      draw.events$,
-      imageReset.events$
+      this.lobbyLeft.events$,
+      this.lobbyChanged.events$,
+      this.draw.events$,
+      this.imageReset.events$
     ).pipe(
       withLatestFrom(this._currentCommands$),
       map(data => ({update: data[0], currentCommands: data[1]})),
@@ -85,13 +101,18 @@ export class DrawingService {
 
       this._currentCommands$.next(currentCommands);
     });
+  }
 
-    /* create observable for all drawing updates */
+  /**
+   * emit to observable for all drawing updates
+   * @private
+   */
+  private listenCurrentImageState() {
     merge(
-      lobbyLeft.events$,
-      lobbyChanged.events$,
-      hintsAdded.events$,
-      wordGuessed.events$
+      this.lobbyLeft.events$,
+      this.lobbyChanged.events$,
+      this.hintsAdded.events$,
+      this.wordGuessed.events$
     ).pipe(
       withLatestFrom(this._currentImageState$),
       map(data => ({update: data[0], currentImageState: data[1]})),
@@ -137,7 +158,7 @@ export class DrawingService {
         }
       }
       else if(currentImageState !== null && update instanceof HintsAddedEvent) {
-       const hints = [...currentImageState.word.hints];
+        const hints = [...currentImageState.word.hints];
         update.data.forEach(hint => {
           hints[hint[0]] = hint[1];
         });
@@ -155,14 +176,6 @@ export class DrawingService {
       }
 
       this._currentImageState$.next(currentImageState);
-    });
-
-    this.imageState$.subscribe(data => {
-      this._logger.info("Image state updated", data);
-    });
-
-    this.commands$.pipe(debounceTime(1000)).subscribe(data => {
-      this._logger.debug("Commands updated", data);
     });
   }
 

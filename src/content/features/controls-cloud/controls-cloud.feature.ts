@@ -1,5 +1,6 @@
-import { FeaturesService } from "@/content/core/feature/features.service";
-import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
+import { CloudApi, type CloudSearchDto } from "@/api";
+import { ApiService } from "@/content/services/api/api.service";
+import { MemberService } from "@/content/services/member/member.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { fromObservable } from "@/util/store/fromObservable";
@@ -7,19 +8,19 @@ import { inject } from "inversify";
 import { Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
-import ControlsSettings from "./controls-settings.svelte";
+import ControlsSettings from "./controls-cloud.svelte";
 
-export class ControlsSettingsFeature extends TypoFeature {
+export class ControlsCloudFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ModalService) private readonly _modalService!: ModalService;
-  @inject(FeaturesService) private readonly _featuresService!: FeaturesService;
-  @inject(GlobalSettingsService) private readonly _settings!: GlobalSettingsService;
+  @inject(MemberService) private readonly _memberService!: MemberService;
+  @inject(ApiService) private readonly _apiService!: ApiService;
 
-  public readonly name = "Typo Settings";
+  public readonly name = "Typo Cloud";
   public readonly description =
-    "Manage the features of typo";
+    "Saves all images from your lobbies in a cloud and adds a gallery to browse them";
   public override readonly toggleEnabled = false;
-  public readonly featureId = 1;
+  public readonly featureId = 16;
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
@@ -33,9 +34,9 @@ export class ControlsSettingsFeature extends TypoFeature {
       props: {
         hoverMove: false,
         size: "48px",
-        icon: "file-img-settings-gif",
-        name: "Typo Settings",
-        order: 1,
+        icon: "file-img-cloud-gif",
+        name: "Typo Cloud",
+        order: 2,
       },
     });
 
@@ -47,8 +48,7 @@ export class ControlsSettingsFeature extends TypoFeature {
           feature: this,
         },
       };
-      this._modalService.showModal(settingsComponent.componentType, settingsComponent.props, "Typo Settings");
-
+      this._modalService.showModal(settingsComponent.componentType, settingsComponent.props, "Typo Cloud");
     });
   }
 
@@ -57,11 +57,19 @@ export class ControlsSettingsFeature extends TypoFeature {
     this._iconComponent?.$destroy();
   }
 
-  public get features(){
-    return this._featuresService.features;
+  public get memberStore() {
+    return fromObservable(this._memberService.member$, undefined);
   }
 
-  public get devModeStore() {
-    return fromObservable(this._settings.settings.devMode.changes$, false);
+  public async getImages(search: CloudSearchDto, login: number){
+
+    if(search.authorQuery === "") search.authorQuery = undefined;
+    if(search.titleQuery === "") search.titleQuery = undefined;
+    if(search.createdInPrivateLobbyQuery === false) search.createdInPrivateLobbyQuery = undefined;
+    if(search.isOwnQuery === false) search.isOwnQuery = undefined;
+
+    /*return new Promise(() => {console.log("hjkk");});*/
+
+    return this._apiService.getApi(CloudApi).searchUserCloud({login, cloudSearchDto: search});
   }
 }

@@ -67,7 +67,7 @@
     flex-direction: column;
     align-items: center;
     color: var(--COLOR_PANEL_TEXT);
-    padding-bottom: 2rem;
+    /*padding-bottom: 2rem;*/
 
     &.closing {
       animation: slideOut 0.15s ease-out forwards;
