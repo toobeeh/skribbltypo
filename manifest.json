@@ -25,6 +25,7 @@
     {
       "resources": [
         "gamePatch.js",
+        "gamePatch-7693644640290134.js",
         "res/*",
         "gifCap/*",
         "features/*"

@@ -1030,13 +1030,13 @@ bounceload {
     height: 100%;
 }
 
-#game #game-players .players-list .player.typo {
+#game #game-players .player.typo {
     height: 60px !important;
     display: flex;
     flex-direction: column;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container {
+#game #game-players .player.typo .player-avatar-container {
     place-items: center;
     position: absolute;
     right: 0;
@@ -1046,13 +1046,13 @@ bounceload {
     display: grid;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container .avatar {
+#game #game-players .player.typo .player-avatar-container .avatar {
     position: absolute;
     width: 48px;
     height: 48px;
 }
 
-#game #game-players .players-list .player.typo .player-info {
+#game #game-players .player.typo .player-info {
     position: unset;
     display: grid;
     place-items: center;
@@ -1062,7 +1062,7 @@ bounceload {
     gap: 4px;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-name {
+#game #game-players .player.typo .player-info .player-name {
     position: unset;
     grid-column: 2;
     grid-row: 1;
@@ -1071,23 +1071,23 @@ bounceload {
     overflow: hidden;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-rank {
+#game #game-players .player.typo .player-info .player-rank {
     position: unset;
     grid-row: 1/-1;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-score {
+#game #game-players .player.typo .player-info .player-score {
     position: unset;
     grid-column: 2;
     align-self: start;
 }
 
-#game #game-players .players-list .player.typo .player-icons {
+#game #game-players .player.typo .player-icons {
     position: absolute;
     padding-left: 4px;
 }
 
-#game #game-players .players-list .player.typo .player-icons .icon {
+#game #game-players .player.typo .player-icons .icon {
     height: 18px;
     width: 18px
 }

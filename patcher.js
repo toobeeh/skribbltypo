@@ -81,15 +81,30 @@ let patchNode = async (node) => {
         node.type = "javascript/blocked"; // block for chrome
         node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true }); // block for firefox
         node.src = ""; /* to be sure */
-        // insert patched script
-        let script = document.createElement("script");
-        script.src = chrome.runtime.getURL("gamePatch.js");
-        node.parentElement.appendChild(script);
+
+        (async () => {
+            const js = await (await fetch("js/game.js")).text();
+            const hash = cyrb53(js);
+            console.log("Game.js hash:", hash);
+
+            let patch = "gamePatch.js";
+            if(hash === 7693644640290134) { // PATCH date 2024-10-01
+                patch = `gamePatch-${hash}.js`;
+            }
+            else {
+                patch = "gamePatch.js"
+            }
+
+            // insert patched script
+            let script = document.createElement("script");
+            script.src = chrome.runtime.getURL(patch);
+            node.parentElement.appendChild(script);
+
+        })();
         // add var to get access typo ressources in css
         document.head.appendChild(elemFromString(`<style>
            :root{--typobrush:url(${chrome.runtime.getURL("res/wand.gif")})}
         </style>`));
-
     }
     if (node.classList && node.classList.contains("button-play")) {
         node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");

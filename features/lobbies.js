@@ -33,7 +33,7 @@ const lobbies = {
 		return players;
 	},
 	getTriggerElements: () => {
-		return [QS("#game-round"), QS("#game-players .players-list"), [...QSA(".avatar .drawing")]].flat();
+		return [QS("#game-round"), QS("#game-players"), [...QSA(".avatar .drawing")]].flat();
 	},
 	setLobbyContainer: () => {
 		// get online players with lobby links
@@ -126,7 +126,7 @@ const lobbies = {
 			lobbyObserver.disconnect();
 
 			lobbyObserver.observe(QS("#game-round"), { characterData: true, childList: false, subtree: false, attributes: false });
-			lobbyObserver.observe(QS("#game-players .players-list"), { characterData: true, childList: true, subtree: false, attributes: false });
+			lobbyObserver.observe(QS("#game-players"), { characterData: true, childList: true, subtree: false, attributes: false });
 			lobbyObserver.observe(QS("#game-word .description"), { characterData: false, childList: false, subtree: false, attributes: true });
 			// lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
 
