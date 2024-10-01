@@ -9,13 +9,13 @@
     display: flex;
     position: absolute;
     width: fit-content;
-    right: 42px;
+    right: 50px;
     padding-right: 1rem;
     height: 100%;
     align-items: center;
 
     .lobby-exit, .lobby-next {
-      content: var(--file-img-arrow-gif);
+      content: var(--file-img-arrow-small-gif);
       cursor: pointer;
       height:42px;
       aspect-ratio: 1;
@@ -27,13 +27,12 @@
     }
 
     .lobby-exit {
-      rotate: -90deg;
-      filter: drop-shadow(rgba(0, 0, 0, 0.3) -3px 3px 0px) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
+      filter: drop-shadow(rgba(0, 0, 0, 0.3) 3px 3px 0px) sepia(1) saturate(5) brightness(0.8) hue-rotate(324deg);
     }
 
     .lobby-next {
-      rotate: 90deg;
-      filter: drop-shadow(rgba(0, 0, 0, 0.3) 3px -3px 0px) sepia(1) saturate(5) brightness(0.7) hue-rotate(56deg);
+      transform: rotateY(180deg);
+      filter: drop-shadow(rgba(0, 0, 0, 0.3) -3px 3px 0px) sepia(1) saturate(5) brightness(0.7) hue-rotate(56deg);
     }
   }
 </style>
