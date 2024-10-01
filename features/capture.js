@@ -48,7 +48,18 @@ const captureCanvas = {
             });
 
             try {
-                await socket.emitEvent("store drawing", {
+
+                await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}`, "POST", undefined, {
+                    name: data.detail,
+                    author: getCurrentOrLastDrawer(),
+                    inPrivate: lobbies.lobbyProperties.Private,
+                    language: lobbies.lobbyProperties.Language,
+                    isOwn: getCurrentOrLastDrawer() == socket.clientData.playerName,
+                    commands: captureCanvas.capturedCommands,
+                    imageBase64: QS("#game-canvas canvas").toDataURL().replace("data:image/png;base64,", "")
+                }, localStorage.accessToken);
+
+                /*await socket.emitEvent("store drawing", {
                     meta: {
                         name: data.detail,
                         author: getCurrentOrLastDrawer(),
@@ -60,7 +71,7 @@ const captureCanvas = {
                     linkAwardId: awards.cloudAwardLink,
                     commands: captureCanvas.capturedCommands,
                     uri: QS("#game-canvas canvas").toDataURL()
-                }, true, 5000);
+                }, true, 5000);*/
             }
             catch { }
             awards.cloudAwardLink = undefined;

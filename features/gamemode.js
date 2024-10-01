@@ -10,7 +10,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-canvas canvas").style.opacity = 1;
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -30,7 +30,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-canvas canvas").style.filter = "";
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -52,7 +52,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-chat .chat-container style#gamemodeDeafRules")?.remove()
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -153,16 +153,16 @@ const gamemodes = {
                     attributes: true
                 },
                 observeAction: () => {
-                    const itemWidth = getComputedStyle(QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div > div")).width;
-                    const itemCount = QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div").children.length;
+                    const itemWidth = getComputedStyle(QS("#game-toolbar > div.colors:not(.color-tools):not([style*=none]) > div > div")).width;
+                    const itemCount = QS("#game-toolbar > div.colors:not(.color-tools):not([style*=none]) > div").children.length;
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
                     QS("#game-canvas").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                            `#game-toolbar div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
+                            `#game-toolbar > div.colors:not(.color-tools) > div > div.color:not(:nth-child(${randomIndex}))
                             {display:none;}
                          #colPicker{display:none;}
-                         #game-toolbar div.color-picker > div.colors > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
+                         #game-toolbar > div.colors:not(.color-tools) > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
                 }
             }
         }

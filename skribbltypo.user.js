@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.1.3.171950546
+// @version 26.3.0.172778165
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.1.3 usrsc"};
+            return {version: "26.3.0 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -549,7 +549,7 @@ const sprites = {
     },
     getPlayerList: () => { //get the lobby player list and store in lobbyPlayers
         let players = [];
-        let playerContainer = QS("#game-players .players-list");
+        let playerContainer = QS("#game-players");
         //let playerContainerLobby = QS("#containerLobbyPlayers");, ...playerContainerLobby.querySelectorAll(".lobbyPlayer")
         [...playerContainer.querySelectorAll(".player")].forEach(p => {
             let psc = new sprites.PlayerSpriteContainer(
@@ -622,7 +622,7 @@ const sprites = {
     updateAwards: () => {
         const lobbyAwards = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "award");
 
-        [...QSA(".players-list .player-icons")].forEach(icons => {
+        [...QSA("#game-players .player-icons")].forEach(icons => {
             const playerId = Number(icons.closest(".player")?.getAttribute("playerid"));
             if (Number.isNaN(playerId)) return;
             let playerIcons = lobbyAwards.filter(a => a.LobbyPlayerID == playerId);
@@ -664,6 +664,7 @@ const sprites = {
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
                 }
+                #game-players div.player[playerid='${scene.LobbyPlayerID}'] .player-background {opacity: 0}
                 #game-players div.player.guessed[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
@@ -930,7 +931,7 @@ const sprites = {
     },
     init: async () => {
         // make board behind playerlist so it doesnt hide portions of avatars
-        QS("#game-players .players-list").style.zIndex = "1";
+        const c = QS("#game-players").style.zIndex = "1";
         // polling for sprites, observer does not make sense since sprites take a few seconds to be activated
         setInterval(sprites.refreshCallback, 2000);
         let endboardObserver = new MutationObserver(() => { // mutation observer for game end result
@@ -946,21 +947,25 @@ const sprites = {
 // #content features/genericFunctions.js
 // general util functions which have no dependencies
 
-async function typoApiFetch(path, method = "GET", params = {}, body = undefined) {
+async function typoApiFetch(path, method = "GET", params = {}, body = undefined, userToken = undefined, parseResponse = true) {
     const searchParams = new URLSearchParams(params);
 
     const isFirefox = false; // chrome?.runtime?.getURL('').startsWith('moz-extension://') ?? false;
     const apiBase = isFirefox ? "https://tobeh.host/newapi" : "https://api.typo.rip";
     const url = apiBase + (path.startsWith("/") ? "" : "/") + path;
 
-    return (await fetch(url, {
+    const request = await fetch(url, {
         searchParams: searchParams,
         method: method,
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': userToken ? `Bearer ${userToken}` : undefined
         },
         body: body ? JSON.stringify(body) : undefined
-    })).json();
+    });
+
+    if(parseResponse) return await request.json();
+    return request.text();
 }
 
 //Queryselector bindings
@@ -991,6 +996,8 @@ const solveMatchHash = (hash, key) => {
     const match = unhashed.join("") == key;
     return match;
 }
+
+const localDateToUtc = ms => new Date(new Date(ms).toISOString().replace("Z", "")).getTime();
 
 // polyfill customevent
 const newCustomEvent = (type, detail = {}) => {
@@ -1145,11 +1152,11 @@ const setColorPalette = (colorPalette) => {
         paletteContainer.appendChild(rowElem);
     }
     paletteContainer.addEventListener("pointerdown", () => clearInterval(uiTweaks.randomInterval));
-    if (QS("#game-toolbar .color-picker .colors.custom")) {
-        QS("#game-toolbar .color-picker .colors.custom").replaceWith(paletteContainer);
+    if (QS("#game-toolbar .colors.custom")) {
+        QS("#game-toolbar .colors.custom").replaceWith(paletteContainer);
     }
-    else QS("#game-toolbar .color-picker .colors").insertAdjacentElement("afterend", paletteContainer);
-    QS("#game-toolbar .color-picker .colors").style.display = "none";
+    else QS("#game-toolbar .colors").insertAdjacentElement("afterend", paletteContainer);
+    QS("#game-toolbar .colors").style.display = "none";
 }
 
 const createColorPalette = (paletteObject) => {
@@ -1230,6 +1237,21 @@ const leaveLobby = async (next = false) => {
     });
 }
 document.addEventListener("toast", (e) => new Toast(e.detail.text, 1000));
+
+const cyrb53 = (str, seed = 0) => {
+    let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for(let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+    h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+    h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+};
 
 
 // set default settings
@@ -2504,7 +2526,7 @@ const visuals = {
         }
         if (options["ingameContainerBackgroundsCheck"] == true) {
             let val = options["ingameContainerBackgrounds"] ? options["ingameContainerBackgrounds"].trim() : "";
-            style.innerHTML += "#game-bar, .clickable,  #game-room .settings, #game-room .players,   .tooltip .tooltip-content, #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar div.color-picker div.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .players-list .player, #game-players .players-list .player.odd {background-color: " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#game-bar, .clickable,  #game-room .settings, #game-room .players,   .tooltip .tooltip-content, #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, div#game-toolbar.typomod div.tools-container div.tools div.tool, #game-toolbar divdiv.preview div.graphic-container, #game-room .container-settings, #game-chat .container, #game-players .players-list .player, #game-players .players-list .player.odd {background-color: " + (val != "" ? val : "transparent") + " !important}";
             style.innerHTML += "#game-players .players-list .player.odd{background-image: linear-gradient(0, " + (val != "" ? val : "transparent") + ", " + (val != "" ? val : "transparent") + ");}";
             style.innerHTML += "#game-chat .chat-content {background:none}";
             style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; --COLOR_CHAT_BG_BASE: " + val + " !important; } ";
@@ -3063,11 +3085,6 @@ const socket = {
             return { caught: false };
         }
     },
-    getStoredDrawings: async (query = {}, limit = 5000) => {
-        Object.keys(query).forEach(key => query[key] === undefined && delete query[key]);
-        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query }, true, 10000)).images;
-        return drawings;
-    },
     setSpriteSlot: async (slot, sprite) => {
         let user = (await socket.emitEvent("set slot", { slot: slot, sprite: sprite }, true, 10000)).user;
         return user;
@@ -3118,7 +3135,7 @@ const lobbies = {
 		return players;
 	},
 	getTriggerElements: () => {
-		return [QS("#game-round"), QS("#game-players .players-list"), [...QSA(".avatar .drawing")]].flat();
+		return [QS("#game-round"), QS("#game-players"), [...QSA(".avatar .drawing")]].flat();
 	},
 	setLobbyContainer: () => {
 		// get online players with lobby links
@@ -3128,7 +3145,7 @@ const lobbies = {
 				if(!onlinePlayers.some(added => added.link === invite.link && added.username === invite.username)) onlinePlayers.push(invite);
 			});
 		let playerButtons = "";
-		onlinePlayers.forEach(player => playerButtons += `<button link="${player.link}" slotAvailable=${player.slotAvailable} class="flatUI green min air" style="margin: .5em">${player.username}</button>`);
+		onlinePlayers.forEach(player => playerButtons += `<button data-typo-tooltip="${player.slotAvailable} slots" link="${player.link}" slotAvailable=${player.slotAvailable} class="flatUI green min air" style="margin: .5em">${player.username}</button>`);
 		if (playerButtons == "") playerButtons = "<span>None of your friends are online :(</span>";
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
@@ -3141,6 +3158,7 @@ const lobbies = {
 		else {
 			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
 		}
+		/*document.dispatchEvent(new Event("addTypoTooltips"));*/
 		container.addEventListener("click", e => {
 			let link = e.target.getAttribute("link");
 			let slotAvailable = e.target.getAttribute("slotAvailable");
@@ -3210,7 +3228,7 @@ const lobbies = {
 			lobbyObserver.disconnect();
 
 			lobbyObserver.observe(QS("#game-round"), { characterData: true, childList: false, subtree: false, attributes: false });
-			lobbyObserver.observe(QS("#game-players .players-list"), { characterData: true, childList: true, subtree: false, attributes: false });
+			lobbyObserver.observe(QS("#game-players"), { characterData: true, childList: true, subtree: false, attributes: false });
 			lobbyObserver.observe(QS("#game-word .description"), { characterData: false, childList: false, subtree: false, attributes: true });
 			// lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
 
@@ -3663,15 +3681,30 @@ let patchNode = async (node) => {
         node.type = "javascript/blocked"; // block for chrome
         node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true }); // block for firefox
         node.src = ""; /* to be sure */
-        // insert patched script
-        let script = document.createElement("script");
-        script.src = chrome.runtime.getURL("gamePatch.js");
-        node.parentElement.appendChild(script);
+
+        (async () => {
+            const js = await (await fetch("js/game.js")).text();
+            const hash = cyrb53(js);
+            console.log("Game.js hash:", hash);
+
+            let patch = "gamePatch.js";
+            if(hash === 7693644640290134) { // PATCH date 2024-10-01
+                patch = `gamePatch-${hash}.js`;
+            }
+            else {
+                patch = "gamePatch.js"
+            }
+
+            // insert patched script
+            let script = document.createElement("script");
+            script.src = chrome.runtime.getURL(patch);
+            node.parentElement.appendChild(script);
+
+        })();
         // add var to get access typo ressources in css
         document.head.appendChild(elemFromString(`<style>
            :root{--typobrush:url(${chrome.runtime.getURL("res/wand.gif")})}
         </style>`));
-
     }
     if (node.classList && node.classList.contains("button-play")) {
         node.insertAdjacentHTML("beforebegin", "<div id='typoUserInfo'><bounceload></bounceload> Connecting to Typo server...</div>");
@@ -4478,6 +4511,10 @@ input::-webkit-inner-spin-button {
     width: 30%;
     margin: 0.5em;
     position: relative;
+    z-index:100;
+}
+#imageCloud>div:hover {
+    z-index: 200;
 }
 
 #imageCloud>div>img {
@@ -4497,9 +4534,13 @@ input::-webkit-inner-spin-button {
     place-items: center;
     justify-content: space-around;
     border-radius: 1em;
-    z-index: 200;
+    z-index: 500;
     background: rgba(0, 0, 0, 0.1);
     flex-direction: column;
+}
+
+#imageCloud > div:hover > div {
+    opacity: 1;
 }
 
 #imageCloud>div>div>div {
@@ -4699,7 +4740,6 @@ bounceload {
 }
 
 .visionFrame {
-    border: 2px solid black;
     position: fixed;
     width: 50vw;
     height: 50vh;
@@ -4708,13 +4748,13 @@ bounceload {
     left: 25vw;
     grid-template-columns: 4px auto 4px;
     grid-template-rows: 4em auto 4px;
-    border-radius: 8px;
     z-index: 2000;
     pointer-events: none;
     cursor: grab;
-    box-shadow: rgb(0 0 0) 0px 0px 0px 2px inset, rgb(255 255 255 / 50%) 0px 0px 3px -1px;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .25));
     min-height: 10em;
     min-width: 10em;
+    border: none;
 }
 
 .visionContent {
@@ -4743,19 +4783,21 @@ bounceload {
 }
 
 .visionBorder {
-    background: black;
     pointer-events: all;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.rightResize {
     cursor: e-resize;
     grid-column-start: 3;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.bottomResize {
     cursor: s-resize;
     grid-column-start: 2;
     grid-row-start: 3;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.allResize {
@@ -4765,22 +4807,25 @@ bounceload {
 }
 
 .visionHead {
+    background: var(--COLOR_PANEL_BG) !important;
     position: relative;
     grid-row-start: 1;
     grid-column-start: 1;
     grid-column-end: 4;
-    background: black;
     pointer-events: all;
-    padding: .5em;
+    background: black;
+    padding: 0.5em;
+    border-radius: .5em .5em 0em 0em;
 }
 
 .visionControl {
     position: absolute;
-    top: .5em;
-    right: .5em;
-    color: red;
+    top: 0.5em;
+    right: 0.5em;
     font-size: 1.5em;
     cursor: pointer;
+    color: white;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .25));
 }
 
 .visionHead input:is([type=text], [type=range]) {
@@ -4795,13 +4840,13 @@ bounceload {
     height: 100%;
 }
 
-#game #game-players .players-list .player.typo {
+#game #game-players .player.typo {
     height: 60px !important;
     display: flex;
     flex-direction: column;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container {
+#game #game-players .player.typo .player-avatar-container {
     place-items: center;
     position: absolute;
     right: 0;
@@ -4811,13 +4856,13 @@ bounceload {
     display: grid;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container .avatar {
+#game #game-players .player.typo .player-avatar-container .avatar {
     position: absolute;
     width: 48px;
     height: 48px;
 }
 
-#game #game-players .players-list .player.typo .player-info {
+#game #game-players .player.typo .player-info {
     position: unset;
     display: grid;
     place-items: center;
@@ -4827,7 +4872,7 @@ bounceload {
     gap: 4px;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-name {
+#game #game-players .player.typo .player-info .player-name {
     position: unset;
     grid-column: 2;
     grid-row: 1;
@@ -4836,23 +4881,23 @@ bounceload {
     overflow: hidden;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-rank {
+#game #game-players .player.typo .player-info .player-rank {
     position: unset;
     grid-row: 1/-1;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-score {
+#game #game-players .player.typo .player-info .player-score {
     position: unset;
     grid-column: 2;
     align-self: start;
 }
 
-#game #game-players .players-list .player.typo .player-icons {
+#game #game-players .player.typo .player-icons {
     position: absolute;
     padding-left: 4px;
 }
 
-#game #game-players .players-list .player.typo .player-icons .icon {
+#game #game-players .player.typo .player-icons .icon {
     height: 18px;
     width: 18px
 }
@@ -6533,16 +6578,16 @@ const uiTweaks = {
         uiTweaks.palettes.push(smallPalette);
         uiTweaks.palettes.push({
             name: "originalPalette", activate: () => {
-                [...QSA("#game-toolbar .color-picker .colors.custom")].forEach(p => p.remove());
-                QS("#game-toolbar .color-picker .colors").style.display = "";
+                [...QSA("#game-toolbar .colors.custom")].forEach(p => p.remove());
+                QS("#game-toolbar .colors").style.display = "";
             }
         });
         uiTweaks.palettes.find(palette => palette.name == localStorage.palette)?.activate();
     },
     initLobbyDescriptionForm: () => {
         // add Description form 
-        let customwords = QS(".game-room-group.customwords");
-        const input = elemFromString(`<div class="game-room-group" style="height:10%">
+        let customwords = QS(".group-customwords, .game-room-group.customwords");
+        const input = elemFromString(`<div class="group-customwords game-room-group customwords" style="height:10%">
 <div class="game-room-name">Palantir Description</div>
 <textarea style="" id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="Add a description that will show up in the Palantir bot"></textarea>
 </div>`);
@@ -6572,7 +6617,7 @@ const uiTweaks = {
             if (id) {
                 const clickedName = e.target.closest("b");
                 if (clickedName) {
-                    let player = QS(".players-list .player[playerid='" + id + "']");
+                    let player = QS("#game-players .player[playerid='" + id + "']");
                     player.click();
                 }
             }
@@ -6583,7 +6628,7 @@ const uiTweaks = {
             if (attr) {
                 node.querySelector("b").style.cursor = "pointer";
                 if (localStorage.experimental != "true") return;
-                let clone = document.querySelector(".players-list .player[playerid='" + attr + "'] .player-avatar-container").cloneNode(true);
+                let clone = document.querySelector("#game-players .player[playerid='" + attr + "'] .player-avatar-container").cloneNode(true);
                 clone.style.height = "1em";
                 clone.style.width = "1em";
                 clone.style.display = "inline-block";
@@ -6654,13 +6699,13 @@ const uiTweaks = {
                 let removeIDs = (event) => {
                     if (event.key == "AltGraph") {
                         document.removeEventListener("keyup", removeIDs);
-                        QSA(".players-list .player").forEach(player => {
+                        QSA("#game-players .player").forEach(player => {
                             player.querySelector(".player-icons span")?.remove();
                         });
                     }
                 }
                 document.addEventListener("keyup", removeIDs);
-                QSA(".players-list .player").forEach(player => {
+                QSA("#game-players .player").forEach(player => {
                     if (!player.querySelector(".player-icons span")) player.querySelector(".player-icons").insertAdjacentHTML("afterbegin", "<span style='color:inherit'>#" + player.getAttribute("playerid") + " </span>");
                 });
                 return;
@@ -7082,14 +7127,29 @@ const uiTweaks = {
             QS("[data-tooltip=Pipette]").click();
         });
 
-        // update cursor when pipette changed activity
-        new MutationObserver((e) => {
-            if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
-                if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
-                    QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+        if(QS(".toolbar-group-tools [data-tooltip=Pipette]")){
+            // update cursor when pipette changed activity
+            new MutationObserver((e) => {
+                if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                    if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                        QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                    }
                 }
-            }
-        }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+            }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+        }
+        else {
+            document.addEventListener("skribblInitialized", () => {
+                // update cursor when pipette changed activity
+                new MutationObserver((e) => {
+                    if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                        if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                            QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                        }
+                    }
+                }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+            });
+        }
+
 
         QS("#game-canvas canvas").addEventListener("click", (e) => {
             if(!document.querySelector(".toolbar-group-tools [data-tooltip=Pipette].selected")) return;
@@ -7362,7 +7422,18 @@ const captureCanvas = {
             });
 
             try {
-                await socket.emitEvent("store drawing", {
+
+                await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}`, "POST", undefined, {
+                    name: data.detail,
+                    author: getCurrentOrLastDrawer(),
+                    inPrivate: lobbies.lobbyProperties.Private,
+                    language: lobbies.lobbyProperties.Language,
+                    isOwn: getCurrentOrLastDrawer() == socket.clientData.playerName,
+                    commands: captureCanvas.capturedCommands,
+                    imageBase64: QS("#game-canvas canvas").toDataURL().replace("data:image/png;base64,", "")
+                }, localStorage.accessToken);
+
+                /*await socket.emitEvent("store drawing", {
                     meta: {
                         name: data.detail,
                         author: getCurrentOrLastDrawer(),
@@ -7374,7 +7445,7 @@ const captureCanvas = {
                     linkAwardId: awards.cloudAwardLink,
                     commands: captureCanvas.capturedCommands,
                     uri: QS("#game-canvas canvas").toDataURL()
-                }, true, 5000);
+                }, true, 5000);*/
             }
             catch { }
             awards.cloudAwardLink = undefined;
@@ -7411,18 +7482,33 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 let typro = {
     thumbnail: "data:image/png;base64,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",
     queryID: 0,
+    queryPage: 0,
     setDrawings: async (drawings, contentDrawings) => {
         contentDrawings.innerHTML = "";
         let currentQuery = typro.queryID;
         let batches = [];
-        while (drawings.length > 0) batches.push(drawings.splice(0, 20));
+        while (drawings.length > 0) batches.push(drawings.splice(0, 40));
         for (const drawingBatch of batches) {
             for (const drawing of drawingBatch) {
                 if (currentQuery != typro.queryID) return;
                 let container = document.createElement("div");
                 container.id = drawing.id;
 
-                const meta = await (await fetch(drawing.meta)).json();
+                loadFailed = false;
+                let meta = {
+                    "author": "-",
+                    "language": "-",
+                    "name": "Image Not Found",
+                    "own": false,
+                    "private": false,
+                    "date": "Sun Sep 15 2024 23:03:20 GMT+0000 (Coordinated Universal Time)"
+                };
+                try {
+                    meta = await (await fetch(drawing.metaUrl)).json();
+                }
+                catch (e) {
+                    loadFailed = true;
+                }
 
                 container.classList.add(JSON.stringify(meta.name).replaceAll(" ", "_"));
                 container.classList.add(JSON.stringify(meta.author).replaceAll(" ", "_"));
@@ -7433,16 +7519,17 @@ let typro = {
                 let thumb = document.createElement("img");
                 thumb.style.backgroundImage = "url(" + typro.thumbnail + ")";
                 thumb.style.backgroundSize = "cover";
-                thumb.src = drawing.image;
+                thumb.src = loadFailed? typro.thumbnail : drawing.imageUrl;
                 let overlay = elemFromString(`<div></div>`);
                 overlay.appendChild(elemFromString("<h3>" + meta.name + " by " + meta.author + "</h3>"));
+                overlay.appendChild(elemFromString("<h3>" + new Date(meta.date).toLocaleString() + "</h3>"));
                 let options = elemFromString("<div ></div>");
                 overlay.appendChild(options);
 
                 let imgtools = elemFromString("<button class='flatUI blue min air'>Add to ImageTools</button>");
                 imgtools.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    let commands = await (await fetch(drawing.commands)).json()
+                    let commands = await (await fetch(drawing.commandsUrl)).json()
                     imageTools.addPasteCommandsButton(commands, meta.name);
                     new Toast("Added drawing to ImageTools. You can paste it now!");
                 });
@@ -7451,7 +7538,7 @@ let typro = {
                 let imgpost = elemFromString("<button class='flatUI blue min air'>Add to ImagePost</button>");
                 imgpost.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.drawing)).text()
+                    const data = await (await fetch(drawing.imageUrl)).text()
                     captureCanvas.capturedDrawings.push({
                         drawing: data,
                         drawer: meta.author,
@@ -7464,7 +7551,7 @@ let typro = {
                 let clipboard = elemFromString("<button class='flatUI blue min air'>Copy to Clipboard</button>");
                 clipboard.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    await imageUrlToClipboard(drawing.image);
+                    await imageUrlToClipboard(drawing.imageUrl);
                     new Toast("Copied the image to your clipboard. Share it! :3");
                 });
                 options.appendChild(clipboard);
@@ -7472,7 +7559,7 @@ let typro = {
                 let link = elemFromString("<button class='flatUI blue min air'>Copy Link</button>");
                 link.addEventListener("click", async () => {
                     drawing.image
-                    await navigator.clipboard.writeText(drawing.image);
+                    await navigator.clipboard.writeText(drawing.imageUrl);
                     new Toast("Copied the image link to your clipboard. Share it! :3");
                 });
                 options.appendChild(link);
@@ -7480,7 +7567,7 @@ let typro = {
                 let savepng = elemFromString("<button class='flatUI green min air'>Save PNG</button>");
                 savepng.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    imageOptions.downloadImageURL(drawing.image, "skribblCloud-" + meta.name + "-by-" + meta.author);
+                    imageOptions.downloadImageURL(drawing.imageUrl, "skribblCloud-" + meta.name + "-by-" + meta.author);
                     new Toast("Started the image download.");
                 });
                 options.appendChild(savepng);
@@ -7488,7 +7575,7 @@ let typro = {
                 let savegif = elemFromString("<button class='flatUI green min air'>Save GIF</button>");
                 savegif.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    let commands = await (await fetch(drawing.commands)).json();
+                    let commands = await (await fetch(drawing.commandsUrl)).json();
                     imageOptions.drawCommandsToGif(meta.name, commands);
                     new Toast("Started rendering the GIF. It's pronounced JIF, not GIF!!!");
                 });
@@ -7498,7 +7585,9 @@ let typro = {
                 let removeConfirm = false;
                 remove.addEventListener("click", async () => {
                     if (!removeConfirm) { remove.innerHTML = "Really?"; removeConfirm = true; return; }
-                    await socket.emitEvent("remove drawing", { id: drawing.uuid });
+
+                    await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}/${drawing.id}`, "DELETE", undefined, undefined, localStorage.accessToken, false);
+
                     new Toast("Deleted drawing from the cloud.");
                     container.remove();
                 });
@@ -7507,18 +7596,18 @@ let typro = {
                 container.appendChild(thumb);
                 container.appendChild(overlay);
 
-                let triggers = [overlay, [...overlay.querySelectorAll("*")]].flat();
+                /*let triggers = [overlay, [...overlay.querySelectorAll("*")]].flat();
                 triggers.forEach(trigger => trigger.addEventListener("pointermove", async () => {
                     // load detailed drawing
                     thumb.style.opacity = "0.2";
                     overlay.style.opacity = "1";
-                    let hide = () => {
-                        thumb.style.opacity = "1";
-                        overlay.style.opacity = "0";
-                        trigger.removeEventListener("pointerleave", hide);
-                    }
-                    trigger.addEventListener("pointerleave", hide);
                 }));
+                let hide = () => {
+                    thumb.style.opacity = "1";
+                    overlay.style.opacity = "0";
+                    overlay.removeEventListener("pointerleave", hide);
+                }
+                overlay.addEventListener("pointerleave", hide);*/
                 contentDrawings.appendChild(container);
             }
             await new Promise((resolve, reject) => {
@@ -7545,61 +7634,91 @@ let typro = {
 
         let sidebar = elemFromString("<div id='imageCloudSidebar'><h3 style='text-align:center;'>Filter Drawings</h3></div>");
         let query = {
-            author: undefined,
-            name: undefined,
-            date: undefined,
-            own: undefined
+            authorQuery: undefined,
+            titleQuery: undefined,
+            createdBeforeQuery: undefined,
+            createdAfterQuery: undefined,
+            isOwnQuery: undefined,
+            createdInPrivateLobbyQuery: undefined
         }
         const getSkeletons = () => {
             contentDrawings.innerHTML = `<div class="skeletonDiv"><image class="skeletonImage" src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA8CAYAAADxJz2MAAAAAXNSR0IArs4c6QAAAudJREFUeF7tmumq4kAQhfu64C6KiqLi+7+Gr+IPRVx/uK/DyZDhjsxIUqdakpkqEEVyKt1fqrurK/01Ho+fzkxM4MsAitkFQgPI8TOAJD8DaABZAqTe5kADSBIg5RaBBpAkQMotAg0gSYCUWwQaQJIAKbcINIAkAVKeigh8PB4On/l87u73+9suZzIZ12g0XLlcdvjt2xIPEOC2263b7XaxWJRKJYdPtVqNpYt7ceIBLpdLdzgc4vbr1/X1ej2ISF+WaIAYsufzme67T4heAWK+ej5/vnI5nU7uer3+BiOfz7tisRj8h/nq+5y1Wq3cfr+n4YUOms2mq9Vqav5CR94AInI2m427XC6RGo25CkMNEAEeAAFdy7LZrOv1eg7fmuYFIOABwO12i9VWrJztdjuY86APozeWkzcXh/61/MGPOkBEz2w2C9IOieVyuSAKo0Zu3HuMRqO4krfXqwPEPAeASbXhcKiaH6oDXK/XsXO2T8LWXkzUAU4mk0/yiH0vJNedTie27m+C/w4g5th+v28ApQQSDxALyGvCLO2sD12lUnGtVkvNtfoQPh6PbrFYqDVQ29FgMFBNptUBInmeTqfa/Vbzl9g8MNz34htFgKRauIC87r2l7aUjEDsObPpRr0vy3PcKCHvvQqHgMCcyRgNk63VM4zW0bKmLAqhVr9MAIfWB6ky323VIbyQmBoiKC1ZbadFA0lhfGia1EQH0Ua/zBSeK348D9FWvi9JZH9d8HCBWXRQ8/xUzgOSTNIBpA4jtGoawxitHsu+0HDsS1AeRVEtMtArjRtqvHSWN19Cw5S0xwKSX7qPARRKN6gxjYoAoWyEK05pIY8hi6LIHkMQA8dSQD2IvnDYDPBRVpdu37/2lAMIRFhSAxAmqNBjKWVqlLPSXBvgnaChr4VgGSlzapwskDwknEnyd0PICUNLJtGoMIPnkDKABJAmQcotAA0gSIOUWgQaQJEDKLQINIEmAlFsEkgB/AJLI18R7H33eAAAAAElFTkSuQmCC
 '><div></div></div></div>`.repeat(20);
         }
         let applyFilter = async () => {
+            typro.queryPage = 0;
             let queryID = typro.queryID = Date.now();
             setTimeout(async () => {
                 if (queryID != typro.queryID) return;
                 getSkeletons();
-                drawings = await socket.getStoredDrawings(query);
+                //drawings = await socket.getStoredDrawings(query);
+                drawings = await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}/search`, "POST", {}, {
+                    page: 0,
+                    pageSize: 100,
+                    ... query
+                }, localStorage.accessToken);
                 if (drawings && drawings.length > 0) await typro.setDrawings(drawings, contentDrawings);
                 else contentDrawings.innerHTML = "<br><br><h3>Typo Gallery Cloud stores all drawings from your skribbl sessions automatically.<br> Rewatch images, post on discord or re-draw them in skribbl whenever you want!<br><br>By default, images are stored for two weeks<br> Subscribe on patreon to store images forever! </h3>";
             }, 500);
         }
+
+        // own filter
+        let filterOwn = elemFromString("<label><input type='checkbox' class='flatUI'><span>Only your drawings</span></label>");
+        filterOwn.querySelector("input").addEventListener("input", async () => {
+            query.isOwnQuery = filterOwn.querySelector("input").checked ? true : undefined;
+            await applyFilter();
+        });
+        sidebar.appendChild(filterOwn);
+
+        // private filter
+        let filterPrivate = elemFromString("<label><input type='checkbox' class='flatUI'><span>Only in private lobbies</span></label>");
+        filterPrivate.querySelector("input").addEventListener("input", async () => {
+            query.createdInPrivateLobbyQuery = filterPrivate.querySelector("input").checked ? true : undefined;
+            await applyFilter();
+        });
+        sidebar.appendChild(filterPrivate);
+
         // artist filter
         sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Artist</h4>"));
         let filterAuthor = elemFromString("<input type='text' class='flatUI' placeholder='tobeh'>");
         filterAuthor.addEventListener("input", async () => {
-            query.author = filterAuthor.value.trim() != "" ? filterAuthor.value.trim() : undefined;
+            query.authorQuery = filterAuthor.value.trim() != "" ? filterAuthor.value.trim() : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterAuthor);
+
         // title filter
         sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Title</h4>"));
         let filterName = elemFromString("<input type='text' class='flatUI' placeholder='Sonic'>");
         filterName.addEventListener("input", async () => {
-            query.title = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
+            query.titleQuery = filterName.value.trim() != "" ? filterName.value.trim() : undefined;
             await applyFilter();
         });
         sidebar.appendChild(filterName);
-        // date filter
-        // sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Date</h4>"));
-        // let filterDate = elemFromString("<input type='text' class='flatUI' placeholder='Jan 15 2020'>");
-        // filterDate.addEventListener("input", async () => {
-        //     query.date = filterDate.value.trim() != "" ? filterDate.value.trim() : undefined;
-        //     await applyFilter();
-        // });
-        // sidebar.appendChild(filterDate);
-        // own filter
-        let filterOwn = elemFromString("<label><input type='checkbox' class='flatUI'><span>Only your drawings</span></label>");
-        filterOwn.querySelector("input").addEventListener("input", async () => {
-            query.own = filterOwn.querySelector("input").checked ? true : undefined;
+
+        // date filter before
+        sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Images before date</h4>"));
+        let filterDateBefore = elemFromString("<input type='datetime-local' class='flatUI' placeholder='Jan 15 2020'>");
+        filterDateBefore.addEventListener("input", async () => {
+           query.createdBeforeQuery = filterDateBefore.valueAsNumber?.toString() != "" ? localDateToUtc(filterDateBefore.valueAsNumber).toString() : undefined;
             await applyFilter();
         });
-        sidebar.appendChild(filterOwn);
+        sidebar.appendChild(filterDateBefore);
+
+        // date filter after
+        sidebar.appendChild(elemFromString("<h4 style='text-align:center;'>Images after date</h4>"));
+        let filterDateAfter = elemFromString("<input type='datetime-local' class='flatUI' placeholder='Jan 15 2020'>");
+        filterDateAfter.addEventListener("input", async () => {
+            query.createdAfterQuery = filterDateAfter.valueAsNumber?.toString() != "" ? localDateToUtc(filterDateAfter.valueAsNumber).toString() : undefined;
+            await applyFilter();
+        });
+        sidebar.appendChild(filterDateAfter);
+
         modalContent.appendChild(sidebar);
         let modal = new Modal(modalContent, () => { }, "Typo Cloud Gallery", "90vw", "90vh");
         getSkeletons();
-        drawings = await socket.getStoredDrawings({}, 1000);
-        await typro.setDrawings(drawings, contentDrawings);
+
+        await applyFilter();
     }
 }
 
@@ -7964,7 +8083,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-canvas canvas").style.opacity = 1;
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -7984,7 +8103,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-canvas canvas").style.filter = "";
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -8006,7 +8125,7 @@ const gamemodes = {
                 destroy: () => {
                     QS("#game-chat .chat-container style#gamemodeDeafRules")?.remove()
                 },
-                observeSelector: "#game-players .players-list",
+                observeSelector: "#game-players",
                 observeOptions: {
                     attributes: true,
                     subtree: true
@@ -8107,16 +8226,16 @@ const gamemodes = {
                     attributes: true
                 },
                 observeAction: () => {
-                    const itemWidth = getComputedStyle(QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div > div")).width;
-                    const itemCount = QS("#game-toolbar div.color-picker > div.colors:not([style*=none]) > div").children.length;
+                    const itemWidth = getComputedStyle(QS("#game-toolbar > div.colors:not(.color-tools):not([style*=none]) > div > div")).width;
+                    const itemCount = QS("#game-toolbar > div.colors:not(.color-tools):not([style*=none]) > div").children.length;
                     const randomIndex = Math.round(Math.random() * (itemCount - 1)) + 1;
                     QS("#game-canvas").setAttribute("data-monochrome", randomIndex);
                     QS("#game-toolbar style#gamemodeMonochromeRules").innerHTML =
                         QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                            `#game-toolbar div.color-picker > div.colors > div > div.color:not(:nth-child(${randomIndex}))
+                            `#game-toolbar > div.colors:not(.color-tools) > div > div.color:not(:nth-child(${randomIndex}))
                             {display:none;}
                          #colPicker{display:none;}
-                         #game-toolbar div.color-picker > div.colors > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
+                         #game-toolbar > div.colors:not(.color-tools) > div > div.color:nth-child(${randomIndex}) {width:calc(${itemCount} * ${itemWidth});}` : "";
                 }
             }
         }
@@ -8658,11 +8777,11 @@ const brushtools = {
     },
     currentDown: false,
     canvas: null,
-    getColorsHue: () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
+    getColorsHue: () => [...QSA("#game-toolbar > div.picker > div> div.colors:not([style*=none]) > div > div > div")]
         .map(col => new Color({ rgb: col.style.backgroundColor }))
         .map(col => [col.hsl[0], col.hsl[2], col])
         .sort((a, b) => a[0] - b[0]),
-    getColorsWeighted: () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
+    getColorsWeighted: () => [...QSA("#game-toolbar > div.picker > div> div.colors:not([style*=none]) > div > div > div")]
         .map(col => new Color({ rgb: col.style.backgroundColor }))
         .map(col => [Math.sqrt(0.5 * col.hsl[0] * col.hsl[0] + 0.5 * col.hsl[1] * col.hsl[1] + col.hsl[2] * col.hsl[2]), col])
         .sort((a, b) => a[0] - b[0]),

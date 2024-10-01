@@ -488,11 +488,11 @@ const brushtools = {
     },
     currentDown: false,
     canvas: null,
-    getColorsHue: () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
+    getColorsHue: () => [...QSA("#game-toolbar > div.picker > div> div.colors:not([style*=none]) > div > div > div")]
         .map(col => new Color({ rgb: col.style.backgroundColor }))
         .map(col => [col.hsl[0], col.hsl[2], col])
         .sort((a, b) => a[0] - b[0]),
-    getColorsWeighted: () => [...QSA("#game-toolbar > div.picker > div.color-picker > div.colors:not([style*=none]) > div > div > div")]
+    getColorsWeighted: () => [...QSA("#game-toolbar > div.picker > div> div.colors:not([style*=none]) > div > div > div")]
         .map(col => new Color({ rgb: col.style.backgroundColor }))
         .map(col => [Math.sqrt(0.5 * col.hsl[0] * col.hsl[0] + 0.5 * col.hsl[1] * col.hsl[1] + col.hsl[2] * col.hsl[2]), col])
         .sort((a, b) => a[0] - b[0]),

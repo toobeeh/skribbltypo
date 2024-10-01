@@ -701,6 +701,10 @@ input::-webkit-inner-spin-button {
     width: 30%;
     margin: 0.5em;
     position: relative;
+    z-index:100;
+}
+#imageCloud>div:hover {
+    z-index: 200;
 }
 
 #imageCloud>div>img {
@@ -720,9 +724,13 @@ input::-webkit-inner-spin-button {
     place-items: center;
     justify-content: space-around;
     border-radius: 1em;
-    z-index: 200;
+    z-index: 500;
     background: rgba(0, 0, 0, 0.1);
     flex-direction: column;
+}
+
+#imageCloud > div:hover > div {
+    opacity: 1;
 }
 
 #imageCloud>div>div>div {
@@ -922,7 +930,6 @@ bounceload {
 }
 
 .visionFrame {
-    border: 2px solid black;
     position: fixed;
     width: 50vw;
     height: 50vh;
@@ -931,13 +938,13 @@ bounceload {
     left: 25vw;
     grid-template-columns: 4px auto 4px;
     grid-template-rows: 4em auto 4px;
-    border-radius: 8px;
     z-index: 2000;
     pointer-events: none;
     cursor: grab;
-    box-shadow: rgb(0 0 0) 0px 0px 0px 2px inset, rgb(255 255 255 / 50%) 0px 0px 3px -1px;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .25));
     min-height: 10em;
     min-width: 10em;
+    border: none;
 }
 
 .visionContent {
@@ -966,19 +973,21 @@ bounceload {
 }
 
 .visionBorder {
-    background: black;
     pointer-events: all;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.rightResize {
     cursor: e-resize;
     grid-column-start: 3;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.bottomResize {
     cursor: s-resize;
     grid-column-start: 2;
     grid-row-start: 3;
+    background: var(--COLOR_PANEL_BG);
 }
 
 .visionBorder.allResize {
@@ -988,22 +997,25 @@ bounceload {
 }
 
 .visionHead {
+    background: var(--COLOR_PANEL_BG) !important;
     position: relative;
     grid-row-start: 1;
     grid-column-start: 1;
     grid-column-end: 4;
-    background: black;
     pointer-events: all;
-    padding: .5em;
+    background: black;
+    padding: 0.5em;
+    border-radius: .5em .5em 0em 0em;
 }
 
 .visionControl {
     position: absolute;
-    top: .5em;
-    right: .5em;
-    color: red;
+    top: 0.5em;
+    right: 0.5em;
     font-size: 1.5em;
     cursor: pointer;
+    color: white;
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .25));
 }
 
 .visionHead input:is([type=text], [type=range]) {
@@ -1018,13 +1030,13 @@ bounceload {
     height: 100%;
 }
 
-#game #game-players .players-list .player.typo {
+#game #game-players .player.typo {
     height: 60px !important;
     display: flex;
     flex-direction: column;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container {
+#game #game-players .player.typo .player-avatar-container {
     place-items: center;
     position: absolute;
     right: 0;
@@ -1034,13 +1046,13 @@ bounceload {
     display: grid;
 }
 
-#game #game-players .players-list .player.typo .player-avatar-container .avatar {
+#game #game-players .player.typo .player-avatar-container .avatar {
     position: absolute;
     width: 48px;
     height: 48px;
 }
 
-#game #game-players .players-list .player.typo .player-info {
+#game #game-players .player.typo .player-info {
     position: unset;
     display: grid;
     place-items: center;
@@ -1050,7 +1062,7 @@ bounceload {
     gap: 4px;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-name {
+#game #game-players .player.typo .player-info .player-name {
     position: unset;
     grid-column: 2;
     grid-row: 1;
@@ -1059,23 +1071,23 @@ bounceload {
     overflow: hidden;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-rank {
+#game #game-players .player.typo .player-info .player-rank {
     position: unset;
     grid-row: 1/-1;
 }
 
-#game #game-players .players-list .player.typo .player-info .player-score {
+#game #game-players .player.typo .player-info .player-score {
     position: unset;
     grid-column: 2;
     align-self: start;
 }
 
-#game #game-players .players-list .player.typo .player-icons {
+#game #game-players .player.typo .player-icons {
     position: absolute;
     padding-left: 4px;
 }
 
-#game #game-players .players-list .player.typo .player-icons .icon {
+#game #game-players .player.typo .player-icons .icon {
     height: 18px;
     width: 18px
 }

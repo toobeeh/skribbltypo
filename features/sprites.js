@@ -24,7 +24,7 @@ const sprites = {
     },
     getPlayerList: () => { //get the lobby player list and store in lobbyPlayers
         let players = [];
-        let playerContainer = QS("#game-players .players-list");
+        let playerContainer = QS("#game-players");
         //let playerContainerLobby = QS("#containerLobbyPlayers");, ...playerContainerLobby.querySelectorAll(".lobbyPlayer")
         [...playerContainer.querySelectorAll(".player")].forEach(p => {
             let psc = new sprites.PlayerSpriteContainer(
@@ -97,7 +97,7 @@ const sprites = {
     updateAwards: () => {
         const lobbyAwards = socket.data.publicData.onlineItems.filter(item => item.LobbyKey == socket.clientData.lobbyKey && item.ItemType == "award");
 
-        [...QSA(".players-list .player-icons")].forEach(icons => {
+        [...QSA("#game-players .player-icons")].forEach(icons => {
             const playerId = Number(icons.closest(".player")?.getAttribute("playerid"));
             if (Number.isNaN(playerId)) return;
             let playerIcons = lobbyAwards.filter(a => a.LobbyPlayerID == playerId);
@@ -139,6 +139,7 @@ const sprites = {
                     background-position: center center !important;
                     background-repeat: no-repeat !important;
                 }
+                #game-players div.player[playerid='${scene.LobbyPlayerID}'] .player-background {opacity: 0}
                 #game-players div.player.guessed[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).GuessedColor} !important}
                 #game-players div.player[playerid='${scene.LobbyPlayerID}'] *:is(.player-rank, .player-score, .player-name) {color: ${sprites.availableScenes.find(av => av.ID == scene.Sprite).Color} !important}`;
             }
@@ -405,7 +406,7 @@ const sprites = {
     },
     init: async () => {
         // make board behind playerlist so it doesnt hide portions of avatars
-        QS("#game-players .players-list").style.zIndex = "1";
+        const c = QS("#game-players").style.zIndex = "1";
         // polling for sprites, observer does not make sense since sprites take a few seconds to be activated
         setInterval(sprites.refreshCallback, 2000);
         let endboardObserver = new MutationObserver(() => { // mutation observer for game end result

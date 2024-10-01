@@ -179,16 +179,16 @@ const uiTweaks = {
         uiTweaks.palettes.push(smallPalette);
         uiTweaks.palettes.push({
             name: "originalPalette", activate: () => {
-                [...QSA("#game-toolbar .color-picker .colors.custom")].forEach(p => p.remove());
-                QS("#game-toolbar .color-picker .colors").style.display = "";
+                [...QSA("#game-toolbar .colors.custom")].forEach(p => p.remove());
+                QS("#game-toolbar .colors").style.display = "";
             }
         });
         uiTweaks.palettes.find(palette => palette.name == localStorage.palette)?.activate();
     },
     initLobbyDescriptionForm: () => {
         // add Description form 
-        let customwords = QS(".game-room-group.customwords");
-        const input = elemFromString(`<div class="game-room-group" style="height:10%">
+        let customwords = QS(".group-customwords, .game-room-group.customwords");
+        const input = elemFromString(`<div class="group-customwords game-room-group customwords" style="height:10%">
 <div class="game-room-name">Palantir Description</div>
 <textarea style="" id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="Add a description that will show up in the Palantir bot"></textarea>
 </div>`);
@@ -218,7 +218,7 @@ const uiTweaks = {
             if (id) {
                 const clickedName = e.target.closest("b");
                 if (clickedName) {
-                    let player = QS(".players-list .player[playerid='" + id + "']");
+                    let player = QS("#game-players .player[playerid='" + id + "']");
                     player.click();
                 }
             }
@@ -229,7 +229,7 @@ const uiTweaks = {
             if (attr) {
                 node.querySelector("b").style.cursor = "pointer";
                 if (localStorage.experimental != "true") return;
-                let clone = document.querySelector(".players-list .player[playerid='" + attr + "'] .player-avatar-container").cloneNode(true);
+                let clone = document.querySelector("#game-players .player[playerid='" + attr + "'] .player-avatar-container").cloneNode(true);
                 clone.style.height = "1em";
                 clone.style.width = "1em";
                 clone.style.display = "inline-block";
@@ -300,13 +300,13 @@ const uiTweaks = {
                 let removeIDs = (event) => {
                     if (event.key == "AltGraph") {
                         document.removeEventListener("keyup", removeIDs);
-                        QSA(".players-list .player").forEach(player => {
+                        QSA("#game-players .player").forEach(player => {
                             player.querySelector(".player-icons span")?.remove();
                         });
                     }
                 }
                 document.addEventListener("keyup", removeIDs);
-                QSA(".players-list .player").forEach(player => {
+                QSA("#game-players .player").forEach(player => {
                     if (!player.querySelector(".player-icons span")) player.querySelector(".player-icons").insertAdjacentHTML("afterbegin", "<span style='color:inherit'>#" + player.getAttribute("playerid") + " </span>");
                 });
                 return;
@@ -728,14 +728,29 @@ const uiTweaks = {
             QS("[data-tooltip=Pipette]").click();
         });
 
-        // update cursor when pipette changed activity
-        new MutationObserver((e) => {
-            if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
-                if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
-                    QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+        if(QS(".toolbar-group-tools [data-tooltip=Pipette]")){
+            // update cursor when pipette changed activity
+            new MutationObserver((e) => {
+                if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                    if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                        QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                    }
                 }
-            }
-        }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+            }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+        }
+        else {
+            document.addEventListener("skribblInitialized", () => {
+                // update cursor when pipette changed activity
+                new MutationObserver((e) => {
+                    if(e.some(r => r.type == "attributes" && r.attributeName == "class")) {
+                        if(QS(".toolbar-group-tools [data-tooltip=Pipette]").classList.contains("selected")) {
+                            QS("#game-canvas canvas").style.cursor = `url(${chrome.runtime.getURL("res/pipette_cur.png")}) 7 38, default`;
+                        }
+                    }
+                }).observe(QS(".toolbar-group-tools [data-tooltip=Pipette]"), { attributes: true, childList: false });
+            });
+        }
+
 
         QS("#game-canvas canvas").addEventListener("click", (e) => {
             if(!document.querySelector(".toolbar-group-tools [data-tooltip=Pipette].selected")) return;

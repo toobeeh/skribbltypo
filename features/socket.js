@@ -235,11 +235,6 @@ const socket = {
             return { caught: false };
         }
     },
-    getStoredDrawings: async (query = {}, limit = 5000) => {
-        Object.keys(query).forEach(key => query[key] === undefined && delete query[key]);
-        let drawings = (await socket.emitEvent("get meta", { limit: limit, query: query }, true, 10000)).images;
-        return drawings;
-    },
     setSpriteSlot: async (slot, sprite) => {
         let user = (await socket.emitEvent("set slot", { slot: slot, sprite: sprite }, true, 10000)).user;
         return user;

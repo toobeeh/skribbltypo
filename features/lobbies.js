@@ -33,7 +33,7 @@ const lobbies = {
 		return players;
 	},
 	getTriggerElements: () => {
-		return [QS("#game-round"), QS("#game-players .players-list"), [...QSA(".avatar .drawing")]].flat();
+		return [QS("#game-round"), QS("#game-players"), [...QSA(".avatar .drawing")]].flat();
 	},
 	setLobbyContainer: () => {
 		// get online players with lobby links
@@ -43,7 +43,7 @@ const lobbies = {
 				if(!onlinePlayers.some(added => added.link === invite.link && added.username === invite.username)) onlinePlayers.push(invite);
 			});
 		let playerButtons = "";
-		onlinePlayers.forEach(player => playerButtons += `<button link="${player.link}" slotAvailable=${player.slotAvailable} class="flatUI green min air" style="margin: .5em">${player.username}</button>`);
+		onlinePlayers.forEach(player => playerButtons += `<button data-typo-tooltip="${player.slotAvailable} slots" link="${player.link}" slotAvailable=${player.slotAvailable} class="flatUI green min air" style="margin: .5em">${player.username}</button>`);
 		if (playerButtons == "") playerButtons = "<span>None of your friends are online :(</span>";
 		let container = elemFromString("<div id='discordLobbies'></div>");
 		if (socket.sck?.connected) {
@@ -56,6 +56,7 @@ const lobbies = {
 		else {
 			container.innerHTML = "<bounceload></bounceload> Connecting to Typo server...";
 		}
+		/*document.dispatchEvent(new Event("addTypoTooltips"));*/
 		container.addEventListener("click", e => {
 			let link = e.target.getAttribute("link");
 			let slotAvailable = e.target.getAttribute("slotAvailable");
@@ -125,7 +126,7 @@ const lobbies = {
 			lobbyObserver.disconnect();
 
 			lobbyObserver.observe(QS("#game-round"), { characterData: true, childList: false, subtree: false, attributes: false });
-			lobbyObserver.observe(QS("#game-players .players-list"), { characterData: true, childList: true, subtree: false, attributes: false });
+			lobbyObserver.observe(QS("#game-players"), { characterData: true, childList: true, subtree: false, attributes: false });
 			lobbyObserver.observe(QS("#game-word .description"), { characterData: false, childList: false, subtree: false, attributes: true });
 			// lobbies.getTriggerElements().forEach(elem => lobbyObserver.observe(elem, { characterData: true, childList: true, subtree: true, attributes: true }));
 
