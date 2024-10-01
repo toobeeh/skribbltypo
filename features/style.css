@@ -723,9 +723,8 @@ input::-webkit-inner-spin-button {
     display: flex;
     place-items: center;
     justify-content: space-around;
-    border-radius: 1em;
     z-index: 500;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.5);
     flex-direction: column;
 }
 
