@@ -303,7 +303,7 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position:
-            "(if[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[[\\s\\S]+?)}\\s+}\\s+const",
+            "(for[^{]+?{[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[[\\s\\S]+?[^}]+?}[^}]*)",
           code: '/* TYPOMOD \n         log kept commands*/\n        document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));\n        /* TYPOEND*/',
         },
         {
@@ -397,28 +397,28 @@ export const gameJsPatchConfig = {
         {
           source: "##COL##",
           target:
-            "if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[\\s\\S]+?return ([a-zA-Z0-9&_\\-$]+?)\\s+}",
+            "if \\(0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+?\\) return ([a-zA-Z0-9&_\\-$]+)[^}]+?}",
         },
         {
           source: "##COLR##",
           target:
-            "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;",
+            "if \\(0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - ([a-zA-Z0-9&_\\-$]+?) && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+?\\)[^}]+?}",
         },
         {
           source: "##COLG##",
           target:
-            "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - ([a-zA-Z0-9&_\\-$])+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - [a-zA-Z0-9&_\\-$]+?;",
+            "if \\(0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - ([a-zA-Z0-9&_\\-$]+?) && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+?\\)[^}]+?}",
         },
         {
           source: "##COLB##",
           target:
-            "[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[0] - ([a-zA-Z0-9&_\\-$]+?)\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[1] - [a-zA-Z0-9&_\\-$]+?\\s*,\\s*[a-zA-Z0-9&_\\-$]+? = [a-zA-Z0-9&_\\-$]+?\\[2] - ([a-zA-Z0-9&_\\-$])+?;",
+            "if \\(0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - ([a-zA-Z0-9&_\\-$]+?)\\)[^}]+?}",
         },
       ],
       injections: [
         {
           position:
-            "(if \\(0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\)[^}]+?})",
+            "(if \\(0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+? && 0 == [a-zA-Z0-9&_\\-$]+?\\[[a-zA-Z0-9&_\\-$]+?\\] - [a-zA-Z0-9&_\\-$]+?\\)[^}]+?})",
           code: "/* TYPOMOD\n                     desc: if color is not in array, convert to custom color */\n                    return ##COL## = parseInt(typo.rgbToHex(##COLR##, ##COLG##, ##COLB##), 16) + 10000;\n                    /* TYPOEND */",
         },
       ],
@@ -534,18 +534,12 @@ export const gameJsPatchConfig = {
     },
     {
       name: "Add message length splits",
-      replacements: [
-        {
-          source: "##INPUT##",
-          target:
-            "([a-zA-Z0-9&_\\-$]+)\\.value && [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\.value\\),\\s+[a-zA-Z0-9&_\\-$]+\\.reset",
-        },
-      ],
+      replacements: [ ],
       injections: [
         {
           position:
-            '("submit", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+return [a-zA-Z0-9&_\\-$]+\\.preventDefault',
-          code: 'const input = ##INPUT##; let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event("submit"));},180);',
+            '("submit", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+[a-zA-Z0-9&_\\-$]+\\.preventDefault',
+          code: 'const input = this.querySelector("input"); let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; e.target.dispatchEvent(new Event("submit"));},180);',
         },
       ],
     },
@@ -684,12 +678,12 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##PLAYER##",
-          target: '\\("text", [^\\(]+\\(([a-zA-Z0-9&_\\-$]+)\\.name, [^\\)]+\\)\\)',
+          target: '\\(([a-zA-Z0-9&_\\-$]+)\\.name, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\), !1\\)',
         },
       ],
       injections: [
         {
-          position: '(\\("text", [^}]+name, [^\\)]+\\)\\))',
+          position: '(\\([a-zA-Z0-9&_\\-$]+\\.name, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\), !1\\))',
           code: `.setAttribute("playerid", ##PLAYER##.id)`,
         },
       ],
@@ -699,7 +693,7 @@ export const gameJsPatchConfig = {
       replacements: [ ],
       injections: [
         {
-          position: '}(\\s+)}\\(window, document,',
+          position: '}(\\s+)}\\)\\(window, document,',
           code: `document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");`,
         },
       ],
