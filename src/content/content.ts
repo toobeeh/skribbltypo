@@ -27,6 +27,7 @@ import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
+import { ImagePostService } from "@/content/services/image-post/image-post.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
@@ -65,7 +66,8 @@ new ExtensionContainer()
     {type: DrawingService, scope: "singleton"},
     {type: GlobalSettingsService, scope: "singleton"},
     {type: ImageFinishedService, scope: "singleton"},
-    {type: DrawCommandsService, scope: "singleton"}
+    {type: DrawCommandsService, scope: "singleton"},
+    {type: ImagePostService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,

@@ -1,7 +1,8 @@
 import { GuildsApi, type MemberWebhookDto } from "@/api";
 import { ApiService } from "@/content/services/api/api.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
-import { type skribblImage, ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
+import { ImageFinishedService, type skribblImage } from "@/content/services/image-finished/image-finished.service";
+import { ImagePostService } from "@/content/services/image-post/image-post.service";
 import { MemberService } from "@/content/services/member/member.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -10,7 +11,7 @@ import IconButton from "@/lib/icon-button/icon-button.svelte";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
 import {
-  BehaviorSubject, map,
+  map,
   mergeWith, of,
   Subject,
   Subscription, switchMap, take,
@@ -20,6 +21,7 @@ import ToolbarPost from "./toolbar-imagepost.svelte";
 
 export class ToolbarImagePostFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
+  @inject(ImagePostService) private readonly _imagePostService!: ImagePostService;
   @inject(ImageFinishedService) private readonly _imageFinishedService!: ImageFinishedService;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
   @inject(MemberService) private readonly _memberService!: MemberService;
@@ -35,18 +37,11 @@ export class ToolbarImagePostFeature extends TypoFeature {
 
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
-  private _historySubscription?: Subscription;
 
   private _popoutOpened$ = new Subject<void>();
   private _submitted$ = new Subject<void>();
-  private _history$?: BehaviorSubject<skribblImage[]>;
 
   protected override async onActivate() {
-
-    /* listen for finished images and create history */
-    this._history$ = new BehaviorSubject<skribblImage[]>([]);
-    this._historySubscription = this._imageFinishedService.imageHistory$.subscribe(data => this._history$?.next(data));
-
     const elements = await this._elementsSetup.complete();
 
     /* create icon and attach to toolbar */
@@ -105,7 +100,6 @@ export class ToolbarImagePostFeature extends TypoFeature {
     this._flyoutComponent?.$destroy();
     this._flyoutSubscription?.unsubscribe();
     this._flyoutComponent = undefined;
-    this._historySubscription?.unsubscribe();
   }
 
   /**
@@ -113,12 +107,8 @@ export class ToolbarImagePostFeature extends TypoFeature {
    * state if someone is currently drawing
    */
   public get imageHistoryStore() {
-    if(!this._history$) {
-      this._logger.error("History not initialized, feature activated?");
-      throw new Error("Illegal state");
-    }
 
-    const observable = this._history$.pipe( /* take current history as base */
+    const observable = this._imagePostService.history$.pipe( /* take current history as base */
       switchMap((history) => this._drawingService.drawingState$.pipe(
         take(1), /* get current drawing state once */
         switchMap(state => {
@@ -128,7 +118,7 @@ export class ToolbarImagePostFeature extends TypoFeature {
         map(currentImage => currentImage === null ? history : [...history, currentImage])  /* if someone drawing, temporary add current state to history */
       ))
     );
-    return fromObservable(observable, this._history$.value);
+    return fromObservable(observable, []);
   }
 
   /**
