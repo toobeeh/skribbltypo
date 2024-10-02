@@ -114,7 +114,7 @@ export class ToolbarImagePostFeature extends TypoFeature {
         author: image.artist,
         posterName: image.player,
         onlyImage,
-        imageBase64: image.base64.split(",")[1].replace("==", ""),
+        imageBase64: image.image.base64ApiTruncated,
       }
     });
     this._submitted.next();

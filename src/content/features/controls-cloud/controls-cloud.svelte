@@ -20,6 +20,8 @@
   let createdBeforeQuery: Date | string = new Date();
   let createdAfterQuery: Date | string = new Date(new Date().setFullYear(2020, 9, 1));
 
+  let hiddenImages: string[] = [];
+
   const search = (login: number, resetPage = false) => {
     if(resetPage) page = 0;
     return feature.getImages({
@@ -206,7 +208,7 @@
 
         <!-- display grid -->
         {#each images as image}
-          <img src={image.imageUrl} alt={image.name} on:click={() => selectedImage = image} />
+          <img src={image.imageUrl} alt={image.name} style="display: {hiddenImages.includes(image.id) ? 'none' : ''}" on:click={() => selectedImage = image} />
         {/each}
 
       {/await}
@@ -237,7 +239,12 @@
       <FlatButton content="Add to Image Lab" color="blue" />
 
       <br>
-      <FlatButton content="Delete Image" color="orange" />
+      <FlatButton content="Delete Image" color="orange" on:click={async () => {
+        if($member === null || $member === undefined || selectedImage === null) throw new Error("illegal state");
+        await feature.deleteImage(selectedImage.id, Number($member.userLogin));
+        hiddenImages = [...hiddenImages, selectedImage.id];
+        selectedImage = null;
+      }} />
 
       <div class="exit-present" on:click={() => selectedImage = null}>
         <IconButton icon="file-img-arrow-left-gif" hoverMove="{false}" name="Exit" on:click />

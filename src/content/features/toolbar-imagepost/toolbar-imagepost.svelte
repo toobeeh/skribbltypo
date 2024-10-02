@@ -48,7 +48,7 @@
   {#if ($history.length > 0 && $member !== undefined && $member !== null)}
 
     <input type="text" class="typo" placeholder="Custom image name" bind:value={$history[viewIndex].name} />
-    <img src="{$history[viewIndex].base64}" alt="Post image" />
+    <img src="{$history[viewIndex].image.getBase64()}" alt="Post image" />
 
     <div class="navigate-image">
       <IconButton icon="file-img-arrow-left-gif" name="Previous" size="1.5rem" hoverMove="{false}"

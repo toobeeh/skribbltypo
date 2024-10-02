@@ -1,11 +1,12 @@
 import { CloudApi, type CloudSearchDto } from "@/api";
 import { ApiService } from "@/content/services/api/api.service";
+import { ImageHistoryService } from "@/content/services/image-history/image-history.service";
 import { MemberService } from "@/content/services/member/member.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
-import { Subscription } from "rxjs";
+import { Subscription, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
 import ControlsSettings from "./controls-cloud.svelte";
@@ -14,16 +15,17 @@ export class ControlsCloudFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ModalService) private readonly _modalService!: ModalService;
   @inject(MemberService) private readonly _memberService!: MemberService;
+  @inject(ImageHistoryService) private readonly _historyService!: ImageHistoryService;
   @inject(ApiService) private readonly _apiService!: ApiService;
 
   public readonly name = "Typo Cloud";
   public readonly description =
     "Saves all images from your lobbies in a cloud and adds a gallery to browse them";
-  public override readonly toggleEnabled = false;
-  public readonly featureId = 16;
+  public readonly featureId = 17;
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
+  private _imageHistorySubscription?: Subscription;
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -40,6 +42,33 @@ export class ControlsCloudFeature extends TypoFeature {
       },
     });
 
+    /* listen for new images and combine with current member*/
+    this._imageHistorySubscription = this._historyService.imageFinished$
+      .pipe(
+        withLatestFrom(this._memberService.member$),
+      )
+      .subscribe(async ([image, member]) => {
+        if(image === null || member === null || member === undefined) {
+          this._logger.debug("Did not save image because either member or image not defined");
+          return;
+        }
+
+        /* upload new image to cloud */
+        await this._apiService.getApi(CloudApi).uploadToUserCloud({
+          login: Number(member.userLogin),
+          cloudUploadDto: {
+            name: image.name,
+            author: image.artist,
+            inPrivate: image.private,
+            isOwn: image.isOwn,
+            language: image.language,
+            commands: image.commands,
+            imageBase64: image.image.base64ApiTruncated,
+          }
+        });
+        this._logger.debug("Image saved to cloud");
+      });
+
     /* listen for click on icon */
     this._iconClickSubscription = this._iconComponent.click$.subscribe(() => {
       const settingsComponent: componentData<ControlsSettings> = {
@@ -55,6 +84,7 @@ export class ControlsCloudFeature extends TypoFeature {
   protected override onDestroy(): Promise<void> | void {
     this._iconClickSubscription?.unsubscribe();
     this._iconComponent?.$destroy();
+    this._imageHistorySubscription?.unsubscribe();
   }
 
   public get memberStore() {
@@ -67,9 +97,10 @@ export class ControlsCloudFeature extends TypoFeature {
     if(search.titleQuery === "") search.titleQuery = undefined;
     if(search.createdInPrivateLobbyQuery === false) search.createdInPrivateLobbyQuery = undefined;
     if(search.isOwnQuery === false) search.isOwnQuery = undefined;
-
-    /*return new Promise(() => {console.log("hjkk");});*/
-
     return this._apiService.getApi(CloudApi).searchUserCloud({login, cloudSearchDto: search});
+  }
+
+  public async deleteImage(id: string, login: number){
+    return this._apiService.getApi(CloudApi).deleteImageFromUserCloud({login, id});
   }
 }

@@ -4,7 +4,8 @@ import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { downloadBlob, downloadText } from "@/util/download";
 import { inject } from "inversify";
-import { combineLatest, Subscription, take } from "rxjs";
+import { combineLatest, map, Subscription, take } from "rxjs";
+import { fromPromise } from "rxjs/internal/observable/innerFrom";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarSave from "./toolbar-save.svelte";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
@@ -92,7 +93,7 @@ export class ToolbarSaveFeature extends TypoFeature {
 
   async saveAsPng() {
     combineLatest({
-      blob: this._drawingService.getCurrentImageBlob(),
+      blob: fromPromise(this._drawingService.getCurrentImageData()).pipe(map(data => data.blob)),
       meta: this._drawingService.imageState$.pipe(take(1)),
       lobby: this._lobbyService.lobby$.pipe(take(1)),
     }).subscribe(({ blob, meta, lobby }) => {

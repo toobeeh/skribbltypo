@@ -6,6 +6,7 @@ import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/wor
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
+import { ImageData } from "@/util/imageData";
 import { convertOldSkd } from "@/util/skribbl/skd";
 import { wait } from "@/util/wait";
 import { inject, injectable } from "inversify";
@@ -210,20 +211,16 @@ export class DrawingService {
   /**
    * Get the current canvas image as a base64 string
    */
-  public async getCurrentImageBase64() {
+  private async getCurrentImageBase64() {
     return (await this.elementsSetup.complete()).canvas.toDataURL();
   }
 
   /**
    * Get the current canvas image as a blob
    */
-  public async getCurrentImageBlob() {
-    return new Promise<Blob>(async (resolve, reject) => {
-      (await this.elementsSetup.complete()).canvas.toBlob(blob => {
-        if(blob === null) reject("Failed to convert canvas to blob");
-        else resolve(blob);
-      });
-    });
+  public async getCurrentImageData() {
+    const base64 = await this.getCurrentImageBase64();
+    return await ImageData.fromBase64(base64);
   }
 
   /**

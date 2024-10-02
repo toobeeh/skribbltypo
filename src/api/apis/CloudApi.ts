@@ -123,7 +123,7 @@ export class CloudApi extends runtime.BaseAPI {
      *   Required Roles: Member - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
      * Delete a image by id from the cloud
      */
-    async deleteImageFromUserCloudRaw(requestParameters: DeleteImageFromUserCloudRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CloudImageDto>> {
+    async deleteImageFromUserCloudRaw(requestParameters: DeleteImageFromUserCloudRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters['login'] == null) {
             throw new runtime.RequiredError(
                 'login',
@@ -157,16 +157,15 @@ export class CloudApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => CloudImageDtoFromJSON(jsonValue));
+        return new runtime.VoidApiResponse(response);
     }
 
     /**
      *   Required Roles: Member - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
      * Delete a image by id from the cloud
      */
-    async deleteImageFromUserCloud(requestParameters: DeleteImageFromUserCloudRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CloudImageDto> {
-        const response = await this.deleteImageFromUserCloudRaw(requestParameters, initOverrides);
-        return await response.value();
+    async deleteImageFromUserCloud(requestParameters: DeleteImageFromUserCloudRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.deleteImageFromUserCloudRaw(requestParameters, initOverrides);
     }
 
     /**
