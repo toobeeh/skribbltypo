@@ -188,7 +188,7 @@ const uiTweaks = {
     initLobbyDescriptionForm: () => {
         // add Description form 
         let customwords = QS(".group-customwords, .game-room-group.customwords");
-        const input = elemFromString(`<div class="group-customwords game-room-group customwords" style="height:10%">
+        const input = elemFromString(`<div class="group-customwords game-room-group" style="height:10%">
 <div class="game-room-name">Palantir Description</div>
 <textarea style="" id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="Add a description that will show up in the Palantir bot"></textarea>
 </div>`);

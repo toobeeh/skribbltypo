@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.0.172778165
+// @version 26.3.1.172790648
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.3.0 usrsc"};
+            return {version: "26.3.1 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -3688,7 +3688,7 @@ let patchNode = async (node) => {
             console.log("Game.js hash:", hash);
 
             let patch = "gamePatch.js";
-            if(hash === 7693644640290134) { // PATCH date 2024-10-01
+            if(hash === 8091272790029377) { // PATCH date 2024-10-02
                 patch = `gamePatch-${hash}.js`;
             }
             else {
@@ -4533,9 +4533,8 @@ input::-webkit-inner-spin-button {
     display: flex;
     place-items: center;
     justify-content: space-around;
-    border-radius: 1em;
     z-index: 500;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.5);
     flex-direction: column;
 }
 
@@ -6587,7 +6586,7 @@ const uiTweaks = {
     initLobbyDescriptionForm: () => {
         // add Description form 
         let customwords = QS(".group-customwords, .game-room-group.customwords");
-        const input = elemFromString(`<div class="group-customwords game-room-group customwords" style="height:10%">
+        const input = elemFromString(`<div class="group-customwords game-room-group" style="height:10%">
 <div class="game-room-name">Palantir Description</div>
 <textarea style="" id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="Add a description that will show up in the Palantir bot"></textarea>
 </div>`);
@@ -7538,13 +7537,19 @@ let typro = {
                 let imgpost = elemFromString("<button class='flatUI blue min air'>Add to ImagePost</button>");
                 imgpost.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.imageUrl)).text()
-                    captureCanvas.capturedDrawings.push({
-                        drawing: data,
-                        drawer: meta.author,
-                        word: meta.name
-                    });
-                    new Toast("Added drawing to ImagePost history. Click left on the post image to select it!");
+                    const blob = await (await fetch(drawing.imageUrl)).blob();
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = function() {
+                        const base64data = reader.result;
+                        captureCanvas.capturedDrawings.push({
+                            drawing: base64data,
+                            drawer: meta.author,
+                            word: meta.name,
+                            hint: " (" + meta.name.length + ")"
+                        });
+                        new Toast("Added drawing to ImagePost history. Click left on the post image to select it!");
+                    }
                 });
                 options.appendChild(imgpost);
 

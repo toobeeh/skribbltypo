@@ -62,13 +62,19 @@ let typro = {
                 let imgpost = elemFromString("<button class='flatUI blue min air'>Add to ImagePost</button>");
                 imgpost.addEventListener("click", async () => {
                     new Toast("Loading...");
-                    const data = await (await fetch(drawing.imageUrl)).text()
-                    captureCanvas.capturedDrawings.push({
-                        drawing: data,
-                        drawer: meta.author,
-                        word: meta.name
-                    });
-                    new Toast("Added drawing to ImagePost history. Click left on the post image to select it!");
+                    const blob = await (await fetch(drawing.imageUrl)).blob();
+                    const reader = new FileReader();
+                    reader.readAsDataURL(blob);
+                    reader.onloadend = function() {
+                        const base64data = reader.result;
+                        captureCanvas.capturedDrawings.push({
+                            drawing: base64data,
+                            drawer: meta.author,
+                            word: meta.name,
+                            hint: " (" + meta.name.length + ")"
+                        });
+                        new Toast("Added drawing to ImagePost history. Click left on the post image to select it!");
+                    }
                 });
                 options.appendChild(imgpost);
 
