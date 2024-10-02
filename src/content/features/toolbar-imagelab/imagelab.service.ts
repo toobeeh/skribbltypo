@@ -1,5 +1,4 @@
-import { ServiceBinding, serviceBinding } from "@/content/core/feature/service-binding";
-import { ToolbarImageLabFeature } from "@/content/features/toolbar-imagelab/toolbar-imagelab.feature";
+import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { convertOldSkd } from "@/util/skribbl/skd";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject } from "rxjs";
@@ -11,22 +10,23 @@ export interface savedDrawCommands {
 }
 
 @injectable()
-export class DrawCommandsService {
+export class ImagelabService implements featureBinding {
 
   private readonly _logger;
   private _savedDrawCommands$?: BehaviorSubject<savedDrawCommands[]>;
-  private _serviceBinding: ServiceBinding;
 
   constructor(
-    @inject(loggerFactory) loggerFactory: loggerFactory,
-    @inject(serviceBinding) serviceBinding: serviceBinding
+    @inject(loggerFactory) loggerFactory: loggerFactory
   ) {
     this._logger = loggerFactory(this);
-    this._serviceBinding = serviceBinding(ToolbarImageLabFeature, this.init.bind(this), this.reset.bind(this));
   }
 
-  public get enabled() {
-    return this._serviceBinding.active;
+  async onFeatureDestroy() {
+    this._savedDrawCommands$ = undefined;
+  }
+
+  async onFeatureActivate() {
+    this._savedDrawCommands$ = new BehaviorSubject<savedDrawCommands[]>([]);
   }
 
   public get savedDrawCommands$() {
@@ -35,14 +35,6 @@ export class DrawCommandsService {
       throw new Error("illegal state");
     }
     return this._savedDrawCommands$;
-  }
-
-  private reset() {
-    this._savedDrawCommands$ = undefined;
-  }
-
-  private init() {
-    this._savedDrawCommands$ = new BehaviorSubject<savedDrawCommands[]>([]);
   }
 
   public saveDrawCommands(name: string, commands: number[][] | number[][][]) {

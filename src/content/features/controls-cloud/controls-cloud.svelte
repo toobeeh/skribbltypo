@@ -235,7 +235,11 @@
       <FlatButton content="Download GIF" color="green" />
 
       <br>
-      <FlatButton content="Add to Image Post" color="blue" />
+      <FlatButton content="Add to Image Post" color="blue" on:click={async () => {
+        if($member === null || $member === undefined || selectedImage === null) throw new Error("illegal state");
+        await feature.addToImagePost(selectedImage, $member);
+        selectedImage = null;
+      }} />
       <FlatButton content="Add to Image Lab" color="blue" />
 
       <br>

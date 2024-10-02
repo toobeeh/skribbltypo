@@ -98,8 +98,11 @@ furthermore they can be paused via run/freeze (not implemented yet).
 Features are instantiated as soon as they are registered; to delay activation further, setups can be used.
 
 When other features rely on a feature or state of a feature, the feature should implement the required state and functions in a separate service.  
-The service can then be bound to the feature activation state using the `serviceBinding` factory function, which will tie init/reset functions of the service to the feature state.  
-This prevents tight coupling of features and allows for better separation of concerns, as well as it avoids injecting features into other features.
+The service can then be bound to the feature activation state by implementing the `boundService` interface and listing it in the feature's "boundServices",  
+which will tie init/reset functions of the service to the feature state.  
+This prevents tight coupling of features and allows for better separation of concerns, as well as it avoids injecting features into other features.  
+These services may reside in the folder of their associated feature.  
+A service must only be bound to one feature to prevent illegal states.
 
 #### Svelte Components
 Svelte is the framework that is used to build UI in features and setups.  

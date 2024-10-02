@@ -156,7 +156,7 @@
                 hoverMove={false} greyscaleInactive="{true}"
                 on:click={() => feature.setHiddenState(true)}
     />-->
-      </span>
+  </span>
 </div>
 
 <div class:closed={$hidden === false} class="typo-image-agent hidden">

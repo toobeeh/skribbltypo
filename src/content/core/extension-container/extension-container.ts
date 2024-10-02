@@ -1,5 +1,4 @@
 import { FeaturesService } from "@/content/core/feature/features.service";
-import { ServiceBinding, serviceBinding } from "@/content/core/feature/service-binding";
 import { Container } from "inversify";
 import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../event/events.service";
@@ -55,11 +54,6 @@ export class ExtensionContainer {
       });
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
       this._diContainer.bind(FeaturesService).toSelf().inSingletonScope();
-      this._diContainer.bind(serviceBinding).toFactory<ServiceBinding, [Type<TypoFeature>, () => void, () => void]>((context) => {
-          return (feature: Type<TypoFeature>, onInit: () => void, onReset: () => void) => {
-              return new ServiceBinding(context.container.get(FeaturesService), feature, onInit, onReset);
-          };
-      });
    }
 
    public registerEventProcessors(...events: EventRegistration<unknown, ApplicationEvent<unknown>>[]) {

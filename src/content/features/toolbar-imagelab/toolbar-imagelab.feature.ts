@@ -1,4 +1,4 @@
-import { DrawCommandsService } from "@/content/services/draw-commands/draw-commands.service";
+import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -14,7 +14,7 @@ import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 export class ToolbarImageLabFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
-  @inject(DrawCommandsService) private readonly _drawCommandsService!: DrawCommandsService;
+  @inject(ImagelabService) private readonly _drawCommandsService!: ImagelabService;
 
   public readonly name = "Image Laboratory";
   public readonly description =
@@ -25,6 +25,10 @@ export class ToolbarImageLabFeature extends TypoFeature {
   private _iconClickSubscription?: Subscription;
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
+
+  protected override get boundServices(){
+    return [this._drawCommandsService];
+  }
 
   private _customName?: string;
   public set customName(value: string | undefined){

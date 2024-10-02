@@ -2,7 +2,7 @@ import { GuildsApi, type MemberWebhookDto } from "@/api";
 import { ApiService } from "@/content/services/api/api.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ImageFinishedService, type skribblImage } from "@/content/services/image-finished/image-finished.service";
-import { ImagePostService } from "@/content/services/image-post/image-post.service";
+import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
 import { MemberService } from "@/content/services/member/member.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -31,6 +31,10 @@ export class ToolbarImagePostFeature extends TypoFeature {
   public readonly description =
     "Adds an icon to the typo toolbar to send images from your lobby directly to one of your connected discord servers";
   public readonly featureId = 11;
+
+  protected override get boundServices(){
+    return [this._imagePostService];
+  }
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;

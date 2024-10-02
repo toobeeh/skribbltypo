@@ -1,3 +1,4 @@
+import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { ExtensionSetting } from "@/content/core/settings/setting";
 import { inject, injectable, postConstruct } from "inversify";
 import { loggerFactory } from "../logger/loggerFactory.interface";
@@ -6,6 +7,13 @@ import { loggerFactory } from "../logger/loggerFactory.interface";
 export abstract class TypoFeature {
 
   protected readonly featureEnabledDefault: boolean = true;
+
+  /**
+   * Services that are bound to the lifecycle of the feature with init/reset methods
+   * @protected
+   */
+  protected get boundServices(): featureBinding[] { return []; }
+
   private _isActivatedSetting = new ExtensionSetting<boolean>("isActivated", this.featureEnabledDefault, this);
   private _logLevelSetting = new ExtensionSetting<string>("logLevel", "", this);
 
@@ -120,6 +128,9 @@ export abstract class TypoFeature {
 
     this._logger.info("Activating feature");
 
+    /* init bound services */
+    await Promise.all(this.boundServices.map((service) => service.onFeatureActivate()));
+
     const activate = this.onActivate();
     if(activate instanceof Promise) await activate;
     this._isActivated = true;
@@ -151,6 +162,9 @@ export abstract class TypoFeature {
     if(destroy instanceof Promise) await destroy;
     this._isActivated = false;
     await this._isActivatedSetting.setValue(false);
+
+    /* reset bound services */
+    await Promise.all(this.boundServices.map((service) => service.onFeatureDestroy()));
   }
 
   public get state() {

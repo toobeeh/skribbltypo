@@ -1,5 +1,6 @@
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
+import { ToastSetup } from "@/content/setups/toast/toast.setup";
 import { Setup } from "../../core/setup/setup";
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import { inject } from "inversify";
@@ -12,7 +13,7 @@ import { ToolbarSetup } from "../toolbar/toolbar.setup";
  * @param toolbar
  * @param controls
  */
-function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement){
+function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement, toastContainer: HTMLElement){
   return {
     panelContainer: requireElement(".panels"),
     avatarPanel: requireElement(".panel:not(.typo-panel)"),
@@ -33,7 +34,8 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
     ...panels,
     toolbar,
-    controls
+    controls,
+    toastContainer
   };
 }
 export type typoElements = ReturnType<typeof getElements>;
@@ -43,6 +45,7 @@ export class ElementsSetup extends Setup<typoElements> {
   @inject(PanelSetup) private _panelSetup!: PanelSetup;
   @inject(ToolbarSetup) private _toolbarSetup!: ToolbarSetup;
   @inject(ControlsSetup) private _controlsSetup!: ControlsSetup;
+  @inject(ToastSetup) private _toastSetup!: ToastSetup;
   @inject(SkribblInitializedSetup) private _gameReadySetup!: SkribblInitializedSetup;
 
   protected async runSetup(): Promise<ReturnType<typeof getElements>> {
@@ -50,6 +53,7 @@ export class ElementsSetup extends Setup<typoElements> {
     const panels = await this._panelSetup.complete();
     const toolbar = await this._toolbarSetup.complete();
     const controls = await this._controlsSetup.complete();
-    return getElements(panels, toolbar, controls);
+    const toastContainer = await this._toastSetup.complete();
+    return getElements(panels, toolbar, controls, toastContainer);
   }
 }

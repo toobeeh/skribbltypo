@@ -1,32 +1,28 @@
-import { serviceBinding, ServiceBinding } from "@/content/core/feature/service-binding";
+import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
-import { ToolbarImagePostFeature } from "@/content/features/toolbar-imagepost/toolbar-imagepost.feature";
 import { ImageFinishedService, type skribblImage } from "@/content/services/image-finished/image-finished.service";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, Subscription } from "rxjs";
 
 @injectable()
-export class ImagePostService {
+export class ImagePostService implements featureBinding {
 
   private readonly _logger;
-  private _serviceBinding: ServiceBinding;
   private _history$?: BehaviorSubject<skribblImage[]>;
   private _historySubscription?: Subscription;
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
-    @inject(serviceBinding) serviceBinding: serviceBinding,
     @inject(ImageFinishedService) private readonly _imageFinishedService: ImageFinishedService
   ) {
     this._logger = loggerFactory(this);
-    this._serviceBinding = serviceBinding(ToolbarImagePostFeature, this.init.bind(this), this.reset.bind(this));
   }
 
   /**
    *  listen for finished images and create history
    *
    */
-  private init() {
+  async onFeatureActivate() {
     this._history$ = new BehaviorSubject<skribblImage[]>([]);
     this._historySubscription = this._imageFinishedService.imageHistory$.subscribe(data => this._history$?.next(data));
   }
@@ -35,13 +31,9 @@ export class ImagePostService {
    * unsubscribe from history subscription
    * @private
    */
-  private reset(){
+  async onFeatureDestroy(){
     this._history$ = undefined;
     this._historySubscription?.unsubscribe();
-  }
-
-  public get enabled() {
-    return this._serviceBinding.active;
   }
 
   public get history$() {
@@ -50,6 +42,14 @@ export class ImagePostService {
       throw new Error("illegal state");
     }
     return this._history$.asObservable();
+  }
+
+  public addToHistory(image: skribblImage) {
+    if (!this._history$) {
+      this._logger.error("Tried to access history without initializing the service first. Imagelab feature enabled?");
+      throw new Error("illegal state");
+    }
+    this._history$.next([...this._history$.value, image]);
   }
 
 }
