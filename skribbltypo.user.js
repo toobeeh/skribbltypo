@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.1.172780277
+// @version 26.3.1.172790648
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -3688,7 +3688,7 @@ let patchNode = async (node) => {
             console.log("Game.js hash:", hash);
 
             let patch = "gamePatch.js";
-            if(hash === 7693644640290134) { // PATCH date 2024-10-01
+            if(hash === 8091272790029377) { // PATCH date 2024-10-02
                 patch = `gamePatch-${hash}.js`;
             }
             else {
