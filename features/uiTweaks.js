@@ -42,7 +42,7 @@ const uiTweaks = {
     },
     initWordHint: () => {
         // Add wordcount under input
-        const input = QS("#game-chat .chat-container form input");
+        const input = localStorage.patchHash == "8091272790029377" ? QS("#game-chat form input") : QS("#game-chat .chat-container form input");
         const hints = QS("#game-word .hints .container");
         const characters = QS("#game-chat .characters");
 
@@ -382,8 +382,8 @@ const uiTweaks = {
         }
     </style>
     <span>⬅️Close</span><span>⬆️Like</span><span>⬇️Shame</span><span>➡️Kick</span></div>`);
-        QS("#game-chat > .chat-container").appendChild(react);
-        let chatinput = QS("#game-chat .chat-container input");
+        localStorage.patchHash == "8091272790029377" ? QS("#game-chat").appendChild(react) : QS("#game-chat > .chat-container").appendChild(react);
+        let chatinput = localStorage.patchHash == "8091272790029377" ? QS("#game-chat form input") : QS("#game-chat .chat-container input");
         chatinput.addEventListener("keyup", (e) => {
             if (localStorage.quickreact == "true" && e.which == 17 && chatinput.value == "" && react.style.display == "none") {
                 react.style.display = "flex";
@@ -424,7 +424,7 @@ const uiTweaks = {
     box-shadow: black 0px 2px 7px;
 ">Copy chat selection for Discord</div>`);
         popup.style.display = "none";
-        const chatbox = QS("#game-chat > .chat-container");
+        const chatbox = localStorage.patchHash == "8091272790029377" ? QS("#game-chat > .chat-content") : QS("#game-chat > .chat-container");
         popup.addEventListener("pointerdown", () => {
             let chat = document.getSelection().toString();
             chat = chat.replace(/(\n)(?=.*? guessed the word!)/g, "+ ")
@@ -458,7 +458,7 @@ const uiTweaks = {
         });
     },
     initChatRecall: () => {
-        const input = QS("#game-chat .chat-container form input");
+        const input = localStorage.patchHash == "8091272790029377" ? QS("#game-chat form input") : QS("#game-chat .chat-container form input");
         let history = [];
         let lookup = [];
         // Add event listener to keyup and process to hints
@@ -681,7 +681,8 @@ const uiTweaks = {
         }
     },
     initColorTools: () => {
-        QS(".colors").insertAdjacentElement("afterend", elemFromString(`<div class="colors color-tools">
+        if(localStorage.patchHash == "8091272790029377"){
+            QS(".toolbar-group-tools").insertAdjacentElement("afterbegin", elemFromString(`<div class="color-tools">
             <div class="top">
               <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(${chrome.runtime.getURL("res/crosshair.gif")});"></div>
             </div>
@@ -689,7 +690,20 @@ const uiTweaks = {
               <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(${chrome.runtime.getURL("res/inspect.gif")});"></div>
             </div>
             </div>`
-        ));
+            ));
+        }
+        else {
+            QS(".colors").insertAdjacentElement("afterend", elemFromString(`<div class="colors color-tools">
+            <div class="top">
+              <div class="color" id="color-canvas-picker" data-tooltipdir='N' data-typo-tooltip="Select a color from the canvas" style="background-image: url(${chrome.runtime.getURL("res/crosshair.gif")});"></div>
+            </div>
+            <div class="bottom">
+              <div class="color" id="color-free-picker" data-tooltipdir='S' data-typo-tooltip="Open the color picker" style="background-image: url(${chrome.runtime.getURL("res/inspect.gif")});"></div>
+            </div>
+            </div>`
+            ));
+        }
+
 
         // color picker
         const picker = QS("#color-free-picker");
@@ -790,7 +804,7 @@ const uiTweaks = {
 
         document.dispatchEvent(new Event("addTypoTooltips"));
 
-        QS("#game-chat > div.chat-container > form > input[type=text]").setAttribute("maxlength", 300);
+        (localStorage.patchHash == "8091272790029377" ? QS("#game-chat > form > input[type=text]") : QS("#game-chat > div.chat-container > form > input[type=text]")).setAttribute("maxlength", 300);
 
         const GAME = QS("#game");
         var gameObserver = new MutationObserver(() => {
@@ -799,6 +813,6 @@ const uiTweaks = {
         gameObserver.observe(GAME, { attributes: true, childList: false });
 
         // random easteregg
-        if (Math.random() < 0.1) QS("#game-chat .chat-container form input").placeholder = "Typo your guess here...";
+        if (Math.random() < 0.1) (localStorage.patchHash == "8091272790029377" ? QS("#game-chat form input") : QS("#game-chat .chat-container form input")).placeholder = "Typo your guess here...";
     }
 }

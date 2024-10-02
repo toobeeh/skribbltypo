@@ -87,6 +87,7 @@ let patchNode = async (node) => {
             const hash = cyrb53(js);
             console.log("Game.js hash:", hash);
 
+            localStorage.patchHash = hash;
             let patch = "gamePatch.js";
             if(hash === 8091272790029377) { // PATCH date 2024-10-02
                 patch = `gamePatch-${hash}.js`;

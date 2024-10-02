@@ -1319,8 +1319,25 @@ body > div.pcr-app.visible > div.pcr-interaction:after {
     font-weight: 500;
 }
 
+/* OLD COMPATIBILITY*/
 .colors.color-tools {
     margin-left: var(--BORDER_GAP);
+}
+
+/* OLD COMPATIBILITY*/
+.colors.color-tools .color {
+    filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, .3));
+    background-repeat: no-repeat;
+    background-size: 90%;
+    background-position: center;
+    background-color: var(--COLOR_TOOL_BASE);
+}
+
+.color-tools:not(.colors) {
+    border-radius: var(--BORDER_RADIUS);
+    height: var(--UNIT);
+    width: calc(var(--UNIT) / 2);
+    overflow: hidden;
 }
 
 .color-tools .color {
@@ -1329,6 +1346,10 @@ body > div.pcr-app.visible > div.pcr-interaction:after {
     background-size: 90%;
     background-position: center;
     background-color: var(--COLOR_TOOL_BASE);
+    width: calc(var(--UNIT) / 2);
+    height: calc(var(--UNIT) / 2);
+    cursor:pointer;
+
 }
 
 .color-tools .bottom .color {
