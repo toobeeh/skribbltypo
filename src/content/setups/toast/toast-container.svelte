@@ -6,7 +6,7 @@
     top: 0;
     height: 0;
     overflow:visible;
-    z-index:1000; /*above modal*/
+    z-index: 10000; /*above modal*/
     display: flex;
     flex-direction: column;
     align-items: center;

@@ -1,10 +1,14 @@
+import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
+import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
+import { MemberService } from "@/content/services/member/member.service";
 import type { componentData } from "@/content/services/modal/modal.service";
+import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { downloadBlob, downloadText } from "@/util/download";
 import { inject } from "inversify";
-import { combineLatest, map, Subscription, take } from "rxjs";
+import { catchError, combineLatest, map, of, Subscription, take, withLatestFrom } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarSave from "./toolbar-save.svelte";
@@ -15,6 +19,10 @@ export class ToolbarSaveFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
+  @inject(ToastService) private readonly _toastService!: ToastService;
+  @inject(CloudService) private readonly _cloudService!: CloudService;
+  @inject(MemberService) private readonly _memberService!: MemberService;
+  @inject(ImageFinishedService) private readonly _imageFinishedService!: ImageFinishedService;
 
   public readonly name = "Save Image";
   public readonly description =
@@ -86,28 +94,63 @@ export class ToolbarSaveFeature extends TypoFeature {
     });
   }
 
-  saveInCloud() {
-    this._logger.debug("Saving in cloud");
+  async saveInCloud() {
+    const toast = await this._toastService.showLoadingToast("Uploading image");
+    this._imageFinishedService
+      .mapToImageState(of(1))
+      .pipe(
+        withLatestFrom(this._memberService.member$),
+        catchError((err) => {
+          this._logger.error("Failed to save image", err);
+          toast.reject("Unknown error :(");
+          throw err;
+        }),
+      )
+      .subscribe(async ([image, member]) => {
+        if (!image) {
+          this._logger.error("Failed to get image data, no drawing active?");
+          toast.reject("Failed to get image");
+          throw new Error("No drawing active");
+        }
+        if (!member) {
+          this._logger.error("Failed to get member, not logged in?");
+          toast.reject("You need to log in to use the cloud");
+          return of(false);
+        }
+
+        await this._cloudService.uploadToCloud(image, member);
+        toast.resolve();
+      });
   }
 
   async saveAsPng() {
+    const toast = await this._toastService.showLoadingToast("Downloading image");
     combineLatest({
       blob: fromPromise(this._drawingService.getCurrentImageData()).pipe(map(data => data.blob)),
       meta: this._drawingService.imageState$.pipe(take(1)),
       lobby: this._lobbyService.lobby$.pipe(take(1)),
-    }).subscribe(({ blob, meta, lobby }) => {
+    }).pipe(
+      catchError(err => {
+        this._logger.error("Failed to download image", err);
+        toast.reject();
+        throw err;
+      })
+    ).subscribe(({ blob, meta, lobby }) => {
       if(!meta) {
         this._logger.error("Failed to get image meta data, no drawing active?");
-        return;
+        toast.reject("Failed to get image");
+        throw new Error("No drawing active");
       }
 
       if(!lobby) {
         this._logger.error("Failed to get lobby, not joined?");
-        return;
+        toast.reject("failed to get lobby details");
+        throw new Error("Not joined in lobby");
       }
 
       const drawer = lobby.players.find(player => player.id === meta.drawerId)?.name ?? "unknown";
       downloadBlob(blob, (this._customName ?? `skribbl-${meta.word.hints}-by-${drawer}`) + ".png");
+      toast.resolve();
     });
   }
 
@@ -115,27 +158,37 @@ export class ToolbarSaveFeature extends TypoFeature {
     this._logger.debug("Saving as gif");
   }
 
-  saveAsDrawCommands() {
+  async saveAsDrawCommands() {
     this._logger.debug("Saving as draw commands");
+    const toast = await this._toastService.showLoadingToast("Downloading commands");
 
     combineLatest({
       meta: this._drawingService.imageState$.pipe(take(1)),
       lobby: this._lobbyService.lobby$.pipe(take(1)),
       commands: this._drawingService.commands$.pipe(take(1)),
-    }).subscribe(({meta, lobby, commands}) => {
+    }).pipe(
+      catchError(err => {
+        this._logger.error("Failed to download commands", err);
+        toast.reject();
+        throw err;
+      })
+    ).subscribe(({meta, lobby, commands}) => {
       if(!meta) {
         this._logger.error("Failed to get image meta data, no drawing active?");
-        return;
+        toast.reject("Failed to get image");
+        throw new Error("No drawing active");
       }
 
       if(!lobby) {
         this._logger.error("Failed to get lobby, not joined?");
-        return;
+        toast.reject("failed to get lobby details");
+        throw new Error("Not joined in lobby");
       }
 
       const json = JSON.stringify(commands);
       const drawer = lobby.players.find(player => player.id === meta.drawerId)?.name ?? "unknown";
       downloadText(json, (this._customName ?? `skribbl-${meta.word.hints}-by-${drawer}`) + ".skd");
+      toast.resolve();
     });
   }
 

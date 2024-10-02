@@ -110,3 +110,10 @@ Additionally, reusable components can be created in the `src/lib` folder.
 Svelte components should be created in their feature/setup module, and should reside in the respective folder.  
 Features and Setups should pass themselves (`this`) as a prop to the component, to separate controller and template, 
 and execute as few code as possible in the svelte script tag.  
+
+## UX
+### Toasts
+Toasts should be used at every action the user takes, where the result might not be immediately visible.  
+Toasts should be used in feature classes, never in a service.  
+If a service errors, it should throw an error. Features should catch the error either using conditions, try-catch or rxjs catch operator.  
+The feature should then log the error to have detailed typo logs, throw the error to have a stack trace available and then reject the toast with a message.  

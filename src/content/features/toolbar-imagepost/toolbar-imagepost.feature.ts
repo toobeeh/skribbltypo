@@ -5,6 +5,7 @@ import { ImageFinishedService, type skribblImage } from "@/content/services/imag
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
 import { MemberService } from "@/content/services/member/member.service";
 import type { componentData } from "@/content/services/modal/modal.service";
+import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
@@ -26,6 +27,7 @@ export class ToolbarImagePostFeature extends TypoFeature {
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(ApiService) private readonly _apiService!: ApiService;
+  @inject(ToastService) private readonly _toastService!: ToastService;
 
   public readonly name = "Image Post";
   public readonly description =
@@ -111,7 +113,6 @@ export class ToolbarImagePostFeature extends TypoFeature {
    * state if someone is currently drawing
    */
   public get imageHistoryStore() {
-
     const observable = this._imagePostService.history$.pipe( /* take current history as base */
       switchMap((history) => this._drawingService.drawingState$.pipe(
         take(1), /* get current drawing state once */
@@ -139,17 +140,26 @@ export class ToolbarImagePostFeature extends TypoFeature {
    * @param onlyImage
    */
   public async postWebhook(webhook: MemberWebhookDto, image: skribblImage, onlyImage: boolean){
-    await this._apiService.getApi(GuildsApi).postImageToGuild({
-      token: webhook.guild.invite,
-      id: webhook.name,
-      postImageDto: {
-        title: image.name,
-        author: image.artist,
-        posterName: image.player,
-        onlyImage,
-        imageBase64: image.image.base64ApiTruncated,
-      }
-    });
-    this._submitted$.next();
+    const toast = await this._toastService.showLoadingToast("Posting image to " + webhook.name);
+
+    try{
+      await this._apiService.getApi(GuildsApi).postImageToGuild({
+        token: webhook.guild.invite,
+        id: webhook.name,
+        postImageDto: {
+          title: image.name,
+          author: image.artist,
+          posterName: image.player,
+          onlyImage,
+          imageBase64: image.image.base64ApiTruncated,
+        }
+      });
+      this._submitted$.next();
+      toast.resolve();
+    }
+    catch (e) {
+      this._logger.error("Failed to post image to discord", e);
+      toast.reject();
+    }
   }
 }

@@ -1,16 +1,14 @@
-import type { featureBinding } from "@/content/core/feature/featureBinding";
+import { CloudApi, type MemberDto } from "@/api";
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
-import { ImageFinishedService, type skribblImage } from "@/content/services/image-finished/image-finished.service";
+import { ApiService } from "@/content/services/api/api.service";
+import { type skribblImage } from "@/content/services/image-finished/image-finished.service";
 import { inject, injectable } from "inversify";
-import { Subject, type Subscription } from "rxjs";
 
 @injectable()
-export class CloudService implements featureBinding{
-  @inject(ImageFinishedService) private readonly _imageFinishedService!: ImageFinishedService;
+export class CloudService{
+  @inject(ApiService) private readonly _apiService!: ApiService;
 
   private readonly _logger;
-  private _savedImages$?: Subject<skribblImage>;
-  private _finishedSubscription?: Subscription;
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory
@@ -18,32 +16,21 @@ export class CloudService implements featureBinding{
     this._logger = loggerFactory(this);
   }
 
-  async onFeatureActivate() {
-    this._savedImages$ = new Subject<skribblImage>();
-    this._finishedSubscription = this._imageFinishedService
-      .imageFinished$
-      .subscribe(image => this._savedImages$?.next(image));
-  }
+  public async uploadToCloud(image: skribblImage,member: MemberDto) {
 
-  async onFeatureDestroy() {
-    this._finishedSubscription?.unsubscribe();
-  }
-
-  public get savedImages$() {
-    if(!this._savedImages$) {
-      this._logger.error("Tried to access saved images without initializing the service first. Cloud feature enabled?");
-      throw new Error("illegal state");
-    }
-
-    return this._savedImages$;
-  }
-
-  public saveImage(image: skribblImage) {
-    if(!this._savedImages$) {
-      this._logger.error("Tried to access saved images without initializing the service first. Cloud feature enabled?");
-      throw new Error("illegal state");
-    }
-
-    this._savedImages$?.next(image);
+    /* upload new image to cloud */
+    await this._apiService.getApi(CloudApi).uploadToUserCloud({
+      login: Number(member.userLogin),
+      cloudUploadDto: {
+        name: image.name,
+        author: image.artist,
+        inPrivate: image.private,
+        isOwn: image.isOwn,
+        language: image.language,
+        commands: image.commands,
+        imageBase64: image.image.base64ApiTruncated,
+      }
+    });
+    this._logger.debug("Image saved to cloud");
   }
 }

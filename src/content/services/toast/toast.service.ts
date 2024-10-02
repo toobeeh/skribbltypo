@@ -6,6 +6,7 @@ import Toast from "./toast.svelte";
 export interface loadingToastHandle {
   close: () => void;
   resolve: (message?: string, timeout?: number) => void;
+  reject: (message?: string, title?: string, timeout?: number) => void;
 }
 
 @injectable()
@@ -55,6 +56,11 @@ export class ToastService {
       close: () => toast.close(),
       resolve: (message?: string, timeout?: number) => {
         toast.$set({showLoading: false, title: message ?? "Done"});
+        setTimeout(() => toast.close(), timeout ?? 3000);
+      },
+      reject: (message?: string, title?: string, timeout?: number) => {
+        toast.$set({showLoading: false, title: title ?? "Error"});
+        if(message !== undefined) toast.$set({content: message});
         setTimeout(() => toast.close(), timeout ?? 3000);
       }
     };

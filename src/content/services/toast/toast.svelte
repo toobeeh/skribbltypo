@@ -38,7 +38,7 @@
   }
 
   .typo-toast {
-    padding: 1rem;
+    padding: 1rem 3rem 1rem 1rem;
     background-color: var(--COLOR_PANEL_HI);
     border-radius: 5px;
     color: var(--COLOR_PANEL_TEXT);

@@ -2,9 +2,10 @@ import { CloudApi, type CloudImageDto, type CloudSearchDto, type MemberDto } fro
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
 import { ApiService } from "@/content/services/api/api.service";
-import type { skribblImage } from "@/content/services/image-finished/image-finished.service";
+import { ImageFinishedService, type skribblImage } from "@/content/services/image-finished/image-finished.service";
 import { MemberService } from "@/content/services/member/member.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
+import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { ImageData } from "@/util/imageData";
 import { fromObservable } from "@/util/store/fromObservable";
@@ -22,16 +23,14 @@ export class ControlsCloudFeature extends TypoFeature {
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(CloudService) private readonly _cloudService!: CloudService;
   @inject(ImagePostService) private readonly _imagePostService!: ImagePostService;
+  @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(ApiService) private readonly _apiService!: ApiService;
+  @inject(ImageFinishedService) private readonly _imageFinishedService!: ImageFinishedService;
 
   public readonly name = "Typo Cloud";
   public readonly description =
     "Saves all images from your lobbies in a cloud and adds a gallery to browse them";
   public readonly featureId = 17;
-
-  protected override get boundServices(){
-    return [this._cloudService];
-  }
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
@@ -53,7 +52,7 @@ export class ControlsCloudFeature extends TypoFeature {
     });
 
     /* listen for new images and combine with current member*/
-    this._cloudSavedSubscription = this._cloudService.savedImages$
+    this._cloudSavedSubscription = this._imageFinishedService.imageFinished$
       .pipe(
         withLatestFrom(this._memberService.member$),
       )
@@ -63,20 +62,7 @@ export class ControlsCloudFeature extends TypoFeature {
           return;
         }
 
-        /* upload new image to cloud */
-        await this._apiService.getApi(CloudApi).uploadToUserCloud({
-          login: Number(member.userLogin),
-          cloudUploadDto: {
-            name: image.name,
-            author: image.artist,
-            inPrivate: image.private,
-            isOwn: image.isOwn,
-            language: image.language,
-            commands: image.commands,
-            imageBase64: image.image.base64ApiTruncated,
-          }
-        });
-        this._logger.debug("Image saved to cloud");
+        await this._cloudService.uploadToCloud(image, member);
       });
 
     /* listen for click on icon */
@@ -111,25 +97,42 @@ export class ControlsCloudFeature extends TypoFeature {
   }
 
   public async deleteImage(id: string, login: number){
-    return this._apiService.getApi(CloudApi).deleteImageFromUserCloud({login, id});
+    const toast = await this._toastService.showLoadingToast("Removing image from cloud");
+    try {
+      const image = await this._apiService.getApi(CloudApi).deleteImageFromUserCloud({login, id});
+      toast.resolve();
+      return image;
+    }
+    catch {
+      toast.reject();
+    }
   }
 
   public async addToImagePost(image: CloudImageDto, member: MemberDto){
-    const meta = await getCloudMeta(image.metaUrl);
-    const commands = await getCloudCommands(image.commandsUrl);
-    const imageData = await ImageData.fromImageUrl(image.imageUrl);
-    const skribblImage: skribblImage = {
-      name: image.name,
-      artist: image.author,
-      private: meta.private,
-      isOwn: meta.own,
-      language: meta.language,
-      player: member.userName,
-      date: new Date(meta.date),
-      commands,
-      image: imageData
-    };
 
-    this._imagePostService.addToHistory(skribblImage);
+    const toast = await this._toastService.showLoadingToast("Adding image to history");
+
+    try {
+      const meta = await getCloudMeta(image.metaUrl);
+      const commands = await getCloudCommands(image.commandsUrl);
+      const imageData = await ImageData.fromImageUrl(image.imageUrl);
+      const skribblImage: skribblImage = {
+        name: image.name,
+        artist: image.author,
+        private: meta.private,
+        isOwn: meta.own,
+        language: meta.language,
+        player: member.userName,
+        date: new Date(meta.date),
+        commands,
+        image: imageData
+      };
+
+      this._imagePostService.addToHistory(skribblImage);
+      toast.resolve();
+    }
+    catch {
+      toast.reject();
+    }
   }
 }
