@@ -88,7 +88,7 @@ let patchNode = async (node) => {
             console.log("Game.js hash:", hash);
 
             let patch = "gamePatch.js";
-            if(hash === 7693644640290134) { // PATCH date 2024-10-01
+            if(hash === 8091272790029377) { // PATCH date 2024-10-02
                 patch = `gamePatch-${hash}.js`;
             }
             else {
