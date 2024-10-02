@@ -7,6 +7,7 @@ import { MemberService } from "@/content/services/member/member.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import { downloadBlob } from "@/util/download";
 import { ImageData } from "@/util/imageData";
 import { fromObservable } from "@/util/store/fromObservable";
 import { getCloudCommands } from "@/util/typo/getCloudCommands";
@@ -133,6 +134,33 @@ export class ControlsCloudFeature extends TypoFeature {
     }
     catch {
       toast.reject();
+    }
+  }
+
+  public async saveAsPng(image: CloudImageDto){
+    const toast = await this._toastService.showLoadingToast("Downloading image");
+    try {
+      const imageData = await ImageData.fromImageUrl(image.imageUrl);
+      downloadBlob(imageData.blob, `skribbl-${image.name}-by-${image.author}.png`);
+      toast.resolve();
+    }
+    catch(e){
+      this._logger.error("Failed to download image", e);
+      toast.reject();
+      throw e;
+    }
+  }
+
+  public async copyToClipboard(image: CloudImageDto){
+    const toast = await this._toastService.showLoadingToast("Copying image link");
+    try {
+      await navigator.clipboard.writeText(image.imageUrl);
+      toast.resolve();
+    }
+    catch(e){
+      this._logger.error("Failed to copy image link to clipboard", e);
+      toast.reject();
+      throw e;
     }
   }
 }

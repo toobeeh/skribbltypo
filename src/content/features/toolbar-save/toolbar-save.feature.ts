@@ -97,7 +97,7 @@ export class ToolbarSaveFeature extends TypoFeature {
   async saveInCloud() {
     const toast = await this._toastService.showLoadingToast("Uploading image");
     this._imageFinishedService
-      .mapToImageState(of(1))
+      .mapToImageState()
       .pipe(
         withLatestFrom(this._memberService.member$),
         catchError((err) => {
@@ -116,6 +116,11 @@ export class ToolbarSaveFeature extends TypoFeature {
           this._logger.error("Failed to get member, not logged in?");
           toast.reject("You need to log in to use the cloud");
           return of(false);
+        }
+
+        /* use custom name */
+        if (this._customName) {
+          image.name = this._customName;
         }
 
         await this._cloudService.uploadToCloud(image, member);

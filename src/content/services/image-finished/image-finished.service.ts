@@ -6,7 +6,7 @@ import {
   delay, distinctUntilChanged,
   filter,
   map,
-  type Observable, scan,
+  type Observable, of, scan,
   switchMap, tap,
   withLatestFrom,
 } from "rxjs";
@@ -61,12 +61,13 @@ export class ImageFinishedService {
    * @param input
    * @private
    */
-  public mapToImageState(input: Observable<unknown>) {
+  public mapToImageState(input?: Observable<unknown>) {
+    if(input === undefined) input = of(1); /* default to trigger immediately */
     return input.pipe(
       withLatestFrom(this._drawingService.imageState$, this._lobbyService.lobby$, this._drawingService.commands$),  /* on every input, fetch latest lobby and drawing state */
       switchMap((data) =>
         fromPromise(this._drawingService.getCurrentImageData()).pipe(
-          map((imageData) => ({ image: data[1], lobby: data[2], commands: data[3], imageData })), /* fetch additionally current drawing blob and add to data */
+          map((imageData) => ({ image: structuredClone(data[1]), lobby: structuredClone(data[2]), commands: structuredClone(data[3]), imageData })), /* fetch additionally current drawing blob and add to data */
         ),
       ),
       map((state) => {

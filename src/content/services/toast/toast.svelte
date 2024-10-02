@@ -8,7 +8,7 @@
 
   let closing = false;
   export const close = () => {
-    setTimeout(() => closeHandler(), 100);
+    setTimeout(() => closeHandler(), 150);
     closing = true;
   }
 </script>
