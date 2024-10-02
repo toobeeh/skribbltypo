@@ -38,7 +38,6 @@ export class ToolbarSaveFeature extends TypoFeature {
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
-    console.log(this._drawingService);
 
     /* create icon and attach to toolbar */
     this._iconComponent = new IconButton({

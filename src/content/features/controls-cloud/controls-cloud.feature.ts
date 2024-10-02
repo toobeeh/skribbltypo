@@ -1,6 +1,6 @@
 import { CloudApi, type CloudSearchDto } from "@/api";
 import { ApiService } from "@/content/services/api/api.service";
-import { ImageHistoryService } from "@/content/services/image-history/image-history.service";
+import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
 import { MemberService } from "@/content/services/member/member.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -15,7 +15,7 @@ export class ControlsCloudFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ModalService) private readonly _modalService!: ModalService;
   @inject(MemberService) private readonly _memberService!: MemberService;
-  @inject(ImageHistoryService) private readonly _historyService!: ImageHistoryService;
+  @inject(ImageFinishedService) private readonly _historyService!: ImageFinishedService;
   @inject(ApiService) private readonly _apiService!: ApiService;
 
   public readonly name = "Typo Cloud";

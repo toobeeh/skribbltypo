@@ -22,10 +22,11 @@ import { ToolbarFullscreenFeature } from "@/content/features/toolbar-fullscreen/
 import { ToolbarImageLabFeature } from "@/content/features/toolbar-imagelab/toolbar-imagelab.feature";
 import { ToolbarImagePostFeature } from "@/content/features/toolbar-imagepost/toolbar-imagepost.feature";
 import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save.feature";
+import { DrawCommandsService } from "@/content/services/draw-commands/draw-commands.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
-import { ImageHistoryService } from "@/content/services/image-history/image-history.service";
+import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
@@ -63,7 +64,8 @@ new ExtensionContainer()
     {type: LobbyService, scope: "singleton"},
     {type: DrawingService, scope: "singleton"},
     {type: GlobalSettingsService, scope: "singleton"},
-    {type: ImageHistoryService, scope: "singleton"}
+    {type: ImageFinishedService, scope: "singleton"},
+    {type: DrawCommandsService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,

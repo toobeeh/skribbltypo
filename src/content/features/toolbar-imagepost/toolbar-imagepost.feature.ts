@@ -1,6 +1,7 @@
 import { GuildsApi, type MemberWebhookDto } from "@/api";
 import { ApiService } from "@/content/services/api/api.service";
-import { type imageHistory, ImageHistoryService } from "@/content/services/image-history/image-history.service";
+import { DrawingService } from "@/content/services/drawing/drawing.service";
+import { type skribblImage, ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
 import { MemberService } from "@/content/services/member/member.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -9,16 +10,18 @@ import IconButton from "@/lib/icon-button/icon-button.svelte";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
 import {
-  mergeWith,
+  BehaviorSubject, map,
+  mergeWith, of,
   Subject,
-  Subscription,
+  Subscription, switchMap, take,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarPost from "./toolbar-imagepost.svelte";
 
 export class ToolbarImagePostFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
-  @inject(ImageHistoryService) private readonly _historyService!: ImageHistoryService;
+  @inject(ImageFinishedService) private readonly _imageFinishedService!: ImageFinishedService;
+  @inject(DrawingService) private readonly _drawingService!: DrawingService;
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(ApiService) private readonly _apiService!: ApiService;
 
@@ -32,11 +35,18 @@ export class ToolbarImagePostFeature extends TypoFeature {
 
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
+  private _historySubscription?: Subscription;
 
   private _popoutOpened$ = new Subject<void>();
-  private _submitted = new Subject<void>();
+  private _submitted$ = new Subject<void>();
+  private _history$?: BehaviorSubject<skribblImage[]>;
 
   protected override async onActivate() {
+
+    /* listen for finished images and create history */
+    this._history$ = new BehaviorSubject<skribblImage[]>([]);
+    this._historySubscription = this._imageFinishedService.imageHistory$.subscribe(data => this._history$?.next(data));
+
     const elements = await this._elementsSetup.complete();
 
     /* create icon and attach to toolbar */
@@ -79,7 +89,7 @@ export class ToolbarImagePostFeature extends TypoFeature {
         },
       });
       this._flyoutSubscription = this._flyoutComponent.closed$
-        .pipe(mergeWith(this._submitted))
+        .pipe(mergeWith(this._submitted$))
         .subscribe(() => {
           this._logger.info("Destroyed flyout");
           this._flyoutComponent?.$destroy();
@@ -95,17 +105,46 @@ export class ToolbarImagePostFeature extends TypoFeature {
     this._flyoutComponent?.$destroy();
     this._flyoutSubscription?.unsubscribe();
     this._flyoutComponent = undefined;
+    this._historySubscription?.unsubscribe();
   }
 
+  /**
+   * Gets a store based on the saved image history, joined with the current image
+   * state if someone is currently drawing
+   */
   public get imageHistoryStore() {
-    return fromObservable(this._historyService.getImageHistory$(true), []);
+    if(!this._history$) {
+      this._logger.error("History not initialized, feature activated?");
+      throw new Error("Illegal state");
+    }
+
+    const observable = this._history$.pipe( /* take current history as base */
+      switchMap((history) => this._drawingService.drawingState$.pipe(
+        take(1), /* get current drawing state once */
+        switchMap(state => {
+          if(state === "drawing") return this._imageFinishedService.mapToImageState(of(1)); /* if someone is drawing, fetch current image state */
+          else return of(null);
+        }),
+        map(currentImage => currentImage === null ? history : [...history, currentImage])  /* if someone drawing, temporary add current state to history */
+      ))
+    );
+    return fromObservable(observable, this._history$.value);
   }
 
+  /**
+   * Gets a store based on the authenticated member
+   */
   public get memberStore() {
     return fromObservable(this._memberService.memberData$, null);
   }
 
-  public async postWebhook(webhook: MemberWebhookDto, image: imageHistory, onlyImage: boolean){
+  /**
+   * Post an image to discord
+   * @param webhook
+   * @param image
+   * @param onlyImage
+   */
+  public async postWebhook(webhook: MemberWebhookDto, image: skribblImage, onlyImage: boolean){
     await this._apiService.getApi(GuildsApi).postImageToGuild({
       token: webhook.guild.invite,
       id: webhook.name,
@@ -117,6 +156,6 @@ export class ToolbarImagePostFeature extends TypoFeature {
         imageBase64: image.image.base64ApiTruncated,
       }
     });
-    this._submitted.next();
+    this._submitted$.next();
   }
 }

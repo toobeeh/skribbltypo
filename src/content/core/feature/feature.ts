@@ -156,4 +156,8 @@ export abstract class TypoFeature {
   public get state() {
     return this._isActivated ? (this._isRun ? "running" : "frozen") : "destroyed";
   }
+
+  public get activated$() {
+    return this._isActivatedSetting.changes$;
+  }
 }

@@ -23,6 +23,7 @@
       height: 1.5em;
       aspect-ratio: 1;
       filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, .3));
+      user-select: none;
     }
 
     span {

@@ -33,7 +33,7 @@ export class ControlsSettingsFeature extends TypoFeature {
       props: {
         hoverMove: false,
         size: "48px",
-        icon: "file-img-settings-gif",
+        icon: "file-img-wrench-gif",
         name: "Typo Settings",
         order: 1,
       },

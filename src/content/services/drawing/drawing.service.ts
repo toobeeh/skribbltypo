@@ -7,7 +7,6 @@ import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
 import { ImageData } from "@/util/imageData";
-import { convertOldSkd } from "@/util/skribbl/skd";
 import { wait } from "@/util/wait";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, debounceTime, map, merge, withLatestFrom } from "rxjs";
@@ -38,7 +37,6 @@ export class DrawingService {
   private _currentImageState$ = new BehaviorSubject<imageStateUpdate | null>(null);
   private _currentCommands$ = new BehaviorSubject<number[][]>([]);
   private _drawingState$ = new BehaviorSubject<"drawing" | "idle">("idle");
-  private _savedDrawCommands$ = new BehaviorSubject<savedDrawCommands[]>([]);
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -57,7 +55,7 @@ export class DrawingService {
     this.listenCurrentImageState();
 
     this.imageState$.subscribe(data => {
-      this._logger.info("Image state updated", data);
+      this._logger.debug("Image state updated", data);
     });
 
     this.commands$.pipe(debounceTime(1000)).subscribe(data => {
@@ -195,13 +193,6 @@ export class DrawingService {
   }
 
   /**
-   * Observable which emits every change to saved draw commands
-   */
-  public get savedDrawCommands$() {
-    return this._savedDrawCommands$.asObservable();
-  }
-
-  /**
    * Observable which emits when the drawer changes
    */
   public get drawingState$() {
@@ -224,30 +215,10 @@ export class DrawingService {
   }
 
   /**
-   * Add draw commands to saved commands
-   * @param name
+   * Paste draw commands on the canvas
    * @param commands
+   * @param stopped
    */
-  public addDrawCommands(name: string, commands: number[][] | number[][][]) {
-
-    if(commands[0] && Array.isArray(commands[0]) && Array.isArray(commands[0][0])) {
-      commands = convertOldSkd(commands as number[][][]);
-    }
-    else commands = commands as number[][];
-
-    this.savedDrawCommands.push({name, commands});
-    this._savedDrawCommands$.next(this.savedDrawCommands);
-  }
-
-  /**
-   * Remove draw commands from saved commands
-   * @param index
-   */
-  public removeSavedDrawCommands(index: number) {
-    this.savedDrawCommands = this.savedDrawCommands.filter((item, i) => i !== index);
-    this._savedDrawCommands$.next(this.savedDrawCommands);
-  }
-
   public async pasteDrawCommands(commands: number[][], stopped?: () => boolean) {
     const paste = (command: number[]) => document.dispatchEvent(new CustomEvent("performDrawCommand", {detail: command}));
     for(const command of commands) {

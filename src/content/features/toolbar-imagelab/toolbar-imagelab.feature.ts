@@ -1,3 +1,4 @@
+import { DrawCommandsService } from "@/content/services/draw-commands/draw-commands.service";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -13,6 +14,7 @@ import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 export class ToolbarImageLabFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
+  @inject(DrawCommandsService) private readonly _drawCommandsService!: DrawCommandsService;
 
   public readonly name = "Image Laboratory";
   public readonly description =
@@ -38,10 +40,6 @@ export class ToolbarImageLabFeature extends TypoFeature {
   private _pasteInProgress = new BehaviorSubject<boolean>(false);
   public get locked(){
     return fromObservable(this._pasteInProgress, false);
-  }
-
-  public abortPaste(){
-    this._pasteInProgress.next(false);
   }
 
   protected override async onActivate() {
@@ -102,6 +100,9 @@ export class ToolbarImageLabFeature extends TypoFeature {
     this._flyoutSubscription?.unsubscribe();
   }
 
+  /**
+   * Select files, parse content as draw commands json and save to draw commands store
+   */
   public async addDrawCommandsFromFile() {
     const files = await chooseFile(".skd", true);
     if(files === null) return;
@@ -128,9 +129,13 @@ export class ToolbarImageLabFeature extends TypoFeature {
       })
     );
 
-    commands.forEach(c => this._drawingService.addDrawCommands(c.name, c.commands));
+    /* add to store in service */
+    commands.forEach(c => this._drawCommandsService.saveDrawCommands(c.name, c.commands));
   }
 
+  /**
+   * gets the draww commands of the current image and saves them to the service
+   */
   public saveCurrentDrawCommands(){
     combineLatest({
         commands: this._drawingService.commands$,
@@ -143,14 +148,22 @@ export class ToolbarImageLabFeature extends TypoFeature {
         throw new Error("state is null");
       }
 
-      this._drawingService.addDrawCommands(this._customName ?? state.word.hints, commands);
+      this._drawCommandsService.saveDrawCommands(this._customName ?? state.word.hints, commands);
     });
   }
 
+  /**
+   * Get a svelte store based on the saved draw commands from the service
+   */
   public get savedDrawCommandsStore() {
-    return fromObservable(this._drawingService.savedDrawCommands$, []);
+    return fromObservable(this._drawCommandsService.savedDrawCommands$, []);
   }
 
+  /**
+   * Removes saved draw commands from the service
+   * @param all
+   * @param remove
+   */
   public removeDrawCommands(all: savedDrawCommands[], remove: savedDrawCommands){
     const index = all.indexOf(remove);
     if(index === -1) {
@@ -158,13 +171,24 @@ export class ToolbarImageLabFeature extends TypoFeature {
       throw new Error();
     }
 
-    this._drawingService.removeSavedDrawCommands(index);
+    this._drawCommandsService.removeSavedDrawCommands(index);
   }
 
+  /**
+   * Start a pasting process using the drawing service
+   * @param commands
+   */
   public async pasteDrawCommands(commands: savedDrawCommands){
     if(this.clearBeforePaste) this._drawingService.clearImage();
     this._pasteInProgress.next(true);
     await this._drawingService.pasteDrawCommands(commands.commands, () => !this._pasteInProgress.value);
+    this._pasteInProgress.next(false);
+  }
+
+  /**
+   * Stop a paste in progress
+   */
+  public abortPaste(){
     this._pasteInProgress.next(false);
   }
 }
