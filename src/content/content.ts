@@ -1,4 +1,5 @@
 import "@abraham/reflection";
+import { chatTypedEventRegistration } from "@/content/events/chat-typed.event";
 import { drawEventRegistration } from "@/content/events/draw.event";
 import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
 import { imageResetEventRegistration } from "@/content/events/image-reset.event";
@@ -13,6 +14,7 @@ import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
 import { DeveloperModeFeature } from "@/content/features/developer-mode/developer-mode.feature";
+import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
@@ -98,7 +100,8 @@ new ExtensionContainer()
     drawEventRegistration,
     imageResetEventRegistration,
     messageSentEventRegistration,
-    messageReceivedEventRegistration
+    messageReceivedEventRegistration,
+    chatTypedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,
@@ -117,7 +120,8 @@ new ExtensionContainer()
     ChatRecallFeature,
     DeveloperModeFeature,
     ImageAgentFeature,
-    ControlsCloudFeature
+    ControlsCloudFeature,
+    GuessCheckFeature
   );
 
 /* indicate for interceptor that content script has loaded */

@@ -32,8 +32,6 @@ export class DrawingService {
 
   private readonly _logger;
 
-  private savedDrawCommands: savedDrawCommands[] = [];
-
   private _currentImageState$ = new BehaviorSubject<imageStateUpdate | null>(null);
   private _currentCommands$ = new BehaviorSubject<number[][]>([]);
   private _drawingState$ = new BehaviorSubject<"drawing" | "idle">("idle");
