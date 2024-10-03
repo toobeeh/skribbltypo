@@ -47,7 +47,6 @@ export class ImageAgentFeature extends TypoFeature {
 
         /* if drawing ended or any state faulty, hide always */
         if(state === "idle" || lobby === null || image === null) return null;
-
         /* else get word if current drawer is player */
         const drawer = lobby?.players.find(p => p.id === image.drawerId);
         if(drawer?.id === lobby.meId) return image.word.solution;

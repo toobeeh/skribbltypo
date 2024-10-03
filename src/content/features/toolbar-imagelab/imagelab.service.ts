@@ -40,7 +40,7 @@ export class ImagelabService implements featureBinding {
   public saveDrawCommands(name: string, commands: number[][] | number[][][]) {
     if (!this._savedDrawCommands$) {
       this._logger.warn("Tried to save draw commands without initializing the service first. Imagelab feature enabled?");
-      return;
+      throw new Error("illegal state");
     }
 
     if(commands[0] && Array.isArray(commands[0]) && Array.isArray(commands[0][0])) {
@@ -58,7 +58,7 @@ export class ImagelabService implements featureBinding {
   public removeSavedDrawCommands(index: number) {
     if (!this._savedDrawCommands$) {
       this._logger.warn("Tried to save draw commands without initializing the service first. Imagelab feature enabled?");
-      return;
+      throw new Error("illegal state");
     }
     this._savedDrawCommands$.next(this._savedDrawCommands$.value.filter((item, i) => i !== index));
   }

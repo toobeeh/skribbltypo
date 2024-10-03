@@ -1,5 +1,6 @@
 import { CloudApi, type CloudImageDto, type CloudSearchDto, type MemberDto } from "@/api";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
+import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
 import { ApiService } from "@/content/services/api/api.service";
 import { ImageFinishedService, type skribblImage } from "@/content/services/image-finished/image-finished.service";
@@ -24,6 +25,7 @@ export class ControlsCloudFeature extends TypoFeature {
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(CloudService) private readonly _cloudService!: CloudService;
   @inject(ImagePostService) private readonly _imagePostService!: ImagePostService;
+  @inject(ImagelabService) private readonly _imageLabService!: ImagelabService;
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(ApiService) private readonly _apiService!: ApiService;
   @inject(ImageFinishedService) private readonly _imageFinishedService!: ImageFinishedService;
@@ -110,7 +112,6 @@ export class ControlsCloudFeature extends TypoFeature {
   }
 
   public async addToImagePost(image: CloudImageDto, member: MemberDto){
-
     const toast = await this._toastService.showLoadingToast("Adding image to history");
 
     try {
@@ -161,6 +162,19 @@ export class ControlsCloudFeature extends TypoFeature {
       this._logger.error("Failed to copy image link to clipboard", e);
       toast.reject();
       throw e;
+    }
+  }
+
+  public async addToImageLab(image: CloudImageDto) {
+    const toast = await this._toastService.showLoadingToast("Adding image to image lab");
+
+    try {
+      const commands = await getCloudCommands(image.commandsUrl);
+      this._imageLabService.saveDrawCommands(`${image.name}-by-${image.author}`, commands);
+      toast.resolve();
+    }
+    catch {
+      toast.reject("Is the image lab feature enabled?");
     }
   }
 }

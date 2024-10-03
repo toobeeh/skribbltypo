@@ -246,7 +246,10 @@
         if($member === null || $member === undefined || selectedImage === null) throw new Error("illegal state");
         await feature.addToImagePost(selectedImage, $member);
       }} />
-      <FlatButton content="Add to Image Lab" color="blue" />
+      <FlatButton content="Add to Image Lab" color="blue" on:click={async () => {
+        if($member === null || $member === undefined || selectedImage === null) throw new Error("illegal state");
+        await feature.addToImageLab(selectedImage);
+      }}  />
 
       <br>
       <FlatButton content="Delete Image" color="orange" on:click={async () => {
