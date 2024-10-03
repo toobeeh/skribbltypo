@@ -21,6 +21,12 @@ export class ToastService {
     this._logger = loggerFactory(this);
   }
 
+  /**
+   * Show a toast with a title and message for a timespan
+   * @param title
+   * @param content
+   * @param timeout
+   */
   public async showToast(title: string, content: string, timeout?: number) {
     const elements = await this._elementsSetup.complete();
     const toast = new Toast({
@@ -38,6 +44,12 @@ export class ToastService {
     setTimeout(() => toast.close(), timeout ?? 3000);
   }
 
+  /**
+   * Show a toast with a loading spinner and message
+   * Returns a handler object which can be used to resolve the toast to a normal toast
+   * with title/content, or an error toast with title/content, or defaults for error/success.
+   * @param content
+   */
   public async showLoadingToast(content: string): Promise<loadingToastHandle> {
     const elements = await this._elementsSetup.complete();
     const toast = new Toast({
@@ -46,7 +58,7 @@ export class ToastService {
         closeHandler: () => {
           toast.$destroy();
         },
-        title: undefined,
+        title: undefined as string | undefined,
         content,
         showLoading: true
       }
