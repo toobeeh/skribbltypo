@@ -1,6 +1,31 @@
 ﻿// Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
+const VERSION_ALLOWED = new Promise(async (resolve, reject) => {
+    try {
+        const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0")).json();
+        const js = await (await fetch("js/game.js")).text();
+        const hash = cyrb53(js);
+        console.log("Current skribbl.io version hash:", hash);
+        resolve(allowedVersions.includes(hash));
+    }
+    catch {
+        resolve(false);
+    }
+});
+
+(async () => {
+    const allowed = await VERSION_ALLOWED;
+    const currentAllowed = localStorage.typoCompatible;
+    const nowAllowed = allowed ? "1" : "0";
+    if(currentAllowed !== nowAllowed) {
+        localStorage.typoCompatible = nowAllowed;
+        location.reload();
+    }
+})();
+
+if(localStorage.typoCompatible !== "1") throw new Error("Aborted patcher because typo not compatible with current skribbl version");
+
 // hello there
 console.log(`%c
         _             _   _       _       _   _                           
@@ -21,6 +46,7 @@ console.log(`%c
 
 // execute inits when both DOM and palantir are loaded
 const waitForDocAndPalantir = async () => {
+    console.log(await VERSION_ALLOWED);
     let palantirReady = false;
     let DOMready = false;
     return new Promise((resolve, reject) => {
