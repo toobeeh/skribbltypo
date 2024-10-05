@@ -53,7 +53,10 @@
 // Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
-if(localStorage.typoCompatible !== "1") throw new Error("Aborted content because typo not compatible with current skribbl version");
+if(localStorage.typoCompatible !== "1") {
+    new Toast("Typo is not compatible with the current version of Skribbl.io. An update wil follow soon!", 2000);
+    throw new Error("Aborted content because typo not compatible with current skribbl version");
+}
 
 patcher.disconnect(); // stop patcher observing
 setDefaults(false); // Set default settings
