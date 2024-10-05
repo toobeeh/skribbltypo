@@ -46,11 +46,11 @@ const gamemodes = {
                 description: "Every chat input is blurred and you can't see hints.",
                 init: () => {
                     // add mod stylesheed
-                    QS("#game-chat .chat-container ").appendChild(elemFromString(`<style id="gamemodeDeafRules"></style>`));
+                    QS("#game-chat .chat-content ").appendChild(elemFromString(`<style id="gamemodeDeafRules"></style>`));
                 },
                 initWithAction: true,
                 destroy: () => {
-                    QS("#game-chat .chat-container style#gamemodeDeafRules")?.remove()
+                    QS("#game-chat .chat-content style#gamemodeDeafRules")?.remove()
                 },
                 observeSelector: "#game-players",
                 observeOptions: {
@@ -59,9 +59,9 @@ const gamemodes = {
                 },
                 observeAction: () => {
                     // update message blur based on self drawing / guessed or not
-                    QS("#game-chat .chat-container style#gamemodeDeafRules").innerHTML =
+                    QS("#game-chat .chat-content style#gamemodeDeafRules").innerHTML =
                         (QS(".player-name.me").closest(".player.guessed")) || QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                            "" : "#game-chat .chat-container .chat-content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .player-bubble {display:none !important} .characters{color:black !important}";
+                            "" : "#game-chat .chat-content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .player-bubble {display:none !important} .characters{color:black !important}";
                 }
             }
         }, {
@@ -72,9 +72,9 @@ const gamemodes = {
                 },
                 initWithAction: true,
                 destroy: () => {
-                    QS("#game-chat .chat-container form input").disabled = false;
+                    QS("#game-chat form input").disabled = false;
                 },
-                observeSelector: "#game-chat .chat-container .chat-content",
+                observeSelector: "#game-chat .chat-content",
                 observeOptions: {
                     childList: true
                 },
@@ -84,10 +84,10 @@ const gamemodes = {
                     const selfGuessed = QS(".player-name.me").closest(".player.guessed");
                     if (selfDrawing || selfGuessed || !someoneDrawing) {
                         // everything fine, you can type
-                        QS("#game-chat .chat-container form input").disabled = false;
+                        QS("#game-chat form input").disabled = false;
                     }
                     else {
-                        let chat = QS("#game-chat .chat-container .chat-content").innerHTML;
+                        let chat = QS("#game-chat .chat-content").innerHTML;
                         // if someone else is drawing
                         let lastDrawingIndex = chat.lastIndexOf("is drawing now!</b>");
                         if (lastDrawingIndex < 0) lastDrawingIndex = 0;
@@ -97,11 +97,11 @@ const gamemodes = {
                         let regIsRevealed = new RegExp(/is drawing now!<\/b >[\s\S]*;\\">The word was/g);
                         if (regHasGuessed.test(chat) && !regIsRevealed.test(chat)) {
                             // you guessed already & word is not revealed!
-                            QS("#game-chat .chat-container form input").disabled = true;
+                            QS("#game-chat form input").disabled = true;
                         }
                         else {
                             // you guessed, but word was revealed. u lost anyway :)
-                            QS("#game-chat .chat-container form input").disabled = false;
+                            QS("#game-chat form input").disabled = false;
                         }
                     }
                 }

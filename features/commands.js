@@ -25,7 +25,7 @@ const commands = [
                 localStorage.charbar = "false";
             },
             actionAfter: (args) => {
-                setTimeout(() => QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup")), 500);
+                setTimeout(() => QS("#game-chat form input").dispatchEvent(new Event("keyup")), 500);
             },
             response: (state) => {
                 return (state ? "Enabled" : "Disabled") + " char count.";
@@ -121,7 +121,7 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                let elems = [...QSA("#game-chat .chat-container .chat-content > *")];
+                let elems = [...QSA("#game-chat .chat-content > *")];
                 if (elems.length > 50) elems = elems.slice(0, -50);
                 elems.forEach(elem => elem.remove());
             },
@@ -523,7 +523,7 @@ const commands = [
                     help += `<b>${cmd.command} (${cmd.options.type}):</b> ${cmd.options.description}<br><br>`;
                 });
                 help += "</small></div>";
-                QS("#game-chat .chat-container .chat-content").appendChild(elemFromString(help));
+                QS("#game-chat .chat-content").appendChild(elemFromString(help));
             },
             response: (args) => {
                 return "";
@@ -602,13 +602,13 @@ const performCommand = (command) => {
             if (cmd.options.actionAfter) cmd.options.actionAfter(args);
             const response = cmd.options.response(cmd.options.type == "toggle" ? toggle : args);
             // print output
-            QS("#game-chat .chat-container .chat-content").appendChild(
+            QS("#game-chat .chat-content").appendChild(
                 elemFromString(`<p><b style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Command: ${cmd.command}</b><br><span style="color var(--COLOR_CHAT_TEXT_DRAWING);">${response}</span></p>`));
         }
     });
     if (!match) {
         // print error - no matching command 
-        QS("#game-chat .chat-container .chat-content").appendChild(
+        QS("#game-chat .chat-content").appendChild(
             elemFromString(`<p><b style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Command failed: ${command}</b><br><span style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Not found :(</span></p>`));
     }
     scrollMessages();

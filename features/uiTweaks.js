@@ -276,10 +276,10 @@ const uiTweaks = {
         //QS("#controls").append(brushmagicButton);
     },
     initDefaultKeybinds: () => {
-        const chatInput = QS('.chat-container input');
+        const chatInput = QS('#game-chat form input');
         let lastColorSwitch = 0;
         document.addEventListener('keydown', e => {
-            if (!document.activeElement.matches(".chat-container input")) {
+            if (!document.activeElement.matches("#game-chat form input")) {
                 // Focus chat
                 if (e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
                     e.preventDefault();
@@ -294,7 +294,7 @@ const uiTweaks = {
                     if (ind > 0 && ind < 6) sizes[ind - 1].click();
                 }
             }
-            else if (document.activeElement.matches(".chat-container input") && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
+            else if (document.activeElement.matches("#game-chat form input") && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
 
             if (e.key === 'AltGraph' && !(e.altKey || e.ctrlKey || e.shiftKey)) {// Show player IDs
                 let removeIDs = (event) => {
@@ -538,7 +538,7 @@ const uiTweaks = {
                 ctx.stroke();
             }
         };
-        const chatInput = QS(".chat-container input");
+        const chatInput = QS("#game-chat form input");
         let straight = false;
         let lastPress = 0;
         let snap = false;
@@ -546,14 +546,15 @@ const uiTweaks = {
         let lastDown = [null, null];
         let lastDownClient = [null, null];
         let lastDirectClient = [null, null];
-        const pointerEvent = (type, x, y, pressure = 0.5) => {
+        const pointerEvent = (type, id, x, y, pressure = 0.5) => {
             return new PointerEvent(type, {
                 bubbles: true,
                 clientX: x,
                 clientY: y,
                 button: 0,
                 pressure: pressure,
-                pointerType: "mouse"
+                pointerType: "mouse",
+                pointerId: id
             });
         }
         // get pos when scaled
@@ -607,9 +608,9 @@ const uiTweaks = {
                 lastDown = [null, null];
                 let dest = [event.clientX, event.clientY];
                 if (snap) dest = snapDestination(lastDownClient[0], lastDownClient[1], event.clientX, event.clientY);
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", lastDownClient[0], lastDownClient[1]));
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", dest[0], dest[1]));
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", event.pointerId, lastDownClient[0], lastDownClient[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", event.pointerId, dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", event.pointerId, dest[0], dest[1]));
             }
         });
         document.addEventListener("pointermove", (event) => {
@@ -633,9 +634,9 @@ const uiTweaks = {
             event.preventDefault();
             if (straight && lastDirectClient[0] != null) {
                 let dest = [event.clientX, event.clientY];
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", lastDirectClient[0], lastDirectClient[1]));
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", dest[0], dest[1]));
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", event.pointerId, lastDirectClient[0], lastDirectClient[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", event.pointerId, dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", event.pointerId, dest[0], dest[1]));
             }
             lastDirectClient = [event.clientX, event.clientY];
         })

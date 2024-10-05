@@ -1026,23 +1026,23 @@ const visuals = {
             style.innerHTML += "#game-chat .chat-content {background:none}";
             style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; --COLOR_CHAT_BG_BASE: " + val + " !important; } ";
             style.innerHTML += "#game-players div.list div.player div.bubble div.arrow{border-right-color:" + val + "} #game-players div.list div.player div.bubble div.content{background-color:" + val + "}";
-            style.innerHTML += "#game-chat .chat-container .chat-content p:nth-child(even), #game-chat .chat-container .chat-content p.guessed:nth-child(even) {background-color: #ffffff20;} #game-chat .chat-container .chat-content p.guessed:nth-child(odd){background-color:transparent}";
+            style.innerHTML += "#game-chat .chat-content p:nth-child(even), #game-chat .chat-content p.guessed:nth-child(even) {background-color: #ffffff20;} #game-chat .chat-content p.guessed:nth-child(odd){background-color:transparent}";
         }
 
         if (options["containerOutlinesCheck"] == true) {
             let val = options["containerOutlines"] ? options["containerOutlines"].trim() : "";
-            style.innerHTML += "#game-bar,  #game-room .settings, #game-room .players,   #imageAgent, #modal .box, #home .panel, .modalContainer, #game-chat .chat-container, #game-players .players-list .player, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#game-bar,  #game-room .settings, #game-room .players,   #imageAgent, #modal .box, #home .panel, .modalContainer, #game-chat, #game-players .players-list .player, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
         }
 
         if (options["containerImages"] && options["containerImages"].trim() != "") {
-            style.innerHTML += "#game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat .chat-container, #game-players .players-list  {background-image: url(" + options["containerImages"].trim() + ") !important}";
+            style.innerHTML += "#game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat, #game-players .players-list  {background-image: url(" + options["containerImages"].trim() + ") !important}";
             style.innerHTML += "#game-players .players-list {background:none !important}";
         }
         // font color
         let color = options["fontColor"] ? options["fontColor"] : "";
         if (color && color != "") {
             style.innerHTML += "#home .bottom .footer .notice, *:not(.chat-content *), .characters {color:" + color.trim() + " !important}";
-            style.innerHTML += "input[type=checkbox].flatUI, #game-chat .chat-container form input, input[type=text].flatUI, #home .bottom .footer .section-container .section{color:unset}"
+            style.innerHTML += "input[type=checkbox].flatUI, #game-chat form input, input[type=text].flatUI, #home .bottom .footer .section-container .section{color:unset}"
         }
         // font color of everything in-game 
         if (!options["ingameFontColor"] && options["fontColor"]) {
@@ -1196,7 +1196,7 @@ const visuals = {
         ${theme.images.containerImages != "" ? `
         #game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, 
         #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat 
-        .chat-container, #game-players .players-list  {background-image: url(${theme.images.containerImages}) !important}
+        .chat-content, #game-players .players-list  {background-image: url(${theme.images.containerImages}) !important}
         #game-players .players-list .player {background:none !important}
         ` : ""}
 
