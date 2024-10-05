@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.6.172813663
+// @version 26.3.6.172813729
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -3604,13 +3604,14 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 const VERSION_ALLOWED = new Promise(async (resolve, reject) => {
     try {
         resolve(true);
-        const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0&d=" + Date.now())).json();
+        return;
+        /*const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0&d=" + Date.now())).json();
         const js = await (await fetch("js/game.js")).text();
         const hash = cyrb53(js);
         console.log("Current skribbl.io version hash:", hash);
         const allowAllVersions = allowedVersions.includes("wildcard");
         if(allowAllVersions) console.log("Skribbl.io version wildcard active");
-        resolve(allowedVersions.includes(hash) || allowAllVersions);
+        resolve(allowedVersions.includes(hash) || allowAllVersions);*/
     }
     catch {
         resolve(false);
