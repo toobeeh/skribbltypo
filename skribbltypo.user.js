@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.4.172812286
+// @version 26.3.5.172812337
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.3.4 usrsc"};
+            return {version: "26.3.5 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -3603,7 +3603,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 const VERSION_ALLOWED = new Promise(async (resolve, reject) => {
     try {
-        const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0")).json();
+        const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0&d=" + Date.now())).json();
         const js = await (await fetch("js/game.js")).text();
         const hash = cyrb53(js);
         console.log("Current skribbl.io version hash:", hash);
@@ -9311,7 +9311,10 @@ const awards = {
 // Only way to catch errors since: https://github.com/mknichel/javascript-errors#content-scripts. Paste in every script which should trace bugs.
 window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMsg) return; errors += "`❌` **" + (new Date()).toTimeString().substr(0, (new Date()).toTimeString().indexOf(" ")) + ": " + errorMsg + "**:\n" + ' Script: ' + url + ' \nLine: ' + lineNumber + ' \nColumn: ' + column + ' \nStackTrace: ' + errorObj + "\n\n"; }
 
-if(localStorage.typoCompatible !== "1") throw new Error("Aborted content because typo not compatible with current skribbl version");
+if(localStorage.typoCompatible !== "1") {
+    new Toast("Typo is not compatible with the current version of Skribbl.io. An update wil follow soon!", 2000);
+    throw new Error("Aborted content because typo not compatible with current skribbl version");
+}
 
 patcher.disconnect(); // stop patcher observing
 setDefaults(false); // Set default settings
