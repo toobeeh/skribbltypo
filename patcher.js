@@ -3,7 +3,7 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 const VERSION_ALLOWED = new Promise(async (resolve, reject) => {
     try {
-        const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0")).json();
+        const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0&d=" + Date.now())).json();
         const js = await (await fetch("js/game.js")).text();
         const hash = cyrb53(js);
         console.log("Current skribbl.io version hash:", hash);
