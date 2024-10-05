@@ -19,7 +19,7 @@ const cyrb53 = (str, seed = 0) => {
 };
 
 (async () => {
-  const js = await (await fetch("https://dev.skribbl.io/js/game.js")).text();
+  const js = await (await fetch("https://skribbl.io/js/game.js")).text();
   const gameHash = cyrb53(js);
   console.log("Found game js with hash ", gameHash);
   const beautified = beautify.js(js, { indent_size: 2 });
