@@ -3,11 +3,14 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 const VERSION_ALLOWED = new Promise(async (resolve, reject) => {
     try {
+        resolve(true);
         const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0&d=" + Date.now())).json();
         const js = await (await fetch("js/game.js")).text();
         const hash = cyrb53(js);
         console.log("Current skribbl.io version hash:", hash);
-        resolve(allowedVersions.includes(hash));
+        const allowAllVersions = allowedVersions.includes("wildcard");
+        if(allowAllVersions) console.log("Skribbl.io version wildcard active");
+        resolve(allowedVersions.includes(hash) || allowAllVersions);
     }
     catch {
         resolve(false);
@@ -46,7 +49,6 @@ console.log(`%c
 
 // execute inits when both DOM and palantir are loaded
 const waitForDocAndPalantir = async () => {
-    console.log(await VERSION_ALLOWED);
     let palantirReady = false;
     let DOMready = false;
     return new Promise((resolve, reject) => {

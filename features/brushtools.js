@@ -450,6 +450,7 @@ const brushtools = {
                     const eventAtPos = (x, y) => {
                         let event = new PointerEvent("pointermove");
                         event = Object.defineProperty(event, "pointerType", { value: "mouse" });
+                        event = Object.defineProperty(event, "pointerId", { value: 1 });
                         event = Object.defineProperty(event, "clientX", { value: canvasRect.left + x });
                         event = Object.defineProperty(event, "clientY", { value: canvasRect.top + y });
                         return event;
@@ -483,8 +484,8 @@ const brushtools = {
         let up = Object.defineProperty(eventTo, "button", { value: 0 });
 
         brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", down));
-        document.dispatchEvent(new PointerEvent("pointermove", up));
-        document.dispatchEvent(new PointerEvent("pointerup", up));
+        brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", up));
+        brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", up));
     },
     currentDown: false,
     canvas: null,
