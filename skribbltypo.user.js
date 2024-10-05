@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.5.172812337
+// @version 26.3.6.172813663
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.3.5 usrsc"};
+            return {version: "26.3.6 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -2531,23 +2531,23 @@ const visuals = {
             style.innerHTML += "#game-chat .chat-content {background:none}";
             style.innerHTML += ":root{ --COLOR_TOOL_TIP_BG: " + val + " !important; --COLOR_CHAT_BG_BASE: " + val + " !important; } ";
             style.innerHTML += "#game-players div.list div.player div.bubble div.arrow{border-right-color:" + val + "} #game-players div.list div.player div.bubble div.content{background-color:" + val + "}";
-            style.innerHTML += "#game-chat .chat-container .chat-content p:nth-child(even), #game-chat .chat-container .chat-content p.guessed:nth-child(even) {background-color: #ffffff20;} #game-chat .chat-container .chat-content p.guessed:nth-child(odd){background-color:transparent}";
+            style.innerHTML += "#game-chat .chat-content p:nth-child(even), #game-chat .chat-content p.guessed:nth-child(even) {background-color: #ffffff20;} #game-chat .chat-content p.guessed:nth-child(odd){background-color:transparent}";
         }
 
         if (options["containerOutlinesCheck"] == true) {
             let val = options["containerOutlines"] ? options["containerOutlines"].trim() : "";
-            style.innerHTML += "#game-bar,  #game-room .settings, #game-room .players,   #imageAgent, #modal .box, #home .panel, .modalContainer, #game-chat .chat-container, #game-players .players-list .player, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
+            style.innerHTML += "#game-bar,  #game-room .settings, #game-room .players,   #imageAgent, #modal .box, #home .panel, .modalContainer, #game-chat, #game-players .players-list .player, #imageOptions {border-radius: 4px; border: 2px solid " + (val != "" ? val : "transparent") + " !important}";
         }
 
         if (options["containerImages"] && options["containerImages"].trim() != "") {
-            style.innerHTML += "#game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat .chat-container, #game-players .players-list  {background-image: url(" + options["containerImages"].trim() + ") !important}";
+            style.innerHTML += "#game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat, #game-players .players-list  {background-image: url(" + options["containerImages"].trim() + ") !important}";
             style.innerHTML += "#game-players .players-list {background:none !important}";
         }
         // font color
         let color = options["fontColor"] ? options["fontColor"] : "";
         if (color && color != "") {
             style.innerHTML += "#home .bottom .footer .notice, *:not(.chat-content *), .characters {color:" + color.trim() + " !important}";
-            style.innerHTML += "input[type=checkbox].flatUI, #game-chat .chat-container form input, input[type=text].flatUI, #home .bottom .footer .section-container .section{color:unset}"
+            style.innerHTML += "input[type=checkbox].flatUI, #game-chat form input, input[type=text].flatUI, #home .bottom .footer .section-container .section{color:unset}"
         }
         // font color of everything in-game 
         if (!options["ingameFontColor"] && options["fontColor"]) {
@@ -2701,7 +2701,7 @@ const visuals = {
         ${theme.images.containerImages != "" ? `
         #game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, 
         #sharePopup, #typoUserInfo, #imageOptions, #game-room .container-settings, #game-chat 
-        .chat-container, #game-players .players-list  {background-image: url(${theme.images.containerImages}) !important}
+        .chat-content, #game-players .players-list  {background-image: url(${theme.images.containerImages}) !important}
         #game-players .players-list .player {background:none !important}
         ` : ""}
 
@@ -3353,7 +3353,7 @@ let imageOptions = {
             }
         }, false);
         //printCmdOutput("render");
-        QS("#game-chat .chat-container .chat-content").appendChild(progressBar);
+        QS("#game-chat .chat-content").appendChild(progressBar);
     },
     initContainer: () => {
         // new imageoptions container on the right side
@@ -3603,11 +3603,14 @@ window.onerror = (errorMsg, url, lineNumber, column, errorObj) => { if (!errorMs
 
 const VERSION_ALLOWED = new Promise(async (resolve, reject) => {
     try {
+        resolve(true);
         const allowedVersions = await(await fetch("https://api.allorigins.win/raw?url=https://pastebin.com/raw/VGVuuaP0&d=" + Date.now())).json();
         const js = await (await fetch("js/game.js")).text();
         const hash = cyrb53(js);
         console.log("Current skribbl.io version hash:", hash);
-        resolve(allowedVersions.includes(hash));
+        const allowAllVersions = allowedVersions.includes("wildcard");
+        if(allowAllVersions) console.log("Skribbl.io version wildcard active");
+        resolve(allowedVersions.includes(hash) || allowAllVersions);
     }
     catch {
         resolve(false);
@@ -3646,7 +3649,6 @@ console.log(`%c
 
 // execute inits when both DOM and palantir are loaded
 const waitForDocAndPalantir = async () => {
-    console.log(await VERSION_ALLOWED);
     let palantirReady = false;
     let DOMready = false;
     return new Promise((resolve, reject) => {
@@ -5846,7 +5848,7 @@ const commands = [
                 localStorage.charbar = "false";
             },
             actionAfter: (args) => {
-                setTimeout(() => QS("#game-chat .chat-container form input").dispatchEvent(new Event("keyup")), 500);
+                setTimeout(() => QS("#game-chat form input").dispatchEvent(new Event("keyup")), 500);
             },
             response: (state) => {
                 return (state ? "Enabled" : "Disabled") + " char count.";
@@ -5942,7 +5944,7 @@ const commands = [
             actionEnable: null,
             actionDisable: null,
             actionAfter: (args) => {
-                let elems = [...QSA("#game-chat .chat-container .chat-content > *")];
+                let elems = [...QSA("#game-chat .chat-content > *")];
                 if (elems.length > 50) elems = elems.slice(0, -50);
                 elems.forEach(elem => elem.remove());
             },
@@ -6344,7 +6346,7 @@ const commands = [
                     help += `<b>${cmd.command} (${cmd.options.type}):</b> ${cmd.options.description}<br><br>`;
                 });
                 help += "</small></div>";
-                QS("#game-chat .chat-container .chat-content").appendChild(elemFromString(help));
+                QS("#game-chat .chat-content").appendChild(elemFromString(help));
             },
             response: (args) => {
                 return "";
@@ -6423,13 +6425,13 @@ const performCommand = (command) => {
             if (cmd.options.actionAfter) cmd.options.actionAfter(args);
             const response = cmd.options.response(cmd.options.type == "toggle" ? toggle : args);
             // print output
-            QS("#game-chat .chat-container .chat-content").appendChild(
+            QS("#game-chat .chat-content").appendChild(
                 elemFromString(`<p><b style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Command: ${cmd.command}</b><br><span style="color var(--COLOR_CHAT_TEXT_DRAWING);">${response}</span></p>`));
         }
     });
     if (!match) {
         // print error - no matching command 
-        QS("#game-chat .chat-container .chat-content").appendChild(
+        QS("#game-chat .chat-content").appendChild(
             elemFromString(`<p><b style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Command failed: ${command}</b><br><span style="color: var(--COLOR_CHAT_TEXT_DRAWING);">Not found :(</span></p>`));
     }
     scrollMessages();
@@ -6722,10 +6724,10 @@ const uiTweaks = {
         //QS("#controls").append(brushmagicButton);
     },
     initDefaultKeybinds: () => {
-        const chatInput = QS('.chat-container input');
+        const chatInput = QS('#game-chat form input');
         let lastColorSwitch = 0;
         document.addEventListener('keydown', e => {
-            if (!document.activeElement.matches(".chat-container input")) {
+            if (!document.activeElement.matches("#game-chat form input")) {
                 // Focus chat
                 if (e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) {
                     e.preventDefault();
@@ -6740,7 +6742,7 @@ const uiTweaks = {
                     if (ind > 0 && ind < 6) sizes[ind - 1].click();
                 }
             }
-            else if (document.activeElement.matches(".chat-container input") && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
+            else if (document.activeElement.matches("#game-chat form input") && e.key === 'Tab' && !(e.altKey || e.ctrlKey || e.shiftKey)) e.preventDefault();
 
             if (e.key === 'AltGraph' && !(e.altKey || e.ctrlKey || e.shiftKey)) {// Show player IDs
                 let removeIDs = (event) => {
@@ -6984,7 +6986,7 @@ const uiTweaks = {
                 ctx.stroke();
             }
         };
-        const chatInput = QS(".chat-container input");
+        const chatInput = QS("#game-chat form input");
         let straight = false;
         let lastPress = 0;
         let snap = false;
@@ -6992,14 +6994,15 @@ const uiTweaks = {
         let lastDown = [null, null];
         let lastDownClient = [null, null];
         let lastDirectClient = [null, null];
-        const pointerEvent = (type, x, y, pressure = 0.5) => {
+        const pointerEvent = (type, id, x, y, pressure = 0.5) => {
             return new PointerEvent(type, {
                 bubbles: true,
                 clientX: x,
                 clientY: y,
                 button: 0,
                 pressure: pressure,
-                pointerType: "mouse"
+                pointerType: "mouse",
+                pointerId: id
             });
         }
         // get pos when scaled
@@ -7053,9 +7056,9 @@ const uiTweaks = {
                 lastDown = [null, null];
                 let dest = [event.clientX, event.clientY];
                 if (snap) dest = snapDestination(lastDownClient[0], lastDownClient[1], event.clientX, event.clientY);
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", lastDownClient[0], lastDownClient[1]));
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", dest[0], dest[1]));
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", event.pointerId, lastDownClient[0], lastDownClient[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", event.pointerId, dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", event.pointerId, dest[0], dest[1]));
             }
         });
         document.addEventListener("pointermove", (event) => {
@@ -7079,9 +7082,9 @@ const uiTweaks = {
             event.preventDefault();
             if (straight && lastDirectClient[0] != null) {
                 let dest = [event.clientX, event.clientY];
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", lastDirectClient[0], lastDirectClient[1]));
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", dest[0], dest[1]));
-                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerdown", event.pointerId, lastDirectClient[0], lastDirectClient[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointermove", event.pointerId, dest[0], dest[1]));
+                preview.gameCanvas.dispatchEvent(pointerEvent("pointerup", event.pointerId, dest[0], dest[1]));
             }
             lastDirectClient = [event.clientX, event.clientY];
         })
@@ -8173,11 +8176,11 @@ const gamemodes = {
                 description: "Every chat input is blurred and you can't see hints.",
                 init: () => {
                     // add mod stylesheed
-                    QS("#game-chat .chat-container ").appendChild(elemFromString(`<style id="gamemodeDeafRules"></style>`));
+                    QS("#game-chat .chat-content ").appendChild(elemFromString(`<style id="gamemodeDeafRules"></style>`));
                 },
                 initWithAction: true,
                 destroy: () => {
-                    QS("#game-chat .chat-container style#gamemodeDeafRules")?.remove()
+                    QS("#game-chat .chat-content style#gamemodeDeafRules")?.remove()
                 },
                 observeSelector: "#game-players",
                 observeOptions: {
@@ -8186,9 +8189,9 @@ const gamemodes = {
                 },
                 observeAction: () => {
                     // update message blur based on self drawing / guessed or not
-                    QS("#game-chat .chat-container style#gamemodeDeafRules").innerHTML =
+                    QS("#game-chat .chat-content style#gamemodeDeafRules").innerHTML =
                         (QS(".player-name.me").closest(".player.guessed")) || QS(".player-name.me").closest(".player").querySelector(".drawing[style*=block]") ?
-                            "" : "#game-chat .chat-container .chat-content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .player-bubble {display:none !important} .characters{color:black !important}";
+                            "" : "#game-chat .chat-content > p > span:not(:empty) {filter: grayscale(1) blur(4px) opacity(0.8);} #game-word {opacity:0} .player .player-bubble {display:none !important} .characters{color:black !important}";
                 }
             }
         }, {
@@ -8199,9 +8202,9 @@ const gamemodes = {
                 },
                 initWithAction: true,
                 destroy: () => {
-                    QS("#game-chat .chat-container form input").disabled = false;
+                    QS("#game-chat form input").disabled = false;
                 },
-                observeSelector: "#game-chat .chat-container .chat-content",
+                observeSelector: "#game-chat .chat-content",
                 observeOptions: {
                     childList: true
                 },
@@ -8211,10 +8214,10 @@ const gamemodes = {
                     const selfGuessed = QS(".player-name.me").closest(".player.guessed");
                     if (selfDrawing || selfGuessed || !someoneDrawing) {
                         // everything fine, you can type
-                        QS("#game-chat .chat-container form input").disabled = false;
+                        QS("#game-chat form input").disabled = false;
                     }
                     else {
-                        let chat = QS("#game-chat .chat-container .chat-content").innerHTML;
+                        let chat = QS("#game-chat .chat-content").innerHTML;
                         // if someone else is drawing
                         let lastDrawingIndex = chat.lastIndexOf("is drawing now!</b>");
                         if (lastDrawingIndex < 0) lastDrawingIndex = 0;
@@ -8224,11 +8227,11 @@ const gamemodes = {
                         let regIsRevealed = new RegExp(/is drawing now!<\/b >[\s\S]*;\\">The word was/g);
                         if (regHasGuessed.test(chat) && !regIsRevealed.test(chat)) {
                             // you guessed already & word is not revealed!
-                            QS("#game-chat .chat-container form input").disabled = true;
+                            QS("#game-chat form input").disabled = true;
                         }
                         else {
                             // you guessed, but word was revealed. u lost anyway :)
-                            QS("#game-chat .chat-container form input").disabled = false;
+                            QS("#game-chat form input").disabled = false;
                         }
                     }
                 }
@@ -8793,6 +8796,7 @@ const brushtools = {
                     const eventAtPos = (x, y) => {
                         let event = new PointerEvent("pointermove");
                         event = Object.defineProperty(event, "pointerType", { value: "mouse" });
+                        event = Object.defineProperty(event, "pointerId", { value: 1 });
                         event = Object.defineProperty(event, "clientX", { value: canvasRect.left + x });
                         event = Object.defineProperty(event, "clientY", { value: canvasRect.top + y });
                         return event;
@@ -8826,8 +8830,8 @@ const brushtools = {
         let up = Object.defineProperty(eventTo, "button", { value: 0 });
 
         brushtools.canvas.dispatchEvent(new PointerEvent("pointerdown", down));
-        document.dispatchEvent(new PointerEvent("pointermove", up));
-        document.dispatchEvent(new PointerEvent("pointerup", up));
+        brushtools.canvas.dispatchEvent(new PointerEvent("pointermove", up));
+        brushtools.canvas.dispatchEvent(new PointerEvent("pointerup", up));
     },
     currentDown: false,
     canvas: null,
