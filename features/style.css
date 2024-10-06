@@ -1059,6 +1059,7 @@ bounceload {
     grid-template-rows: 1fr 1fr;
     width: calc(100% - 48px - 3px);
     gap: 4px;
+    z-index: 1;
 }
 
 #game #game-players .player.typo .player-info .player-name {

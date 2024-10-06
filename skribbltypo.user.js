@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.6.172813729
+// @version 26.3.7.172815219
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.3.6 usrsc"};
+            return {version: "26.3.7 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -4899,6 +4899,7 @@ bounceload {
     grid-template-rows: 1fr 1fr;
     width: calc(100% - 48px - 3px);
     gap: 4px;
+    z-index: 1;
 }
 
 #game #game-players .player.typo .player-info .player-name {
@@ -6552,7 +6553,8 @@ const uiTweaks = {
             canvasGame.parentElement.style.height = "";
             canvasGame.parentElement.style.width = "";
             //canvasGame.parentElement.style.boxShadow = "";
-            canvasGame.style.width = "100%";
+            canvasGame.style.width = "";
+            canvasGame.style.height = "";
             canvasGame.style.top = "";
             canvasGame.style.left = "";
             document.removeEventListener("keydown", changeZoom);
@@ -6580,8 +6582,10 @@ const uiTweaks = {
                     //document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
                     // get current height and set to parent
                     let bRect = canvasGame.getBoundingClientRect();
-                    canvasGame.parentElement.style.height = /* bRect.height + */ "600px";
-                    canvasGame.parentElement.style.width = /* bRect.width + */ "800px";
+                    canvasGame.style.height = /* bRect.height + */ `calc(600px * ${zoom})`;
+                    canvasGame.style.width = /* bRect.width + */ `calc(800px * ${zoom})`;
+                    canvasGame.parentElement.style.height = /* bRect.height + */ `calc(600px * ${1})`;
+                    canvasGame.parentElement.style.width = /* bRect.width + */ `calc(800px * ${1})`;
                     if (!QS(".zoomNote")) {
                         QS("#game-word .description").insertAdjacentHTML("beforeend", "<span class='zoomNote'> (ZOOM MODE ACTIVE)</span>");
                     }

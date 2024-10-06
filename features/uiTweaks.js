@@ -103,7 +103,8 @@ const uiTweaks = {
             canvasGame.parentElement.style.height = "";
             canvasGame.parentElement.style.width = "";
             //canvasGame.parentElement.style.boxShadow = "";
-            canvasGame.style.width = "100%";
+            canvasGame.style.width = "";
+            canvasGame.style.height = "";
             canvasGame.style.top = "";
             canvasGame.style.left = "";
             document.removeEventListener("keydown", changeZoom);
@@ -131,8 +132,10 @@ const uiTweaks = {
                     //document.querySelector(".size-picker .slider").dispatchEvent(new MouseEvent("mousedown", { button: 0 }));
                     // get current height and set to parent
                     let bRect = canvasGame.getBoundingClientRect();
-                    canvasGame.parentElement.style.height = /* bRect.height + */ "600px";
-                    canvasGame.parentElement.style.width = /* bRect.width + */ "800px";
+                    canvasGame.style.height = /* bRect.height + */ `calc(600px * ${zoom})`;
+                    canvasGame.style.width = /* bRect.width + */ `calc(800px * ${zoom})`;
+                    canvasGame.parentElement.style.height = /* bRect.height + */ `calc(600px * ${1})`;
+                    canvasGame.parentElement.style.width = /* bRect.width + */ `calc(800px * ${1})`;
                     if (!QS(".zoomNote")) {
                         QS("#game-word .description").insertAdjacentHTML("beforeend", "<span class='zoomNote'> (ZOOM MODE ACTIVE)</span>");
                     }
