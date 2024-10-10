@@ -236,7 +236,7 @@ let imageOptions = {
                         posterName: loginName,
                         onlyImage: QS("#sendImageOnly").checked,
                         imageBase64: imageShareString.split(",")[1].replace("==", "")
-                    }, localStorage.accessToken);
+                    }, localStorage.accessToken, false);
 
                     new Toast("Posted image on Discord.", 2000);
                 });
