@@ -218,7 +218,7 @@ let imageOptions = {
                     let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
 
                     // send to socket
-                    await socket.emitEvent("post image", {
+                    /*await socket.emitEvent("post image", {
                         accessToken: localStorage.accessToken,
                         serverID: w.ServerID,
                         imageURI: imageShareString,
@@ -229,7 +229,14 @@ let imageOptions = {
                             posterName: loginName,
                             title: title
                         }
-                    });
+                    });*/
+                    await typoApiFetch(`/guilds/${w.Token}/imagepost/${w.Name}`, "POST", undefined, {
+                        title: title,
+                        author: imageShareStringDrawer,
+                        posterName: loginName,
+                        onlyImage: QS("#sendImageOnly").checked,
+                        imageBase64: imageShareString.split(",")[1].replace("==", "")
+                    }, localStorage.accessToken);
 
                     new Toast("Posted image on Discord.", 2000);
                 });
