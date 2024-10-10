@@ -498,11 +498,11 @@ label input[type="checkbox"].flatUI:checked:after {
 }
 
 #imageOptions {
-    position: absolute;
+    position:relative;
+    grid-area: 4 / 3 / 4 / 3;
     height: 48px;
     background-color: var(--COLOR_CHAT_BG_BASE);
     width: 100%;
-    bottom: -54px;
     border-radius: 3px;
     display: flex;
     padding: .4em 0px;
