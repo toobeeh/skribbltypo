@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.8.172858992
+// @version 26.3.9.172859065
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.3.8 usrsc"};
+            return {version: "26.3.9 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -3532,7 +3532,7 @@ let imageOptions = {
                         posterName: loginName,
                         onlyImage: QS("#sendImageOnly").checked,
                         imageBase64: imageShareString.split(",")[1].replace("==", "")
-                    }, localStorage.accessToken);
+                    }, localStorage.accessToken, false);
 
                     new Toast("Posted image on Discord.", 2000);
                 });
