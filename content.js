@@ -69,7 +69,6 @@ chrome.runtime.onMessage.addListener(message => {
 
 // initialize modules
 captureCanvas.initListeners(); // init capturing draw ommands and drawings
-imageAgent.initImageAgent(); // init image agent from agent.js
 imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 gamemodes.setup();
@@ -81,6 +80,10 @@ uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, b
 search.setup();
 setTimeout(async () => await emojis.init(), 0); // init emojis
 // sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
+
+document.addEventListener("skribblInitialized", () => {
+    imageAgent.initImageAgent(); // init image agent from agent.js
+});
 
 // thats a rickroll! :)))
 //QS("a[href='https://twitter.com/ticedev']").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
