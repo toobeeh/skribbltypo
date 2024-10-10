@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.7.172815219
+// @version 26.3.8.172858992
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.3.7 usrsc"};
+            return {version: "26.3.8 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -3358,7 +3358,7 @@ let imageOptions = {
     initContainer: () => {
         // new imageoptions container on the right side
         let imgtools = elemFromString(`<div id="imageOptions"></div>`);
-        QS("#game-chat").appendChild(imgtools);
+        QS("#game-wrapper").appendChild(imgtools);
         imageOptions.optionsContainer = imgtools;
     },
     downloadDataURL: async (url, name = "skribbl-unknown", scale = 1) => {
@@ -3514,7 +3514,7 @@ let imageOptions = {
                     let loginName = socket.clientData.playerName ? socket.clientData.playerName : QS(".input-name").value;
 
                     // send to socket
-                    await socket.emitEvent("post image", {
+                    /*await socket.emitEvent("post image", {
                         accessToken: localStorage.accessToken,
                         serverID: w.ServerID,
                         imageURI: imageShareString,
@@ -3525,7 +3525,14 @@ let imageOptions = {
                             posterName: loginName,
                             title: title
                         }
-                    });
+                    });*/
+                    await typoApiFetch(`/guilds/${w.Token}/imagepost/${w.Name}`, "POST", undefined, {
+                        title: title,
+                        author: imageShareStringDrawer,
+                        posterName: loginName,
+                        onlyImage: QS("#sendImageOnly").checked,
+                        imageBase64: imageShareString.split(",")[1].replace("==", "")
+                    }, localStorage.accessToken);
 
                     new Toast("Posted image on Discord.", 2000);
                 });
@@ -4338,11 +4345,11 @@ label input[type="checkbox"].flatUI:checked:after {
 }
 
 #imageOptions {
-    position: absolute;
+    position:relative;
+    grid-area: 4 / 3 / 4 / 3;
     height: 48px;
     background-color: var(--COLOR_CHAT_BG_BASE);
     width: 100%;
-    bottom: -54px;
     border-radius: 3px;
     display: flex;
     padding: .4em 0px;
@@ -6641,9 +6648,9 @@ const uiTweaks = {
     initLobbyDescriptionForm: () => {
         // add Description form 
         let customwords = QS(".group-customwords, .game-room-group.customwords");
-        const input = elemFromString(`<div class="group-customwords game-room-group" style="height:10%">
+        const input = elemFromString(`<div class="group-customwords game-room-group" style="min-height:3rem">
 <div class="game-room-name">Palantir Description</div>
-<textarea style="" id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="Add a description that will show up in the Palantir bot"></textarea>
+<textarea id="lobbyDesc" maxlength="200" spellcheck="false" placeholder="Add a description that will show up in the Palantir bot"></textarea>
 </div>`);
         customwords.insertAdjacentElement("beforebegin", input);
     },
@@ -9336,7 +9343,6 @@ chrome.runtime.onMessage.addListener(message => {
 
 // initialize modules
 captureCanvas.initListeners(); // init capturing draw ommands and drawings
-imageAgent.initImageAgent(); // init image agent from agent.js
 imageOptions.initAll(); // init image options from imageOptions.js
 imageTools.initAll(); // init image tools from imageTools.js
 gamemodes.setup();
@@ -9348,6 +9354,10 @@ uiTweaks.initAll(); // init various ui tweaks as navigation buttons, wordhint, b
 search.setup();
 setTimeout(async () => await emojis.init(), 0); // init emojis
 // sprites, visuals and drops are initialized in patcher.js as soon as DOM and palantir loaded
+
+document.addEventListener("skribblInitialized", () => {
+    imageAgent.initImageAgent(); // init image agent from agent.js
+});
 
 // thats a rickroll! :)))
 //QS("a[href='https://twitter.com/ticedev']").href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
