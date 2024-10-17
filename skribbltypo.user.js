@@ -5,7 +5,7 @@
 // @author tobeh#7437
 // @description Userscript version of skribbltypo - the most advanced toolbox for skribbl.io
 // @icon64 https://rawcdn.githack.com/toobeeh/skribbltypo/master/res/icon/128MaxFit.png
-// @version 26.3.9.172859065
+// @version 26.3.10.172917422
 // @updateURL https://raw.githubusercontent.com/toobeeh/skribbltypo/master/skribbltypo.user.js
 // @grant none
 // @match https://skribbl.io/*
@@ -24,7 +24,7 @@ const chrome = {
             return "https://rawcdn.githack.com/toobeeh/skribbltypo/master/" + url;
         },
         getManifest: () => {
-            return {version: "26.3.9 usrsc"};
+            return {version: "26.3.10 usrsc"};
         },
         onMessage: {
             addListener: (callback) => {
@@ -7486,7 +7486,7 @@ const captureCanvas = {
 
             try {
 
-                await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}`, "POST", undefined, {
+                const response = await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}`, "POST", undefined, {
                     name: data.detail,
                     author: getCurrentOrLastDrawer(),
                     inPrivate: lobbies.lobbyProperties.Private,
@@ -7494,7 +7494,12 @@ const captureCanvas = {
                     isOwn: getCurrentOrLastDrawer() == socket.clientData.playerName,
                     commands: captureCanvas.capturedCommands,
                     imageBase64: QS("#game-canvas canvas").toDataURL().replace("data:image/png;base64,", "")
-                }, localStorage.accessToken);
+                }, localStorage.accessToken, true);
+
+                if(awards.cloudAwardLink !== undefined && response.id !== undefined){
+                    await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}/${response.id}/award/${awards.cloudAwardLink}`, "PATCH", undefined, undefined, localStorage.accessToken, false);
+                    console.log("Awarded drawing with id " + response.id + " with award id " + awards.cloudAwardLink);
+                }
 
                 /*await socket.emitEvent("store drawing", {
                     meta: {

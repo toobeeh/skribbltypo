@@ -49,7 +49,7 @@ const captureCanvas = {
 
             try {
 
-                await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}`, "POST", undefined, {
+                const response = await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}`, "POST", undefined, {
                     name: data.detail,
                     author: getCurrentOrLastDrawer(),
                     inPrivate: lobbies.lobbyProperties.Private,
@@ -57,7 +57,12 @@ const captureCanvas = {
                     isOwn: getCurrentOrLastDrawer() == socket.clientData.playerName,
                     commands: captureCanvas.capturedCommands,
                     imageBase64: QS("#game-canvas canvas").toDataURL().replace("data:image/png;base64,", "")
-                }, localStorage.accessToken);
+                }, localStorage.accessToken, true);
+
+                if(awards.cloudAwardLink !== undefined && response.id !== undefined){
+                    await typoApiFetch(`/cloud/${socket.data.user.member.UserLogin}/${response.id}/award/${awards.cloudAwardLink}`, "PATCH", undefined, undefined, localStorage.accessToken, false);
+                    console.log("Awarded drawing with id " + response.id + " with award id " + awards.cloudAwardLink);
+                }
 
                 /*await socket.emitEvent("store drawing", {
                     meta: {
