@@ -1,4 +1,5 @@
 import { FeaturesService } from "@/content/core/feature/features.service";
+import { TokenService } from "@/content/core/token/token.service";
 import { Container } from "inversify";
 import { LoggerService } from "../logger/logger.service";
 import { EventsService } from "../event/events.service";
@@ -53,6 +54,7 @@ export class ExtensionContainer {
           };
       });
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
+      this._diContainer.bind(TokenService).toSelf().inSingletonScope();
       this._diContainer.bind(FeaturesService).toSelf().inSingletonScope();
    }
 

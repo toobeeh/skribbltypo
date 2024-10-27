@@ -1,3 +1,4 @@
+import { TokenService } from "@/content/core/token/token.service";
 import { inject, injectable } from "inversify";
 import { BaseAPI, Configuration } from "../../../api";
 import type { Type } from "../../../util/types/type";
@@ -13,9 +14,11 @@ export class ApiService {
   private instances = new Map<Type<BaseAPI>, BaseAPI>();
 
   constructor(
-    @inject(loggerFactory) loggerFactory: loggerFactory
+    @inject(loggerFactory) loggerFactory: loggerFactory,
+    @inject(TokenService) tokenService: TokenService
   ) {
     this._logger = loggerFactory(this);
+    tokenService.token.subscribe(token => this._token = token ?? "");
   }
 
   /**
@@ -41,14 +44,6 @@ export class ApiService {
       this.instances.set(apiClass, instance);
     }
     return instance;
-  }
-
-  /**
-   * Set the access token which will be used in api calls
-   * @param token
-   */
-  public set accessToken(token: string) {
-    this._token = token;
   }
 
   /**

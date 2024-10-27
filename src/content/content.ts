@@ -16,6 +16,7 @@ import { ControlsSettingsFeature } from "@/content/features/controls-settings/co
 import { DeveloperModeFeature } from "@/content/features/developer-mode/developer-mode.feature";
 import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
+import { LobbyStatusFeature } from "@/content/features/lobby-status/lobby-status.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
@@ -31,6 +32,7 @@ import { ExtensionContainer } from "@/content/core/extension-container/extension
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
+import { SocketService } from "@/content/services/socket/socket.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
@@ -42,7 +44,6 @@ import { lobbyJoinedEventRegistration } from "./events/lobby-joined.event";
 import { lobbyLeftEventRegistration } from "./events/lobby-left.event";
 import { LobbyNavigationFeature } from "./features/lobby-navigation/lobby-navigation.feature";
 import { LobbyService } from "./services/lobby/lobby.service";
-import { TokenService } from "./services/token/token.service";
 import { UserInfoFeature } from "./features/user-info/user-info.feature";
 import { PanelNewsFeature } from "@/content/features/panel-news/panel-news.feature";
 import { ApiService } from "./services/api/api.service";
@@ -66,7 +67,6 @@ new ExtensionContainer()
     {type: ModalService, scope: "scoped"},
     {type: ApiService, scope: "singleton"},
     {type: MemberService, scope: "singleton"},
-    {type: TokenService, scope: "singleton"},
     {type: LobbyService, scope: "singleton"},
     {type: DrawingService, scope: "singleton"},
     {type: GlobalSettingsService, scope: "singleton"},
@@ -74,7 +74,8 @@ new ExtensionContainer()
     {type: ImagelabService, scope: "singleton"},
     {type: ImagePostService, scope: "singleton"},
     {type: CloudService, scope: "singleton"},
-    {type: ToastService, scope: "scoped"}
+    {type: ToastService, scope: "scoped"},
+    {type: SocketService, scope: "scoped"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
@@ -121,7 +122,8 @@ new ExtensionContainer()
     DeveloperModeFeature,
     ImageAgentFeature,
     ControlsCloudFeature,
-    GuessCheckFeature
+    GuessCheckFeature,
+    LobbyStatusFeature
   );
 
 /* indicate for interceptor that content script has loaded */

@@ -1,10 +1,10 @@
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, filter, forkJoin, of, switchMap } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
-import { type MemberDto, MembersApi, type MemberWebhookDto } from "../../../api";
+import { type MemberDto, MembersApi, type MemberWebhookDto } from "@/api";
 import { ApiService } from "../api/api.service";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
-import { TokenService } from "../token/token.service";
+import { TokenService } from "@/content/core/token/token.service";
 
 interface memberData {
   member: MemberDto,

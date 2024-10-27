@@ -458,7 +458,7 @@ export const gameJsPatchConfig = {
                 ##SOCKET##.on("data", data => typo.messagePort.postMessage(data));
                 typo.messagePort.onmessage = data => ##SOCKET##.emit("data", data.data);
                 
-                const originalEmit = ##SOCKET##.emit.bind(l);
+                const originalEmit = ##SOCKET##.emit.bind(##SOCKET##);
                 ##SOCKET##.emit = function(...data) {
                   typo.emitPort.postMessage(data);
                   originalEmit(...data);
@@ -693,8 +693,8 @@ export const gameJsPatchConfig = {
       replacements: [ ],
       injections: [
         {
-          position: '}(\\s+)}\\)\\(window, document,',
-          code: `document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");`,
+          position: '\\)(\\s+)}\\)\\(window, document,',
+          code: `;document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");`,
         },
       ],
     },
