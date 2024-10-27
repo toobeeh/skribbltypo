@@ -2244,6 +2244,5 @@
       e[1] = Math.round(100 * Math.random()) % z, e[2] = Math.round(100 * Math.random()) % U, 1e3 * Math.random() < 10 && (e[3] = Math.floor(20 * Math.random())), he(this, e), this.classList.remove("clicked"), this.offsetWidth, this.classList.add("clicked")
     })
   }
-  Xn && (c.documentElement.dataset.halloween = "")
   ;document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");
 })(window, document, localStorage, io);
