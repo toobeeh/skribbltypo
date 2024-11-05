@@ -146,20 +146,20 @@
       }
     }
   // TYPOEND,
-  a = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  oe = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   if (h.localStorageAvailable = !1, void 0 !== d) try {
     d.setItem("feature_test", "yes"), "yes" === d.getItem("feature_test") && (d.removeItem("feature_test"), h.localStorageAvailable = !0)
   } catch (e) {}
   var u = [];
 
-  function oe(e) {
+  function re(e) {
     for (var t = 0; t < u.length; t++)
       if (u[t].name == e) return u[t]
   }
 
-  function re(e, t, n, a, o) {
+  function ie(e, t, n, a, o) {
     var r, i, l = t,
-      s = (h.localStorageAvailable && (r = d.getItem("hotkey_" + e)) && (t = r), oe(e));
+      s = (h.localStorageAvailable && (r = d.getItem("hotkey_" + e)) && (t = r), re(e));
     return s ? (s.key = t, s.def = l, s.desc = n) : (s = {
       name: e,
       desc: n,
@@ -173,11 +173,11 @@
         if (u[n].key == t) return void e.preventDefault();
       i.value = t, s.key = t;
       for (n = 0; n < s.changed.length; n++) s.changed[n](s);
-      return ie(), e.preventDefault(), !1
+      return le(), e.preventDefault(), !1
     }), g[p].querySelector("#hotkey-list").appendChild(s.listing)), a && s.cb.push(a), o && s.changed.push(o), s
   }
 
-  function ie() {
+  function le() {
     if (h.localStorageAvailable)
       for (var e = 0; e < u.length; e++) h.localStorage.setItem("hotkey_" + u[e].name, u[e].key)
   }
@@ -192,7 +192,7 @@
     mobileChatLayout: "bottom"
   };
 
-  function le(e, t) {
+  function a(e, t) {
     e = d.getItem(e);
     return null == e ? t : e
   }
@@ -744,13 +744,13 @@
         Pe()
       }), o = t.isAction ? (r.addEventListener("click", function(e) {
         Tt(this.toolIndex)
-      }), ot.appendChild(r), ct[e] = i, re(t.name, t.keydef, "", function() {
+      }), ot.appendChild(r), ct[e] = i, ie(t.name, t.keydef, "", function() {
         Tt(e)
       }, function(e) {
         l.textContent = e.key
       })) : (r.addEventListener("click", function(e) {
         Nt(this.toolIndex)
-      }), at.appendChild(r), st[e] = i, re(t.name, t.keydef, "", function() {
+      }), at.appendChild(r), st[e] = i, ie(t.name, t.keydef, "", function() {
         Nt(i.id)
       }, function(e) {
         l.textContent = e.key
@@ -1190,7 +1190,7 @@
     e.preventDefault();
     e = -e.deltaY || e.wheelDeltaY, e = Math.sign(e);
     It(qt + 2 * e)
-  }), re("Swap", "S", "Swap the primary and secondary color.", Pt), D(nt.querySelector(".color-preview"), "click", function(e) {
+  }), ie("Swap", "S", "Swap the primary and secondary color.", Pt), D(nt.querySelector(".color-preview"), "click", function(e) {
     Pt()
   }), D(nt.querySelector(".color-preview-mobile"), "click", function(e) {
     nt.querySelector(".colors").classList.toggle("open")
@@ -1210,14 +1210,14 @@
   var rn = null;
   "PointerEvent" in h ? (D("#game-toolbar .colors * .color", "pointerenter", an), D("#game-toolbar .colors * .color", "pointerdown", on), D(C, "pointerdown", function(e) {
     var t, n, a, o;
-    null == rn && nn(e.button) && (t = 1 == l.pressureSensitivity && ("pen" == e.pointerType || "touch" == e.pointerType), n = e.clientX, a = e.clientY, o = -1, t && e.pressure && (o = e.pressure), rn = e.pointerId, xt = e.button, C.setPointerCapture(e.pointerId), v.length, tn(n, a, o, !0), en(!0))
+    null == rn && nn(e.button) && (t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = e.clientX, a = e.clientY, o = -1, t && (o = (oe && e.pressure, e.pressure)), rn = e.pointerId, xt = e.button, C.setPointerCapture(e.pointerId), v.length, tn(n, a, o, !0), en(!0))
   }), D(C, "pointermove", function(e) {
     var t, n;
     rn !== e.pointerId || (() => {
       var e = performance.now();
       if (e - sn < 1e3 / ln) return 1;
       sn = e
-    })() || (t = 1 == l.pressureSensitivity && ("pen" == e.pointerType || "touch" == e.pointerType), n = -1, tn(e.clientX, e.clientY, n = t && e.pressure ? e.pressure : n, !1), en(!1))
+    })() || (t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = -1, tn(e.clientX, e.clientY, n = t ? (oe && e.pressure, e.pressure) : n, !1), en(!1))
   }), D(C, "pointerup pointercancel", function(e) {
     rn === e.pointerId && (cn != v.length && (cn = v.length, mt.push(cn)), rn = null, xt = -1, C.releasePointerCapture(e.pointerId))
   })) : (D("#game-toolbar .colors * .color", "mouseenter", an), D("#game-toolbar .colors * .color", "click", on), D(C, "mousedown", function(e) {
@@ -2083,7 +2083,7 @@
     xe(p)
   }), "virtualKeyboard" in navigator && (navigator.virtualKeyboard.overlaysContent = !0, navigator.virtualKeyboard.addEventListener("geometrychange", e => {
     uo()
-  })), h.visualViewport ? (D(h.visualViewport, "resize", ho), a && D(h.visualViewport, "scroll", ho)) : D(h, "resize", ho), h.onunload = function() {
+  })), h.visualViewport ? (D(h.visualViewport, "resize", ho), oe && D(h.visualViewport, "scroll", ho)) : D(h, "resize", ho), h.onunload = function() {
     S && ua()
   }, D(c, "PointerEvent" in h ? "pointerdown" : "click", function(e) {
     if (e.target == m) return Me(), e.preventDefault(), !1;
@@ -2183,12 +2183,12 @@
       t.key = t.def, t.listing.querySelector("input").value = t.key;
       for (var n = 0; n < t.changed.length; n++) t.changed[n](t)
     }
-    ie()
+    le()
   }), D(_n[1], "focus", function(e) {
     function t(e) {
       h.removeEventListener("scroll", t), h.scroll(0, 0), e.preventDefault()
     }
-    uo(), On.classList.add("mobile-input-focus"), a && (h.addEventListener("scroll", t), setTimeout(function() {
+    uo(), On.classList.add("mobile-input-focus"), oe && (h.addEventListener("scroll", t), setTimeout(function() {
       t(e)
     }, 200), e.preventDefault())
   }), D(_n[1], "blur", function(e) {
@@ -2205,11 +2205,11 @@
       id: Na,
       data: e
     }) : Ua(O(x), e)), this.reset(), mo(this, 0), !1
-  }), uo(), h.localStorageAvailable ? (Kn.value = le("name", ""), Fn.value = (e => {
+  }), uo(), h.localStorageAvailable ? (Kn.value = a("name", ""), Fn.value = (e => {
     for (var t = c.querySelectorAll("#home .panel .container-name-lang select option"), n = 0; n < t.length; n++)
       if (t[n].value == e) return t[n].value;
     return 0
-  })(le("lang", 0)), l.displayLang = le("displaylang", "en"), l.volume = parseInt(le("volume", 100)), l.filterChat = 1 == parseInt(le("filter", 1)) ? 1 : 0, l.pressureSensitivity = 1 == parseInt(le("pressure", 1)) ? 1 : 0, l.avatar = (t = "ava", Vn = l.avatar, null == (t = d.getItem(t)) ? Vn : JSON.parse(t)), l.mobileChatLayout = le("mobileChatLayout", "bottom"), ze.value = le("keyboard", a ? 1 : 0), Ue.value = le("keyboardlayout", "en"), _e(), g[p].querySelector("#select-mobile-chat-input").value = l.mobileChatLayout, g[p].querySelector("#volume input").value = l.volume, T.setVolume(l.volume), po(), console.log("Settings loaded.")) : console.log("Settings not loaded. LocalStorage unavailable.");
+  })(a("lang", 0)), l.displayLang = a("displaylang", "en"), l.volume = parseInt(a("volume", 100)), l.filterChat = 1 == parseInt(a("filter", 1)) ? 1 : 0, l.pressureSensitivity = 1 == parseInt(a("pressure", 1)) ? 1 : 0, l.avatar = (t = "ava", Vn = l.avatar, null == (t = d.getItem(t)) ? Vn : JSON.parse(t)), l.mobileChatLayout = a("mobileChatLayout", "bottom"), ze.value = a("keyboard", oe ? 1 : 0), Ue.value = a("keyboardlayout", "en"), _e(), g[p].querySelector("#select-mobile-chat-input").value = l.mobileChatLayout, g[p].querySelector("#volume input").value = l.volume, T.setVolume(l.volume), po(), console.log("Settings loaded.")) : console.log("Settings not loaded. LocalStorage unavailable.");
   for (var go = c.querySelectorAll("[data-translate]"), fo = 0; fo < go.length; fo++) {
     var yo = go[fo];
     je(yo, yo.dataset.translate)
@@ -2244,5 +2244,6 @@
       e[1] = Math.round(100 * Math.random()) % z, e[2] = Math.round(100 * Math.random()) % U, 1e3 * Math.random() < 10 && (e[3] = Math.floor(20 * Math.random())), he(this, e), this.classList.remove("clicked"), this.offsetWidth, this.classList.add("clicked")
     })
   }
+  Xn && (c.documentElement.dataset.halloween = "")
   ;document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");
 })(window, document, localStorage, io);
