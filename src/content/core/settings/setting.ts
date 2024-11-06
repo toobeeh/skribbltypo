@@ -1,7 +1,10 @@
 import type { TypoFeature } from "@/content/core/feature/feature";
+import { fromObservable } from "@/util/store/fromObservable";
 import { BehaviorSubject, of, switchMap } from "rxjs";
 
-export class ExtensionSetting<TValue extends string | number | boolean> {
+type serializable = string | number | boolean | null | serializable[] | { [key: string]: serializable };
+
+export class ExtensionSetting<TValue extends serializable> {
 
   private _name?: string;
   private _description?: string;
@@ -61,6 +64,10 @@ export class ExtensionSetting<TValue extends string | number | boolean> {
     return this._changes.pipe(
       switchMap((data) => data === null ? this.getValue() : of(data))
     );
+  }
+
+  public get store() {
+    return fromObservable(this.changes$, this.defaultValue);
   }
 
 }

@@ -4,6 +4,7 @@ import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { fromObservable } from "@/util/store/fromObservable";
 import { delay, map, tap, withLatestFrom } from "rxjs";
 import ImageAgent from "./image-agent.svelte";
+import IconButton from "@/lib/icon-button/icon-button.svelte";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
@@ -17,6 +18,7 @@ export class ImageAgentFeature extends TypoFeature {
   private _hiddenSetting = new ExtensionSetting<boolean>("hidden", false, this);
 
   private _element?: ImageAgent;
+  private _iconElement?: IconButton;
 
   public readonly name = "Image Agent";
   public readonly description = "Displays a reference image of the word when it's your turn to draw";
@@ -25,16 +27,35 @@ export class ImageAgentFeature extends TypoFeature {
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
+
     this._element = new ImageAgent({
       target: elements.gameWrapper,
       props: {
         feature: this
       },
     });
+
+    this._iconElement = new IconButton({
+      target: elements.chatControls,
+      props: {
+        icon: "file-img-light-gif",
+        name: "Image Agent",
+        order: 1,
+        size: "2rem",
+        hoverMove: false,
+        greyscaleInactive: true
+      }
+    });
+
+    /* show agent when icon clicked */
+    this._iconElement.click$.subscribe(() => {
+      this.setHiddenState(false);
+    });
   }
 
   protected override onDestroy() {
     this._element?.$destroy();
+    this._iconElement?.$destroy();
   }
 
   get wordStore() {

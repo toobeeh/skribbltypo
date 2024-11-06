@@ -35,6 +35,7 @@ import { ImagePostService } from "@/content/features/toolbar-imagepost/image-pos
 import { SocketService } from "@/content/services/socket/socket.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
+import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
@@ -88,7 +89,8 @@ new ExtensionContainer()
     ControlsSetup,
     SkribblInitializedSetup,
     ApiDataSetup,
-    ToastSetup
+    ToastSetup,
+    ChatControlsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,

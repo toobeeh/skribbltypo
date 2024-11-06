@@ -27,7 +27,7 @@ export class ToastService {
    * @param content
    * @param timeout
    */
-  public async showToast(title: string, content: string, timeout?: number) {
+  public async showToast(title?: string, content?: string, timeout?: number) {
     const elements = await this._elementsSetup.complete();
     const toast = new Toast({
       target: elements.toastContainer,

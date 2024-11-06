@@ -14,7 +14,7 @@
     cursor: pointer;
     padding: .2em;
 
-    .disabled {
+    &.disabled {
       opacity: .5;
       pointer-events: none;
     }

@@ -1,3 +1,4 @@
+import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
 import { ToastSetup } from "@/content/setups/toast/toast.setup";
@@ -12,8 +13,9 @@ import { ToolbarSetup } from "../toolbar/toolbar.setup";
  * @param panels
  * @param toolbar
  * @param controls
+ * @param toastContainer
  */
-function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement, toastContainer: HTMLElement){
+function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement, toastContainer: HTMLElement, chatControls: HTMLElement){
   return {
     panelContainer: requireElement(".panels"),
     avatarPanel: requireElement(".panel:not(.typo-panel)"),
@@ -33,6 +35,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     chatArea: requireElement("#game-chat"),
     hints: requireElement("#game-word .hints"),
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
+    chatControls,
     ...panels,
     toolbar,
     controls,
@@ -46,6 +49,7 @@ export class ElementsSetup extends Setup<typoElements> {
   @inject(PanelSetup) private _panelSetup!: PanelSetup;
   @inject(ToolbarSetup) private _toolbarSetup!: ToolbarSetup;
   @inject(ControlsSetup) private _controlsSetup!: ControlsSetup;
+  @inject(ChatControlsSetup) private _chatControlsSetup!: ChatControlsSetup;
   @inject(ToastSetup) private _toastSetup!: ToastSetup;
   @inject(SkribblInitializedSetup) private _gameReadySetup!: SkribblInitializedSetup;
 
@@ -54,7 +58,8 @@ export class ElementsSetup extends Setup<typoElements> {
     const panels = await this._panelSetup.complete();
     const toolbar = await this._toolbarSetup.complete();
     const controls = await this._controlsSetup.complete();
+    const chatControls = await this._chatControlsSetup.complete();
     const toastContainer = await this._toastSetup.complete();
-    return getElements(panels, toolbar, controls, toastContainer);
+    return getElements(panels, toolbar, controls, toastContainer, chatControls);
   }
 }

@@ -159,10 +159,3 @@
   </span>
 </div>
 
-<div class:closed={$hidden === false || $word === null || $word === undefined} class="typo-image-agent hidden">
-    <IconButton icon="file-img-light-gif" name="Close" size="2rem"
-                hoverMove={false} greyscaleInactive="{true}"
-                on:click={() => feature.setHiddenState(false)}
-    />
-</div>
-

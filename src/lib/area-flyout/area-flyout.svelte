@@ -3,6 +3,10 @@
   import { Subject } from "rxjs";
   import { onDestroy, onMount, type SvelteComponent } from "svelte";
 
+  /* explicit: close via close button, implicit: outbound click */
+  export let closeStrategy: "implicit" | "explicit" = "implicit";
+
+  export let alignment: "top" | "bottom" = "bottom";
   export let areaName: string;
   export let maxHeight: string | undefined = undefined;
   export let maxWidth: string | undefined = undefined;
@@ -21,15 +25,22 @@
    * @param event
    */
   const clickListener = (event: MouseEvent) => {
-    if(!self) return;
+    if(!self || closeStrategy !== "implicit") return;
     const target = event.target as HTMLElement;
     if(!(self === target) && !self.contains(target)) {
-      closing = true;
-      setTimeout(() => {
-        clickedOutside.next();
-      }, 80);
+      close();
     }
   };
+
+  /**
+   * Init closing of the flyout
+   */
+  export const close = () => {
+    closing = true;
+    setTimeout(() => {
+      clickedOutside.next();
+    }, 80);
+  }
 
   /**
    * Remove event listener on destroy
@@ -74,19 +85,27 @@
   }
 
   .typo-area-flyout {
-
-    position:relative;
+    position: relative;
     color: var(--COLOR_PANEL_TEXT);
-    align-self: end;
     z-index: 1;
     margin: .5em 1em;
     border-radius: 10px;
     padding: 1em;
-    transform-origin: bottom;
     animation: slideIn .08s ease-out;
     display: flex;
+    gap:1rem;
     flex-direction: column;
     align-items: center;
+
+    &.align-top  {
+      align-self: start;
+      transform-origin: top;
+    }
+
+    &.align-bottom {
+      align-self: end;
+      transform-origin: bottom;
+    }
 
     &.closing {
       animation: slideOut .08s ease-out forwards;
@@ -107,6 +126,16 @@
 
     &.closing:after {
       animation: slideOut .08s ease-out forwards;
+    }
+
+    .close-explicit {
+      position: absolute;
+      top: 0;
+      right: .5rem;
+      font-size: 1.5rem;
+      font-weight: 900;
+      cursor: pointer;
+      z-index: 1;
     }
 
     > h3 {
@@ -131,7 +160,7 @@
 
 </style>
 
-<div class="typo-area-flyout color-scrollbar" class:closing={closing}
+<div class="typo-area-flyout color-scrollbar" class:closing={closing} class:align-top={alignment === "top"} class:align-bottom={alignment === "bottom"}
      style="max-height: {maxHeight ? `calc(${maxHeight} - 1em)` : 'auto'}; max-width: {maxWidth ? `calc(${maxWidth} - 2em)` : 'auto'}; grid-area: {areaName}"
   bind:this={self}
 >
@@ -147,4 +176,12 @@
   <div class="content">
     <svelte:component this={componentData.componentType} {...componentData.props} />
   </div>
+
+
+  <!-- close button -->
+  {#if closeStrategy === "explicit"}
+    <span class="close-explicit" on:click={() => close()}>
+        ×
+    </span>
+  {/if}
 </div>
