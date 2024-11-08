@@ -53,9 +53,9 @@ export class LobbyStatusFeature extends TypoFeature {
   private _publicLobbyWhitelistedServersSetting = new ExtensionSetting<string[]>("public_whitelisted_servers", [], this);
 
   private _lobbySubscription?: Subscription;
-  private _connection = new BehaviorSubject<undefined | lobbyConnectionState | "unauthorized">(undefined);
+  private _connection$ = new BehaviorSubject<undefined | lobbyConnectionState | "unauthorized">(undefined);
   private _abortConnecting?: () => void; /** abort the connection while it is still in setup phase and _connection is still undefined */
-  private _currentBackendProcessing?: Promise<void>;
+  private _currentBackendProcessing?: Promise<void>; /** a promise that resolves if the current backend lobby update finished */
   private _existingTypoLobbyStates = new Map<string, TypoLobbyStateDto>();
   private _triggerManualRefresh$ = new BehaviorSubject(undefined);
 
@@ -65,8 +65,13 @@ export class LobbyStatusFeature extends TypoFeature {
   private _flyoutSubscription?: Subscription;
   private _lobbyTypeSubscription?: Subscription;
 
+  /**
+   * The current connection state
+   * Throws if not connected
+   * @private
+   */
   private get connection(): lobbyConnectionState {
-    const connection = this._connection.value;
+    const connection = this._connection$.value;
     if(connection === undefined || connection === "unauthorized") {
       this._logger.error("connection is not initialized");
       throw new Error("connection is not initialized");
@@ -74,12 +79,26 @@ export class LobbyStatusFeature extends TypoFeature {
     return connection;
   }
 
+  /**
+   * Whether the current connection is established
+   * @private
+   */
   private get isConnected() {
-    return this._connection.value !== undefined && this._connection.value !== "unauthorized";
+    return this._connection$.value !== undefined && this._connection$.value !== "unauthorized";
   }
 
+  /**
+   * A store containing the current connection state
+   */
   public get connectionStore() {
-    return fromObservable(this._connection, undefined);
+    return fromObservable(this._connection$, undefined);
+  }
+
+  /**
+   * Store containing devmode state
+   */
+  public get isDevmodeStore() {
+    return this._settingsService.settings.devMode.store;
   }
 
   public readonly name = "Lobby Status";
@@ -111,13 +130,17 @@ export class LobbyStatusFeature extends TypoFeature {
 
   protected override async onDestroy() {
     this._lobbySubscription?.unsubscribe();
-    this._connection.next(await this.destroyConnection());
+    this._connection$.next(await this.destroyConnection());
     this._existingTypoLobbyStates.clear();
     this._lobbyTypeSubscription?.unsubscribe();
 
     this.destroySettings();
   }
 
+  /**
+   * Sets up the lobby settings/status UI
+   * @private
+   */
   private async setupSettings(){
     const elements = await this._elementsSetup.complete();
 
@@ -173,6 +196,10 @@ export class LobbyStatusFeature extends TypoFeature {
     });
   }
 
+  /**
+   * Destroys the lobby settings/status UI
+   * @private
+   */
   private destroySettings(){
     this._controlIcon?.$destroy();
     this._controlIconSubscription?.unsubscribe();
@@ -182,6 +209,10 @@ export class LobbyStatusFeature extends TypoFeature {
     this._flyoutComponent = undefined;
   }
 
+  /**
+   * Sets up the connection to the lobby hub and initializes the receiver
+   * @private
+   */
   private setupConnection(){
     const connection = this._socketService.createConnection("ILobbyHub");
     const hub = this._socketService.createHub("ILobbyHub").createHubProxy(connection);
@@ -191,15 +222,20 @@ export class LobbyStatusFeature extends TypoFeature {
     });
     connection.onclose(async (error) => {
       this._logger.debug("SignalR Connection closed", error);
-      this._connection.next(undefined);
+      this._connection$.next(undefined);
     });
 
     return { connection, hub };
   }
 
+  /**
+   * Destroys the current connection if it exists, aborts a current connection setup if it is in progress,
+   * and closes the flyout if opened
+   * @private
+   */
   private async destroyConnection() {
-    if(this._connection.value !== undefined && this._connection.value !== "unauthorized") {
-      await this._connection.value.connection.stop();
+    if(this._connection$.value !== undefined && this._connection$.value !== "unauthorized") {
+      await this._connection$.value.connection.stop();
     }
     if(this._abortConnecting) {
       this._abortConnecting();
@@ -211,6 +247,13 @@ export class LobbyStatusFeature extends TypoFeature {
     return undefined;
   }
 
+  /**
+   * Processes a new lobby update
+   * Connects to the server if in lobby and not yet connected, or disconnects if lobby left, or updates state if already connected
+   * @param lobby the current lobby data
+   * @param member the authenticated member data
+   * @private
+   */
   private async processLobbyUpdate(lobby: skribblLobby | null, member: MemberDto | undefined | null): Promise<void> {
 
     this._logger.info("processing lobby status update", lobby, member?.userName);
@@ -218,13 +261,13 @@ export class LobbyStatusFeature extends TypoFeature {
     /* if member is null and connection exists, disconnect */
     if(member === null || member === undefined){
       await this.destroyConnection();
-      this._connection.next("unauthorized");
+      this._connection$.next("unauthorized");
       return;
     }
 
     /* if lobby is null or practice and connection exists, disconnect */
     if(lobby === null || lobby.id === null) {
-      this._connection.next(await this.destroyConnection());
+      this._connection$.next(await this.destroyConnection());
       return;
     }
 
@@ -241,13 +284,13 @@ export class LobbyStatusFeature extends TypoFeature {
       }
       catch (e) {
         this._logger.error("Failed to setup socket connection", e);
-        this._connection.next(await this.destroyConnection());
+        this._connection$.next(await this.destroyConnection());
         return;
       }
       const claim = this._existingTypoLobbyStates.get(lobby.id)?.ownershipClaimToken;
       const state = await connection.hub.lobbyDiscovered({ownerClaimToken: claim, lobby: this.mapLobbyToDto(lobby), playerId: lobby.meId});
       this._logger.info("Lobby discovered", state);
-      this._connection.next({...connection, typoLobbyState: state, member});
+      this._connection$.next({...connection, typoLobbyState: state, member});
       this._abortConnecting = undefined;
       this._existingTypoLobbyStates.set(state.lobbyId, state);
 
@@ -278,7 +321,7 @@ export class LobbyStatusFeature extends TypoFeature {
       /* if current lobby is different from current connection, disconnect and reconnect, then run again */
       if(lobby.id !== this.connection.typoLobbyState.lobbyId) {
         this._logger.info("Lobby changed, reconnecting");
-        this._connection.next(await this.destroyConnection());
+        this._connection$.next(await this.destroyConnection());
         return this.processLobbyUpdate(lobby, member);
       }
 
@@ -288,21 +331,38 @@ export class LobbyStatusFeature extends TypoFeature {
     this._logger.info("Lobby status processed");
   }
 
+  /**
+   * Signalr event handler when lobby ownership has been resigned
+   * Attempts to claim the lobby ownership as a reaction
+   * @private
+   */
   private async lobbyOwnershipResigned() {
     this._logger.info("Lobby ownership resigned, claiming now");
     await this.connection.hub.claimLobbyOwnership();
   }
 
+  /**
+   * Signalr event handler when typo lobby settings have been updated
+   * Saves new properties to current connection info
+   * @param state
+   * @private
+   */
   private async typoLobbySettingsUpdated(state: TypoLobbySettingsDto) {
     const savedSettings = this._existingTypoLobbyStates.get(this.connection.typoLobbyState.lobbyId);
     if(savedSettings) savedSettings.lobbySettings = state;
 
     this.connection.typoLobbyState.lobbySettings = state;
     this.connection.typoLobbyState.playerIsOwner = state.lobbyOwnershipClaim === this.connection.typoLobbyState.ownershipClaim;
-    this._connection.next(this.connection); // notify change
+    this._connection$.next(this.connection); // notify change
+
     this._logger.info("Lobby state updated", this.connection.typoLobbyState);
   }
 
+  /**
+   * Maps the current lobby state to a DTO
+   * @param lobby
+   * @private
+   */
   private mapLobbyToDto(lobby: skribblLobby): SkribblLobbyStateDto {
     if(lobby.id === null) throw new Error("cannot map practice lobby to state dto");
 
@@ -319,7 +379,14 @@ export class LobbyStatusFeature extends TypoFeature {
       }
     };
   }
-  
+
+  /**
+   * Updates the settings of the current typo lobby
+   * Requires the player to be the typo lobby owner
+   * @param description The new description of the lobby to be shown in the palantir bot
+   * @param whitelistAllowedServers Whether the lobby invite will be shown only in servers in the allowedServers list
+   * @param allowedServers A list of server IDs which are allowed to show the lobby invite
+   */
   public async updateLobbySettings(description: string, whitelistAllowedServers: boolean, allowedServers: Record<string, boolean>) {
     const toast = await this._toastService.showLoadingToast("Updating lobby settings");
 
@@ -352,17 +419,20 @@ export class LobbyStatusFeature extends TypoFeature {
     }
   }
 
+  /**
+   * Disconnect the current lobby connection
+   * The next lobby change event will reconnect as if lobby was first discovered
+   */
   public async resetConnection(){
-    this._connection.next(await this.destroyConnection());
+    this._connection$.next(await this.destroyConnection());
     await this._toastService.showToast(undefined, "Connection reset; reconnecting in next update cycle");
   }
 
+  /**
+   * Triggers a lobby update event with the last seen lobby data
+   */
   public async triggerManualRefresh() {
     this._triggerManualRefresh$.next(undefined);
     await this._toastService.showToast(undefined, "Manual refresh triggered");
-  }
-
-  public get isDevmodeStore() {
-    return this._settingsService.settings.devMode.store;
   }
 }
