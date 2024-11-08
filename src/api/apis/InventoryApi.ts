@@ -15,12 +15,18 @@
 
 import * as runtime from '../runtime';
 import type {
+  SceneInventoryDto,
+  SetActiveSceneDto,
   SpriteComboDto,
   SpriteInventoryDto,
   SpriteSlotCountDto,
   SpriteSlotDto,
 } from '../models/index';
 import {
+    SceneInventoryDtoFromJSON,
+    SceneInventoryDtoToJSON,
+    SetActiveSceneDtoFromJSON,
+    SetActiveSceneDtoToJSON,
     SpriteComboDtoFromJSON,
     SpriteComboDtoToJSON,
     SpriteInventoryDtoFromJSON,
@@ -31,12 +37,21 @@ import {
     SpriteSlotDtoToJSON,
 } from '../models/index';
 
+export interface GetMemberSceneInventoryRequest {
+    login: number;
+}
+
 export interface GetMemberSpriteInventoryRequest {
     login: number;
 }
 
 export interface GetMemberSpriteSlotCountRequest {
     login: number;
+}
+
+export interface SetMemberSceneRequest {
+    login: number;
+    setActiveSceneDto: SetActiveSceneDto;
 }
 
 export interface SetMemberSpriteComboRequest {
@@ -53,6 +68,49 @@ export interface SetMemberSpriteSlotRequest {
  * 
  */
 export class InventoryApi extends runtime.BaseAPI {
+
+    /**
+     *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
+     * Get all scenes in the inventory of a member, and the currently activated scene
+     */
+    async getMemberSceneInventoryRaw(requestParameters: GetMemberSceneInventoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SceneInventoryDto>> {
+        if (requestParameters['login'] == null) {
+            throw new runtime.RequiredError(
+                'login',
+                'Required parameter "login" was null or undefined when calling getMemberSceneInventory().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearer", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/member/{login}/inventory/scenes`.replace(`{${"login"}}`, encodeURIComponent(String(requestParameters['login']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SceneInventoryDtoFromJSON(jsonValue));
+    }
+
+    /**
+     *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
+     * Get all scenes in the inventory of a member, and the currently activated scene
+     */
+    async getMemberSceneInventory(requestParameters: GetMemberSceneInventoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SceneInventoryDto> {
+        const response = await this.getMemberSceneInventoryRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
@@ -138,6 +196,58 @@ export class InventoryApi extends runtime.BaseAPI {
     async getMemberSpriteSlotCount(requestParameters: GetMemberSpriteSlotCountRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SpriteSlotCountDto> {
         const response = await this.getMemberSpriteSlotCountRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
+     * Set the activated scene for a member
+     */
+    async setMemberSceneRaw(requestParameters: SetMemberSceneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['login'] == null) {
+            throw new runtime.RequiredError(
+                'login',
+                'Required parameter "login" was null or undefined when calling setMemberScene().'
+            );
+        }
+
+        if (requestParameters['setActiveSceneDto'] == null) {
+            throw new runtime.RequiredError(
+                'setActiveSceneDto',
+                'Required parameter "setActiveSceneDto" was null or undefined when calling setMemberScene().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearer", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/member/{login}/inventory/scenes`.replace(`{${"login"}}`, encodeURIComponent(String(requestParameters['login']))),
+            method: 'PATCH',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SetActiveSceneDtoToJSON(requestParameters['setActiveSceneDto']),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
+     * Set the activated scene for a member
+     */
+    async setMemberScene(requestParameters: SetMemberSceneRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.setMemberSceneRaw(requestParameters, initOverrides);
     }
 
     /**

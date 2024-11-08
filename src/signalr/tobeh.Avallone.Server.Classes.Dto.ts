@@ -116,6 +116,36 @@ export type MemberDto = {
     login: number;
 }
 
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.OnlineItemsUpdatedDto */
+export type OnlineItemsUpdatedDto = {
+    /** Transpiled from System.Collections.Generic.List<tobeh.Avallone.Server.Classes.Dto.OnlineItemDto> */
+    items: OnlineItemDto[];
+}
+
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.OnlineItemDto */
+export type OnlineItemDto = {
+    /** Transpiled from tobeh.Avallone.Server.Classes.Dto.OnlineItemTypeDto */
+    type: OnlineItemTypeDto;
+    /** Transpiled from int */
+    slot: number;
+    /** Transpiled from int */
+    itemId: number;
+    /** Transpiled from string */
+    lobbyKey: string;
+    /** Transpiled from int */
+    lobbyPlayerId: number;
+}
+
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.OnlineItemTypeDto */
+export enum OnlineItemTypeDto {
+    Award = 3,
+    Sprite = 0,
+    SpriteShift = 1,
+    Scene = 2,
+    SceneTheme = 6,
+    Rewardee = 5,
+}
+
 /** Transpiled from tobeh.Avallone.Server.Classes.Dto.SkribblLobbyTypoSettingsUpdateDto */
 export type SkribblLobbyTypoSettingsUpdateDto = {
     /** Transpiled from bool */

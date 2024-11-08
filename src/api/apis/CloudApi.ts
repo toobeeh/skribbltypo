@@ -19,6 +19,7 @@ import type {
   CloudImageDto,
   CloudSearchDto,
   CloudUploadDto,
+  CloudUploadedDto,
 } from '../models/index';
 import {
     CloudDeleteDtoFromJSON,
@@ -29,6 +30,8 @@ import {
     CloudSearchDtoToJSON,
     CloudUploadDtoFromJSON,
     CloudUploadDtoToJSON,
+    CloudUploadedDtoFromJSON,
+    CloudUploadedDtoToJSON,
 } from '../models/index';
 
 export interface BulkDeleteFromUserCloudRequest {
@@ -331,7 +334,7 @@ export class CloudApi extends runtime.BaseAPI {
      *   Required Roles: Member - Role override if {login} matches the client login.  Rate limit default: 10 Requests / 60000 ms TTL
      * Upload a new image to the user\'s cloud
      */
-    async uploadToUserCloudRaw(requestParameters: UploadToUserCloudRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async uploadToUserCloudRaw(requestParameters: UploadToUserCloudRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CloudUploadedDto>> {
         if (requestParameters['login'] == null) {
             throw new runtime.RequiredError(
                 'login',
@@ -368,15 +371,16 @@ export class CloudApi extends runtime.BaseAPI {
             body: CloudUploadDtoToJSON(requestParameters['cloudUploadDto']),
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => CloudUploadedDtoFromJSON(jsonValue));
     }
 
     /**
      *   Required Roles: Member - Role override if {login} matches the client login.  Rate limit default: 10 Requests / 60000 ms TTL
      * Upload a new image to the user\'s cloud
      */
-    async uploadToUserCloud(requestParameters: UploadToUserCloudRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.uploadToUserCloudRaw(requestParameters, initOverrides);
+    async uploadToUserCloud(requestParameters: UploadToUserCloudRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CloudUploadedDto> {
+        const response = await this.uploadToUserCloudRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

@@ -1,23 +1,23 @@
-export const requireElement = (selector: string): HTMLElement => {
-  const element = document.querySelector<HTMLElement>(selector);
+export const requireElement = (selector: string, root: HTMLElement | undefined = undefined): HTMLElement => {
+  const element = (root ?? document).querySelector<HTMLElement>(selector);
   if (!element) {
     throw new Error(`Required element not found for selector: ${selector}`);
   }
   return element;
 };
 
-export const requireElements = (selector: string): HTMLElement[] => {
-  const elements = Array.from(document.querySelectorAll<HTMLElement>(selector));
+export const requireElements = (selector: string, root: HTMLElement | undefined = undefined): HTMLElement[] => {
+  const elements = Array.from((root ?? document).querySelectorAll<HTMLElement>(selector));
   if (elements.length === 0) {
     throw new Error(`Required elements not found for selector: ${selector}`);
   }
   return elements;
 };
 
-export const element = (selector: string): HTMLElement | null => {
-  return document.querySelector(selector);
+export const element = (selector: string, root: HTMLElement | undefined = undefined): HTMLElement | null => {
+  return (root ?? document).querySelector(selector);
 };
 
-export const elements = (selector: string): HTMLElement[] => {
-  return Array.from(document.querySelectorAll(selector));
+export const elements = (selector: string, root: HTMLElement | undefined = undefined): HTMLElement[] => {
+  return Array.from((root ?? document).querySelectorAll(selector));
 };

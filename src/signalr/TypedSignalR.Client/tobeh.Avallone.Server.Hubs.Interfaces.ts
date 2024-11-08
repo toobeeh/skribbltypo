@@ -3,7 +3,7 @@
 /* tslint:disable */
 // @ts-nocheck
 import type { IStreamResult, Subject } from '@microsoft/signalr';
-import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, TypoLobbySettingsDto } from '../tobeh.Avallone.Server.Classes.Dto';
+import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, TypoLobbySettingsDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
 
 export type IGuildLobbiesHub = {
     /**
@@ -35,6 +35,9 @@ export type ILobbyHub = {
     updateTypoLobbySettings(typoSettings: SkribblLobbyTypoSettingsUpdateDto): Promise<void>;
 }
 
+export type IOnlineItemsHub = {
+}
+
 export type IGuildLobbiesReceiver = {
     /**
     * @param lobbyUpdates Transpiled from tobeh.Avallone.Server.Classes.Dto.GuildLobbiesUpdatedDto
@@ -53,5 +56,13 @@ export type ILobbyReceiver = {
     * @returns Transpiled from System.Threading.Tasks.Task
     */
     lobbyOwnershipResigned(): Promise<void>;
+}
+
+export type IOnlineItemsReceiver = {
+    /**
+    * @param itemUpdates Transpiled from tobeh.Avallone.Server.Classes.Dto.OnlineItemsUpdatedDto
+    * @returns Transpiled from System.Threading.Tasks.Task
+    */
+    onlineItemsUpdated(itemUpdates: OnlineItemsUpdatedDto): Promise<void>;
 }
 

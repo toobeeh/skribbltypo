@@ -46,7 +46,7 @@ export interface EvaluateMemberLeagueSeasonRequest {
 export class LeaguesApi extends runtime.BaseAPI {
 
     /**
-     *   Required Roles: Member  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Moderator  Rate limit default: 10 Requests / 60000 ms TTL
      * Get the total ranking of the current league season
      */
     async evaluateCurrentLeagueSeasonRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<LeagueSeasonEvaluationDto>> {
@@ -73,7 +73,7 @@ export class LeaguesApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Member  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Moderator  Rate limit default: 10 Requests / 60000 ms TTL
      * Get the total ranking of the current league season
      */
     async evaluateCurrentLeagueSeason(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<LeagueSeasonEvaluationDto> {
@@ -82,7 +82,7 @@ export class LeaguesApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Member  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Moderator  Rate limit default: 10 Requests / 60000 ms TTL
      * Get the total ranking of the a league season
      */
     async evaluateLeagueSeasonRaw(requestParameters: EvaluateLeagueSeasonRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<LeagueSeasonEvaluationDto>> {
@@ -123,7 +123,7 @@ export class LeaguesApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Member  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Moderator  Rate limit default: 10 Requests / 60000 ms TTL
      * Get the total ranking of the a league season
      */
     async evaluateLeagueSeason(requestParameters: EvaluateLeagueSeasonRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<LeagueSeasonEvaluationDto> {

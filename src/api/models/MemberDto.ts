@@ -92,7 +92,34 @@ export interface MemberDto {
      * @memberof MemberDto
      */
     rawMember: object;
+    /**
+     * Enum array containing the flags of the member
+     * @type {Array<string>}
+     * @memberof MemberDto
+     */
+    memberFlags: Array<MemberDtoMemberFlagsEnum>;
 }
+
+
+/**
+ * @export
+ */
+export const MemberDtoMemberFlagsEnum = {
+    Admin: 'Admin',
+    Moderator: 'Moderator',
+    Patron: 'Patron',
+    Patronizer: 'Patronizer',
+    Booster: 'Booster',
+    DropBan: 'DropBan',
+    PermaBan: 'PermaBan',
+    Beta: 'Beta',
+    BubbleFarming: 'BubbleFarming',
+    UnlimitedCloud: 'UnlimitedCloud',
+    ContentModerator: 'ContentModerator',
+    EmojiManagement: 'EmojiManagement'
+} as const;
+export type MemberDtoMemberFlagsEnum = typeof MemberDtoMemberFlagsEnum[keyof typeof MemberDtoMemberFlagsEnum];
+
 
 /**
  * Check if a given object implements the MemberDto interface.
@@ -109,6 +136,7 @@ export function instanceOfMemberDto(value: object): value is MemberDto {
     if (!('userLogin' in value) || value['userLogin'] === undefined) return false;
     if (!('guilds' in value) || value['guilds'] === undefined) return false;
     if (!('rawMember' in value) || value['rawMember'] === undefined) return false;
+    if (!('memberFlags' in value) || value['memberFlags'] === undefined) return false;
     return true;
 }
 
@@ -133,6 +161,7 @@ export function MemberDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
         'userLogin': json['userLogin'],
         'guilds': ((json['guilds'] as Array<any>).map(GuildDtoFromJSON)),
         'rawMember': json['rawMember'],
+        'memberFlags': json['memberFlags'],
     };
 }
 
@@ -153,6 +182,7 @@ export function MemberDtoToJSON(value?: MemberDto | null): any {
         'userLogin': value['userLogin'],
         'guilds': ((value['guilds'] as Array<any>).map(GuildDtoToJSON)),
         'rawMember': value['rawMember'],
+        'memberFlags': value['memberFlags'],
     };
 }
 

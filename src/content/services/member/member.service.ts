@@ -6,7 +6,7 @@ import { ApiService } from "../api/api.service";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import { TokenService } from "@/content/core/token/token.service";
 
-interface memberData {
+export interface memberData {
   member: MemberDto,
   webhooks: MemberWebhookDto[]
 }

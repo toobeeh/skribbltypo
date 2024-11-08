@@ -36,7 +36,7 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 2rem;
-    padding: 0 2em;
+    padding: 0 2em 2em 2em;
     overflow: auto;
 
     .typo-feature-item {
@@ -50,6 +50,10 @@
       padding: 1rem;
       flex: 1 1 0px;
       position: relative;
+
+      &.hidden {
+        display: none;
+      }
 
       &.devMode .feature-id {
         display: block;
@@ -117,7 +121,9 @@
   {#each feature.features as feat}
 
     <!-- container box for a feature, works as toggle-->
-    <div class="typo-feature-item" class:devMode={$devMode}
+    <div class="typo-feature-item"
+         class:devMode={$devMode}
+         class:hidden={!feat.toggleEnabled && !$devMode}
     >
       <!-- icon with name -->
       <div class="name-toggle" role="button" tabindex="0"

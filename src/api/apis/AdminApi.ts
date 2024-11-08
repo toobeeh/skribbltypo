@@ -21,7 +21,7 @@ import * as runtime from '../runtime';
 export class AdminApi extends runtime.BaseAPI {
 
     /**
-     *   Required Roles: Administrator  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Admin  Rate limit default: 10 Requests / 60000 ms TTL
      * Re-evaluate the drop chunks cache; partitions the open chunk into new subchunks if big enough
      */
     async getNextDropRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -48,7 +48,7 @@ export class AdminApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Administrator  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Admin  Rate limit default: 10 Requests / 60000 ms TTL
      * Re-evaluate the drop chunks cache; partitions the open chunk into new subchunks if big enough
      */
     async getNextDrop(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {

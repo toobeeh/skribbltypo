@@ -10,6 +10,9 @@ const hubTypeMap = {
   },
   ILobbyHub: {
     url: "lobby"
+  },
+  IOnlineItemsHub: {
+    url: "onlineItems"
   }
 };
 

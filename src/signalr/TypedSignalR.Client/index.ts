@@ -3,8 +3,8 @@
 /* tslint:disable */
 // @ts-nocheck
 import type { HubConnection, IStreamResult, Subject } from '@microsoft/signalr';
-import type { IGuildLobbiesHub, ILobbyHub, IGuildLobbiesReceiver, ILobbyReceiver } from './tobeh.Avallone.Server.Hubs.Interfaces';
-import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, TypoLobbySettingsDto } from '../tobeh.Avallone.Server.Classes.Dto';
+import type { IGuildLobbiesHub, ILobbyHub, IOnlineItemsHub, IGuildLobbiesReceiver, ILobbyReceiver, IOnlineItemsReceiver } from './tobeh.Avallone.Server.Hubs.Interfaces';
+import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, TypoLobbySettingsDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
 
 
 // components
@@ -45,6 +45,7 @@ class ReceiverMethodSubscription implements Disposable {
 export type HubProxyFactoryProvider = {
     (hubType: "IGuildLobbiesHub"): HubProxyFactory<IGuildLobbiesHub>;
     (hubType: "ILobbyHub"): HubProxyFactory<ILobbyHub>;
+    (hubType: "IOnlineItemsHub"): HubProxyFactory<IOnlineItemsHub>;
 }
 
 export const getHubProxyFactory = ((hubType: string) => {
@@ -54,11 +55,15 @@ export const getHubProxyFactory = ((hubType: string) => {
     if(hubType === "ILobbyHub") {
         return ILobbyHub_HubProxyFactory.Instance;
     }
+    if(hubType === "IOnlineItemsHub") {
+        return IOnlineItemsHub_HubProxyFactory.Instance;
+    }
 }) as HubProxyFactoryProvider;
 
 export type ReceiverRegisterProvider = {
     (receiverType: "IGuildLobbiesReceiver"): ReceiverRegister<IGuildLobbiesReceiver>;
     (receiverType: "ILobbyReceiver"): ReceiverRegister<ILobbyReceiver>;
+    (receiverType: "IOnlineItemsReceiver"): ReceiverRegister<IOnlineItemsReceiver>;
 }
 
 export const getReceiverRegister = ((receiverType: string) => {
@@ -67,6 +72,9 @@ export const getReceiverRegister = ((receiverType: string) => {
     }
     if(receiverType === "ILobbyReceiver") {
         return ILobbyReceiver_Binder.Instance;
+    }
+    if(receiverType === "IOnlineItemsReceiver") {
+        return IOnlineItemsReceiver_Binder.Instance;
     }
 }) as ReceiverRegisterProvider;
 
@@ -126,6 +134,23 @@ class ILobbyHub_HubProxy implements ILobbyHub {
     }
 }
 
+class IOnlineItemsHub_HubProxyFactory implements HubProxyFactory<IOnlineItemsHub> {
+    public static Instance = new IOnlineItemsHub_HubProxyFactory();
+
+    private constructor() {
+    }
+
+    public readonly createHubProxy = (connection: HubConnection): IOnlineItemsHub => {
+        return new IOnlineItemsHub_HubProxy(connection);
+    }
+}
+
+class IOnlineItemsHub_HubProxy implements IOnlineItemsHub {
+
+    public constructor(private connection: HubConnection) {
+    }
+}
+
 
 // Receiver
 
@@ -168,6 +193,27 @@ class ILobbyReceiver_Binder implements ReceiverRegister<ILobbyReceiver> {
         const methodList: ReceiverMethod[] = [
             { methodName: "TypoLobbySettingsUpdated", method: __typoLobbySettingsUpdated },
             { methodName: "LobbyOwnershipResigned", method: __lobbyOwnershipResigned }
+        ]
+
+        return new ReceiverMethodSubscription(connection, methodList);
+    }
+}
+
+class IOnlineItemsReceiver_Binder implements ReceiverRegister<IOnlineItemsReceiver> {
+
+    public static Instance = new IOnlineItemsReceiver_Binder();
+
+    private constructor() {
+    }
+
+    public readonly register = (connection: HubConnection, receiver: IOnlineItemsReceiver): Disposable => {
+
+        const __onlineItemsUpdated = (...args: [OnlineItemsUpdatedDto]) => receiver.onlineItemsUpdated(...args);
+
+        connection.on("OnlineItemsUpdated", __onlineItemsUpdated);
+
+        const methodList: ReceiverMethod[] = [
+            { methodName: "OnlineItemsUpdated", method: __onlineItemsUpdated }
         ]
 
         return new ReceiverMethodSubscription(connection, methodList);

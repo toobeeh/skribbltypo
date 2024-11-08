@@ -66,7 +66,7 @@ export interface GetNewEmojisRequest {
 export class EmojisApi extends runtime.BaseAPI {
 
     /**
-     *   Required Roles: Moderator | ContentModerator  Rate limit default: 30 Requests / 60000 ms TTL
+     *   Required Roles: Admin | EmojiManagement | ContentModerator  Rate limit default: 30 Requests / 60000 ms TTL
      * Add a new emoji
      */
     async addEmojiRaw(requestParameters: AddEmojiRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EmojiDto>> {
@@ -103,7 +103,7 @@ export class EmojisApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Moderator | ContentModerator  Rate limit default: 30 Requests / 60000 ms TTL
+     *   Required Roles: Admin | EmojiManagement | ContentModerator  Rate limit default: 30 Requests / 60000 ms TTL
      * Add a new emoji
      */
     async addEmoji(requestParameters: AddEmojiRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EmojiDto> {
@@ -112,7 +112,7 @@ export class EmojisApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Moderator | ContentModerator  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Admin | ContentModerator | Moderator  Rate limit default: 10 Requests / 60000 ms TTL
      * Delete a saved emoji  by name (id) and nameId
      */
     async deleteEmojiRaw(requestParameters: DeleteEmojiRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -150,7 +150,7 @@ export class EmojisApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Moderator | ContentModerator  Rate limit default: 10 Requests / 60000 ms TTL
+     *   Required Roles: Admin | ContentModerator | Moderator  Rate limit default: 10 Requests / 60000 ms TTL
      * Delete a saved emoji  by name (id) and nameId
      */
     async deleteEmoji(requestParameters: DeleteEmojiRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
@@ -327,7 +327,7 @@ export class EmojisApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Moderator | ContentModerator  Rate limit default: 30 Requests / 60000 ms TTL
+     *   Required Roles: Admin | EmojiManagement | ContentModerator  Rate limit default: 30 Requests / 60000 ms TTL
      * Search for new emojis that are not yet in the database
      */
     async getNewEmojisRaw(requestParameters: GetNewEmojisRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<EmojiDto>>> {
@@ -391,7 +391,7 @@ export class EmojisApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: Moderator | ContentModerator  Rate limit default: 30 Requests / 60000 ms TTL
+     *   Required Roles: Admin | EmojiManagement | ContentModerator  Rate limit default: 30 Requests / 60000 ms TTL
      * Search for new emojis that are not yet in the database
      */
     async getNewEmojis(requestParameters: GetNewEmojisRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EmojiDto>> {

@@ -17,13 +17,20 @@ import * as runtime from '../runtime';
 import type {
   DropDto,
   LobbiesResponseDto,
+  LobbyLinkDto,
 } from '../models/index';
 import {
     DropDtoFromJSON,
     DropDtoToJSON,
     LobbiesResponseDtoFromJSON,
     LobbiesResponseDtoToJSON,
+    LobbyLinkDtoFromJSON,
+    LobbyLinkDtoToJSON,
 } from '../models/index';
+
+export interface GetDecryptedLobbyLinkRequest {
+    token: string;
+}
 
 export interface GetLobbyDropsRequest {
     token: string;
@@ -33,6 +40,49 @@ export interface GetLobbyDropsRequest {
  * 
  */
 export class LobbiesApi extends runtime.BaseAPI {
+
+    /**
+     *   Required Roles: Member  Rate limit default: 10 Requests / 60000 ms TTL
+     * Redirect to a lobby
+     */
+    async getDecryptedLobbyLinkRaw(requestParameters: GetDecryptedLobbyLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<LobbyLinkDto>> {
+        if (requestParameters['token'] == null) {
+            throw new runtime.RequiredError(
+                'token',
+                'Required parameter "token" was null or undefined when calling getDecryptedLobbyLink().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearer", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/lobbies/join/{token}`.replace(`{${"token"}}`, encodeURIComponent(String(requestParameters['token']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => LobbyLinkDtoFromJSON(jsonValue));
+    }
+
+    /**
+     *   Required Roles: Member  Rate limit default: 10 Requests / 60000 ms TTL
+     * Redirect to a lobby
+     */
+    async getDecryptedLobbyLink(requestParameters: GetDecryptedLobbyLinkRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<LobbyLinkDto> {
+        const response = await this.getDecryptedLobbyLinkRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      *   Required Roles: Moderator  Rate limit default: 10 Requests / 60000 ms TTL

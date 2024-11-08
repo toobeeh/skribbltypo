@@ -15,7 +15,7 @@ function getData(spritesApi: SpritesApi){
 }
 export type apiData = ReturnType<typeof promiseAllObject<ReturnType<typeof getData>>>;
 
-export class ApiDataSetup extends Setup<apiData | null> {
+export class ApiDataSetup extends Setup<apiData> {
   @inject(MemberService) private _memberService!: MemberService;
   @inject(ApiService) private _apiService!: ApiService;
 

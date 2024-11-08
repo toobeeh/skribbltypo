@@ -21,6 +21,7 @@ import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.fe
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
 import { PanelLobbiesFeature } from "@/content/features/panel-lobbies/panel-lobbies.feature";
+import { PlayerSpritesFeature } from "@/content/features/player-sprites/player-sprites.feature";
 import { ToolbarChallengesFeature } from "@/content/features/toolbar-challenges/toolbar-challenges.feature";
 import { ToolbarFullscreenFeature } from "@/content/features/toolbar-fullscreen/toolbar-fullscreen.feature";
 import { ToolbarImageLabFeature } from "@/content/features/toolbar-imagelab/toolbar-imagelab.feature";
@@ -32,6 +33,8 @@ import { ExtensionContainer } from "@/content/core/extension-container/extension
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
+import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
+import { LobbyPlayersService } from "@/content/services/lobby-players/lobby-players.service";
 import { SocketService } from "@/content/services/socket/socket.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
@@ -76,7 +79,9 @@ new ExtensionContainer()
     {type: ImagePostService, scope: "singleton"},
     {type: CloudService, scope: "singleton"},
     {type: ToastService, scope: "scoped"},
-    {type: SocketService, scope: "scoped"}
+    {type: SocketService, scope: "scoped"},
+    {type: LobbyItemsService, scope: "singleton"},
+    {type: LobbyPlayersService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
@@ -125,7 +130,8 @@ new ExtensionContainer()
     ImageAgentFeature,
     ControlsCloudFeature,
     GuessCheckFeature,
-    LobbyStatusFeature
+    LobbyStatusFeature,
+    PlayerSpritesFeature
   );
 
 /* indicate for interceptor that content script has loaded */
