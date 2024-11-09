@@ -1,4 +1,4 @@
-import { InventoryApi, type MemberDto, type SpriteDto } from "@/api";
+import { InventoryApi, type MemberDto, type SceneDto } from "@/api";
 import { ApiService } from "@/content/services/api/api.service";
 import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
 import { LobbyPlayersService } from "@/content/services/lobby-players/lobby-players.service";
@@ -18,15 +18,14 @@ import {
   switchMap
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
-import SpriteContainer from "./sprite-container.svelte";
+import SceneContainer from "./scene-container.svelte";
 
-export interface spriteSlot {
-  sprite: SpriteDto;
-  slot: number;
+export interface activeScene {
+  scene: SceneDto;
   shift: number | undefined;
 }
 
-export class PlayerSpritesFeature extends TypoFeature {
+export class PlayerScenesFeature extends TypoFeature {
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
   @inject(LandingPlayerDisplaySetup) private readonly _landingPlayerSetup!: LandingPlayerDisplaySetup;
   @inject(LobbyItemsService) private readonly _lobbyItemsService!: LobbyItemsService;
@@ -35,29 +34,29 @@ export class PlayerSpritesFeature extends TypoFeature {
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(ApiService) private readonly _apiService!: ApiService;
 
-  public readonly name = "Player Sprites";
+  public readonly name = "Player Scenes";
   public readonly description =
-    "Display sprites of typo players in lobbies and on the landing page";
-  public readonly featureId = 20;
+    "Display scenes of typo players in lobbies and on the landing page";
+  public readonly featureId = 21;
   public override readonly toggleEnabled = false;
 
-  private _spritesSubscription?: Subscription;
-  private readonly _lobbyPlayerSpriteContainers = new Map<HTMLElement, SpriteContainer>();
-  private _landingSpriteContainer?: SpriteContainer;
+  private _scenesSubscription?: Subscription;
+  private readonly _lobbyPlayerSceneContainers = new Map<HTMLElement, SceneContainer>();
+  private _landingSceneContainer?: SceneContainer;
 
   protected override async onActivate() {
-    const sprites = (await this._apiDataSetup.complete()).sprites;
+    const scenes = (await this._apiDataSetup.complete()).scenes;
     const landingPlayer = await this._landingPlayerSetup.complete();
 
-    this._landingSpriteContainer = new SpriteContainer({
-      target: landingPlayer.avatarContainer,
+    this._landingSceneContainer = new SceneContainer({
+      target: landingPlayer.container,
       props: {
-        sprites: [],
+        scene: undefined,
         playerDisplay: landingPlayer
       }
     });
 
-    this._spritesSubscription = this._lobbyPlayersService.players$
+    this._scenesSubscription = this._lobbyPlayersService.players$
       .pipe(
 
         /* add lobby key to each player update */
@@ -90,143 +89,138 @@ export class PlayerSpritesFeature extends TypoFeature {
 
         /* update landing sprites if landing entered */
         if(landing) {
-          this.updateLandingSprites(items, sprites);
+          this.updateLandingScenes(items, scenes);
         }
 
         /* else update sprites of players in lobby*/
         else {
-          this.updateLobbySprites(
+          this.updateLobbyScenes(
             players,
             items,
-            sprites,
+            scenes,
           );
         }
       });
   }
 
   protected override async onDestroy() {
-    this._spritesSubscription?.unsubscribe();
-    this._landingSpriteContainer?.$destroy();
+    this._scenesSubscription?.unsubscribe();
+    this._landingSceneContainer?.$destroy();
   }
 
-  private updateLandingSprites(items: OnlineItemDto[], sprites: SpriteDto[]){
-    const slots = this.createSpriteSlotsFromItems(items, sprites);
-    this._landingSpriteContainer?.$set({ sprites: slots });
+  private updateLandingScenes(items: OnlineItemDto[], scenes: SceneDto[]){
+    const scene = this.createSceneFromItems(items, scenes);
+    this._landingSceneContainer?.$set({ scene: scene });
 
-    this._logger.debug("Updated landing sprites", items);
+    this._logger.debug("Updated landing scene", scene);
   }
 
   /**
-   * Updates the sprites of the players in the lobby
+   * Updates the scenes of the players in the lobby
    * @param players
    * @param lobbyItems
-   * @param sprites
+   * @param scenes
    * @private
    */
-  private updateLobbySprites(players: SkribblLobbyPlayer[], lobbyItems: OnlineItemDto[], sprites: SpriteDto[]) {
+  private updateLobbyScenes(players: SkribblLobbyPlayer[], lobbyItems: OnlineItemDto[], scenes: SceneDto[]) {
 
-    // add new players to map with empty sprite container
+    // add new players to map with empty scene container
     for (const player of players) {
-      if (!this._lobbyPlayerSpriteContainers.has(player.avatarContainer)) {
-        this._lobbyPlayerSpriteContainers.set(player.avatarContainer, new SpriteContainer({
-          target: player.avatarContainer,
+      if (!this._lobbyPlayerSceneContainers.has(player.avatarContainer)) {
+        this._lobbyPlayerSceneContainers.set(player.avatarContainer, new SceneContainer({
+          target: player.backgroundContainer,
           props: {
-            sprites: [],
+            scene: undefined,
             playerDisplay: player
           }
         }));
       }
     }
 
-    // update sprite containers
-    for (const [anchor, container] of this._lobbyPlayerSpriteContainers) {
+    // update scene containers
+    for (const [anchor, container] of this._lobbyPlayerSceneContainers) {
       const player = players.find((player) => player.avatarContainer === anchor);
 
       // remove container if player is not in lobby anymore
       if (!player) {
         container.$destroy();
-        this._lobbyPlayerSpriteContainers.delete(anchor);
+        this._lobbyPlayerSceneContainers.delete(anchor);
       }
 
       // update container if player is in lobby
       else {
         const playerItems = lobbyItems.filter((sprite) => sprite.lobbyPlayerId === player.id);
-        const playerSlots = this.createSpriteSlotsFromItems(playerItems, sprites);
+        const playerScene = this.createSceneFromItems(playerItems, scenes);
 
-        const existingPlayerSlots: spriteSlot[] = container.getSprites();
-        const slotsUpdated = playerSlots.length !== existingPlayerSlots.length || playerSlots.some((slot) => {
-          const existingSlot = existingPlayerSlots.find((s) => s.slot === slot.slot);
-          return !existingSlot || existingSlot.sprite.id !== slot.sprite.id || existingSlot.shift !== slot.shift;
-        });
+        const currentScene = container.getScene();
+        const updated = playerScene?.scene !== currentScene?.scene || playerScene?.shift !== currentScene?.shift;
 
-        if(slotsUpdated){
-          container.$set({ sprites: playerSlots });
+        if(updated){
+          container.$set({ scene: playerScene });
         }
       }
     }
 
-    this._logger.debug("Updated lobby sprites", players, lobbyItems);
+    this._logger.debug("Updated lobby scenes", players, lobbyItems);
   }
 
   /**
-   * Creates sprite slot data from the online items of a player
+   * Creates scene data from the online items of a player
    * @param playerItems
-   * @param sprites
+   * @param scenes
    * @private
    */
-  private createSpriteSlotsFromItems(playerItems: OnlineItemDto[], sprites: SpriteDto[]){
-    const playerSprites = playerItems.filter((sprite) =>
-      sprite.type === OnlineItemTypeDto.Sprite);
-    const playerShifts = playerItems.filter((sprite) =>
-      sprite.type === OnlineItemTypeDto.SpriteShift);
+  private createSceneFromItems(playerItems: OnlineItemDto[], scenes: SceneDto[]): activeScene | undefined {
+    const playerScene = playerItems.find((scene) =>
+      scene.type === OnlineItemTypeDto.Scene);
+    const playerShift = playerItems.find((item) =>
+      item.type === OnlineItemTypeDto.SceneTheme && item.slot === playerScene?.itemId);
 
-    const playerSlots: spriteSlot[] = playerSprites.map((sprite) => {
-      const spriteData = sprites.find((s) => s.id === sprite.itemId);
-      if(spriteData === undefined) {
-        this._logger.warn(`Sprite with id ${sprite.itemId} not found`);
-        return undefined;
-      }
+    if(playerScene === undefined) return undefined;
 
-      return {
-        sprite: spriteData,
-        slot: sprite.slot,
-        shift: playerShifts.find((shift) => shift.slot === sprite.itemId)?.itemId
-      };
-    }).filter((slot) => slot !== undefined);
+    const scene = scenes.find((scene) => scene.id === playerScene.itemId);
+    if(scene === undefined) {
+      this._logger.warn("Scene not found", playerScene.itemId);
+      return undefined;
+    }
 
-    return playerSlots;
+    return {
+      scene: scene,
+      shift: playerShift?.itemId
+    };
   }
 
   /**
-   * Creates dummy sprite items for the currently logged in member
+   * Creates dummy scene items for the currently logged in member
    * @param member
    * @private
    */
   private async createDemoItems(member: MemberDto): Promise<OnlineItemDto[]> {
-    this._logger.debug("Creating demo items for member", member);
+    this._logger.debug("Creating demo scene items for member", member);
 
     const api = this._apiService.getApi(InventoryApi);
-    const spriteInventory = await api.getMemberSpriteInventory({ login: Number(member.userLogin) });
+    const sceneInventory = await api.getMemberSceneInventory({ login: Number(member.userLogin) });
+    const items: OnlineItemDto[] = [];
 
-    const items: OnlineItemDto[] = spriteInventory.map((sprite) => {
-      const item = sprite.slot ? {
-        itemId: sprite.spriteId,
-        type: OnlineItemTypeDto.Sprite,
+    if(sceneInventory.activeId !== undefined){
+      items.push({
+        itemId: sceneInventory.activeId,
+        type: OnlineItemTypeDto.Scene,
         lobbyPlayerId: 0,
-        slot: sprite.slot,
+        slot: 0,
         lobbyKey: "practice",
-      } : undefined;
+      });
 
-      const shift = sprite.colorShift ? {
-        itemId: sprite.colorShift,
-        type: OnlineItemTypeDto.SpriteShift,
-        lobbyPlayerId: 0,
-        slot: sprite.spriteId,
-        lobbyKey: "practice",
-      } : undefined;
-
-      return [item, shift];
-    }).flat().filter(item => item !== undefined);
+      if(sceneInventory.activeShift !== undefined){
+        items.push({
+          itemId: sceneInventory.activeShift,
+          type: OnlineItemTypeDto.SceneTheme,
+          lobbyPlayerId: 0,
+          slot: sceneInventory.activeId,
+          lobbyKey: "practice",
+        });
+      }
+    }
 
     return items;
   }

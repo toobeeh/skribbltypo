@@ -21,6 +21,7 @@ import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.fe
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
 import { PanelLobbiesFeature } from "@/content/features/panel-lobbies/panel-lobbies.feature";
+import { PlayerScenesFeature } from "@/content/features/player-scenes/player-scenes.feature";
 import { PlayerSpritesFeature } from "@/content/features/player-sprites/player-sprites.feature";
 import { ToolbarChallengesFeature } from "@/content/features/toolbar-challenges/toolbar-challenges.feature";
 import { ToolbarFullscreenFeature } from "@/content/features/toolbar-fullscreen/toolbar-fullscreen.feature";
@@ -40,6 +41,7 @@ import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
+import { LandingPlayerDisplaySetup } from "@/content/setups/landing-player-display/landing-player-display.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
 import { ToastSetup } from "@/content/setups/toast/toast.setup";
@@ -95,7 +97,8 @@ new ExtensionContainer()
     SkribblInitializedSetup,
     ApiDataSetup,
     ToastSetup,
-    ChatControlsSetup
+    ChatControlsSetup,
+    LandingPlayerDisplaySetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
@@ -131,7 +134,8 @@ new ExtensionContainer()
     ControlsCloudFeature,
     GuessCheckFeature,
     LobbyStatusFeature,
-    PlayerSpritesFeature
+    PlayerSpritesFeature,
+    PlayerScenesFeature
   );
 
 /* indicate for interceptor that content script has loaded */

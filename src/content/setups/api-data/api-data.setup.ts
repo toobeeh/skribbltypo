@@ -1,4 +1,4 @@
-import { SpritesApi } from "@/api";
+import { ScenesApi, SpritesApi } from "@/api";
 import { ApiService } from "@/content/services/api/api.service";
 import { MemberService } from "@/content/services/member/member.service";
 import { promiseAllObject } from "@/util/promiseAllObject";
@@ -8,9 +8,10 @@ import { inject } from "inversify";
 /**
  * Function to make dynamic return type
  */
-function getData(spritesApi: SpritesApi){
+function getData(spritesApi: SpritesApi, scenesApi: ScenesApi){
   return {
-    sprites: spritesApi.getAllSprites()
+    sprites: spritesApi.getAllSprites(),
+    scenes: scenesApi.getAllScenes()
   };
 }
 export type apiData = ReturnType<typeof promiseAllObject<ReturnType<typeof getData>>>;
@@ -20,6 +21,9 @@ export class ApiDataSetup extends Setup<apiData> {
   @inject(ApiService) private _apiService!: ApiService;
 
   protected async runSetup(): Promise<apiData> {
-    return promiseAllObject(getData(this._apiService.getApi(SpritesApi)));
+    return promiseAllObject(getData(
+      this._apiService.getApi(SpritesApi),
+      this._apiService.getApi(ScenesApi)
+    ));
   }
 }

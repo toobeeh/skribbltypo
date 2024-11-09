@@ -14,6 +14,7 @@ import { ToolbarSetup } from "../toolbar/toolbar.setup";
  * @param toolbar
  * @param controls
  * @param toastContainer
+ * @param chatControls
  */
 function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement, toastContainer: HTMLElement, chatControls: HTMLElement){
   return {
@@ -35,6 +36,8 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     chatArea: requireElement("#game-chat"),
     hints: requireElement("#game-word .hints"),
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
+    landingAvatarContainer: requireElement(".avatar-customizer .avatar"),
+    landingCustomizeContainer: requireElement(".avatar-customizer"),
     chatControls,
     ...panels,
     toolbar,
