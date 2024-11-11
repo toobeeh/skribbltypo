@@ -1,8 +1,9 @@
 import { ChatTypedEventListener } from "@/content/events/chat-typed.event";
+import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
-import { combineLatestWith, distinctUntilChanged, map } from "rxjs";
+import { combineLatestWith, distinctUntilChanged, map, mergeWith, tap } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import GuessCheck from "./guess-check.svelte";
@@ -10,6 +11,7 @@ import GuessCheck from "./guess-check.svelte";
 export class GuessCheckFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ChatTypedEventListener) private readonly _chatTypedEventListener!: ChatTypedEventListener;
+  @inject(LobbyLeftEventListener) private readonly _lobbyLeftEventListener!: LobbyLeftEventListener;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
   public readonly name = "Guess Check";
@@ -38,7 +40,10 @@ export class GuessCheckFeature extends TypoFeature {
    */
   public get guessChangedStore() {
     const events = this._chatTypedEventListener.events$.pipe(
-      map(event => event.data.toLowerCase()),
+      mergeWith(this._lobbyLeftEventListener.events$.pipe(  /* reset when lobby left */
+        map(() => null)
+      )),
+      map(event => event?.data.toLowerCase() ?? ""),
       distinctUntilChanged(),
       combineLatestWith(this._drawingService.imageState$.pipe(
         map(image => {
@@ -51,6 +56,7 @@ export class GuessCheckFeature extends TypoFeature {
         guess,
         hints,
         overlayContent: this.getOverlayContent(guess, hints)})),
+      tap(data => this._logger.debug("Guess Check data update", data))
     );
     return fromObservable(events, null);
   }
