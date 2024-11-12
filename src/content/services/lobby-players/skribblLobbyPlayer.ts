@@ -2,6 +2,10 @@ import { requireElement } from "@/util/document/requiredQuerySelector";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 import type { SkribblPlayerDisplay } from "@/util/typo/skribblPlayerDisplay.interface";
 
+/**
+ * Implementation of the skribblplayerdisplay
+ * for the lobby player containers in-game
+ */
 export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
 
   private static idCounter = 0;
@@ -32,6 +36,10 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
 
   public get id() {
     return this._player.id;
+  }
+
+  public get name() {
+    return this._player.name;
   }
 
   public get container() {

@@ -78,6 +78,8 @@
       <FlatButton content="Send to Server" color="green" on:click={() => loading = selectedWebhook ? feature.postWebhook(selectedWebhook, $history[viewIndex], !sendAsEmbed) : null} />
     {/if}
 
+  {:else}
+    <div>The image history is empty. Check again later!</div>
   {/if}
 
   {#if ($member === null || $member === undefined)}

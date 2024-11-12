@@ -47,6 +47,7 @@ src
 ├──popup          -- popup page sources
 │ 
 ├──api            -- generated api client
+├──signalr        -- generated signalr client
 ├──lib            -- reusable svelte components
 └──util           -- utility functions
 ```

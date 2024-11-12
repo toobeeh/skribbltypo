@@ -32,8 +32,10 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     game: requireElement("#game"),
     gameWrapper: requireElement("#game-wrapper"),
     load: requireElement("#load"),
-    chatInput: requireElement("#game-chat form input") as HTMLInputElement,
+    chatInput: requireElement("#game-chat form.chat-form input") as HTMLInputElement,
+    chatForm: requireElement("#game-chat form.chat-form"),
     chatArea: requireElement("#game-chat"),
+    chatContent: requireElement("#game-chat .chat-content"),
     hints: requireElement("#game-word .hints"),
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
     landingAvatarContainer: requireElement(".avatar-customizer .avatar"),
@@ -47,6 +49,9 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
 }
 export type typoElements = ReturnType<typeof getElements>;
 
+/**
+ * Setup to get commonly used skribbl element references
+ */
 export class ElementsSetup extends Setup<typoElements> {
 
   @inject(PanelSetup) private _panelSetup!: PanelSetup;

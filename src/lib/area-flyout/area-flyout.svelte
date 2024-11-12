@@ -7,6 +7,8 @@
   export let closeStrategy: "implicit" | "explicit" = "implicit";
 
   export let alignment: "top" | "bottom" = "bottom";
+  export let marginY = ".5em";
+  export let marginX = "1em";
   export let areaName: string;
   export let maxHeight: string | undefined = undefined;
   export let maxWidth: string | undefined = undefined;
@@ -58,6 +60,14 @@
     setTimeout(()=>document.addEventListener("click", clickListener), 1);
   });
 
+  const getMaxHeightCss = () => {
+    return maxHeight ? `calc(${maxHeight} - (2 * ${marginY}))` : 'auto';
+  }
+
+  const getMaxWidthCss = () => {
+    return maxWidth ? `calc(${maxWidth} - (2 * ${marginX}))` : 'auto';
+  }
+
 </script>
 
 <style lang="scss">
@@ -88,7 +98,7 @@
     position: relative;
     color: var(--COLOR_PANEL_TEXT);
     z-index: 1;
-    margin: .5em 1em;
+    /*margin: .5em 1em;*/
     border-radius: 10px;
     padding: 1em;
     animation: slideIn .08s ease-out;
@@ -161,7 +171,7 @@
 </style>
 
 <div class="typo-area-flyout color-scrollbar" class:closing={closing} class:align-top={alignment === "top"} class:align-bottom={alignment === "bottom"}
-     style="max-height: {maxHeight ? `calc(${maxHeight} - 1em)` : 'auto'}; max-width: {maxWidth ? `calc(${maxWidth} - 2em)` : 'auto'}; grid-area: {areaName}"
+     style="max-height: {getMaxHeightCss()}; max-width: {getMaxWidthCss()}; grid-area: {areaName}; margin: {marginY} {marginX};"
   bind:this={self}
 >
   {#if title}

@@ -9,6 +9,8 @@ import { messageReceivedEventRegistration } from "@/content/events/message-recei
 import { messageSentEventRegistration } from "@/content/events/message-sent.event";
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
+import { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";
+import { ChatProfileLinkFeature } from "@/content/features/chat-profile-link/chat-profile-link.feature";
 import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
@@ -29,6 +31,7 @@ import { ToolbarImageLabFeature } from "@/content/features/toolbar-imagelab/tool
 import { ToolbarImagePostFeature } from "@/content/features/toolbar-imagepost/toolbar-imagepost.feature";
 import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save.feature";
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
+import { ChatService } from "@/content/services/chat/chat.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
@@ -64,6 +67,11 @@ import "./content.scss";
 import { SkribblMessageRelaySetup } from "./setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { ToolbarSetup } from "./setups/toolbar/toolbar.setup";
 
+/**
+ * Entry point for the skribbltypo extension
+ * For details about architecture and design, refer to the README.md
+ */
+
 /* set log level to debug initially */
 LoggerService.level = "debug";
 
@@ -83,7 +91,8 @@ new ExtensionContainer()
     {type: ToastService, scope: "scoped"},
     {type: SocketService, scope: "scoped"},
     {type: LobbyItemsService, scope: "singleton"},
-    {type: LobbyPlayersService, scope: "singleton"}
+    {type: LobbyPlayersService, scope: "singleton"},
+    {type: ChatService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
@@ -135,7 +144,9 @@ new ExtensionContainer()
     GuessCheckFeature,
     LobbyStatusFeature,
     PlayerSpritesFeature,
-    PlayerScenesFeature
+    PlayerScenesFeature,
+    ChatEmojisFeature,
+    ChatProfileLinkFeature
   );
 
 /* indicate for interceptor that content script has loaded */

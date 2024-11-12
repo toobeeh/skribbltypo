@@ -4,7 +4,11 @@ import type { SkribblPlayerDisplay } from "@/util/typo/skribblPlayerDisplay.inte
 import { Setup } from "../../core/setup/setup";
 import { inject } from "inversify";
 
+/**
+ * Create a skribbl player implementation for the landing avatar customizer
+ */
 export class LandingPlayerDisplaySetup extends Setup<SkribblPlayerDisplay> {
+
   @inject(ElementsSetup) private _elementsSetup!: ElementsSetup;
 
   protected async runSetup(): Promise<SkribblPlayerDisplay> {
