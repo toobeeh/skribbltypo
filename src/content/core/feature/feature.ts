@@ -1,5 +1,7 @@
 import type { featureBinding } from "@/content/core/feature/featureBinding";
+import { HotkeysService } from "@/content/core/hotkeys/hotkeys.service";
 import { ExtensionSetting } from "@/content/core/settings/setting";
+import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { inject, injectable, postConstruct } from "inversify";
 import type { SvelteComponent } from "svelte";
@@ -20,10 +22,23 @@ export abstract class TypoFeature {
 
   private _isActivated = false;
   private _isRun = false;
+  private _hotkeys: HotkeyAction[] = [];
 
   public abstract readonly name: string;
   public abstract readonly description: string;
   public readonly toggleEnabled: boolean = true;
+
+  protected useHotkey(action: HotkeyAction) {
+    this._hotkeys.push(action);
+    return action;
+  }
+
+  /**
+   * All configured hotkeys for this feature
+   */
+  public get hotkeys(): readonly HotkeyAction[] {
+    return this._hotkeys;
+  }
 
   /**
    * A component to display feature customization settings
@@ -40,7 +55,7 @@ export abstract class TypoFeature {
   }
 
   public get hasDetailComponents() {
-    return this.featureSettingsComponent !== undefined || this.featureInfoComponent !== undefined;
+    return this.hotkeys.length > 0 || this.featureSettingsComponent !== undefined || this.featureInfoComponent !== undefined;
   }
 
   /**
@@ -65,7 +80,8 @@ export abstract class TypoFeature {
   protected readonly _logger;
 
   constructor(
-    @inject(loggerFactory) loggerFactory: loggerFactory
+    @inject(loggerFactory) loggerFactory: loggerFactory,
+    @inject(HotkeysService) protected readonly _hotkeysService: HotkeysService
   ) {
     this._logger = loggerFactory(this);
   }
@@ -147,6 +163,12 @@ export abstract class TypoFeature {
     const run = this.onRun();
     if(run instanceof Promise) await run;
     this._isRun = true;
+
+    /* register hotkeys */
+    if(this._hotkeys.length !== 0) {
+      this._logger.debug("Registering feature hotkeys", this._hotkeys);
+      this._hotkeys.forEach((hotkey) => this._hotkeysService.registerHotkey(hotkey));
+    }
   }
 
   /**
@@ -173,6 +195,12 @@ export abstract class TypoFeature {
 
     /* reset bound services */
     await Promise.all(this.boundServices.map((service) => service.onFeatureDestroy()));
+
+    /* remove hotkeys */
+    if(this._hotkeys.length !== 0) {
+      this._logger.debug("Removing feature hotkeys", this._hotkeys);
+      this._hotkeys.forEach((hotkey) => this._hotkeysService.removeHotkey(hotkey));
+    }
   }
 
   public get state() {

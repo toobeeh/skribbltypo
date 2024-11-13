@@ -20,7 +20,7 @@ export class FeaturesService {
 
   public async registerFeature(feature: TypoFeature) {
     if(this.features.some(f => f.featureId === feature.featureId)) {
-      this._logger.error("Attempted to register a feature with a duplicate ID");
+      this._logger.error("Attempted to register a feature with a duplicate ID", feature.name);
       throw new Error("Duplicate feature ID");
     }
     this._features.push(feature);

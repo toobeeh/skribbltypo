@@ -1,3 +1,4 @@
+import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject } from "inversify";
 import { Subscription } from "rxjs";
@@ -15,6 +16,16 @@ export class ToolbarFullscreenFeature extends TypoFeature {
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
 
+  private readonly _toggleHotkey = this.useHotkey(new HotkeyAction(
+    "toggle_fullscreen",
+    "Toggle Fullscreen",
+    "Toggle the browser fullscreen mode",
+    this,
+    async () => await this.toggleFullscreen(),
+    true,
+    ["ShiftLeft", "KeyF"],
+  ));
+
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
 
@@ -29,20 +40,24 @@ export class ToolbarFullscreenFeature extends TypoFeature {
     });
 
     /* listen for click on icon */
-    this._iconClickSubscription = this._iconComponent.click$.subscribe(() => {
-      if(document.fullscreenElement === null) {
-        this._logger.debug("Entering fullscreen");
-        document.documentElement.requestFullscreen();
-      }
-      else {
-        this._logger.debug("Exiting fullscreen");
-        document.exitFullscreen();
-      }
+    this._iconClickSubscription = this._iconComponent.click$.subscribe(async () => {
+      await this.toggleFullscreen();
     });
   }
 
   protected override onDestroy(): Promise<void> | void {
     this._iconClickSubscription?.unsubscribe();
     this._iconComponent?.$destroy();
+  }
+
+  private async toggleFullscreen() {
+    if(document.fullscreenElement === null) {
+      this._logger.debug("Entering fullscreen");
+      await document.documentElement.requestFullscreen();
+    }
+    else {
+      this._logger.debug("Exiting fullscreen");
+      await document.exitFullscreen();
+    }
   }
 }

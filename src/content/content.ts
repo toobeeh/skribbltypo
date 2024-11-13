@@ -18,6 +18,7 @@ import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
 import { DeveloperModeFeature } from "@/content/features/developer-mode/developer-mode.feature";
 import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
+import { HotkeysFeature } from "@/content/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
 import { LobbyStatusFeature } from "@/content/features/lobby-status/lobby-status.feature";
 import { LoggingFeature } from "@/content/features/logging/logging.feature";
@@ -148,7 +149,8 @@ new ExtensionContainer()
     PlayerScenesFeature,
     ChatEmojisFeature,
     ChatProfileLinkFeature,
-    LoggingFeature
+    LoggingFeature,
+    HotkeysFeature
   );
 
 /* indicate for interceptor that content script has loaded */

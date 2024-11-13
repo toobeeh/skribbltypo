@@ -223,7 +223,7 @@
 
   <div class="typo-feature-settings color-scrollbar" class:settingsVisible={selectedDetailsFeature !== undefined}>
     {#if selectedDetailsFeature}
-      <ControlsSettingsDetails feature="{selectedDetailsFeature}" detailsClosed="{() => selectedDetailsFeature = undefined}" />
+      <ControlsSettingsDetails feature="{selectedDetailsFeature}" detailsClosed="{() => selectedDetailsFeature = undefined}" settingsFeature="{feature}" />
     {/if}
   </div>
 </div>

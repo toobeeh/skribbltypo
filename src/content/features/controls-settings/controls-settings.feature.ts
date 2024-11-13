@@ -1,6 +1,8 @@
 import { FeaturesService } from "@/content/core/feature/features.service";
+import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
+import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
@@ -12,6 +14,7 @@ import ControlsSettings from "./controls-settings.svelte";
 export class ControlsSettingsFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ModalService) private readonly _modalService!: ModalService;
+  @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(FeaturesService) private readonly _featuresService!: FeaturesService;
   @inject(GlobalSettingsService) private readonly _settings!: GlobalSettingsService;
 
@@ -63,5 +66,42 @@ export class ControlsSettingsFeature extends TypoFeature {
 
   public get devModeStore() {
     return fromObservable(this._settings.settings.devMode.changes$, false);
+  }
+
+  public async setHotkeyCombo(hotkey: HotkeyAction, value: string[]){
+    const toast = await this._toastService.showLoadingToast(`Updating hotkey ${hotkey.name} to ${value.join(" + ")}`);
+    
+    try {
+      if(value.length === 0){
+        await hotkey.enabledSetting.setValue(false);
+      }
+      await hotkey.comboSetting.setValue(value);
+    }
+    catch (e) {
+      this._logger.error("Error updating hotkey combo", e);
+      toast.reject();
+      return;
+    }
+
+    toast.resolve();
+  }
+
+  public async resetHotkeyCombo(hotkey: HotkeyAction){
+    const toast = await this._toastService.showLoadingToast(`Resetting hotkey ${hotkey.name} to default ${hotkey.defaultCombo?.join(" + ") ?? "(disabled)"}`);
+
+    try {
+      await hotkey.comboSetting.setValue([...hotkey.defaultCombo ?? []]);
+      if(hotkey.defaultCombo === undefined || hotkey.defaultCombo.length === 0){
+        await hotkey.enabledSetting.setValue(false);
+      }
+    }
+    catch (e) {
+      this._logger.error("Error updating hotkey combo", e);
+      toast.reject();
+      return;
+    }
+
+    toast.resolve();
+    return [...hotkey.defaultCombo ?? []];
   }
 }
