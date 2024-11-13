@@ -68,17 +68,18 @@ export class ControlsSettingsFeature extends TypoFeature {
     return fromObservable(this._settings.settings.devMode.changes$, false);
   }
 
+  /**
+   * Set the hotkey combo for a hotkey action
+   * @param hotkey
+   * @param value
+   */
   public async setHotkeyCombo(hotkey: HotkeyAction, value: string[]){
     const toast = await this._toastService.showLoadingToast(`Updating hotkey ${hotkey.name} to ${value.join(" + ")}`);
     
     try {
-      if(value.length === 0){
-        await hotkey.enabledSetting.setValue(false);
-      }
-      await hotkey.comboSetting.setValue(value);
+      await this._hotkeysService.setHotkeyCombo(hotkey, value);
     }
     catch (e) {
-      this._logger.error("Error updating hotkey combo", e);
       toast.reject();
       return;
     }
@@ -86,22 +87,23 @@ export class ControlsSettingsFeature extends TypoFeature {
     toast.resolve();
   }
 
+  /**
+   * Resets the hotkey combo to the default value
+   * @param hotkey
+   */
   public async resetHotkeyCombo(hotkey: HotkeyAction){
     const toast = await this._toastService.showLoadingToast(`Resetting hotkey ${hotkey.name} to default ${hotkey.defaultCombo?.join(" + ") ?? "(disabled)"}`);
 
+    let newCombo;
     try {
-      await hotkey.comboSetting.setValue([...hotkey.defaultCombo ?? []]);
-      if(hotkey.defaultCombo === undefined || hotkey.defaultCombo.length === 0){
-        await hotkey.enabledSetting.setValue(false);
-      }
+      newCombo = await this._hotkeysService.resetHotkeyCombo(hotkey);
     }
     catch (e) {
-      this._logger.error("Error updating hotkey combo", e);
       toast.reject();
       return;
     }
 
     toast.resolve();
-    return [...hotkey.defaultCombo ?? []];
+    return newCombo;
   }
 }
