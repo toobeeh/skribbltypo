@@ -1,48 +1,50 @@
+import { TypoFeature } from "@/content/core/feature/feature";
 import { injectable } from "inversify";
+import { Subject } from "rxjs";
 
-type level = "debug" | "info" | "warn" | "error";
+export type logLevel = "debug" | "info" | "warn" | "error";
+
+export interface loggerEvent {
+  logLevel: logLevel;
+  message: unknown;
+  data: unknown[];
+  date: Date;
+  bindingName: string;
+}
 
 @injectable()
 export class LoggerService {
 
-  private static readonly styles = {
-    debug: "color: lightGray; font-weight: bold;",
-    info: "color: lightBlue; font-weight: bold;",
-    warn: "color: orange; font-weight: bold;",
-    error: "color: red; font-weight: bold;",
-    date: "color: darkGrey; font-weight: light;"
-  };
-  private static _level: level = "error";
-
-  public static set level(level: level) {
+  private _level: logLevel = "debug";
+  public set level(level: logLevel) {
     this._level = level;
   }
-
-  private _level?: level;
-  public set level(level: level | undefined) {
-    this._level = level;
-  }
-  public get level(): level {
-    return this._level ?? LoggerService._level;
+  public get level(): logLevel {
+    return this._level ;
   }
 
-  private readonly _prefix = "skribbltypo";
-  private readonly _levels: {[key in level]: number} = {
+  private readonly _levels: {[key in logLevel]: number} = {
     "debug": 1 ,
     "info": 2,
     "warn": 3,
     "error": 4
   };
 
-  private _boundTo = " / ";
+  private _boundTo?: object;
   public bindTo(value: object) {
-    this._boundTo = value.constructor.name;
+    this._boundTo = value;
     return this;
   }
+  public get boundTo() {
+    return this._boundTo?.constructor.name ?? " / ";
+  }
+  public get boundType() {
+    return this._boundTo instanceof TypoFeature ? "feature" : "other";
+  }
 
-  private getTimestamp() {
-    const date = new Date();
-    return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}.${date.getMilliseconds()}`;
+  private _events$ = new Subject<loggerEvent>();
+  public get events$() {
+    return this._events$.asObservable();
   }
 
   /**
@@ -53,7 +55,13 @@ export class LoggerService {
   debug(message: unknown, ...data: unknown[]) {
     if(this._levels[this.level] > this._levels["debug"]) return;
 
-    console.log(`%c ${this.getTimestamp()} %c[${this._prefix}] [DEB]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.debug, message, ...data);
+    this._events$.next({
+      logLevel: "debug",
+      message: message,
+      data: data,
+      date: new Date(),
+      bindingName: this.boundTo
+    });
   }
 
   /**
@@ -64,7 +72,13 @@ export class LoggerService {
   info(message: unknown, ...data: unknown[]) {
     if(this._levels[this.level] > this._levels["info"]) return;
 
-    console.log(`%c ${this.getTimestamp()} %c[${this._prefix}] [INFO] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.info, message, ...data);
+    this._events$.next({
+      logLevel: "info",
+      message: message,
+      data: data,
+      date: new Date(),
+      bindingName: this.boundTo
+    });
   }
 
   /**
@@ -75,7 +89,13 @@ export class LoggerService {
   warn(message: unknown, ...data: unknown[]) {
     if(this._levels[this.level] > this._levels["warn"]) return;
 
-    console.warn(`%c ${this.getTimestamp()} %c[${this._prefix}] [WARN] (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.warn, message, ...data);
+    this._events$.next({
+      logLevel: "warn",
+      message: message,
+      data: data,
+      date: new Date(),
+      bindingName: this.boundTo
+    });
   }
 
   /**
@@ -86,6 +106,12 @@ export class LoggerService {
   error(message: unknown, ...data: unknown[]) {
     if(this._levels[this.level] > this._levels["error"]) return;
 
-    console.error(`%c ${this.getTimestamp()} %c[${this._prefix}] [ERR]  (${this._boundTo})`, LoggerService.styles.date, LoggerService.styles.error, message, ...data);
+    this._events$.next({
+      logLevel: "error",
+      message: message,
+      data: data,
+      date: new Date(),
+      bindingName: this.boundTo
+    });
   }
 }

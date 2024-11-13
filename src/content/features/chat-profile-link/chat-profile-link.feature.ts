@@ -51,7 +51,7 @@ export class ChatProfileLinkFeature extends TypoFeature {
         element.player.container.click();
       }
       else {
-        await this._toastService.showToast("Player Profile not found", "This happens if the message was received before the feature was activated.");
+        await this._toastService.showToast("Player Profile not found");
       }
     }
   }

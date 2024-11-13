@@ -1,6 +1,8 @@
 import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { ExtensionSetting } from "@/content/core/settings/setting";
+import type { componentData } from "@/content/services/modal/modal.service";
 import { inject, injectable, postConstruct } from "inversify";
+import type { SvelteComponent } from "svelte";
 import { loggerFactory } from "../logger/loggerFactory.interface";
 
 @injectable()
@@ -15,7 +17,6 @@ export abstract class TypoFeature {
   protected get boundServices(): featureBinding[] { return []; }
 
   private _isActivatedSetting = new ExtensionSetting<boolean>("isActivated", this.featureEnabledDefault, this);
-  private _logLevelSetting = new ExtensionSetting<string>("logLevel", "", this);
 
   private _isActivated = false;
   private _isRun = false;
@@ -23,6 +24,13 @@ export abstract class TypoFeature {
   public abstract readonly name: string;
   public abstract readonly description: string;
   public readonly toggleEnabled: boolean = true;
+
+  /**
+   * A component to display feature settings or information
+   */
+  public get featureSettingsComponent(): componentData<SvelteComponent> | undefined {
+    return undefined;
+  }
 
   /**
    * unique feature ID, to store settings
@@ -58,17 +66,6 @@ export abstract class TypoFeature {
       this._logger.debug("Feature loaded with activation state", value);
       if(value) this.activate();
     });
-
-    this._logLevelSetting.changes$.subscribe((value) => {
-      if(value !== "info" && value !== "debug" && value !== "warn" && value !== "error") {
-        return;
-      }
-      this._logger.level = value;
-    });
-  }
-
-  public get logLevel(){
-    return this._logLevelSetting;
   }
 
   /**

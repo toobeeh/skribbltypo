@@ -1,4 +1,5 @@
 import { FeaturesService } from "@/content/core/feature/features.service";
+import { LoggingService } from "@/content/core/logger/logging.service";
 import { TokenService } from "@/content/core/token/token.service";
 import { Container } from "inversify";
 import { LoggerService } from "../logger/logger.service";
@@ -28,6 +29,7 @@ export class ExtensionContainer {
     */
    private readonly _diContainer = new Container();
 
+   private readonly _logging;
    private readonly _logger;
    private readonly _events;
    private readonly _features;
@@ -35,6 +37,7 @@ export class ExtensionContainer {
    public constructor() {
       this.bindCoreServices();
 
+      this._logging = this._diContainer.get(LoggingService);
       this._logger = this._diContainer.get<loggerFactory>(loggerFactory)(this);
       this._events = this._diContainer.get(EventsService);
       this._features = this._diContainer.get(FeaturesService);
@@ -47,10 +50,16 @@ export class ExtensionContainer {
     * @private
     */
    private bindCoreServices() {
+      this._diContainer.bind(ExtensionContainer).toConstantValue(this);
+      this._diContainer.bind(LoggingService).toSelf();
+      const logging = this._diContainer.get(LoggingService);
+
       this._diContainer.bind(LoggerService).toSelf();
       this._diContainer.bind<loggerFactory>(loggerFactory).toFactory<LoggerService, [object]>((context) => {
           return (loggerContext: object) => {
-              return context.container.get(LoggerService).bindTo(loggerContext);
+             const logger = context.container.get(LoggerService).bindTo(loggerContext);
+             logging.trackLoggerInstance(logger);
+             return logger;
           };
       });
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();

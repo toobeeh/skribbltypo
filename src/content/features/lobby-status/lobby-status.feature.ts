@@ -102,7 +102,7 @@ export class LobbyStatusFeature extends TypoFeature {
   }
 
   public readonly name = "Lobby Status";
-  public readonly description = "Lobby status description";
+  public readonly description = "Share your current lobby with typo to use avatar decorations, give awards and catch drops.";
   public readonly featureId = 19;
 
   protected override async onActivate() {

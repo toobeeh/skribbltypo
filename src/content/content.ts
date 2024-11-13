@@ -19,6 +19,7 @@ import { DeveloperModeFeature } from "@/content/features/developer-mode/develope
 import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
 import { LobbyStatusFeature } from "@/content/features/lobby-status/lobby-status.feature";
+import { LoggingFeature } from "@/content/features/logging/logging.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
@@ -71,9 +72,6 @@ import { ToolbarSetup } from "./setups/toolbar/toolbar.setup";
  * Entry point for the skribbltypo extension
  * For details about architecture and design, refer to the README.md
  */
-
-/* set log level to debug initially */
-LoggerService.level = "debug";
 
 /* start application container */
 new ExtensionContainer()
@@ -146,7 +144,8 @@ new ExtensionContainer()
     PlayerSpritesFeature,
     PlayerScenesFeature,
     ChatEmojisFeature,
-    ChatProfileLinkFeature
+    ChatProfileLinkFeature,
+    LoggingFeature
   );
 
 /* indicate for interceptor that content script has loaded */
