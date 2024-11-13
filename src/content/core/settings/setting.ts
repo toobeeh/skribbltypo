@@ -67,7 +67,7 @@ export class ExtensionSetting<TValue extends serializable> {
   }
 
   public get store() {
-    return fromObservable(this.changes$, this.defaultValue);
+    return fromObservable(this.changes$, this.defaultValue, value => this.setValue(value), false);
   }
 
   public get asFrozen(): Omit<ExtensionSetting<TValue>, "withDescription" | "withName">{

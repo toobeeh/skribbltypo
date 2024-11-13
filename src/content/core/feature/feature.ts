@@ -26,10 +26,21 @@ export abstract class TypoFeature {
   public readonly toggleEnabled: boolean = true;
 
   /**
-   * A component to display feature settings or information
+   * A component to display feature customization settings
    */
   public get featureSettingsComponent(): componentData<SvelteComponent> | undefined {
     return undefined;
+  }
+
+  /**
+   * A component to display feature information or tutorial
+   */
+  public get featureInfoComponent(): componentData<SvelteComponent> | undefined {
+    return undefined;
+  }
+
+  public get hasDetailComponents() {
+    return this.featureSettingsComponent !== undefined || this.featureInfoComponent !== undefined;
   }
 
   /**

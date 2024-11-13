@@ -1,4 +1,5 @@
 import "@abraham/reflection";
+import { LoggingService } from "@/content/core/logger/logging.service";
 import { chatTypedEventRegistration } from "@/content/events/chat-typed.event";
 import { drawEventRegistration } from "@/content/events/draw.event";
 import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
@@ -49,7 +50,6 @@ import { LandingPlayerDisplaySetup } from "@/content/setups/landing-player-displ
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
 import { ToastSetup } from "@/content/setups/toast/toast.setup";
-import { LoggerService } from "./core/logger/logger.service";
 import { lobbyJoinedEventRegistration } from "./events/lobby-joined.event";
 import { lobbyLeftEventRegistration } from "./events/lobby-left.event";
 import { LobbyNavigationFeature } from "./features/lobby-navigation/lobby-navigation.feature";
@@ -72,6 +72,9 @@ import { ToolbarSetup } from "./setups/toolbar/toolbar.setup";
  * Entry point for the skribbltypo extension
  * For details about architecture and design, refer to the README.md
  */
+
+/* set initial log level */
+LoggingService.defaultLogLevel = "warn";
 
 /* start application container */
 new ExtensionContainer()

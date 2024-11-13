@@ -28,9 +28,8 @@ export class LoggingService {
   constructor() {
     this._events$.subscribe(event => {
       this.printEvent(event);
-      this.recordedEvents.push(event);
+      this._recordedEvents.push(event);
     });
-    console.log(this);
   }
 
   public trackLoggerInstance(logger: LoggerService){
@@ -84,5 +83,11 @@ export class LoggingService {
 
   public get printEnabledSetting() {
     return this._printEnabledSetting.asFrozen;
+  }
+
+  public getLogLevelSetting(logger: LoggerService) {
+    const setting = this._logLevelSettings.get(logger);
+    if(!setting) throw new Error(`Logger settings for ${logger.boundTo} not found`);
+    return setting.asFrozen;
   }
 }

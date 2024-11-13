@@ -1,4 +1,4 @@
-import { LoggerService } from "./logger.service";
+import type { LoggerService } from "./logger.service";
 
 export const loggerFactory = Symbol("loggerFactory");
 

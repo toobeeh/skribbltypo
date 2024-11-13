@@ -51,7 +51,7 @@ export class ExtensionContainer {
     */
    private bindCoreServices() {
       this._diContainer.bind(ExtensionContainer).toConstantValue(this);
-      this._diContainer.bind(LoggingService).toSelf();
+      this._diContainer.bind(LoggingService).toSelf().inSingletonScope();
       const logging = this._diContainer.get(LoggingService);
 
       this._diContainer.bind(LoggerService).toSelf();
