@@ -115,6 +115,8 @@ export class CanvasZoomFeature extends TypoFeature {
     this._zoomStateSubscription?.unsubscribe();
     this._zoomStateSubscription = undefined;
     this._toastHandle = undefined;
+    this._zoomActive$.next(false);
+    this._zoomListenToggle$.next(false);
   }
 
   private async setZoom(level: number | undefined, position: [number, number] | undefined){
