@@ -1,6 +1,10 @@
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
+import { Interceptor } from "@/content/core/interceptor/interceptor";
 import { type stickyToastHandle, ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import {
+  PrioritizedCanvasEventsSetup
+} from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
 import { inject } from "inversify";
 import {
   BehaviorSubject,
@@ -14,6 +18,8 @@ export class CanvasZoomFeature extends TypoFeature {
 
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ToastService) private readonly _toastService!: ToastService;
+  @inject(Interceptor) private readonly _interceptor!: Interceptor;
+  @inject(PrioritizedCanvasEventsSetup) private readonly _prioritizedCanvasEventsSetup!: PrioritizedCanvasEventsSetup;
 
   public readonly name = "Canvas Zoom";
   public readonly description = "Lets you zoom a section of the canvas when you're drawing";
@@ -49,8 +55,8 @@ export class CanvasZoomFeature extends TypoFeature {
   private readonly _canvasClickListener = this.onCanvasClick.bind(this);
 
   protected override async onActivate() {
-    const elements = await this._elementsSetup.complete();
-    elements.canvas.addEventListener("click", this._canvasClickListener);
+    const { add } =  await this._prioritizedCanvasEventsSetup.complete();
+    add("pointerdown", this._canvasClickListener);
 
     this._zoomToggleSubscription = this._zoomListenToggle$.pipe(
       combineLatestWith(this._zoomActive$, this._zoomLevel$),
@@ -59,8 +65,9 @@ export class CanvasZoomFeature extends TypoFeature {
   }
 
   protected override async onDestroy() {
-    const elements = await this._elementsSetup.complete();
-    elements.canvas.removeEventListener("click", this._canvasClickListener);
+    const { remove } = await this._prioritizedCanvasEventsSetup.complete();
+    remove("pointerdown", this._canvasClickListener);
+
     this._toastHandle?.close();
     this._zoomToggleSubscription?.unsubscribe();
     this._zoomToggleSubscription = undefined;

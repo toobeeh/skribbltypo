@@ -50,6 +50,9 @@ import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { LandingPlayerDisplaySetup } from "@/content/setups/landing-player-display/landing-player-display.setup";
+import {
+  PrioritizedCanvasEventsSetup
+} from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
 import { SkribblEmitRelaySetup } from "@/content/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
 import { ToastSetup } from "@/content/setups/toast/toast.setup";
@@ -114,7 +117,8 @@ new ExtensionContainer(interceptor)
     ApiDataSetup,
     ToastSetup,
     ChatControlsSetup,
-    LandingPlayerDisplaySetup
+    LandingPlayerDisplaySetup,
+    PrioritizedCanvasEventsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
@@ -161,5 +165,4 @@ new ExtensionContainer(interceptor)
 
 /* indicate for interceptor that content script has loaded */
 interceptor.triggerPatchInjection();
-document.body.setAttribute("typo-script-loaded", "true");
 
