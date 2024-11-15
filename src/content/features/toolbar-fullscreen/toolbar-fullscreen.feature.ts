@@ -23,7 +23,7 @@ export class ToolbarFullscreenFeature extends TypoFeature {
     this,
     async () => await this.toggleFullscreen(),
     true,
-    ["ShiftLeft", "KeyF"],
+    ["ShiftLeft", "KeyF"]
   ));
 
   protected override async onActivate() {

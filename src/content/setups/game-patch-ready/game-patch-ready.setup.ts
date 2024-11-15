@@ -1,4 +1,6 @@
+import { Interceptor } from "@/content/core/interceptor/interceptor";
 import { earlySetup } from "@/content/core/setup/earlySetup.decorator";
+import { inject } from "inversify";
 import { Setup } from "../../core/setup/setup";
 
 /**
@@ -6,14 +8,10 @@ import { Setup } from "../../core/setup/setup";
  */
 @earlySetup()
 export class GamePatchReadySetup extends Setup<void> {
+
+  @inject(Interceptor) private readonly _interceptor!: Interceptor;
+
   protected async runSetup(): Promise<void> {
-    return new Promise((resolve) => {
-
-      /* if patcher already finished */
-      if(document.body.getAttribute("typo-script-loaded") !== null) resolve();
-
-      /* else wait for patcher finished */
-      else document.addEventListener("patchExecuted", () => resolve());
-    });
+    return this._interceptor.patchLoaded;
   }
 }

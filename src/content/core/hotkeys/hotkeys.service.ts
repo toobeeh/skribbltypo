@@ -1,7 +1,6 @@
 import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
 import { inject, injectable } from "inversify";
-import { forkJoin, map } from "rxjs";
 
 @injectable()
 export class HotkeysService {
@@ -43,16 +42,8 @@ export class HotkeysService {
     this._logger.debug("Removed hotkey", hotkey);
   }
 
-  /**
-   * Execute all registered hotkeys that match the given keys
-   * @param keys
-   */
-  public executeHotkeys(keys: string[]) {
-    return forkJoin(this._registeredHotkeys.map(h =>
-      h.executeIfMatches(keys).pipe(
-        map(executed => ({ hotkey: h, executed }))
-      )
-    ));
+  public get registeredHotkeys(){
+    return [...this._registeredHotkeys];
   }
 
   /**

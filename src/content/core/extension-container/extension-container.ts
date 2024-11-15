@@ -1,5 +1,6 @@
 import { FeaturesService } from "@/content/core/feature/features.service";
 import { HotkeysService } from "@/content/core/hotkeys/hotkeys.service";
+import { Interceptor } from "@/content/core/interceptor/interceptor";
 import { LoggingService } from "@/content/core/logger/logging.service";
 import { TokenService } from "@/content/core/token/token.service";
 import { Container } from "inversify";
@@ -35,7 +36,7 @@ export class ExtensionContainer {
    private readonly _events;
    private readonly _features;
 
-   public constructor() {
+   public constructor(private readonly _interceptor: Interceptor) {
       this.bindCoreServices();
 
       this._logging = this._diContainer.get(LoggingService);
@@ -51,6 +52,7 @@ export class ExtensionContainer {
     * @private
     */
    private bindCoreServices() {
+      this._diContainer.bind(Interceptor).toConstantValue(this._interceptor);
       this._diContainer.bind(ExtensionContainer).toConstantValue(this);
       this._diContainer.bind(LoggingService).toSelf().inSingletonScope();
       const logging = this._diContainer.get(LoggingService);

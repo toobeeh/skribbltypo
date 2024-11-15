@@ -11,7 +11,11 @@
   const comboStore = hotkey.comboSetting.store;
 
   let recordingElement: HTMLInputElement;
-  let recordedKeys: string[] = [...$comboStore];
+  let recordedKeys: string[];
+
+  $: {
+    recordedKeys = [...$comboStore];
+  }
 
 </script>
 

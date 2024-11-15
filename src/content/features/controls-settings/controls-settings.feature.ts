@@ -79,7 +79,7 @@ export class ControlsSettingsFeature extends TypoFeature {
     try {
       await this._hotkeysService.setHotkeyCombo(hotkey, value);
     }
-    catch (e) {
+    catch {
       toast.reject();
       return;
     }
@@ -98,7 +98,7 @@ export class ControlsSettingsFeature extends TypoFeature {
     try {
       newCombo = await this._hotkeysService.resetHotkeyCombo(hotkey);
     }
-    catch (e) {
+    catch {
       toast.reject();
       return;
     }

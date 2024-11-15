@@ -16,6 +16,7 @@ export class HotkeyAction {
     private _action: () => (void | Promise<void>),
     defaultEnabled?: boolean,
     private _defaultCombo?: string[],
+    private _releaseAction?: () => (void | Promise<void>),
   ) {
     this._enabledSetting = new ExtensionSetting(`
     hotkey.${this._key}.enabled`,
@@ -64,7 +65,27 @@ export class HotkeyAction {
       switchMap(matches => {
         if(!matches) return of(false);
         const result = this._action();
-        return result instanceof Promise ? fromPromise(result).pipe(map(() => true)) : of(null);
+        return result instanceof Promise ? fromPromise(result).pipe(map(() => true)) : of(true);
+      })
+    );
+  }
+
+  /**
+   * Release the hotkey action if the current combo does not match the given keys
+   * will also release if the hotkey is disabled
+   * @param keys
+   */
+  public releaseIfNotMatches(keys: string[]) {
+    return this._comboSetting.changes$.pipe(
+      take(1),
+      map(combo => combo ? combo.length === keys.length && combo.every(key => keys.includes(key)) : false),
+      switchMap(matches => {
+        if(matches) return of(false);
+        if(this._releaseAction) {
+          const result = this._releaseAction();
+          return result instanceof Promise ? fromPromise(result).pipe(map(() => true)) : of(true);
+        }
+        return of(true);
       })
     );
   }

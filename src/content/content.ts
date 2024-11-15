@@ -1,4 +1,5 @@
 import "@abraham/reflection";
+import { Interceptor } from "@/content/core/interceptor/interceptor";
 import { LoggingService } from "@/content/core/logger/logging.service";
 import { chatTypedEventRegistration } from "@/content/events/chat-typed.event";
 import { drawEventRegistration } from "@/content/events/draw.event";
@@ -10,6 +11,7 @@ import { messageReceivedEventRegistration } from "@/content/events/message-recei
 import { messageSentEventRegistration } from "@/content/events/message-sent.event";
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
+import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.feature";
 import { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";
 import { ChatProfileLinkFeature } from "@/content/features/chat-profile-link/chat-profile-link.feature";
 import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
@@ -74,11 +76,14 @@ import { ToolbarSetup } from "./setups/toolbar/toolbar.setup";
  * For details about architecture and design, refer to the README.md
  */
 
+/* interceptor to patch DOM build */
+const interceptor = new Interceptor();
+
 /* set initial log level */
 LoggingService.defaultLogLevel = "warn";
 
 /* start application container */
-new ExtensionContainer()
+new ExtensionContainer(interceptor)
   .registerServices( /* register services to the application */
     {type: ModalService, scope: "scoped"},
     {type: ApiService, scope: "singleton"},
@@ -150,9 +155,11 @@ new ExtensionContainer()
     ChatEmojisFeature,
     ChatProfileLinkFeature,
     LoggingFeature,
-    HotkeysFeature
+    HotkeysFeature,
+    CanvasZoomFeature
   );
 
 /* indicate for interceptor that content script has loaded */
+interceptor.triggerPatchInjection();
 document.body.setAttribute("typo-script-loaded", "true");
 

@@ -5,6 +5,7 @@
   export let title: string | undefined;
   export let closeHandler: () => void;
   export let showLoading = false;
+  export let allowClose = true;
 
   let closing = false;
   export const close = () => {
@@ -86,9 +87,11 @@
   {:else }
 
     <!--close button-->
-    <span class="close-toast" on:click={() => close()}>
+    {#if allowClose}
+      <span class="close-toast" on:click={() => close()}>
           ×
-    </span>
+      </span>
+    {/if}
 
     {#if content !== undefined}
       <span>{content}</span>

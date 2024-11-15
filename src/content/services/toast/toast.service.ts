@@ -9,6 +9,11 @@ export interface loadingToastHandle {
   reject: (message?: string, title?: string, timeout?: number) => void;
 }
 
+export interface stickyToastHandle {
+  close: () => void;
+  update: (title?: string, content?: string) => void;
+}
+
 @injectable()
 export class ToastService {
 
@@ -42,6 +47,35 @@ export class ToastService {
     });
 
     setTimeout(() => toast.close(), timeout ?? 3000);
+  }
+
+  /**
+   * Show a sticky toast with a title and message
+   * Will be kept open until manually closed
+   * @param title
+   * @param content
+   */
+  public async showStickyToast(title?: string, content?: string): Promise<stickyToastHandle> {
+    const elements = await this._elementsSetup.complete();
+    const toast = new Toast({
+      target: elements.toastContainer,
+      props: {
+        closeHandler: () => {
+          toast.$destroy();
+        },
+        title,
+        content,
+        showLoading: false,
+        allowClose: false
+      }
+    });
+
+    return {
+      close: () => toast.close(),
+      update: (title?: string, content?: string) => {
+        toast.$set({title, content});
+      }
+    };
   }
 
   /**
