@@ -107,7 +107,7 @@ export class Interceptor {
     /* listen all events, execute prioritized listeners first */
     for (const key in canvas) {
       if(/^on/.test(key)) {
-        const eventType = key.substr(2);
+        const eventType = key.slice(2);
         canvas.addEventListener(eventType, event => {
           const eventListeners = this._canvasEventListener.get(eventType);
           if(eventListeners === undefined) return;

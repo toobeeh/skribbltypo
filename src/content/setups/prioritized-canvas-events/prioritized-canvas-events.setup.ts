@@ -4,7 +4,7 @@ import { inject } from "inversify";
 import { Setup } from "../../core/setup/setup";
 
 /**
- * Setup that waits until the game js has been patched
+ * Setup that waits until prioritized canvas events are set up in the interceptor
  */
 @earlySetup()
 export class PrioritizedCanvasEventsSetup extends Setup<prioritizedCanvasEvents> {

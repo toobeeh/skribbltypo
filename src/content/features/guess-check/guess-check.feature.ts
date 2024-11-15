@@ -43,7 +43,7 @@ export class GuessCheckFeature extends TypoFeature {
       mergeWith(this._lobbyLeftEventListener.events$.pipe(  /* reset when lobby left */
         map(() => null)
       )),
-      map(event => event?.data.toLowerCase() ?? ""),
+      map(event => event?.data.toLowerCase().trim() ?? ""),
       distinctUntilChanged(),
       combineLatestWith(this._drawingService.imageState$.pipe(
         map(image => {
