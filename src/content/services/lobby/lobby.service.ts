@@ -82,6 +82,11 @@ export class LobbyService {
               player.guessed = false;
               player.score = scores.get(player.id) ?? player.score;
             });
+            currentLobby.drawerId = null;
+          }
+
+          if(data.drawingStarted !== undefined) {
+            currentLobby.drawerId = data.drawingStarted.drawerId;
           }
         }
 

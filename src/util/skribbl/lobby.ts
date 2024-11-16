@@ -9,6 +9,7 @@ export interface skribblLobby {
   private: boolean,
   meId: number,
   ownerId: number | null,
+  drawerId: number | null,
   players: skribblPlayer[],
   round: number,
   /*state: {
@@ -33,9 +34,10 @@ export const parseSkribblLobbyDataEvent = (data: any, languages: Map<number, str
     private: data.type === 1,
     meId: data.me,
     ownerId: data.owner == -1 ? null : data.owner,
+    drawerId: null,
     round: data.round + 1,
     settings: {
-      language: languages.get(data.settings[0]) ?? "",
+      language: languages.get(data.settings[0]) ?? "Unknown",
       players: data.settings[1],
       drawTime: data.settings[2],
       rounds: data.settings[3]

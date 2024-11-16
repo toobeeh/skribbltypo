@@ -19,6 +19,8 @@
     settingsComponent = feature.featureSettingsComponent;
     infoComponent = feature.featureInfoComponent;
   }
+
+  const supportskeyboardLayout = (navigator as any)?.keyboard?.getLayoutMap !== undefined;
 </script>
 
 <style lang="scss">
@@ -112,6 +114,11 @@
       To change a hotkey, click in the input field and press the desired key combination. To remove a key from the combination, press it again.<br>
       Empty combinations will be disabled automatically.
     </p>
+    <p>
+      {#if !supportskeyboardLayout}
+        Your browser does not support localized key names. Hotkeys will use US keyboard layout names.<br>
+        Switch to any Chrome-based browser to see the real key names.
+      {/if}
     <br>
     <div class="typo-feature-settings-hotkeys-list">
       {#each featureHotkeys as hotkey}

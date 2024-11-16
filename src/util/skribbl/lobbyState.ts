@@ -12,7 +12,7 @@ export interface lobbyStateUpdate {
     maxTime: number,
     drawerId: number,
   },
-  initialDrawerId?: number
+  /*initialDrawerId?: number*/
 }
 
 export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined => { // eslint-disable-line  @typescript-eslint/no-explicit-any
@@ -27,7 +27,7 @@ export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined =
           maxTime: data.time as number,
           drawerId: data.data.id as number
         },
-        initialDrawerId: data.data.id as number | undefined
+        /*initialDrawerId: data.data.id as number | undefined*/
       };
     }
 

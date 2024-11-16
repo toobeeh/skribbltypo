@@ -1,3 +1,4 @@
+import { parseLobbyStateUpdate } from "@/util/skribbl/lobbyState";
 import { inject, injectable } from "inversify";
 import { Observable, Subject } from "rxjs";
 import { parseSkribblLobbyDataEvent, type skribblLobby } from "../../util/skribbl/lobby";
@@ -32,6 +33,10 @@ export class LobbyJoinedEventProcessor extends EventProcessor<skribblLobby, Lobb
     skribblMessages.serverMessages$.subscribe((event) => {
       if(event.id === 10){
         const lobby = parseSkribblLobbyDataEvent(event.data, gameSettings.languageSettings);
+        const initialUpdate = parseLobbyStateUpdate(event.data.state);
+
+        /* only drawer id relevant for lobby from initial state */
+        lobby.drawerId = initialUpdate?.drawingStarted?.drawerId ?? null;
 
         this._logger.info("Lobby joined", lobby);
         events.next(new LobbyJoinedEvent(lobby));

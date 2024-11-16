@@ -17,6 +17,16 @@
     recordedKeys = [...$comboStore];
   }
 
+  const getHotkeyComboHumanReadable = async (combo: string[]) => {
+    if((navigator as any)?.keyboard?.getLayoutMap){
+      const layoutMap = await (navigator as any).keyboard.getLayoutMap();
+      return combo.map(key => layoutMap.get(key) || key).join(' + ');
+    }
+    else {
+      return combo.join(' + ');
+    }
+  }
+
 </script>
 
 <style lang="scss">
@@ -53,7 +63,7 @@
     const update = await feature.resetHotkeyCombo(hotkey);
     if(update){
       recordedKeys = update;
-      recordingElement.value = recordedKeys.join(' + ');
+      recordingElement.value = await getHotkeyComboHumanReadable(recordedKeys);
     }
   }} /> </div>
 
@@ -67,15 +77,15 @@
 
   <!-- recording area -->
   <div style="grid-column: 2 / span 3">
-    <input value="{recordedKeys.join(' + ')}" bind:this={recordingElement} type="text" placeholder="Press Keys" on:keydown={event => {
+    <input value="{recordedKeys.join(' + ')}" bind:this={recordingElement} type="text" placeholder="Press Keys" on:keydown={async event => {
         event.preventDefault();
         if(!recordedKeys.includes(event.code)) {
           recordedKeys.push(event.code);
-          recordingElement.value = recordedKeys.join(' + ');
+          recordingElement.value = await getHotkeyComboHumanReadable(recordedKeys);
         }
         else {
           recordedKeys = recordedKeys.filter(key => key !== event.code);
-          recordingElement.value = recordedKeys.join(' + ');
+          recordingElement.value = await getHotkeyComboHumanReadable(recordedKeys);
         }
       }}
     />

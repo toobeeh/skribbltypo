@@ -134,9 +134,9 @@ export class DrawingService {
           }
         };
 
-        if(update.data.initialDrawerId !== undefined) {
+        /*if(update.data.initialDrawerId !== undefined) {
           currentImageState.drawerId = update.data.initialDrawerId;
-        }
+        }*/
         if(update.data.drawingStarted !== undefined) {
           this._drawingState$.next("drawing");
 
