@@ -52,7 +52,9 @@ export class LineToolFeature extends TypoFeature {
       },
       true,
       ["ShiftLeft"],
-      () => this._lineListenToggle$.next(false),
+      () => {
+        this._lineListenToggle$.next(false);
+      },
     ),
   );
 
@@ -80,78 +82,121 @@ export class LineToolFeature extends TypoFeature {
 
     const { add } = await this._prioritizedCanvasEventsSetup.complete();
     add("pointerdown", this._canvasClickListener);
-
     document.addEventListener("pointermove", this._documentMoveListener);
     document.addEventListener("pointerup", this._documentUpListener);
 
+    /* pipe to detect current mode depending on hotkey action */
     const listenPipe$ = this._lineListenToggle$.pipe(
-      exhaustMap(value => {
-        if(!value) return of("disabled" as const);
-        else return of("free" as const).pipe(
-          mergeWith(this._lineListenToggle$.pipe(
-            filter(v => v),
-            skip(1), /* skip current value */
-            take(1), /* take one value */
-            map(() => "snap" as const), /* identify as snap */
-            timeout(500), /* snap must have emitted at least 500ms after */
-            catchError(() => this._lineListenToggle$.pipe(
-              take(1),
-              map(state => state ? "free" as const : "disabled" as const), /* if after listen period no snap detected, fallback to free or disabled  */
-            ))
-          ))
-        );
+      exhaustMap((value) => {
+        if (!value) return of("disabled" as const);
+        else
+          return of("free" as const).pipe(
+            mergeWith(
+              this._lineListenToggle$.pipe(
+                filter((v) => v),
+                skip(1) /* skip current value */,
+                take(1) /* take one value */,
+                map(() => "snap" as const) /* identify as snap */,
+                timeout(500) /* snap must have emitted at least 500ms after */,
+                catchError(() =>
+                  this._lineListenToggle$.pipe(
+                    take(1),
+                    map((state) =>
+                      state ? ("free" as const) : ("disabled" as const),
+                    ) /* if after listen period no snap detected, fallback to free or disabled  */,
+                  ),
+                ),
+              ),
+            ),
+          );
       }),
-      tap(mode => this._logger.info("Mode changed", mode)),
+      distinctUntilChanged(),
+      combineLatestWith(this._lobbyService.lobby$.pipe(map(lobby => (lobby?.drawerId ?? undefined) !== undefined && lobby?.drawerId === lobby?.meId))),
+      map(([mode, isDrawer]) => (isDrawer ? mode : "disabled" as const)),
+      distinctUntilChanged(),
+      tap((mode) => this._logger.info("Mode changed", mode)),
     );
 
+    /* pipe for origin coordinates; filter out when not listening */
     const originPipe$ = this._originCoordinates$.pipe(
       withLatestFrom(this._lineListenToggle$),
-      map(([origin, listening]) => listening ? origin : undefined),
+      map(([origin, listening]) => (listening ? origin : undefined)),
       distinctUntilChanged(),
       tap((origin) => this._logger.debug("Origin changed", origin)),
     );
 
+    /* pipe for target coordinates; filter out when not listening or no origin, and calculate snap if enabled */
     const targetPipe$ = this._targetCoordinates$.pipe(
       withLatestFrom(listenPipe$, originPipe$),
-      map(([target, mode, origin]) => mode == "disabled" || origin === undefined || target === undefined ? undefined : mode === "free" ? target : this.calculateSnap(origin, target)),
+      map(([target, mode, origin]) =>
+        mode == "disabled" || origin === undefined || target === undefined
+          ? undefined
+          : mode === "free"
+            ? target
+            : this.calculateSnap(origin, target),
+      ),
       distinctUntilChanged(),
       tap((target) => this._logger.debug("Target changed", target)),
     );
 
     /* combine all updates */
-    this._lineStateSubscription = listenPipe$.pipe(
+    this._lineStateSubscription = listenPipe$
+      .pipe(
         combineLatestWith(originPipe$, targetPipe$),
         startWith(["disabled", undefined, undefined] as ["disabled", undefined, undefined]),
         pairwise(),
 
         /* update ui */
-        tap(([prev, current]) =>
-          this.processUiStateUpdate(prev, current),
-        ),
+        tap(([prev, current]) => this.processUiStateUpdate(prev, current)),
+        map(([, current]) => current),
 
         /* map to current and emit only when line accepted */
-        map(([, current]) => current),
-        debounce(() => this._lineAccept$.pipe(take(1))),
+        debounce(() => this._lineAccept$.pipe(take(1), tap(() => this._logger.debug("Line accept debounce emitted")))),
+        startWith(["disabled", undefined, undefined] as ["disabled", undefined, undefined]),
+        pairwise(),
 
-        filter(
-          ([mode, origin, target]) =>
-            mode !== "disabled" && origin !== undefined && target !== undefined,
-        ),
+        tap(data => this._logger.debug("Line accepted", data)),
       )
-      .subscribe(async ([mode , origin, target]) => {
-        this._logger.info("Line accepted", mode, origin, target);
-        if(mode === "disabled" || !origin || !target) {
-          this._logger.warn("Line accepted with invalid state", mode, origin, target);
+      .subscribe(async ([[, prevOrigin, prevTarget], [listening, origin, target]]) => {
+
+        if (!origin || listening === "disabled") {
           return;
         }
 
-        await this.acceptLine(origin, target, elements.canvas);
+        this._logger.info("Line accepted", origin, target);
+        if (target === undefined || target[0] === origin[0] && target[1] === origin[1]) {
+          this._logger.info(
+            "Line accepted without or same target - connecting with last origin or target, if existing",
+            origin,
+            target,
+          );
+          if (prevTarget) { // if last was drag
+            this._logger.info("Connecting with last drag end", prevTarget);
+            await this.drawLine(prevTarget, origin);
+          }
+          else if (prevOrigin) { // if last was also one-click
+            this._logger.info("Connecting with last click", prevOrigin);
+            await this.drawLine(prevOrigin, origin);
+          }
+          else {
+            this._logger.info("No previous line to connect to; waiting for next");
+          }
+
+          /* reset origin */
+          this._originCoordinates$.next(undefined);
+        } else {
+
+          // regular drag action
+          await this.drawLine(origin, target);
+        }
       });
   }
 
   protected override async onDestroy() {
     const { remove } = await this._prioritizedCanvasEventsSetup.complete();
     remove("pointerdown", this._canvasClickListener);
+    document.removeEventListener("pointermove", this._documentMoveListener);
+    document.removeEventListener("pointerup", this._documentUpListener);
 
     this._linePreview?.remove();
     this._linePreview = undefined;
@@ -164,6 +209,12 @@ export class LineToolFeature extends TypoFeature {
     this._targetCoordinates$.next(undefined);
   }
 
+  /**
+   * Transforms a line to snap either on horizontal or vertical axis, depending on the longer distance
+   * @param origin
+   * @param target
+   * @private
+   */
   private calculateSnap(origin: [number, number], target: [number, number]): [number, number] {
     const dx = Math.abs(target[0] - origin[0]);
     const dy = Math.abs(target[1] - origin[1]);
@@ -171,23 +222,26 @@ export class LineToolFeature extends TypoFeature {
     /* if horizontal */
     if (dx > dy) {
       return [target[0], origin[1]];
-    }
+    } else if (dy > dx) {
 
     /* if vertical */
-    else if (dy > dx) {
       return [origin[0], target[1]];
-    }
+    } else {
 
     /* if diagonal */
-    else {
       return target;
     }
   }
 
+  /**
+   * Update the line preview canvas with the current line origin and target coordinates
+   * @param coordinates
+   * @private
+   */
   private async setPreview(
     coordinates: [number, number, number | undefined, number | undefined] | undefined,
   ) {
-    this._logger.debug("Drawing preview", coordinates);
+    this._logger.debug("Updating preview", coordinates);
 
     if (this._linePreview === undefined) {
       this._logger.error("Line preview canvas not initialized");
@@ -214,6 +268,11 @@ export class LineToolFeature extends TypoFeature {
     ctx.stroke();
   }
 
+  /**
+   * Listener when pointer clicked on canvas; sets current line origin
+   * @param event
+   * @private
+   */
   private onCanvasDown(event: MouseEvent) {
     this._logger.debug("Canvas clicked", event);
     if (this._lineListenToggle$.value) {
@@ -223,6 +282,11 @@ export class LineToolFeature extends TypoFeature {
     }
   }
 
+  /**
+   * Listener when pointer moved on document; updates current line target
+   * @param event
+   * @private
+   */
   private async onDocumentMove(event: MouseEvent) {
     /* if listening, cancel event and calculate new endpoint */
     if (this._lineListenToggle$.value) {
@@ -235,11 +299,26 @@ export class LineToolFeature extends TypoFeature {
     }
   }
 
+  /**
+   * Listener when pointer released on document; accepts current line preview
+   * @param event
+   * @private
+   */
   private async onDocumentUp(event: MouseEvent) {
     this._logger.debug("Document pointer up", event);
     this._lineAccept$.next(true);
   }
 
+  /**
+   * Update the toast ui depending on the tool state
+   * @param prevListening
+   * @param prevOrigin
+   * @param prevTarget
+   * @param listening
+   * @param origin
+   * @param target
+   * @private
+   */
   private async processUiStateUpdate(
     [prevListening, prevOrigin, prevTarget]: [
       "free" | "snap" | "disabled",
@@ -261,55 +340,66 @@ export class LineToolFeature extends TypoFeature {
 
     /* update canvas element */
     await this.setPreview(
-      listening && origin !== undefined
+      listening !== "disabled" && origin !== undefined
         ? [...origin, ...(target ?? [undefined, undefined])]
         : undefined,
     );
 
     /* if just entered line tool, add toast */
-    if(prevListening === "disabled" && listening !== "disabled") {
-      if(this._toastHandle) {
+    if (prevListening === "disabled" && listening !== "disabled") {
+      if (this._toastHandle) {
         this._logger.warn("Toast handle unexpected existing when entering line tool");
         this._toastHandle.close();
       }
-      this._toastHandle = await this._toastService.showStickyToast("Line Tool: " + (listening === "snap" ? "Snap" : "Free"), "Click to start line, release to finish");
+      this._toastHandle = await this._toastService.showStickyToast(
+        "Line Tool: " + (listening === "snap" ? "Snap" : "Free"),
+        "Click to start line, release to finish",
+      );
     }
 
     /* if mode active but changed */
-    else if (prevListening !== "disabled" && listening !== "disabled" && listening !== prevListening) {
-      if(!this._toastHandle) {
-        this._logger.error("Toast handle unexpected not existing when changing mode", { prevListening, listening });
+    else if (
+      prevListening !== "disabled" &&
+      listening !== "disabled" &&
+      listening !== prevListening
+    ) {
+      if (!this._toastHandle) {
+        this._logger.error("Toast handle unexpected not existing when changing mode", {
+          prevListening,
+          listening,
+        });
         return;
       }
-      this._toastHandle.update("Line Tool: " + (listening === "snap" ? "Snap" : "Free"), "Click to start line, release to finish",);
+      this._toastHandle.update(
+        "Line Tool: " + (listening === "snap" ? "Snap" : "Free"),
+        "Click to start line, release to finish",
+      );
     }
 
     /* if line tool exited */
-    else if(prevListening !== "disabled" && listening === "disabled") {
-      if(!this._toastHandle) this._logger.warn("Toast handle unexpected not existing when exiting line tool");
+    else if (prevListening !== "disabled" && listening === "disabled") {
+      if (!this._toastHandle) {
+        this._logger.warn("Toast handle unexpected not existing when exiting line tool");
+      }
       this._toastHandle?.close();
       this._toastHandle = undefined;
     }
   }
 
-  private async acceptLine(origin: [number, number], target: [number, number], canvas: HTMLCanvasElement) {
-    if(!origin || !target) return;
+  /**
+   * Draw a line and reset current selected coordinates
+   * @param origin
+   * @param target
+   * @param canvas
+   * @private
+   */
+  private async drawLine(
+    origin: [number, number],
+    target: [number, number]
+  ) {
+    if (!origin || !target) return;
 
-    /* if target x is outside of canvas, calculate new target by intersection of canvas bounds */
-    if(target[0] < 0 || target[0] > canvas.width) {
-      const slope = (target[1] - origin[1]) / (target[0] - origin[0]);
-      const y = slope * ((target[0] < 0 ? 0 : canvas.width - 1) - origin[0]) + origin[1];
-      target = [target[0] < 0 ? 0 : canvas.width - 1, y];
-    }
-
-    /* if target y is outside of canvas, calculate new target by intersection of canvas bounds */
-    if (target[1] < 0 || target[1] > canvas.height) {
-      const slope = (target[0] - origin[0]) / (target[1] - origin[1]);
-      const x = slope * ((target[1] < 0 ? 0 : canvas.height - 1) - origin[1]) + origin[0];
-      target = [x, target[1] < 0 ? 0 : canvas.height - 1];
-    }
-
-    await this._drawingService.pasteDrawCommands([[0,1,4, ...origin, ...target]]);
+    await this._drawingService.drawLine([...origin, ...target]);
 
     this._originCoordinates$.next(undefined);
     this._targetCoordinates$.next(undefined);

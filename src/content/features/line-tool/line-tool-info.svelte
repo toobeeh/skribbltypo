@@ -1,5 +1,5 @@
-Canvas Zoom lets you zoom the drawing canvas, so you can work on details more easily. <br>
-To start zooming, press the "Zoom Start" hotkey and click somewhere on the canvas while holding the hotkey. <br>
-The center of the zoomed area will be where you clicked. <br><br>
-To adjust the zoom level, you can press the Zoom Level hotkeys.<br>
-You can exit the zoom like you entered it, by pressing the "Zoom Start" hotkey and clicking somewhere on the canvas. <br>
+The Line Tool helps you draw perfectly straight lines on the canvas. <br>
+To start the tool, press the configured start hotkey and keep it down. <br>
+The tool can only be used when you are drawing. <br><br>
+Now, you can drag lines onto the canvas by pressing the mouse button and releasing it somewhere else. <br><br>
+You can also use the Line Tool to connect click positions; to do so, simply click two or more points on the canvas with the mouse to connect them.<br>

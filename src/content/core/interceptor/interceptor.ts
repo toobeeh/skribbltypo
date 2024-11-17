@@ -102,7 +102,6 @@ export class Interceptor {
     };
 
     const canvas = requireElement("#game-canvas > canvas");
-    console.log(canvas);
 
     /* listen all events, execute prioritized listeners first */
     for (const key in canvas) {
