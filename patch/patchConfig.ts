@@ -51,6 +51,10 @@ export const gameJsPatchConfig = {
             '.getContext\\("2d", {\\s*willReadFrequently[^}]*}\\)\\s*,\\s*([a-zA-Z0-9&_\\-$]+) = \\[\\]',
         },
         {
+          source: "##PUSHACTION##",
+          target: '[a-zA-Z0-9&_\\-$]+\\.length, ([a-zA-Z0-9&_\\-$]+)\\.push'
+        },
+        {
           source: "##PERFOUTER##",
           target: "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?data[^}]+?bounds:",
         },
@@ -166,6 +170,7 @@ export const gameJsPatchConfig = {
                         });
                         document.addEventListener("performDrawCommand", (e) => {
                             ##PUSHCMD##.push(e.detail); 
+                            ##PUSHACTION##.push(##PUSHCMD##.length); 
                             // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
                             ##PERFOUTER##(##PERFINNER##(e.detail)); 
                             // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER

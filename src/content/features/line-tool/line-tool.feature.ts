@@ -1,6 +1,7 @@
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { ImageResetEventListener } from "@/content/events/image-reset.event";
 import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
+import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { type stickyToastHandle, ToastService } from "@/content/services/toast/toast.service";
@@ -10,10 +11,10 @@ import {
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
 import { inject } from "inversify";
 import {
-  BehaviorSubject, bufferTime, catchError,
-  combineLatestWith, debounce, debounceTime, distinctUntilChanged, exhaustMap, filter, map, mergeWith, of,
-  pairwise, skip, Subject,
-  type Subscription, switchMap, take, tap, timeout, withLatestFrom,
+  BehaviorSubject, catchError,
+  combineLatestWith, debounce, distinctUntilChanged, exhaustMap, filter, map, mergeWith, of,
+  pairwise, skip, startWith, Subject,
+  type Subscription, take, tap, timeout, withLatestFrom,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import LineToolInfo from "./line-tool-info.svelte";
@@ -28,6 +29,7 @@ export class LineToolFeature extends TypoFeature {
   @inject(ImageResetEventListener)
   private readonly _imageResetEventListener!: ImageResetEventListener;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
+  @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
   public override get featureInfoComponent(): componentData<LineToolInfo> {
     return { componentType: LineToolInfo, props: {} };
@@ -82,21 +84,6 @@ export class LineToolFeature extends TypoFeature {
     document.addEventListener("pointermove", this._documentMoveListener);
     document.addEventListener("pointerup", this._documentUpListener);
 
-    const originPipe$ = this._originCoordinates$.pipe(
-      withLatestFrom(this._lineListenToggle$),
-      filter(([, listening]) => listening),
-      map(([origin]) => origin),
-      distinctUntilChanged(),
-      tap((origin) => this._logger.debug("Origin changed", origin)),
-    );
-
-    const targetPipe$ = this._targetCoordinates$.pipe(
-      withLatestFrom(this._originCoordinates$),
-      map(([target, origin]) => origin ? target : undefined),
-      distinctUntilChanged(),
-      tap((target) => this._logger.debug("Target changed", target)),
-    );
-
     const listenPipe$ = this._lineListenToggle$.pipe(
       exhaustMap(value => {
         if(!value) return of("disabled" as const);
@@ -117,35 +104,48 @@ export class LineToolFeature extends TypoFeature {
       tap(mode => this._logger.info("Mode changed", mode)),
     );
 
-    this._lineStateSubscription = this._lineAccept$
-      .pipe(
-        withLatestFrom(
+    const originPipe$ = this._originCoordinates$.pipe(
+      withLatestFrom(this._lineListenToggle$),
+      map(([origin, listening]) => listening ? origin : undefined),
+      distinctUntilChanged(),
+      tap((origin) => this._logger.debug("Origin changed", origin)),
+    );
 
-          /* combine all updates */
-          listenPipe$.pipe(
-            combineLatestWith(originPipe$, targetPipe$),
-            pairwise(),
+    const targetPipe$ = this._targetCoordinates$.pipe(
+      withLatestFrom(listenPipe$, originPipe$),
+      map(([target, mode, origin]) => mode == "disabled" || origin === undefined || target === undefined ? undefined : mode === "free" ? target : this.calculateSnap(origin, target)),
+      distinctUntilChanged(),
+      tap((target) => this._logger.debug("Target changed", target)),
+    );
 
-            /* update ui */
-            tap(([prev, current]) =>
-              this.processUiStateUpdate(prev, current),
-            ),
+    /* combine all updates */
+    this._lineStateSubscription = listenPipe$.pipe(
+        combineLatestWith(originPipe$, targetPipe$),
+        startWith(["disabled", undefined, undefined] as ["disabled", undefined, undefined]),
+        pairwise(),
 
-            /* map to current */
-            map(([, current]) => current),
-          )
+        /* update ui */
+        tap(([prev, current]) =>
+          this.processUiStateUpdate(prev, current),
         ),
+
+        /* map to current and emit only when line accepted */
+        map(([, current]) => current),
+        debounce(() => this._lineAccept$.pipe(take(1))),
 
         filter(
-          ([accept, [mode, origin, target]]) =>
-            accept && mode !== "disabled" && origin !== undefined && target !== undefined,
+          ([mode, origin, target]) =>
+            mode !== "disabled" && origin !== undefined && target !== undefined,
         ),
       )
-      .subscribe(async ([,[mode , origin, target]]) => {
+      .subscribe(async ([mode , origin, target]) => {
         this._logger.info("Line accepted", mode, origin, target);
+        if(mode === "disabled" || !origin || !target) {
+          this._logger.warn("Line accepted with invalid state", mode, origin, target);
+          return;
+        }
 
-        this._originCoordinates$.next(undefined);
-        this._targetCoordinates$.next(undefined);
+        await this.acceptLine(origin, target, elements.canvas);
       });
   }
 
@@ -162,6 +162,26 @@ export class LineToolFeature extends TypoFeature {
     this._lineListenToggle$.next(false);
     this._originCoordinates$.next(undefined);
     this._targetCoordinates$.next(undefined);
+  }
+
+  private calculateSnap(origin: [number, number], target: [number, number]): [number, number] {
+    const dx = Math.abs(target[0] - origin[0]);
+    const dy = Math.abs(target[1] - origin[1]);
+
+    /* if horizontal */
+    if (dx > dy) {
+      return [target[0], origin[1]];
+    }
+
+    /* if vertical */
+    else if (dy > dx) {
+      return [origin[0], target[1]];
+    }
+
+    /* if diagonal */
+    else {
+      return target;
+    }
   }
 
   private async setPreview(
@@ -245,5 +265,53 @@ export class LineToolFeature extends TypoFeature {
         ? [...origin, ...(target ?? [undefined, undefined])]
         : undefined,
     );
+
+    /* if just entered line tool, add toast */
+    if(prevListening === "disabled" && listening !== "disabled") {
+      if(this._toastHandle) {
+        this._logger.warn("Toast handle unexpected existing when entering line tool");
+        this._toastHandle.close();
+      }
+      this._toastHandle = await this._toastService.showStickyToast("Line Tool: " + (listening === "snap" ? "Snap" : "Free"), "Click to start line, release to finish");
+    }
+
+    /* if mode active but changed */
+    else if (prevListening !== "disabled" && listening !== "disabled" && listening !== prevListening) {
+      if(!this._toastHandle) {
+        this._logger.error("Toast handle unexpected not existing when changing mode", { prevListening, listening });
+        return;
+      }
+      this._toastHandle.update("Line Tool: " + (listening === "snap" ? "Snap" : "Free"), "Click to start line, release to finish",);
+    }
+
+    /* if line tool exited */
+    else if(prevListening !== "disabled" && listening === "disabled") {
+      if(!this._toastHandle) this._logger.warn("Toast handle unexpected not existing when exiting line tool");
+      this._toastHandle?.close();
+      this._toastHandle = undefined;
+    }
+  }
+
+  private async acceptLine(origin: [number, number], target: [number, number], canvas: HTMLCanvasElement) {
+    if(!origin || !target) return;
+
+    /* if target x is outside of canvas, calculate new target by intersection of canvas bounds */
+    if(target[0] < 0 || target[0] > canvas.width) {
+      const slope = (target[1] - origin[1]) / (target[0] - origin[0]);
+      const y = slope * ((target[0] < 0 ? 0 : canvas.width - 1) - origin[0]) + origin[1];
+      target = [target[0] < 0 ? 0 : canvas.width - 1, y];
+    }
+
+    /* if target y is outside of canvas, calculate new target by intersection of canvas bounds */
+    if (target[1] < 0 || target[1] > canvas.height) {
+      const slope = (target[0] - origin[0]) / (target[1] - origin[1]);
+      const x = slope * ((target[1] < 0 ? 0 : canvas.height - 1) - origin[1]) + origin[0];
+      target = [x, target[1] < 0 ? 0 : canvas.height - 1];
+    }
+
+    await this._drawingService.pasteDrawCommands([[0,1,4, ...origin, ...target]]);
+
+    this._originCoordinates$.next(undefined);
+    this._targetCoordinates$.next(undefined);
   }
 }

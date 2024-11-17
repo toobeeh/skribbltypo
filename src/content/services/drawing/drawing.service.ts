@@ -229,4 +229,9 @@ export class DrawingService {
   public clearImage() {
     document.dispatchEvent(new CustomEvent("clearDrawing"));
   }
+
+  public async drawLine(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
+    this._logger.debug("Drawing line", coordinates, colorCode, size);
+    await this.pasteDrawCommands([[0, ...coordinates, colorCode ?? 0, size ?? 0]]);
+  }
 }

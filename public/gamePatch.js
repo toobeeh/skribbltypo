@@ -119,6 +119,7 @@
         });
         document.addEventListener("performDrawCommand", (e) => {
           v.push(e.detail);
+          mt.push(v.length);
           // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
           Kt(Zt(e.detail));
           // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
@@ -1210,7 +1211,7 @@
   var rn = null;
   "PointerEvent" in h ? (D("#game-toolbar .colors * .color", "pointerenter", an), D("#game-toolbar .colors * .color", "pointerdown", on), D(C, "pointerdown", function(e) {
     var t, n, a, o;
-    null == rn && nn(e.button) && (t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = e.clientX, a = e.clientY, o = -1, t && (o = (oe && e.pressure, e.pressure)), rn = e.pointerId, xt = e.button, C.setPointerCapture(e.pointerId), v.length, tn(n, a, o, !0), en(!0))
+    null == rn && nn(e.button) && (h.getSelection ? h.getSelection().removeAllRanges() : c.selection && c.selection.empty(), t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = e.clientX, a = e.clientY, o = -1, t && (o = (oe && e.pressure, e.pressure)), rn = e.pointerId, xt = e.button, C.setPointerCapture(e.pointerId), v.length, tn(n, a, o, !0), en(!0))
   }), D(C, "pointermove", function(e) {
     var t, n;
     rn !== e.pointerId || (() => {
@@ -1446,7 +1447,7 @@
     }
   };
   let k = 4,
-    En = "https://skribbl.io/api/play";
+    En = location.origin + "/api/play";
   K;
   var w = [],
     x = 0,
