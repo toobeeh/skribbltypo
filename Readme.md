@@ -118,3 +118,12 @@ Toasts should be used at every action the user takes, where the result might not
 Toasts should be used in feature classes, never in a service.  
 If a service errors, it should throw an error. Features should catch the error either using conditions, try-catch or rxjs catch operator.  
 The feature should then log the error to have detailed typo logs, throw the error to have a stack trace available and then reject the toast with a message.  
+
+## Logging
+Thorough logging is essential for debugging, especially when the extension is already deployed.  
+In general, adding logging right during development is favorable, but at the very least when it comes to debugging 
+and logging is added to debug a specific issue, the logging should be meaningful so that it can be used for future debugging and be kept in the codebase.  
+Errors should be logged for illegal states where a recovery is not possible;
+warnings in states that do not necessarily lead to user experience issues;
+information for any action that is executed/initiated by a feature or service;
+and debug to dump data for low-level debugging.

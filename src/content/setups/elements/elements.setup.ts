@@ -37,6 +37,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     chatArea: requireElement("#game-chat"),
     chatContent: requireElement("#game-chat .chat-content"),
     hints: requireElement("#game-word .hints"),
+    canvasWrapper: requireElement("#game-canvas"),
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
     landingAvatarContainer: requireElement(".avatar-customizer .avatar"),
     landingCustomizeContainer: requireElement(".avatar-customizer"),

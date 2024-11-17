@@ -22,6 +22,7 @@ import { DeveloperModeFeature } from "@/content/features/developer-mode/develope
 import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
 import { HotkeysFeature } from "@/content/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
+import { LineToolFeature } from "@/content/features/line-tool/line-tool.feature";
 import { LobbyStatusFeature } from "@/content/features/lobby-status/lobby-status.feature";
 import { LoggingFeature } from "@/content/features/logging/logging.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
@@ -160,7 +161,8 @@ new ExtensionContainer(interceptor)
     ChatProfileLinkFeature,
     LoggingFeature,
     HotkeysFeature,
-    CanvasZoomFeature
+    CanvasZoomFeature,
+    LineToolFeature
   );
 
 /* indicate for interceptor that content script has loaded */
