@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { spriteSlot } from "@/content/features/player-sprites/player-sprites.feature";
   import type { SkribblPlayerDisplay } from "@/content/services/players/skribblPlayerDisplay.interface";
+  import { onDestroy } from "svelte";
 
   export let sprites: spriteSlot[] = [];
   export let playerDisplay: SkribblPlayerDisplay;
@@ -15,6 +16,10 @@
       slot.sprite.url :
       `https://static.typo.rip/sprites/rainbow/modulate.php?url=${slot.sprite.url}&hue=${slot.shift}`;
   }
+
+  onDestroy(() => {
+    playerDisplay.resizeToFitAvatar = false;
+  });
 </script>
 
 <style lang="scss">

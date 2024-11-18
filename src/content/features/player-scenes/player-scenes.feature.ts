@@ -48,6 +48,9 @@ export class PlayerScenesFeature extends TypoFeature {
 
   protected override async onDestroy() {
     this._scenesSubscription?.unsubscribe();
+
+    this._sceneContainers.forEach((container) => container.$destroy());
+    this._sceneContainers.clear();
   }
 
   /**

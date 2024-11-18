@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { activeScene } from "@/content/features/player-scenes/player-scenes.feature";
   import type { SkribblPlayerDisplay } from "@/content/services/players/skribblPlayerDisplay.interface";
+  import { onDestroy } from "svelte";
 
   export let scene: activeScene | undefined = undefined;
   export let playerDisplay: SkribblPlayerDisplay;
@@ -16,6 +17,11 @@
     playerDisplay.useSafeColor = scene !== undefined;
     playerDisplay.useBackground = scene === undefined;
   }
+
+  onDestroy(() => {
+    playerDisplay.useSafeColor = false;
+    playerDisplay.useBackground = false;
+  });
 </script>
 
 <style lang="scss">

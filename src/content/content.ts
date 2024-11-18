@@ -30,6 +30,7 @@ import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.fe
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
 import { PanelLobbiesFeature } from "@/content/features/panel-lobbies/panel-lobbies.feature";
+import { PlayerIdsFeature } from "@/content/features/player-ids/player-ids.feature";
 import { PlayerScenesFeature } from "@/content/features/player-scenes/player-scenes.feature";
 import { PlayerSpritesFeature } from "@/content/features/player-sprites/player-sprites.feature";
 import { ToolbarChallengesFeature } from "@/content/features/toolbar-challenges/toolbar-challenges.feature";
@@ -162,7 +163,8 @@ new ExtensionContainer(interceptor)
     HotkeysFeature,
     CanvasZoomFeature,
     LineToolFeature,
-    ChatFocusFeature
+    ChatFocusFeature,
+    PlayerIdsFeature
   );
 
 /* indicate for interceptor that content script has loaded */

@@ -49,6 +49,9 @@ export class PlayerSpritesFeature extends TypoFeature {
 
   protected override async onDestroy() {
     this._spritesSubscription?.unsubscribe();
+
+    this._spriteContainers.forEach((container) => container.$destroy());
+    this._spriteContainers.clear();
   }
 
   private async updatePlayerSprites(players: SkribblPlayerDisplay[], items: OnlineItemDto[], sprites: SpriteDto[]){

@@ -1,3 +1,4 @@
+import { replaceOrAddCssRule } from "@/util/document/replaceOrAddCssRule";
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 import type {
@@ -26,6 +27,7 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   private _resizeRuleIndex: number | undefined;
   private _alignRuleIndex: number | undefined;
   private _playerIdRuleIndex: number | undefined;
+  private _playerInfoRuleIndex: number | undefined;
 
   public constructor(private readonly _player: skribblPlayer, private readonly _lobbyKey?: string, private readonly _playerLogin?: number) {
 
@@ -68,44 +70,45 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   }
 
   public set useBackground(value: boolean) {
-    this._backgroundRuleIndex = this._playerStyle.sheet?.insertRule(
-      `.${this._elementId} .player-background { background-color: ${value ? "" : "transparent"} !important; }`,
+    this._backgroundRuleIndex = replaceOrAddCssRule(this._playerStyle,
+      !value ? `.${this._elementId} .player-background { background-color: transparent !important; }` : undefined,
       this._backgroundRuleIndex
     );
   }
 
   public set useSafeColor(value: boolean) {
-    this._fontColorRuleIndex = this._playerStyle.sheet?.insertRule(`
+    this._fontColorRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
       .${this._elementId} * { 
-        color: ${value ? "White" : ""} !important; 
-        text-shadow: ${value ? " 0px 0px 25px black, 0px 0px 10px black, 0px 0px 5px black" : ""} !important
-      }`,
+        color: White !important; 
+        text-shadow: 0px 0px 25px black, 0px 0px 10px black, 0px 0px 5px black !important;
+      }` : undefined,
       this._fontColorRuleIndex
     );
   }
 
   public set resizeToFitAvatar(value: boolean) {
-    this._resizeRuleIndex = this._playerStyle.sheet?.insertRule(
-      `.${this._elementId} { height: ${value ? "56px" : ""} !important; }`,
+    this._resizeRuleIndex = replaceOrAddCssRule(this._playerStyle,
+      value ? `.${this._elementId} { height: 56px !important; }` : undefined,
       this._resizeRuleIndex
     );
 
-    this._alignRuleIndex = this._playerStyle.sheet?.insertRule(
-      `.${this._elementId} .player-avatar-container { top: ${value ? "calc((100% - var(--UNIT)) / 2)" : ""} !important; }`,
+    this._alignRuleIndex = replaceOrAddCssRule(this._playerStyle,
+      value ? `.${this._elementId} .player-avatar-container { top: calc((100% - var(--UNIT)) / 2) !important; }` : undefined,
       this._alignRuleIndex
     );
   }
 
   public set viewPlayerId(value: boolean) {
-    this._playerIdRuleIndex = this._playerStyle.sheet?.insertRule(`
+    this._playerIdRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
        .${this._elementId} .player-score { 
-          display: ${!value ? "" : "none"}; 
-       }
+          display: none; 
+       }` : undefined,
+      this._playerIdRuleIndex);
+
+    this._playerInfoRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
        .${this._elementId} .player-info:after { 
-          display: ${value ? "" : "none"}; 
           content: "#${this._player.id}"; 
-       }`,
-      this._playerIdRuleIndex
-    );
+       }` : undefined,
+      this._playerInfoRuleIndex);
   }
 }
