@@ -1,6 +1,6 @@
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject, injectable } from "inversify";
-import { distinctUntilChanged, Observable, Subject } from "rxjs";
+import { distinctUntilChanged, Observable, Subject, tap } from "rxjs";
 import { ApplicationEvent } from "../core/event/applicationEvent";
 import { EventListener } from "../core/event/eventListener";
 import { EventProcessor } from "../core/event/eventProcessor";
@@ -22,7 +22,7 @@ export class ChatTypedEventProcessor extends EventProcessor<string, ChatTypedEve
 
   protected async streamEvents(): Promise<Observable<ChatTypedEvent>> {
     const events = new Subject<ChatTypedEvent>();
-    const {chatInput} = await this._elementsSetup.complete();
+    const {chatInput, chatForm} = await this._elementsSetup.complete();
 
     /* listen for value change */
     chatInput.addEventListener("input", () => {
@@ -30,8 +30,14 @@ export class ChatTypedEventProcessor extends EventProcessor<string, ChatTypedEve
       events.next(new ChatTypedEvent(value));
     });
 
+    /* listen for submit */
+    chatForm.addEventListener("submit", () => {
+      events.next(new ChatTypedEvent(""));
+    });
+
     return events.pipe(
-      distinctUntilChanged((a, b) => a.data === b.data)
+      distinctUntilChanged((a, b) => a.data === b.data),
+      tap(data => this._logger.debug("Chat typed event", data))
     );
   }
 }
