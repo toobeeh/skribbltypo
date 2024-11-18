@@ -5,6 +5,7 @@ export interface lobbyStateUpdate {
     reason: "outOfTime" | "allGuessed",
     word: string,
     scores: {score: number, rewarded: number, playerId: number}[],
+    time: number
   },
   drawingStarted?: {
     word?: string,
@@ -12,11 +13,34 @@ export interface lobbyStateUpdate {
     maxTime: number,
     drawerId: number,
   },
-  /*initialDrawerId?: number*/
+  drawerChoosingWord?: {
+    maxTime: number,
+    drawerId: number,
+  },
+  roundStarted?: {
+    round: number,
+    startsIn: number
+  }
 }
 
 export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined => { // eslint-disable-line  @typescript-eslint/no-explicit-any
   switch (data.id as number) {
+
+    /* new round has started */
+    case 2: return {
+      roundStarted: {
+        round: data.data as number,
+        startsIn: data.time as number
+      }
+    };
+
+    /* next person is choosing words */
+    case 3: return {
+      drawerChoosingWord: {
+        maxTime: data.time as number,
+        drawerId: data.data.id as number
+      }
+    };
 
     /* new drawing has started */
     case 4: {
@@ -37,6 +61,7 @@ export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined =
         drawingRevealed: {
           reason: data.data.reason === 1 ? "outOfTime" : "allGuessed",
           word: data.data.word as string,
+          time: data.time as number,
           scores: arrayChunk(data.data.scores as number[], 3).map(([playerId, score, rewarded]) => ({playerId, score, rewarded}))
         }
       };

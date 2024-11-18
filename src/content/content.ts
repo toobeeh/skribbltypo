@@ -25,6 +25,7 @@ import { HotkeysFeature } from "@/content/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
 import { LineToolFeature } from "@/content/features/line-tool/line-tool.feature";
 import { LobbyStatusFeature } from "@/content/features/lobby-status/lobby-status.feature";
+import { LobbyTimeVisualizerFeature } from "@/content/features/lobby-time-visualizer/lobby-time-visualizer.feature";
 import { LoggingFeature } from "@/content/features/logging/logging.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
@@ -164,7 +165,8 @@ new ExtensionContainer(interceptor)
     CanvasZoomFeature,
     LineToolFeature,
     ChatFocusFeature,
-    PlayerIdsFeature
+    PlayerIdsFeature,
+    LobbyTimeVisualizerFeature
   );
 
 /* indicate for interceptor that content script has loaded */

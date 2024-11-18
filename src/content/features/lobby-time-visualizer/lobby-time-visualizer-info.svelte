@@ -1,0 +1,1 @@
+Adds a progress bar at the top of the canvas, visualizing the remaining time for selected actions. <br>
