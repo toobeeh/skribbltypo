@@ -13,6 +13,7 @@ import { roundStartedEventRegistration } from "@/content/events/round-started.ev
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
 import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.feature";
 import { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";
+import { ChatFocusFeature } from "@/content/features/chat-focus/chat-focus.feature";
 import { ChatProfileLinkFeature } from "@/content/features/chat-profile-link/chat-profile-link.feature";
 import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
@@ -162,7 +163,8 @@ new ExtensionContainer(interceptor)
     LoggingFeature,
     HotkeysFeature,
     CanvasZoomFeature,
-    LineToolFeature
+    LineToolFeature,
+    ChatFocusFeature
   );
 
 /* indicate for interceptor that content script has loaded */

@@ -1,0 +1,2 @@
+Add a hotkey to quickly focus the chat input, so you can start guessing right away. <br>
+If the auto-focus setting is enabled, the chat input will be focused automatically when someone else starts drawing. <br>

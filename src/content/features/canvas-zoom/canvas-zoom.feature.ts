@@ -207,7 +207,7 @@ export class CanvasZoomFeature extends TypoFeature {
 
     /* if stopped listening and not active (not entered), or not active changed and toast existent, remove toast */
     else if(!listening && prevListening && active === false && prevActive === false || active === false && prevActive !== false) {
-      if(!this._toastHandle && active === false && prevActive !== false) {
+      if(!this._toastHandle && !active && prevActive !== false) {
         this._logger.warn("Toast handle unexpected not existing when ended active", { listening, active, level });
       }
       this._toastHandle?.close();
