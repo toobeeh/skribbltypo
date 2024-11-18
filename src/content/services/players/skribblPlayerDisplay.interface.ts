@@ -1,9 +1,23 @@
+export interface anonymousPlayerIdentification { lobbyKey: string, lobbyPlayerId: number }
+export interface concretePlayerIdentification { login: number }
+export type typoPlayerIdentification = anonymousPlayerIdentification | concretePlayerIdentification;
+
+export const isAnonymousPlayerIdentification = (value: object): value is anonymousPlayerIdentification => {
+  return (value as anonymousPlayerIdentification).lobbyKey !== undefined && (value as anonymousPlayerIdentification).lobbyPlayerId !== undefined;
+};
+
+export const isConcretePlayerIdentification = (value: object): value is concretePlayerIdentification => {
+  return (value as concretePlayerIdentification).login !== undefined;
+};
+
 /**
  * An interface for player container abstraction
  * Player containers consist of various elements, representing a player and its avatar
  * Implementations provide concrete access to manipulate these elements uniformly
  */
 export interface SkribblPlayerDisplay {
+
+  get typoId(): typoPlayerIdentification;
 
   /**
    * Dedicated container for the player's avatar
@@ -37,4 +51,10 @@ export interface SkribblPlayerDisplay {
    * @param value
    */
   set resizeToFitAvatar(value: boolean);
+
+  /**
+   * Toggle the visibility of the lobby player Id
+   * @param value
+   */
+  set viewPlayerId(value: boolean);
 }

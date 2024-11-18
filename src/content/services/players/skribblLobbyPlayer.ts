@@ -1,6 +1,9 @@
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
-import type { SkribblPlayerDisplay } from "@/util/typo/skribblPlayerDisplay.interface";
+import type {
+  SkribblPlayerDisplay,
+  typoPlayerIdentification,
+} from "@/content/services/players/skribblPlayerDisplay.interface";
 
 /**
  * Implementation of the skribblplayerdisplay
@@ -22,8 +25,12 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   private _fontColorRuleIndex: number | undefined;
   private _resizeRuleIndex: number | undefined;
   private _alignRuleIndex: number | undefined;
+  private _playerIdRuleIndex: number | undefined;
 
-  public constructor(private _player: skribblPlayer) {
+  public constructor(private readonly _player: skribblPlayer, private readonly _lobbyKey?: string, private readonly _playerLogin?: number) {
+
+    if(_lobbyKey === undefined && _playerLogin === undefined) throw new Error("No identification provided");
+
     this._playerContainer = requireElement(`#game-players .player[playerid='${this._player.id}']`);
     this._avatarContainer = requireElement(".avatar", this._playerContainer);
     this._backgroundContainer = requireElement(".player-background", this._playerContainer);
@@ -34,7 +41,13 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
     this._playerContainer.appendChild(this._playerStyle);
   }
 
-  public get id() {
+  public get typoId(): typoPlayerIdentification {
+    if(this._playerLogin !== undefined) return { login: this._playerLogin };
+    if(this._lobbyKey !== undefined) return { lobbyKey: this._lobbyKey, lobbyPlayerId: this._player.id };
+    throw new Error("No identification provided");
+  }
+
+  public get lobbyPlayerId() {
     return this._player.id;
   }
 
@@ -80,6 +93,19 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
     this._alignRuleIndex = this._playerStyle.sheet?.insertRule(
       `.${this._elementId} .player-avatar-container { top: ${value ? "calc((100% - var(--UNIT)) / 2)" : ""} !important; }`,
       this._alignRuleIndex
+    );
+  }
+
+  public set viewPlayerId(value: boolean) {
+    this._playerIdRuleIndex = this._playerStyle.sheet?.insertRule(`
+       .${this._elementId} .player-score { 
+          display: ${!value ? "" : "none"}; 
+       }
+       .${this._elementId} .player-info:after { 
+          display: ${value ? "" : "none"}; 
+          content: "#${this._player.id}"; 
+       }`,
+      this._playerIdRuleIndex
     );
   }
 }

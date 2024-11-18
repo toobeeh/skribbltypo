@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { activeScene } from "@/content/features/player-scenes/player-scenes.feature";
-  import type { SkribblPlayerDisplay } from "@/util/typo/skribblPlayerDisplay.interface";
+  import type { SkribblPlayerDisplay } from "@/content/services/players/skribblPlayerDisplay.interface";
 
   export let scene: activeScene | undefined = undefined;
   export let playerDisplay: SkribblPlayerDisplay;

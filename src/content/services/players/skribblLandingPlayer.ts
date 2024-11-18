@@ -1,8 +1,12 @@
-import type { SkribblPlayerDisplay } from "@/util/typo/skribblPlayerDisplay.interface";
+import type { concretePlayerIdentification, SkribblPlayerDisplay } from "@/content/services/players/skribblPlayerDisplay.interface";
 
 export class SkribblLandingPlayer implements SkribblPlayerDisplay {
 
-  constructor(private _customizerContainer: HTMLElement, private _avatarContainer: HTMLElement) {
+  constructor(private readonly _login: number, private _customizerContainer: HTMLElement, private _avatarContainer: HTMLElement) {
+  }
+
+  get typoId(): concretePlayerIdentification {
+    return { login: this._login };
   }
 
   get avatarContainer(): HTMLElement {
@@ -27,6 +31,10 @@ export class SkribblLandingPlayer implements SkribblPlayerDisplay {
   }
 
   set resizeToFitAvatar(value: boolean) {
+    /* no implementation */
+  }
+
+  set viewPlayerId(value: boolean) {
     /* no implementation */
   }
 }

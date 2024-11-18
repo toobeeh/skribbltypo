@@ -1,7 +1,7 @@
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
 import { MessageReceivedEventListener } from "@/content/events/message-received.event";
-import { LobbyPlayersService } from "@/content/services/lobby-players/lobby-players.service";
-import type { SkribblLobbyPlayer } from "@/content/services/lobby-players/skribblLobbyPlayer";
+import { PlayersService } from "@/content/services/players/players.service";
+import type { SkribblLobbyPlayer } from "@/content/services/players/skribblLobbyPlayer";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject, injectable, postConstruct } from "inversify";
 import { filter, map, mergeWith, Subject, withLatestFrom } from "rxjs";
@@ -23,7 +23,7 @@ interface pendingElement {
 export class ChatService {
 
   @inject(ElementsSetup) private _elementsSetup!: ElementsSetup;
-  @inject(LobbyPlayersService) private _lobbyPlayersService!: LobbyPlayersService;
+  @inject(PlayersService) private _lobbyPlayersService!: PlayersService;
   @inject(MessageReceivedEventListener) private _messageReceivedEventListener!: MessageReceivedEventListener;
 
   private readonly _logger;
@@ -75,9 +75,9 @@ export class ChatService {
 
     /* listen for new received messages and match with lobby player */
     this._messageReceivedEventListener.events$.pipe(
-      withLatestFrom(this._lobbyPlayersService.players$),
+      withLatestFrom(this._lobbyPlayersService.lobbyPlayers$),
       map(([event, players]) => {
-        const player = players.find(p => p.id === event.data.senderId);
+        const player = players.find(p => p.lobbyPlayerId === event.data.senderId);
 
         if (!player) {
           this._logger.warn("Player not found for message", event.data);

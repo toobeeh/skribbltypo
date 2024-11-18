@@ -1,5 +1,5 @@
 import { ChatService } from "@/content/services/chat/chat.service";
-import type { SkribblLobbyPlayer } from "@/content/services/lobby-players/skribblLobbyPlayer";
+import type { SkribblLobbyPlayer } from "@/content/services/players/skribblLobbyPlayer";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import type { Subscription } from "rxjs";

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { spriteSlot } from "@/content/features/player-sprites/player-sprites.feature";
-  import type { SkribblPlayerDisplay } from "@/util/typo/skribblPlayerDisplay.interface";
+  import type { SkribblPlayerDisplay } from "@/content/services/players/skribblPlayerDisplay.interface";
 
   export let sprites: spriteSlot[] = [];
   export let playerDisplay: SkribblPlayerDisplay;

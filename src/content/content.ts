@@ -45,13 +45,12 @@ import { GlobalSettingsService } from "@/content/services/global-settings/global
 import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
 import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
-import { LobbyPlayersService } from "@/content/services/lobby-players/lobby-players.service";
+import { PlayersService } from "@/content/services/players/players.service";
 import { SocketService } from "@/content/services/socket/socket.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
-import { LandingPlayerDisplaySetup } from "@/content/setups/landing-player-display/landing-player-display.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
@@ -103,7 +102,7 @@ new ExtensionContainer(interceptor)
     {type: ToastService, scope: "scoped"},
     {type: SocketService, scope: "scoped"},
     {type: LobbyItemsService, scope: "singleton"},
-    {type: LobbyPlayersService, scope: "singleton"},
+    {type: PlayersService, scope: "singleton"},
     {type: ChatService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
@@ -119,7 +118,6 @@ new ExtensionContainer(interceptor)
     ApiDataSetup,
     ToastSetup,
     ChatControlsSetup,
-    LandingPlayerDisplaySetup,
     PrioritizedCanvasEventsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
