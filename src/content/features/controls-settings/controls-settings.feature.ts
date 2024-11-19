@@ -16,7 +16,7 @@ export class ControlsSettingsFeature extends TypoFeature {
   @inject(ModalService) private readonly _modalService!: ModalService;
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(FeaturesService) private readonly _featuresService!: FeaturesService;
-  @inject(GlobalSettingsService) private readonly _settings!: GlobalSettingsService;
+  @inject(GlobalSettingsService) private readonly _settingsService!: GlobalSettingsService;
 
   public readonly name = "Typo Settings";
   public readonly description =
@@ -65,7 +65,7 @@ export class ControlsSettingsFeature extends TypoFeature {
   }
 
   public get devModeStore() {
-    return fromObservable(this._settings.settings.devMode.changes$, false);
+    return fromObservable(this._settingsService.settings.devMode.changes$, false);
   }
 
   /**

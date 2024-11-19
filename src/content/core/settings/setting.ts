@@ -1,8 +1,12 @@
 import type { TypoFeature } from "@/content/core/feature/feature";
+import type { componentData } from "@/content/services/modal/modal.service";
 import { fromObservable } from "@/util/store/fromObservable";
 import { BehaviorSubject, of, switchMap } from "rxjs";
+import BooleanSettingInput from "@/lib/settings/boolean-setting-input.svelte";
+import type { SvelteComponent } from "svelte";
 
-type serializable = string | number | boolean | null | serializable[] | { [key: string]: serializable };
+export type serializable = undefined | string | number | boolean | serializable[] | { [key: string]: serializable };
+
 
 export class ExtensionSetting<TValue extends serializable> {
 
@@ -72,5 +76,18 @@ export class ExtensionSetting<TValue extends serializable> {
 
   public get asFrozen(): Omit<ExtensionSetting<TValue>, "withDescription" | "withName">{
     return this;
+  }
+}
+
+export abstract class SettingWithInput<TSetting extends serializable> extends ExtensionSetting<TSetting> {
+  public abstract get componentData(): componentData<SvelteComponent<{setting: ExtensionSetting<TSetting>}>>;
+}
+
+export class BooleanExtensionSetting extends SettingWithInput<boolean> {
+  public override get componentData()  {
+    return {
+      componentType: BooleanSettingInput,
+      props: { setting: this }
+    };
   }
 }

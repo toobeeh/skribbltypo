@@ -4,7 +4,7 @@ import { inject } from "inversify";
 
 export class DeveloperModeFeature extends TypoFeature {
 
-  @inject(GlobalSettingsService) private readonly _settings!: GlobalSettingsService;
+  @inject(GlobalSettingsService) private readonly _settingsService!: GlobalSettingsService;
 
   protected override readonly featureEnabledDefault = false;
   public readonly name = "Developer Mode";
@@ -12,10 +12,10 @@ export class DeveloperModeFeature extends TypoFeature {
   public readonly featureId = 16;
 
   protected override async onActivate() {
-    await this._settings.settings.devMode.setValue(true);
+    await this._settingsService.settings.devMode.setValue(true);
   }
 
   protected override async onDestroy() {
-    await this._settings.settings.devMode.setValue(false);
+    await this._settingsService.settings.devMode.setValue(false);
   }
 }

@@ -1,5 +1,5 @@
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
-import { ExtensionSetting } from "@/content/core/settings/setting";
+import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { ImageResetEventListener } from "@/content/events/image-reset.event";
 import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
@@ -17,7 +17,6 @@ import {
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import CanvasZoomInfo from "./canvas-zoom-info.svelte";
-import CanvasZoomSettings from "./canvas-zoom-settings.svelte";
 
 export class CanvasZoomFeature extends TypoFeature {
 
@@ -27,10 +26,6 @@ export class CanvasZoomFeature extends TypoFeature {
   @inject(ImageResetEventListener) private readonly _imageResetEventListener!: ImageResetEventListener;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
 
-  public override get featureSettingsComponent(): componentData<CanvasZoomSettings> {
-    return { componentType: CanvasZoomSettings, props: { feature: this }};
-  }
-
   public override get featureInfoComponent(): componentData<CanvasZoomInfo> {
     return {componentType: CanvasZoomInfo, props: { }};
   }
@@ -39,9 +34,9 @@ export class CanvasZoomFeature extends TypoFeature {
   public readonly description = "Lets you zoom a section of the canvas when you're drawing";
   public readonly featureId = 26;
 
-  private readonly _onlyWhenDrawingStore = new ExtensionSetting<boolean>("trigger_require_drawing", true, this)
+  private readonly _enableOnlyWhenDrawingSetting = this.useSetting(new BooleanExtensionSetting("trigger_require_drawing", true, this)
     .withName("Zoom Only When Drawing")
-    .withDescription("Only allow start zooming with the hotkey when you're currently drawing");
+    .withDescription("Only allow start zooming with the hotkey when you're currently drawing"));
 
   private readonly _startZoomHotkey = this.useHotkey(new HotkeyAction(
     "start_zoom",
@@ -119,7 +114,7 @@ export class CanvasZoomFeature extends TypoFeature {
     const zoomTogglePipe$ = this._zoomListenToggle$.pipe(
 
       /* only allow activation when currently drawing */
-      withLatestFrom(this._lobbyService.lobby$, this._onlyWhenDrawingStore.changes$),
+      withLatestFrom(this._lobbyService.lobby$, this._enableOnlyWhenDrawingSetting.changes$),
       filter(([active, lobby, onlyWhenDrawing]) => !active || !onlyWhenDrawing || lobby !== null && lobby.drawerId === lobby.meId),
       map(([active]) => active),
       distinctUntilChanged(),
@@ -239,6 +234,6 @@ export class CanvasZoomFeature extends TypoFeature {
   }
 
   public get onlyWhenDrawingStore(){
-    return this._onlyWhenDrawingStore.store;
+    return this._enableOnlyWhenDrawingSetting.store;
   }
 }

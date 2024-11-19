@@ -1,7 +1,9 @@
 <script lang="ts">
   import type { TypoFeature } from "@/content/core/feature/feature";
   import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
+  import { firstValueFrom } from "rxjs";
   import ControlsSettingsDetails from "./controls-settings-details.svelte";
+  import ControlsSettingsFeatureItem from "./controls-settings-feature.svelte";
 
   export let feature: ControlsSettingsFeature;
   const devMode = feature.devModeStore;
@@ -10,10 +12,11 @@
   const toggleFeature = async (feature: TypoFeature) => {
     if(feature.toggleEnabled === false) return feature;
 
-    if(feature.state === "destroyed") {
+    const state = await firstValueFrom(feature.activated$);
+    if(!state) {
       await feature.activate();
     }
-    else if(feature.state === "running") {
+    else {
       await feature.destroy();
     }
 
@@ -78,98 +81,8 @@
       gap: 2rem;
       padding: 0 2em 2em 2em;
       overflow: auto;
-
-      .typo-feature-item {
-        min-width: clamp(20em, 20em, 100%);
-        max-width: clamp(20em, 20em, 100%);
-        background-color: var(--COLOR_PANEL_HI);
-        border-radius: 3px;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
-        flex: 1 1 0px;
-        position: relative;
-
-        &.hidden {
-          display: none;
-        }
-
-        &.devMode .feature-id {
-          display: block;
-          position: absolute;
-          bottom: 0;
-          right: 0;
-          user-select: none;
-          opacity: .5;
-          padding: .2rem;
-        }
-
-        .feature-id {
-          display: none;
-        }
-
-        .description {
-          flex-grow: 1;
-          display: flex;
-          gap: 1rem;
-          align-items: center;
-          user-select: none;
-
-          &[role='button'] {
-            cursor: pointer;
-          }
-
-          img {
-            filter: grayscale(100%);
-            opacity: 0.7;
-            width: 1.5em;
-            height: 1.5em;
-
-            &:hover {
-              filter: grayscale(0%);
-              opacity: 1;
-            }
-          }
-        }
-
-        .name-toggle {
-          display:flex;
-          align-items: center;
-          gap: 1rem;
-          font-weight: bold;
-          font-size: 1.2rem;
-          cursor: pointer;
-          user-select: none;
-
-          &.locked {
-            cursor: not-allowed;
-
-            img {
-              filter: grayscale(100%);
-              opacity: 0.7;
-            }
-          }
-
-          img {
-            width: 1.5em;
-            height: 1.5em;
-            filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, .3));
-          }
-
-          span:last-child {
-            font-size: 1rem;
-            opacity: .5;
-            margin-left: auto;
-            text-transform: uppercase;
-          }
-        }
-      }
     }
   }
-
-
-
 </style>
 
 <div class="typo-features-container">
@@ -183,39 +96,7 @@
     <div class="typo-features-list color-scrollbar">
       {#each feature.features as feat}
 
-        <!-- container box for a feature, works as toggle-->
-        <div class="typo-feature-item"
-             class:devMode={$devMode}
-             class:hidden={!feat.toggleEnabled && !$devMode}
-        >
-          <!-- icon with name -->
-          <div class="name-toggle" role="button" tabindex="0"
-               class:locked={!feat.toggleEnabled}
-               on:click={async () => feat = await toggleFeature(feat)}
-               on:keypress={async (key) => {
-         if(key.key === 'Enter') feat = await toggleFeature(feat);
-       }}
-          >
-            <img src="" alt="{feat.state}" style="content: var(--{feat.state === 'destroyed' ? 'file-img-disabled-gif' : 'file-img-enabled-gif'})" />
-            <span>{feat.name}</span>
-            <span>{feat.state === 'destroyed' ? 'disabled' : 'enabled'}</span>
-          </div>
-
-          <!--description-->
-          {#if feat.hasDetailComponents}
-            <div class="description" role="button" on:click={() => selectedDetailsFeature = feat}>
-              <img src="" alt="{feat.state}" style="content: var(--file-img-wrench-gif)" />
-              <span>{feat.description}</span>
-            </div>
-          {:else}
-            <div class="description">
-              {feat.description}
-            </div>
-          {/if}
-
-          <!-- feature id in dev mode -->
-          <div class="feature-id">#{feat.featureId}</div>
-        </div>
+        <ControlsSettingsFeatureItem feature="{feat}" devmodeEnabled="{$devMode}" featureSettingsClicked="{() => selectedDetailsFeature = feat}" />
 
       {/each}
     </div>

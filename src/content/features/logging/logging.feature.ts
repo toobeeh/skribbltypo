@@ -4,7 +4,7 @@ import { LoggingService } from "@/content/core/logger/logging.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { inject } from "inversify";
-import LoggingSettings from "./logging-settings.svelte";
+import LoggingManage from "./logging-manage.svelte";
 import LoggingInfo from "./logging-info.svelte";
 
 export class LoggingFeature extends TypoFeature {
@@ -17,12 +17,16 @@ export class LoggingFeature extends TypoFeature {
   @inject(LoggingService) private readonly _loggingService!: LoggingService;
   @inject(ToastService) private readonly _toastService!: ToastService;
 
-  public override get featureSettingsComponent(): componentData<LoggingSettings> {
-    return { componentType: LoggingSettings, props: { feature: this }};
+  public override get featureManagementComponent(): componentData<LoggingManage> {
+    return { componentType: LoggingManage, props: { feature: this }};
   }
 
   public override get featureInfoComponent(): componentData<LoggingInfo> {
     return {componentType: LoggingInfo, props: { }};
+  }
+
+  public override postConstruct() {
+    this.useSetting(this._loggingService.printEnabledSetting);
   }
 
   public get loggers() {
@@ -58,10 +62,6 @@ export class LoggingFeature extends TypoFeature {
     }
 
     await this._toastService.showToast("Updated Logger", `Log level of ${logger.boundTo} set to ${level}`);
-  }
-
-  public get consolePrintEnabledStore(){
-    return this._loggingService.printEnabledSetting.store;
   }
 
   public async resetAllLogLevels(level: string) {

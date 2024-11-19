@@ -16,7 +16,7 @@
 
   $: {
     featureHotkeys = [...feature.hotkeys];
-    settingsComponent = feature.featureSettingsComponent;
+    settingsComponent = feature.featureManagementComponent;
     infoComponent = feature.featureInfoComponent;
   }
 
@@ -55,7 +55,7 @@
     text-align: center;
   }
 
-  .typo-feature-settings-info, .typo-feature-settings-management, .typo-feature-settings-hotkeys {
+  .typo-feature-settings-info, .typo-feature-settings-management, .typo-feature-settings-hotkeys, .typo-feature-settings-default {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -66,6 +66,30 @@
       /*opacity: .7;*/
       margin-bottom: .5em;
     }
+  }
+
+  .typo-feature-settings-default {
+
+    .typo-feature-settings-default-list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 2rem;
+
+      .typo-feature-settings-default-item {
+        min-width: clamp(20em, 20em, 100%);
+        max-width: clamp(20em, 20em, 100%);
+        background-color: var(--COLOR_PANEL_HI);
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        flex: 1 1 0px;
+        position: relative;
+      }
+    }
+
   }
 
   .typo-feature-settings-hotkeys-list {
@@ -97,9 +121,22 @@
   </div>
 {/if}
 
+{#if feature.settings.length > 0}
+  <div class="typo-feature-settings-default">
+    <h2>Feature Settings</h2>
+    <div class="typo-feature-settings-default-list">
+      {#each feature.settings as setting}
+        <div class="typo-feature-settings-default-item">
+          <svelte:component this={setting.componentData.componentType} {...setting.componentData.props} />
+        </div>
+      {/each}
+    </div>
+  </div>
+{/if}
+
 {#if settingsComponent}
   <div class="typo-feature-settings-management">
-    <h2>Feature Settings</h2>
+    <h2>Feature Management</h2>
     <div>
       <svelte:component this={settingsComponent.componentType} {...settingsComponent.props} />
     </div>

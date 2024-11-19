@@ -1,5 +1,5 @@
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
-import { ExtensionSetting } from "@/content/core/settings/setting";
+import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { filter, type Subscription, withLatestFrom } from "rxjs";
@@ -7,7 +7,6 @@ import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import ChatFocusInfo from "./chat-focus-info.svelte";
-import ChatFocusSettings from "./chat-focus-settings.svelte";
 
 export class ChatFocusFeature extends TypoFeature {
 
@@ -22,10 +21,6 @@ export class ChatFocusFeature extends TypoFeature {
     return { componentType: ChatFocusInfo, props: {}};
   }
 
-  public override get featureSettingsComponent(): componentData<ChatFocusSettings>{
-    return { componentType: ChatFocusSettings, props: { feature: this }};
-  }
-
   private readonly _chatFocusHotkey = this.useHotkey(new HotkeyAction(
     "chat_focus",
     "Chat Focus",
@@ -36,9 +31,11 @@ export class ChatFocusFeature extends TypoFeature {
     ["Tab"],
   ));
 
-  private _autoFocusChatInputSetting = new ExtensionSetting<boolean>("auto_focus_chat_input", true, this)
-    .withName("Auto Focus Chat Input")
-    .withDescription("Automatically focus the chat input when someone else starts drawing");
+  private _autoFocusChatInputSetting = this.useSetting(
+    new BooleanExtensionSetting("auto_focus_chat_input", true, this)
+      .withName("Auto Focus Chat Input")
+      .withDescription("Automatically focus the chat input when someone else starts drawing")
+  );
 
   private _autoFocusSubscription?: Subscription;
 

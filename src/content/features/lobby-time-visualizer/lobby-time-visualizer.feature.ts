@@ -1,4 +1,4 @@
-import { ExtensionSetting } from "@/content/core/settings/setting";
+import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyJoinedEventListener } from "@/content/events/lobby-joined.event";
 import { LobbyStateChangedEvent, LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
 import type { componentData } from "@/content/services/modal/modal.service";
@@ -6,7 +6,6 @@ import { delay, firstValueFrom, map, of, type Subscription, withLatestFrom } fro
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import LobbyTimeVisualizerInfo from "./lobby-time-visualizer-info.svelte";
-import LobbyTimeVisualizerSettings from "./lobby-time-visualizer-settings.svelte";
 
 export class LobbyTimeVisualizerFeature extends TypoFeature {
 
@@ -21,21 +20,17 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
     return { componentType: LobbyTimeVisualizerInfo, props: {}};
   }
 
-  public override get featureSettingsComponent(): componentData<LobbyTimeVisualizerSettings>{
-    return { componentType: LobbyTimeVisualizerSettings, props: { feature: this }};
-  }
-
-  private _enableChooseVisualizer = new ExtensionSetting<boolean>("choose_visualizer", true, this)
+  private _enableChooseVisualizer = this.useSetting(new BooleanExtensionSetting("choose_visualizer", true, this)
     .withName("Choose Visualizer")
-    .withDescription("Show a visualizer of the remaining time to choose words");
+    .withDescription("Show a visualizer of the remaining time to choose words"));
 
-  private _enableDrawVisualizer = new ExtensionSetting<boolean>("draw_visualizer", true, this)
+  private _enableDrawVisualizer = this.useSetting(new BooleanExtensionSetting("draw_visualizer", true, this)
     .withName("Draw Visualizer")
-    .withDescription("Show a visualizer of the remaining time to draw a word");
+    .withDescription("Show a visualizer of the remaining time to draw a word"));
 
-  private _enableGuessVisualizer = new ExtensionSetting<boolean>("guess_visualizer", true, this)
+  private _enableGuessVisualizer = this.useSetting(new BooleanExtensionSetting("guess_visualizer", true, this)
     .withName("Guess Visualizer")
-    .withDescription("Show a visualizer of the remaining time to guess a word");
+    .withDescription("Show a visualizer of the remaining time to guess a word"));
 
   private visualizerEventSubscription?: Subscription;
   private _visualizerStyle?: CSSStyleSheet;

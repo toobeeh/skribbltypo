@@ -1,5 +1,5 @@
 import type { loggerEvent, LoggerService, logLevel } from "@/content/core/logger/logger.service";
-import { ExtensionSetting } from "@/content/core/settings/setting";
+import { BooleanExtensionSetting, ExtensionSetting } from "@/content/core/settings/setting";
 import { injectable } from "inversify";
 import { Subject, withLatestFrom } from "rxjs";
 
@@ -16,9 +16,9 @@ export class LoggingService {
     date: "color: darkGrey; font-weight: light;"
   };
   private readonly _prefix = "skribbltypo";
-  private readonly _printEnabledSetting = new ExtensionSetting<boolean>("logging.printLogEnabled", true)
+  private readonly _printEnabledSetting = new BooleanExtensionSetting("logging.printLogEnabled", true)
     .withName("Print Logs")
-    .withDescription("Whether to print extension event logs to the console");
+    .withDescription("Print extension event logs to the browser console");
 
   private _loggers: LoggerService[] = [];
   private _logLevelSettings = new Map<LoggerService, ExtensionSetting<logLevel>>();
@@ -82,7 +82,7 @@ export class LoggingService {
   }
 
   public get printEnabledSetting() {
-    return this._printEnabledSetting.asFrozen;
+    return this._printEnabledSetting;
   }
 
   public getLogLevelSetting(logger: LoggerService) {

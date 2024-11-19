@@ -1,14 +1,12 @@
 <script lang="ts">
   import type { LoggingFeature } from "@/content/features/logging/logging.feature";
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
-  import Checkbox from "@/lib/checkbox/checkbox.svelte";
 
   export let feature: LoggingFeature;
 
   let resetAll: HTMLSelectElement;
   let loggers = feature.loggers;
   let loggerFilter: string = "";
-  const printEnabled = feature.consolePrintEnabledStore;
 </script>
 
 <style lang="scss">
@@ -45,7 +43,6 @@
 <div class="typo-logs-export">
   <FlatButton on:click={() => feature.copyLogsToClipboard(false)} content="Copy logs text" color="blue"/>
   <FlatButton on:click={() => feature.copyLogsToClipboard(true)} content="Copy logs JSON" color="blue"/>
-  <Checkbox bind:checked={$printEnabled} description="Print to console"/>
 </div>
 
 <h3>Reset Log Level</h3>

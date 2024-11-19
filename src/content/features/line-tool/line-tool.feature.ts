@@ -1,6 +1,4 @@
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
-import { ImageResetEventListener } from "@/content/events/image-reset.event";
-import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import type { componentData } from "@/content/services/modal/modal.service";
@@ -24,10 +22,6 @@ export class LineToolFeature extends TypoFeature {
   @inject(PrioritizedCanvasEventsSetup)
   private readonly _prioritizedCanvasEventsSetup!: PrioritizedCanvasEventsSetup;
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
-  @inject(LobbyStateChangedEventListener)
-  private readonly _lobbyStateChangedEventListener!: LobbyStateChangedEventListener;
-  @inject(ImageResetEventListener)
-  private readonly _imageResetEventListener!: ImageResetEventListener;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
 

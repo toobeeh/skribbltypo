@@ -1,6 +1,8 @@
 import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { HotkeysService } from "@/content/core/hotkeys/hotkeys.service";
-import { ExtensionSetting } from "@/content/core/settings/setting";
+import {
+  BooleanExtensionSetting, type serializable, SettingWithInput,
+} from "@/content/core/settings/setting";
 import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { inject, injectable, postConstruct } from "inversify";
@@ -18,19 +20,38 @@ export abstract class TypoFeature {
    */
   protected get boundServices(): featureBinding[] { return []; }
 
-  private _isActivatedSetting = new ExtensionSetting<boolean>("isActivated", this.featureEnabledDefault, this);
-
   private _isActivated = false;
-  private _isRun = false;
   private _hotkeys: HotkeyAction[] = [];
+  private _settings: SettingWithInput<serializable>[] = [];
 
   public abstract readonly name: string;
   public abstract readonly description: string;
   public readonly toggleEnabled: boolean = true;
 
+  private _isActivatedSetting = new BooleanExtensionSetting("isActivated", this.featureEnabledDefault, this)
+      .withName("Activated")
+      .withDescription("Enable or disable the feature. Disabled features will reset and remove every functionality, mods and hotkeys.");
+
+  /**
+   * Add a hotkey to the user accessible hotkey configuration
+   * @param action
+   * @protected
+   */
   protected useHotkey(action: HotkeyAction) {
     this._hotkeys.push(action);
     return action;
+  }
+
+  /**
+   * Add a setting to the user accessible setting configuration
+   * @param setting
+   * @protected
+   */
+  protected useSetting<TSetting extends serializable>(
+    setting: SettingWithInput<TSetting>){
+    this._settings.push(setting as unknown as SettingWithInput<serializable>); /* what's wrong with polymorphism here? */
+
+    return setting;
   }
 
   /**
@@ -40,10 +61,14 @@ export abstract class TypoFeature {
     return this._hotkeys;
   }
 
+  public get settings(): readonly SettingWithInput<serializable>[] {
+    return this._settings;
+  }
+
   /**
    * A component to display feature customization settings
    */
-  public get featureSettingsComponent(): componentData<SvelteComponent> | undefined {
+  public get featureManagementComponent(): componentData<SvelteComponent> | undefined {
     return undefined;
   }
 
@@ -55,7 +80,10 @@ export abstract class TypoFeature {
   }
 
   public get hasDetailComponents() {
-    return this.hotkeys.length > 0 || this.featureSettingsComponent !== undefined || this.featureInfoComponent !== undefined;
+    return this.hotkeys.length > 0 ||
+      this.featureManagementComponent !== undefined ||
+      this.featureInfoComponent !== undefined ||
+      this._settings.length > 0;
   }
 
   /**
@@ -63,12 +91,9 @@ export abstract class TypoFeature {
    */
   public abstract readonly featureId: number;
 
-  protected onRun(): Promise<void> | void {
-    this._logger.debug("onRun not implemented");
-  }
-  protected onFreeze(): Promise<void> | void {
-    this._logger.debug("onFreeze not implemented");
-  }
+  protected postConstruct(): Promise<void> | void {
+    this._logger.debug("onConstruct not implemented");
+  };
 
   protected onActivate(): Promise<void> | void {
     this._logger.debug("onActivate not implemented");
@@ -89,55 +114,17 @@ export abstract class TypoFeature {
   @postConstruct()
   public init() {
     this._isActivatedSetting.setDefaultValue(this.featureEnabledDefault); // derived class properties are not earlier available!
-    this._isActivatedSetting.getValue().then((value) => {
-      this._logger.debug("Feature loaded with activation state", value);
-      if(value) this.activate();
-    });
-  }
 
-  /**
-   * Run the feature.
-   * The feature needs to be activated before running.
-   */
-  public async run() {
-    if(!this._isActivated) {
-      this._logger.warn("Attempted to activate feature without activation");
-      throw new Error("Feature is not activated");
-    }
+    const loadActivation = () => {
+      this._isActivatedSetting.getValue().then((value) => {
+        this._logger.debug("Feature loaded with activation state", value);
+        if(value) this.activate();
+      });
+    };
 
-    if(this._isRun) {
-      this._logger.warn("Attempted to run feature while already running");
-      throw new Error("Feature is already running");
-    }
-
-    this._logger.info("Running feature");
-    const run = this.onRun();
-    if(run instanceof Promise) await run;
-
-    this._isRun = true;
-  }
-
-  /**
-   * Freeze the feature.
-   * The feature needs to be activated before freezing.
-   * A frozen feature can be activated again.
-   */
-  public async freeze() {
-    if(!this._isActivated) {
-      this._logger.warn("Attempted to freeze feature without activation");
-      throw new Error("Feature is not activated");
-    }
-
-    if(!this._isRun) {
-      this._logger.warn("Attempted to freeze feature while not running");
-      throw new Error("Feature is not running");
-    }
-
-    this._logger.info("Freezing feature");
-    const freeze = this.onFreeze();
-    if(freeze instanceof Promise) await freeze;
-
-    this._isRun = false;
+    const postConstruct = this.postConstruct();
+    if(postConstruct instanceof Promise) postConstruct.then(loadActivation);
+    else loadActivation();
   }
 
   /**
@@ -160,10 +147,6 @@ export abstract class TypoFeature {
     this._isActivated = true;
     await this._isActivatedSetting.setValue(true);
 
-    const run = this.onRun();
-    if(run instanceof Promise) await run;
-    this._isRun = true;
-
     /* register hotkeys */
     if(this._hotkeys.length !== 0) {
       this._logger.debug("Registering feature hotkeys", this._hotkeys);
@@ -184,10 +167,6 @@ export abstract class TypoFeature {
 
     this._logger.info("Destroying feature");
 
-    const freeze = this.onFreeze();
-    if(freeze instanceof Promise) await freeze;
-    this._isRun = false;
-
     const destroy = this.onDestroy();
     if(destroy instanceof Promise) await destroy;
     this._isActivated = false;
@@ -201,10 +180,6 @@ export abstract class TypoFeature {
       this._logger.debug("Removing feature hotkeys", this._hotkeys);
       this._hotkeys.forEach((hotkey) => this._hotkeysService.removeHotkey(hotkey));
     }
-  }
-
-  public get state() {
-    return this._isActivated ? (this._isRun ? "running" : "frozen") : "destroyed";
   }
 
   public get activated$() {
