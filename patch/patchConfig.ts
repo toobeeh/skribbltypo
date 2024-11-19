@@ -78,6 +78,11 @@ export const gameJsPatchConfig = {
           target:
             "graphic: \"clear\\.gif\",\\s+action: ([a-zA-Z0-9&_\\-$]+)",
         },
+        {
+          source: "##SELECTTOOL##",
+          target:
+            "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\) {\\s+[a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.element\\)",
+        },
       ],
       injections: [
         {
@@ -130,6 +135,7 @@ export const gameJsPatchConfig = {
                     lastConnect: 0,
                     initListeners: (() => {
                         let abort = false; 
+                        document.addEventListener("deselectTool", () => ##SELECTTOOL##(-1));
                         document.addEventListener("clearDrawing", () => ##CLEARACTION##());
                         document.addEventListener("abortJoin", () => abort = true); 
                         document.addEventListener("joinLobby", (e) => {
@@ -606,6 +612,20 @@ export const gameJsPatchConfig = {
                 /*TYPOEND*/
                 `,
         },
+        {
+          position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
+          code: `
+                /*TYPOMOD DESC: add tool for deselect*/ 
+                ,
+                ##ADDACTION##(-1, {
+                    isAction: !1,
+                    name: "None",
+                    graphic: "",
+                    keydef: undefined,
+                }) 
+                /*TYPOEND*/
+                `,
+        },
       ],
     },
     {
@@ -700,6 +720,21 @@ export const gameJsPatchConfig = {
         {
           position: '\\)(\\s+)}\\)\\(window, document,',
           code: `;document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");`,
+        },
+      ],
+    },
+    {
+      name: "Add event when skribbl tool changed",
+      replacements: [
+        {
+          source: "##TOOLID##",
+          target: 'function [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+), [a-zA-Z0-9&_\\-$]+\\) {\\s+\\/\\*toolidtarget',
+        },
+      ],
+      injections: [
+        {
+          position: 'function [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\) {(\\s+[a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.element\\))',
+          code: `/*toolidtarget*/ document.dispatchEvent(new CustomEvent("skribblToolChanged", {detail: ##TOOLID##}));`,
         },
       ],
     },

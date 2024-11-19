@@ -10,6 +10,7 @@ import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state
 import { messageReceivedEventRegistration } from "@/content/events/message-received.event";
 import { messageSentEventRegistration } from "@/content/events/message-sent.event";
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
+import { toolChangedEventRegistration } from "@/content/events/tool-changed.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
 import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.feature";
 import { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";
@@ -134,7 +135,8 @@ new ExtensionContainer(interceptor)
     imageResetEventRegistration,
     messageSentEventRegistration,
     messageReceivedEventRegistration,
-    chatTypedEventRegistration
+    chatTypedEventRegistration,
+    toolChangedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,

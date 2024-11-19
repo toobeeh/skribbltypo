@@ -79,6 +79,7 @@
       lastConnect: 0,
       initListeners: (() => {
         let abort = false;
+        document.addEventListener("deselectTool", () => Nt(-1));
         document.addEventListener("clearDrawing", () => Vt());
         document.addEventListener("abortJoin", () => abort = true);
         document.addEventListener("joinLobby", (e) => {
@@ -793,6 +794,15 @@
       graphic: "clear.gif",
       action: Vt
     })
+      /*TYPOMOD DESC: add tool for deselect*/
+      ,
+      lt(-1, {
+        isAction: !1,
+        name: "None",
+        graphic: "",
+        keydef: undefined,
+      })
+      /*TYPOEND*/
       /*TYPOMOD DESC: add tool for pipette*/
       ,
       lt(3, {
@@ -934,7 +944,8 @@
   }
 
   function Nt(e, t) {
-    Rt(st[e].element), e == bt && !t || (st[bt].element.classList.remove("selected"), st[e].element.classList.add("selected"), bt = e, vt())
+
+    /*toolidtarget*/ document.dispatchEvent(new CustomEvent("skribblToolChanged", {detail: e}));  Rt(st[e].element), e == bt && !t || (st[bt].element.classList.remove("selected"), st[e].element.classList.add("selected"), bt = e, vt())
   }
 
   function Wt(e) {
