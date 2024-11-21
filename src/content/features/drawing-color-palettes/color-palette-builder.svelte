@@ -73,7 +73,8 @@
     <input type="number" bind:value={columns} min="0" disabled="{onPaletteSave === undefined}" />
 
     <b>Palette colors</b>
-    <div class="typo-palette-builder-colors" style="grid-template-columns: repeat({columns}, 2rem); width: calc({columns} * 2rem + {columns - 1} * .2rem)">
+    <div class="typo-palette-builder-colors"
+         style="pointer-events: {onPaletteSave === undefined ? 'none' : 'all'}; grid-template-columns: repeat({columns}, 2rem); width: calc({columns} * 2rem + {columns - 1} * .2rem)">
       {#each colors as color, i}
         <div class="typo-palette-builder-color" >
           <ColorPickerButton bind:color="{color}" height="auto" />
@@ -83,7 +84,7 @@
 
   </div>
 
-  <div class="typo-palette-builder-actions"  style="pointer-events: {onPaletteSave === undefined ? 'none' : 'all'}">
+  <div class="typo-palette-builder-actions">
     {#if onPaletteSave}
       <FlatButton color="green" content="Save Palette" on:click={() => onPaletteSave({name, columns, colorHexCodes: colors.map(c => c.hex)})} />
     {/if}
@@ -96,8 +97,15 @@
       <FlatButton color="blue" content="Export to clipboard" on:click={() => onPaletteExport({name, columns, colorHexCodes: colors.map(c => c.hex)})} />
     {/if}
 
-    <FlatButton content="Add Color" color="green" on:click={() => colors = [...colors, Color.fromHex("#77c5fa")]}  />
-    <FlatButton content="Remove Color" color="orange" on:click={() => colors = [...colors.slice(0, colors.length - 1)]}  />
+    <br>
+
+    {#if onPaletteSave}
+      <FlatButton content="Add Color" color="green" on:click={() => colors = [...colors, Color.fromHex("#77c5fa")]}  />
+    {/if}
+
+    {#if onPaletteSave}
+      <FlatButton content="Remove Color" color="orange" on:click={() => colors = [...colors.slice(0, colors.length - 1)]}  />
+    {/if}
   </div>
 
 </div>

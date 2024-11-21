@@ -1,14 +1,17 @@
 import { ExtensionSetting, type serializable } from "@/content/core/settings/setting";
+import { DrawingService } from "@/content/services/drawing/drawing.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import { Color } from "@/util/color";
 import { createElement } from "@/util/document/appendElement";
-import { map, type Subscription, withLatestFrom } from "rxjs";
+import { combineLatestWith, distinctUntilChanged, map, type Subscription, tap } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import ColorPalettesInfo from "./drawing-color-palettes-info.svelte";
 import ColorPalettesManage from "./drawing-color-palettes-manage.svelte";
 import ColorPalettePicker from "./color-palette-picker.svelte";
+import  {defaultPalettes} from "@/content/features/drawing-color-palettes/default-palettes";
 
 export interface palette {
   name: string;
@@ -21,6 +24,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
 
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ToastService) private readonly _toastService!: ToastService;
+  @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
   public readonly name = "Color Palettes";
   public readonly description = "Use custom color palettes instead of the default skribbl colors";
@@ -43,7 +47,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
       .withDescription("The name of the currently active palette");
 
   private readonly _hideOriginalPaletteStyle = createElement(`<style>
-    .colors :is(.top, .bottom) {
+    #game #game-toolbar .colors :is(.top, .bottom) {
       display: none;
     }
   </style>`);
@@ -53,8 +57,20 @@ export class DrawingColorPalettesFeature extends TypoFeature {
 
   protected override async onActivate() {
     this._activePaletteSubscription = this._activePaletteSetting.changes$.pipe(
-      withLatestFrom(this._savedPalettesSetting.changes$),
-      map(([activePalette, savedPalettes]) => activePalette !== undefined ? savedPalettes.find(p => p.name === activePalette) : undefined)
+      combineLatestWith(this._savedPalettesSetting.changes$),
+
+      /* if changed and active does not exist, update current  to undefined */
+      tap(([activePalette, savedPalettes]) => {
+        if(activePalette !== undefined && ![...savedPalettes, ...Object.values(defaultPalettes)]
+          .some(p => p.name === activePalette)) {
+          this._activePaletteSetting.setValue(undefined);
+        }
+      }),
+      map(([activePalette, savedPalettes]) => activePalette !== undefined ?
+        [...savedPalettes, ...Object.values(defaultPalettes)].find(p => p.name === activePalette) :
+        undefined
+      ),
+      distinctUntilChanged()
     ).subscribe(palette => this.updatePaletteStyle(palette));
   }
 
@@ -65,26 +81,36 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     this._colorPalettePicker?.$destroy();
   }
 
+  /**
+   * Change the visibility of the default palette or custom palette
+   * @param palette
+   * @private
+   */
   private async updatePaletteStyle(palette: palette | undefined){
     this._logger.info("Updating palette style", palette);
 
+    this._colorPalettePicker?.$destroy();
     if(palette === undefined){
-      if(this._hideOriginalPaletteStyle.parentNode === undefined) document.body.appendChild(this._hideOriginalPaletteStyle);
-      this._colorPalettePicker?.$destroy();
+      this._hideOriginalPaletteStyle.remove();
       return;
     }
 
     const elements = await this._elementsSetup.complete();
 
-    this._hideOriginalPaletteStyle.remove();
+    if(this._hideOriginalPaletteStyle.parentElement === null) document.body.appendChild(this._hideOriginalPaletteStyle);
     this._colorPalettePicker = new ColorPalettePicker({
       target: elements.colorContainer,
       props: {
+        feature: this,
         palette
       }
     });
   }
 
+  /**
+   * Remove a palette from the settings
+   * @param name
+   */
   public async removePalette(name: string) {
     this._logger.info(`Removing palette ${name}`);
 
@@ -110,6 +136,35 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     toast.resolve();
   }
 
+  /**
+   * Parse a palette from a json string
+   * @param json
+   */
+  public parsePalette(json: string): palette {
+    this._logger.info("Parsing palette from json", json);
+
+    try {
+      const palette = JSON.parse(json);
+      if(typeof palette.name !== "string" || typeof palette.columns !== "number" || !Array.isArray(palette.colorHexCodes)
+      || ! palette.colorHexCodes.every((c: unknown) => typeof c === "string")) {
+        this._logger.error("Invalid palette format", palette);
+        throw new Error("Invalid palette format");
+      }
+
+      return palette;
+    }
+    catch(e) {
+      this._logger.error("Failed to parse palette from json", e);
+      this._toastService.showToast("Failed to read palette", "Invalid palette format. Check the JSON data!");
+      throw e;
+    }
+  }
+
+  /**
+   * Save a palette to the settings, or overwrite with given name
+   * @param palette
+   * @param overwrite
+   */
   public async savePalette(palette: palette, overwrite: string | undefined = undefined) {
     this._logger.info(`Saving palette ${palette.name}`, palette);
 
@@ -154,6 +209,10 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     toast.resolve();
   }
 
+  /**
+   * Copy the json of a palette to the clipboard
+   * @param palette
+   */
   public async exportPalette(palette: palette) {
     this._logger.info(`Exporting palette ${palette.name} to clipboard`, palette);
 
@@ -172,7 +231,25 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     toast.resolve();
   }
 
+  /**
+   * Set the color of the skribbl tool
+   * @param colorHex
+   */
+  public setColor(colorHex: string){
+    this._logger.info(`Setting color to ${colorHex}`);
+    const color = Color.fromHex(colorHex);
+    this._drawingService.setColor(color);
+  }
+
   public get savedPalettesStore() {
     return this._savedPalettesSetting.store;
+  }
+
+  public get activePaletteStore() {
+    return this._activePaletteSetting.store;
+  }
+
+  public get defaultPalettes() {
+    return defaultPalettes;
   }
 }
