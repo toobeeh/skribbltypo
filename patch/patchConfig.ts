@@ -135,7 +135,7 @@ export const gameJsPatchConfig = {
                     lastConnect: 0,
                     initListeners: (() => {
                         let abort = false; 
-                        document.addEventListener("deselectTool", () => ##SELECTTOOL##(-1));
+                        document.addEventListener("selectSkribblTool", (event) => ##SELECTTOOL##(event.detail));
                         document.addEventListener("clearDrawing", () => ##CLEARACTION##());
                         document.addEventListener("abortJoin", () => abort = true); 
                         document.addEventListener("joinLobby", (e) => {

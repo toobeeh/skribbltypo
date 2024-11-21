@@ -79,7 +79,7 @@
       lastConnect: 0,
       initListeners: (() => {
         let abort = false;
-        document.addEventListener("deselectTool", () => Nt(-1));
+        document.addEventListener("selectSkribblTool", (event) => Nt(event.detail));
         document.addEventListener("clearDrawing", () => Vt());
         document.addEventListener("abortJoin", () => abort = true);
         document.addEventListener("joinLobby", (e) => {

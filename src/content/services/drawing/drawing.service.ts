@@ -2,11 +2,11 @@ import { DrawEvent, DrawEventListener } from "@/content/events/draw.event";
 import { HintsAddedEvent, HintsAddedEventListener } from "@/content/events/hints-added.event";
 import { ImageResetEvent, ImageResetEventListener } from "@/content/events/image-reset.event";
 import { LobbyStateChangedEvent, LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
-import { ToolChangedEventListener } from "@/content/events/tool-changed.event";
 import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/word-guessed.event";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
+import type { Color } from "@/util/color";
 import { ImageData } from "@/util/imageData";
 import { wait } from "@/util/wait";
 import { inject, injectable } from "inversify";
@@ -45,7 +45,6 @@ export class DrawingService {
     @inject(DrawEventListener) private readonly draw: DrawEventListener,
     @inject(WordGuessedEventListener) private readonly wordGuessed: WordGuessedEventListener,
     @inject(ImageResetEventListener) private readonly imageReset: ImageResetEventListener,
-    @inject(ToolChangedEventListener) private readonly toolChangedListener: ToolChangedEventListener,
     @inject(ElementsSetup) private readonly elementsSetup: ElementsSetup,
     @inject(SkribblMessageRelaySetup) private readonly skribblMessages: SkribblMessageRelaySetup
   ) {
@@ -228,7 +227,13 @@ export class DrawingService {
     }
   }
 
+  public setColor(color: Color) {
+    this._logger.debug("Setting color", color);
+    document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color.typoCode}}));
+  }
+
   public clearImage() {
+    this._logger.debug("Clearing image");
     document.dispatchEvent(new CustomEvent("clearDrawing"));
   }
 

@@ -41,6 +41,8 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
     landingAvatarContainer: requireElement(".avatar-customizer .avatar"),
     landingCustomizeContainer: requireElement(".avatar-customizer"),
+    skribblTools: requireElement(".toolbar-group-tools"),
+    skribblBrushTools: requireElement(".toolbar-group-tools .tool[data-tooltip=\"Brush\"]"),
     chatControls,
     ...panels,
     toolbar,

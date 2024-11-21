@@ -32,3 +32,8 @@ input.typo[type="text"]{
 img {
   display: block;
 }
+
+/* hide typo dummy tools */
+.tool[data-tooltip="Lab"], .tool[data-tooltip="None"], .tool[data-tooltip="Pipette"] {
+  display: none;
+}

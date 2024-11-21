@@ -5,7 +5,12 @@ import { EventListener } from "../core/event/eventListener";
 import { EventProcessor } from "../core/event/eventProcessor";
 import type { EventRegistration } from "@/content/core/extension-container/extension-container";
 
-export type skribblTool = "fill" | "brush" | "deselected" | "other";
+export enum skribblTool {
+  fill = 0,
+  brush = 1,
+  deselected = -1,
+  other = 2
+}
 
 /**
  * Event that is emitted whenever an image is cleared or an action is undone
@@ -27,9 +32,9 @@ export class ToolChangedEventProcessor extends EventProcessor<skribblTool, ToolC
     /* listen for custom patched event */
     document.addEventListener("skribblToolChanged", (event: Event) => {
       const tool = (event as CustomEvent<number>).detail;
-      const toolName: skribblTool = tool === 0 ? "brush" : tool === 1 ? "fill" : tool === -1 ? "deselected" : "other";
-      events.next(new ToolChangedEvent(toolName));
-      this._logger.info("Tool changed", toolName);
+      const toolEnum = (tool > 2) ? skribblTool.other : tool;
+      events.next(new ToolChangedEvent(toolEnum));
+      this._logger.info("Tool changed", toolEnum);
     });
 
     return events;

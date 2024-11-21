@@ -37,6 +37,11 @@ export class Color {
     this._a = color._a;
   }
 
+  get typoCode() {
+    const hexString = ((this._r << 16) | (this._g << 8) | this._b).toString(16).toUpperCase();
+    return parseInt(hexString, 16) + 10000; // 10000 is the offset to identify that color index is a hex code
+  }
+
   //source: https://gist.github.com/mjackson/5311256
   get hsl() {
     const r = this.r / 255, g = this.g / 255, b = this.b / 255;

@@ -118,4 +118,8 @@ export class ExtensionContainer {
       });
       return this;
    }
+
+   public resolveService<TService>(service: Type<TService>): TService {
+      return this._diContainer.resolve(service);
+   }
 }

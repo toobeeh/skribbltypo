@@ -21,6 +21,7 @@ import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
 import { DeveloperModeFeature } from "@/content/features/developer-mode/developer-mode.feature";
+import { DrawingColorToolsFeature } from "@/content/features/drawing-color-tools/drawing-color-tools.feature";
 import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
 import { HotkeysFeature } from "@/content/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
@@ -51,6 +52,7 @@ import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.se
 import { PlayersService } from "@/content/services/players/players.service";
 import { SocketService } from "@/content/services/socket/socket.service";
 import { ToastService } from "@/content/services/toast/toast.service";
+import { ToolsService } from "@/content/services/tools/tools.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
@@ -97,6 +99,7 @@ new ExtensionContainer(interceptor)
     {type: MemberService, scope: "singleton"},
     {type: LobbyService, scope: "singleton"},
     {type: DrawingService, scope: "singleton"},
+    {type: ToolsService, scope: "singleton"},
     {type: GlobalSettingsService, scope: "singleton"},
     {type: ImageFinishedService, scope: "singleton"},
     {type: ImagelabService, scope: "singleton"},
@@ -168,7 +171,8 @@ new ExtensionContainer(interceptor)
     LineToolFeature,
     ChatFocusFeature,
     PlayerIdsFeature,
-    LobbyTimeVisualizerFeature
+    LobbyTimeVisualizerFeature,
+    DrawingColorToolsFeature
   );
 
 /* indicate for interceptor that content script has loaded */
