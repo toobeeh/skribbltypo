@@ -114,6 +114,14 @@ export class Color {
     return new Color(r, g, b, a);
   }
 
+  static fromTypoCode(code: number) {
+    if (code < 10000) {
+      throw new Error("Invalid color code, cannot parse native skribbl index");
+    }
+    const hex = (code - 10000).toString(16).padStart(6, "0");
+    return Color.fromHex(hex);
+  }
+
   // source: https://stackoverflow.com/questions/36721830/convert-hsl-to-rgb-and-hex
   static fromHsl(h: number, s: number, l: number, alpha: number) {
     console.log(h,s,l);

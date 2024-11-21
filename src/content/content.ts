@@ -2,6 +2,7 @@ import "@abraham/reflection";
 import { Interceptor } from "@/content/core/interceptor/interceptor";
 import { LoggingService } from "@/content/core/logger/logging.service";
 import { chatTypedEventRegistration } from "@/content/events/chat-typed.event";
+import { colorChangedEventRegistration } from "@/content/events/color-changed.event";
 import { drawEventRegistration } from "@/content/events/draw.event";
 import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
 import { imageResetEventRegistration } from "@/content/events/image-reset.event";
@@ -10,6 +11,7 @@ import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state
 import { messageReceivedEventRegistration } from "@/content/events/message-received.event";
 import { messageSentEventRegistration } from "@/content/events/message-sent.event";
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
+import { sizeChangedEventRegistration } from "@/content/events/size-changed.event";
 import { toolChangedEventRegistration } from "@/content/events/tool-changed.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
 import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.feature";
@@ -139,7 +141,9 @@ new ExtensionContainer(interceptor)
     messageSentEventRegistration,
     messageReceivedEventRegistration,
     chatTypedEventRegistration,
-    toolChangedEventRegistration
+    toolChangedEventRegistration,
+    sizeChangedEventRegistration,
+    colorChangedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,

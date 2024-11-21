@@ -117,13 +117,29 @@ export class ToolsService {
       distinctUntilChanged(),
       filter(down => down),
       switchMap(() => this._lastPointerDownPosition$.pipe(
-        map(event => event !== null ? [event.offsetX, event.offsetY, event.pointerType === "pen" ? event.pressure : undefined] as drawCoordinateEvent : null)
+        map(event => event !== null ? this.mapPointerEventToDrawCoordinate(event) : null)
       )),
       pairwise(),
       map(([prev, curr]) => prev === null && curr !== null ? [curr, curr] : [prev, curr]),  /* if pointer down, make dot at start pos */
       filter(([prev, curr]) => prev !== null && curr !== null),
       map(([prev, curr]) => [prev, curr] as [drawCoordinateEvent, drawCoordinateEvent])
     );
+  }
+
+  /**
+   * Map a pointer event to draw coordinates
+   * @param event
+   * @private
+   */
+  private mapPointerEventToDrawCoordinate(event: PointerEvent): drawCoordinateEvent {
+    const canvas = event.currentTarget as HTMLCanvasElement;
+
+    /* calculate canvas pixel position from canvas dimensions and actual rendered rectangle */
+    const rect = canvas.getBoundingClientRect();
+    const canvasX = event.offsetX * canvas.width / rect.width;
+    const canvasY = event.offsetY * canvas.height / rect.height;
+
+    return [canvasX, canvasY, event.pointerType === "pen" ? event.pressure : undefined];
   }
 
   /**

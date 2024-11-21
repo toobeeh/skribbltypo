@@ -80,6 +80,7 @@
       initListeners: (() => {
         let abort = false;
         document.addEventListener("selectSkribblTool", (event) => Nt(event.detail));
+        document.addEventListener("selectSkribblSize", (event) => It(event.detail));
         document.addEventListener("clearDrawing", () => Vt());
         document.addEventListener("abortJoin", () => abort = true);
         document.addEventListener("joinLobby", (e) => {
@@ -932,7 +933,8 @@
         r = Math.abs(qt - o.size);
       r <= n && (n = r, t = o, 0), o.element.classList.remove("selected")
     }
-    t.element.classList.add("selected"), nt.querySelector(".size-preview .icon").style.backgroundSize = Lt(qt) + "%", vt()
+    t.element.classList.add("selected"), nt.querySelector(".size-preview .icon").style.backgroundSize = Lt(qt) + "%",
+      document.dispatchEvent(new CustomEvent("skribblSizeChanged", { detail: qt })), vt()
   }
 
   function Rt(e) {
@@ -951,7 +953,8 @@
   function Wt(e) {
     var t =
       e > 10000 ? Ut(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ut(wt[e]);
-    St = e, c.querySelector("#color-preview-primary").style.fill = t, c.querySelector("#game-toolbar .color-preview-mobile").style.backgroundColor = t, vt()
+    St = e, c.querySelector("#color-preview-primary").style.fill = t
+      , document.dispatchEvent(new CustomEvent("skribblColorChanged", {detail: t})), c.querySelector("#game-toolbar .color-preview-mobile").style.backgroundColor = t, vt()
   }
 
   function Ot(e) {

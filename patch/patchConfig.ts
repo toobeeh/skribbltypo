@@ -83,6 +83,11 @@ export const gameJsPatchConfig = {
           target:
             "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\) {\\s+[a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.element\\)",
         },
+        {
+          source: "##SELECTSIZE##",
+          target:
+            "wheelDeltaY, [a-zA-Z0-9&_\\-$]+ = Math\\.sign\\([a-zA-Z0-9&_\\-$]+\\);\\s+([a-zA-Z0-9&_\\-$]+)\\(",
+        },
       ],
       injections: [
         {
@@ -136,6 +141,7 @@ export const gameJsPatchConfig = {
                     initListeners: (() => {
                         let abort = false; 
                         document.addEventListener("selectSkribblTool", (event) => ##SELECTTOOL##(event.detail));
+                        document.addEventListener("selectSkribblSize", (event) => ##SELECTSIZE##(event.detail));
                         document.addEventListener("clearDrawing", () => ##CLEARACTION##());
                         document.addEventListener("abortJoin", () => abort = true); 
                         document.addEventListener("joinLobby", (e) => {
@@ -735,6 +741,36 @@ export const gameJsPatchConfig = {
         {
           position: 'function [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\) {(\\s+[a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.element\\))',
           code: `/*toolidtarget*/ document.dispatchEvent(new CustomEvent("skribblToolChanged", {detail: ##TOOLID##}));`,
+        },
+      ],
+    },
+    {
+      name: "Add event when skribbl size changed",
+      replacements: [
+        {
+          source: "##SIZE##",
+          target: '\\.querySelector\\("\\.size-preview \\.icon"\\)\\.style\\.backgroundSize = [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+)\\) \\+ "%"',
+        },
+      ],
+      injections: [
+        {
+          position: '([a-zA-Z0-9&_\\-$]+\\.querySelector\\("\\.size-preview \\.icon"\\)\\.style\\.backgroundSize = [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\) \\+ "%",)',
+          code: `document.dispatchEvent(new CustomEvent("skribblSizeChanged", { detail: ##SIZE## })),`,
+        },
+      ],
+    },
+    {
+      name: "Add event when skribbl color changed",
+      replacements: [
+        {
+          source: "##COLOR##",
+          target: '"#color-preview-primary"\\).style\\.fill = ([a-zA-Z0-9&_\\-$]+)',
+        },
+      ],
+      injections: [
+        {
+          position: '("#color-preview-primary"\\).style\\.fill = [a-zA-Z0-9&_\\-$]+)',
+          code: `, document.dispatchEvent(new CustomEvent("skribblColorChanged", {detail: ##COLOR##}))`,
         },
       ],
     },

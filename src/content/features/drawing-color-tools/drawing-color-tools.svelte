@@ -1,18 +1,18 @@
 <script lang="ts">
   import type { DrawingColorToolsFeature } from "@/content/features/drawing-color-tools/drawing-color-tools.feature";
   import { PipetteTool } from "@/content/features/drawing-color-tools/pipette-tool";
+  import ColorPickerButton from "@/lib/color-picker/color-picker-button.svelte";
 
   export let feature: DrawingColorToolsFeature;
 
   const selectedTool = feature.selectedToolStore;
+  const color = feature.colorStore;
 </script>
 
 <style lang="scss">
   .color-tools {
     height: var(--UNIT);
     width: calc(var(--UNIT) / 2);
-    border-radius: var(--BORDER_RADIUS);
-    overflow: hidden;
 
     .pipette, .picker {
       height: 50%;
@@ -36,11 +36,13 @@
     .pipette {
       border-bottom: 1px solid lightgray;
       background-image: var(--file-img-crosshair-gif);
+      border-radius: var(--BORDER_RADIUS) var(--BORDER_RADIUS) 0 0;
     }
 
     .picker {
       border-top: 1px solid lightgray;
       background-image: var(--file-img-inspect-gif);
+      border-radius: 0 0 var(--BORDER_RADIUS) var(--BORDER_RADIUS);
     }
 
   }
@@ -48,5 +50,7 @@
 
 <div class="color-tools">
   <div class="pipette" on:click={() => feature.selectPipetteTool()} class:selected={$selectedTool instanceof PipetteTool}></div>
-  <div class="picker"></div>
+  <div class="picker">
+    <ColorPickerButton color="{$color}" allowAlpha="{false}" useBackground="{false}" height="auto" borderRadius="0" colorChanged={c => feature.updatePickedColor(c)} />
+  </div>
 </div>

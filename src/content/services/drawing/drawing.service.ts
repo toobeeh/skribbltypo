@@ -232,6 +232,11 @@ export class DrawingService {
     document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color.typoCode}}));
   }
 
+  public setSize(size: number) {
+    this._logger.debug("Setting size", size);
+    document.dispatchEvent(new CustomEvent("selectSkribblSize", {detail: {size}}));
+  }
+
   public clearImage() {
     this._logger.debug("Clearing image");
     document.dispatchEvent(new CustomEvent("clearDrawing"));

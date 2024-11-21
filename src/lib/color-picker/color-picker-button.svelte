@@ -7,6 +7,7 @@
   export let useBackground = true;
   export let height = '2rem';
   export let borderRadius = '3px';
+  export let colorChanged: undefined | ((color: Color) => void) = undefined;
 
   let popupPosition: {top: string | undefined, left: string | undefined, right: string | undefined, bottom: string | undefined, transformOrigin: string} | undefined = undefined;
   let closing = false;
@@ -17,6 +18,11 @@
     const anchor = event.target as HTMLElement;
     const rect = anchor.getBoundingClientRect();
     document.addEventListener("click", () => {
+
+      /* dispatch changed event */
+      colorChanged?.(color);
+
+      /* close popup */
       closing = true;
         setTimeout(() => {
           popupPosition = undefined;
