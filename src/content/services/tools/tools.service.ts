@@ -9,7 +9,6 @@ import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
-import { replaceOrAddCssRule } from "@/util/document/replaceOrAddCssRule";
 import type { Type } from "@/util/types/type";
 import { inject, injectable, postConstruct } from "inversify";
 import { BehaviorSubject, distinctUntilChanged, filter, map, pairwise, switchMap, withLatestFrom } from "rxjs";

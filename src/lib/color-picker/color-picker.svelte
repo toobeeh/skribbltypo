@@ -2,6 +2,7 @@
   import { Color } from "@/util/color";
   export let color = Color.fromHex("#45588d");
   export let allowAlpha = false;
+  export let description = "";
 
   let inputHex = color.hex;
 
@@ -157,6 +158,10 @@
     <img src="" alt="picker icon" style="content: var(--file-img-crosshair-gif)">
     <h3>Color Picker</h3>
   </div>
+
+  {#if description.length > 0}
+    <p>{description}</p>
+  {/if}
 
   <!-- show saturation/value picker -->
   <div

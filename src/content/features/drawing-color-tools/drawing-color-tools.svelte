@@ -51,6 +51,14 @@
 <div class="color-tools">
   <div class="pipette" on:click={() => feature.selectPipetteTool()} class:selected={$selectedTool instanceof PipetteTool}></div>
   <div class="picker">
-    <ColorPickerButton color="{$color}" allowAlpha="{false}" useBackground="{false}" height="auto" borderRadius="0" colorChanged={c => feature.updatePickedColor(c)} />
+    <ColorPickerButton
+      color="{$color}"
+      allowAlpha="{false}"
+      useBackground="{false}"
+      height="auto"
+      borderRadius="0"
+      colorChanged={c => feature.updatePickedColor(c)}
+      description="Warning: Only typo users can see custom colors."
+    />
   </div>
 </div>

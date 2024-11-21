@@ -8,6 +8,7 @@
   export let height = '2rem';
   export let borderRadius = '3px';
   export let colorChanged: undefined | ((color: Color) => void) = undefined;
+  export let description = "";
 
   let popupPosition: {top: string | undefined, left: string | undefined, right: string | undefined, bottom: string | undefined, transformOrigin: string} | undefined = undefined;
   let closing = false;
@@ -119,7 +120,7 @@
     <div class="color-picker-popout" class:closing={closing}
          style="top: {popupPosition.top}; left: {popupPosition.left}; right: {popupPosition.right}; bottom: {popupPosition.bottom}; transform-origin: {popupPosition.transformOrigin};"
          on:click={e => e.stopImmediatePropagation()}>
-      <ColorPicker bind:color={color} allowAlpha="{allowAlpha}" />
+      <ColorPicker bind:color={color} allowAlpha="{allowAlpha}" description="{description}" />
     </div>
   {/if}
 </div>
