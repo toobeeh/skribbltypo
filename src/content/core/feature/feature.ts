@@ -27,6 +27,7 @@ export abstract class TypoFeature {
   public abstract readonly name: string;
   public abstract readonly description: string;
   public readonly toggleEnabled: boolean = true;
+  public readonly developerFeature: boolean = false;
 
   private _isActivatedSetting = new BooleanExtensionSetting("isActivated", this.featureEnabledDefault, this)
       .withName("Activated")

@@ -120,7 +120,7 @@
 <!-- container box for a feature, works as toggle-->
 <div class="typo-feature-item"
      class:devMode={devmodeEnabled}
-     class:hidden={!feature.toggleEnabled && !devmodeEnabled}
+     class:hidden={feature.developerFeature && !devmodeEnabled}
 >
   <!-- icon with name -->
   <div class="name-toggle" role="button" tabindex="0"

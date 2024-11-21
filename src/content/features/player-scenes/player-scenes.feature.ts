@@ -32,6 +32,7 @@ export class PlayerScenesFeature extends TypoFeature {
     "Display scenes of typo players in lobbies and on the landing page";
   public readonly featureId = 21;
   public override readonly toggleEnabled = false;
+  public override developerFeature = true;
 
   private _scenesSubscription?: Subscription;
   private readonly _sceneContainers = new Map<SkribblPlayerDisplay, SceneContainer>();

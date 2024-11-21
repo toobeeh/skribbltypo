@@ -13,6 +13,7 @@ export class LoggingFeature extends TypoFeature {
   public readonly description = "Collect logs of services, features, setups and event processors.";
   public readonly featureId = 24;
   public override readonly toggleEnabled = false;
+  public override readonly developerFeature = true;
 
   @inject(LoggingService) private readonly _loggingService!: LoggingService;
   @inject(ToastService) private readonly _toastService!: ToastService;

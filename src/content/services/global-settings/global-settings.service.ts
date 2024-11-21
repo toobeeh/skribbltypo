@@ -1,4 +1,4 @@
-import { ExtensionSetting } from "@/content/core/settings/setting";
+import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { inject, injectable } from "inversify";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 
@@ -6,7 +6,7 @@ import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 export class GlobalSettingsService {
 
   private _settings = {
-    devMode: new ExtensionSetting<boolean>("devMode", false)
+    devMode: new BooleanExtensionSetting("devMode", false)
       .withName("Developer Mode")
       .withDescription("Enable some developer features & settings"),
   };

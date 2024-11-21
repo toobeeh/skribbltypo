@@ -22,7 +22,6 @@ import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.fe
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
-import { DeveloperModeFeature } from "@/content/features/developer-mode/developer-mode.feature";
 import { DrawingColorPalettesFeature } from "@/content/features/drawing-color-palettes/drawing-color-palettes.feature";
 import { DrawingColorToolsFeature } from "@/content/features/drawing-color-tools/drawing-color-tools.feature";
 import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
@@ -161,7 +160,6 @@ new ExtensionContainer(interceptor)
     PanelCabinFeature,
     PanelFiltersFeature,
     ChatRecallFeature,
-    DeveloperModeFeature,
     ImageAgentFeature,
     ControlsCloudFeature,
     GuessCheckFeature,

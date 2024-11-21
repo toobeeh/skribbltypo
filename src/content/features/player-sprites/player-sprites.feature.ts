@@ -33,6 +33,7 @@ export class PlayerSpritesFeature extends TypoFeature {
     "Display sprites of typo players in lobbies and on the landing page";
   public readonly featureId = 20;
   public override readonly toggleEnabled = false;
+  public override developerFeature = true;
 
   private _spritesSubscription?: Subscription;
   private readonly _spriteContainers = new Map<SkribblPlayerDisplay, SpriteContainer>();

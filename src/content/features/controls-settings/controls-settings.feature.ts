@@ -19,8 +19,7 @@ export class ControlsSettingsFeature extends TypoFeature {
   @inject(GlobalSettingsService) private readonly _settingsService!: GlobalSettingsService;
 
   public readonly name = "Typo Settings";
-  public readonly description =
-    "Manage the features of typo";
+  public readonly description = "Manage the features of typo";
   public override readonly toggleEnabled = false;
   public readonly featureId = 1;
 
@@ -50,9 +49,16 @@ export class ControlsSettingsFeature extends TypoFeature {
           feature: this,
         },
       };
-      this._modalService.showModal(settingsComponent.componentType, settingsComponent.props, "Typo Settings");
-
+      this._modalService.showModal(
+        settingsComponent.componentType,
+        settingsComponent.props,
+        "Typo Settings",
+      );
     });
+  }
+
+  protected override postConstruct() {
+    this.useSetting(this._settingsService.settings.devMode);
   }
 
   protected override onDestroy(): Promise<void> | void {
@@ -60,7 +66,7 @@ export class ControlsSettingsFeature extends TypoFeature {
     this._iconComponent?.$destroy();
   }
 
-  public get features(){
+  public get features() {
     return this._featuresService.features;
   }
 
@@ -73,13 +79,14 @@ export class ControlsSettingsFeature extends TypoFeature {
    * @param hotkey
    * @param value
    */
-  public async setHotkeyCombo(hotkey: HotkeyAction, value: string[]){
-    const toast = await this._toastService.showLoadingToast(`Updating hotkey ${hotkey.name} to ${value.join(" + ")}`);
-    
+  public async setHotkeyCombo(hotkey: HotkeyAction, value: string[]) {
+    const toast = await this._toastService.showLoadingToast(
+      `Updating hotkey ${hotkey.name} to ${value.join(" + ")}`,
+    );
+
     try {
       await this._hotkeysService.setHotkeyCombo(hotkey, value);
-    }
-    catch {
+    } catch {
       toast.reject();
       return;
     }
@@ -91,14 +98,15 @@ export class ControlsSettingsFeature extends TypoFeature {
    * Resets the hotkey combo to the default value
    * @param hotkey
    */
-  public async resetHotkeyCombo(hotkey: HotkeyAction){
-    const toast = await this._toastService.showLoadingToast(`Resetting hotkey ${hotkey.name} to default ${hotkey.defaultCombo?.join(" + ") ?? "(disabled)"}`);
+  public async resetHotkeyCombo(hotkey: HotkeyAction) {
+    const toast = await this._toastService.showLoadingToast(
+      `Resetting hotkey ${hotkey.name} to default ${hotkey.defaultCombo?.join(" + ") ?? "(disabled)"}`,
+    );
 
     let newCombo;
     try {
       newCombo = await this._hotkeysService.resetHotkeyCombo(hotkey);
-    }
-    catch {
+    } catch {
       toast.reject();
       return;
     }
