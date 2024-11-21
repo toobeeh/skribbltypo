@@ -22,7 +22,7 @@
 
   :global(#home .panel.typo-panel) {
       flex: 0 0 400px;
-      max-height: 400px;
+      max-height: calc(400px - 2em);
       margin-top: 2em;
       display: flex;
       flex-direction: column;

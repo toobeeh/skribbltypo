@@ -1,8 +1,10 @@
 <script lang="ts">
   import type { AnnouncementDto } from "@/api";
   import { PanelNewsFeature } from "./panel-news.feature";
+  import Bounceload from "@/lib/bounceload/bounceload.svelte";
+
   export let feature: PanelNewsFeature;
-  export let announcements: AnnouncementDto[];
+  export let announcements: AnnouncementDto[] | undefined = undefined;
 </script>
 
 <style lang="scss">
@@ -31,6 +33,7 @@
           display: flex;
           justify-content: space-between;
           gap: 1rem;
+          align-items: center;
 
           span {
             font-size: .8rem;
@@ -44,16 +47,19 @@
 
 <div class="typo-news">
   <div class="news">
+    {#if announcements === undefined}
+      <Bounceload content="Loading news.." />
 
-    {#each announcements as announcement}
-      <div class="announcement">
-        <div class="title">
-          <b>{announcement.title}</b>
-          <span>{new Date(Number(announcement.date)).toDateString()}</span>
+    {:else}
+      {#each announcements as announcement}
+        <div class="announcement">
+          <div class="title">
+            <b>{announcement.title}</b>
+            <span>{new Date(Number(announcement.date)).toDateString()}</span>
+          </div>
+          <p>{announcement.content}</p>
         </div>
-        <p>{announcement.content}</p>
-      </div>
-    {/each}
-
+      {/each}
+    {/if}
   </div>
 </div>

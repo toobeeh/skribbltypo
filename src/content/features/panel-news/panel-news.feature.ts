@@ -18,26 +18,23 @@ export class PanelNewsFeature extends TypoFeature {
 
   protected override async onActivate() {
     const elements = await this._elements.complete();
+    this._component = new PanelNews({
+      target: elements.newsTab,
+      props: {
+        feature: this
+      }
+    });
+
     const data = await this._apiDataSetup.complete();
     const version = chrome.runtime.getManifest().version;
     const announcements = data.announcements
       .filter(announcement => announcement.type === AnnouncementDtoTypeEnum.Announcement &&
         (announcement.affectedTypoVersion === version || announcement.affectedTypoVersion === undefined)
       ).sort((a, b) => Number(b.date) - Number(a.date));
-    this._component = new PanelNews({
-      target: elements.newsTab,
-      props: {
-        feature: this,
-        announcements
-      }
-    });
+    this._component.$set({ announcements });
   }
 
   protected override onDestroy(): void {
     this._component?.$destroy();
   }
-
-  public readonly news = "Hello there ❤️✏️\n" +
-    "This is the new typo, holy shit!\n" +
-    "Typescript, Svelte, dependency injection and a crazy architecture - i dont have to be ashamed of myself anymore :)";
 }
