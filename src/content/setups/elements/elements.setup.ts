@@ -43,6 +43,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     landingCustomizeContainer: requireElement(".avatar-customizer"),
     skribblTools: requireElement(".toolbar-group-tools"),
     skribblBrushTools: requireElement(".toolbar-group-tools .tool[data-tooltip=\"Brush\"]"),
+    colorContainer: requireElement("#game-toolbar .colors"),
     chatControls,
     ...panels,
     toolbar,

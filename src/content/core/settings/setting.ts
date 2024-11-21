@@ -7,7 +7,6 @@ import type { SvelteComponent } from "svelte";
 
 export type serializable = undefined | string | number | boolean | serializable[] | { [key: string]: serializable };
 
-
 export class ExtensionSetting<TValue extends serializable> {
 
   private _name?: string;
