@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AdminApi';
+export * from './AnnouncementsApi';
 export * from './AuthApi';
 export * from './AwardsApi';
 export * from './CloudApi';

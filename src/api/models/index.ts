@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AccessTokenDto';
+export * from './AnnouncementDto';
 export * from './AwardDto';
 export * from './CloudDeleteDto';
 export * from './CloudImageDto';

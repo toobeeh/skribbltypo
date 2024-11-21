@@ -22,6 +22,7 @@
 
   :global(#home .panel.typo-panel) {
       flex: 0 0 400px;
+      max-height: 400px;
       margin-top: 2em;
       display: flex;
       flex-direction: column;
@@ -43,6 +44,12 @@
           }
       }
 
+    .typo-panel-tab {
+      margin-top: 1rem;
+      padding: .5rem;
+      overflow: auto;
+    }
+
     > div:empty {
       display: none;
     }
@@ -58,5 +65,5 @@
 </div>
 
 {#each tabs as tab}
-  <div class="typo-panel-tab panel-tab-{tab.id}" hidden={tab !== activeTab}> </div>
+  <div class="typo-panel-tab color-scrollbar panel-tab-{tab.id}" hidden={tab !== activeTab}> </div>
 {/each}

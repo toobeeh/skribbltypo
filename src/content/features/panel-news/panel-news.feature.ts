@@ -1,13 +1,14 @@
+import { AnnouncementDtoTypeEnum } from "@/api";
+import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
-import { ModalService } from "../../services/modal/modal.service";
 import PanelNews from "./panel-news.svelte";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 
 export class PanelNewsFeature extends TypoFeature {
 
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
-  @inject(ModalService) private readonly _modal!: ModalService;
+  @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
 
   private _component?: PanelNews;
 
@@ -17,10 +18,17 @@ export class PanelNewsFeature extends TypoFeature {
 
   protected override async onActivate() {
     const elements = await this._elements.complete();
+    const data = await this._apiDataSetup.complete();
+    const version = chrome.runtime.getManifest().version;
+    const announcements = data.announcements
+      .filter(announcement => announcement.type === AnnouncementDtoTypeEnum.Announcement &&
+        (announcement.affectedTypoVersion === version || announcement.affectedTypoVersion === undefined)
+      ).sort((a, b) => Number(b.date) - Number(a.date));
     this._component = new PanelNews({
       target: elements.newsTab,
       props: {
-        feature: this
+        feature: this,
+        announcements
       }
     });
   }
