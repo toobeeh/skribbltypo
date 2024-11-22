@@ -774,5 +774,36 @@ export const gameJsPatchConfig = {
         },
       ],
     },
+    {
+      name: "Add player id to endboard avatar",
+      replacements: [
+        {
+          source: "##ELEMENT1##",
+          target: '([a-zA-Z0-9&_\\-$]+)\\.classList\\.add\\("winner\\"\\),',
+        },
+        {
+          source: "##RESULT1##",
+          target: '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\)\\.player\\.avatar,',
+        },
+        {
+          source: "##ELEMENT2##",
+          target: '\\/\\*elemanchor\\*\\/\\s*([a-zA-Z0-9&_\\-$]+)',
+        },
+        {
+          source: "##RESULT2##",
+          target: '"rank-name", ([a-zA-Z0-9&_\\-$]+)\\.player\\.name\\)\\),',
+        },
+      ],
+      injections: [
+        {
+          position: '( )0 == [a-zA-Z0-9&_\\-$]+ && \\([a-zA-Z0-9&_\\-$]+\\.classList\\.add\\("winner\\"\\),',
+          code: `##ELEMENT1##.setAttribute("playerid", ##RESULT1##.player.id),`,
+        },
+        {
+          position: '("rank-name", [a-zA-Z0-9&_\\-$]+\\.player\\.name\\)\\),)',
+          code: `##ELEMENT2##.setAttribute("playerid", ##RESULT2##.player.id), /*elemanchor*/`,
+        },
+      ],
+    },
   ],
 };

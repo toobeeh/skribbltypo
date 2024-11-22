@@ -1373,13 +1373,15 @@
                 l = $("avatar-container"),
                 y = (f.appendChild(l), $("border"));
               y.appendChild($("rank-place", "#" + (h + 1))), y.appendChild($("rank-name", m)), y.appendChild($("rank-score", E("$ points", g))), f.appendChild(y), 0 == h && l.appendChild($("trophy"));
-              for (o = 0; o < p.length; o++) me(b = ue((s = p[o]).player.avatar, 0 == h), Ya(s.player)), b.style.left = 15 * -(p.length - 1) + 30 * o + "%", 0 == h && (b.classList.add("winner"), b.style.animationDelay = -2.35 * o + "s"), l.appendChild(b)
+              for (o = 0; o < p.length; o++) me(b = ue((s = p[o]).player.avatar, 0 == h), Ya(s.player)), b.style.left = 15 * -(p.length - 1) + 30 * o + "%",
+                b.setAttribute("playerid", s.player.id),0 == h && (b.classList.add("winner"), b.style.animationDelay = -2.35 * o + "s"), l.appendChild(b)
             }
           }
           for (var v = Math.min(5, u[3].length), o = 0; o < v; o++) {
             var b, s = u[3][o],
               f = $("rank");
-            me(b = ue(s.player.avatar, !1), Ya(s.player)), f.appendChild(b), f.appendChild($("rank-place", "#" + (s.rank + 1))), f.appendChild($("rank-name", s.player.name)), f.appendChild($("rank-score", E("$ points", s.player.score))), d[3].appendChild(f)
+            me(b = ue(s.player.avatar, !1), Ya(s.player)), f.appendChild(b), f.appendChild($("rank-place", "#" + (s.rank + 1))), f.appendChild($("rank-name", s.player.name)),
+              f.setAttribute("playerid", s.player.id), /*elemanchor*/ f.appendChild($("rank-score", E("$ points", s.player.score))), d[3].appendChild(f)
           }
           0 < u[0].length ? (L = u[0].map(function(e) {
             return e.player.name
