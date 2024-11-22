@@ -805,5 +805,24 @@ export const gameJsPatchConfig = {
         },
       ],
     },
+    {
+      name: "Add player ID in popup",
+      replacements: [
+        {
+          source: "##PLAYER##",
+          target: '[a-zA-Z0-9&_\\-$]+ = \\([a-zA-Z0-9&_\\-$]+\\.style.display = ([a-zA-Z0-9&_\\-$]+)\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\)',
+        },
+        {
+          source: "##ELEMENT##",
+          target: '([a-zA-Z0-9&_\\-$]+) = \\([a-zA-Z0-9&_\\-$]+\\.style.display = [a-zA-Z0-9&_\\-$]+\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\)',
+        },
+      ],
+      injections: [
+        {
+          position: '([a-zA-Z0-9&_\\-$]+ = \\([a-zA-Z0-9&_\\-$]+\\.style.display = [a-zA-Z0-9&_\\-$]+\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\))',
+          code: `; /*id in popup*/ ##ELEMENT##.setAttribute("playerid", ##PLAYER##.id);`,
+        },
+      ],
+    },
   ],
 };

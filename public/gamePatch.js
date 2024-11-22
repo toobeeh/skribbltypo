@@ -325,6 +325,7 @@
           i = a.querySelector(".buttons"),
           r = (i.style.display = t.id == x || r ? "none" : "flex", i.querySelector(".button-pair").style.display = x == R || o ? "flex" : "none", i.querySelector("button.report").style.display = t.reported ? "none" : "", qe(t.muted), a.querySelector(".report-menu").style.display = "none", a.querySelector(".invite").style.display = x == t.id ? "flex" : "none", Ce.querySelector(".player")),
           o = (r.style.display = "", de(r), ue(t.avatar));
+        r.setAttribute("playerid", t.id);
         pe(o, R == t.id), me(o, Ya(t)), r.appendChild(o);
         break;
       case ke:
