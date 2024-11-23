@@ -14,7 +14,6 @@
   const devmode = feature.isDevmodeStore;
   connection.subscribe(conn => {
     if(conn && conn !== "unauthorized"){
-      console.log(conn);
       lobbyDescription = conn.typoLobbyState.lobbySettings.description;
       lobbyDisableWhitelistAllowedServers = !conn.typoLobbyState.lobbySettings.whitelistAllowedServers;
       lobbyAllowedServers = Object.fromEntries(

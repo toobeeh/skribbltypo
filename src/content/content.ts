@@ -10,7 +10,9 @@ import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-play
 import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
 import { messageReceivedEventRegistration } from "@/content/events/message-received.event";
 import { messageSentEventRegistration } from "@/content/events/message-sent.event";
+import { playerPopupVisibilityChangedEventRegistration } from "@/content/events/player-popup-visible.event";
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
+import { scoreboardVisibilityChangedEventRegistration } from "@/content/events/scoreboard-visible.event";
 import { sizeChangedEventRegistration } from "@/content/events/size-changed.event";
 import { toolChangedEventRegistration } from "@/content/events/tool-changed.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
@@ -143,7 +145,9 @@ new ExtensionContainer(interceptor)
     chatTypedEventRegistration,
     toolChangedEventRegistration,
     sizeChangedEventRegistration,
-    colorChangedEventRegistration
+    colorChangedEventRegistration,
+    scoreboardVisibilityChangedEventRegistration,
+    playerPopupVisibilityChangedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,

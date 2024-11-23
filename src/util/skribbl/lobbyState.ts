@@ -20,6 +20,10 @@ export interface lobbyStateUpdate {
   roundStarted?: {
     round: number,
     startsIn: number
+  },
+  gameEnded?: {
+    ranking: {playerId: number, rank: number}[],
+    displayTime: number
   }
 }
 
@@ -63,6 +67,15 @@ export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined =
           word: data.data.word as string,
           time: data.time as number,
           scores: arrayChunk(data.data.scores as number[], 3).map(([playerId, score, rewarded]) => ({playerId, score, rewarded}))
+        }
+      };
+    }
+
+    case 6: {
+      return {
+        gameEnded: {
+          ranking: data.data.map(([playerId, rank]: [number, number]) => ({playerId, rank})),
+          displayTime: data.time as number
         }
       };
     }
