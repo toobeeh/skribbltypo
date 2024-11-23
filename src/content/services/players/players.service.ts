@@ -5,16 +5,18 @@ import { LobbyPlayerChangedEventListener } from "@/content/events/lobby-player-c
 import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
 import { PlayerPopupVisibilityChangedEventListener } from "@/content/events/player-popup-visible.event";
 import { ScoreboardVisibilityChangedEventListener } from "@/content/events/scoreboard-visible.event";
+import { TextOverlayVisibilityChangedEventListener } from "@/content/events/text-overlay-visible.event";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { SkribblLandingPlayer } from "@/content/services/players/skribblLandingPlayer";
 import { SkribblLobbyPlayer } from "@/content/services/players/skribblLobbyPlayer";
 import { MemberService } from "@/content/services/member/member.service";
+import { SkribblOverlayPlayer } from "@/content/services/players/skribblOverlayPlayer";
 import { SkribblPopupPlayer } from "@/content/services/players/skribblPopupPlayer";
 import { SkribblScoreboardPodiumPlayer } from "@/content/services/players/skribblScoreboardPodiumPlayer";
 import { SkribblScoreboardRegularPlayer } from "@/content/services/players/skribblScoreboardRegularPlayer";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import type { SkribblPlayerDisplay } from "@/content/services/players/skribblPlayerDisplay.interface";
-import { element, requireElement } from "@/util/document/requiredQuerySelector";
+import { element } from "@/util/document/requiredQuerySelector";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 import { calculateLobbyKey } from "@/util/typo/lobbyKey";
 import { inject, injectable, postConstruct } from "inversify";
@@ -38,6 +40,7 @@ export class PlayersService {
   @inject(LobbyStateChangedEventListener) private readonly _lobbyStateChangedEvent!: LobbyStateChangedEventListener;
   @inject(LobbyPlayerChangedEventListener) private readonly _playerChangedEvent!: LobbyPlayerChangedEventListener;
   @inject(ScoreboardVisibilityChangedEventListener) private readonly _scoreboardVisibleEvent!: ScoreboardVisibilityChangedEventListener;
+  @inject(TextOverlayVisibilityChangedEventListener) private readonly _textOverlayVisibleEvent!: TextOverlayVisibilityChangedEventListener;
   @inject(PlayerPopupVisibilityChangedEventListener) private readonly _popupVisibleEvent!: PlayerPopupVisibilityChangedEventListener;
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
@@ -47,6 +50,7 @@ export class PlayersService {
   private readonly _landingPlayer$ = new BehaviorSubject<SkribblLandingPlayer | undefined>(undefined);
   private readonly _scoreboardPlayers$ = new BehaviorSubject<SkribblPlayerDisplay[]>([]);
   private readonly _popupPlayer$ = new BehaviorSubject<SkribblPlayerDisplay | undefined>(undefined);
+  private readonly _overlayPlayer$ = new BehaviorSubject<SkribblPlayerDisplay | undefined>(undefined);
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -60,6 +64,7 @@ export class PlayersService {
     this.setupLobbyPlayers();
     this.setupScoreboardPlayers();
     this.setupPopupPlayer();
+    this.setupOverlayPlayer();
   }
 
   private setupLandingPlayer(){
@@ -223,6 +228,38 @@ export class PlayersService {
     });
   }
 
+  private setupOverlayPlayer() {
+
+    this._textOverlayVisibleEvent.events$.pipe(
+      withLatestFrom(this._lobbyService.lobby$, this._elementsSetup.complete()),
+    ).subscribe(([visible, lobby, elements]) => {
+      if(!visible || lobby === null || lobby.id === null){
+        this._logger.info("Overlay player hidden");
+        this._overlayPlayer$.next(undefined);
+        return;
+      }
+
+      const playerId = elements.textOverlay.getAttribute("playerid") ?? undefined;
+      if(element(".avatar", elements.textOverlay) === undefined || playerId === undefined) {
+        this._logger.info("No player or playerid in overlay, probably not a choosing info");
+        this._popupPlayer$.next(undefined);
+        return;
+      }
+
+      const player = lobby.players.find(p => p.id === Number(playerId));
+      if(player === undefined){
+        this._logger.error("Player not found in lobby", playerId);
+        this._popupPlayer$.next(undefined);
+        return;
+      }
+
+      const lobbyKey = calculateLobbyKey(lobby.id);
+      const playerDisplay = new SkribblOverlayPlayer(player, lobbyKey,elements.textOverlay);
+      this._popupPlayer$.next(playerDisplay);
+      this._logger.info("Overlay player visible", playerDisplay);
+    });
+  }
+
   public get lobbyPlayers$() {
     return this._lobbyPlayers$.asObservable();
   }
@@ -239,15 +276,26 @@ export class PlayersService {
     return this._popupPlayer$.asObservable();
   }
 
+  public get overlayPlayer$() {
+    return this._overlayPlayer$.asObservable();
+  }
+
   public get players$() {
     return this._lobbyPlayers$.pipe(
       startWith([]),
       combineLatestWith(
         this.landingPlayer$,
         this.scoreboardPlayers$,
-        this.popupPlayer$
+        this.popupPlayer$,
+        this.overlayPlayer$
       ),
-      map(([players, landing, scoreboard, popup]) => [...players, landing, ...scoreboard, ...(popup ? [popup] : [])]
+      map(([players, landing, scoreboard, popup, overlay]) => [
+        ...players,
+        landing,
+        ...scoreboard,
+        popup,
+        overlay
+      ]
         .filter(player => player !== undefined) as SkribblPlayerDisplay[])
     );
   }

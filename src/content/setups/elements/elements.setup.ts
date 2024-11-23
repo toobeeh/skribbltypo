@@ -47,6 +47,8 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     scoreboardResults: requireElement("#game-canvas .overlay-content .result"),
     playerPopup: requireElement("#modal .modal-content .modal-container-player"),
     skribblModal: requireElement("#modal"),
+    canvasOverlay: requireElement("#game-canvas .overlay-content"),
+    textOverlay: requireElement("#game-canvas .overlay-content > .text"),
     chatControls,
     ...panels,
     toolbar,

@@ -14,6 +14,7 @@ import { playerPopupVisibilityChangedEventRegistration } from "@/content/events/
 import { roundStartedEventRegistration } from "@/content/events/round-started.event";
 import { scoreboardVisibilityChangedEventRegistration } from "@/content/events/scoreboard-visible.event";
 import { sizeChangedEventRegistration } from "@/content/events/size-changed.event";
+import { textOverlayVisibilityChangedEventRegistration } from "@/content/events/text-overlay-visible.event";
 import { toolChangedEventRegistration } from "@/content/events/tool-changed.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
 import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.feature";
@@ -147,7 +148,8 @@ new ExtensionContainer(interceptor)
     sizeChangedEventRegistration,
     colorChangedEventRegistration,
     scoreboardVisibilityChangedEventRegistration,
-    playerPopupVisibilityChangedEventRegistration
+    playerPopupVisibilityChangedEventRegistration,
+    textOverlayVisibilityChangedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,

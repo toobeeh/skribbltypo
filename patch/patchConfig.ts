@@ -824,5 +824,24 @@ export const gameJsPatchConfig = {
         },
       ],
     },
+    {
+      name: "Add playerid in text overlay",
+      replacements: [
+        {
+          source: "##PLAYER##",
+          target: 'overlayanchor\\*\\/ \\? ([a-zA-Z0-9&_\\-$]+)',
+        },
+        {
+          source: "##ELEMENT##",
+          target: '"", ([a-zA-Z0-9&_\\-$]+)\\.appendChild[\\s\\S]+is choosing a word![\\s\\S]+overlayanchor',
+        },
+      ],
+      injections: [
+        {
+          position: '(, [a-zA-Z0-9&_\\-$]+\\.appendChild[\\s\\S]+is choosing a word!", [a-zA-Z0-9&_\\-$]+\\)\\)\\), [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+) ',
+          code: `&& (##ELEMENT##.setAttribute("playerid", ##PLAYER##.id) || true) /*overlayanchor*/ `,
+        },
+      ],
+    },
   ],
 };
