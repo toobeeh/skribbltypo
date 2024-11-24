@@ -54,6 +54,7 @@ import { ExtensionContainer } from "@/content/core/extension-container/extension
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
+import { LobbyInteractionsService } from "@/content/services/lobby-interactions/lobby-interactions.service";
 import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
 import { PlayersService } from "@/content/services/players/players.service";
 import { SocketService } from "@/content/services/socket/socket.service";
@@ -115,7 +116,8 @@ new ExtensionContainer(interceptor)
     {type: SocketService, scope: "scoped"},
     {type: LobbyItemsService, scope: "singleton"},
     {type: PlayersService, scope: "singleton"},
-    {type: ChatService, scope: "singleton"}
+    {type: ChatService, scope: "singleton"},
+    {type: LobbyInteractionsService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
