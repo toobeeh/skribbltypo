@@ -6,6 +6,7 @@ import { colorChangedEventRegistration } from "@/content/events/color-changed.ev
 import { drawEventRegistration } from "@/content/events/draw.event";
 import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
 import { imageResetEventRegistration } from "@/content/events/image-reset.event";
+import { lobbyInteractedEventRegistration } from "@/content/events/lobby-interacted.event";
 import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-player-changed.event";
 import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
 import { messageReceivedEventRegistration } from "@/content/events/message-received.event";
@@ -149,7 +150,8 @@ new ExtensionContainer(interceptor)
     colorChangedEventRegistration,
     scoreboardVisibilityChangedEventRegistration,
     playerPopupVisibilityChangedEventRegistration,
-    textOverlayVisibilityChangedEventRegistration
+    textOverlayVisibilityChangedEventRegistration,
+    lobbyInteractedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,

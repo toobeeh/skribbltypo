@@ -1,4 +1,5 @@
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
+import { LobbyInteractedEventListener } from "@/content/events/lobby-interacted.event";
 import { LobbyJoinedEventListener } from "@/content/events/lobby-joined.event";
 import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { LobbyPlayerChangedEventListener } from "@/content/events/lobby-player-changed.event";
@@ -42,6 +43,7 @@ export class PlayersService {
   @inject(ScoreboardVisibilityChangedEventListener) private readonly _scoreboardVisibleEvent!: ScoreboardVisibilityChangedEventListener;
   @inject(TextOverlayVisibilityChangedEventListener) private readonly _textOverlayVisibleEvent!: TextOverlayVisibilityChangedEventListener;
   @inject(PlayerPopupVisibilityChangedEventListener) private readonly _popupVisibleEvent!: PlayerPopupVisibilityChangedEventListener;
+  @inject(LobbyInteractedEventListener) private readonly _lobbyInteractedEvent!: LobbyInteractedEventListener;
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
 
