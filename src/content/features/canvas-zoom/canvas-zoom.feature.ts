@@ -75,8 +75,23 @@ export class CanvasZoomFeature extends TypoFeature {
     this._zoomStyle = new CSSStyleSheet();
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, this._zoomStyle];
 
+    const zoomTogglePipe$ = this._zoomListenToggle$.pipe(
+
+      /* only allow activation when currently drawing */
+      withLatestFrom(this._lobbyService.lobby$, this._enableOnlyWhenDrawingSetting.changes$),
+      filter(([active, lobby, onlyWhenDrawing]) => !active || !onlyWhenDrawing || lobby !== null && lobby.drawerId === lobby.meId),
+      map(([active]) => active),
+      distinctUntilChanged(),
+      tap(active => this._logger.info("Zoom activation", active)),
+    );
+
     /* pipe that combines manual enable/disable with events that trigger disable */
     const zoomActivePipe$ = this._zoomActive$.pipe(
+
+      /* only allow activation when listening*/
+      withLatestFrom(zoomTogglePipe$),
+      filter(([active, listening]) => !active || listening),
+      map(([active]) => active),
 
       mergeWith(
         /* reset when drawing started / ended */
@@ -109,16 +124,6 @@ export class CanvasZoomFeature extends TypoFeature {
       distinctUntilChanged(),
 
       tap(active => this._logger.info("Zoom active state", active))
-    );
-
-    const zoomTogglePipe$ = this._zoomListenToggle$.pipe(
-
-      /* only allow activation when currently drawing */
-      withLatestFrom(this._lobbyService.lobby$, this._enableOnlyWhenDrawingSetting.changes$),
-      filter(([active, lobby, onlyWhenDrawing]) => !active || !onlyWhenDrawing || lobby !== null && lobby.drawerId === lobby.meId),
-      map(([active]) => active),
-      distinctUntilChanged(),
-      tap(active => this._logger.info("Zoom activation", active)),
     );
 
     this._zoomStateSubscription = zoomTogglePipe$.pipe(
@@ -157,12 +162,9 @@ export class CanvasZoomFeature extends TypoFeature {
     }
 
     await sheet.replace(`
-      #game-canvas:after {
+      #game-canvas {
         width: 800px;
         aspect-ratio: 8/6;
-        pointer-events: none;
-        background: transparent;
-        content: '';
       }
    
       #game-canvas canvas {
