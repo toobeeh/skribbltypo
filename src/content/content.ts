@@ -22,6 +22,7 @@ import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.fe
 import { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";
 import { ChatFocusFeature } from "@/content/features/chat-focus/chat-focus.feature";
 import { ChatProfileLinkFeature } from "@/content/features/chat-profile-link/chat-profile-link.feature";
+import { ChatQuickReactFeature } from "@/content/features/chat-quick-react/chat-quick-react.feature";
 import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
@@ -186,7 +187,8 @@ new ExtensionContainer(interceptor)
     PlayerIdsFeature,
     LobbyTimeVisualizerFeature,
     DrawingColorToolsFeature,
-    DrawingColorPalettesFeature
+    DrawingColorPalettesFeature,
+    ChatQuickReactFeature
   );
 
 /* indicate for interceptor that content script has loaded */

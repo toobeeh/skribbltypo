@@ -2,8 +2,17 @@ import { type Observable, Subject } from "rxjs";
 import { earlySetup } from "../../core/setup/earlySetup.decorator";
 import { Setup } from "../../core/setup/setup";
 
+
 export interface messageRelay {
+  /**
+   * All messages that are received via socket.io
+   */
   serverMessages$: Observable<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  /**
+   * Send a message directly over socket.io without further client processing
+   * @param message
+   */
   insertMessage: (message: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 

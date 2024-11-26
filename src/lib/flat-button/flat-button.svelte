@@ -3,6 +3,7 @@
 
   export let content: string;
   export let color: "green" | "orange" | "blue";
+  export let disabled: boolean = false;
 
   const click = new Subject<void>();
   export const click$ = click.asObservable();
@@ -17,6 +18,11 @@
     user-select: none;
     font-weight: 700;
     text-shadow: 1px 1px 0 #0000002b;
+
+    &.disabled {
+      pointer-events: none;
+      opacity: .5;
+    }
 
     &.green {
       background-color: var(--COLOR_BUTTON_SUBMIT_BG);
@@ -57,6 +63,6 @@
   }
 </style>
 
-<button on:click={() => click.next(void 0)} on:click class="typo-flat-button flatUI {color}"> <!-- flatUI for legacy theming -->
+<button on:click={() => click.next(void 0)} on:click class="typo-flat-button flatUI {color}" class:disabled={disabled}> <!-- flatUI for legacy theming -->
   <span>{content}</span>
 </button>

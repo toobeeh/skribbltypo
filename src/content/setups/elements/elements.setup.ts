@@ -49,6 +49,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     skribblModal: requireElement("#modal"),
     canvasOverlay: requireElement("#game-canvas .overlay-content"),
     textOverlay: requireElement("#game-canvas .overlay-content > .text"),
+    gameRate: requireElement("#game-rate"),
     chatControls,
     ...panels,
     toolbar,
