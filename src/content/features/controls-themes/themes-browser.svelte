@@ -1,12 +1,19 @@
 <script lang="ts">
 
   import type { ThemeListingDto } from "@/api";
-  import type { ControlsThemesFeature } from "@/content/features/controls-themes/controls-themes.feature";
+  import type { ControlsThemesFeature, savedTheme } from "@/content/features/controls-themes/controls-themes.feature";
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
 
   export let feature: ControlsThemesFeature;
   const devmode = feature.devmodeStore;
   const savedThemes = feature.savedThemesStore;
+  const currentThemeId = feature.currentThemeStore;
+
+  let currentTheme: savedTheme | undefined;
+
+  $: {
+    currentTheme = $savedThemes.find(t => t.theme.meta.id === $currentThemeId);
+  }
 
 </script>
 
@@ -21,6 +28,7 @@
     flex-direction: row;
     gap: 1rem;
     flex-wrap: wrap;
+    justify-content: center;
   }
 
   .typo-themes-browser-item {
@@ -30,8 +38,8 @@
     gap: 1rem;
     justify-content: start;
     align-items: center;
-    min-width: clamp(20em, 20em, 100%);
-    max-width: clamp(20em, 20em, 100%);
+    min-width: clamp(30em, 30em, 100%);
+    max-width: clamp(30em, 30em, 100%);
 
     display: grid;
     grid-template-columns: auto 1fr;
@@ -48,7 +56,7 @@
 </style>
 
 <div class="typo-themes-browser-header">
-  Discover themes made by other typo users. When you download a theme, it will be activated and saved to your local themes.<br>
+  Here you can discover themes made by other typo users. When you download a theme, it will be activated and saved to your local themes.<br>
   When a theme receives an update, it will be automatically downloaded.
 </div>
 
@@ -68,9 +76,21 @@
         {/if}
 
         {#if $savedThemes.some(t => t.publicTheme?.publicId === theme.id)}
-          <FlatButton content="Activate" color="blue" on:click={() => feature.savePublicTheme(theme)}/>
+          <FlatButton
+            content="{currentTheme?.publicTheme?.publicId === theme.id ? 'Active' : 'Activate'}"
+            disabled="{currentTheme?.publicTheme?.publicId === theme.id}"
+            color="green"
+            on:click={() => feature.activatePublicTheme(theme)}
+          />
         {:else}
-          <FlatButton content="Download" color="blue" on:click={() => feature.savePublicTheme(theme)}/>
+          <FlatButton
+            content="Download"
+            color="blue"
+            on:click={async () => {
+              await feature.savePublicTheme(theme);
+              await feature.activatePublicTheme(theme);
+            }}
+          />
         {/if}
 
         <div>{theme.downloads} downloads</div>

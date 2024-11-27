@@ -34,13 +34,13 @@ export interface typoTheme {
   }
 }
 
-export const createEmptyTheme: (author: string, name?: string) => typoTheme = (author, name) => {
+export const createEmptyTheme: (author: string, name?: string, id?: number) => typoTheme = (author, name, id) => {
   const date = new Date();
   const theme: typoTheme = {
     meta: {
       author,
       created: date.getTime(),
-      id: date.getTime(),
+      id: id === undefined ? date.getTime() : id,
       name: name ?? `Untitled Theme ${date.getTime()}`,
       type: "theme"
     },
