@@ -6,9 +6,10 @@ import { type componentData, ModalService } from "@/content/services/modal/modal
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import { fromObservable } from "@/util/store/fromObservable";
 import { createEmptyTheme, type typoTheme } from "@/util/typo/themes/theme";
 import { inject } from "inversify";
-import { combineLatestWith, Subscription } from "rxjs";
+import { BehaviorSubject, combineLatestWith, Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
 import ControlsSettings from "./controls-themes.svelte";
@@ -56,6 +57,8 @@ export class ControlsThemesFeature extends TypoFeature {
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
   private _themeResetSubscription?: Subscription;
+  private _loadedEditorTheme$ = new BehaviorSubject<savedTheme | undefined>(undefined);
+  private _activeThemeTab$ = new BehaviorSubject<"editor" | "list" | "browser">("list");
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -112,6 +115,70 @@ export class ControlsThemesFeature extends TypoFeature {
 
   public get devmodeStore() {
     return this._globalSettingsService.settings.devMode.store;
+  }
+
+  public get loadedEditorThemeStore(){
+    return fromObservable(this._loadedEditorTheme$, this._loadedEditorTheme$.value);
+  }
+
+  public get activeThemeTabStore() {
+    return fromObservable(this._activeThemeTab$, this._activeThemeTab$.value, value => this._activeThemeTab$.next(value));
+  }
+
+  public async loadThemeToEditor(theme: savedTheme){
+    this._logger.info("Loading theme to editor", theme);
+    const toast = await this._toastService.showLoadingToast("Loading theme to editor");
+
+    try {
+      const themes = await this._savedThemesSetting.getValue();
+      const existingTheme = themes.find(t => t.theme.meta.id === theme.theme.meta.id);
+      if(existingTheme === undefined){
+        this._logger.warn("Theme not found", theme);
+        toast.reject("Theme not found");
+        return;
+      }
+
+      this._loadedEditorTheme$.next(structuredClone(theme));
+      toast.resolve("Theme loaded");
+    }
+    catch(e) {
+      this._logger.error("Failed to load theme to editor", e);
+      toast.reject("Failed to load theme");
+    }
+  }
+
+  public async unloadThemeFromEditor(){
+    this._logger.info("Unloading theme from editor");
+    this._loadedEditorTheme$.next(undefined);
+    await this._toastService.showToast("Theme unloaded from editor");
+  }
+
+  public async createNewTheme(){
+    this._logger.info("Creating new theme");
+    const toast = await this._toastService.showLoadingToast("Creating new theme");
+
+    try {
+      const elements = await this._elementsSetup.complete();
+      const username = elements.inputName.value.length > 0 ? elements.inputName.value : "User";
+
+      const theme = createEmptyTheme(username, "Untitled Theme");
+      const themes = await this._savedThemesSetting.getValue();
+      const newTheme: savedTheme = {
+        theme: theme as serializableTheme,
+        savedAt: Date.now(),
+        enableManage: true
+      };
+
+      await this._savedThemesSetting.setValue([newTheme, ...themes]);
+      toast.resolve("New theme created");
+      return newTheme;
+    }
+
+    catch (e) {
+      this._logger.error("Failed to create new theme", e);
+      toast.reject("Failed to create theme");
+      throw e;
+    }
   }
 
   public async savePublicTheme(theme: ThemeListingDto){

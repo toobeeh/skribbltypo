@@ -7,6 +7,7 @@
   const devmode = feature.devmodeStore;
   const savedThemes = feature.savedThemesStore;
   const currentThemeId = feature.currentThemeStore;
+  const selectedTab = feature.activeThemeTabStore;
 </script>
 
 <style lang="scss">
@@ -66,8 +67,7 @@
 </style>
 
 <div class="typo-themes-list-header">
-  Here you can discover themes made by other typo users. When you download a theme, it will be activated and saved to your local themes.<br>
-  When a theme receives an update, it will be automatically downloaded.
+  Downloaded and created themes will appear here. Select a theme to change the appearance of skribbl!
 </div>
 
 <div class="typo-themes-list-list">
@@ -114,6 +114,10 @@
           <FlatButton
             content="Edit"
             color="blue"
+            on:click={() => {
+              feature.loadThemeToEditor(theme);
+              $selectedTab = "editor";
+            }}
           />
         {/if}
       </div>

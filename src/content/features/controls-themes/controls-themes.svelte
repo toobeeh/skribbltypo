@@ -5,8 +5,7 @@
   import ThemesList from "./themes-list.svelte";
 
   export let feature: ControlsThemesFeature;
-
-  let selectedTab: "list" | "editor" | "browser" = "list";
+  const selectedTab = feature.activeThemeTabStore;
 </script>
 
 
@@ -14,6 +13,7 @@
 
   .typo-themes-content {
     padding: 0 1rem;
+    width: 100%;
   }
 
   .typo-themes-navigation {
@@ -38,16 +38,16 @@
 
 <div class="typo-themes-content">
   <div class="typo-themes-navigation">
-    <h3 class:selected={selectedTab === "list"} on:click={() => selectedTab = "list"}>Saved Themes</h3>
-    <h3 class:selected={selectedTab === "editor"} on:click={() => selectedTab = "editor"}>Theme Editor</h3>
-    <h3 class:selected={selectedTab === "browser"} on:click={() => selectedTab = "browser"}>Discover Themes</h3>
+    <h3 class:selected={$selectedTab === "list"} on:click={() => $selectedTab = "list"}>Saved Themes</h3>
+    <h3 class:selected={$selectedTab === "editor"} on:click={() => $selectedTab = "editor"}>Theme Editor</h3>
+    <h3 class:selected={$selectedTab === "browser"} on:click={() => $selectedTab = "browser"}>Discover Themes</h3>
   </div>
 
-  {#if selectedTab === "list"}
+  {#if $selectedTab === "list"}
     <ThemesList {feature} />
-  {:else if selectedTab === "editor"}
+  {:else if $selectedTab === "editor"}
     <ThemesEditor {feature} />
-  {:else if selectedTab === "browser"}
+  {:else if $selectedTab === "browser"}
     <ThemesBrowser {feature} />
   {/if}
 </div>
