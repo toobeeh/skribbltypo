@@ -42,7 +42,7 @@ export class ChatQuickReactFeature extends TypoFeature {
     new HotkeyAction(
       "instant_like",
       "Like Current Drawing",
-      "Likes the current drawing",
+      "Instantly likes the current drawing, without quick react menu access",
       this,
       () => this.likeCurrentPlayer(),
       false,
@@ -54,7 +54,7 @@ export class ChatQuickReactFeature extends TypoFeature {
     new HotkeyAction(
       "instant_dislike",
       "Dislike Current Drawing",
-      "Dislikes the current drawing",
+      "Dislikes the current drawing, without quick react menu access",
       this,
       () => this.dislikeCurrentPlayer(),
       false,
@@ -66,7 +66,7 @@ export class ChatQuickReactFeature extends TypoFeature {
     new HotkeyAction(
       "instant_votekick",
       "Votekick Current Drawer",
-      "Votes to kick the current drawer",
+      "Votes to kick the current drawer, without quick react menu access",
       this,
       () => this.votekickPlayer(undefined),
       false,
