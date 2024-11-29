@@ -43,7 +43,7 @@ export class Color {
   }
 
   //source: https://gist.github.com/mjackson/5311256
-  get hsl() {
+  get hsl(): [number, number, number, number | undefined] {
     const r = this.r / 255, g = this.g / 255, b = this.b / 255;
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
     let h = 0, s = 0;

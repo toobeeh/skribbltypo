@@ -6,6 +6,7 @@ export interface typoTheme {
   images: {
     urlLogo?: string;
     urlBackground?: string;
+    urlBackgroundGame?: string;
     backgroundRepeat?: boolean;
     containerImages?: string;
     backgroundTint?: string;
