@@ -439,6 +439,8 @@ const brushtools = {
                 enable: () => {
 
                     QS("div[data-tooltip=Brush]")?.click();
+                    const bypass = document.body.dataset.bypassFps;
+                    document.body.dataset.bypassFps = "true";
 
                     const rows = brushtools.groups.grid.grid.options.rows.val;
                     const cols = brushtools.groups.grid.grid.options.columns.val;
@@ -469,6 +471,7 @@ const brushtools = {
                     }
 
                     brushtools.modal.close();
+                    document.body.dataset.bypassFps = bypass;
                 },
                 disable: () => {
                     /* nothing to do */
@@ -524,6 +527,7 @@ const brushtools = {
         brushtools.canvas.addEventListener("pointerdown", (event) => {
             if (!event.isTrusted) return;
             brushtools.currentDown = true;
+            document.body.dataset.bypassFps = Object.values(brushtools.groups).some(group => Object.values(group).some(mode => mode.enabled)).toString();
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
                     if (mode.enabled && mode.pointermoveCallback) mode.pointermoveCallback(event);
@@ -533,6 +537,7 @@ const brushtools = {
         brushtools.canvas.addEventListener("pointerup", (event) => {
             if (!event.isTrusted) return;
             brushtools.currentDown = false;
+            document.body.dataset.bypassFps = Object.values(brushtools.groups).some(group => Object.values(group).some(mode => mode.enabled)).toString();
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
                     if (mode.enabled && mode.pointerupCallback) mode.pointerupCallback(event);
@@ -541,6 +546,7 @@ const brushtools = {
         });
         brushtools.canvas.addEventListener("pointermove", (event) => {
             if (!event.isTrusted) return;
+            document.body.dataset.bypassFps = Object.values(brushtools.groups).some(group => Object.values(group).some(mode => mode.enabled)).toString();
             for (let [name, group] of Object.entries(brushtools.groups)) {
                 for (let [name, mode] of Object.entries(group)) {
                     if (mode.enabled && mode.pointermoveCallback) mode.pointermoveCallback(event);

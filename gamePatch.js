@@ -1215,7 +1215,7 @@
     var t, n;
     rn !== e.pointerId || (() => {
       var e = performance.now();
-      if (e - sn < 1e3 / ln) return 1;
+      if (document.body.dataset.bypassFps !== "true" && e - sn < 1e3 / ln) return 1;
       sn = e
     })() || (t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = -1, tn(e.clientX, e.clientY, n = t ? (oe && e.pressure, e.pressure) : n, !1), en(!1))
   }), D(C, "pointerup pointercancel", function(e) {
