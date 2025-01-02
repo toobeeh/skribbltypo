@@ -5,11 +5,19 @@ import { GlobalSettingsService } from "@/content/services/global-settings/global
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
+import { CssColorVarSelectorsSetup } from "@/content/setups/css-color-var-selectors/cssColorVarSelectors.setup";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import type { Color } from "@/util/color";
 import { fromObservable } from "@/util/store/fromObservable";
+import { generateColorScheme } from "@/util/typo/themes/colorScheme";
+import { generateThemeBackgroundElement } from "@/util/typo/themes/generateThemeBackgroundElement";
+import { generateStyleElementForTheme } from "@/util/typo/themes/generateThemeCssElement";
+import { generateThemeExternalCssElement } from "@/util/typo/themes/generateThemeExternalCssElement";
+import { generateThemeFontElements } from "@/util/typo/themes/generateThemeFontElement";
+import { generateThemeCustomHtmlElement } from "@/util/typo/themes/generateThemeHtmlElement";
 import { createEmptyTheme, type typoTheme } from "@/util/typo/themes/theme";
 import { inject } from "inversify";
-import { BehaviorSubject, combineLatestWith, Subscription } from "rxjs";
+import { BehaviorSubject, combineLatestWith, map, Subscription, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
 import ControlsSettings from "./controls-themes.svelte";
@@ -32,6 +40,7 @@ export interface savedTheme {
 
 export class ControlsThemesFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
+  @inject(CssColorVarSelectorsSetup) private readonly _cssColorVarSelectorsSetup!: CssColorVarSelectorsSetup;
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
   @inject(ModalService) private readonly _modalService!: ModalService;
   @inject(ToastService) private readonly _toastService!: ToastService;
@@ -57,8 +66,10 @@ export class ControlsThemesFeature extends TypoFeature {
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
   private _themeResetSubscription?: Subscription;
+  private _currentThemeSubscription?: Subscription;
   private _loadedEditorTheme$ = new BehaviorSubject<savedTheme | undefined>(undefined);
   private _activeThemeTab$ = new BehaviorSubject<"editor" | "list" | "browser">("list");
+  private _themeElements: HTMLElement[] = [];
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -90,6 +101,16 @@ export class ControlsThemesFeature extends TypoFeature {
       combineLatestWith(this._activeThemeSetting.changes$)
     ).subscribe(([themes, activeId]) => {
       if(!themes.some(t => t.theme.meta.id === activeId)) this._activeThemeSetting.setValue(0);
+    });
+
+    this._currentThemeSubscription = this._activeThemeSetting.changes$.pipe(
+      withLatestFrom(this._savedThemesSetting.changes$),
+      map(([activeId, themes]) => activeId === 0 ? undefined : themes.find(t => t.theme.meta.id === activeId)?.theme),
+      combineLatestWith(this._loadedEditorTheme$),
+      map(([activeTheme, loadedTheme]) => (loadedTheme?.theme ?? activeTheme))
+    ).subscribe(theme => {
+      this._logger.debug("Active theme changed", theme);
+      this.setThemeElements(theme);
     });
   }
 
@@ -145,6 +166,16 @@ export class ControlsThemesFeature extends TypoFeature {
       this._logger.error("Failed to load theme to editor", e);
       toast.reject("Failed to load theme");
     }
+  }
+
+  public updateLoadedTheme(theme: savedTheme){
+    this._logger.debug("Updating loaded theme", theme);
+
+    if(this._loadedEditorTheme$.value?.theme.meta.id !== theme.theme.meta.id){
+      this._logger.warn("Theme not loaded or different theme loaded", theme);
+      return;
+    }
+    this._loadedEditorTheme$.next(structuredClone(theme));
   }
 
   public async unloadThemeFromEditor(){
@@ -288,5 +319,32 @@ export class ControlsThemesFeature extends TypoFeature {
       toast.reject("Failed to remove theme");
       return;
     }
+  }
+
+  private async setThemeElements(theme: typoTheme | undefined){
+    this._logger.info("Setting theme elements", theme);
+
+    this._themeElements.forEach(e => e.remove());
+    this._themeElements = theme ? await this.createThemeElements(theme) : [];
+    this._themeElements.forEach(e => document.body.appendChild(e));
+  }
+
+  private async createThemeElements(theme: typoTheme){
+    const selectorHooks = await this._cssColorVarSelectorsSetup.complete();
+    const themeStyle = generateStyleElementForTheme(theme, selectorHooks);
+    const themeFont = generateThemeFontElements(theme);
+    const themeHtml = generateThemeCustomHtmlElement(theme);
+    const themeExternalCss = generateThemeExternalCssElement(theme);
+    const themeBackground = generateThemeBackgroundElement(theme);
+    return [themeStyle, ...themeFont, ...themeHtml, ...themeExternalCss, themeBackground];
+  }
+
+  public async setColorScheme(theme: typoTheme, primary: Color, text: Color, background: Color, useOnInputs: boolean, invertInputText: boolean, useTint: boolean, useIngame: boolean){
+    this._logger.debug("Setting color scheme", theme, primary, text, background, useOnInputs, invertInputText, useTint, useIngame);
+    const colors = generateColorScheme(primary, text, useIngame, useOnInputs, invertInputText);
+    theme.colors = colors;
+    theme.images.backgroundTint = useTint ? background.hex : undefined;
+
+    await this._toastService.showToast("Color scheme updated");
   }
 }

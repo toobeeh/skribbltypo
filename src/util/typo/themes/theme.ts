@@ -1,7 +1,8 @@
+import type { Mutable } from "@/util/types/mutable";
 import { themeColors } from "@/util/typo/themes/colors";
 
 export interface typoTheme {
-  colors: typeof themeColors;
+  colors: Mutable<typeof themeColors>;
   hooks: Record<keyof typeof themeColors, string>;
   images: {
     urlLogo?: string;
@@ -14,15 +15,10 @@ export interface typoTheme {
   misc: {
     fontStyle?: string;
     hideFooter?: boolean,
-    hideTypoInfo?: boolean,
-    hideTypoPanels?: boolean,
     hideAvatarLogo?: boolean,
     hideInGameLogo?: boolean,
-    hideAvatarSprites?: boolean,
-    useOldNav?: boolean,
     themeCssUrl?: string,
     themeCss?: string,
-    hideMeta?: false,
     cssText?: string,
     htmlText?: string
   },

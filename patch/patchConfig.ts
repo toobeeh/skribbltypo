@@ -843,5 +843,16 @@ export const gameJsPatchConfig = {
         },
       ],
     },
+    {
+      name: "Bypass skribbl drawing performance limitation",
+      replacements: [
+      ],
+      injections: [
+        {
+          position: '(performance\\.now\\(\\);\\s*if\\s*\\()',
+          code: `document.body.dataset.bypassFps !== 'true' &&`,
+        },
+      ],
+    },
   ],
 };

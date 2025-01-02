@@ -110,7 +110,7 @@
 
 </style>
 
-<div class="typo-color-picker-button" style="height: {height}" on:click={openPopup}>
+<div class="typo-color-picker-button" style="height: {height}" on:click={openPopup} data-rgb="{color.rgbString}">
 
   <!-- actual visible part of the button-->
   <div class="color-picker-button-content" style="background-color: {useBackground ? color.hex : undefined}; border-radius: {borderRadius}; "></div>

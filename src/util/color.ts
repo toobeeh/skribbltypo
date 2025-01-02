@@ -10,6 +10,10 @@ export class Color {
     return "rgb(" + [this._r, this._g, this._b, this._a].filter(v => v !== undefined).join(",") + ")";
   }
 
+  get rgbArray() {
+    return this._a ? [this._r, this._g, this._b, this._a] : [this._r, this._g, this._b];
+  }
+
   // get the rgb values of the color
   get rgb() {
     return {
@@ -93,15 +97,15 @@ export class Color {
   }
 
   static fromRgb(r: number, g: number, b: number, a?: number) {
-    return new Color(r, g, b, a);
+    return new Color(Math.round(r), Math.round(g), Math.round(b), a ? Math.round(a*100)/100 : undefined);
   }
 
   static fromHex(hex: string) {
     if (hex[0] == "#") hex = hex.substring(1);
-    const r = parseInt("0x" + hex.substring(0, 2));
-    const g = parseInt("0x" + hex.substring(2, 4));
-    const b = parseInt("0x" + hex.substring(4, 6));
-    const a = hex.length > 6 ? parseInt("0x" + hex.substring(6, 8)) : undefined;
+    const r = Math.round(parseInt("0x" + hex.substring(0, 2)));
+    const g = Math.round(parseInt("0x" + hex.substring(2, 4)));
+    const b = Math.round(parseInt("0x" + hex.substring(4, 6)));
+    const a = hex.length > 6 ? Math.round(parseInt("0x" + hex.substring(6, 8))) : undefined;
     return new Color(r, g, b, a);
   }
 
@@ -123,8 +127,7 @@ export class Color {
   }
 
   // source: https://stackoverflow.com/questions/36721830/convert-hsl-to-rgb-and-hex
-  static fromHsl(h: number, s: number, l: number, alpha: number) {
-    console.log(h,s,l);
+  static fromHsl(h: number, s: number, l: number, alpha?: number) {
     s /= 100;
     l /= 100;
 

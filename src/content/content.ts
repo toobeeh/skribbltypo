@@ -65,6 +65,7 @@ import { ToolsService } from "@/content/services/tools/tools.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
+import { CssColorVarSelectorsSetup } from "@/content/setups/css-color-var-selectors/cssColorVarSelectors.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
@@ -134,7 +135,8 @@ new ExtensionContainer(interceptor)
     ApiDataSetup,
     ToastSetup,
     ChatControlsSetup,
-    PrioritizedCanvasEventsSetup
+    PrioritizedCanvasEventsSetup,
+    CssColorVarSelectorsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,

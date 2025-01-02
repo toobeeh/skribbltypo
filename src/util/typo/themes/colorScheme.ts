@@ -3,7 +3,7 @@ import type { Mutable } from "@/util/types/mutable";
 import { themeColors } from "@/util/typo/themes/colors";
 
 /**
- * Generate a color scheme based on the main color and text color
+ * Generate a color scheme based on the main color and text color, in hsla scheme
  * @param mainColor
  * @param textColor
  * @param useIngame
@@ -37,7 +37,7 @@ export const generateColorScheme = (mainColor: Color | undefined, textColor: Col
       "--COLOR_TOOL_TIP_BG"
     ] as (keyof typeof theme)[];
     mains.forEach(k => theme[k][0] = (theme[k][0] - mainHueBase + mainHue) % 360);
-    mains.forEach(k => theme[k][1] = theme[k][1] * (mainSat / 100));
+    mains.forEach(k => theme[k][1] =  theme[k][1] * (mainSat / 100));
     mains.forEach(k => theme[k][2] = theme[k][2] * (mainLig / 100));
     theme["--COLOR_CHAT_SCROLLBAR"] = [...theme["--COLOR_PANEL_LO"]];
     theme["--COLOR_CHAT_SCROLLBAR_THUMB"] = [...theme["--COLOR_PANEL_HI"]];

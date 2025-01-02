@@ -78,12 +78,16 @@
         <span>{theme.publicTheme ? 'Online Theme' : 'Local Theme'}</span>
       </div>
 
-
       <div>
         {#if $currentThemeId === theme.theme.meta.id}
           <div class="active-marker">
             <img src="" alt="enabled" style="content: var(--file-img-enabled-gif)" />
             <div>Selected</div>
+          </div>
+        {:else}
+          <div class="active-marker">
+            <img src="" alt="disabled" style="content: var(--file-img-disabled-gif)" />
+            <div>Inactive</div>
           </div>
         {/if}
         <div>by {theme.theme.meta.author}</div>
