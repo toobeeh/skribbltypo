@@ -47,7 +47,7 @@ export class Color {
   }
 
   //source: https://gist.github.com/mjackson/5311256
-  get hsl(): [number, number, number, number | undefined] {
+  get hsl(): [number, number, number, number] | [number, number, number] {
     const r = this.r / 255, g = this.g / 255, b = this.b / 255;
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
     let h = 0, s = 0;
@@ -65,7 +65,7 @@ export class Color {
       }
       h /= 6;
     }
-    return [h*360, s * 100, l * 100, this._a];
+    return this._a !== undefined ? [h*360, s * 100, l * 100, this._a] : [h*360, s * 100, l * 100];
   }
 
   // Convert to HSV

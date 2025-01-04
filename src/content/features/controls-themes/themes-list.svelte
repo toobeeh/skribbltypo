@@ -75,7 +75,7 @@
     <div class="typo-themes-list-item">
       <div>
         <b>{theme.theme.meta.name}</b>
-        <span>{theme.publicTheme ? 'Online Theme' : 'Local Theme'}</span>
+        <span>{theme.publicTheme ? 'Featured Theme' : 'Local Theme'}</span>
       </div>
 
       <div>
@@ -103,7 +103,7 @@
           content="{$currentThemeId === theme.theme.meta.id ? 'Active' : 'Activate'}"
           disabled="{$currentThemeId === theme.theme.meta.id}"
           color="green"
-          on:click={() => feature.activateLocalTheme(theme.theme)}
+          on:click={() => feature.activateLocalTheme(theme.theme.meta.id)}
         />
 
         {#if theme.publicTheme || theme.enableManage === true}

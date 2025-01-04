@@ -20,7 +20,7 @@ import { inject } from "inversify";
 import { BehaviorSubject, combineLatestWith, map, Subscription, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
-import ControlsSettings from "./controls-themes.svelte";
+import ControlsThemes from "./controls-themes.svelte";
 
 // eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 interface serializableTheme extends typoTheme {
@@ -73,6 +73,7 @@ export class ControlsThemesFeature extends TypoFeature {
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
+    const variableHooks = await this._cssColorVarSelectorsSetup.complete();
 
     /* create icon and attach to controls */
     this._iconComponent = new IconButton({
@@ -88,13 +89,14 @@ export class ControlsThemesFeature extends TypoFeature {
 
     /* listen for click on icon */
     this._iconClickSubscription = this._iconComponent.click$.subscribe(() => {
-      const settingsComponent: componentData<ControlsSettings> = {
-        componentType: ControlsSettings,
+      const themesComponent: componentData<ControlsThemes> = {
+        componentType: ControlsThemes,
         props: {
           feature: this,
+          variableHooks
         },
       };
-      this._modalService.showModal(settingsComponent.componentType, settingsComponent.props, "Typo Themes");
+      this._modalService.showModal(themesComponent.componentType, themesComponent.props, "Typo Themes");
     });
 
     this._themeResetSubscription = this._savedThemesSetting.changes$.pipe(
@@ -160,7 +162,7 @@ export class ControlsThemesFeature extends TypoFeature {
       }
 
       this._loadedEditorTheme$.next(structuredClone(theme));
-      toast.resolve("Theme loaded");
+      toast.resolve(`Theme ${theme.theme.meta.name} loaded`);
     }
     catch(e) {
       this._logger.error("Failed to load theme to editor", e);
@@ -168,7 +170,7 @@ export class ControlsThemesFeature extends TypoFeature {
     }
   }
 
-  public updateLoadedTheme(theme: savedTheme){
+  public updateLoadedEditorTheme(theme: savedTheme){
     this._logger.debug("Updating loaded theme", theme);
 
     if(this._loadedEditorTheme$.value?.theme.meta.id !== theme.theme.meta.id){
@@ -184,7 +186,7 @@ export class ControlsThemesFeature extends TypoFeature {
     await this._toastService.showToast("Theme unloaded from editor");
   }
 
-  public async createNewTheme(){
+  public async createLocalTheme(){
     this._logger.info("Creating new theme");
     const toast = await this._toastService.showLoadingToast("Creating new theme");
 
@@ -203,6 +205,36 @@ export class ControlsThemesFeature extends TypoFeature {
       await this._savedThemesSetting.setValue([newTheme, ...themes]);
       toast.resolve("New theme created");
       return newTheme;
+    }
+
+    catch (e) {
+      this._logger.error("Failed to create new theme", e);
+      toast.reject("Failed to create theme");
+      throw e;
+    }
+  }
+
+  public async saveLoadedEditorTheme(){
+    this._logger.info("Updating local theme and unloading from editor");
+    const toast = await this._toastService.showLoadingToast("Saving theme");
+
+    try {
+      const editorTheme = this._loadedEditorTheme$.value;
+      const themes = await this._savedThemesSetting.getValue();
+      const savedTheme = themes.find(t => t.theme.meta.id === editorTheme?.theme.meta.id);
+      if(editorTheme === undefined || savedTheme === undefined){
+        this._logger.warn("Theme to update not found", editorTheme);
+        toast.reject("Theme not found");
+        return;
+      }
+
+      savedTheme.theme = editorTheme.theme;
+      savedTheme.savedAt = Date.now();
+
+      await this._savedThemesSetting.setValue([savedTheme, ...themes.filter(t => t.theme.meta.id !== savedTheme.theme.meta.id)]);
+      toast.resolve(`Theme ${savedTheme.theme.meta.name} updated`);
+      this._loadedEditorTheme$.next(undefined);
+      return savedTheme;
     }
 
     catch (e) {
@@ -248,21 +280,21 @@ export class ControlsThemesFeature extends TypoFeature {
     toast.resolve();
   }
 
-  public async activateLocalTheme(theme: serializableTheme){
-    this._logger.info("Activating local theme", theme);
+  public async activateLocalTheme(id: number){
+    this._logger.info("Activating local theme", id);
 
     const toast = await this._toastService.showLoadingToast("Activating theme");
     try {
       const themes = await this._savedThemesSetting.getValue();
-      const existingTheme = themes.find(t => t.theme.meta.id === theme.meta.id);
+      const existingTheme = themes.find(t => t.theme.meta.id === id);
       if(existingTheme === undefined){
-        this._logger.warn("Theme not found", theme);
+        this._logger.warn("Local Theme not found", id);
         toast.reject("Theme not found");
         return;
       }
 
       await this._activeThemeSetting.setValue(existingTheme.theme.meta.id);
-      toast.resolve(`Theme ${theme.meta.name} activated`);
+      toast.resolve(`Theme ${existingTheme.theme.meta.name} activated`);
     }
     catch(e) {
       this._logger.error("Failed to activate theme", e);

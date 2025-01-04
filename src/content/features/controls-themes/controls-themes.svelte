@@ -5,6 +5,7 @@
   import ThemesList from "./themes-list.svelte";
 
   export let feature: ControlsThemesFeature;
+  export let variableHooks: Record<string, string[]>;
   const selectedTab = feature.activeThemeTabStore;
 </script>
 
@@ -12,8 +13,12 @@
 <style lang="scss">
 
   .typo-themes-content {
-    padding: 0 1rem;
+    padding: 1rem;
     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
   }
 
   .typo-themes-navigation {
@@ -34,6 +39,10 @@
     }
   }
 
+  .typo-themes-tab {
+    overflow:auto;
+  }
+
 </style>
 
 <div class="typo-themes-content">
@@ -43,11 +52,13 @@
     <h3 class:selected={$selectedTab === "browser"} on:click={() => $selectedTab = "browser"}>Discover Themes</h3>
   </div>
 
-  {#if $selectedTab === "list"}
-    <ThemesList {feature} />
-  {:else if $selectedTab === "editor"}
-    <ThemesEditor {feature} />
-  {:else if $selectedTab === "browser"}
-    <ThemesBrowser {feature} />
-  {/if}
+  <div class="typo-themes-tab color-scrollbar">
+    {#if $selectedTab === "list"}
+      <ThemesList {feature} />
+    {:else if $selectedTab === "editor"}
+      <ThemesEditor {feature} {variableHooks} />
+    {:else if $selectedTab === "browser"}
+      <ThemesBrowser {feature} />
+    {/if}
+  </div>
 </div>

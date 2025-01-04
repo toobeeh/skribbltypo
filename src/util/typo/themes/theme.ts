@@ -3,7 +3,7 @@ import { themeColors } from "@/util/typo/themes/colors";
 
 export interface typoTheme {
   colors: Mutable<typeof themeColors>;
-  hooks: Record<keyof typeof themeColors, string>;
+  hooks: Record<string, string>;
   images: {
     urlLogo?: string;
     urlBackground?: string;

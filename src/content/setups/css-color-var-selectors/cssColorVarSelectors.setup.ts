@@ -7,7 +7,7 @@ import { Setup } from "../../core/setup/setup";
  * Setup that waits until the game js has been patched
  */
 @earlySetup()
-export class CssColorVarSelectorsSetup extends Setup< Record<string, string[]>> {
+export class CssColorVarSelectorsSetup extends Setup<Record<string, string[]>> {
 
   protected async runSetup(): Promise<Record<string, string[]>> {
     const css = await(await fetch("/css/style.css")).text();
