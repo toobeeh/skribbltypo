@@ -8,11 +8,12 @@
   const devmode = feature.devmodeStore;
   const savedThemes = feature.savedThemesStore;
   const currentThemeId = feature.currentThemeStore;
+  const loadedEditorTheme = feature.loadedEditorThemeStore;
 
   let currentTheme: savedTheme | undefined;
 
   $: {
-    currentTheme = $savedThemes.find(t => t.theme.meta.id === $currentThemeId);
+    currentTheme = $loadedEditorTheme === undefined ? $savedThemes.find(t => t.theme.meta.id === $currentThemeId) : undefined;
   }
 
 </script>

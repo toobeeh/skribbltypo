@@ -293,6 +293,9 @@ export class ControlsThemesFeature extends TypoFeature {
         return;
       }
 
+      /* remove currently loaded edit theme */
+      this._loadedEditorTheme$.next(undefined);
+
       await this._activeThemeSetting.setValue(existingTheme.theme.meta.id);
       toast.resolve(`Theme ${existingTheme.theme.meta.name} activated`);
     }
@@ -317,6 +320,9 @@ export class ControlsThemesFeature extends TypoFeature {
         toast.reject(`Theme ${theme.name} is not downloaded`);
         return;
       }
+
+      /* remove currently loaded edit theme */
+      this._loadedEditorTheme$.next(undefined);
 
       await this._activeThemeSetting.setValue(existingTheme.theme.meta.id);
       toast.resolve(`Theme ${theme.name} activated`);
@@ -344,6 +350,12 @@ export class ControlsThemesFeature extends TypoFeature {
 
       const filtered = themes.filter(t => t.theme.meta.id !== localId);
       await this._savedThemesSetting.setValue(filtered);
+
+      /* if loaded for edit, unload */
+      if(this._loadedEditorTheme$.value?.theme.meta.id === localId) {
+        this._loadedEditorTheme$.next(undefined);
+      }
+
       toast.resolve(`Theme ${theme.theme.meta.name} removed`);
     }
     catch(e) {
@@ -371,11 +383,10 @@ export class ControlsThemesFeature extends TypoFeature {
     return [themeStyle, ...themeFont, ...themeHtml, ...themeExternalCss, themeBackground];
   }
 
-  public async setColorScheme(theme: typoTheme, primary: Color, text: Color, background: Color, useOnInputs: boolean, invertInputText: boolean, useTint: boolean, useIngame: boolean){
-    this._logger.debug("Setting color scheme", theme, primary, text, background, useOnInputs, invertInputText, useTint, useIngame);
+  public async setColorScheme(theme: typoTheme, primary: Color, text: Color, useOnInputs: boolean, invertInputText: boolean, useIngame: boolean){
+    this._logger.debug("Setting color scheme", theme, primary, text, useOnInputs, invertInputText, useIngame);
     const colors = generateColorScheme(primary, text, useIngame, useOnInputs, invertInputText);
     theme.colors = colors;
-    theme.images.backgroundTint = useTint ? background.hex : undefined;
 
     await this._toastService.showToast("Color scheme updated");
   }

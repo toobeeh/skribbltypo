@@ -29,10 +29,10 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
             left: 0;
             width: 100%;
             height: 100%;
-            background: ${ theme.images.backgroundTint };
+            background: ${ !stringHasContent(theme.images.urlBackground) ? theme.images.backgroundTint ?? "" : "" };
             z-index: -1;
             pointer-events: none;
-            filter: brightness(${ theme.images.backgroundTint != "transparent" ? 4 : 1 });
+            filter: brightness(${ !stringHasContent(theme.images.urlBackground) && (theme.images.backgroundTint ?? "transparent") !== "transparent" ? 4 : 1 });
         }
         .typo-theme-background::after {
             image-rendering: unset;
@@ -46,7 +46,7 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
             mix-blend-mode: ${theme.images.backgroundTint == "transparent" || !stringHasContent(theme.images.backgroundTint) ? "none" : "multiply"};
             filter: ${theme.images.backgroundTint == "transparent" || !stringHasContent(theme.images.backgroundTint) ? "none" : "saturate(0%)"};
         }
-        .typo-theme-background.ingame${ stringHasContent(theme.images.urlBackgroundGame) ? "" : ".disabled" }::after {
+        body:has(#game[style*="display: flex"]) .typo-theme-background${ stringHasContent(theme.images.urlBackgroundGame) ? "" : ".disabled" }::after {
             background-image: url(${ theme.images.urlBackgroundGame });
         }
 
@@ -55,6 +55,8 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
         ${theme.misc.hideInGameLogo ? "#game #game-logo{display:none} #game{margin-top:2em}" : ""}
 
         ${theme.misc.hideAvatarLogo ? "#home .logo-big .avatar-container {display:none }" : ""}
+
+        ${theme.misc.hideSkribblPanels ? ".bottom .footer .section-container { display: none !important }" : ""}
 
         ${stringHasContent(theme.images.containerImages) ? `
         #game-bar, #game-room .settings, #game-room .players,  #imageAgent, #gamemodePopup, #optionsPopup, #downloadPopup, 
@@ -94,7 +96,10 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
 
         ${stringHasContent(theme.misc.fontStyle) ? `*{font-family:'${theme.misc.fontStyle.trim().split(":")[0].replaceAll("+", " ")}', sans-serif !important}` : ""}
 
-        ${stringHasContent(theme.images.urlLogo) ? "div.logo-big img {max-height:20vh}" : ""}
+        ${stringHasContent(theme.images.urlLogo) ? `
+          div.logo-big a {display: flex; justify-content: center }
+          div.logo-big img {max-height:20vh; content: url(${theme.images.urlLogo}) }
+        ` : ""}
 
         ${
           Object.entries(theme.hooks ? theme.hooks : {})
@@ -125,7 +130,7 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
             background-color: var(--COLOR_CHAT_SCROLLBAR_THUMB); 
         }
 
-        ${theme.misc.cssText}
+        ${theme.misc.cssText ?? ""}
     
         `;
 

@@ -9,7 +9,7 @@
 
   let schemePrimaryColor = Color.fromHex("#4197c5");
   let schemeTextColor = Color.fromHex("#FFFFFF");
-  let schemeBackgroundTint = Color.fromHex("#4517a899");
+  let schemeBackgroundTint = Color.fromHex("#2f61eb");
   let schemeOnInputs = true;
   let schemeInvertInputBrightness = false;
   let schemeEnableBackgroundTint = true;
@@ -28,7 +28,14 @@
           return ([entry[0] as keyof typeof baseColors, color] as const);
         }) :
       [];
-    if($loadedTheme?.theme.images.backgroundTint) schemeBackgroundTint = Color.fromHex($loadedTheme.theme.images.backgroundTint)
+
+    if($loadedTheme?.theme.images.backgroundTint && $loadedTheme?.theme.images.backgroundTint !== "transparent") {
+      schemeBackgroundTint = Color.fromHex($loadedTheme.theme.images.backgroundTint);
+      schemeEnableBackgroundTint = true;
+    }
+    else {
+      schemeEnableBackgroundTint = false;
+    }
   }
 
 </script>
@@ -136,20 +143,6 @@
 
     <div class="typo-themes-editor-content">
 
-      <!--<div class="typo-themes-editor-content-section">
-        <h3 style="flex-grow: 1">Editing Theme: {$loadedTheme.theme.meta.name}</h3>
-        <FlatButton content="Discard & Delete" color="orange" on:click={async () => {
-          const id = $loadedTheme.theme.meta.id;
-          await feature.unloadThemeFromEditor();
-          await feature.removeLocalTheme(id);
-        }} />
-        <FlatButton content="Discard Changes" color="blue" on:click={() => feature.unloadThemeFromEditor()} />
-        <FlatButton content="Save Theme" color="green" on:click={() =>{
-          feature.saveLoadedEditorTheme();
-          feature.activeThemeTabStore.set("list");
-        }} />
-      </div>-->
-
       <div class="typo-themes-editor-content-section">
         <div class="group">
           <div>Theme Name:</div>
@@ -180,13 +173,6 @@
             <div>Text Color:</div>
             <ColorPickerButton bind:color={schemeTextColor}  />
           </div>
-
-          <div class="group">
-            <div>Background Tint:</div>
-            <ColorPickerButton allowAlpha="{true}" colorChanged={(color) => {
-              schemeBackgroundTint = color;
-            }} />
-          </div>
         </div>
 
         <br>
@@ -195,25 +181,84 @@
         <div class="typo-themes-editor-content-section">
           <Checkbox bind:checked={schemeOnInputs} description="Generate colors for input fields" />
           <Checkbox bind:checked={schemeInvertInputBrightness} description="Invert text brightness on input fields" />
-          <Checkbox bind:checked={schemeEnableBackgroundTint} description="Tint the skribbl background with a color" />
           <Checkbox bind:checked={schemeIngame} description="Use theme colors in-game" />
         </div>
 
         <br>
 
-        <FlatButton content="Generate Color Scheme" color="green" on:click={async () => {
-        await feature.setColorScheme(
-          $loadedTheme.theme,
-          schemePrimaryColor,
-          schemeTextColor,
-          schemeBackgroundTint,
-          schemeOnInputs,
-          schemeInvertInputBrightness,
-          schemeEnableBackgroundTint,
-          schemeIngame
-        );
-        feature.updateLoadedEditorTheme($loadedTheme);
-      }}/>
+        <div class="typo-themes-editor-content-section">
+          <FlatButton content="Generate Color Scheme" color="green" on:click={async () => {
+            await feature.setColorScheme(
+              $loadedTheme.theme,
+              schemePrimaryColor,
+              schemeTextColor,
+              schemeOnInputs,
+              schemeInvertInputBrightness,
+              schemeIngame
+            );
+            feature.updateLoadedEditorTheme($loadedTheme);
+          }}/>
+        </div>
+        <br>
+      </details>
+
+      <details open>
+        <summary>Image Settings</summary>
+
+        <div class="typo-themes-editor-content-section">
+          <div class="group">
+            <div>Replace Skribbl Logo:</div>
+            <input type="text" placeholder="https://link.here/image.gif" bind:value={$loadedTheme.theme.images.urlLogo}
+                   on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          </div>
+
+          <div class="group">
+            <div>Replace Background:</div>
+            <input type="text" placeholder="https://link.here/image.gif" bind:value={$loadedTheme.theme.images.urlBackground}
+                   on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          </div>
+
+          <div class="group">
+            <div>In-Game Background:</div>
+            <input type="text" placeholder="https://link.here/image.gif" bind:value={$loadedTheme.theme.images.urlBackgroundGame}
+                   on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          </div>
+
+          <div class="group">
+            <div>Container Background:</div>
+            <input type="text" placeholder="https://link.here/image.gif" bind:value={$loadedTheme.theme.images.containerImages}
+                   on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          </div>
+        </div>
+        <br>
+
+        <!-- background color settings -->
+        <div class="typo-themes-editor-content-section">
+          <div class="group">
+            <Checkbox bind:checked={schemeEnableBackgroundTint} description="Tint the skribbl background with a color"  on:change={() => {
+              if(schemeEnableBackgroundTint) {
+                $loadedTheme.theme.images.backgroundTint = schemeBackgroundTint.hex;
+              }
+              else {
+                $loadedTheme.theme.images.backgroundTint = undefined;
+              }
+              feature.updateLoadedEditorTheme($loadedTheme);
+            }}/>
+            <ColorPickerButton allowAlpha="{true}" colorChanged={(color) => {
+              schemeBackgroundTint = color;
+              if(schemeEnableBackgroundTint) {
+                $loadedTheme.theme.images.backgroundTint = color.hex;
+                feature.updateLoadedEditorTheme($loadedTheme);
+              }
+            }} />
+          </div>
+        </div>
+        <br>
+
+        <div class="typo-themes-editor-content-section">
+          <Checkbox bind:checked={$loadedTheme.theme.images.backgroundRepeat} description="Repeat custom background image"
+                    on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+        </div>
       </details>
 
       <details>
@@ -239,17 +284,63 @@
       </details>
 
       <details>
+        <summary>Miscellaneous</summary>
+
+        <div class="typo-themes-editor-content-section">
+          <div class="group">
+            <div>Use Google Font:</div>
+            <input type="text" placeholder="Google Fonts import URL" bind:value={$loadedTheme.theme.misc.fontStyle}
+                   on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          </div>
+
+          <div class="group">
+            <div>External CSS URL:</div>
+            <input type="text" placeholder="https://some.website/link-to-style.css" bind:value={$loadedTheme.theme.misc.themeCssUrl}
+                   on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          </div>
+        </div>
+        <br>
+
+        <div class="typo-themes-editor-content-section">
+          <div class="group">
+            <div>Custom CSS:</div>
+            <input type="text" placeholder=".logo-big &lbrace; display: none !important; }" bind:value={$loadedTheme.theme.misc.themeCss}
+                   on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          </div>
+
+          <div class="group">
+            <div>HTML Element Injection:</div>
+            <input type="text" placeholder="<div>hello there</div>" bind:value={$loadedTheme.theme.misc.htmlText}
+                   on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          </div>
+        </div>
+        <br>
+
+        <div class="typo-themes-editor-content-section">
+          <Checkbox bind:checked={$loadedTheme.theme.misc.hideFooter} description="Hide skribbl footer"
+                    on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          <Checkbox bind:checked={$loadedTheme.theme.misc.hideSkribblPanels} description="Hide About, News & How-To Panels"
+                    on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          <Checkbox bind:checked={$loadedTheme.theme.misc.hideAvatarLogo} description="Hide avatars below skribbl logo"
+                    on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+          <Checkbox bind:checked={$loadedTheme.theme.misc.hideInGameLogo} description="Hide in-game skribbl logo"
+                    on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
+        </div>
+      </details>
+
+      <details>
         <summary>Skribbl Style Hooks</summary>
         <p>Skribbl style hooks allow more advanced CSS styling without having to dig through the skribbl css classes.</p>
         <p>The CSS you write will be applied wherever the skribbl color variable is used.</p>
+        <p>Hover over the ℹ️ icon to display the linked CSS classes.</p>
         <br>
 
         <div class="typo-themes-editor-content-section">
           <div class="group">
             <div class="style-hooks">
               {#each Object.entries(variableHooks) as color}
-                <div>{color[0].replace("--", "")} <abbr title="{color[1].join(', ')}">classes</abbr>:</div>
-                <input type="text" bind:value={$loadedTheme.theme.hooks[color[0]]} on:change={() => {
+                <div><abbr title="{color[1].join(', ')}">ℹ️</abbr> {color[0].replace("--", "")}:</div>
+                <input type="text" placeholder="color: red; border: 1px solid green;" bind:value={$loadedTheme.theme.hooks[color[0]]} on:change={() => {
                   feature.updateLoadedEditorTheme($loadedTheme);
                 }} />
               {/each}

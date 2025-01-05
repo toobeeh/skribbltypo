@@ -17,6 +17,7 @@ export interface typoTheme {
     hideFooter?: boolean,
     hideAvatarLogo?: boolean,
     hideInGameLogo?: boolean,
+    hideSkribblPanels?: boolean,
     themeCssUrl?: string,
     themeCss?: string,
     cssText?: string,

@@ -7,6 +7,7 @@
   const devmode = feature.devmodeStore;
   const savedThemes = feature.savedThemesStore;
   const currentThemeId = feature.currentThemeStore;
+  const loadedEditorTheme = feature.loadedEditorThemeStore;
   const selectedTab = feature.activeThemeTabStore;
 </script>
 
@@ -79,10 +80,15 @@
       </div>
 
       <div>
-        {#if $currentThemeId === theme.theme.meta.id}
+        {#if $currentThemeId === theme.theme.meta.id && $loadedEditorTheme === undefined}
           <div class="active-marker">
             <img src="" alt="enabled" style="content: var(--file-img-enabled-gif)" />
             <div>Selected</div>
+          </div>
+        {:else if $loadedEditorTheme?.theme.meta.id === theme.theme.meta.id}
+          <div class="active-marker">
+            <img src="" alt="enabled" style="content: var(--file-img-enabled-gif)" />
+            <div>Editing</div>
           </div>
         {:else}
           <div class="active-marker">
@@ -100,8 +106,8 @@
       <div>
 
         <FlatButton
-          content="{$currentThemeId === theme.theme.meta.id ? 'Active' : 'Activate'}"
-          disabled="{$currentThemeId === theme.theme.meta.id}"
+          content="{$currentThemeId === theme.theme.meta.id && $loadedEditorTheme === undefined ? 'Active' : 'Activate'}"
+          disabled="{$currentThemeId === theme.theme.meta.id && $loadedEditorTheme === undefined}"
           color="green"
           on:click={() => feature.activateLocalTheme(theme.theme.meta.id)}
         />
@@ -116,8 +122,9 @@
 
         {#if theme.enableManage === true}
           <FlatButton
-            content="Edit"
+            content="{$loadedEditorTheme?.theme.meta.id === theme.theme.meta.id ? 'Editing' : 'Edit'}"
             color="blue"
+            disabled="{$loadedEditorTheme?.theme.meta.id === theme.theme.meta.id}"
             on:click={() => {
               feature.loadThemeToEditor(theme);
               $selectedTab = "editor";

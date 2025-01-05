@@ -1,7 +1,10 @@
 <script lang="ts">
+  import { createEventDispatcher } from "svelte";
+
   export let checked = false;
   export let disabled = false;
   export let description = "";
+  const dispatch = createEventDispatcher();
 </script>
 
 <style lang="scss">
@@ -34,7 +37,9 @@
 </style>
 
 <div class:disabled={disabled} role="checkbox" tabindex="0" aria-checked="{checked}" on:click
-     on:click={() => checked = !checked} on:keypress={(key) => key.key === 'Enter' ? checked = !checked : 0}>
+     on:click={() => {checked = !checked; dispatch("change", checked)}}
+     on:keypress={(key) => {key.key === 'Enter' ? checked = !checked : 0; dispatch("change", checked)}}
+>
   <img src="" alt="icon" style="content: var(--{checked ? 'file-img-enabled-gif' : 'file-img-disabled-gif'})">
   {#if (description)}
     <span>{description}</span>
