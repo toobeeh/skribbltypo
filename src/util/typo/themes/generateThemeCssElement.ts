@@ -30,7 +30,7 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
             width: 100%;
             height: 100%;
             background: ${ !stringHasContent(theme.images.urlBackground) ? theme.images.backgroundTint ?? "" : "" };
-            z-index: -1;
+            z-index: -10;
             pointer-events: none;
             filter: brightness(${ !stringHasContent(theme.images.urlBackground) && (theme.images.backgroundTint ?? "transparent") !== "transparent" ? 4 : 1 });
         }

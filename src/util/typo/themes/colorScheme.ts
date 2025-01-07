@@ -63,16 +63,26 @@ export const generateColorScheme = (mainColor: Color | undefined, textColor: Col
   if (textColor) {
     const textHsl = textColor.hsl;
     const texts = [
-      "--COLOR_GAMEBAR_TEXT",
-      "--COLOR_GAMEBAR_ROUND_TEXT",
-      "--COLOR_PLAYER_TEXT_BASE",
-      "--COLOR_CHAT_TEXT_BASE",
-      "--COLOR_INPUT_TEXT",
+
+        /* if ingame generation enabled */
+        ...(useIngame ? [
+          "--COLOR_GAMEBAR_TEXT",
+          "--COLOR_GAMEBAR_ROUND_TEXT",
+          "--COLOR_PLAYER_TEXT_BASE",
+          "--COLOR_CHAT_TEXT_BASE",
+        ] : []),
+
+      /* if input generation enabled */
+      ...(useInputs ? [
+        "--COLOR_INPUT_TEXT",
+      ] : []),
+
       "--COLOR_PANEL_TEXT"
     ] as (keyof typeof theme)[];
     texts.forEach(k => theme[k] = [textHsl[0], textHsl[1], textHsl[2], ...(textHsl[3] ? [textHsl[3]] : [])]);
-    theme["--COLOR_PANEL_TEXT_PLACEHOLDER"] = [textHsl[0], textHsl[1], textHsl[2] - 50];
-    theme["--COLOR_GAMEBAR_WORD_DESCRIPTION"] = [textHsl[0], textHsl[1], textHsl[2], 0.7];
+
+    if(useInputs) theme["--COLOR_PANEL_TEXT_PLACEHOLDER"] = [textHsl[0], textHsl[1], textHsl[2] - 50];
+    if(useIngame) theme["--COLOR_GAMEBAR_WORD_DESCRIPTION"] = [textHsl[0], textHsl[1], textHsl[2], 0.7];
     if (invertInputText) theme["--COLOR_INPUT_TEXT"][2] = 100 - theme["--COLOR_INPUT_TEXT"][2];
   }
 
