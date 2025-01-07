@@ -390,4 +390,57 @@ export class ControlsThemesFeature extends TypoFeature {
 
     await this._toastService.showToast("Color scheme updated");
   }
+
+  public async shareTheme(theme: typoTheme){
+    this._logger.debug("Sharing theme", theme);
+    const toast = await this._toastService.showLoadingToast("Sharing theme");
+
+    let shareId: string;
+    try {
+      const response = await this._apiService.getApi(ThemesApi).shareTheme({themeDto: theme});
+      shareId = response.id;
+      this._logger.info("created theme share id:", response.id);
+
+      await navigator.clipboard.writeText(shareId);
+    }
+    catch(e) {
+      this._logger.error("Failed to share theme", e);
+      toast.reject("Failed to share theme");
+      return;
+    }
+
+    toast.resolve(`Share id (${shareId}) copied to clipboard`);
+  }
+
+  public async importTheme(shareId: string){
+    this._logger.debug("Importing theme", shareId);
+    const toast = await this._toastService.showLoadingToast("Importing theme");
+
+    try {
+      const theme = await this._apiService.getApi(ThemesApi).getThemeById({id: shareId});
+      this._logger.info("Loaded theme", theme);
+
+      const themes = await this._savedThemesSetting.getValue();
+      const existingTheme = themes.find(t => t.theme.meta.id === theme.meta.id);
+      if(existingTheme !== undefined){
+        this._logger.warn("Theme already exists, assigning new ID", theme);
+        theme.meta.id = Date.now();
+      }
+      const savedTheme: savedTheme = {
+        theme: theme as serializableTheme,
+        savedAt: Date.now(),
+        publicTheme: undefined,
+        enableManage: true
+      };
+
+      await this._savedThemesSetting.setValue([savedTheme, ...themes]);
+      toast.resolve(`Theme ${theme.meta.name} saved`);
+      return savedTheme;
+    }
+    catch(e) {
+      this._logger.error("Failed to import theme", e);
+      toast.reject("Failed to import theme");
+      throw new Error("Failed to import theme");
+    }
+  }
 }

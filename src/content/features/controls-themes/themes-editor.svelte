@@ -14,10 +14,12 @@
   let schemeInvertInputBrightness = false;
   let schemeEnableBackgroundTint = true;
   let schemeIngame = false;
+  let shareId = "";
 
   export let feature: ControlsThemesFeature;
   export let variableHooks: Record<string, string[]>;
   const loadedTheme = feature.loadedEditorThemeStore;
+  const activeThemeTab = feature.activeThemeTabStore;
   let themeColors: [keyof typeof baseColors, Color][] = [];
 
   $: {
@@ -42,7 +44,7 @@
 
 <style lang="scss">
 
-  .typo.themes.typo-themes-editor {
+  .typo-themes-editor {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -56,10 +58,23 @@
   .typo-themes-editor-content {
     display: flex;
     flex-direction: column;
-    gap: 3rem;
+    gap: 2rem;
     align-items: start;
     padding: 0 2rem;
     overflow: auto;
+  }
+
+  details{
+    border-radius: 3px;
+    padding: .5rem 1rem;
+  }
+
+  details[open]{
+    background-color: var(--COLOR_PANEL_HI);
+
+    summary {
+      margin-bottom: .5rem;
+    }
   }
 
   summary {
@@ -67,7 +82,6 @@
     cursor: pointer;
     user-select: none;
     font-size: 1.2rem;
-    padding-bottom: .5rem;
   }
 
   .typo-themes-editor-content-section {
@@ -118,9 +132,22 @@
       <br>
 
       <FlatButton content="Create new Theme" color="green" on:click={async () => {
-      const theme = await feature.createLocalTheme();
-      await feature.loadThemeToEditor(theme);
-    }} />
+        const theme = await feature.createLocalTheme();
+        await feature.loadThemeToEditor(theme);
+      }} />
+    </div>
+    <br>
+    <br>
+
+    <div class="typo-themes-editor-header">
+          <div>If you have received a theme share ID, you can import it here:</div>
+          <br>
+          <input type="text" style="width: auto" placeholder="Share ID" bind:value={shareId} />
+          <FlatButton content="Import Theme" color="blue" on:click={async () => {
+            const theme = await feature.importTheme(shareId);
+            await feature.activateLocalTheme(theme.theme.meta.id);
+            $activeThemeTab = "list";
+          }} />
     </div>
 
   {:else}
@@ -199,7 +226,6 @@
             feature.updateLoadedEditorTheme($loadedTheme);
           }}/>
         </div>
-        <br>
       </details>
 
       <details open>
@@ -246,10 +272,9 @@
             }}/>
             <ColorPickerButton allowAlpha="{true}" colorChanged={(color) => {
               schemeBackgroundTint = color;
-              if(schemeEnableBackgroundTint) {
-                $loadedTheme.theme.images.backgroundTint = color.hex;
-                feature.updateLoadedEditorTheme($loadedTheme);
-              }
+              schemeEnableBackgroundTint = true;
+              $loadedTheme.theme.images.backgroundTint = color.hex;
+              feature.updateLoadedEditorTheme($loadedTheme);
             }} />
           </div>
         </div>

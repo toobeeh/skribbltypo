@@ -36,7 +36,6 @@
     display: flex;
     flex-direction: column;
     min-width: clamp(20em, 20em, 100%);
-    max-width: clamp(20em, 20em, 100%);
 
     .active-marker {
       display: flex;
@@ -128,6 +127,17 @@
             on:click={() => {
               feature.loadThemeToEditor(theme);
               $selectedTab = "editor";
+            }}
+          />
+        {/if}
+
+        {#if theme.enableManage === true}
+          <FlatButton
+            content="Share"
+            color="blue"
+            disabled="{$loadedEditorTheme?.theme.meta.id === theme.theme.meta.id}"
+            on:click={() => {
+              feature.shareTheme(theme.theme);
             }}
           />
         {/if}
