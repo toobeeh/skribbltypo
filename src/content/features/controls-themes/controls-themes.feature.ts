@@ -234,6 +234,7 @@ export class ControlsThemesFeature extends TypoFeature {
       await this._savedThemesSetting.setValue([savedTheme, ...themes.filter(t => t.theme.meta.id !== savedTheme.theme.meta.id)]);
       toast.resolve(`Theme ${savedTheme.theme.meta.name} updated`);
       this._loadedEditorTheme$.next(undefined);
+      await this._activeThemeSetting.setValue(savedTheme.theme.meta.id);
       return savedTheme;
     }
 

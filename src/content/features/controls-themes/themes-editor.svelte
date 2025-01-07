@@ -142,7 +142,7 @@
     <div class="typo-themes-editor-header">
           <div>If you have received a theme share ID, you can import it here:</div>
           <br>
-          <input type="text" style="width: auto" placeholder="Share ID" bind:value={shareId} />
+          <input type="text" style="width: auto; margin-right: 1rem" placeholder="Share ID" bind:value={shareId} />
           <FlatButton content="Import Theme" color="blue" on:click={async () => {
             const theme = await feature.importTheme(shareId);
             await feature.activateLocalTheme(theme.theme.meta.id);
