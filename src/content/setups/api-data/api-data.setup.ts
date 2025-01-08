@@ -46,7 +46,7 @@ export class ApiDataSetup extends Setup<apiData> {
     ));
 
     promise.catch((e) => {
-      this._toastService.showToast("Fatal error", "Failed to fetch data from the typo servers. \nPlease get support on the typo discord server.");
+      this._toastService.showToast("Fatal error", "Failed to fetch data from the typo servers. \nPlease ask for support on the typo discord server.");
       logger.error("Failed to fetch data from the typo servers", e);
     });
 

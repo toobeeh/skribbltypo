@@ -1,14 +1,24 @@
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, filter, forkJoin, of, switchMap } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
-import { type MemberDto, MembersApi, type MemberWebhookDto } from "@/api";
+import {
+  InventoryApi,
+  type MemberDto,
+  MembersApi,
+  type MemberWebhookDto, type SceneInventoryDto,
+  type SpriteInventoryDto,
+  type SpriteSlotCountDto,
+} from "@/api";
 import { ApiService } from "../api/api.service";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import { TokenService } from "@/content/core/token/token.service";
 
 export interface memberData {
   member: MemberDto,
-  webhooks: MemberWebhookDto[]
+  webhooks: MemberWebhookDto[],
+  slots: SpriteSlotCountDto,
+  spriteInventory: SpriteInventoryDto[],
+  sceneInventory: SceneInventoryDto
 }
 
 @injectable()
@@ -39,7 +49,10 @@ export class MemberService {
 
         return forkJoin({
           webhooks: fromPromise(_apiService.getApi(MembersApi).getMemberGuildWebhooks({ login: Number(member.userLogin) })),
-          member: of(member)
+          member: of(member),
+          slots: fromPromise(_apiService.getApi(InventoryApi).getMemberSpriteSlotCount({ login: Number(member.userLogin) })),
+          spriteInventory: fromPromise(_apiService.getApi(InventoryApi).getMemberSpriteInventory({ login: Number(member.userLogin) })),
+          sceneInventory: fromPromise(_apiService.getApi(InventoryApi).getMemberSceneInventory({ login: Number(member.userLogin) }))
         });
       })
     ).subscribe(data => {
@@ -64,6 +77,22 @@ export class MemberService {
     });
 
     return promise;
+  }
+
+  /**
+   * trigger a refresh that loads the member inventory and
+   * results in a new emit of the memberdata observable
+   */
+  public refreshInventory() {
+    this._memberData$.subscribe(async data => {
+      if(data !== null && data !== undefined) {
+        const spriteInv = await this._apiService.getApi(InventoryApi).getMemberSpriteInventory({ login: Number(data.member.userLogin) });
+        const sceneInv = await this._apiService.getApi(InventoryApi).getMemberSceneInventory({ login: Number(data.member.userLogin) });
+        data.spriteInventory = spriteInv;
+        data.sceneInventory = sceneInv;
+        this._memberData$.next(data);
+      }
+    });
   }
 
   /**
