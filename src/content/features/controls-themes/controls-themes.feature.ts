@@ -1,5 +1,4 @@
 import {type ThemeListingDto } from "@/api";
-import { ExtensionSetting } from "@/content/core/settings/setting";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ThemesService } from "@/content/services/themes/themes.service";
