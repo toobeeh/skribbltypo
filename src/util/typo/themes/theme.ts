@@ -1,5 +1,22 @@
+import type { serializable } from "@/content/core/settings/setting";
 import type { Mutable } from "@/util/types/mutable";
 import { themeColors } from "@/util/typo/themes/colors";
+
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+export interface serializableTheme extends typoTheme {
+  [key: string]: serializable; /* needed to pass as serializable */
+}
+
+export interface savedTheme {
+  [key: string]: serializable; /* needed to pass as serializable */
+  theme: serializableTheme;
+  savedAt: number;
+  publicTheme?: {
+    publicId: string;
+    localVersion: number
+  },
+  enableManage?: boolean;
+}
 
 export interface typoTheme {
   colors: Mutable<typeof themeColors>;

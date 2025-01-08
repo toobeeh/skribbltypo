@@ -6,7 +6,7 @@
   export let feature: ControlsThemesFeature;
   const devmode = feature.devmodeStore;
   const savedThemes = feature.savedThemesStore;
-  const currentThemeId = feature.currentThemeStore;
+  const currentThemeId = feature.activeThemeStore;
   const loadedEditorTheme = feature.loadedEditorThemeStore;
   const selectedTab = feature.activeThemeTabStore;
 </script>
@@ -115,7 +115,7 @@
           <FlatButton
             content="Remove"
             color="orange"
-            on:click={() => feature.removeLocalTheme(theme.theme.meta.id)}
+            on:click={() => feature.removeSavedTheme(theme.theme.meta.id)}
           />
         {/if}
 

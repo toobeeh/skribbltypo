@@ -159,7 +159,7 @@
       <FlatButton content="Discard & Delete" color="orange" on:click={async () => {
         const id = $loadedTheme.theme.meta.id;
         await feature.unloadThemeFromEditor();
-        await feature.removeLocalTheme(id);
+        await feature.removeSavedTheme(id);
       }} />
       <FlatButton content="Discard Changes" color="blue" on:click={() => feature.unloadThemeFromEditor()} />
       <FlatButton content="Save Theme" color="green" on:click={() =>{

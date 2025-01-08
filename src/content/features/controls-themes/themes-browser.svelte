@@ -7,7 +7,7 @@
   export let feature: ControlsThemesFeature;
   const devmode = feature.devmodeStore;
   const savedThemes = feature.savedThemesStore;
-  const currentThemeId = feature.currentThemeStore;
+  const currentThemeId = feature.activeThemeStore;
   const loadedEditorTheme = feature.loadedEditorThemeStore;
 
   let currentTheme: savedTheme | undefined;

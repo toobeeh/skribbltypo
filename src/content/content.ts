@@ -60,6 +60,7 @@ import { LobbyInteractionsService } from "@/content/services/lobby-interactions/
 import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
 import { PlayersService } from "@/content/services/players/players.service";
 import { SocketService } from "@/content/services/socket/socket.service";
+import { ThemesService } from "@/content/services/themes/themes.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ToolsService } from "@/content/services/tools/tools.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
@@ -120,7 +121,8 @@ new ExtensionContainer(interceptor)
     {type: LobbyItemsService, scope: "singleton"},
     {type: PlayersService, scope: "singleton"},
     {type: ChatService, scope: "singleton"},
-    {type: LobbyInteractionsService, scope: "singleton"}
+    {type: LobbyInteractionsService, scope: "singleton"},
+    {type: ThemesService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
