@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { BehaviorSubject, filter, forkJoin, of, switchMap } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom, forkJoin, of, switchMap, take } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
 import {
   InventoryApi,
@@ -83,16 +83,19 @@ export class MemberService {
    * trigger a refresh that loads the member inventory and
    * results in a new emit of the memberdata observable
    */
-  public refreshInventory() {
-    this._memberData$.subscribe(async data => {
-      if(data !== null && data !== undefined) {
-        const spriteInv = await this._apiService.getApi(InventoryApi).getMemberSpriteInventory({ login: Number(data.member.userLogin) });
-        const sceneInv = await this._apiService.getApi(InventoryApi).getMemberSceneInventory({ login: Number(data.member.userLogin) });
-        data.spriteInventory = spriteInv;
-        data.sceneInventory = sceneInv;
-        this._memberData$.next(data);
-      }
-    });
+  public async refreshInventory() {
+    await firstValueFrom(this.memberData$.pipe(
+      take(1),
+      switchMap(async data => {
+        if(data !== null && data !== undefined) {
+          const spriteInv = await this._apiService.getApi(InventoryApi).getMemberSpriteInventory({ login: Number(data.member.userLogin) });
+          const sceneInv = await this._apiService.getApi(InventoryApi).getMemberSceneInventory({ login: Number(data.member.userLogin) });
+          data.spriteInventory = spriteInv;
+          data.sceneInventory = sceneInv;
+          this._memberData$.next(data);
+        }
+      })
+    ));
   }
 
   /**

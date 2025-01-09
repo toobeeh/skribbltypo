@@ -36,6 +36,7 @@ export * from './RegistrationRequest';
 export * from './SceneDto';
 export * from './SceneInventoryDto';
 export * from './SceneInventoryItemDto';
+export * from './SceneThemeDto';
 export * from './SetActiveSceneDto';
 export * from './SpriteComboDto';
 export * from './SpriteDto';

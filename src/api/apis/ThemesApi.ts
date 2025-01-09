@@ -269,7 +269,7 @@ export class ThemesApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: None  Rate limit default: 5 Requests / 18000000 ms TTL
+     *   Required Roles: None  Rate limit default: 100 Requests / 86400000 ms TTL
      * Get a theme by ID and increment use counter
      */
     async useThemeByIdRaw(requestParameters: UseThemeByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ThemeDto>> {
@@ -295,7 +295,7 @@ export class ThemesApi extends runtime.BaseAPI {
     }
 
     /**
-     *   Required Roles: None  Rate limit default: 5 Requests / 18000000 ms TTL
+     *   Required Roles: None  Rate limit default: 100 Requests / 86400000 ms TTL
      * Get a theme by ID and increment use counter
      */
     async useThemeById(requestParameters: UseThemeByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ThemeDto> {

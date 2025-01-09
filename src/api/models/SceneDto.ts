@@ -19,6 +19,12 @@ import {
     EventDtoFromJSONTyped,
     EventDtoToJSON,
 } from './EventDto';
+import type { SceneThemeDto } from './SceneThemeDto';
+import {
+    SceneThemeDtoFromJSON,
+    SceneThemeDtoFromJSONTyped,
+    SceneThemeDtoToJSON,
+} from './SceneThemeDto';
 
 /**
  * 
@@ -74,6 +80,12 @@ export interface SceneDto {
      * @memberof SceneDto
      */
     artist?: string;
+    /**
+     * Available themes for the scene
+     * @type {Array<SceneThemeDto>}
+     * @memberof SceneDto
+     */
+    themes: Array<SceneThemeDto>;
 }
 
 /**
@@ -84,6 +96,7 @@ export function instanceOfSceneDto(value: object): value is SceneDto {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('url' in value) || value['url'] === undefined) return false;
     if (!('exclusive' in value) || value['exclusive'] === undefined) return false;
+    if (!('themes' in value) || value['themes'] === undefined) return false;
     return true;
 }
 
@@ -105,6 +118,7 @@ export function SceneDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         'primaryColor': json['primaryColor'] == null ? undefined : json['primaryColor'],
         'guessedColor': json['guessedColor'] == null ? undefined : json['guessedColor'],
         'artist': json['artist'] == null ? undefined : json['artist'],
+        'themes': ((json['themes'] as Array<any>).map(SceneThemeDtoFromJSON)),
     };
 }
 
@@ -122,6 +136,7 @@ export function SceneDtoToJSON(value?: SceneDto | null): any {
         'primaryColor': value['primaryColor'],
         'guessedColor': value['guessedColor'],
         'artist': value['artist'],
+        'themes': ((value['themes'] as Array<any>).map(SceneThemeDtoToJSON)),
     };
 }
 

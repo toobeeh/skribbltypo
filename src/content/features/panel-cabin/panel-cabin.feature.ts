@@ -1,5 +1,6 @@
-import type { SceneDto, SpriteDto } from "@/api";
+import { InventoryApi, type SceneDto, type SpriteDto, type SpriteInventoryDto, type SpriteSlotDto } from "@/api";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
+import { ApiService } from "@/content/services/api/api.service";
 import { MemberService } from "@/content/services/member/member.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { fromObservable } from "@/util/store/fromObservable";
@@ -14,6 +15,7 @@ export class PanelCabinFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
   @inject(MemberService) private readonly _memberService!: MemberService;
+  @inject(ApiService) private readonly _apiService!: ApiService;
 
   private _component?: PanelCabin;
 
@@ -45,6 +47,8 @@ export class PanelCabinFeature extends TypoFeature {
 
   public get memberStore() {
     return fromObservable(this._memberService.memberData$.pipe(
+
+      /* map data into useful structure */
       switchMap(async memberData => {
         if(memberData === null || memberData === undefined) {
           return undefined;
@@ -71,5 +75,25 @@ export class PanelCabinFeature extends TypoFeature {
 
   getItemThumbnailUrl(item: SpriteDto | SceneDto | undefined, shift: number | undefined) {
     return item ? shift ? `https://static.typo.rip/sprites/rainbow/modulate.php?url=${item.url}&hue=${shift}` : item.url : "";
+  }
+
+  async reorderSlots(slotMap: number[], inventory: SpriteInventoryDto[], login: number){
+    this._logger.debug("Reordering slots", slotMap, inventory);
+
+    if(slotMap.every((v, i) => v === i)){
+      this._logger.info("No change in slot order");
+      return;
+    }
+
+    const slots: SpriteSlotDto[] = [];
+    inventory.forEach(item => {
+      if(item.slot !== undefined){
+        slots.push({slotId: slotMap[item.slot-1]+1, spriteId: item.spriteId});
+      }
+    });
+
+    await this._apiService.getApi(InventoryApi).setMemberSpriteCombo({login, spriteComboDto: {slots}});
+    await this._memberService.refreshInventory();
+    this._logger.info("Reordered slots", slots);
   }
 }
