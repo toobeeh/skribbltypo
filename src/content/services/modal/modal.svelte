@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { componentData } from "./modal.service";
-  import type { SvelteComponent } from "svelte";
+  import { onDestroy, type SvelteComponent } from "svelte";
 
   export let componentData: componentData<SvelteComponent>;
   export let closeHandler: () => void;

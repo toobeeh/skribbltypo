@@ -78,7 +78,7 @@
       }
 
       &:hover {
-        transform: scale(0.98);
+        transform: scale(0.95);
 
         .typo-cabin-scene-info {
           opacity: 1;
@@ -187,7 +187,16 @@
     <div class="typo-cabin-picker">
 
       {#if $scenePickerEnabled}
-        <div class="typo-cabin-scene">
+        <div class="typo-cabin-scene"
+             on:click={async ()=>{
+               const scene = await feature.openScenePicker($memberStore.memberData.sceneInventory);
+               if(scene !== undefined) {
+                  loading = true;
+                  await feature.setScene(scene?.scene ?? null, scene?.shift, $memberStore.memberData.member.userLogin);
+                  loading = false;
+               }
+             }}
+        >
           {#if $memberStore.scene && $memberStore.scene.scene}
             <div class="typo-cabin-scene-info">
               {$memberStore.scene.scene.name} (#{$memberStore.scene.scene.id})
@@ -232,20 +241,28 @@
                dndTrack = undefined;
                 loading = false;
              }}
+             on:click={async ()=>{
+               const sprite = await feature.openSpritePicker($memberStore.memberData.spriteInventory);
+               if(sprite !== undefined) {
+                  loading = true;
+                  await feature.setSpriteOnSlot(slot + 1, sprite, $memberStore.memberData.member.userLogin);
+                  loading = false;
+               }
+             }}
         >
 
-          {#if $memberStore.slots.length > slot}
+          {#if $memberStore.slots.has(slot)}
             <div class="typo-cabin-slot-info">
               Slot #{slot + 1}
             </div>
 
             <div class="typo-cabin-slot-info">
-              {$memberStore.slots[slot].sprite?.name ?? "Unknown"}
-              (#{$memberStore.slots[slot].spriteId})
+              {$memberStore.slots.get(slot)?.sprite?.name ?? "Unknown"}
+              (#{$memberStore.slots.get(slot)?.spriteId})
             </div>
 
             <div class="typo-cabin-slot-thumb"
-                 style="background-image: url({feature.getItemThumbnailUrl($memberStore.slots[slot].sprite, $memberStore.slots[slot].colorShift)})"
+                 style="background-image: url({feature.getItemThumbnailUrl($memberStore.slots.get(slot)?.sprite, $memberStore.slots.get(slot)?.colorShift)})"
             ></div>
           {:else }
             <div class="typo-cabin-slot-info visible">

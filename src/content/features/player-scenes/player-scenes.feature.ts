@@ -1,6 +1,6 @@
-import { InventoryApi, type SceneDto } from "@/api";
-import { ApiService } from "@/content/services/api/api.service";
+import { type SceneDto } from "@/api";
 import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
+import { MemberService } from "@/content/services/member/member.service";
 import { PlayersService } from "@/content/services/players/players.service";
 import {
   type anonymousPlayerIdentification,
@@ -10,7 +10,7 @@ import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { type OnlineItemDto, OnlineItemTypeDto } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
 import { inject } from "inversify";
 import {
-  combineLatestWith,
+  combineLatestWith, firstValueFrom,
   type Subscription,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
@@ -25,7 +25,7 @@ export class PlayerScenesFeature extends TypoFeature {
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
   @inject(LobbyItemsService) private readonly _lobbyItemsService!: LobbyItemsService;
   @inject(PlayersService) private readonly _lobbyPlayersService!: PlayersService;
-  @inject(ApiService) private readonly _apiService!: ApiService;
+  @inject(MemberService) private readonly _memberService!: MemberService;
 
   public readonly name = "Player Scenes";
   public readonly description =
@@ -41,7 +41,7 @@ export class PlayerScenesFeature extends TypoFeature {
     const scenes = (await this._apiDataSetup.complete()).scenes;
 
     this._scenesSubscription = this._lobbyPlayersService.players$.pipe(
-      combineLatestWith(this._lobbyItemsService.onlineItems$)
+      combineLatestWith(this._lobbyItemsService.onlineItems$, this._memberService.memberData$) /* add member data to triggers */
     ).subscribe(([players, items]) => {
       this.updatePlayerScenes(players, items, scenes);
     });
@@ -152,10 +152,10 @@ export class PlayerScenesFeature extends TypoFeature {
   private async createItemsForMember(login: number): Promise<OnlineItemDto[]> {
     this._logger.debug("Creating demo scene items for member", login);
 
-    const api = this._apiService.getApi(InventoryApi);
-    const sceneInventory = await api.getMemberSceneInventory({ login });
-    const items: OnlineItemDto[] = [];
+    const sceneInventory = (await firstValueFrom(this._memberService.memberData$))?.sceneInventory;
+    if(sceneInventory === undefined) return [];
 
+    const items: OnlineItemDto[] = [];
     if(sceneInventory.activeId !== undefined){
       items.push({
         itemId: sceneInventory.activeId,

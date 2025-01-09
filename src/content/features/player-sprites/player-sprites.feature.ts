@@ -1,6 +1,6 @@
-import { InventoryApi, type SpriteDto } from "@/api";
-import { ApiService } from "@/content/services/api/api.service";
+import { type SpriteDto } from "@/api";
 import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
+import { MemberService } from "@/content/services/member/member.service";
 import { PlayersService } from "@/content/services/players/players.service";
 import {
   type anonymousPlayerIdentification, type concretePlayerIdentification, isAnonymousPlayerIdentification,
@@ -10,7 +10,7 @@ import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { type OnlineItemDto, OnlineItemTypeDto } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
 import { inject } from "inversify";
 import {
-  combineLatestWith,
+  combineLatestWith, firstValueFrom,
   type Subscription,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
@@ -26,7 +26,7 @@ export class PlayerSpritesFeature extends TypoFeature {
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
   @inject(LobbyItemsService) private readonly _lobbyItemsService!: LobbyItemsService;
   @inject(PlayersService) private readonly _lobbyPlayersService!: PlayersService;
-  @inject(ApiService) private readonly _apiService!: ApiService;
+  @inject(MemberService) private readonly _memberService!: MemberService;
 
   public readonly name = "Player Sprites";
   public readonly description =
@@ -42,7 +42,7 @@ export class PlayerSpritesFeature extends TypoFeature {
     const sprites = (await this._apiDataSetup.complete()).sprites;
 
     this._spritesSubscription = this._lobbyPlayersService.players$.pipe(
-      combineLatestWith(this._lobbyItemsService.onlineItems$)
+      combineLatestWith(this._lobbyItemsService.onlineItems$, this._memberService.memberData$) /* add member data to triggers */
     ).subscribe(([players, items]) => {
       this.updatePlayerSprites(players, items, sprites);
     });
@@ -151,8 +151,7 @@ export class PlayerSpritesFeature extends TypoFeature {
   private async createItemsForMember(login: number): Promise<OnlineItemDto[]> {
     this._logger.debug("Creating demo items for member", login);
 
-    const api = this._apiService.getApi(InventoryApi);
-    const spriteInventory = await api.getMemberSpriteInventory({ login });
+    const spriteInventory = (await firstValueFrom(this._memberService.memberData$))?.spriteInventory ?? [];
 
     const items: OnlineItemDto[] = spriteInventory.map((sprite) => {
       const item = sprite.slot ? {
