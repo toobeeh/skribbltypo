@@ -28,7 +28,7 @@ export class PanelSetup extends Setup<{ leftPanel: HTMLElement, rightPanel: HTML
     new PanelTabs({
       target: panels.rightPanel,
       props: {
-        tabs: [{ name: "Lobbies", id: "lobbies" }, { name: "Filters", id: "filter" }, { name: "Sprite Cabin", id: "cabin" }]
+        tabs: [{ name: "Lobbies", id: "lobbies" }, { name: "Filters", id: "filter" }, { name: "Outfit", id: "cabin" }]
       }
     });
 

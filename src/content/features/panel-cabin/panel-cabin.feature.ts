@@ -19,7 +19,7 @@ export class PanelCabinFeature extends TypoFeature {
 
   private _component?: PanelCabin;
 
-  public readonly name = "Sprite Cabin";
+  public readonly name = "Outfit Cabin";
   public readonly description = "Displays a drag-n-drop interface on the start page to customize your sprite combo";
   public readonly featureId = 3;
 

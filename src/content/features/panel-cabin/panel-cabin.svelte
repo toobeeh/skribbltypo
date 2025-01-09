@@ -95,6 +95,10 @@
         font-size: .8rem;
         transition: opacity .1s;
         z-index: 1;
+
+        &.visible {
+          opacity: 1;
+        }
       }
     }
 
@@ -143,6 +147,10 @@
         font-size: .8rem;
         transition: opacity .1s;
         z-index: 1;
+
+        &.visible {
+          opacity: 1;
+        }
       }
 
       &.locked {
@@ -188,7 +196,7 @@
                  style="background-image: url({feature.getItemThumbnailUrl($memberStore.scene.scene, $memberStore.scene.shift)})"
             ></div>
           {:else }
-            <div class="typo-cabin-scene-info">No scene selected</div>
+            <div class="typo-cabin-scene-info visible">No scene selected</div>
           {/if}
         </div>
       {/if}
@@ -225,11 +233,12 @@
                 loading = false;
              }}
         >
-          <div class="typo-cabin-slot-info">
-            Slot #{slot + 1}
-          </div>
 
           {#if $memberStore.slots.length > slot}
+            <div class="typo-cabin-slot-info">
+              Slot #{slot + 1}
+            </div>
+
             <div class="typo-cabin-slot-info">
               {$memberStore.slots[slot].sprite?.name ?? "Unknown"}
               (#{$memberStore.slots[slot].spriteId})
@@ -239,7 +248,11 @@
                  style="background-image: url({feature.getItemThumbnailUrl($memberStore.slots[slot].sprite, $memberStore.slots[slot].colorShift)})"
             ></div>
           {:else }
-            <div class="typo-cabin-slot-info">
+            <div class="typo-cabin-slot-info visible">
+              Slot #{slot + 1}
+            </div>
+
+            <div class="typo-cabin-slot-info visible">
               Empty
             </div>
           {/if}
