@@ -4,10 +4,14 @@ import {
   BooleanExtensionSetting, type serializable, SettingWithInput,
 } from "@/content/core/settings/setting";
 import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
+import { type tooltipParams, TooltipsService } from "@/content/core/tooltips/tooltips.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { inject, injectable, postConstruct } from "inversify";
 import type { SvelteComponent } from "svelte";
+import type { Action } from "svelte/action";
 import { loggerFactory } from "../logger/loggerFactory.interface";
+
+export type tooltipAction = Action<HTMLElement, tooltipParams, object>;
 
 @injectable()
 export abstract class TypoFeature {
@@ -107,7 +111,8 @@ export abstract class TypoFeature {
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
-    @inject(HotkeysService) protected readonly _hotkeysService: HotkeysService
+    @inject(HotkeysService) protected readonly _hotkeysService: HotkeysService,
+    @inject(TooltipsService) protected readonly _tooltipsService: TooltipsService
   ) {
     this._logger = loggerFactory(this);
   }
@@ -185,5 +190,16 @@ export abstract class TypoFeature {
 
   public get activated$() {
     return this._isActivatedSetting.changes$;
+  }
+
+  private registerTooltip(node: HTMLElement, params: tooltipParams) {
+    this._logger.debug("Registering tooltip", node, params);
+    this._tooltipsService.registerTooltip(node, params, this);
+  }
+
+  public get createTooltip(): tooltipAction {
+    return (node, params) => {
+      this.registerTooltip(node, params);
+    };
   }
 }

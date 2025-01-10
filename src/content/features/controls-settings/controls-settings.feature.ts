@@ -38,6 +38,7 @@ export class ControlsSettingsFeature extends TypoFeature {
         icon: "file-img-wrench-gif",
         name: "Typo Settings",
         order: 1,
+        tooltipAction: this.createTooltip
       },
     });
 

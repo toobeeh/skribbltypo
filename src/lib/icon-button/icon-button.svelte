@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { tooltipAction } from "@/content/core/feature/feature";
+  import type { tooltipParams } from "@/content/core/tooltips/tooltips.service";
   import { Subject } from "rxjs";
 
   export let disabled: boolean = false;
@@ -8,6 +10,8 @@
   export let greyscaleInactive: boolean = false;
   export let size: string = "37px"
   export let order: undefined | number = undefined;
+  export let tooltipAction: tooltipAction = () => {};
+  export let lockTooltip: tooltipParams["lock"] = undefined;
   const click = new Subject<void>();
   export const click$ = click.asObservable();
 </script>
@@ -46,7 +50,7 @@
   }
 </style>
 
-<div class="typo-icon-button" style="order: {order ?? 'auto'}" role="button" data-name="{name}" tabindex="0"
+<div class="typo-icon-button" style="order: {order ?? 'auto'}" role="button" data-name="{name}" tabindex="0" use:tooltipAction={{title: name, lock: lockTooltip}}
      class:greyscale={greyscaleInactive} class:disabled={disabled}
      on:click
      on:click={() => click.next(void 0)}

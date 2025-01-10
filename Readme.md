@@ -8,7 +8,7 @@ So he switched to typescript, and the galaxy was at peace.
 ---
 
 This repository is the refactor of the skribbltypo extension, originally written in vanilla javascript.  
-It focuses on a solid architecture, maximum modularity and separation of features,
+It builds a custom framework to implement the features of typo, focussed on a solid architecture, maximum modularity and separation of features,
 and clean code style via dependency injection and reactive components.  
 The node project is based on typescript in combination with the vite compiler, 
 using the plugins svelte for ui component designs and crx as a browser extension bundler.  
@@ -127,3 +127,18 @@ Errors should be logged for illegal states where a recovery is not possible;
 warnings in states that do not necessarily lead to user experience issues;
 information for any action that is executed/initiated by a feature or service;
 and debug to dump data for low-level debugging.
+
+## Framework Features
+The framework provides many features to simplify the development of new game features,   
+making the extension as modular as possible and avoiding code duplication.
+
+### Hotkeys
+
+### Logging
+
+### Settings
+
+### Tooltips
+Tooltips are supported by a core service that is bound at DI container creation, and a feature that can be toggled by the user.  
+The feature base class provides a svelte action to register a tooltip to the service.  
+In a svelte component, using the feature reference, the tooltip can be registered by calling the action with the tooltip params.

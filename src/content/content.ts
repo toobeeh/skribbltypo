@@ -50,6 +50,7 @@ import { ToolbarImageLabFeature } from "@/content/features/toolbar-imagelab/tool
 import { ToolbarImagePostFeature } from "@/content/features/toolbar-imagepost/toolbar-imagepost.feature";
 import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save.feature";
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
+import { TooltipsFeature } from "@/content/features/tooltips/tooltips.feature";
 import { ChatService } from "@/content/services/chat/chat.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
@@ -194,7 +195,8 @@ new ExtensionContainer(interceptor)
     DrawingColorToolsFeature,
     DrawingColorPalettesFeature,
     ChatQuickReactFeature,
-    ControlsThemesFeature
+    ControlsThemesFeature,
+    TooltipsFeature
   );
 
 /* indicate for interceptor that content script has loaded */

@@ -3,10 +3,10 @@
     position:fixed;
     left: .5em;
     top: .5em;
-    display:flex;
+    display: flex;
     flex-direction:column;
     align-items: center;
-    gap:.5em;
+    gap: .5em;
   }
 </style>
 
