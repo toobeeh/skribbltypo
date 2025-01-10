@@ -128,7 +128,13 @@ warnings in states that do not necessarily lead to user experience issues;
 information for any action that is executed/initiated by a feature or service;
 and debug to dump data for low-level debugging.
 
-## Development
+# Development
+This extension is under active development and maintenance.  
+The following sections describe the development process and the features of the custom extension framework.
+
+## Contribution
+Contributions are welcome!  
+Contributions need to strictly follow and make use of the extension architecture.
 
 ## Framework Features
 The framework provides many features to simplify the development of new game features,   
