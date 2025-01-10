@@ -19,6 +19,7 @@ import { textOverlayVisibilityChangedEventRegistration } from "@/content/events/
 import { toolChangedEventRegistration } from "@/content/events/tool-changed.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
 import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.feature";
+import { ChatCopyFormattedFeature } from "@/content/features/chat-copy-formatted/chat-copy-formatted.feature";
 import { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";
 import { ChatFocusFeature } from "@/content/features/chat-focus/chat-focus.feature";
 import { ChatProfileLinkFeature } from "@/content/features/chat-profile-link/chat-profile-link.feature";
@@ -196,7 +197,8 @@ new ExtensionContainer(interceptor)
     DrawingColorPalettesFeature,
     ChatQuickReactFeature,
     ControlsThemesFeature,
-    TooltipsFeature
+    TooltipsFeature,
+    ChatCopyFormattedFeature
   );
 
 /* indicate for interceptor that content script has loaded */
