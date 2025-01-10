@@ -154,6 +154,15 @@ Feature can provide additional information or a custom management component.
 To achieve this, svelte templates need to be created.  
 These components can be integrated by overriding the `featureInfoComponent` or `featureManagementComponent` getters in the feature class.
 
+### Skribbl Game Events
+The framework provides many different event listeners that parse events from skribbl to a reactive stream.  
+For a more detailed description, refer to the architecture section above.  
+
+To use events, the event listener of the desired event can be simply injected to the feature:
+````ts
+@inject(LobbyLeftEventListener) private readonly lobbyLeft: LobbyLeftEventListener;
+````
+
 ### Hotkeys
 Hotkeys are a combination of keys that trigger an action.  
 

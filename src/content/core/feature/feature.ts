@@ -200,6 +200,13 @@ export abstract class TypoFeature {
   public get createTooltip(): tooltipAction {
     return (node, params) => {
       this.registerTooltip(node, params);
+
+      /* when action updated, re-register tooltip */
+      return {
+        update: (params: tooltipParams) => {
+          this.registerTooltip(node, params);
+        }
+      };
     };
   }
 }

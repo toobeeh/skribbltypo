@@ -46,8 +46,9 @@
 
     .typo-panel-tab {
       margin-top: 1rem;
-      padding: .5rem;
+      /*padding: .5rem;*/
       overflow: auto;
+      flex-grow: 1;
     }
 
     > div:empty {

@@ -15,6 +15,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding: 0 .5rem;
 
     > .changelog {
       white-space: pre;

@@ -12,6 +12,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding: 0 .5rem;
 
     > .news {
       white-space: pre;
