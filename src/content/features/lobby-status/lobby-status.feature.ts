@@ -152,7 +152,8 @@ export class LobbyStatusFeature extends TypoFeature {
         order: 2,
         size: "2rem",
         hoverMove: false,
-        greyscaleInactive: true
+        greyscaleInactive: true,
+        tooltipAction: this.createTooltip
       }
     });
 

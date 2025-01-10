@@ -39,8 +39,8 @@
 
 <div class="lobby-navigation">
   <!-- lobbyNavIcon exit for legacy theme compatibility -->
-  <img src="" alt="Exit Lobby" class="lobby-exit lobbyNavIcon exit" on:click={() => feature.exitLobby()} />
+  <img src="" alt="Exit Lobby" class="lobby-exit lobbyNavIcon exit" on:click={() => feature.exitLobby()} use:feature.createTooltip={{title: "Exit Lobby", lock: "Y"}} />
 
   <!-- lobbyNavIcon next for legacy theme compatibility -->
-  <img src="" alt="Next Lobby" class="lobby-next lobbyNavIcon next" on:click={() => feature.nextLobby()} />
+  <img src="" alt="Next Lobby" class="lobby-next lobbyNavIcon next" on:click={() => feature.nextLobby()} use:feature.createTooltip={{title: "Next Lobby", lock: "Y"}} />
 </div>

@@ -55,6 +55,7 @@ export class ControlsThemesFeature extends TypoFeature {
         icon: "file-img-themes-gif",
         name: "Themes",
         order: 3,
+        tooltipAction: this.createTooltip
       },
     });
 

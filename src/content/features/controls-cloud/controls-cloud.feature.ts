@@ -51,6 +51,7 @@ export class ControlsCloudFeature extends TypoFeature {
         icon: "file-img-cloud-gif",
         name: "Typo Cloud",
         order: 2,
+        tooltipAction: this.createTooltip,
       },
     });
 

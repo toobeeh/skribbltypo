@@ -142,3 +142,13 @@ making the extension as modular as possible and avoiding code duplication.
 Tooltips are supported by a core service that is bound at DI container creation, and a feature that can be toggled by the user.  
 The feature base class provides a svelte action to register a tooltip to the service.  
 In a svelte component, using the feature reference, the tooltip can be registered by calling the action with the tooltip params.
+
+Example:
+```sveltehtml
+<img alt="Exit Lobby" on:click={() => feature.exitLobby()} use:feature.createTooltip={{title: "Exit Lobby", lock: "Y"}} />
+```
+
+Features that use components from the library can't directly access their svelte template.  
+As a workaround, the template may take a reference to the feature's svelte action 
+and implement its own tooltip registration in the reusable template.  
+An example for this is the IconButton component.

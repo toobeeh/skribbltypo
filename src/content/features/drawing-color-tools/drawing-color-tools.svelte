@@ -49,8 +49,11 @@
 </style>
 
 <div class="color-tools">
-  <div class="pipette" on:click={() => feature.selectPipetteTool()} class:selected={$selectedTool instanceof PipetteTool}></div>
-  <div class="picker">
+  <div class="pipette"
+       on:click={() => feature.selectPipetteTool()} class:selected={$selectedTool instanceof PipetteTool}
+       use:feature.createTooltip={{title: "Pipette", lock: "Y"}}
+  ></div>
+  <div class="picker" use:feature.createTooltip={{title: "Picker", lock: "Y"}}>
     <ColorPickerButton
       color="{$color}"
       allowAlpha="{false}"

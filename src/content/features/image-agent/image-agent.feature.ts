@@ -43,7 +43,8 @@ export class ImageAgentFeature extends TypoFeature {
         order: 1,
         size: "2rem",
         hoverMove: false,
-        greyscaleInactive: true
+        greyscaleInactive: true,
+        tooltipAction: this.createTooltip
       }
     });
 
