@@ -802,7 +802,7 @@
         isAction: !1,
         name: "None",
         graphic: "",
-        keydef: undefined,
+        keydef: "",
       })
       /*TYPOEND*/
       /*TYPOMOD DESC: add tool for pipette*/
@@ -1212,7 +1212,7 @@
     nt.querySelector(".colors").classList.toggle("open")
   }), D(t, "click", function(e) {
     rt.classList.toggle("open")
-  }), D(c, "keydown", function(e) {
+  }), D(c, "keyup", function(e) {
     if ("Enter" == e.code) return _n[0].focus(), 0;
     if ("input" == c.activeElement.tagName.toLowerCase() || "textarea" == c.activeElement.tagName.toLowerCase() || -1 != xt) return 0;
     for (var t = e.key.toLowerCase().replace("key", ""), n = 0; n < u.length; n++)
@@ -1231,7 +1231,8 @@
     var t, n;
     rn !== e.pointerId || (() => {
       var e = performance.now();
-      if (e - sn < 1e3 / ln) return 1;
+      if (
+        document.body.dataset.bypassFps !== 'true' &&e - sn < 1e3 / ln) return 1;
       sn = e
     })() || (t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = -1, tn(e.clientX, e.clientY, n = t ? (oe && e.pressure, e.pressure) : n, !1), en(!1))
   }), D(C, "pointerup pointercancel", function(e) {

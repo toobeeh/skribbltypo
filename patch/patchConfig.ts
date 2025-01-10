@@ -627,7 +627,7 @@ export const gameJsPatchConfig = {
                     isAction: !1,
                     name: "None",
                     graphic: "",
-                    keydef: undefined,
+                    keydef: "",
                 }) 
                 /*TYPOEND*/
                 `,
@@ -664,7 +664,7 @@ export const gameJsPatchConfig = {
         },
       ],
     },
-    {
+    /*{ TODO - what was this purpose? any bugs w/o it?
       name: "Keyup to keydown",
       replacements: [
         {
@@ -673,7 +673,7 @@ export const gameJsPatchConfig = {
         },
       ],
       injections: [],
-    },
+    },*/
     {
       name: "Use Typo Pressure",
       replacements: [
