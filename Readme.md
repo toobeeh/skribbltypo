@@ -128,17 +128,90 @@ warnings in states that do not necessarily lead to user experience issues;
 information for any action that is executed/initiated by a feature or service;
 and debug to dump data for low-level debugging.
 
+## Development
+
 ## Framework Features
 The framework provides many features to simplify the development of new game features,   
 making the extension as modular as possible and avoiding code duplication.
 
+### Features
+Features are isolated modules that implement a specific functionality for the extension.  
+For information about feature architecture, refer to the section above.  
+Features need to be registered in the `content.ts` entrypoint and will automatically be accessible to the user.  
+The framework will integrate an information section, custom setting section, and hotkey/setting customization as described below.  
+The framework also manages lifecycle and lets the user toggle it on/off.
+
+### Feature settings
+Each feature is listed in the extension settings, where it can also be toggled on/off.  
+Feature can provide additional information or a custom management component.  
+
+To achieve this, svelte templates need to be created.  
+These components can be integrated by overriding the `featureInfoComponent` or `featureManagementComponent` getters in the feature class.
+
 ### Hotkeys
+Hotkeys are a combination of keys that trigger an action.  
+
+Hotkeys are supported by a core service that is bound at DI container creation.  
+The feature base class provides a function to register a hotkey.  
+When this is used, the hotkey will be integrated in the settings page and can be customized by the user.
+
+An example hotkey registration in a feature class may look like this:
+```typescript
+private readonly _startZoomHotkey = this.useHotkey(new HotkeyAction(
+  "start_zoom",
+  "Start Zoom",
+  "While pressed, a click on the canvas will start zooming",
+  this,
+  () => this._zoomListenToggle$.next(true),
+  true,
+  ["ControlLeft"],
+  () => this._zoomListenToggle$.next(false)
+));
+```
+It consists of two parts:
+- creation of a hotkey instance using `new HotkeyAction`, where the hotkey defaults are configured
+- registration to the hotkey management service via `this.useHotkey`
 
 ### Logging
+Loggers provide a rich debugging option for extension development.  
+
+The logger is available in all DI scopes via its factory `loggerFactory`.  
+The factory takes an instance as argument, which is used to identify the logger for customization of log levels.  
+It connects to a logging service which collects logs, and a logger feature which implements the user interface for log management.
+
+Each implementation of the base feature class has access to a logger via `this._logger`.  
+There are gout log levels available:
+- debug
+- info
+- warn
+- error
+
+The log level of each feature can be set in the logger settings.  
+Logs will be available in the console, or exported as text or json.
 
 ### Settings
+Settings are an easy way to persist feature customization.
+
+Settings store data in plain text (JSON) in the extension storage, via a interface to the background script.  
+The setting class provides a typed interface to save and retrieve settings, as well as reactive properties (svelte, rxjs).  
+
+Settings are not bound to DI scope and can be used anywhere.
+When a setting should be available in the integrated feature settings, it has to be registered in the feature class.  
+For this, a subtype of the extension setting class has to be used, which implements a svelte template for a certain setting data type.  
+Currently, only the BooleanSetting is available to use:
+
+```typescript
+private readonly _enableOnlyWhenDrawingSetting = this.useSetting(new BooleanExtensionSetting("trigger_require_drawing", true, this)
+  .withName("Zoom Only When Drawing")
+  .withDescription("Only allow start zooming with the hotkey when you're currently drawing"));
+```
+the registration consists of two parts:
+- creation of a UI-enabled setting instance using `new BooleanExtensionSetting`, where the setting defaults are configured
+- registration to the feature via `this.useSetting`
 
 ### Tooltips
+Tooltips can be used to show information text when the user hovers over elements.  
+
 Tooltips are supported by a core service that is bound at DI container creation, and a feature that can be toggled by the user.  
 The feature base class provides a svelte action to register a tooltip to the service.  
 In a svelte component, using the feature reference, the tooltip can be registered by calling the action with the tooltip params.
