@@ -56,6 +56,8 @@ export class ToolbarImageLabFeature extends TypoFeature {
         icon: "file-img-dna-gif",
         name: "Image Laboratory",
         order: 3,
+        tooltipAction: this.createTooltip,
+        lockTooltip: "Y"
       },
     });
 

@@ -57,6 +57,8 @@ export class ToolbarImagePostFeature extends TypoFeature {
         icon: "file-img-letter-gif",
         name: "Post Image",
         order: 5,
+        tooltipAction: this.createTooltip,
+        lockTooltip: "Y"
       },
     });
 

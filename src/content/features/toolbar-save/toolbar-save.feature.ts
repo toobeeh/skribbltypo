@@ -54,6 +54,8 @@ export class ToolbarSaveFeature extends TypoFeature {
         icon: "file-img-floppy-drive-gif",
         name: "Save Image",
         order: 2,
+        tooltipAction: this.createTooltip,
+        lockTooltip: "Y"
       },
     });
 

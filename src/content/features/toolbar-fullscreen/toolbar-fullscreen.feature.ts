@@ -36,6 +36,8 @@ export class ToolbarFullscreenFeature extends TypoFeature {
         icon: "file-img-fullscreen-gif",
         name: "Fullscreen",
         order: 1,
+        tooltipAction: this.createTooltip,
+        lockTooltip: "Y"
       },
     });
 

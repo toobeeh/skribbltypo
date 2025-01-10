@@ -31,6 +31,8 @@ export class ToolbarChallengesFeature extends TypoFeature {
         icon: "file-img-challenge-gif",
         name: "Challenges",
         order: 4,
+        tooltipAction: this.createTooltip,
+        lockTooltip: "Y"
       },
     });
 
