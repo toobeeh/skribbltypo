@@ -10,7 +10,7 @@
 
 <div>
   {#if $lobbies === "unauthorized"}
-    <h2>Log in to use lobbies</h2>
+    <span>You need to log in to use lobbies.</span>
   {:else}
     {#each $lobbies as lobby}
        - {lobby.userName}

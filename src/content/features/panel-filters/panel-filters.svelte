@@ -73,7 +73,7 @@
         }} />
         <div class="typo-lobby-filters-item-remove">
           <IconButton
-            icon="file-img-disabled-gif"
+            icon="file-img-trash-gif"
             name="Remove Filter"
             greyscaleInactive="{true}"
             hoverMove="{false}"

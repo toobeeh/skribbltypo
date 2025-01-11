@@ -69,7 +69,7 @@ export class PanelCabinFeature extends TypoFeature {
         /* map data into useful structure */
         switchMap(async (memberData) => {
           if (memberData === null || memberData === undefined) {
-            return undefined;
+            return null;
           }
           const apiData = await this._apiDataSetup.complete();
           const slots = new Map(

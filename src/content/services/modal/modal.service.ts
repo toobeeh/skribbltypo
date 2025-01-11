@@ -32,7 +32,7 @@ export class ModalService {
     componentType: Type<TComponent>,
     args: ComponentProps<TComponent>,
     title: string,
-    style: "document" | "card" = "card"
+    style: "document" | "card" = "document"
   ) {
 
     const componentData: componentData<TComponent> = {componentType: componentType, props: args};

@@ -13,6 +13,7 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    max-width: min(50vw, 100%);
 
     .typo-filter-search-list {
 
@@ -47,7 +48,6 @@
 
     }
 
-
   }
 
 </style>
@@ -75,7 +75,7 @@
 
   <div>
     Visited lobbies: {$visitedLobbies.length}<br>
-    To join one of the visited lobbies, use the "Lobbies" tab.
+    If you click on a lobby, the search will stop and join the selected lobby instead.
   </div>
 
   <div class="typo-filter-search-list">
@@ -83,7 +83,7 @@
     {#each $visitedLobbies.filter(lobby => lobby.players.length > 1) as lobby}
 
       <div class="typo-filter-search-list-item lobby" on:click={() => lobbySelected(lobby.id ?? "")}>
-        <b>{lobby.players.length - 1} players</b>
+        <b>{lobby.players.length - 1} players, round {lobby.round}</b>
 
         <div class="typo-filter-search-list-item-description">
           {lobby.players.filter(p => p.id !== lobby.meId).map(p => p.name).join(", ")}

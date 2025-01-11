@@ -1,19 +1,21 @@
 import { ExtensionSetting, type serializableObject } from "@/content/core/settings/setting";
+import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import {
   type componentDataFactory,
   ModalService,
 } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
+import type { OnlineItemDto } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
 import type { skribblLobby } from "@/util/skribbl/lobby";
 import { fromObservable } from "@/util/store/fromObservable";
+import { calculateLobbyKey } from "@/util/typo/lobbyKey";
 import {
   BehaviorSubject,
-  combineLatestWith, distinctUntilChanged, filter, firstValueFrom,
-  pairwise,
+  combineLatestWith, distinctUntilChanged, filter, firstValueFrom, pairwise,
   startWith,
   Subject,
-  type Subscription,
+  type Subscription, withLatestFrom,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -42,6 +44,7 @@ export class PanelFiltersFeature extends TypoFeature {
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
   @inject(ModalService) private readonly _modalService!: ModalService;
   @inject(ToastService) private readonly _toastService!: ToastService;
+  @inject(LobbyItemsService) private readonly _lobbyItemsService!: LobbyItemsService;
 
   public readonly name = "Lobby Filters";
   public readonly description = "Lets you create custom filters for a quick lobby search";
@@ -51,6 +54,7 @@ export class PanelFiltersFeature extends TypoFeature {
   private _savedFiltersSetting = new ExtensionSetting<lobbyFilter[]>("saved_filters", [], this);
   private _selectedFiltersSetting = new ExtensionSetting<number[]>("selected_filters", [], this);
   private _currentSearch = new Subject<lobbyFilter[] | null>();
+  private _overrideSearch = new Subject<null | string | undefined>();
   private _visitedLobbies = new BehaviorSubject<skribblLobby[]>([]);
   private _searchSubscription?: Subscription;
 
@@ -68,7 +72,9 @@ export class PanelFiltersFeature extends TypoFeature {
       distinctUntilChanged(),
       combineLatestWith(this._lobbyService.lobby$),
       pairwise(),
-    ).subscribe(([ [previousFilter, previousLobby], [currentFilter, currentLobby] ]) => this.handleSearchChange(previousFilter, previousLobby, currentFilter, currentLobby));
+      withLatestFrom(this._overrideSearch.pipe(startWith(undefined))),
+    ).subscribe(([[ [previousFilter, previousLobby], [currentFilter, currentLobby] ], override]) =>
+      this.handleSearchChange(previousFilter, previousLobby, currentFilter, currentLobby, override));
   }
 
   protected override onDestroy(): void {
@@ -88,12 +94,50 @@ export class PanelFiltersFeature extends TypoFeature {
   get visitedLobbiesStore() {
     return fromObservable(this._visitedLobbies, []);
   }
-  
-  private async handleSearchChange(previousFilter: lobbyFilter[] | null, previousLobby: skribblLobby | null, currentFilter: lobbyFilter[] | null, currentLobby: skribblLobby | null) {
-    this._logger.debug("Search changed", previousFilter, previousLobby, currentFilter, currentLobby);
+
+  /**
+   * Handle update of filters and current lobby,
+   * proceeds with joining/leaving if filters match
+   *
+   * Processes an override signal to abort or join other lobby
+   *
+   * @param previousFilter
+   * @param previousLobby
+   * @param currentFilter
+   * @param currentLobby
+   * @param override
+   * @private
+   */
+  private async handleSearchChange(
+    previousFilter: lobbyFilter[] | null,
+    previousLobby: skribblLobby | null,
+    currentFilter: lobbyFilter[] | null,
+    currentLobby: skribblLobby | null,
+    override: null | string | undefined
+  ) {
+    this._logger.debug("Search changed", previousFilter, previousLobby, currentFilter, currentLobby, override);
     
     /* if not joined a lobby */
     if(!currentLobby) {
+
+      /* if override signal received */
+      if(override !== undefined) {
+
+        /* aborted; stop search */
+        if(override === null){
+          this._overrideSearch.next(undefined);
+          this._currentSearch.next(null);
+          return;
+        }
+
+        /* override has lobby join id */
+        else {
+          this._overrideSearch.next(undefined);
+          this._currentSearch.next(null);
+          await this._lobbyService.joinLobby(override);
+          return;
+        }
+      }
       
       /* if filter has just been set (search started) */
       if(previousFilter === null && currentFilter !== null) {
@@ -119,7 +163,8 @@ export class PanelFiltersFeature extends TypoFeature {
         this._visitedLobbies.next([currentLobby, ...this._visitedLobbies.value.filter(lobby => lobby.id !== currentLobby.id)]);
 
         /* if lobby does not match previous filters, leave */
-        if(!currentFilter.some(filter => this.checkLobbyFilterMatch(filter, currentLobby))) {
+        const items = await firstValueFrom(this._lobbyItemsService.onlineItems$);
+        if(!currentFilter.some(filter => this.checkLobbyFilterMatch(filter, currentLobby, items))) {
           this._logger.info("Lobby does not match filter, leaving");
           this._lobbyService.leaveLobby();
         }
@@ -142,9 +187,10 @@ export class PanelFiltersFeature extends TypoFeature {
    * Check if a lobby matches a filter
    * @param filter
    * @param lobby
+   * @param items
    * @private
    */
-  private checkLobbyFilterMatch(filter: lobbyFilter, lobby: skribblLobby) {
+  private checkLobbyFilterMatch(filter: lobbyFilter, lobby: skribblLobby, items: OnlineItemDto[]) {
     this._logger.info("Checking lobby filter match", filter, lobby);
 
     if(filter.minAmountPlayers !== undefined && lobby.players.length < filter.minAmountPlayers) return false;
@@ -160,6 +206,11 @@ export class PanelFiltersFeature extends TypoFeature {
     if(filter.containsUsernames && filter.containsUsernames.length) {
       const usernames = lobby.players.map(p => p.name);
       if(!filter.containsUsernames.some(name => usernames.includes(name))) return false;
+    }
+
+    if(filter.containsTypoPlayers === true) {
+      const lobbyKey = calculateLobbyKey(lobby.id ?? "");
+      return items.some(item => item.lobbyKey === lobbyKey);
     }
 
     return true;
@@ -195,12 +246,12 @@ export class PanelFiltersFeature extends TypoFeature {
         /* automatically submit after lobby filter removed */
         finishSubscription = this._currentSearch.pipe(
           filter(filters => filters === null),
-        ).subscribe(() => submit(null));
+        ).subscribe(() => submit(null)); /* submit null as indicator for no user interaction, singnalizes search finished */
 
         return {
           feature: this,
           filters,
-          lobbySelected: (id: string) => submit(id),
+          lobbySelected: (id: string) => submit(id), /* submit lobby id as search override  */
         };
       }
     };
@@ -212,22 +263,23 @@ export class PanelFiltersFeature extends TypoFeature {
       "card"
     );
 
-
     finishSubscription?.unsubscribe();
-    this._currentSearch.next(null);
 
+    /* prompt has been dismissed, submit as override abort */
     if(result === undefined){
       await this._toastService.showToast("Search aborted");
+      this._overrideSearch.next(null);
     }
 
-    if(typeof result === "string"){ // TODO not working yet
-      this._logger.info("Lobby selected", result);
+    /* user chose lobby in prompt, submit as override id */
+    if(typeof result === "string"){
+      await this._toastService.showToast("Lobby selected", `Joining lobby ${result}`);
+      this._overrideSearch.next(result);
+    }
 
-      /* wait until not in a lobby anymore */
-      await firstValueFrom(this._lobbyService.lobby$.pipe(
-        filter(lobby => lobby === null)
-      ));
-      await this._lobbyService.joinLobby(result);
+    /* search found lobby */
+    if(result === null){
+      await this._toastService.showToast("Search finished");
     }
   }
 
@@ -268,6 +320,9 @@ export class PanelFiltersFeature extends TypoFeature {
       filters = filters.filter(f => f.createdAt !== filter.createdAt);
       await this._savedFiltersSetting.setValue(filters);
 
+      const activeFilters = await this._selectedFiltersSetting.getValue();
+      await this._selectedFiltersSetting.setValue(activeFilters.filter(id => id !== filter.createdAt));
+
       toast.resolve(`Filter "${filter.name}" removed`);
     }
     catch(e){
@@ -288,6 +343,9 @@ export class PanelFiltersFeature extends TypoFeature {
       let filters = await this._savedFiltersSetting.getValue();
       filters = [filter, ...filters];
       await this._savedFiltersSetting.setValue(filters);
+
+      const activeFilters = await this._selectedFiltersSetting.getValue();
+      await this._selectedFiltersSetting.setValue([filter.createdAt, ...activeFilters]);
 
       toast.resolve(`Filter "${filter.name}" added`);
     }
@@ -360,7 +418,7 @@ export class PanelFiltersFeature extends TypoFeature {
     }
 
     if(filter.minRound != undefined || filter.maxRound !== undefined) {
-      desc +=`\n🔄 ${filter.minRound ?? "x"} - ${filter.maxRound ?? "x"} rounds`;
+      desc +=`\n🔄 round ${filter.minRound ?? "x"} - ${filter.maxRound ?? "x"}`;
     }
 
     if(filter.containsUsernames?.length) {
