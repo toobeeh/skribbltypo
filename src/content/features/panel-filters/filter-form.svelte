@@ -47,7 +47,7 @@
 
   <div>
     A lobby filter checks if a lobby matches the filter criteria and skips automatically until a lobby is found.<br>
-    You can add multiple filters; at least one of them hsa to be matched for a lobby to be accepted.<br>
+    You can add multiple filters; at least one of them has to be matched for a lobby to be accepted.<br>
     If you leave filter criteria empty, it will be ignored.
   </div>
 

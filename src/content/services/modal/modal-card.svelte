@@ -65,6 +65,7 @@
     align-items: center;
     color: var(--COLOR_PANEL_TEXT);
     padding: 2rem;
+    border-radius: 3px;
 
     &.closing {
       animation: slideOut 0.15s ease-out forwards;
@@ -82,6 +83,7 @@
         user-select: none;
         position: relative;
         top: -2vh;
+        right: -2rem;
         cursor: pointer;
         font-weight: bold;
         font-size: 2.5rem;

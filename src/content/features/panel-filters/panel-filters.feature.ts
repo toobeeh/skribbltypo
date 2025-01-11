@@ -5,11 +5,22 @@ import {
   ModalService,
 } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
+import type { skribblLobby } from "@/util/skribbl/lobby";
+import { fromObservable } from "@/util/store/fromObservable";
+import {
+  BehaviorSubject,
+  combineLatestWith, distinctUntilChanged, filter, firstValueFrom,
+  pairwise,
+  startWith,
+  Subject,
+  type Subscription,
+} from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import PanelFilters from "./panel-filters.svelte";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import FilterForm from "./filter-form.svelte";
+import FilterSearch from "./filter-search.svelte";
 
 export interface lobbyFilter extends serializableObject {
   name: string;
@@ -38,6 +49,10 @@ export class PanelFiltersFeature extends TypoFeature {
 
   private _component?: PanelFilters;
   private _savedFiltersSetting = new ExtensionSetting<lobbyFilter[]>("saved_filters", [], this);
+  private _selectedFiltersSetting = new ExtensionSetting<number[]>("selected_filters", [], this);
+  private _currentSearch = new Subject<lobbyFilter[] | null>();
+  private _visitedLobbies = new BehaviorSubject<skribblLobby[]>([]);
+  private _searchSubscription?: Subscription;
 
   protected override async onActivate() {
     const elements = await this._elements.complete();
@@ -47,10 +62,173 @@ export class PanelFiltersFeature extends TypoFeature {
         feature: this
       }
     });
+    
+    this._searchSubscription = this._currentSearch.pipe(
+      startWith(null),
+      distinctUntilChanged(),
+      combineLatestWith(this._lobbyService.lobby$),
+      pairwise(),
+    ).subscribe(([ [previousFilter, previousLobby], [currentFilter, currentLobby] ]) => this.handleSearchChange(previousFilter, previousLobby, currentFilter, currentLobby));
   }
 
   protected override onDestroy(): void {
     this._component?.$destroy();
+    this._searchSubscription?.unsubscribe();
+    this._visitedLobbies.next([]);
+  }
+
+  get savedFiltersStore() {
+    return this._savedFiltersSetting.store;
+  }
+
+  get selectedFiltersStore() {
+    return this._selectedFiltersSetting.store;
+  }
+
+  get visitedLobbiesStore() {
+    return fromObservable(this._visitedLobbies, []);
+  }
+  
+  private async handleSearchChange(previousFilter: lobbyFilter[] | null, previousLobby: skribblLobby | null, currentFilter: lobbyFilter[] | null, currentLobby: skribblLobby | null) {
+    this._logger.debug("Search changed", previousFilter, previousLobby, currentFilter, currentLobby);
+    
+    /* if not joined a lobby */
+    if(!currentLobby) {
+      
+      /* if filter has just been set (search started) */
+      if(previousFilter === null && currentFilter !== null) {
+        this._logger.info("Starting search");
+        await this._lobbyService.joinLobby();
+        await this.promptFilterSearch(currentFilter);
+      }
+
+      /* if search is running, join next lobby */
+      if(currentFilter !== null) {
+        this._logger.info("Joining next lobby");
+        await this._lobbyService.joinLobby();
+      }
+    }
+    
+    /* if joined a lobby */
+    else {
+
+      /* if search is running regular, check filters */
+      if(currentFilter !== null){
+
+        /* update visited lobbies */
+        this._visitedLobbies.next([currentLobby, ...this._visitedLobbies.value.filter(lobby => lobby.id !== currentLobby.id)]);
+
+        /* if lobby does not match previous filters, leave */
+        if(!currentFilter.some(filter => this.checkLobbyFilterMatch(filter, currentLobby))) {
+          this._logger.info("Lobby does not match filter, leaving");
+          this._lobbyService.leaveLobby();
+        }
+
+        /* lobby found*/
+        else {
+          this._logger.info("Lobby found");
+          this._currentSearch.next(null);
+        }
+      }
+    }
+
+    /* reset visited lobbies when no filter set */
+    if(currentFilter === null) {
+      this._visitedLobbies.next([]);
+    }
+  }
+
+  /**
+   * Check if a lobby matches a filter
+   * @param filter
+   * @param lobby
+   * @private
+   */
+  private checkLobbyFilterMatch(filter: lobbyFilter, lobby: skribblLobby) {
+    this._logger.info("Checking lobby filter match", filter, lobby);
+
+    if(filter.minAmountPlayers !== undefined && lobby.players.length < filter.minAmountPlayers) return false;
+    if(filter.maxAmountPlayers !== undefined && lobby.players.length > filter.maxAmountPlayers) return false;
+
+    const averageScore = lobby.players.map(p => p.score).reduce((a, b) => a + b, 0) / lobby.players.length;
+    if(filter.minAverageScore !== undefined && averageScore < filter.minAverageScore) return false;
+    if(filter.maxAverageScore !== undefined && averageScore > filter.maxAverageScore) return false;
+
+    if(filter.minRound !== undefined && lobby.round < filter.minRound) return false;
+    if(filter.maxRound !== undefined && lobby.round > filter.maxRound) return false;
+
+    if(filter.containsUsernames && filter.containsUsernames.length) {
+      const usernames = lobby.players.map(p => p.name);
+      if(!filter.containsUsernames.some(name => usernames.includes(name))) return false;
+    }
+
+    return true;
+  }
+
+  public async startSearch() {
+
+    let filters = await this._savedFiltersSetting.getValue();
+    const selectedFilters = await this._selectedFiltersSetting.getValue();
+    filters = filters.filter(filter => selectedFilters.includes(filter.createdAt));
+
+    if(filters.length === 0) {
+      await this._toastService.showToast("No filters selected", "Select search filters from the list above\n or create a new filter");
+      return;
+    }
+
+    this._logger.debug("Starting search", filters);
+    this._currentSearch.next(filters);
+  }
+
+  /**
+   * Opens a prompt which indicates that the search is currently in progress.
+   * If the user submits/closes, the search is aborted
+   * If a search filter is removed while the prompt is open, the prompt is closed
+   */
+  private async promptFilterSearch(filters: lobbyFilter[]) {
+    let finishSubscription: Subscription | undefined;
+
+    const formComponent: componentDataFactory<FilterSearch, null | string> = {
+      componentType: FilterSearch,
+      propsFactory: (submit) => {
+
+        /* automatically submit after lobby filter removed */
+        finishSubscription = this._currentSearch.pipe(
+          filter(filters => filters === null),
+        ).subscribe(() => submit(null));
+
+        return {
+          feature: this,
+          filters,
+          lobbySelected: (id: string) => submit(id),
+        };
+      }
+    };
+
+    const result = await this._modalService.showPrompt(
+      formComponent.componentType,
+      formComponent.propsFactory,
+      "Lobby Search",
+      "card"
+    );
+
+
+    finishSubscription?.unsubscribe();
+    this._currentSearch.next(null);
+
+    if(result === undefined){
+      await this._toastService.showToast("Search aborted");
+    }
+
+    if(typeof result === "string"){ // TODO not working yet
+      this._logger.info("Lobby selected", result);
+
+      /* wait until not in a lobby anymore */
+      await firstValueFrom(this._lobbyService.lobby$.pipe(
+        filter(lobby => lobby === null)
+      ));
+      await this._lobbyService.joinLobby(result);
+    }
   }
 
   /**
@@ -194,9 +372,5 @@ export class PanelFiltersFeature extends TypoFeature {
     }
 
     return desc.length === 0 ? "Empty filter :(" : desc.trim();
-  }
-
-  get savedFiltersStore() {
-    return this._savedFiltersSetting.store;
   }
 }
