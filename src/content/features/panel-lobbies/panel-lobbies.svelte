@@ -68,15 +68,15 @@
 </style>
 
 <div>
-  {#if $lobbies === null}
-    <span>You need to log in to use lobbies.</span>
-  {:else if $lobbies === undefined}
-    <Bounceload content="Loading connected servers.."/>
-  {:else}
 
-    <div class="typo-lobbies-discord">
-      <h3>Online Friends</h3>
+  <div class="typo-lobbies-discord">
+    <h3>Online Friends</h3>
 
+    {#if $lobbies === null}
+      <span>You need to log in to see lobbies of your discord friends.<br></span>
+    {:else if $lobbies === undefined}
+      <Bounceload content="Loading connected servers.."/>
+    {:else}
       <div class="typo-lobbies-discord-buttons">
         {#each $lobbies as lobby}
           <div use:feature.createTooltip={{title: feature.buildButtonTooltip(lobby), lock: "Y"}}>
@@ -84,8 +84,10 @@
           </div>
         {/each}
       </div>
-    </div>
-  {/if}
+    {/if}
+  </div>
+
+
 
   {#if $showDiscovered}
     <div class="typo-lobbies-discovered">
