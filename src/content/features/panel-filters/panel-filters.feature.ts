@@ -1,6 +1,9 @@
 import { ExtensionSetting, type serializableObject } from "@/content/core/settings/setting";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
-import { type componentData, type modalHandle, ModalService } from "@/content/services/modal/modal.service";
+import {
+  type componentDataFactory,
+  ModalService,
+} from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -51,31 +54,33 @@ export class PanelFiltersFeature extends TypoFeature {
   }
 
   /**
-   * Open the filter modal to add a new filter
+   * Prompt the user to create a new filter
    */
-  public openFilterModal() {
-    // eslint-disable-next-line prefer-const
-    let modalHandle: modalHandle;
-
-    const settingsComponent: componentData<FilterForm> = {
+  public async promptFilterCreation() {
+    const formComponent: componentDataFactory<FilterForm, lobbyFilter> = {
       componentType: FilterForm,
-      props: {
+      propsFactory: submit => ({
         feature: this,
-        onCreate: async (filter: lobbyFilter) => {
-          if(await this.addFilter(filter)) {
-            modalHandle.close();
-          }
-        }
-      },
+        onCreate: submit.bind(this)
+      }),
+      validate: filter => this.validateFilter(filter)
     };
 
-    modalHandle = this._modalService.showModal(
-      settingsComponent.componentType,
-      settingsComponent.props,
+    const result = this._modalService.showPrompt(
+      formComponent.componentType,
+      formComponent.propsFactory,
       "Add Lobby Filter",
+      "card",
+      formComponent.validate
     );
+
+    return await result;
   }
 
+  /**
+   * Remove a filter from the saved filters
+   * @param filter
+   */
   public async removeFilter(filter: lobbyFilter) {
     this._logger.debug("Removing filter", filter);
 
@@ -94,11 +99,35 @@ export class PanelFiltersFeature extends TypoFeature {
   }
 
   /**
-   * Validate a filter and add it to the saved filters
+   * Add a filter to the saved filters
    * @param filter
    */
   public async addFilter(filter: lobbyFilter) {
     this._logger.debug("Adding filter", filter);
+
+    const toast = await this._toastService.showLoadingToast("Adding filter");
+    try {
+      let filters = await this._savedFiltersSetting.getValue();
+      filters = [filter, ...filters];
+      await this._savedFiltersSetting.setValue(filters);
+
+      toast.resolve(`Filter "${filter.name}" added`);
+    }
+    catch(e){
+      this._logger.error("Failed to add filter", e);
+      toast.reject("Failed to add filter");
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Validate a filter and show toasts if errors found
+   * @param filter
+   */
+  public async validateFilter(filter: lobbyFilter) {
+    this._logger.debug("Validating filter", filter);
 
     /*validate name*/
     filter.name = filter.name.trim();
@@ -131,20 +160,6 @@ export class PanelFiltersFeature extends TypoFeature {
     /* validate players */
     if(filter.minAmountPlayers !== undefined && filter.maxAmountPlayers !== undefined && filter.minAmountPlayers > filter.maxAmountPlayers){
       await this._toastService.showToast("Invalid Filter", "Minimum amount of players cannot be higher than maximum amount of players");
-      return false;
-    }
-
-    const toast = await this._toastService.showLoadingToast("Adding filter");
-    try {
-      let filters = await this._savedFiltersSetting.getValue();
-      filters = [filter, ...filters];
-      await this._savedFiltersSetting.setValue(filters);
-
-      toast.resolve(`Filter "${filter.name}" added`);
-    }
-    catch(e){
-      this._logger.error("Failed to add filter", e);
-      toast.reject("Failed to add filter");
       return false;
     }
 

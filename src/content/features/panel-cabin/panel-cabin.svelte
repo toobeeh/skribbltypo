@@ -189,7 +189,7 @@
       {#if $scenePickerEnabled}
         <div class="typo-cabin-scene"
              on:click={async ()=>{
-               const scene = await feature.openScenePicker($memberStore.memberData.sceneInventory);
+               const scene = await feature.promptSceneSelection($memberStore.memberData.sceneInventory);
                if(scene !== undefined) {
                   loading = true;
                   await feature.setScene(scene?.scene ?? null, scene?.shift, $memberStore.memberData.member.userLogin);
@@ -242,7 +242,7 @@
                 loading = false;
              }}
              on:click={async ()=>{
-               const sprite = await feature.openSpritePicker($memberStore.memberData.spriteInventory);
+               const sprite = await feature.promptSpriteSelection($memberStore.memberData.spriteInventory);
                if(sprite !== undefined) {
                   loading = true;
                   await feature.setSpriteOnSlot(slot + 1, sprite, $memberStore.memberData.member.userLogin);

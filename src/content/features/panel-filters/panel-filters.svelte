@@ -80,9 +80,22 @@
   </div>
 
   <div class="typo-lobby-filters-header">
-    <span></span>
-    <div use:feature.createTooltip={{title: "Lobby filters skip lobbies until\n a matching lobby is found."}}>
-      <FlatButton content="Add Lobby Filter" color="blue" on:click={() => feature.openFilterModal()} />
-    </div>
+    <FlatButton content="Start Search" color="green" on:click={async () => {
+      const filter = await feature.promptFilterCreation();
+      if(filter) {
+        await feature.addFilter(filter);
+      }
+    }} />
+
+    <FlatButton content="Add Lobby Filter" color="blue"  on:click={async () => {
+      const filter = await feature.promptFilterCreation();
+      if(filter) {
+        await feature.addFilter(filter);
+      }
+    }} />
+
+    <!--<div use:feature.createTooltip={{title: "Lobby filters skip lobbies until\n a matching lobby is found."}}>
+
+    </div>-->
   </div>
 </div>

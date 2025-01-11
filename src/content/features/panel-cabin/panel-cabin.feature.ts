@@ -9,11 +9,14 @@ import {
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { ApiService } from "@/content/services/api/api.service";
 import { MemberService } from "@/content/services/member/member.service";
-import { type componentData, type modalHandle, ModalService } from "@/content/services/modal/modal.service";
+import {
+  type componentDataFactory,
+  ModalService,
+} from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { fromObservable } from "@/util/store/fromObservable";
-import { firstValueFrom, Subject, switchMap } from "rxjs";
+import { switchMap } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import PanelCabin from "./panel-cabin.svelte";
@@ -94,6 +97,11 @@ export class PanelCabinFeature extends TypoFeature {
     );
   }
 
+  /**
+   * Generates a url of a scene or sprite, optionally shifted if provided
+   * @param item
+   * @param shift
+   */
   getItemThumbnailUrl(item: SpriteDto | SceneDto | undefined, shift: number | undefined) {
     return item
       ? shift
@@ -102,6 +110,12 @@ export class PanelCabinFeature extends TypoFeature {
       : "";
   }
 
+  /**
+   * Reorder the slots of a user
+   * @param slotMap
+   * @param inventory
+   * @param login
+   */
   async reorderSlots(slotMap: number[], inventory: SpriteInventoryDto[], login: number) {
     this._logger.debug("Reordering slots", slotMap, inventory);
 
@@ -124,37 +138,41 @@ export class PanelCabinFeature extends TypoFeature {
     this._logger.info("Reordered slots", slots);
   }
 
-  async openSpritePicker(inventory: SpriteInventoryDto[]): Promise<undefined | null | SpriteDto> {
+  /**
+   * Prompt the user to select a sprite
+   * @param inventory
+   */
+  async promptSpriteSelection(inventory: SpriteInventoryDto[]): Promise<undefined | null | SpriteDto> {
     this._logger.debug("Opening sprite picker");
 
     const sprites = (await this._apiDataSetup.complete()).sprites;
-    const closed = new Subject<undefined | null | SpriteDto>();
-
-    let handle: Partial<modalHandle> = {};
-    const settingsComponent: componentData<SpritePicker> = {
+    const pickerComponent: componentDataFactory<SpritePicker, SpriteDto | null | undefined> = {
       componentType: SpritePicker,
-      props: {
+      propsFactory: submit => ({
         feature: this,
         inventory,
         sprites,
-        onPick: (sprite: SpriteDto | undefined | null) => {
-          closed.next(sprite);
-          handle.close?.();
-        },
-      },
+        onPick: submit.bind(this),
+      }),
     };
-    handle = this._modalService.showModal(
-      settingsComponent.componentType,
-      settingsComponent.props,
-      "Sprite Picker",
-    );
-    handle.closed?.then(() => closed.next(undefined));
 
-    const result = await firstValueFrom(closed);
-    this._logger.debug("Sprite picker closed", result);
-    return result;
+    const sprite = await this._modalService.showPrompt(
+      pickerComponent.componentType,
+      pickerComponent.propsFactory,
+      "Sprite Picker",
+      "document"
+    );
+
+    this._logger.debug("Sprite picker closed", sprite);
+    return sprite;
   }
 
+  /**
+   * Set a sprite on a slot for a user
+   * @param slot
+   * @param sprite
+   * @param login
+   */
   async setSpriteOnSlot(slot: number, sprite: SpriteDto | null, login: number) {
     this._logger.debug("Setting sprite on slot", slot, sprite);
 
@@ -169,37 +187,40 @@ export class PanelCabinFeature extends TypoFeature {
     }
   }
 
-  async openScenePicker(inventory: SceneInventoryDto): Promise<undefined | null | { scene: SceneDto, shift: number | undefined }> {
+  /**
+   * Prompt the user to select a scene
+   * @param inventory
+   */
+  async promptSceneSelection(inventory: SceneInventoryDto): Promise<undefined | null | { scene: SceneDto, shift: number | undefined }> {
     this._logger.debug("Opening scene picker");
 
     const scenes = (await this._apiDataSetup.complete()).scenes;
-    const closed = new Subject<undefined | null | { scene: SceneDto, shift: number | undefined }>();
-
-    let handle: Partial<modalHandle> = {};
-    const settingsComponent: componentData<ScenePicker> = {
+    const pickerComponent: componentDataFactory<ScenePicker, { scene: SceneDto, shift: number | undefined } | null | undefined> = {
       componentType: ScenePicker,
-      props: {
+      propsFactory: submit => ({
         feature: this,
         inventory,
         scenes,
-        onPick: (scene: SceneDto | undefined | null, shift: number | undefined) => {
-          closed.next(scene ? {scene, shift} : scene);
-          handle.close?.();
-        },
-      },
+        onPick: (scene: SceneDto | null | undefined, shift: number | undefined) => submit(scene ? {scene, shift} : scene),
+      }),
     };
-    handle = this._modalService.showModal(
-      settingsComponent.componentType,
-      settingsComponent.props,
+
+    const scene = await this._modalService.showPrompt(
+      pickerComponent.componentType,
+      pickerComponent.propsFactory,
       "Scene Picker",
     );
-    handle.closed?.then(() => closed.next(undefined));
 
-    const result = await firstValueFrom(closed);
-    this._logger.debug("Scene picker closed", result);
-    return result;
+    this._logger.debug("Scene picker closed", scene);
+    return scene;
   }
 
+  /**
+   * Set the scene of a user
+   * @param scene
+   * @param shift
+   * @param login
+   */
   async setScene(scene: SceneDto | null, shift: number | undefined, login: number) {
     this._logger.debug("Setting scene", scene, shift);
 
