@@ -19,6 +19,7 @@ export class LobbyService {
   private readonly _logger;
 
   private _currentLobby$ = new BehaviorSubject<skribblLobby | null>(null);
+  private _discoveredLobbies$ = new BehaviorSubject<Map<string, skribblLobby & {seenAt: number}>>(new Map());
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -109,7 +110,12 @@ export class LobbyService {
       })
     ).subscribe(data => this._currentLobby$.next(data));
 
-    this.lobby$.subscribe(data => this._logger.info("Lobby changed", data));
+    this.lobby$.subscribe(data => {
+      this._logger.info("Lobby changed", data);
+      const map = this._discoveredLobbies$.value;
+      if(data !== null && data.id !== null) map.set(data.id, { ...data, seenAt: Date.now() });
+      this._discoveredLobbies$.next(map);
+    });
   }
 
   public async joinLobby(id?: string){
@@ -139,6 +145,12 @@ export class LobbyService {
     return this._currentLobby$.pipe(
       debounceTime(100), /* debounce to prevent spamming */
       distinctUntilChanged((curr, prev) => JSON.stringify(curr) === JSON.stringify(prev)) /* if join-leave spam debounced, take only changes */
+    );
+  }
+
+  public get discoveredLobbies$(){
+    return this._discoveredLobbies$.pipe(
+      map(map => Array.from(map.values()))
     );
   }
 }

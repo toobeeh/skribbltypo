@@ -74,8 +74,9 @@
   </div>
 
   <div>
-    Visited lobbies: {$visitedLobbies.length}<br>
-    If you click on a lobby, the search will stop and join the selected lobby instead.
+    Discovered lobbies: {$visitedLobbies.length}<br>
+    If you click on a lobby, the search will stop and join the selected lobby instead.<br>
+    A lobby might have changed since it was discovered.
   </div>
 
   <div class="typo-filter-search-list">
