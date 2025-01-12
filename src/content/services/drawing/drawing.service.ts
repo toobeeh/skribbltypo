@@ -232,9 +232,13 @@ export class DrawingService {
     document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color.typoCode}}));
   }
 
+  /**
+   * Set the brush size, from 4 to 40
+   * @param size
+   */
   public setSize(size: number) {
     this._logger.debug("Setting size", size);
-    document.dispatchEvent(new CustomEvent("selectSkribblSize", {detail: {size}}));
+    document.dispatchEvent(new CustomEvent("selectSkribblSize", {detail: size}));
   }
 
   public clearImage() {

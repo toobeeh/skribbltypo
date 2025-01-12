@@ -31,6 +31,7 @@ import { ControlsSettingsFeature } from "@/content/features/controls-settings/co
 import { ControlsThemesFeature } from "@/content/features/controls-themes/controls-themes.feature";
 import { DrawingColorPalettesFeature } from "@/content/features/drawing-color-palettes/drawing-color-palettes.feature";
 import { DrawingColorToolsFeature } from "@/content/features/drawing-color-tools/drawing-color-tools.feature";
+import { DrawingPressureFeature } from "@/content/features/drawing-pressure/drawing-pressure.feature";
 import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
 import { HotkeysFeature } from "@/content/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
@@ -198,7 +199,8 @@ new ExtensionContainer(interceptor)
     ChatQuickReactFeature,
     ControlsThemesFeature,
     TooltipsFeature,
-    ChatCopyFormattedFeature
+    ChatCopyFormattedFeature,
+    DrawingPressureFeature
   );
 
 /* indicate for interceptor that content script has loaded */

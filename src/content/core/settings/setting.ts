@@ -3,6 +3,7 @@ import type { componentData } from "@/content/services/modal/modal.service";
 import { fromObservable } from "@/util/store/fromObservable";
 import { BehaviorSubject, of, switchMap } from "rxjs";
 import BooleanSettingInput from "@/lib/settings/boolean-setting-input.svelte";
+import NumericSettingInput from "@/lib/settings/numeric-setting-input.svelte";
 import type { SvelteComponent } from "svelte";
 
 export type serializable = undefined | string | number | boolean | serializable[] | { [key: string]: serializable };
@@ -90,5 +91,34 @@ export class BooleanExtensionSetting extends SettingWithInput<boolean> {
       componentType: BooleanSettingInput,
       props: { setting: this }
     };
+  }
+}
+
+export class NumericExtensionSetting extends SettingWithInput<number> {
+
+  private _min?: number;
+  private _max?: number;
+  private _sliderWithSteps?: number;
+
+  public override get componentData()  {
+    return {
+      componentType: NumericSettingInput,
+      props: {
+        setting: this,
+        withSliderAndSteps: this._sliderWithSteps,
+        bounds: this._min !== undefined && this._max !== undefined ? {min: this._min, max: this._max} : undefined
+      }
+    };
+  }
+
+  public withBounds(min: number, max: number) {
+    this._min = min;
+    this._max = max;
+    return this;
+  }
+
+  public withSlider(steps = 1) {
+    this._sliderWithSteps = steps;
+    return this;
   }
 }

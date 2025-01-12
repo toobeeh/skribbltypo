@@ -87,8 +87,6 @@
     {/if}
   </div>
 
-
-
   {#if $showDiscovered}
     <div class="typo-lobbies-discovered">
       <h3>Discovered Lobbies</h3>
