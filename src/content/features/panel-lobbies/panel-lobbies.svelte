@@ -55,6 +55,7 @@
 
         b {
           opacity: .7;
+          justify-self: baseline;
         }
 
         span {

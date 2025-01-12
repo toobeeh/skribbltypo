@@ -121,6 +121,10 @@ export class ExtensionContainer {
       return this;
    }
 
+   /**
+    * Resolve a service that has not been registered with the container.
+    * @param service
+    */
    public resolveService<TService>(service: Type<TService>): TService {
       return this._diContainer.resolve(service);
    }

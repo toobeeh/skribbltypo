@@ -209,6 +209,7 @@ export class PanelCabinFeature extends TypoFeature {
       pickerComponent.componentType,
       pickerComponent.propsFactory,
       "Scene Picker",
+      "document"
     );
 
     this._logger.debug("Scene picker closed", scene);
