@@ -1,20 +1,28 @@
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
-import type { componentData } from "@/content/services/modal/modal.service";
+import { type componentData, type componentDataFactory, ModalService } from "@/content/services/modal/modal.service";
+import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import {
+  PrioritizedCanvasEventsSetup
+} from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
 import { fromObservable } from "@/util/store/fromObservable";
 import { chooseFile } from "@/util/upload";
 import { inject } from "inversify";
-import { BehaviorSubject, combineLatest, Subscription, take } from "rxjs";
+import { BehaviorSubject, combineLatest, filter, firstValueFrom, Subject, Subscription, take } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarImageLab from "./toolbar-imagelab.svelte";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
+import ImagelabPositionPicker from "./imagelab-position-picker.svelte";
 
 export class ToolbarImageLabFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
   @inject(ImagelabService) private readonly _drawCommandsService!: ImagelabService;
+  @inject(ToastService) private readonly _toastService!: ToastService;
+  @inject(ModalService) private readonly _modalService!: ModalService;
+  @inject(PrioritizedCanvasEventsSetup) private readonly _canvasEventsSetup!: PrioritizedCanvasEventsSetup;
 
   public readonly name = "Image Laboratory";
   public readonly description =
@@ -196,5 +204,142 @@ export class ToolbarImageLabFeature extends TypoFeature {
    */
   public abortPaste(){
     this._pasteInProgress.next(false);
+  }
+
+  /**
+   * Pick an image from the local file system and return it as a base64 string
+   */
+  public async pickImageFromLocal(): Promise<string | null> {
+    const files = await chooseFile("image/*", false);
+    if(files === null) return null;
+
+    const file = files[0];
+    const reader = new FileReader();
+    const result = new BehaviorSubject<string | undefined | null>(undefined);
+    reader.onload = async (e) => {
+      const data = e.target?.result;
+      if(typeof data !== "string") {
+        this._logger.error("Failed to read file", file);
+        await this._toastService.showToast("Failed to read file");
+        result.next(null);
+        return;
+      }
+
+      result.next(data);
+    };
+    reader.readAsDataURL(file);
+    return await firstValueFrom(result.pipe(filter(v => v !== undefined))) as (string | null);
+  }
+
+  public async pasteImageToLocation(base64: string){
+    this._logger.debug("Pasting image to location");
+
+    const pickerComponent: componentDataFactory<ImagelabPositionPicker, "fit" | "fill" | "position" | "range"> = {
+      componentType: ImagelabPositionPicker,
+      propsFactory: submit => ({
+        onPick: submit.bind(this),
+      })
+    };
+    const mode = await this._modalService.showPrompt(
+      pickerComponent.componentType,
+      pickerComponent.propsFactory,
+      "Paste Image"
+    );
+
+    this._logger.debug("Selected mode", mode);
+    if(mode === undefined) return;
+
+    let x, y, width, height;
+    const canvas = (await this._elementsSetup.complete()).canvas;
+    const img = new Image();
+    img.src = base64;
+    await new Promise(resolve => img.onload = resolve);
+
+    /* fit centered as big as possible on the canvas */
+    if(mode === "fit"){
+      const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+      width = img.width * scale;
+      height = img.height * scale;
+      x = (canvas.width - width) / 2;
+      y = (canvas.height - height) / 2;
+    }
+
+    /* fill canvas with image, changing image ratio if necessary */
+    else if(mode === "fill"){
+      x = 0;
+      y = 0;
+      width = canvas.width;
+      height = canvas.height;
+    }
+
+    /* paste the image in original size with top-left corner at position */
+    else if(mode === "position"){
+      const toast = await this._toastService
+        .showStickyToast("Paste Image", "Click on the canvas to paste the image", true);
+
+      let position: PointerEvent;
+      try {
+        position = await this.waitForCanvasClick(firstValueFrom(toast.closed$));
+      }
+      catch (e){
+        this._logger.debug("Aborted paste image", e);
+        toast.close();
+        return;
+      }
+
+      x = position.offsetX;
+      y = position.offsetY;
+      width = img.width;
+      height = img.height;
+
+      toast.close();
+    }
+
+    /* paste the image scaled and ratio changed between two clicks */
+    else if(mode === "range"){
+      const toast = await this._toastService
+        .showStickyToast("Paste Image", "Click on the canvas to select the top-left corner", true);
+
+      let start: PointerEvent;
+      let end: PointerEvent;
+      try {
+        start = await this.waitForCanvasClick(firstValueFrom(toast.closed$));
+        toast.update("Paste Image", "Click on the canvas to select the bottom-right corner");
+        end = await this.waitForCanvasClick(firstValueFrom(toast.closed$));
+      }
+      catch (e){
+        this._logger.debug("Aborted paste image", e);
+        toast.close();
+        return;
+      }
+
+      x = Math.min(start.offsetX, end.offsetX);
+      y = Math.min(start.offsetY, end.offsetY);
+      width = Math.abs(start.offsetX - end.offsetX);
+      height = Math.abs(start.offsetY - end.offsetY);
+
+      toast.close();
+    }
+
+    await this._drawingService.drawImage(base64, x, y, width, height);
+  }
+
+  private async waitForCanvasClick(cancel?: Promise<void>): Promise<PointerEvent> {
+    const click = new Subject<PointerEvent >();
+    const listener = (e: PointerEvent) => {
+      click.next(e);
+      e.stopImmediatePropagation();
+    };
+
+    cancel?.then(() => {
+      click.complete();
+      events.remove("pointerdown", listener);
+    });
+
+    const events = await this._canvasEventsSetup.complete();
+    events.add("pointerdown", listener);
+    const result = await firstValueFrom(click);
+    events.remove("pointerdown", listener);
+    return result;
   }
 }

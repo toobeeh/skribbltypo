@@ -1,5 +1,6 @@
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject, injectable } from "inversify";
+import { type Observable, Subject } from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import Toast from "./toast.svelte";
 
@@ -12,6 +13,7 @@ export interface loadingToastHandle {
 export interface stickyToastHandle {
   close: () => void;
   update: (title?: string, content?: string) => void;
+  closed$: Observable<void>;
 }
 
 @injectable()
@@ -54,27 +56,32 @@ export class ToastService {
    * Will be kept open until manually closed
    * @param title
    * @param content
+   * @param allowClose
    */
-  public async showStickyToast(title?: string, content?: string): Promise<stickyToastHandle> {
+  public async showStickyToast(title?: string, content?: string, allowClose?: boolean): Promise<stickyToastHandle> {
     const elements = await this._elementsSetup.complete();
+    const closed = new Subject<void>();
     const toast = new Toast({
       target: elements.toastContainer,
       props: {
         closeHandler: () => {
           toast.$destroy();
+          closed.next();
         },
         title,
         content,
         showLoading: false,
-        allowClose: false
+        allowClose: allowClose === undefined ? false : allowClose
       }
     });
+
 
     return {
       close: () => toast.close(),
       update: (title?: string, content?: string) => {
         toast.$set({title, content});
-      }
+      },
+      closed$: closed.asObservable()
     };
   }
 

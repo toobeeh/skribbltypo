@@ -76,7 +76,7 @@
     <div class="saved-commands" class:locked={$locked}>
       <div class="remove" >
         <IconButton
-          icon="file-img-disabled-gif" name="Remove" size="1.5rem" hoverMove="{false}"
+          icon="file-img-trash-gif" name="Remove" size="1.5rem" hoverMove="{false}"
           on:click={() => feature.removeDrawCommands($store, image)}
         />
       </div>
@@ -84,6 +84,10 @@
     </div>
   {/each}
 
+  <FlatButton content="Paste Image" color="blue" on:click={async () => {
+    const data = await feature.pickImageFromLocal();
+    if(data != null) await feature.pasteImageToLocation(data);
+  }} />
   <FlatButton content="Load SKD File" color="green" on:click={() => feature.addDrawCommandsFromFile()} />
   <FlatButton content="Save Current Image" color="green" on:click={() => feature.saveCurrentDrawCommands()} />
   <input type="text" class="typo" placeholder="Custom save name" bind:value={feature.customName} />

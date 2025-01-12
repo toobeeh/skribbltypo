@@ -246,8 +246,8 @@ export class DrawingService {
     document.dispatchEvent(new CustomEvent("clearDrawing"));
   }
 
-  public async drawImage(imageBase64: string, x?: number, y?: number) {
-    this._logger.debug("Drawing image", imageBase64, x, y);
+  public async drawImage(imageBase64: string, x?: number, y?: number, dx?: number, dy?: number) {
+    this._logger.debug("Drawing image", imageBase64, x, y, dx, dy);
 
     const img = new Image();
     img.src = imageBase64;
@@ -255,7 +255,7 @@ export class DrawingService {
 
     const canvas = (await this.elementsSetup.complete()).canvas;
     const ctx = canvas.getContext("2d");
-    ctx?.drawImage(img, x ?? 0, y ?? 0);
+    ctx?.drawImage(img, x ?? 0, y ?? 0, dx ?? img.width, dy ?? img.height);
   }
 
   public async drawLine(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
