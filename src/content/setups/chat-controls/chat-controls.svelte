@@ -9,5 +9,6 @@
     margin-top: .5rem;
     margin-right: .5rem;
     height: min-content;
+    z-index: 1;
   }
 </style>

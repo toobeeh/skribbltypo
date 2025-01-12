@@ -132,6 +132,6 @@ export class ChatService {
   }
 
   public get messageReceived$() {
-    return this._messageReceived$;
+    return this._messageReceived$.asObservable();
   }
 }

@@ -1,6 +1,7 @@
 import "@abraham/reflection";
 import { Interceptor } from "@/content/core/interceptor/interceptor";
 import { LoggingService } from "@/content/core/logger/logging.service";
+import { canvasClearedEventRegistration } from "@/content/events/canvas-cleared.event";
 import { chatTypedEventRegistration } from "@/content/events/chat-typed.event";
 import { colorChangedEventRegistration } from "@/content/events/color-changed.event";
 import { drawEventRegistration } from "@/content/events/draw.event";
@@ -162,7 +163,8 @@ new ExtensionContainer(interceptor)
     scoreboardVisibilityChangedEventRegistration,
     playerPopupVisibilityChangedEventRegistration,
     textOverlayVisibilityChangedEventRegistration,
-    lobbyInteractedEventRegistration
+    lobbyInteractedEventRegistration,
+    canvasClearedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,

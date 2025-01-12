@@ -71,7 +71,7 @@
 <div>
 
   <div class="typo-lobbies-discord">
-    <h3>Online Friends</h3>
+    <b>Online Friends</b>
 
     {#if $lobbies === null}
       <span>You need to log in to see lobbies of your discord friends.<br></span>
@@ -90,7 +90,7 @@
 
   {#if $showDiscovered}
     <div class="typo-lobbies-discovered">
-      <h3>Discovered Lobbies</h3>
+      <b>Discovered Lobbies</b>
 
       {#if $discoveredLobbies.length === 0}
         <div>Join a lobby to see it here afterwards.</div>

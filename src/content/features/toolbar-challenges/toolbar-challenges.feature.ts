@@ -2,6 +2,11 @@ import { ExtensionContainer } from "@/content/core/extension-container/extension
 import { ExtensionSetting } from "@/content/core/settings/setting";
 import type { TypoChallenge } from "@/content/features/toolbar-challenges/challenge";
 import { BlindGuessChallenge } from "@/content/features/toolbar-challenges/challenges/blind-guess-challenge";
+import { DeafGuessChallenge } from "@/content/features/toolbar-challenges/challenges/deaf-guess-challenge";
+import { DontClearChallenge } from "@/content/features/toolbar-challenges/challenges/dont-clear-challenge";
+import { DrunkVisionChallenge } from "@/content/features/toolbar-challenges/challenges/drunk-vision-challenge";
+import { MonochromeChallenge } from "@/content/features/toolbar-challenges/challenges/monochrome-challenge";
+import { OneShotChallenge } from "@/content/features/toolbar-challenges/challenges/one-shot-challenge";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import type { Type } from "@/util/types/type";
@@ -36,9 +41,11 @@ export class ToolbarChallengesFeature extends TypoFeature {
   private readonly _activatedChallenges = new ExtensionSetting<number[]>("activated_challenges", [], this);
   private readonly _challenges: { challenge: Type<TypoChallenge<unknown>>; id: number }[] = [
     { challenge: BlindGuessChallenge, id: 1 },
-    { challenge: BlindGuessChallenge, id: 2 },
-    { challenge: BlindGuessChallenge, id: 3 },
-    { challenge: BlindGuessChallenge, id: 4 },
+    { challenge: DrunkVisionChallenge, id: 2 },
+    { challenge: DeafGuessChallenge, id: 3 },
+    { challenge: OneShotChallenge, id: 4 },
+    { challenge: DontClearChallenge, id: 5 },
+    { challenge: MonochromeChallenge, id: 6 },
   ];
 
   private _flyoutComponent?: AreaFlyout;
