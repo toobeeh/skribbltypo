@@ -213,16 +213,19 @@ The setting class provides a typed interface to save and retrieve settings, as w
 Settings are not bound to DI scope and can be used anywhere.
 When a setting should be available in the integrated feature settings, it has to be registered in the feature class.  
 For this, a subtype of the extension setting class has to be used, which implements a svelte template for a certain setting data type.  
-Currently, only the BooleanSetting is available to use:
+Currently, the BooleanSetting and NumericSetting are available to use like that:
 
 ```typescript
-private readonly _enableOnlyWhenDrawingSetting = this.useSetting(new BooleanExtensionSetting("trigger_require_drawing", true, this)
-  .withName("Zoom Only When Drawing")
-  .withDescription("Only allow start zooming with the hotkey when you're currently drawing"));
+private readonly _enableOnlyWhenDrawingSetting = this.useSetting(
+  new BooleanExtensionSetting("trigger_require_drawing", true, this)
+      .withName("Zoom Only When Drawing")
+      .withDescription("Only allow start zooming with the hotkey when you're currently drawing"));
 ```
 the registration consists of two parts:
 - creation of a UI-enabled setting instance using `new BooleanExtensionSetting`, where the setting defaults are configured
 - registration to the feature via `this.useSetting`
+
+### Draw Mods and Tools
 
 ### Tooltips
 Tooltips can be used to show information text when the user hovers over elements.  

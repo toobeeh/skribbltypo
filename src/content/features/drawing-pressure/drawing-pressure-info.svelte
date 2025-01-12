@@ -7,14 +7,11 @@
 
   const sensitivity = feature.sensitivitySettingStore;
   const balance = feature.balanceSettingStore;
-
-
   let canvas: HTMLCanvasElement | undefined;
 
   $: {
     let s = $sensitivity;
     let v = $balance;
-    console.log("rendering", s, v, canvas);
 
     const ctx = canvas?.getContext("2d");
 
@@ -35,7 +32,6 @@
   }
 
 </script>
-
 
 <style lang="scss">
 
