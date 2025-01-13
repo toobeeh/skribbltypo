@@ -14,11 +14,12 @@ export class CommandsService {
   ) {
     this._logger = loggerFactory(this);
 
-    const command = new ExtensionCommand<CommandsService>("test", "test", 1 as unknown as TypoFeature, "Test", "Test Command", this, true)
+    const command = new ExtensionCommand<this>("test", "test", 1 as unknown as TypoFeature, "Test", "Test Command", this, true)
       .withArgs(builder => builder
-        .addArg(new NumericCommandParameter<object, {a: number}, CommandsService>(this, "number", "A number", num => ({a: num})))
-        .addArg<{b: number}>(new NumericCommandParameter<{a: number}, {b: number}, CommandsService>(this, "number", "A number", num => ({b: num})))
-        .execute(async result => `Number is ${result.a}`));
+        .addArg(new NumericCommandParameter(this, "number 1", "A first number", num => ({a: num})))
+        .addArg(new NumericCommandParameter(this, "number 2", "A second number", num => ({b: num})))
+        .addArg(new NumericCommandParameter(this, "number 3", "A 3 number", num => ({x: num})))
+        .execute(async result => `Number is ${result.a} and ${result.b}`));
 
     const commands: ((args: string) => Promise<string | undefined | null>)[] = [(args: string) => this.executeInterpretable(command, args, undefined, command.context)];
     const args = prompt("Enter command") ?? "";
