@@ -1,3 +1,4 @@
+import { CommandsService } from "@/content/core/commands/commands.service";
 import { FeaturesService } from "@/content/core/feature/features.service";
 import { HotkeysService } from "@/content/core/hotkeys/hotkeys.service";
 import { Interceptor } from "@/content/core/interceptor/interceptor";
@@ -67,11 +68,14 @@ export class ExtensionContainer {
           };
       });
 
+      this._diContainer.bind(CommandsService).toSelf().inSingletonScope();
       this._diContainer.bind(HotkeysService).toSelf().inSingletonScope();
       this._diContainer.bind(TooltipsService).toSelf().inSingletonScope();
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
       this._diContainer.bind(TokenService).toSelf().inSingletonScope();
       this._diContainer.bind(FeaturesService).toSelf().inSingletonScope();
+
+      console.log(this._diContainer.get(CommandsService));
    }
 
    public registerEventProcessors(...events: EventRegistration<unknown, ApplicationEvent<unknown>>[]) {
