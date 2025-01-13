@@ -1,6 +1,17 @@
+/* Result of an interpretable execution */
+export abstract class InterpretableResult {
+  constructor(
+    readonly interpretable: Interpretable<unknown, unknown, unknown>,
+    readonly message?: string
+  ) {}
+}
+
+export class InterpretableError extends InterpretableResult {};
+export class InterpretableSuccess extends InterpretableResult {};
+
 export type interpretableExecutionResult<TResult, TContext> = Promise<{
   next?: Interpretable<TResult, unknown, TContext>,
-  message?: string;
+  result: InterpretableResult;
 }>;
 
 export type interpretableInterpretationResult<TResult, TContext> = Promise<{

@@ -1,14 +1,18 @@
-import type {
-  Interpretable,
-  interpretableExecutionResult,
-  interpretableInterpretationResult,
+import type { commandExecutionContext } from "@/content/core/commands/command";
+import {
+  type Interpretable, InterpretableError,
+  type interpretableExecutionResult,
+  type interpretableInterpretationResult, InterpretableSuccess,
 } from "@/content/core/commands/interpretable";
 
-export abstract class ExtensionCommandParameter<TSource, TParam, TContext>
-  implements Interpretable<TSource, TParam, TContext>
+export class InterpretableArgumentParsingError extends InterpretableError {}
+
+export abstract class ExtensionCommandParameter<TSource, TParam>
+  implements Interpretable<TSource, TParam, commandExecutionContext>
 {
 
-  private _execute?: (result: TParam & TSource, context: TContext) => interpretableExecutionResult<TSource & TParam, TContext>;
+  private _execute?: (result: TParam & TSource, context: commandExecutionContext) =>
+    interpretableExecutionResult<TSource & TParam, commandExecutionContext>;
 
   protected constructor(
     private _name: string,
@@ -23,25 +27,25 @@ export abstract class ExtensionCommandParameter<TSource, TParam, TContext>
     return this._description;
   }
 
-  public withAction(action: (result: TParam & TSource, context: TContext
-  ) => interpretableExecutionResult<TSource & TParam, TContext>) {
+  public withAction(action: (result: TParam & TSource, context: commandExecutionContext
+  ) => interpretableExecutionResult<TSource & TParam, commandExecutionContext>) {
     this._execute = action;
     return this;
   }
 
-  interpret(args: string, source: TSource, context: TContext
-  ): interpretableInterpretationResult<TSource & TParam, TContext> {
-    const { param, remainder } = this.readArg(args);
+  interpret(args: string, source: TSource, context: commandExecutionContext
+  ): interpretableInterpretationResult<TSource & TParam, commandExecutionContext> {
+    const { argument, remainder } = this.readArg(args);
     return Promise.resolve({
-      result: { ...source, ...param },
+      result: { ...source, ...argument },
       context,
       remainder,
     });
   }
 
-  execute(result: TParam & TSource, context: TContext
-  ): interpretableExecutionResult<TSource & TParam, TContext> {
-    return this._execute?.(result, context) ?? Promise.resolve({});
+  execute(result: TParam & TSource, context: commandExecutionContext
+  ): interpretableExecutionResult<TSource & TParam, commandExecutionContext> {
+    return this._execute?.(result, context) ?? Promise.resolve({result: new InterpretableSuccess(this)});
   }
 
   /**
@@ -49,6 +53,6 @@ export abstract class ExtensionCommandParameter<TSource, TParam, TContext>
    * @param args raw remaining args
    * @protected
    */
-  protected abstract readArg(args: string): { param: TParam, remainder: string };
+  protected abstract readArg(args: string): { argument: TParam, remainder: string };
 
 }

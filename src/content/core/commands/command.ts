@@ -1,18 +1,25 @@
-import { CommandArgsBuilder } from "@/content/core/commands/builder/command-args-builder";
+import { CommandParamsBuilder } from "@/content/core/commands/builder/command-params-builder";
 import type { ExtensionCommandParameter } from "@/content/core/commands/command-parameter";
-import type {
-  Interpretable,
-  interpretableExecutionResult,
-  interpretableInterpretationResult,
+import {
+  type Interpretable,
+  type interpretableExecutionResult,
+  type interpretableInterpretationResult, InterpretableResult, InterpretableSuccess,
 } from "@/content/core/commands/interpretable";
 import  { type TypoFeature } from "@/content/core/feature/feature";
 import { ExtensionSetting } from "@/content/core/settings/setting";
 import { firstValueFrom } from "rxjs";
 
-export class ExtensionCommand<TContext> implements Interpretable<object, object, TContext> {
+export interface commandExecutionContext {
+  parameters: ExtensionCommandParameter<unknown, unknown>[];
+  currentInterpretedParameter?: ExtensionCommandParameter<unknown, unknown>;
+}
+
+export class ExtensionCommand implements Interpretable<object, object, commandExecutionContext> {
   private _id: ExtensionSetting<string>;
   private _enabledSetting: ExtensionSetting<boolean>;
-  private _execute?: (result: object, context: TContext) => interpretableExecutionResult<object, TContext>;
+  private _execute?: (result: object, context: commandExecutionContext) =>
+    interpretableExecutionResult<object, commandExecutionContext>;
+  private _params: ExtensionCommandParameter<unknown, unknown>[] = [];
 
   constructor(
     private _key: string,
@@ -20,7 +27,6 @@ export class ExtensionCommand<TContext> implements Interpretable<object, object,
     private _feature: TypoFeature,
     private _name: string,
     private _description: string,
-    private _context: TContext,
     private _defaultEnabled = true
   ) {
     this._id = new ExtensionSetting(`command.${this._key}.name`, this._defaultId, this._feature);
@@ -60,8 +66,11 @@ export class ExtensionCommand<TContext> implements Interpretable<object, object,
     return this._enabledSetting.asFrozen;
   }
 
-  public get context() {
-    return this._context;
+  /**
+   * The parameters of the command
+   */
+  public get params() {
+    return this._params;
   }
 
   /**
@@ -73,8 +82,8 @@ export class ExtensionCommand<TContext> implements Interpretable<object, object,
   async interpret(
     args: string,
     source: object,
-    context: TContext,
-  ): interpretableInterpretationResult<object, TContext> {
+    context: commandExecutionContext,
+  ): interpretableInterpretationResult<object, commandExecutionContext> {
 
     /* get command name cached from setting */
     const interpreterName = await firstValueFrom(this._id.changes$);
@@ -96,16 +105,18 @@ export class ExtensionCommand<TContext> implements Interpretable<object, object,
    */
   execute(
     result: object,
-    context: TContext,
-  ): interpretableExecutionResult<object, TContext> {
-    return this._execute?.(result, context) ?? Promise.resolve({});
+    context: commandExecutionContext,
+  ): interpretableExecutionResult<object, commandExecutionContext> {
+    return this._execute?.(result, context) ?? Promise.resolve({result: new InterpretableSuccess(this)});
   }
 
   /**
    * Set the action for the following interpretation chain
    * @param execute
    */
-  public setExecute(execute: (result: object, context: TContext) => interpretableExecutionResult<object, TContext>){
+  public setExecute(execute: (result: object, context: commandExecutionContext) =>
+    interpretableExecutionResult<object, commandExecutionContext>)
+  {
     this._execute = execute;
     return this;
   }
@@ -114,10 +125,10 @@ export class ExtensionCommand<TContext> implements Interpretable<object, object,
    * Set an action for immediate execution without further interpretation
    * @param execute
    */
-  public action(execute: (context: TContext) => Promise<string | undefined>){
-    this.setExecute(async (_, context) => {
-      const response = await execute(context);
-      return { message: response };
+  public action(execute: (command: ExtensionCommand) => Promise<InterpretableResult>){
+    this.setExecute(async () => {
+      const response = await execute(this);
+      return { result: response };
     });
     return this;
   }
@@ -126,9 +137,9 @@ export class ExtensionCommand<TContext> implements Interpretable<object, object,
    * Add arguments to the command interpretation chain using a builder
    * @param builderAction
    */
-  public withArgs(builderAction: (builder: CommandArgsBuilder<object, object, TContext>) => ExtensionCommandParameter<unknown, unknown, unknown>[]){
-    const builder = CommandArgsBuilder.forCommand(this);
-    console.log(builderAction(builder));
+  public withParameters(builderAction: (builder: CommandParamsBuilder<object, object>) => ExtensionCommandParameter<unknown, unknown>[]){
+    const builder = CommandParamsBuilder.forCommand(this);
+    this._params = builderAction(builder);
     builder.build();
     return this;
   }

@@ -1,4 +1,8 @@
-import type { Interpretable, interpretableExecutionResult } from "@/content/core/commands/interpretable";
+import {
+  type Interpretable,
+  type interpretableExecutionResult,
+  InterpretableSuccess,
+} from "@/content/core/commands/interpretable";
 
 export type executeNextFunction<TResult, TContext> = (result: TResult, context: TContext) => interpretableExecutionResult<TResult, TContext>;
 
@@ -8,6 +12,7 @@ export type executeNextFunction<TResult, TContext> = (result: TResult, context: 
 export class DeferredInterpretableBuilder<TSource, TResult, TContext> {
 
   private _execute?: (result: TResult & TSource, context: TContext) => interpretableExecutionResult<TResult & TSource, TContext>;
+  protected _builtInterpretable?: Interpretable<TSource, TResult, TContext>;
 
   /**
    * Create a new interpretable chain builder
@@ -27,11 +32,11 @@ export class DeferredInterpretableBuilder<TSource, TResult, TContext> {
     nextInterpretableBuilder: (executionContext: executeNextFunction<TNextResult & TResult & TSource, TContext>) =>
       Interpretable<TResult & TSource, TResult & TNextResult & TSource, TContext>
   ){
-
     const builder = new DeferredInterpretableBuilder<TResult & TSource, TResult & TNextResult & TSource, TContext>(nextInterpretableBuilder);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.setExecute(async (result, context) => {
-      console.log("Building chained interpretable", result, context);
-      return {next: builder.build()};
+      return {next: builder.build(), result: new InterpretableSuccess(this.interpretable)};
     });
 
     return builder;
@@ -52,6 +57,15 @@ export class DeferredInterpretableBuilder<TSource, TResult, TContext> {
   build() {
     if(!this._execute || !this._interpretableBuilder) throw new Error("Cannot build interpretable without execute function");
     const execute = this._execute;
-    return this._interpretableBuilder((result, context) => execute(result, context));
+    this._builtInterpretable = this._interpretableBuilder((result, context) => execute(result, context));
+    return this._builtInterpretable;
+  }
+
+  /**
+   * The built interpretable, if built, else undefined
+   */
+  get interpretable(){
+    if(!this._builtInterpretable) throw new Error("Interpretable has not yet been built");
+    return this._builtInterpretable;
   }
 }
