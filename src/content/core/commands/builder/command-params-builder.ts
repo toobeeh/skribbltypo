@@ -1,7 +1,7 @@
 import {
   type commandExecutionContext,
   type ExtensionCommand,
-  InterpretableCommandDeferResult,
+
 } from "@/content/core/commands/command";
 import type { ExtensionCommandParameter } from "@/content/core/commands/command-parameter";
 import {
@@ -9,8 +9,10 @@ import {
 } from "@/content/core/commands/builder/deferred-interpretable-builder";
 import {
   type Interpretable,
-  type InterpretableResult,
+
 } from "@/content/core/commands/interpretable";
+import { InterpretableDeferResult } from "@/content/core/commands/results/interpretable-defer-result";
+import { InterpretableResult } from "@/content/core/commands/results/interpretable-result";
 
 /***
   * Simplifies the building of command parameters using a deferred interpretable chain builder
@@ -67,7 +69,7 @@ export class CommandParamsBuilder<TSource, TResult> {
     this._interpretableDeferred.setExecute(async (result, context) => {
       context.currentInterpretedParameter = this._precedingParams[this._precedingParams.length - 1];
       const interpretable = this._interpretableDeferred.interpretable;
-      const response = new InterpretableCommandDeferResult(interpretable, undefined, () => run(result, interpretable));
+      const response = new InterpretableDeferResult(interpretable, undefined, () => run(result, interpretable));
       return { result: response };
     });
     return this._precedingParams;

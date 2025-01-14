@@ -1,8 +1,9 @@
 import {
   type Interpretable,
   type interpretableExecutionResult,
-  InterpretableSuccess,
+
 } from "@/content/core/commands/interpretable";
+import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 
 export type executeNextFunction<TResult, TContext> = (result: TResult, context: TContext) => interpretableExecutionResult<TResult, TContext>;
 

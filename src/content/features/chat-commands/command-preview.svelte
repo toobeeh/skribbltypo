@@ -1,7 +1,9 @@
 <script lang="ts">
   import type { EmojiDto } from "@/api";
-  import { InterpretableCommandPartialMatch } from "@/content/core/commands/command";
   import { NumericCommandParameter } from "@/content/core/commands/params/numeric-command-parameter";
+  import {
+    InterpretableCommandPartialMatch
+  } from "@/content/core/commands/results/interpretable-command-partial-match";
   import type { ChatCommandsFeature } from "@/content/features/chat-commands/chat-commands.feature";
   import type { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";
   import { firstValueFrom } from "rxjs";

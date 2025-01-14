@@ -1,8 +1,11 @@
 import {
   ExtensionCommandParameter,
-  InterpretableArgumentParsingError,
+
 } from "@/content/core/commands/command-parameter";
-import { InterpretableEmptyRemainder } from "@/content/core/commands/commands.service";
+import {
+  InterpretableArgumentParsingError
+} from "@/content/core/commands/results/interpretable-argument-parsing-error";
+import { InterpretableEmptyRemainder } from "@/content/core/commands/results/interpretable-empty-remainder";
 
 export class NumericCommandParameter<TSource, TMapped> extends ExtensionCommandParameter<TSource, TMapped>{
 

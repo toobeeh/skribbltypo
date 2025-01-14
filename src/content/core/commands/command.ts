@@ -1,36 +1,47 @@
 import { CommandParamsBuilder } from "@/content/core/commands/builder/command-params-builder";
 import type { ExtensionCommandParameter } from "@/content/core/commands/command-parameter";
 import {
-  type Interpretable, InterpretableError,
+  type Interpretable,
   type interpretableExecutionResult,
-  type interpretableInterpretationResult, InterpretableResult, InterpretableSuccess,
+  type interpretableInterpretationResult,
 } from "@/content/core/commands/interpretable";
-import  { type TypoFeature } from "@/content/core/feature/feature";
+import { InterpretableDeferResult } from "@/content/core/commands/results/interpretable-defer-result";
+import { InterpretableCommandPartialMatch } from "@/content/core/commands/results/interpretable-command-partial-match";
+import { InterpretableResult } from "@/content/core/commands/results/interpretable-result";
+import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
+import { type TypoFeature } from "@/content/core/feature/feature";
 import { ExtensionSetting } from "@/content/core/settings/setting";
 import { firstValueFrom } from "rxjs";
 
+/**
+ * A context for command and parameter execution
+ * Describing the state of the current interpretation chain
+ */
 export interface commandExecutionContext {
-  command: ExtensionCommand;
-  parameters: ExtensionCommandParameter<unknown, unknown>[];
-  currentInterpretedParameter?: ExtensionCommandParameter<unknown, unknown>;
-}
 
-export class InterpretableCommandPartialMatch extends InterpretableError { }
-export class InterpretableCommandDeferResult extends InterpretableSuccess {
-  constructor(
-    interpretable: Interpretable<unknown, unknown, unknown>,
-    message: string | undefined,
-    public readonly run: () => Promise<InterpretableResult>
-  ) {
-    super(interpretable, message);
-  }
+  /**
+   * The command that initiated the interpretable chain
+   */
+  command: ExtensionCommand;
+
+  /**
+   * All parameters in the interpretable chain
+   */
+  parameters: ExtensionCommandParameter<unknown, unknown>[];
+
+  /**
+   * The parameter that is currently being interpreted, null if execution has thrown an error
+   */
+  currentInterpretedParameter?: ExtensionCommandParameter<unknown, unknown>;
 }
 
 export class ExtensionCommand implements Interpretable<object, object, commandExecutionContext> {
   private _id: ExtensionSetting<string>;
   private _enabledSetting: ExtensionSetting<boolean>;
-  private _execute?: (result: object, context: commandExecutionContext) =>
-    interpretableExecutionResult<object, commandExecutionContext>;
+  private _execute?: (
+    result: object,
+    context: commandExecutionContext,
+  ) => interpretableExecutionResult<object, commandExecutionContext>;
   private _params: ExtensionCommandParameter<unknown, unknown>[] = [];
 
   constructor(
@@ -39,7 +50,7 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
     private _feature: TypoFeature,
     private _name: string,
     private _description: string,
-    private _defaultEnabled = true
+    private _defaultEnabled = true,
   ) {
     this._id = new ExtensionSetting(`command.${this._key}.name`, this._defaultId, this._feature);
 
@@ -96,7 +107,6 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
     source: object,
     context: commandExecutionContext,
   ): interpretableInterpretationResult<object, commandExecutionContext> {
-
     /* get command name cached from setting */
     const interpreterName = await firstValueFrom(this._id.changes$);
 
@@ -111,7 +121,7 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
       throw new InterpretableCommandPartialMatch(this);
     }
 
-    /* did not match */
+    /* did not match, signalize refused interpretation */
     return null;
   }
 
@@ -124,16 +134,22 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
     result: object,
     context: commandExecutionContext,
   ): interpretableExecutionResult<object, commandExecutionContext> {
-    return this._execute?.(result, context) ?? Promise.resolve({result: new InterpretableSuccess(this)});
+    return (
+      this._execute?.(result, context) ??
+      Promise.resolve({ result: new InterpretableSuccess(this) })
+    );
   }
 
   /**
    * Set the action for the following interpretation chain
    * @param execute
    */
-  public setExecute(execute: (result: object, context: commandExecutionContext) =>
-    interpretableExecutionResult<object, commandExecutionContext>)
-  {
+  public setExecute(
+    execute: (
+      result: object,
+      context: commandExecutionContext,
+    ) => interpretableExecutionResult<object, commandExecutionContext>,
+  ) {
     this._execute = execute;
     return this;
   }
@@ -142,11 +158,10 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
    * Set an action for immediate execution without further interpretation
    * @param run
    */
-  public run(run: (command: ExtensionCommand) => Promise<InterpretableResult>){
+  public run(run: (command: ExtensionCommand) => Promise<InterpretableResult>) {
     this.setExecute(async () => {
-
       /* signalize command interpreted successfully, and provide run function for command invocation */
-      const response = new InterpretableCommandDeferResult(this, undefined, () => run(this));
+      const response = new InterpretableDeferResult(this, undefined, () => run(this));
       return { result: response };
     });
     return this;
@@ -156,7 +171,11 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
    * Add arguments to the command interpretation chain using a builder
    * @param builderAction
    */
-  public withParameters(builderAction: (builder: CommandParamsBuilder<object, object>) => ExtensionCommandParameter<unknown, unknown>[]){
+  public withParameters(
+    builderAction: (
+      builder: CommandParamsBuilder<object, object>,
+    ) => ExtensionCommandParameter<unknown, unknown>[],
+  ) {
     const builder = CommandParamsBuilder.forCommand(this);
     this._params = builderAction(builder);
     builder.build();

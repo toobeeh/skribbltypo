@@ -1,34 +1,37 @@
 import { type commandExecutionContext, ExtensionCommand } from "@/content/core/commands/command";
 import {
-  type Interpretable, InterpretableError,
+  type Interpretable,
   type interpretableExecutionResult,
-  InterpretableResult
 } from "@/content/core/commands/interpretable";
+import { InterpretableError } from "@/content/core/commands/results/interpretable-error";
+import { InterpretableResult } from "@/content/core/commands/results/interpretable-result";
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
 import { inject, injectable } from "inversify";
-import {
-  BehaviorSubject, combineLatest,
-  map, type Observable,
-  switchMap,
-} from "rxjs";
+import { BehaviorSubject, combineLatest, map, type Observable, switchMap } from "rxjs";
 
+/**
+ * Result of a command interpretable chain (command and params)
+ */
 export interface CommandExecutionResult {
+
+  /**
+   * The final execution result of the chain
+   */
   result: InterpretableResult | null;
+
+  /**
+   * The context of the interpretation chain
+   */
   context: commandExecutionContext;
 }
 
-export class InterpretableEmptyRemainder extends InterpretableError {}
-
 @injectable()
 export class CommandsService {
-
   private readonly _logger;
   private _registeredCommands: ExtensionCommand[] = [];
   private _activeCommands$ = new BehaviorSubject<ExtensionCommand[]>([]);
 
-  constructor(
-    @inject(loggerFactory) loggerFactory: loggerFactory
-  ) {
+  constructor(@inject(loggerFactory) loggerFactory: loggerFactory) {
     this._logger = loggerFactory(this);
   }
 
@@ -46,7 +49,7 @@ export class CommandsService {
    * @param command
    */
   removeCommand(command: ExtensionCommand) {
-    this._registeredCommands = this._registeredCommands.filter(c => c !== command);
+    this._registeredCommands = this._registeredCommands.filter((c) => c !== command);
     this._activeCommands$.next(this._registeredCommands);
   }
 
@@ -55,11 +58,13 @@ export class CommandsService {
    */
   get commands$(): Observable<ExtensionCommand[]> {
     return this._activeCommands$.pipe(
-      switchMap(commands => {
-        const values = commands.map(command => command.enabledSetting.changes$.pipe(map((enabled) => ({command, enabled}))));
+      switchMap((commands) => {
+        const values = commands.map((command) =>
+          command.enabledSetting.changes$.pipe(map((enabled) => ({ command, enabled }))),
+        );
         return combineLatest(...values);
       }),
-      map(commands => commands.filter(c => c.enabled).map(command => command.command))
+      map((commands) => commands.filter((c) => c.enabled).map((command) => command.command)),
     );
   }
 
@@ -71,10 +76,10 @@ export class CommandsService {
   async executeCommand(command: ExtensionCommand, args: string): Promise<CommandExecutionResult> {
     const context: commandExecutionContext = {
       parameters: command.params,
-      command
+      command,
     };
 
-    return { result: await this.executeInterpretable(command, args, {}, context), context};
+    return { result: await this.executeInterpretable(command, args, {}, context), context };
   }
 
   /**
@@ -86,23 +91,24 @@ export class CommandsService {
    */
   async executeInterpretable<TSource, TResult, TContext>(
     interpretable: Interpretable<TSource, TResult, TContext>,
-    args: string, source: TSource, context: TContext,
+    args: string,
+    source: TSource,
+    context: TContext,
   ): Promise<InterpretableResult | null> {
 
     /* try to interpret the args */
     let interpretation;
     try {
       interpretation = await interpretable.interpret(args, source, context);
-    }
+    } catch (e: unknown) {
 
-    /* if an error is thrown, return it */
-    catch(e: unknown){
-      if(e instanceof InterpretableError) return e;
+      /* if an error is thrown, return it */
+      if (e instanceof InterpretableError) return e;
       else throw e;
     }
 
-    /* interpretable did not match */
-    if(interpretation === null) {
+    /* interpretation was refused, command not matched */
+    if (interpretation === null) {
       return null;
     }
 
@@ -110,26 +116,23 @@ export class CommandsService {
     let result: Awaited<interpretableExecutionResult<TSource & TResult, TContext>>;
     try {
       result = await interpretable.execute(interpretation.result, context);
-    }
-
-    /* if an error is thrown, return it */
-    catch(e: unknown){
-      if(e instanceof InterpretableError) return e;
+    } catch (e: unknown) {
+      /* if an error is thrown, return it */
+      if (e instanceof InterpretableError) return e;
       else throw e;
     }
 
-    /*/!* if remainder is empty, throw *!/
-    if(interpretation.remainder.length === 0) {
-      return new InterpretableEmptyRemainder();
-    }*/
-
     /* if interpretable provided chain, follow */
-    if(result.next !== undefined){
-      return await this.executeInterpretable(result.next, interpretation.remainder, interpretation.result, context);
+    if (result.next !== undefined) {
+      return await this.executeInterpretable(
+        result.next,
+        interpretation.remainder,
+        interpretation.result,
+        context,
+      );
     }
 
-    /* else return a final status message */
+    /* else return the result of the interpretable as result of the chain */
     else return result.result;
   }
-
 }

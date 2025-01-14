@@ -1,14 +1,20 @@
 import {
-  ExtensionCommand, InterpretableCommandDeferResult,
-  InterpretableCommandPartialMatch,
+  ExtensionCommand
 } from "@/content/core/commands/command";
 import {
   type ExtensionCommandParameter,
-  InterpretableArgumentParsingError,
+
 } from "@/content/core/commands/command-parameter";
-import { type CommandExecutionResult, InterpretableEmptyRemainder } from "@/content/core/commands/commands.service";
-import { InterpretableError, InterpretableSuccess } from "@/content/core/commands/interpretable";
+import { type CommandExecutionResult } from "@/content/core/commands/commands.service";
 import { NumericCommandParameter } from "@/content/core/commands/params/numeric-command-parameter";
+import {
+  InterpretableArgumentParsingError
+} from "@/content/core/commands/results/interpretable-argument-parsing-error";
+import { InterpretableDeferResult } from "@/content/core/commands/results/interpretable-defer-result";
+import { InterpretableCommandPartialMatch } from "@/content/core/commands/results/interpretable-command-partial-match";
+import { InterpretableEmptyRemainder } from "@/content/core/commands/results/interpretable-empty-remainder";
+import { InterpretableError } from "@/content/core/commands/results/interpretable-error";
+import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
@@ -64,6 +70,9 @@ export class ChatCommandsFeature extends TypoFeature {
       }),
   );
 
+  /**
+   * chat received input
+   */
   async handleInputEvent() {
     this._chatEvents.next(undefined);
   }
@@ -105,7 +114,7 @@ export class ChatCommandsFeature extends TypoFeature {
         const match = results.find((result) => result.result instanceof InterpretableSuccess);
         if(match !== undefined && match.result instanceof InterpretableSuccess){
 
-          if(match.result instanceof InterpretableCommandDeferResult){
+          if(match.result instanceof InterpretableDeferResult){
             const toast = await this._toastService.showLoadingToast(`Command: ${match.context.command.name}`);
             const result = await match.result.run();
             toast.resolve(result.message);
@@ -139,6 +148,11 @@ export class ChatCommandsFeature extends TypoFeature {
     return this._submitCommandHotkey.comboSetting.store;
   }
 
+  /**
+   * Create or destroy the command preview flyout
+   * @param state
+   * @param elements
+   */
   setFlyoutState(
     state: boolean,
     elements: Awaited<ReturnType<(typeof this._elements)["complete"]>>,
@@ -178,6 +192,11 @@ export class ChatCommandsFeature extends TypoFeature {
     }
   }
 
+  /**
+   * Check if the parameter is currently interpreting the user input
+   * @param result
+   * @param param
+   */
   public isActiveTypingParam(
     result: CommandExecutionResult,
     param: ExtensionCommandParameter<unknown, unknown>,
@@ -198,14 +217,27 @@ export class ChatCommandsFeature extends TypoFeature {
     return false;
   }
 
+  /**
+   * Check if the command (name) is currently interpreting the user input
+   * @param result
+   */
   public isActiveTypingId(result: CommandExecutionResult) {
     return result.result === undefined;
   }
 
+  /**
+   * Check if the command is currently interpreting
+   * @param result
+   */
   public isValidCommand(result: CommandExecutionResult) {
     return result.result instanceof InterpretableSuccess;
   }
 
+  /**
+   * Get a human readable status message of a command interpretation context
+   * @param result
+   * @param hotkeys
+   */
   public getResultStateMessage(result: CommandExecutionResult, hotkeys: string[]) {
     if (result.result instanceof InterpretableSuccess) {
       return `Press ${hotkeys.join(" + ")} to submit`;
