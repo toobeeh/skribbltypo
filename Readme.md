@@ -163,6 +163,54 @@ To use events, the event listener of the desired event can be simply injected to
 @inject(LobbyLeftEventListener) private readonly lobbyLeft: LobbyLeftEventListener;
 ````
 
+### Commands
+Commands provide a way of execution actions of features from the chat input.  
+Typo implements its own command parsing mechanism.  
+This mechanism is probably a bit awkward way too overengineered for its purpose, but .. i just felt like it.
+
+#### Interpretables
+The command parsing is based on the concept of interpretable chains.  
+An interpretable is an object that follows the interpretable interface and implements a function to parse a string into data,
+and a function that will be executed on the resulting data.  
+Each interpretable also receives a context and data from a previous interpretable.
+
+In the interpret function, the interpretable will parse the arguments string and create new data using the context and its input data.  
+It may throw an error of instance InterpretableError if the parsing was attempted but failed, or return null if the interpretation of the arguments was refused.
+
+In the execution function, the interpretable executes its logic on the context and the output data of the interpret function.
+The execution has to return an instance of InterpretationResult, containing an error or success, and optionally another interpretable.
+
+#### Interpretable Chains  
+based on the result of the execute function, interpretables can be chained together.
+In the `commands.service.ts`, the processing of interpretables in defined.  
+First, the interpretable is prompted to interpret the arguments. If it refuses (null), null is returned and the chain ends. 
+If it fails (InterpretableError), the error is returned as chain result the chain ends.  
+If the interpretation is successful, the interpretable is executed.
+
+If the result of the execution holds another interpretable, the same procedure is repeated with the new interpretable on the result data of the last interpretable.
+
+#### Commands and Parameters
+Commands and parameters are just a concrete implementation of interpretables.  
+A command essentially consists of a interpretation chain: An interpretable which parses the command identification, and an amount
+of interpretables which interpret the remaining arguments.  
+This way, the arguments are parsed bit by bit and data is cumulated by each argument in the chain.  
+Due to the strict typing of the interpretables, the argument at the end of the chain can execute an action 
+on the exact cumulated type of the previous arguments.
+
+Due to the awkward nature of constructing commands by callback layering, a command builder is provided, which wraps the
+construction process in a builder pattern.
+
+An example command definition looks like this:
+```typescript
+new ExtensionCommand("add", "add", this, "Add Numbers", "Adds two numbers and outputs the result")
+  .withParameters((params) => params
+    .addParam(new NumericCommandParameter("a", "The first number", (a) => ({ a })))
+    .addParam(new NumericCommandParameter("b", "The second number", (b) => ({ b })))
+    .run(async (result, command) => {
+      return new InterpretableSuccess(command, `The sum is ${result.a + result.b}`);
+    }));
+```
+
 ### Hotkeys
 Hotkeys are a combination of keys that trigger an action.  
 

@@ -61,8 +61,7 @@ export class ChatCommandsFeature extends TypoFeature {
 
   private readonly _testCommand = this.useCommand(
     new ExtensionCommand("add", "add", this, "Add Numbers", "Adds two numbers and outputs the result"),
-  ).withParameters((params) =>
-    params
+  ).withParameters((params) => params
       .addParam(new NumericCommandParameter("a", "The first number", (a) => ({ a })))
       .addParam(new NumericCommandParameter("b", "The second number", (b) => ({ b })))
       .run(async (result, command) => {
