@@ -25,6 +25,7 @@ import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import CommandPreview from "./command-preview.svelte";
+import CommandInput from "./command-input.svelte";
 
 export class ChatCommandsFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
@@ -36,11 +37,13 @@ export class ChatCommandsFeature extends TypoFeature {
 
   private _interpreterSubscription?: Subscription;
   private _submitSubscription?: Subscription;
-  private _chatEvents = new Subject();
-  private _hotkeySubmitted = new Subject();
-  private _commandResults = new Subject<CommandExecutionResult[]>();
+  private _commandArgs$ = new Subject<string>();
+  private _hotkeySubmitted$ = new Subject();
+  private _commandResults$ = new Subject<CommandExecutionResult[]>();
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
+  private _commandInput?: CommandInput;
+  private readonly _inputChangeListener = this.handleInputEvent.bind(this);
 
   private readonly _submitCommandHotkey = this.useHotkey(
     new HotkeyAction(
@@ -51,8 +54,7 @@ export class ChatCommandsFeature extends TypoFeature {
       async () => {
         const elements = await this._elements.complete();
         elements.chatInput.value = "";
-        this._hotkeySubmitted.next(undefined);
-        this._chatEvents.next(undefined);
+        this._hotkeySubmitted$.next(undefined);
       },
       true,
       ["Enter"],
@@ -69,82 +71,115 @@ export class ChatCommandsFeature extends TypoFeature {
       }),
   );
 
-  /**
-   * chat received input
-   */
-  async handleInputEvent() {
-    this._chatEvents.next(undefined);
-  }
-
-  inputChangeListener = this.handleInputEvent.bind(this);
-
   protected override async onActivate() {
-    /* add handler for arrow up/down */
-    const elements = await this._elements.complete();
-    elements.chatInput.addEventListener("input", this.inputChangeListener);
 
-    this._interpreterSubscription = this._chatEvents
+    const elements = await this._elements.complete();
+    elements.chatInput.addEventListener("input", this._inputChangeListener);
+
+    /* listen for new command arguments, interpret them and set flyout state */
+    this._interpreterSubscription = this._commandArgs$
       .pipe(
         withLatestFrom(this._commandsService.commands$),
-        switchMap(async ([, commands]) => {
-          const text = elements.chatInput.value;
+        switchMap(async ([args, commands]) => {
 
-          if (text.startsWith("/")) {
-            const args = text.substring(1);
+          /* command is still being entered */
+          if (args.startsWith("/")) {
+            args = args.substring(1);
             return Promise.all(
               commands.map(async (command) => this._commandsService.executeCommand(command, args)),
             );
-          } else {
+          }
+
+          /* / has been deleted, close input */
+          else {
+            this._commandInput?.$destroy();
+            this._commandInput = undefined;
+            elements.chatInput.focus();
             return [];
           }
         }),
       )
       .subscribe((results) => {
+        this._logger.debug("Command results changed", results);
         this.setFlyoutState(results.length > 0, elements);
-        this._commandResults.next(results);
-        this._logger.debug("Command results", results);
+        this._commandResults$.next(results);
       });
 
-    this._submitSubscription = this._hotkeySubmitted
-      .pipe(withLatestFrom(this._commandResults))
-      .subscribe(async ([, results]) => {
-        this._logger.info("Commands submitted", results);
-
-        const match = results.find((result) => result.result instanceof InterpretableSuccess);
-        if(match !== undefined && match.result instanceof InterpretableSuccess){
-
-          if(match.result instanceof InterpretableDeferResult){
-            const toast = await this._toastService.showLoadingToast(`Command: ${match.context.command.name}`);
-            const result = await match.result.run();
-            toast.resolve(result.message);
-          }
-          else {
-            if(match.result.message) await this._toastService.showToast(`${match.result.message}`);
-            else await this._toastService.showToast(`${match.context.command.name}`);
-          }
-        }
-        else {
-          await this._toastService.showToast("No valid command entered");
-        }
-      });
+    /**
+     * execute interpreted command on hotkey submission
+     */
+    this._submitSubscription = this._hotkeySubmitted$
+      .pipe(withLatestFrom(this._commandResults$))
+      .subscribe(async ([, results]) => this.commandSubmitted(results));
   }
 
   protected override async onDestroy() {
     const elements = await this._elements.complete();
-    elements.chatInput.removeEventListener("change", this.inputChangeListener);
+    elements.chatInput.removeEventListener("input", this._inputChangeListener);
     this._interpreterSubscription?.unsubscribe();
     this._interpreterSubscription = undefined;
     this._submitSubscription?.unsubscribe();
     this._submitSubscription = undefined;
+    this._commandInput?.$destroy();
+    this._commandInput = undefined;
     this.setFlyoutState(false, elements);
   }
 
   public get commandResultStore() {
-    return fromObservable(this._commandResults, []);
+    return fromObservable(this._commandResults$, []);
   }
 
   public get submitHotkeyStorage(){
     return this._submitCommandHotkey.comboSetting.store;
+  }
+
+  /**
+   * chat received input
+   * check if starts with / and show command input instead
+   */
+  async handleInputEvent(event: Event ) {
+    const elements = await this._elements.complete();
+    const target = event.currentTarget as HTMLInputElement;
+    if(target.value === "/") {
+      target.value = "";
+      if(!this._commandInput){
+        this._commandInput = new CommandInput({
+          target: elements.chatForm,
+          props: {
+            onInput: args => this._commandArgs$.next(args),
+          },
+        });
+        this._commandArgs$.next("/");
+      }
+    }
+  }
+
+  /**
+   * Callback when the command submit hotkey has been pressed
+   * Check interpretation results and run valid command
+   * @param interpretationResults
+   */
+  public async commandSubmitted(interpretationResults: CommandExecutionResult[]) {
+    this._logger.info("Commands submitted", interpretationResults);
+
+    this._commandInput?.$destroy();
+    this._commandArgs$.next("");
+    const match = interpretationResults.find((result) => result.result instanceof InterpretableSuccess);
+    if(match !== undefined && match.result instanceof InterpretableSuccess){
+
+      if(match.result instanceof InterpretableDeferResult){
+        const toast = await this._toastService.showLoadingToast(`Command: ${match.context.command.name}`);
+        const result = await match.result.run();
+        toast.resolve(result.message);
+      }
+      else {
+        if(match.result.message) await this._toastService.showToast(`${match.result.message}`);
+        else await this._toastService.showToast(`${match.context.command.name}`);
+      }
+    }
+    else {
+      await this._toastService.showToast("No valid command entered");
+    }
   }
 
   /**
