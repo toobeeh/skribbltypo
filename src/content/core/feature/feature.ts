@@ -1,3 +1,5 @@
+import type { ExtensionCommand } from "@/content/core/commands/command";
+import { CommandsService } from "@/content/core/commands/commands.service";
 import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { HotkeysService } from "@/content/core/hotkeys/hotkeys.service";
 import {
@@ -27,6 +29,7 @@ export abstract class TypoFeature {
   private _isActivated = false;
   private _hotkeys: HotkeyAction[] = [];
   private _settings: SettingWithInput<serializable>[] = [];
+  private _commands: ExtensionCommand[] = [];
 
   public abstract readonly name: string;
   public abstract readonly description: string;
@@ -45,6 +48,16 @@ export abstract class TypoFeature {
   protected useHotkey(action: HotkeyAction) {
     this._hotkeys.push(action);
     return action;
+  }
+
+  /**
+   * Add a command to the feature command configuration
+   * @param command
+   * @protected
+   */
+  protected useCommand(command: ExtensionCommand) {
+    this._commands.push(command);
+    return command;
   }
 
   /**
@@ -112,7 +125,8 @@ export abstract class TypoFeature {
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
     @inject(HotkeysService) protected readonly _hotkeysService: HotkeysService,
-    @inject(TooltipsService) protected readonly _tooltipsService: TooltipsService
+    @inject(TooltipsService) protected readonly _tooltipsService: TooltipsService,
+    @inject(CommandsService) protected readonly _commandsService: CommandsService
   ) {
     this._logger = loggerFactory(this);
   }
@@ -158,6 +172,11 @@ export abstract class TypoFeature {
       this._logger.debug("Registering feature hotkeys", this._hotkeys);
       this._hotkeys.forEach((hotkey) => this._hotkeysService.registerHotkey(hotkey));
     }
+
+    /* register commands */
+    for(const command of this._commands) {
+      this._commandsService.registerCommand(command);
+    }
   }
 
   /**
@@ -185,6 +204,11 @@ export abstract class TypoFeature {
     if(this._hotkeys.length !== 0) {
       this._logger.debug("Removing feature hotkeys", this._hotkeys);
       this._hotkeys.forEach((hotkey) => this._hotkeysService.removeHotkey(hotkey));
+    }
+
+    /* deregister commands */
+    for(const command of this._commands) {
+      this._commandsService.removeCommand(command);
     }
   }
 

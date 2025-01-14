@@ -1,7 +1,7 @@
 import { CommandParamsBuilder } from "@/content/core/commands/builder/command-params-builder";
 import type { ExtensionCommandParameter } from "@/content/core/commands/command-parameter";
 import {
-  type Interpretable,
+  type Interpretable, InterpretableError,
   type interpretableExecutionResult,
   type interpretableInterpretationResult, InterpretableResult, InterpretableSuccess,
 } from "@/content/core/commands/interpretable";
@@ -10,8 +10,20 @@ import { ExtensionSetting } from "@/content/core/settings/setting";
 import { firstValueFrom } from "rxjs";
 
 export interface commandExecutionContext {
+  command: ExtensionCommand;
   parameters: ExtensionCommandParameter<unknown, unknown>[];
   currentInterpretedParameter?: ExtensionCommandParameter<unknown, unknown>;
+}
+
+export class InterpretableCommandPartialMatch extends InterpretableError { }
+export class InterpretableCommandDeferResult extends InterpretableSuccess {
+  constructor(
+    interpretable: Interpretable<unknown, unknown, unknown>,
+    message: string | undefined,
+    public readonly run: () => Promise<InterpretableResult>
+  ) {
+    super(interpretable, message);
+  }
 }
 
 export class ExtensionCommand implements Interpretable<object, object, commandExecutionContext> {
@@ -94,7 +106,12 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
       return { context, remainder, result: {} };
     }
 
-    /* ddi not match */
+    /* if partial match */
+    if (args.length > 0 && interpreterName.startsWith(args)) {
+      throw new InterpretableCommandPartialMatch(this);
+    }
+
+    /* did not match */
     return null;
   }
 
@@ -123,11 +140,13 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
 
   /**
    * Set an action for immediate execution without further interpretation
-   * @param execute
+   * @param run
    */
-  public action(execute: (command: ExtensionCommand) => Promise<InterpretableResult>){
+  public run(run: (command: ExtensionCommand) => Promise<InterpretableResult>){
     this.setExecute(async () => {
-      const response = await execute(this);
+
+      /* signalize command interpreted successfully, and provide run function for command invocation */
+      const response = new InterpretableCommandDeferResult(this, undefined, () => run(this));
       return { result: response };
     });
     return this;

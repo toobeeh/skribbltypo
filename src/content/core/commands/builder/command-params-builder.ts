@@ -1,11 +1,14 @@
-import type { commandExecutionContext, ExtensionCommand } from "@/content/core/commands/command";
+import {
+  type commandExecutionContext,
+  type ExtensionCommand,
+  InterpretableCommandDeferResult,
+} from "@/content/core/commands/command";
 import type { ExtensionCommandParameter } from "@/content/core/commands/command-parameter";
 import {
   DeferredInterpretableBuilder
 } from "@/content/core/commands/builder/deferred-interpretable-builder";
 import {
   type Interpretable,
-  InterpretableError,
   type InterpretableResult,
 } from "@/content/core/commands/interpretable";
 
@@ -34,7 +37,15 @@ export class CommandParamsBuilder<TSource, TResult> {
    */
   public addParam<TNextResult>(param: ExtensionCommandParameter<TResult & TSource, TNextResult>){
     const nextDeferredBuilder = this._interpretableDeferred
-      .chainInterpretable<TNextResult>(execute => param.withAction(execute));
+      .chainInterpretable<TNextResult>(execute => {
+
+        const executeProxy = async (result: TNextResult & TResult & TSource, context: commandExecutionContext) => {
+          context.currentInterpretedParameter = param as ExtensionCommandParameter<unknown, unknown>;
+          return execute(result, context);
+        };
+
+        return param.withAction(executeProxy);
+      });
 
     return new CommandParamsBuilder(
       nextDeferredBuilder,
@@ -42,12 +53,11 @@ export class CommandParamsBuilder<TSource, TResult> {
     );
   }
 
-
   /**
    * Set the execution of the chain end
-   * @param execute
+   * @param run
    */
-  public execute(execute: (
+  public run(run: (
     result: TResult & TSource,
     interpretable: Interpretable<TSource, TResult, commandExecutionContext>
                  ) => Promise<InterpretableResult>
@@ -56,7 +66,8 @@ export class CommandParamsBuilder<TSource, TResult> {
   {
     this._interpretableDeferred.setExecute(async (result, context) => {
       context.currentInterpretedParameter = this._precedingParams[this._precedingParams.length - 1];
-      const response = await execute(result, this._interpretableDeferred.interpretable);
+      const interpretable = this._interpretableDeferred.interpretable;
+      const response = new InterpretableCommandDeferResult(interpretable, undefined, () => run(result, interpretable));
       return { result: response };
     });
     return this._precedingParams;

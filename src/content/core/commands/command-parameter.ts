@@ -35,6 +35,7 @@ export abstract class ExtensionCommandParameter<TSource, TParam>
 
   interpret(args: string, source: TSource, context: commandExecutionContext
   ): interpretableInterpretationResult<TSource & TParam, commandExecutionContext> {
+
     const { argument, remainder } = this.readArg(args);
     return Promise.resolve({
       result: { ...source, ...argument },

@@ -74,8 +74,6 @@ export class ExtensionContainer {
       this._diContainer.bind(EventsService).toSelf().inSingletonScope();
       this._diContainer.bind(TokenService).toSelf().inSingletonScope();
       this._diContainer.bind(FeaturesService).toSelf().inSingletonScope();
-
-      console.log(this._diContainer.get(CommandsService));
    }
 
    public registerEventProcessors(...events: EventRegistration<unknown, ApplicationEvent<unknown>>[]) {

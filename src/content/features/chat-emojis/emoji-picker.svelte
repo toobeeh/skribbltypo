@@ -11,7 +11,7 @@
 
 <style lang="scss">
 
-  .typo-emoji-picker {
+  .typo-command-preview {
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;
@@ -53,7 +53,7 @@
   {/if}
 </div>
 
-<div class="typo-emoji-picker" on:mouseleave={() => hoverEmoji = undefined}>
+<div class="typo-command-preview" on:mouseleave={() => hoverEmoji = undefined}>
   {#each $emojiCandidates as emoji}
     <img class="emoji-picker-candidate" src={emoji.url} alt={emoji.name}
       on:mouseenter={() => hoverEmoji = emoji}

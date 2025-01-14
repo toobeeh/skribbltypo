@@ -2,47 +2,79 @@ import { type commandExecutionContext, ExtensionCommand } from "@/content/core/c
 import {
   type Interpretable, InterpretableError,
   type interpretableExecutionResult,
-  InterpretableResult,
-  InterpretableSuccess,
+  InterpretableResult
 } from "@/content/core/commands/interpretable";
-import { NumericCommandParameter } from "@/content/core/commands/params/numeric-command-parameter";
-import type { TypoFeature } from "@/content/core/feature/feature";
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
 import { inject, injectable } from "inversify";
+import {
+  BehaviorSubject, combineLatest,
+  map, type Observable,
+  switchMap,
+} from "rxjs";
+
+export interface CommandExecutionResult {
+  result: InterpretableResult | null;
+  context: commandExecutionContext;
+}
+
+export class InterpretableEmptyRemainder extends InterpretableError {}
+
 @injectable()
 export class CommandsService {
 
   private readonly _logger;
+  private _registeredCommands: ExtensionCommand[] = [];
+  private _activeCommands$ = new BehaviorSubject<ExtensionCommand[]>([]);
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory
   ) {
     this._logger = loggerFactory(this);
-
-    const command = new ExtensionCommand("test", "test", 1 as unknown as TypoFeature, "Test", "Test Command", true)
-      .withParameters(builder => builder
-        .addParam(new NumericCommandParameter("number 1", "A first number", num => ({a: num})))
-        .addParam(new NumericCommandParameter("number 2", "A second number", num => ({b: num})))
-        .addParam(new NumericCommandParameter("number 3", "A 3 number", num => ({x: num})))
-        .execute(async (result, interpretable) => new InterpretableSuccess(interpretable, `Number is ${result.a} and ${result.b}`)));
-
-    const commands: ((args: string) => Promise<InterpretableResult | null>)[] = [
-      (args: string) => this.executeCommand(command, args)
-    ];
-    const args = prompt("Enter command") ?? "";
-
-    commands.forEach(async command => {
-      const result = await command(args);
-      console.log(result);
-    });
   }
 
-  async executeCommand(command: ExtensionCommand, args: string){
+  /**
+   * Register a command to the service
+   * @param command
+   */
+  registerCommand(command: ExtensionCommand) {
+    this._registeredCommands.push(command);
+    this._activeCommands$.next(this._registeredCommands);
+  }
+
+  /**
+   * Remove a command from the service
+   * @param command
+   */
+  removeCommand(command: ExtensionCommand) {
+    this._registeredCommands = this._registeredCommands.filter(c => c !== command);
+    this._activeCommands$.next(this._registeredCommands);
+  }
+
+  /**
+   * Get an observable containing all registered and active commands
+   */
+  get commands$(): Observable<ExtensionCommand[]> {
+    return this._activeCommands$.pipe(
+      switchMap(commands => {
+        const values = commands.map(command => command.enabledSetting.changes$.pipe(map((enabled) => ({command, enabled}))));
+        return combineLatest(...values);
+      }),
+      map(commands => commands.filter(c => c.enabled).map(command => command.command))
+    );
+  }
+
+  /**
+   * Execute a command with given args as interpretable chain and return with resulting command context
+   * @param command
+   * @param args
+   */
+  async executeCommand(command: ExtensionCommand, args: string): Promise<CommandExecutionResult> {
     const context: commandExecutionContext = {
       parameters: command.params,
+      command
     };
 
-    return this.executeInterpretable(command, args, {}, context);
+    return { result: await this.executeInterpretable(command, args, {}, context), context};
   }
 
   /**
@@ -85,6 +117,11 @@ export class CommandsService {
       if(e instanceof InterpretableError) return e;
       else throw e;
     }
+
+    /*/!* if remainder is empty, throw *!/
+    if(interpretation.remainder.length === 0) {
+      return new InterpretableEmptyRemainder();
+    }*/
 
     /* if interpretable provided chain, follow */
     if(result.next !== undefined){

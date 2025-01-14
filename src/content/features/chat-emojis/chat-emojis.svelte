@@ -27,7 +27,7 @@
     }
   }
 
-  .typo-emoji-picker {
+  .typo-command-preview {
     position: absolute;
     bottom: 100%;
     height: 1em;

@@ -2,6 +2,7 @@ import {
   ExtensionCommandParameter,
   InterpretableArgumentParsingError,
 } from "@/content/core/commands/command-parameter";
+import { InterpretableEmptyRemainder } from "@/content/core/commands/commands.service";
 
 export class NumericCommandParameter<TSource, TMapped> extends ExtensionCommandParameter<TSource, TMapped>{
 
@@ -13,14 +14,11 @@ export class NumericCommandParameter<TSource, TMapped> extends ExtensionCommandP
 
     /* get next arg */
     const split = args.trim().split(" ");
-    if(split.length < 1 ){
-      throw new InterpretableArgumentParsingError(this, "No number argument found in args: " + args);
-    }
 
     /* check if whitespace */
     const arg = split[0].trim();
     if(arg.length < 1 ){
-      throw new InterpretableArgumentParsingError(this, "Empty argument found in args: " + args);
+      throw new InterpretableEmptyRemainder(this);
     }
 
     /* parse arg */
