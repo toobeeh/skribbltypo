@@ -36,7 +36,7 @@
 
     .typo-lobbies-discovered-buttons {
       display: flex;
-      flex-direction: column;
+      flex-direction: column-reverse;
       gap: .5rem;
 
       > div {
@@ -98,7 +98,7 @@
 
       <div class="typo-lobbies-discovered-buttons">
         {#each $discoveredLobbies as lobby}
-          <div style="order: {lobby.seenAt}" on:click={() => feature.joinLobby(lobby.id ?? "")}>
+          <div style="order: {lobby.seenAt % 100000000}" on:click={() => feature.joinLobby(lobby.id ?? "")}>
             <b>{new Date(Number(lobby.seenAt)).toLocaleTimeString()}</b>
             <span>{lobby.players.map(p => p.name).join(", ")}</span>
           </div>
