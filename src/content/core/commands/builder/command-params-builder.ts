@@ -16,8 +16,11 @@ import { InterpretableResult } from "@/content/core/commands/results/interpretab
 
 /***
   * Simplifies the building of command parameters using a deferred interpretable chain builder
+ * The builder is holds a interpretable which will be populated with a execution function
+ * @typeparam TSource The source type of the current interpretable
+ * @typeparam TParam The parameter type which the builder will add to the source
   */
-export class CommandParamsBuilder<TSource, TResult> {
+export class CommandParamsBuilder<TSource, TParam> {
 
   /**
    * Create a interpretable chain root for a command
@@ -29,7 +32,7 @@ export class CommandParamsBuilder<TSource, TResult> {
   }
 
   constructor(
-    private _interpretableDeferred: DeferredInterpretableBuilder<TSource, TResult, commandExecutionContext>,
+    private _interpretableDeferred: DeferredInterpretableBuilder<TSource, TSource & TParam, commandExecutionContext>,
     private _precedingParams: ExtensionCommandParameter<unknown, unknown>[] = []
   ) { }
 
@@ -37,11 +40,11 @@ export class CommandParamsBuilder<TSource, TResult> {
    * Add a parameter to the chain and return the builder to append to the new param
    * @param param
    */
-  public addParam<TNextResult>(param: ExtensionCommandParameter<TResult & TSource, TNextResult>){
+  public addParam<TNextParam>(param: ExtensionCommandParameter<TSource & TParam, TNextParam>){
     const nextDeferredBuilder = this._interpretableDeferred
-      .chainInterpretable<TNextResult>(execute => {
+      .chainInterpretable<TSource & TParam & TNextParam>(execute => {
 
-        const executeProxy = async (result: TNextResult & TResult & TSource, context: commandExecutionContext) => {
+        const executeProxy = async (result: TSource & TParam & TNextParam, context: commandExecutionContext) => {
           context.currentInterpretedParameter = param as ExtensionCommandParameter<unknown, unknown>;
           return execute(result, context);
         };
@@ -49,7 +52,7 @@ export class CommandParamsBuilder<TSource, TResult> {
         return param.withAction(executeProxy);
       });
 
-    return new CommandParamsBuilder(
+    return new CommandParamsBuilder<TSource & TParam, TSource & TParam & TNextParam>(
       nextDeferredBuilder,
       [...this._precedingParams, param as ExtensionCommandParameter<unknown, unknown>]
     );
@@ -60,8 +63,8 @@ export class CommandParamsBuilder<TSource, TResult> {
    * @param run
    */
   public run(run: (
-    result: TResult & TSource,
-    interpretable: Interpretable<TSource, TResult, commandExecutionContext>
+    result: TParam & TSource,
+    interpretable: Interpretable<TSource, TSource & TParam, commandExecutionContext>
                  ) => Promise<InterpretableResult>
   ):
     ExtensionCommandParameter<unknown, unknown>[]

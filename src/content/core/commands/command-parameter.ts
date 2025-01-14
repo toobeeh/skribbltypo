@@ -6,8 +6,14 @@ import {
 } from "@/content/core/commands/interpretable";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 
+
+/**
+ * An interpretable that represents a command parameter
+ * @typeparam TSource The type of all previous interpretable (parameters) in the chain
+ * @typeparam TParam The type of the parameter that this interpretable represents and adds to the source
+ */
 export abstract class ExtensionCommandParameter<TSource, TParam>
-  implements Interpretable<TSource, TParam, commandExecutionContext>
+  implements Interpretable<TSource, TSource & TParam, commandExecutionContext>
 {
   private _execute?: (
     result: TParam & TSource,

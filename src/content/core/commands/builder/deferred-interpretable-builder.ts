@@ -12,7 +12,7 @@ export type executeNextFunction<TResult, TContext> = (result: TResult, context: 
  */
 export class DeferredInterpretableBuilder<TSource, TResult, TContext> {
 
-  private _execute?: (result: TResult & TSource, context: TContext) => interpretableExecutionResult<TResult & TSource, TContext>;
+  private _execute?: (result: TResult, context: TContext) => interpretableExecutionResult<TResult, TContext>;
   protected _builtInterpretable?: Interpretable<TSource, TResult, TContext>;
 
   /**
@@ -20,8 +20,8 @@ export class DeferredInterpretableBuilder<TSource, TResult, TContext> {
    * @param _interpretableBuilder factory for an interpretable which provides a execution context that can be set later in the builder
    */
   constructor(
-    private _interpretableBuilder: (executionContext: executeNextFunction<TResult & TSource, TContext>) =>
-      Interpretable<TSource, TResult & TSource, TContext>
+    private _interpretableBuilder: (executionContext: executeNextFunction<TResult, TContext>) =>
+      Interpretable<TSource, TResult, TContext>
   ){ }
 
   /**
@@ -30,10 +30,10 @@ export class DeferredInterpretableBuilder<TSource, TResult, TContext> {
    * @param nextInterpretableBuilder
    */
   chainInterpretable<TNextResult>(
-    nextInterpretableBuilder: (executionContext: executeNextFunction<TNextResult & TResult & TSource, TContext>) =>
-      Interpretable<TResult & TSource, TResult & TNextResult & TSource, TContext>
+    nextInterpretableBuilder: (executionContext: executeNextFunction<TNextResult, TContext>) =>
+      Interpretable<TResult, TNextResult, TContext>
   ){
-    const builder = new DeferredInterpretableBuilder<TResult & TSource, TResult & TNextResult & TSource, TContext>(nextInterpretableBuilder);
+    const builder = new DeferredInterpretableBuilder<TResult, TNextResult, TContext>(nextInterpretableBuilder);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.setExecute(async (result, context) => {
@@ -47,7 +47,7 @@ export class DeferredInterpretableBuilder<TSource, TResult, TContext> {
    * Set the execution function of the interpretable to a final function
    * @param execute
    */
-  setExecute(execute: (result: TResult & TSource, context: TContext) => interpretableExecutionResult<TResult & TSource, TContext>){
+  setExecute(execute: (result: TResult, context: TContext) => interpretableExecutionResult<TResult, TContext>){
     this._execute = execute;
     return this;
   }

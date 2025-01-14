@@ -33,7 +33,7 @@ export interface Interpretable<TSource, TResult, TContext>{
    * @return null if the interpretation refused,
    * or an object containing the cumulated source, the (possibly modified) context and the remaining args
    */
-  interpret(args: string, source: TSource, context: TContext): interpretableInterpretationResult<TSource & TResult, TContext>;
+  interpret(args: string, source: TSource, context: TContext): interpretableInterpretationResult<TResult, TContext>;
 
   /**
    * The action that will be executed on the result of the interpretation.
@@ -43,5 +43,5 @@ export interface Interpretable<TSource, TResult, TContext>{
    * @param context the context provided to the interpretation execution
    * @return a result containing the success or failure of the execution, and an optional next interpretable to chain
    */
-  execute(result: TResult & TSource, context: TContext): interpretableExecutionResult<TSource & TResult, TContext>;
+  execute(result: TResult, context: TContext): interpretableExecutionResult<TResult, TContext>;
 }
