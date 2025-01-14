@@ -1,10 +1,12 @@
 <script lang="ts">
+  import type { ExtensionCommand } from "@/content/core/commands/command";
   import type { TypoFeature } from "@/content/core/feature/feature";
   import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
   import type { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
   import type { componentData } from "@/content/services/modal/modal.service";
   import type { SvelteComponent } from "svelte";
   import ControlsSettingsHotkey from "./controls-settings-hotkey.svelte";
+  import ControlsSettingsCommand from "./controls-settings-command.svelte";
 
   export let detailsClosed: () => void;
   export let feature: TypoFeature;
@@ -13,9 +15,11 @@
   let settingsComponent: componentData<SvelteComponent> | undefined;
   let infoComponent: componentData<SvelteComponent> | undefined;
   let featureHotkeys: HotkeyAction[] = [];
+  let featureCommands: ExtensionCommand[] = [];
 
   $: {
     featureHotkeys = [...feature.hotkeys];
+    featureCommands = [...feature.commands];
     settingsComponent = feature.featureManagementComponent;
     infoComponent = feature.featureInfoComponent;
   }
@@ -92,7 +96,7 @@
 
   }
 
-  .typo-feature-settings-hotkeys-list {
+  .typo-feature-settings-hotkeys-list, .typo-feature-settings-commands-list {
     display: flex;
     flex-direction: row;
     gap: 1rem;
@@ -151,15 +155,33 @@
       To change a hotkey, click in the input field and press the desired key combination. To remove a key from the combination, press it again.<br>
       Empty combinations will be disabled automatically.
     </p>
-    <p>
       {#if !supportskeyboardLayout}
+        <p>
         Your browser does not support localized key names. Hotkeys will use US keyboard layout names.<br>
         Switch to any Chrome-based browser to see the real key names.
+        </p>
       {/if}
     <br>
     <div class="typo-feature-settings-hotkeys-list">
       {#each featureHotkeys as hotkey}
         <ControlsSettingsHotkey hotkey="{hotkey}" feature="{settingsFeature}" />
+      {/each}
+    </div>
+  </div>
+{/if}
+
+{#if featureCommands.length > 0}
+  <div class="typo-feature-settings-hotkeys">
+    <h2>Feature Commands</h2>
+    <p>
+      Commands are a quick way to execute actions of a feature from the chat.<br>
+      Here, you can toggle commands on or off and customize the command name.<br>
+      To use a command, type "/" and continue with the command name.
+    </p>
+    <br>
+    <div class="typo-feature-settings-commands-list">
+      {#each featureCommands as command}
+        <ControlsSettingsCommand command="{command}" feature="{settingsFeature}" />
       {/each}
     </div>
   </div>

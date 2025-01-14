@@ -14,6 +14,7 @@ import { InterpretableDeferResult } from "@/content/core/commands/results/interp
 import { InterpretableCommandPartialMatch } from "@/content/core/commands/results/interpretable-command-partial-match";
 import { InterpretableEmptyRemainder } from "@/content/core/commands/results/interpretable-empty-remainder";
 import { InterpretableError } from "@/content/core/commands/results/interpretable-error";
+import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import type { componentData } from "@/content/services/modal/modal.service";
@@ -59,16 +60,6 @@ export class ChatCommandsFeature extends TypoFeature {
       true,
       ["Enter"],
     ),
-  );
-
-  private readonly _testCommand = this.useCommand(
-    new ExtensionCommand("add", "add", this, "Add Numbers", "Adds two numbers and outputs the result"),
-  ).withParameters((params) => params
-      .addParam(new NumericCommandParameter("a", "The first number", (a) => ({ a })))
-      .addParam(new NumericCommandParameter("b", "The second number", (b) => ({ b })))
-      .run(async (result, command) => {
-        return new InterpretableSuccess(command, `The sum is ${result.a + result.b}`);
-      }),
   );
 
   protected override async onActivate() {
@@ -167,14 +158,20 @@ export class ChatCommandsFeature extends TypoFeature {
     const match = interpretationResults.find((result) => result.result instanceof InterpretableSuccess);
     if(match !== undefined && match.result instanceof InterpretableSuccess){
 
+      /* match returned an action to be executed later */
       if(match.result instanceof InterpretableDeferResult){
         const toast = await this._toastService.showLoadingToast(`Command: ${match.context.command.name}`);
         const result = await match.result.run();
-        toast.resolve(result.message);
+
+        if(!(result instanceof InterpretableSilentSuccess)) toast.resolve(result.message);
+        else toast.close();
       }
+
+      /* match executed during interpretation resolution.
+        should actually not be used for commands; would execute on every type event */
       else {
         if(match.result.message) await this._toastService.showToast(`${match.result.message}`);
-        else await this._toastService.showToast(`${match.context.command.name}`);
+        else if(!(match.result instanceof InterpretableSilentSuccess)) await this._toastService.showToast(`${match.context.command.name}`);
       }
     }
     else {
@@ -192,6 +189,7 @@ export class ChatCommandsFeature extends TypoFeature {
     elements: Awaited<ReturnType<(typeof this._elements)["complete"]>>,
   ) {
     if (state && this._flyoutComponent === undefined) {
+
       /* create fly out content */
       const flyoutContent: componentData<CommandPreview> = {
         componentType: CommandPreview,

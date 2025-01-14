@@ -18,11 +18,11 @@
           feature.toggleQuickReactMenu();
           break;
         case "ArrowUp":
-          feature.likeCurrentPlayer($availableInteractions.interactionTarget);
+          feature.likeCurrentPlayer();
           feature.toggleQuickReactMenu();
           break;
         case "ArrowDown":
-          feature.dislikeCurrentPlayer($availableInteractions.interactionTarget);
+          feature.dislikeCurrentPlayer();
           feature.toggleQuickReactMenu();
           break;
       }
@@ -56,10 +56,10 @@
 
     <div class="typo-quickreact-keys">
       <b>Press an arrow key to react to {$availableInteractions.interactionTarget.name}</b>
-      <FlatButton content="⬅️ Kick" disabled="{!$availableInteractions.votekickAvailable}" on:click={() => feature.likeCurrentPlayer($availableInteractions.interactionTarget)} color="blue" />
+      <FlatButton content="⬅️ Kick" disabled="{!$availableInteractions.votekickAvailable}" on:click={() => feature.votekickPlayer($availableInteractions.interactionTarget)} color="blue" />
       <FlatButton content="➡️ Close" color="blue" />
-      <FlatButton content="⬆️ Like" disabled="{!$availableInteractions.rateAvailable}" color="blue" on:click={() => feature.likeCurrentPlayer($availableInteractions.interactionTarget)} />
-      <FlatButton content="⬇️ Dislike" disabled="{!$availableInteractions.rateAvailable}" color="blue" on:click={() => feature.dislikeCurrentPlayer($availableInteractions.interactionTarget)} />
+      <FlatButton content="⬆️ Like" disabled="{!$availableInteractions.rateAvailable}" color="blue" on:click={() => feature.likeCurrentPlayer()} />
+      <FlatButton content="⬇️ Dislike" disabled="{!$availableInteractions.rateAvailable}" color="blue" on:click={() => feature.dislikeCurrentPlayer()} />
     </div>
 
   {:else}

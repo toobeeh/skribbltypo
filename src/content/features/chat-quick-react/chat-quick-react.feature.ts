@@ -1,8 +1,14 @@
+import { ExtensionCommand } from "@/content/core/commands/command";
+import { NumericCommandParameter } from "@/content/core/commands/params/numeric-command-parameter";
+import { InterpretableError } from "@/content/core/commands/results/interpretable-error";
+import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
+import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import {
   type lobbyAvailableInteractions,
   LobbyInteractionsService,
 } from "@/content/services/lobby-interactions/lobby-interactions.service";
+import { LobbyService } from "@/content/services/lobby/lobby.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { createElement } from "@/util/document/appendElement";
@@ -17,14 +23,42 @@ import QuickReact from "./quick-react.svelte";
 
 export class ChatQuickReactFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
-  @inject(LobbyInteractionsService)
-  private readonly _lobbyInteractionsService!: LobbyInteractionsService;
+  @inject(LobbyInteractionsService) private readonly _lobbyInteractionsService!: LobbyInteractionsService;
   @inject(ToastService) private readonly _toastService!: ToastService;
+  @inject(LobbyService) private readonly _lobbyService!: LobbyService;
 
   public readonly name = "Quick React";
   public readonly description =
     "Adds accessibility to kick, like, and dislike via keyboard by pressing CTRL in the chat box.";
   public readonly featureId = 33;
+
+  private readonly _likeCommand = this.useCommand(
+    new ExtensionCommand("like", this, "Like", "Like the current drawing"),
+  ).run(async command => {
+    await this.likeCurrentPlayer();
+    return new InterpretableSilentSuccess(command);
+  });
+
+  private readonly _dislikeCommand = this.useCommand(
+    new ExtensionCommand("dislike", this, "Dislike", "Dislike the current drawing"),
+  ).run(async command => {
+    await this.dislikeCurrentPlayer();
+    return new InterpretableSilentSuccess(command);
+  });
+
+  private readonly _kickCommand = this.useCommand(
+    new ExtensionCommand("kick", this, "Votekick", "Kick the current (default) or another player"),
+  ).withParameters(params => params
+    .addParam(new NumericCommandParameter("Player ID", "The ID of the player to votekick", id => ({ id })))
+    .run(async (args, command) => {
+      const lobby = await firstValueFrom(this._lobbyService.lobby$);
+      const target = lobby?.players.find(player => player.id === args.id);
+      if(target === undefined) return new InterpretableError(command, "Player not found");
+
+      await this.votekickPlayer(target);
+      return new InterpretableSilentSuccess(command);
+    })
+  );
 
   private readonly _openQuickReactHotkey = this.useHotkey(
     new HotkeyAction(

@@ -83,6 +83,10 @@ export abstract class TypoFeature {
     return this._settings;
   }
 
+  public get commands(): readonly ExtensionCommand[] {
+    return this._commands;
+  }
+
   /**
    * A component to display feature customization settings
    */
@@ -99,6 +103,7 @@ export abstract class TypoFeature {
 
   public get hasDetailComponents() {
     return this.hotkeys.length > 0 ||
+      this.commands.length > 0 ||
       this.featureManagementComponent !== undefined ||
       this.featureInfoComponent !== undefined ||
       this._settings.length > 0;

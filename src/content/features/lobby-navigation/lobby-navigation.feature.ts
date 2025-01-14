@@ -1,3 +1,6 @@
+import { ExtensionCommand } from "@/content/core/commands/command";
+import { NumericCommandParameter } from "@/content/core/commands/params/numeric-command-parameter";
+import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 import { inject } from "inversify";
 import { filter, take, tap } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
@@ -14,6 +17,20 @@ export class LobbyNavigationFeature extends TypoFeature {
   public readonly featureId = 2;
 
   private _component?: LobbyNavigation;
+
+  private readonly _nextCommand = this.useCommand(
+    new ExtensionCommand("skip", this, "Skip Lobby", "Leave the current lobby and join another"),
+  ).run(async (command) => {
+    this.nextLobby();
+    return new InterpretableSuccess(command, "Skipping lobby");
+  });
+
+  private readonly _leaveCommand = this.useCommand(
+    new ExtensionCommand("leave", this, "Left Lobby", "Leave the current lobby"),
+  ).run(async (command) => {
+    this.exitLobby();
+    return new InterpretableSuccess(command, "Skipped lobby");
+  });
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();

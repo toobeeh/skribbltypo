@@ -45,17 +45,16 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
   private _params: ExtensionCommandParameter<unknown, unknown>[] = [];
 
   constructor(
-    private _key: string,
     private _defaultId: string,
     private _feature: TypoFeature,
     private _name: string,
     private _description: string,
     private _defaultEnabled = true,
   ) {
-    this._id = new ExtensionSetting(`command.${this._key}.name`, this._defaultId, this._feature);
+    this._id = new ExtensionSetting(`command.${this._defaultId}.name`, this._defaultId, this._feature);
 
     this._enabledSetting = new ExtensionSetting(
-      `command.${this._key}.enabled`,
+      `command.${this._defaultId}.enabled`,
       this._defaultEnabled,
       this._feature,
     );
@@ -66,6 +65,13 @@ export class ExtensionCommand implements Interpretable<object, object, commandEx
    */
   public get name() {
     return this._name;
+  }
+
+  /**
+   * The default ID of the command
+   */
+  public get defaultId() {
+    return this._defaultId;
   }
 
   /**
