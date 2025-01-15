@@ -1,6 +1,8 @@
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
 import type { LoggerService } from "@/content/core/logger/logger.service";
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
+import { ColorChangedEventListener } from "@/content/events/color-changed.event";
+import { SizeChangedEventListener } from "@/content/events/size-changed.event";
 import { skribblTool, ToolChangedEventListener } from "@/content/events/tool-changed.event";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
@@ -9,11 +11,25 @@ import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
+import { Color } from "@/util/color";
 import type { Type } from "@/util/types/type";
 import { inject, injectable, postConstruct } from "inversify";
-import { BehaviorSubject, distinctUntilChanged, filter, map, pairwise, switchMap, withLatestFrom } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatestWith,
+  distinctUntilChanged,
+  filter,
+  map,
+  pairwise,
+  switchMap,
+  withLatestFrom,
+} from "rxjs";
 
 export type drawCoordinateEvent = [number, number, number?];
+export interface brushStyle {
+  color: Color;
+  size: number;
+}
 
 @injectable()
 export class ToolsService {
@@ -23,10 +39,13 @@ export class ToolsService {
   @inject(ToolChangedEventListener) private readonly _toolChangedListener!: ToolChangedEventListener;
   @inject(ExtensionContainer) private readonly _extensionContainer!: ExtensionContainer;
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
+  @inject(SizeChangedEventListener) private readonly _sizeChangedListener!: SizeChangedEventListener;
+  @inject(ColorChangedEventListener) private readonly _colorChangedListener!: ColorChangedEventListener;
 
   private readonly _logger: LoggerService;
   private readonly _activeTool$ = new BehaviorSubject<TypoDrawTool | skribblTool>(skribblTool.brush);
   private readonly _activeMods$ = new BehaviorSubject<TypoDrawMod[]>([]);
+  private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000"), size: 1 });
 
   private readonly _currentPointerDown$ = new BehaviorSubject<boolean>(false);
   private readonly _lastPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
@@ -49,10 +68,13 @@ export class ToolsService {
     });
 
     /* change cursor when skribbltool active */
-    this._activeTool$.subscribe(async tool => {
+    this._activeTool$.pipe(
+      combineLatestWith(this._activeBrushStyle$)
+    ).subscribe(async ([tool, style]) => {
       if(tool instanceof TypoDrawTool) {
         if(!this._canvasCursorStyle.parentNode) document.body.appendChild(this._canvasCursorStyle);
-        this._canvasCursorStyle.innerText = `#game-canvas canvas { cursor: ${tool.cursor.source} ${tool.cursor.x} ${tool.cursor.y}, auto !important; }`;
+        const cursor = tool.createCursor(style);
+        this._canvasCursorStyle.innerText = `#game-canvas canvas { cursor: ${cursor.source} ${cursor.x} ${cursor.y}, auto !important; }`;
       }
       else {
         this._canvasCursorStyle.remove();
@@ -93,6 +115,12 @@ export class ToolsService {
         }
       }
     });
+
+    /* set up brush style subscription */
+    this._sizeChangedListener.events$.pipe(
+      combineLatestWith(this._colorChangedListener.events$),
+      map(([size, color]) => ({ size: size.data, color: color.data }))
+    ).subscribe(style => this._activeBrushStyle$.next(style));
   }
 
   private onCanvasDown(event: PointerEvent) {
@@ -185,6 +213,10 @@ export class ToolsService {
 
   public get activeTool$() {
     return this._activeTool$.asObservable();
+  }
+
+  public get activeMods$() {
+    return this._activeMods$.asObservable();
   }
 
   public resolveModOrTool<TMod>(tool: Type<TMod>){

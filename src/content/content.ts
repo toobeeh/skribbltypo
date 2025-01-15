@@ -31,6 +31,7 @@ import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
 import { ControlsThemesFeature } from "@/content/features/controls-themes/controls-themes.feature";
+import { DrawingBrushLabFeature } from "@/content/features/drawing-brush-lab/drawing-brush-lab.feature";
 import { DrawingColorPalettesFeature } from "@/content/features/drawing-color-palettes/drawing-color-palettes.feature";
 import { DrawingColorToolsFeature } from "@/content/features/drawing-color-tools/drawing-color-tools.feature";
 import { DrawingPressureFeature } from "@/content/features/drawing-pressure/drawing-pressure.feature";
@@ -204,7 +205,8 @@ new ExtensionContainer(interceptor)
     TooltipsFeature,
     ChatCopyFormattedFeature,
     DrawingPressureFeature,
-    ChatCommandsFeature
+    ChatCommandsFeature,
+    DrawingBrushLabFeature
   );
 
 /* indicate for interceptor that content script has loaded */

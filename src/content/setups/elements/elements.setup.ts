@@ -42,6 +42,8 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     landingAvatarContainer: requireElement(".avatar-customizer .avatar"),
     landingCustomizeContainer: requireElement(".avatar-customizer"),
     skribblTools: requireElement(".toolbar-group-tools"),
+    skribblActions: requireElement(".toolbar-group-actions"),
+    skribblToolbar: requireElement("#game-toolbar"),
     skribblBrushTools: requireElement(".toolbar-group-tools .tool[data-tooltip=\"Brush\"]"),
     colorContainer: requireElement("#game-toolbar .colors"),
     scoreboardResults: requireElement("#game-canvas .overlay-content .result"),

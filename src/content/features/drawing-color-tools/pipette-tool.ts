@@ -13,7 +13,7 @@ export class PipetteTool extends TypoDrawTool {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
-  public get cursor() {
+  public createCursor() {
     return { source: "var(--file-img-pipette_cur-png)", x: 7, y: 37 };
   }
 

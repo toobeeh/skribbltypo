@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     esbuild: {
-      minifyIdentifiers: false,
+      minifyIdentifiers: true,
       keepNames: true,
     },
     publicDir: "public",
