@@ -1,8 +1,7 @@
 import { ExtensionCommand } from "@/content/core/commands/command";
-import { NumericCommandParameter } from "@/content/core/commands/params/numeric-command-parameter";
+import { NumericOptionalCommandParameter } from "@/content/core/commands/params/numeric-optional-command-parameter";
 import { InterpretableError } from "@/content/core/commands/results/interpretable-error";
 import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
-import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import {
   type lobbyAvailableInteractions,
@@ -49,7 +48,7 @@ export class ChatQuickReactFeature extends TypoFeature {
   private readonly _kickCommand = this.useCommand(
     new ExtensionCommand("kick", this, "Votekick", "Kick the current (default) or another player"),
   ).withParameters(params => params
-    .addParam(new NumericCommandParameter("Player ID", "The ID of the player to votekick", id => ({ id })))
+    .addParam(new NumericOptionalCommandParameter("Player ID", "The ID of the player to votekick, leave empty for current drawer", id => ({ id })))
     .run(async (args, command) => {
       const lobby = await firstValueFrom(this._lobbyService.lobby$);
       const target = lobby?.players.find(player => player.id === args.id);

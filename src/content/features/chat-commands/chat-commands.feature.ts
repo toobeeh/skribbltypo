@@ -1,12 +1,8 @@
 import {
-  ExtensionCommand
-} from "@/content/core/commands/command";
-import {
   type ExtensionCommandParameter,
 
 } from "@/content/core/commands/command-parameter";
 import { type CommandExecutionResult } from "@/content/core/commands/commands.service";
-import { NumericCommandParameter } from "@/content/core/commands/params/numeric-command-parameter";
 import {
   InterpretableArgumentParsingError
 } from "@/content/core/commands/results/interpretable-argument-parsing-error";
@@ -137,7 +133,7 @@ export class ChatCommandsFeature extends TypoFeature {
         this._commandInput = new CommandInput({
           target: elements.chatForm,
           props: {
-            onInput: args => this._commandArgs$.next(args),
+            onInput: (args: string) => this._commandArgs$.next(args),
           },
         });
         this._commandArgs$.next("/");
@@ -209,6 +205,7 @@ export class ChatCommandsFeature extends TypoFeature {
           marginY: "2.5rem",
           title: "Command Preview",
           closeStrategy: "implicit",
+
         },
       });
 
@@ -220,7 +217,6 @@ export class ChatCommandsFeature extends TypoFeature {
       });
     } else if (this._flyoutComponent !== undefined && !state) {
       this._flyoutComponent.close();
-      this._flyoutComponent = undefined;
     }
   }
 
@@ -233,20 +229,8 @@ export class ChatCommandsFeature extends TypoFeature {
     result: CommandExecutionResult,
     param: ExtensionCommandParameter<unknown, unknown>,
   ) {
-    if (result.context.currentInterpretedParameter === param) return true;
-
-    if (result.result instanceof InterpretableEmptyRemainder) {
-      const currentIndex = result.context.parameters.findIndex(
-        (param) => param === result.context.currentInterpretedParameter,
-      );
-      return currentIndex > 0 && result.context.parameters[currentIndex - 1] === param;
-    }
-
-    if (result.result instanceof InterpretableError) {
-      return result.result.interpretable === param;
-    }
-
-    return false;
+    this._logger.debug("Checking if param is active", result, param);
+    return result.context.currentInterpretedParameter === param;
   }
 
   /**

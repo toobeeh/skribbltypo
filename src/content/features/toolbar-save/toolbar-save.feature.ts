@@ -1,3 +1,6 @@
+import { ExtensionCommand } from "@/content/core/commands/command";
+import { StringOptionalCommandParameter } from "@/content/core/commands/params/string-optional-command-parameter";
+import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
@@ -31,18 +34,29 @@ export class ToolbarSaveFeature extends TypoFeature {
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
-
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
-
   private _customName?: string;
+
   public set customName(value: string | undefined){
     const val = value?.replace(/[^a-z0-9]/gi, "_").toLowerCase() ?? undefined;
     this._customName = val && val.length > 0 ? val : undefined;
   }
+
   public get customName(){
     return this._customName;
   }
+
+  private readonly _saveCommand = this.useCommand(
+    new ExtensionCommand("save", this, "Save Image", "Downloads the current image"),
+  ).withParameters(params => params
+    .addParam(new StringOptionalCommandParameter("File name", "The filename of the downloaded image", name => ({ name })))
+    .run(async (args, command) => {
+      this._customName = args.name;
+      await this.saveAsPng();
+      return new InterpretableSilentSuccess(command);
+    })
+  );
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();

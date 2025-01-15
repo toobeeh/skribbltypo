@@ -21,6 +21,10 @@
     flex-direction: column;
     gap: 1rem;
 
+    &:not(:has(.typo-command-result)) {
+      gap: .2rem;
+    }
+
     .typo-command-result {
       display: flex;
       flex-direction: column;
@@ -93,7 +97,7 @@
 
           {#each result.context.parameters as param}
             <div class="typo-command-result-arg" class:current={feature.isActiveTypingParam(result, param)}>
-              {param instanceof NumericCommandParameter ? "number" : "unknown"}
+              {param.typeName}
             </div>
           {/each}
         </div>

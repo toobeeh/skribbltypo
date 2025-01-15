@@ -10,7 +10,7 @@ export type interpretableExecutionResult<TResult, TContext> = Promise<{
 
 /**
  * Result of an interpretable execution
- * Null if interpretation refused,
+ * Null if interpretation refused and chain interpretation is cancelled,
  * or object if interpretation was successful
  */
 export type interpretableInterpretationResult<TResult, TContext> = Promise<{

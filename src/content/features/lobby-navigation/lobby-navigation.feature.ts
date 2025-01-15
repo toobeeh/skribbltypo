@@ -1,5 +1,4 @@
 import { ExtensionCommand } from "@/content/core/commands/command";
-import { NumericCommandParameter } from "@/content/core/commands/params/numeric-command-parameter";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 import { inject } from "inversify";
 import { filter, take, tap } from "rxjs";

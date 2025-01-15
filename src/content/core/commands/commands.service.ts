@@ -76,7 +76,7 @@ export class CommandsService {
   async executeCommand(command: ExtensionCommand, args: string): Promise<CommandExecutionResult> {
     const context: commandExecutionContext = {
       parameters: command.params,
-      command,
+      command
     };
 
     return { result: await this.executeInterpretable(command, args, {}, context), context };
@@ -121,6 +121,8 @@ export class CommandsService {
       if (e instanceof InterpretableError) return e;
       else throw e;
     }
+
+    this._logger.debug("Interpretable execution result", interpretable, result);
 
     /* if interpretable provided chain, follow */
     if (result.next !== undefined) {

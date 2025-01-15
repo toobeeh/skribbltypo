@@ -5,25 +5,25 @@ import {
 import {
   InterpretableArgumentParsingError
 } from "@/content/core/commands/results/interpretable-argument-parsing-error";
-import { InterpretableEmptyRemainder } from "@/content/core/commands/results/interpretable-empty-remainder";
 
-export class NumericCommandParameter<TSource, TMapped> extends ExtensionCommandParameter<TSource, TMapped>{
+export class NumericOptionalCommandParameter<TSource, TMapped> extends ExtensionCommandParameter<TSource, TMapped>{
 
-  constructor(name: string, description: string, private _mapping: (number: number) => TMapped){
+  constructor(name: string, description: string, private _mapping: (number: number | undefined) => TMapped){
     super(name, description);
   }
 
-  public readonly typeName = "number";
+  public readonly typeName = "number?";
 
-  protected readArg(args: string): { argument: TMapped; remainder: string } {
+  protected readArg(args: string, dontMarkAsInterpreting: () => void): { argument: TMapped; remainder: string } {
 
     /* get next arg */
     const split = args.trim().split(" ");
 
-    /* check if whitespace */
+    /* check if whitespace - return undefined */
     const arg = split[0].trim();
     if(arg.length < 1 ){
-      throw new InterpretableEmptyRemainder(this);
+      dontMarkAsInterpreting();
+      return {remainder: "", argument: this._mapping(undefined)};
     }
 
     /* parse arg */

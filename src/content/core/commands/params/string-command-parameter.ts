@@ -9,6 +9,8 @@ export class StringCommandParameter<TSource, TMapped> extends ExtensionCommandPa
     super(name, description);
   }
 
+  public readonly typeName = "word";
+
   protected readArg(args: string): { argument: TMapped; remainder: string } {
 
     /* get next arg */

@@ -4,6 +4,7 @@ import {
   type interpretableExecutionResult,
   type interpretableInterpretationResult,
 } from "@/content/core/commands/interpretable";
+import { InterpretableEmptyRemainder } from "@/content/core/commands/results/interpretable-empty-remainder";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 
 
@@ -33,6 +34,8 @@ export abstract class ExtensionCommandParameter<TSource, TParam>
     return this._description;
   }
 
+  public abstract readonly typeName: string;
+
   /**
    * Set the action to be executed after interpretation
    * @param action
@@ -52,12 +55,31 @@ export abstract class ExtensionCommandParameter<TSource, TParam>
     source: TSource,
     context: commandExecutionContext,
   ): interpretableInterpretationResult<TSource & TParam, commandExecutionContext> {
-    const { argument, remainder } = this.readArg(args);
-    return Promise.resolve({
-      result: { ...source, ...argument },
-      context,
-      remainder,
-    });
+
+    let skipMarkAsInterpreting = false;
+
+    /* parse arg */
+    try {
+      const { argument, remainder } = this.readArg(args, () => skipMarkAsInterpreting = true);
+
+      /* set param as interpreting in context */
+      if(!skipMarkAsInterpreting) context.currentInterpretedParameter = this as ExtensionCommandParameter<unknown, unknown>;
+
+      return Promise.resolve({
+        result: { ...source, ...argument },
+        context,
+        remainder,
+      });
+    }
+    catch(e){
+
+      /* if param did not signalize empty, set as being interpreted regardless of error */
+      if(!(e instanceof InterpretableEmptyRemainder)){
+        context.currentInterpretedParameter = this as ExtensionCommandParameter<unknown, unknown>;
+      }
+
+      throw e;
+    }
   }
 
   execute(
@@ -73,8 +95,10 @@ export abstract class ExtensionCommandParameter<TSource, TParam>
 
   /**
    * Parse arguments for this parameter type during interpretable interpretation
+   * Return null when argument was not found but optional
    * @param args
+   * @param dontMarkInterpreting skip marking this param as interpreting in context
    * @protected
    */
-  protected abstract readArg(args: string): { argument: TParam; remainder: string };
+  protected abstract readArg(args: string, dontMarkInterpreting: () => void): { argument: TParam; remainder: string };
 }

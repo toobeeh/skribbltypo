@@ -43,13 +43,7 @@ export class CommandParamsBuilder<TSource, TParam> {
   public addParam<TNextParam>(param: ExtensionCommandParameter<TSource & TParam, TNextParam>){
     const nextDeferredBuilder = this._interpretableDeferred
       .chainInterpretable<TSource & TParam & TNextParam>(execute => {
-
-        const executeProxy = async (result: TSource & TParam & TNextParam, context: commandExecutionContext) => {
-          context.currentInterpretedParameter = param as ExtensionCommandParameter<unknown, unknown>;
-          return execute(result, context);
-        };
-
-        return param.withAction(executeProxy);
+        return param.withAction(execute);
       });
 
     return new CommandParamsBuilder<TSource & TParam, TSource & TParam & TNextParam>(
@@ -69,8 +63,7 @@ export class CommandParamsBuilder<TSource, TParam> {
   ):
     ExtensionCommandParameter<unknown, unknown>[]
   {
-    this._interpretableDeferred.setExecute(async (result, context) => {
-      context.currentInterpretedParameter = this._precedingParams[this._precedingParams.length - 1];
+    this._interpretableDeferred.setExecute(async (result) => {
       const interpretable = this._interpretableDeferred.interpretable;
       const response = new InterpretableDeferResult(interpretable, undefined, () => run(result, interpretable));
       return { result: response };
