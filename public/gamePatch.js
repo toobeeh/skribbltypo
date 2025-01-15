@@ -1253,7 +1253,7 @@
         id: Ia,
         data: n
       }), ut = Math.min(t, v.length), console.log(`Sent ${n.length} commands. ${e} remaining.`))
-    }, 50), setInterval(function() {
+    }, 5), setInterval(function() {
       S && L.id == Z && M != x && ht < v.length && (Kt(Zt(v[ht]), v[ht]), ht++)
     }, 1), c.querySelector("#game-canvas .overlay")),
     un = c.querySelector("#game-canvas .overlay-content"),

@@ -1,23 +1,26 @@
 import { skribblTool } from "@/content/events/tool-changed.event";
+import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
 import { TestMod } from "@/content/features/drawing-brush-lab/test-mod";
 import { TestTool } from "@/content/features/drawing-brush-lab/test-tool";
-import type { componentData } from "@/content/services/modal/modal.service";
+import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
-import type { TypoDrawTool } from "@/content/services/tools/draw-tool";
+import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import { ToolsService } from "@/content/services/tools/tools.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { fromObservable } from "@/util/store/fromObservable";
 import type { Type } from "@/util/types/type";
 import { inject } from "inversify";
-import { BehaviorSubject, combineLatestWith, firstValueFrom, map, withLatestFrom } from "rxjs";
+import { BehaviorSubject, combineLatestWith, firstValueFrom, map } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import DrawingBrushLabInfo from "./drawing-brush-lab-info.svelte";
 import BrushLabSwitch from "./drawing-brush-lab-switch.svelte";
 import BrushLabGroup from "./drawing-brush-lab-group.svelte";
+import BrushLabManage from "./drawing-brush-lab-manage.svelte";
 
 export class DrawingBrushLabFeature extends TypoFeature {
   @inject(ToolsService) private readonly _toolsService!: ToolsService;
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
+  @inject(ModalService) private readonly _modalService!: ModalService;
 
   public readonly name = "Brush Laboratory";
   public readonly description = "Add custom drawing tools for special effects to the toolbar";
@@ -26,20 +29,21 @@ export class DrawingBrushLabFeature extends TypoFeature {
   private _labSwitchComponent?: BrushLabSwitch;
   private _labGroupComponent?: BrushLabGroup;
   private _toolbarItems$ = new BehaviorSubject<{
-    tools: {tool: TypoDrawTool, icon: string, active: boolean, name: string}[],
-    mods: {mod: TypoDrawMod, icon: string, active: boolean, name: string}[]
+    tools: { item: TypoDrawTool & BrushLabItem, active: boolean }[],
+    mods: { item: TypoDrawMod & BrushLabItem, active: boolean }[]
   }>({ tools: [], mods: [] });
 
-  private _tools: {icon: string, name: string, tool: Type<TypoDrawTool>}[] = [
-    { icon: "var(--file-img-wand-gif)", name: "Test Tool",  tool: TestTool }
-  ];
-
-  private _mods: {icon: string, name: string, mod: Type<TypoDrawMod>}[] = [
-    { icon: "var(--file-img-wand-gif)", name: "Test Mod",  mod: TestMod }
+  private _items: Type<TypoDrawMod & BrushLabItem>[] = [
+    TestTool,
+    TestMod
   ];
 
   public override get featureInfoComponent(): componentData<DrawingBrushLabInfo> {
     return { componentType: DrawingBrushLabInfo, props: { feature: this } };
+  }
+
+  public override get featureManagementComponent(): componentData<BrushLabManage> {
+    return { componentType: BrushLabManage, props: { feature: this } };
   }
 
   /*private _pressureMod?: TypoDrawMod;*/
@@ -79,7 +83,7 @@ export class DrawingBrushLabFeature extends TypoFeature {
     }
 
     const items = await firstValueFrom(this._toolbarItems$);
-    items.mods.forEach(({ mod }) => this._toolsService.removeMod(mod));
+    items.mods.forEach(({ item }) => this._toolsService.removeMod(item));
     this._toolsService.activateTool(skribblTool.brush);
   }
 
@@ -87,21 +91,19 @@ export class DrawingBrushLabFeature extends TypoFeature {
     return fromObservable(this._toolbarItems$.pipe(
       combineLatestWith(this._toolsService.activeTool$, this._toolsService.activeMods$),
       map(([items, activeTool, activeMods]) => {
-        items.tools.forEach(item => item.active = item.tool === activeTool);
-        items.mods.forEach(item => item.active = activeMods.includes(item.mod));
-        return items;
+        return {
+          mods: items.mods.map(item => ({item: item.item, active: activeMods.includes(item.item)})),
+          tools: items.tools.map(item => ({item: item.item, active: activeTool === item.item}))
+        };
       })
     ), this._toolbarItems$.value);
   }
 
   private createItems(){
-    const tools = this._tools.map(({ icon, tool, name }) => {
-      return { tool: this._toolsService.resolveModOrTool(tool), name, icon, active: false };
-    });
+    const items = this._items.map(item => this._toolsService.resolveModOrTool(item));
 
-    const mods = this._mods.map(({ icon, mod, name }) => {
-      return { mod: this._toolsService.resolveModOrTool(mod), name, icon, active: false };
-    });
+    const tools = items.filter(item => item instanceof TypoDrawTool).map(item => ({ item, active: false }));
+    const mods = items.filter(item => !(item instanceof TypoDrawTool)).map(item => ({ item, active: false }));
 
     this._toolbarItems$.next({ tools, mods });
   }
@@ -116,5 +118,13 @@ export class DrawingBrushLabFeature extends TypoFeature {
 
   public removeMod(mod: TypoDrawMod){
     this._toolsService.removeMod(mod);
+  }
+
+  public openBrushLabSettings(){
+    const componentData: componentData<BrushLabManage> = {
+      componentType: BrushLabManage,
+      props: { feature: this }
+    };
+    this._modalService.showModal(componentData.componentType, componentData.props, "Brush Laboratory");
   }
 }

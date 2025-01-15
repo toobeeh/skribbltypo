@@ -1,3 +1,4 @@
+import type { brushStyle } from "@/content/services/tools/tools.service";
 import { injectable } from "inversify";
 
 @injectable()
@@ -14,6 +15,7 @@ export abstract class TypoDrawMod {
    * @param from
    * @param to
    * @param pressure
+   * @param brushStyle
    */
-  public abstract applyEffect(from: [number, number], to: [number, number], pressure: number | undefined): void | Promise<void>;
+  public abstract applyEffect(from: [number, number], to: [number, number], pressure: number | undefined, brushStyle: brushStyle): void | Promise<void>;
 }

@@ -6,7 +6,8 @@ import BooleanSettingInput from "@/lib/settings/boolean-setting-input.svelte";
 import NumericSettingInput from "@/lib/settings/numeric-setting-input.svelte";
 import type { SvelteComponent } from "svelte";
 
-export type serializable = undefined | string | number | boolean | serializable[] | { [key: string]: serializable };
+export type primitive = string | number | boolean;
+export type serializable = undefined | primitive | serializable[] | { [key: string]: serializable };
 
 export type serializableObject = Record<string, serializable>;
 

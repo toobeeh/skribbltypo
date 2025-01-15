@@ -9,6 +9,7 @@
 <style lang="scss">
 
   .typo-brush-lab-group {
+    grid-area: preview / preview / preview / tools;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -19,21 +20,32 @@
 
 <div class="typo-brush-lab-group">
 
+  <div class="typo-brush-lab-settings">
+
+    <div class="tool clickable"
+         use:feature.createTooltip={{title: "Brush Lab Settings", lock: "Y"}}
+         on:click={() => feature.openBrushLabSettings()}
+    >
+      <div class="icon" style="background-image: var(--file-img-wrench-gif)"></div>
+    </div>
+
+  </div>
+
   <div class="typo-brush-lab-mods">
 
     {#each $tools.mods as mod}
       <div class="tool clickable" class:selected={mod.active}
-           use:feature.createTooltip={{title: mod.name, lock: "Y"}}
+           use:feature.createTooltip={{title: mod.item.name, lock: "Y"}}
            on:click={() => {
              if(!mod.active){
-               feature.activateMod(mod.mod);
+               feature.activateMod(mod.item);
              }
              else {
-               feature.removeMod(mod.mod);
+               feature.removeMod(mod.item);
              }
            }}
       >
-        <div class="icon" style="background-image: {mod.icon}"></div>
+        <div class="icon" style="background-image: {mod.item.icon}"></div>
       </div>
     {/each}
 
@@ -44,14 +56,14 @@
 
     {#each $tools.tools as tool}
       <div class="tool clickable" class:selected={tool.active}
-           use:feature.createTooltip={{title: tool.name, lock: "Y"}}
+           use:feature.createTooltip={{title: tool.item.name, lock: "Y"}}
            on:click={() => {
              if(!tool.active){
-               feature.activateTool(tool.tool);
+               feature.activateTool(tool.item);
              }
            }}
       >
-        <div class="icon" style="background-image: {tool.icon}"></div>
+        <div class="icon" style="background-image: {tool.item.icon}"></div>
       </div>
     {/each}
 

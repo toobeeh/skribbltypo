@@ -12,8 +12,9 @@ export abstract class TypoDrawTool extends TypoDrawMod {
    * @param from
    * @param to
    * @param pressure
+   * @param brushStyle
    */
-  public abstract createCommands(from: [number, number], to: [number, number], pressure: number | undefined): number[][] | Promise<number[][]>;
+  public abstract createCommands(from: [number, number], to: [number, number], pressure: number | undefined, brushStyle: brushStyle): number[][] | Promise<number[][]>;
 
   /**
    * Create a cursor based on the current brush style that looks like the skribbl cursor

@@ -1,5 +1,6 @@
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
+import type { brushStyle } from "@/content/services/tools/tools.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { Color } from "@/util/color";
 import { inject } from "inversify";
@@ -17,7 +18,6 @@ export class PipetteTool extends TypoDrawTool {
     return { source: "var(--file-img-pipette_cur-png)", x: 7, y: 37 };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public createCommands(from: [number, number], to: [number, number], pressure: number | undefined): number[][] {
     return [];
   }
@@ -27,9 +27,9 @@ export class PipetteTool extends TypoDrawTool {
    * @param from
    * @param to
    * @param pressure
+   * @param style
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async applyEffect(from: [number, number], to: [number, number], pressure: number | undefined): Promise<void> {
+  public async applyEffect(from: [number, number], to: [number, number], pressure: number | undefined, style: brushStyle): Promise<void> {
     const elements = await this._elementsSetup.complete();
     const canvas = elements.canvas;
 

@@ -89,8 +89,8 @@ export class ToolsService {
     });
 
     this.drawCoordinates$.pipe(
-      withLatestFrom(this._activeTool$, this._activeMods$),
-    ).subscribe(async ([[start, end], tool, mods]) => {
+      withLatestFrom(this._activeTool$, this._activeMods$, this._activeBrushStyle$),
+    ).subscribe(async ([[start, end], tool, mods, style]) => {
       this._logger.debug("Activating tool and applying mods", start, end);
 
       /* if tool is a typotool, apply effects from it as well */
@@ -98,14 +98,14 @@ export class ToolsService {
 
       /* apply mods and wait for result */
       for (const mod of allMods) {
-        const modResult = mod.applyEffect([start[0], start[1]], [end[0], end[1]], end[2]);
+        const modResult = mod.applyEffect([start[0], start[1]], [end[0], end[1]], end[2], style);
         await modResult;
         this._logger.debug("Mod applied", mod);
       }
 
       /* create draw commands from tool */
       if(tool instanceof TypoDrawTool) {
-        const commands = await tool.createCommands([start[0], start[1]], [end[0], end[1]], end[2]);
+        const commands = await tool.createCommands([start[0], start[1]], [end[0], end[1]], end[2], style);
         if(commands.length > 0) {
           await this._drawingService.pasteDrawCommands(commands);
           this._logger.debug("Draw commands created by tool", tool, commands);

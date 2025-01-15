@@ -1,0 +1,121 @@
+<script lang="ts">
+
+  import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
+  import type { DrawingBrushLabFeature } from "@/content/features/drawing-brush-lab/drawing-brush-lab.feature";
+  import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
+
+  export let feature: DrawingBrushLabFeature;
+
+  const items = feature.toolbarItemsStore;
+  let selectedItem: (TypoDrawMod & BrushLabItem) | undefined;
+
+  $: {
+    selectedItem = ($items.tools.find(tool => tool.active)
+      ?? $items.mods.find(mod => mod.active)
+      ?? $items.tools[0]
+    )?.item;
+  }
+
+</script>
+
+<style lang="scss">
+
+  .item-selection {
+
+    display: grid;
+    grid-template-columns: auto 1fr;
+    height: 100%;
+    width: 100%;
+    padding: 1rem 2rem;
+    gap: 2rem;
+
+    .item-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-right: 2rem;
+      height: 100%;
+      border-right: 1px solid var(--COLOR_PANEL_BORDER_FOCUS);
+      overflow: auto;
+
+      .item-sidebar-entry {
+        display: flex;
+        gap: .5rem;
+        align-items: center;
+        cursor: pointer;
+
+        img {
+          height: 2rem;
+        }
+      }
+    }
+
+    .item-details {
+
+      .item-details-settings-list {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2rem;
+
+        .item-details-settings-item {
+          min-width: clamp(20em, 20em, 100%);
+          max-width: clamp(20em, 20em, 100%);
+          background-color: var(--COLOR_PANEL_HI);
+          border-radius: 3px;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          padding: 1rem;
+          flex: 1 1 0px;
+          position: relative;
+        }
+      }
+    }
+  }
+
+</style>
+
+<p>
+  The Brush Laboratory has many mods and tools to create unique masterpices.<br>
+  You can select multiple mods at once, but only one tool at a time.<br>
+  Some tools and mods can be customized below.
+</p>
+
+
+<div class="item-selection">
+
+  <div class="item-sidebar">
+    <h3>Tools</h3>
+    {#each $items.tools as tool }
+      <div class="item-sidebar-entry" on:click={() => selectedItem = tool.item}>
+        <img src="" style="content: {tool.item.icon}" alt="icon" />
+        <b>{tool.item.name}</b>
+      </div>
+    {/each}
+    <h3>Mods</h3>
+    {#each $items.mods as mod }
+      <div class="item-sidebar-entry" on:click={() => selectedItem = mod.item}>
+        <img src="" style="content: {mod.item.icon}" alt="icon" />
+        <b>{mod.item.name}</b>
+      </div>
+    {/each}
+  </div>
+
+  <div class="item-details">
+    <h2>{selectedItem?.name}</h2>
+    <p>{selectedItem?.description}</p>
+    <br>
+
+    {#if selectedItem !== undefined && selectedItem.settings.length > 0}
+        <div class="item-details-settings-list">
+          {#each selectedItem.settings as setting}
+            <div class="item-details-settings-item">
+              <svelte:component this={setting.componentData.componentType} {...setting.componentData.props} />
+            </div>
+          {/each}
+        </div>
+    {/if}
+  </div>
+
+</div>

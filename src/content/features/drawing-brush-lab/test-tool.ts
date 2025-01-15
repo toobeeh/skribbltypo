@@ -1,37 +1,63 @@
+import {
+  BooleanExtensionSetting,
+  NumericExtensionSetting,
+} from "@/content/core/settings/setting";
+import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
-import { TypoDrawMod } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import type { brushStyle } from "@/content/services/tools/tools.service";
-import { calculatePressurePoint } from "@/util/typo/pressure";
 import { inject } from "inversify";
+import { firstValueFrom } from "rxjs";
 
 /**
  * 
  */
-export class TestTool extends TypoDrawTool {
+export class TestTool extends TypoDrawTool implements BrushLabItem {
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
+
+  readonly name: string = "Dashed Lines";
+  readonly description: string = "Draw dashed lines with a customizable interval";
+  readonly icon: string = "var(--file-img-wand-gif)";
+
+  private _intervalSetting = new NumericExtensionSetting("brushlab.dash.interval", 10)
+    .withName("Dash Interval")
+    .withDescription("The interval between the dashes in milliseconds")
+    .withSlider(1)
+    .withBounds(1,1000);
+
+  private _absSetting = new BooleanExtensionSetting("brushlab.dash.abs", true)
+    .withName("Dash Mode")
+    .withDescription("Switch between dash or dot mode");
+
+  readonly settings= [
+    this._intervalSetting,
+    this._absSetting
+  ];
 
   public override createCursor(style: brushStyle): { source: string; x: number; y: number } {
     return this.createSkribblLikeCursor(style);
   }
 
-  /**
-   * Set the brush size depending on the pressure
-   * @param from
-   * @param to
-   * @param pressure
-   */
-  public async applyEffect(
-    from: [number, number],
-    to: [number, number],
-    pressure: number | undefined,
-  ): Promise<void> {}
+  private lastDown = Date.now();
 
-  public override createCommands(
+  public async applyEffect(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  public override async createCommands(
     from: [number, number],
     to: [number, number],
     pressure: number | undefined,
-  ): number[][] | Promise<number[][]> {
+    style: brushStyle
+  ): Promise<number[][]> {
+
+    const interval = await firstValueFrom(this._intervalSetting.changes$);
+
+    const now = Date.now();
+    if(now - this.lastDown > interval) {
+      this.lastDown = now;
+      return [[0, style.color.typoCode, style.size, ...to, ...to]];
+    }
     return [];
   }
 }
