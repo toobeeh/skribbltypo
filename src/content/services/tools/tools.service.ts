@@ -150,7 +150,7 @@ export class ToolsService {
       /* create default draw commands as lines */
       else {
         for(const line of lines) {
-          commands.push(this._drawingService.createLineCommands([...line.from, ...line.to], style.color.typoCode, style.size));
+          commands.push(this._drawingService.createLineCommands([...line.from, ...line.to], style.color.skribblCode, style.size));
         }
       }
 

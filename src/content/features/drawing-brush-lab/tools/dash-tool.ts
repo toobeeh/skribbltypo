@@ -13,8 +13,13 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
   readonly name: string = "Dashed Lines";
-  readonly description: string = "Draw dashed lines with a customizable interval";
+  readonly description: string = "Draw dashed lines with a customizable interval and blank size";
   readonly icon: string = "var(--file-img-line-dash-gif)";
+
+  /*private _modeSetting = new ChoiceExtensionSetting<"dash" | "dot">("brushlab.dash.mode", "dash")
+    .withName("Dash Modes")
+    .withDescription("Switch between dashed or dotted lines")
+    .withChoices([{choice: "dash", name: "Dashed Lines"}, {choice: "dot", name: "Dotted Lines"}]);*/
 
   private _intervalSetting = new NumericExtensionSetting("brushlab.dash.interval", 10)
     .withName("Dash Interval")
@@ -27,11 +32,6 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
     .withDescription("The size of the blanks between dashes, depending on brush size")
     .withSlider(1)
     .withBounds(1,100);
-
-  /*private _modeSetting = new ChoiceExtensionSetting<"dash" | "dot">("brushlab.dash.mode", "dash")
-    .withName("Dash Modes")
-    .withDescription("Switch between dashed or dotted lines")
-    .withChoices([{choice: "dash", name: "Dashed Lines"}, {choice: "dot", name: "Dotted Lines"}]);*/
 
   readonly settings = [
     this._intervalSetting,

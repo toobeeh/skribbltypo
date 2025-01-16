@@ -71,11 +71,23 @@ export class Color {
     this._a = color._a;
   }
 
-  get typoCode() {
+  /**
+   * The atttempted skribbl color code
+   * If not found, return tyopo code instead (hex val + 10000)
+   */
+  get skribblCode() {
 
     /* try to convert to original skribbl color */
     const skribblIndex = Color.skribblColors.findIndex(c => c[0] === this._r && c[1] === this._g && c[2] === this._b);
     if(skribblIndex !== -1) return skribblIndex;
+
+    return this.typoCode;
+  }
+
+  /**
+   * The color code for the typo color (hex val + 10000)
+   */
+  get typoCode() {
 
     const hexString = ((this._r << 16) | (this._g << 8) | this._b).toString(16).toUpperCase();
     return parseInt(hexString, 16) + 10000; // 10000 is the offset to identify that color index is a hex code
