@@ -1,6 +1,7 @@
 import { skribblTool } from "@/content/events/tool-changed.event";
 import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
 import { MandalaMod } from "@/content/features/drawing-brush-lab/mods/mandala-mod";
+import { NoiseMod } from "@/content/features/drawing-brush-lab/mods/noise-mod";
 import { ParallelLineMod } from "@/content/features/drawing-brush-lab/mods/parallel-line-mod";
 import { RainbowMod } from "@/content/features/drawing-brush-lab/mods/rainbow-mod";
 import { DashTool } from "@/content/features/drawing-brush-lab/tools/dash-tool";
@@ -43,7 +44,8 @@ export class DrawingBrushLabFeature extends TypoFeature {
     ParallelLineMod,
     MandalaMod,
     RainbowMod,
-    GridTool
+    GridTool,
+    NoiseMod
   ];
 
   public override get featureInfoComponent(): componentData<DrawingBrushLabInfo> {

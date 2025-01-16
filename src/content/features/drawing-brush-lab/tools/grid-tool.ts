@@ -22,7 +22,7 @@ export class GridTool extends TypoDrawTool implements BrushLabItem {
     .withBounds(1,30);
 
   private _columnsSetting = new NumericExtensionSetting("brushlab.grid.columns", 8)
-    .withName("Columns Count")
+    .withName("Column Count")
     .withDescription("The amount of columns in the grid")
     .withSlider(1)
     .withBounds(1,30);
