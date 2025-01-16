@@ -4,6 +4,7 @@ import { MandalaMod } from "@/content/features/drawing-brush-lab/mods/mandala-mo
 import { NoiseMod } from "@/content/features/drawing-brush-lab/mods/noise-mod";
 import { ParallelLineMod } from "@/content/features/drawing-brush-lab/mods/parallel-line-mod";
 import { RainbowMod } from "@/content/features/drawing-brush-lab/mods/rainbow-mod";
+import { SculptMod } from "@/content/features/drawing-brush-lab/mods/sculpt-mod";
 import { DashTool } from "@/content/features/drawing-brush-lab/tools/dash-tool";
 import { DotTool } from "@/content/features/drawing-brush-lab/tools/dot-tool";
 import { GridTool } from "@/content/features/drawing-brush-lab/tools/grid-tool";
@@ -45,7 +46,8 @@ export class DrawingBrushLabFeature extends TypoFeature {
     MandalaMod,
     RainbowMod,
     GridTool,
-    NoiseMod
+    NoiseMod,
+    SculptMod
   ];
 
   public override get featureInfoComponent(): componentData<DrawingBrushLabInfo> {
