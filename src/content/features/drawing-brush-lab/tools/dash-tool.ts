@@ -2,24 +2,16 @@ import {
   NumericExtensionSetting, type serializable, type SettingWithInput,
 } from "@/content/core/settings/setting";
 import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
-import { DrawingService } from "@/content/services/drawing/drawing.service";
 import type { drawModLine } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import type { brushStyle } from "@/content/services/tools/tools.service";
-import { inject } from "inversify";
 import { firstValueFrom } from "rxjs";
 
 export class DashTool extends TypoDrawTool implements BrushLabItem {
-  @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
   readonly name: string = "Dashed Lines";
   readonly description: string = "Draw dashed lines with a customizable interval and blank size";
   readonly icon: string = "var(--file-img-line-dash-gif)";
-
-  /*private _modeSetting = new ChoiceExtensionSetting<"dash" | "dot">("brushlab.dash.mode", "dash")
-    .withName("Dash Modes")
-    .withDescription("Switch between dashed or dotted lines")
-    .withChoices([{choice: "dash", name: "Dashed Lines"}, {choice: "dot", name: "Dotted Lines"}]);*/
 
   private _intervalSetting = new NumericExtensionSetting("brushlab.dash.interval", 10)
     .withName("Dash Interval")
@@ -36,7 +28,6 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
   readonly settings = [
     this._intervalSetting,
     this._blankSizeSetting
-    /*this._modeSetting*/
   ] as SettingWithInput<serializable>[];
 
   public override createCursor(style: brushStyle): { source: string; x: number; y: number } {

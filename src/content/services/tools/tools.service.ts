@@ -48,6 +48,7 @@ export class ToolsService {
   private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000"), size: 1 });
 
   private readonly _currentPointerDown$ = new BehaviorSubject<boolean>(false);
+  private readonly _currentPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
   private readonly _lastPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
   private readonly _canvasCursorStyle = document.createElement("style");
 
@@ -173,6 +174,7 @@ export class ToolsService {
     }
 
     this._currentPointerDown$.next(true);
+    this._currentPointerDownPosition$.next(event);
     this._lastPointerDownPosition$.next(event);
   }
 
@@ -184,12 +186,13 @@ export class ToolsService {
     }
 
     if (this._currentPointerDown$.value) {
-      this._lastPointerDownPosition$.next(event);
+      this._currentPointerDownPosition$.next(event);
     }
   }
 
   private onDocumentUp() {
     this._currentPointerDown$.next(false);
+    this._currentPointerDownPosition$.next(null);
     this._lastPointerDownPosition$.next(null);
   }
 
@@ -197,7 +200,7 @@ export class ToolsService {
     return this._currentPointerDown$.pipe(
       distinctUntilChanged(),
       filter(down => down),
-      switchMap(() => this._lastPointerDownPosition$.pipe(
+      switchMap(() => this._currentPointerDownPosition$.pipe(
         map(event => event !== null ? this.mapPointerEventToDrawCoordinate(event) : null)
       )),
       pairwise(),
@@ -271,6 +274,10 @@ export class ToolsService {
 
   public get activeMods$() {
     return this._activeMods$.asObservable();
+  }
+
+  public get lastPointerDownPosition$() {
+    return this._lastPointerDownPosition$.asObservable();
   }
 
   public resolveModOrTool<TMod>(tool: Type<TMod>){
