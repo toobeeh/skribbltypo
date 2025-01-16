@@ -5,6 +5,7 @@ import { ColorChangedEventListener } from "@/content/events/color-changed.event"
 import { SizeChangedEventListener } from "@/content/events/size-changed.event";
 import { skribblTool, ToolChangedEventListener } from "@/content/events/tool-changed.event";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
+import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
 import type { drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -260,7 +261,14 @@ export class ToolsService {
 
   public activateMod(mod: TypoDrawMod) {
     this._logger.debug("Activating mod", mod);
-    this._activeMods$.next([...this._activeMods$.value, mod]);
+
+    /* if mod is not constant, deactivate all other non-constant mods */
+    let mods = this._activeMods$.value;
+    if(!(mod instanceof ConstantDrawMod)) {
+      mods = mods.filter(m => m instanceof ConstantDrawMod);
+    }
+
+    this._activeMods$.next([...mods, mod]);
   }
 
   public removeMod(mod: TypoDrawMod) {

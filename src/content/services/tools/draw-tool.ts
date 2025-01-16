@@ -1,7 +1,8 @@
-import { type drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
+import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
+import { type drawModLine } from "@/content/services/tools/draw-mod";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 
-export abstract class TypoDrawTool extends TypoDrawMod {
+export abstract class TypoDrawTool extends ConstantDrawMod {
 
   private cursorCanvas = document.createElement("canvas");
 

@@ -27,7 +27,7 @@ export class Color {
     [204, 119, 77],
     [160, 82, 45],
     [99, 48, 13]
-  ];
+  ] as const;
 
   get r() { return this._r; }
   get g() { return this._g; }

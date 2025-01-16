@@ -2,6 +2,7 @@
 
   import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
   import type { DrawingBrushLabFeature } from "@/content/features/drawing-brush-lab/drawing-brush-lab.feature";
+  import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
   import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
   import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 
@@ -96,8 +97,8 @@
 
 <p>
   The Brush Laboratory has many mods and tools to create unique masterpices.<br>
-  You can select multiple mods at once, but only one tool at a time.<br>
-  Some tools and mods can be customized below.
+  Below, you can find all available tools and mods and their settings.<br>
+  Additionally to a tool, you can select one mod and multiple combo mods.
 </p>
 
 
@@ -112,7 +113,14 @@
       </div>
     {/each}
     <h3>Mods</h3>
-    {#each $items.mods as mod }
+    {#each $items.mods.filter(mod => !(mod.item instanceof ConstantDrawMod)) as mod }
+      <div class="item-sidebar-entry" on:click={() => selectedItem = mod.item}>
+        <img src="" style="content: {mod.item.icon}" alt="icon" />
+        <b>{mod.item.name}</b>
+      </div>
+    {/each}
+    <h3>Combo Mods</h3>
+    {#each $items.mods.filter(mod => mod.item instanceof ConstantDrawMod) as mod }
       <div class="item-sidebar-entry" on:click={() => selectedItem = mod.item}>
         <img src="" style="content: {mod.item.icon}" alt="icon" />
         <b>{mod.item.name}</b>
@@ -124,7 +132,7 @@
     <div class="item-title">
       <img src="" style="content: {selectedItem?.icon}" alt="icon">
       <h2>{selectedItem?.name}</h2>
-      <b>({selectedItem instanceof TypoDrawTool ? "TOOL" : "MOD"})</b>
+      <b>({selectedItem instanceof ConstantDrawMod ? (selectedItem instanceof TypoDrawTool ? "TOOL" : "COMBO MOD") : "MOD"})</b>
     </div>
     <p>{selectedItem?.description}</p>
 

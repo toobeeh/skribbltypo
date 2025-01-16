@@ -1,4 +1,5 @@
-import type { drawModEffect, drawModLine } from "@/content/services/tools/draw-mod";
+import type { constantDrawModEffect } from "@/content/services/tools/constant-draw-mod";
+import type { drawModLine } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -25,26 +26,17 @@ export class PipetteTool extends TypoDrawTool {
    * @param pressure
    * @param style
    */
-  public async applyEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<drawModEffect> {
+  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<constantDrawModEffect> {
     const elements = await this._elementsSetup.complete();
     const canvas = elements.canvas;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      return {
-        style,
-        lines: [line]
-      };
+    if (ctx !== null){
+      const imageData = ctx.getImageData(line.to[0], line.to[1], 1, 1);
+      const rgb = imageData.data.slice(0, 3);
+      style.color = Color.fromRgb(rgb[0], rgb[1], rgb[2]);
     }
 
-    const imageData = ctx.getImageData(line.to[0], line.to[1], 1, 1);
-    const rgb = imageData.data.slice(0, 3);
-    const color = Color.fromRgb(rgb[0], rgb[1], rgb[2]);
-    style.color = color;
-
-    return {
-      style,
-      lines: [line]
-    };
+    return this.noConstantEffect(line, pressure, style);
   }
 }

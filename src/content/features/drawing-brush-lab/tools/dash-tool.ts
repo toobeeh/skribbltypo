@@ -37,7 +37,7 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
   private dashStart?: { eventId: number, position: [number, number] };
   private lineStart?: {eventId: number, time: number};
 
-  public applyEffect = this.noEffect;
+  public applyConstantEffect = this.noConstantEffect;
 
   public override async createCommands(
     line: drawModLine,
@@ -73,7 +73,7 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
     }
 
     /* line drawing */
-    return [[0, style.color.typoCode, style.size, ...line.from, ...line.to]];
+    return [[0, style.color.skribblCode, style.size, ...line.from, ...line.to]];
   }
 
   private getDistance(from: [number, number], to: [number, number]): number {

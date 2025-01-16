@@ -1,5 +1,6 @@
 import { DrawingService } from "@/content/services/drawing/drawing.service";
-import { type drawModEffect, type drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
+import { ConstantDrawMod, type constantDrawModEffect } from "@/content/services/tools/constant-draw-mod";
+import { type drawModLine } from "@/content/services/tools/draw-mod";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 import { calculatePressurePoint } from "@/util/typo/pressure";
 import { inject } from "inversify";
@@ -8,7 +9,7 @@ import { inject } from "inversify";
  * Tool that allows the user to pick a color from the canvas
  * Produces no draw commands, but sets the current color as mod side effect
  */
-export class PressureMod extends TypoDrawMod {
+export class PressureMod extends ConstantDrawMod {
 
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
@@ -22,13 +23,14 @@ export class PressureMod extends TypoDrawMod {
    * Set the brush size depending on the pressure
    * @param line
    * @param pressure
+   * @param style
    */
-  public async applyEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<drawModEffect> {
+  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<constantDrawModEffect> {
 
     if(pressure === undefined) {
       return {
         style,
-        lines: [line],
+        line,
       };
     }
 
@@ -38,7 +40,7 @@ export class PressureMod extends TypoDrawMod {
 
     return {
       style,
-      lines: [line]
+      line
     };
   }
 
