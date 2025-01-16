@@ -12,7 +12,7 @@ export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
 
   readonly description = "Draws additional parallel lines in a angle and distance. In public lobbies, a max of 1 parallel line should be used.";
   readonly icon = "var(--file-img-line-parallel-gif)";
-  readonly name = "Parallel Lines";
+  readonly name = "Parallel";
 
   private _distanceSetting = new NumericExtensionSetting("brushlab.parallel.distance", 20)
     .withName("Line Distance")
