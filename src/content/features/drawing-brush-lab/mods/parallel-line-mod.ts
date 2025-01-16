@@ -1,4 +1,5 @@
 import {
+  BooleanExtensionSetting,
   NumericExtensionSetting,
   type serializable,
   SettingWithInput,
@@ -17,7 +18,11 @@ export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
     .withName("Line Distance")
     .withDescription("The distance between the lines")
     .withSlider(1)
-    .withBounds(1,300);
+    .withBounds(1,100);
+
+  private _distanceDependencySetting = new BooleanExtensionSetting("brushlab.parallel.dependency", false)
+    .withName("Size Dependency")
+    .withDescription("Make line distance proportionally dependent on brush size");
 
   private _angleSetting = new NumericExtensionSetting("brushlab.parallel.angle", 180)
     .withName("Line Angle")
@@ -33,6 +38,7 @@ export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
 
   readonly settings = [
     this._distanceSetting,
+    this._distanceDependencySetting,
     this._angleSetting,
     this._lineCountSetting
   ] as SettingWithInput<serializable>[];
@@ -52,10 +58,16 @@ export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
     const distance = await firstValueFrom(this._distanceSetting.changes$);
     const angle = await firstValueFrom(this._angleSetting.changes$);
     const count = await firstValueFrom(this._lineCountSetting.changes$);
+    const dependency = await firstValueFrom(this._distanceDependencySetting.changes$);
 
     /* create n parallel lines with offset and angle to original line*/
     const lines = [];
     const offset = this.getOffset(distance, angle);
+    if(dependency) {
+      offset[0] *= style.size / 40;
+      offset[1] *= style.size / 40;
+    }
+
     for (let i = 0; i < count; i++) {
       const offsetLine = {
         from: [line.from[0] + (offset[0] * (i+1)), line.from[1] + (offset[1] *( i+1))] as [number, number],

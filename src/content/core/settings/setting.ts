@@ -1,7 +1,7 @@
 import type { TypoFeature } from "@/content/core/feature/feature";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { fromObservable } from "@/util/store/fromObservable";
-import { BehaviorSubject, of, switchMap } from "rxjs";
+import { BehaviorSubject, firstValueFrom, of, switchMap } from "rxjs";
 import BooleanSettingInput from "@/lib/settings/boolean-setting-input.svelte";
 import NumericSettingInput from "@/lib/settings/numeric-setting-input.svelte";
 import ChoiceSettingInput from "@/lib/settings/choice-setting-input.svelte";
@@ -37,6 +37,10 @@ export class ExtensionSetting<TValue extends serializable> {
     const string = await chrome.runtime.sendMessage({ type: "get setting", key: this.globalKey });
     if(string === undefined || string === null) return this.defaultValue;
     const value = JSON.parse(string) as TValue;
+
+    /* update cached value */
+    this._changes.next(value);
+
     return value;
   }
 
