@@ -5,6 +5,7 @@ import { ParallelLineMod } from "@/content/features/drawing-brush-lab/mods/paral
 import { RainbowMod } from "@/content/features/drawing-brush-lab/mods/rainbow-mod";
 import { DashTool } from "@/content/features/drawing-brush-lab/tools/dash-tool";
 import { DotTool } from "@/content/features/drawing-brush-lab/tools/dot-tool";
+import { GridTool } from "@/content/features/drawing-brush-lab/tools/grid-tool";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
@@ -41,7 +42,8 @@ export class DrawingBrushLabFeature extends TypoFeature {
     DashTool,
     ParallelLineMod,
     MandalaMod,
-    RainbowMod
+    RainbowMod,
+    GridTool
   ];
 
   public override get featureInfoComponent(): componentData<DrawingBrushLabInfo> {
