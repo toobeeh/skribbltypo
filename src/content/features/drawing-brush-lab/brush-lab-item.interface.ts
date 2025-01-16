@@ -1,10 +1,8 @@
-import type { SettingWithInput } from "@/content/core/settings/setting";
-
-export type labItemSetting = SettingWithInput<number> | SettingWithInput<boolean>;
+import type { serializable, SettingWithInput } from "@/content/core/settings/setting";
 
 export interface BrushLabItem {
   readonly name: string;
   readonly description: string;
   readonly icon: string;
-  readonly settings: labItemSetting[];
+  readonly settings: SettingWithInput<serializable>[];
 }

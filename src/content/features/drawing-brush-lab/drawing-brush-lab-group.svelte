@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { skribblTool } from "@/content/events/tool-changed.event";
   import type { DrawingBrushLabFeature } from "@/content/features/drawing-brush-lab/drawing-brush-lab.feature";
 
   export let feature: DrawingBrushLabFeature;
@@ -14,6 +15,12 @@
     flex-direction: row;
     align-items: center;
     gap: 2rem;
+
+    .typo-brush-lab-mods, .typo-brush-lab-tools {
+      display: flex;
+      flex-direction: row;
+      gap: .5rem;
+    }
   }
 
 </style>

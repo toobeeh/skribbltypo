@@ -4,6 +4,7 @@ import { fromObservable } from "@/util/store/fromObservable";
 import { BehaviorSubject, of, switchMap } from "rxjs";
 import BooleanSettingInput from "@/lib/settings/boolean-setting-input.svelte";
 import NumericSettingInput from "@/lib/settings/numeric-setting-input.svelte";
+import ChoiceSettingInput from "@/lib/settings/choice-setting-input.svelte";
 import type { SvelteComponent } from "svelte";
 
 export type primitive = string | number | boolean;
@@ -120,6 +121,25 @@ export class NumericExtensionSetting extends SettingWithInput<number> {
 
   public withSlider(steps = 1) {
     this._sliderWithSteps = steps;
+    return this;
+  }
+}
+
+export class ChoiceExtensionSetting<TChoice extends string> extends SettingWithInput<TChoice> {
+  private _choices: { choice: TChoice, name: string }[] = [];
+
+  public override get componentData() {
+    return {
+      componentType: ChoiceSettingInput,
+      props: {
+        setting: this,
+        choices: this._choices
+      },
+    };
+  }
+
+  public withChoices(choices: { choice: TChoice, name: string }[]) {
+    this._choices = choices;
     return this;
   }
 }

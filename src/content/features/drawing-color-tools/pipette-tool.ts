@@ -18,6 +18,7 @@ export class PipetteTool extends TypoDrawTool {
     return { source: "var(--file-img-pipette_cur-png)", x: 7, y: 37 };
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public createCommands(from: [number, number], to: [number, number], pressure: number | undefined): number[][] {
     return [];
   }
@@ -29,6 +30,7 @@ export class PipetteTool extends TypoDrawTool {
    * @param pressure
    * @param style
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async applyEffect(from: [number, number], to: [number, number], pressure: number | undefined, style: brushStyle): Promise<void> {
     const elements = await this._elementsSetup.complete();
     const canvas = elements.canvas;

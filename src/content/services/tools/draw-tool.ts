@@ -33,7 +33,9 @@ export abstract class TypoDrawTool extends TypoDrawMod {
     const canvas = this.cursorCanvas;
     canvas.width = canvasSize;
     canvas.height = canvasSize;
-    const context = canvas.getContext("2d")!;
+    const context = canvas.getContext("2d");
+    if(!context) throw new Error("Could not get 2d context");
+
     context.clearRect(0, 0, canvas.width, canvas.height); // Clear any previous drawing
     context.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${color[3]})`;
 

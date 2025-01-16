@@ -3,6 +3,7 @@
   import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
   import type { DrawingBrushLabFeature } from "@/content/features/drawing-brush-lab/drawing-brush-lab.feature";
   import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
+  import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 
   export let feature: DrawingBrushLabFeature;
 
@@ -38,6 +39,10 @@
       border-right: 1px solid var(--COLOR_PANEL_BORDER_FOCUS);
       overflow: auto;
 
+      h3 {
+        opacity: .5;
+      }
+
       .item-sidebar-entry {
         display: flex;
         gap: .5rem;
@@ -51,6 +56,19 @@
     }
 
     .item-details {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      .item-title {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+
+        b {
+          opacity: .5;
+        }
+      }
 
       .item-details-settings-list {
         display: flex;
@@ -103,9 +121,12 @@
   </div>
 
   <div class="item-details">
-    <h2>{selectedItem?.name}</h2>
+    <div class="item-title">
+      <img src="" style="content: {selectedItem?.icon}" alt="icon">
+      <h2>{selectedItem?.name}</h2>
+      <b>({selectedItem instanceof TypoDrawTool ? "TOOL" : "MOD"})</b>
+    </div>
     <p>{selectedItem?.description}</p>
-    <br>
 
     {#if selectedItem !== undefined && selectedItem.settings.length > 0}
         <div class="item-details-settings-list">

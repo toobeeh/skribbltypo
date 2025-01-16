@@ -7,13 +7,13 @@ import { inject } from "inversify";
 /**
  * 
  */
-export class TestMod extends TypoDrawMod implements BrushLabItem {
+export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
   @inject(ToolsService) private readonly _toolsService!: ToolsService;
 
-  readonly description = "adasdasd asdasd";
-  readonly icon = "var(--file-img-wand-gif)";
-  readonly name = "test Mod";
+  readonly description = "Draw Parallel Lines";
+  readonly icon = "var(--file-img-line-parallel-gif)";
+  readonly name = "Parallel Lines";
   readonly settings = [];
 
   /**

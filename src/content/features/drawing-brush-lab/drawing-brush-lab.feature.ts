@@ -1,7 +1,8 @@
 import { skribblTool } from "@/content/events/tool-changed.event";
 import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
-import { TestMod } from "@/content/features/drawing-brush-lab/test-mod";
-import { TestTool } from "@/content/features/drawing-brush-lab/test-tool";
+import { ParallelLineMod } from "@/content/features/drawing-brush-lab/mods/parallel-line-mod";
+import { DashTool } from "@/content/features/drawing-brush-lab/tools/dash-tool";
+import { DotTool } from "@/content/features/drawing-brush-lab/tools/dot-tool";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
@@ -34,23 +35,20 @@ export class DrawingBrushLabFeature extends TypoFeature {
   }>({ tools: [], mods: [] });
 
   private _items: Type<TypoDrawMod & BrushLabItem>[] = [
-    TestTool,
-    TestMod
+    DotTool,
+    DashTool,
+    ParallelLineMod
   ];
 
   public override get featureInfoComponent(): componentData<DrawingBrushLabInfo> {
     return { componentType: DrawingBrushLabInfo, props: { feature: this } };
   }
 
-  public override get featureManagementComponent(): componentData<BrushLabManage> {
+  /*public override get featureManagementComponent(): componentData<BrushLabManage> {
     return { componentType: BrushLabManage, props: { feature: this } };
-  }
-
-  /*private _pressureMod?: TypoDrawMod;*/
+  }*/
 
   protected override async onActivate() {
-    /*const t = this._toolsService.resolveModOrTool(TestTool);
-    this._toolsService.activateTool(t);*/
     const elements = await this._elementsSetup.complete();
 
     this._labGroupComponent = new BrushLabGroup({
@@ -67,11 +65,6 @@ export class DrawingBrushLabFeature extends TypoFeature {
   }
 
   protected override async onDestroy() {
-    /*if (this._pressureMod) {
-      this._toolsService.removeMod(this._pressureMod);
-      this._pressureMod = undefined;
-    }*/
-
     if (this._labSwitchComponent) {
       this._labSwitchComponent.$destroy();
       this._labSwitchComponent = undefined;

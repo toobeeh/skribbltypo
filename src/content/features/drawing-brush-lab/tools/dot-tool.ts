@@ -1,6 +1,5 @@
 import {
-  BooleanExtensionSetting,
-  NumericExtensionSetting,
+  NumericExtensionSetting, type serializable, type SettingWithInput,
 } from "@/content/core/settings/setting";
 import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
@@ -9,30 +8,28 @@ import type { brushStyle } from "@/content/services/tools/tools.service";
 import { inject } from "inversify";
 import { firstValueFrom } from "rxjs";
 
-/**
- * 
- */
-export class TestTool extends TypoDrawTool implements BrushLabItem {
+export class DotTool extends TypoDrawTool implements BrushLabItem {
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
-  readonly name: string = "Dashed Lines";
-  readonly description: string = "Draw dashed lines with a customizable interval";
-  readonly icon: string = "var(--file-img-wand-gif)";
+  readonly name: string = "Dotted Lines";
+  readonly description: string = "Draw dotted lines with a customizable interval";
+  readonly icon: string = "var(--file-img-line-dot-gif)";
 
-  private _intervalSetting = new NumericExtensionSetting("brushlab.dash.interval", 10)
-    .withName("Dash Interval")
-    .withDescription("The interval between the dashes in milliseconds")
+  private _intervalSetting = new NumericExtensionSetting("brushlab.dot.interval", 10)
+    .withName("Dot Interval")
+    .withDescription("The time interval between making dots in milliseconds")
     .withSlider(1)
     .withBounds(1,1000);
 
-  private _absSetting = new BooleanExtensionSetting("brushlab.dash.abs", true)
-    .withName("Dash Mode")
-    .withDescription("Switch between dash or dot mode");
+  /*private _modeSetting = new ChoiceExtensionSetting<"dash" | "dot">("brushlab.dash.mode", "dash")
+    .withName("Dash Modes")
+    .withDescription("Switch between dashed or dotted lines")
+    .withChoices([{choice: "dash", name: "Dashed Lines"}, {choice: "dot", name: "Dotted Lines"}]);*/
 
-  readonly settings= [
+  readonly settings = [
     this._intervalSetting,
-    this._absSetting
-  ];
+    /*this._modeSetting*/
+  ] as SettingWithInput<serializable>[];
 
   public override createCursor(style: brushStyle): { source: string; x: number; y: number } {
     return this.createSkribblLikeCursor(style);
@@ -52,8 +49,8 @@ export class TestTool extends TypoDrawTool implements BrushLabItem {
   ): Promise<number[][]> {
 
     const interval = await firstValueFrom(this._intervalSetting.changes$);
-
     const now = Date.now();
+
     if(now - this.lastDown > interval) {
       this.lastDown = now;
       return [[0, style.color.typoCode, style.size, ...to, ...to]];
