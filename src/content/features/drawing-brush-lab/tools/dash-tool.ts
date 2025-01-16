@@ -3,6 +3,7 @@ import {
 } from "@/content/core/settings/setting";
 import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
+import type { drawModLine } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 import { inject } from "inversify";
@@ -19,7 +20,13 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
     .withName("Dash Interval")
     .withDescription("The time interval between making line blanks in milliseconds")
     .withSlider(1)
-    .withBounds(1,1000);
+    .withBounds(1,300);
+
+  private _blankSizeSetting = new NumericExtensionSetting("brushlab.dash.blank", 20)
+    .withName("Blank Size")
+    .withDescription("The size of the blanks between dashes, depending on brush size")
+    .withSlider(1)
+    .withBounds(1,100);
 
   /*private _modeSetting = new ChoiceExtensionSetting<"dash" | "dot">("brushlab.dash.mode", "dash")
     .withName("Dash Modes")
@@ -28,6 +35,7 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
 
   readonly settings = [
     this._intervalSetting,
+    this._blankSizeSetting
     /*this._modeSetting*/
   ] as SettingWithInput<serializable>[];
 
@@ -35,26 +43,49 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
     return this.createSkribblLikeCursor(style);
   }
 
-  private lastDown = Date.now();
+  private dashStart?: { eventId: number, position: [number, number] };
+  private lineStart?: {eventId: number, time: number};
 
-  public async applyEffect(): Promise<void> {
-    return Promise.resolve();
-  }
+  public applyEffect = this.noEffect;
 
   public override async createCommands(
-    from: [number, number],
-    to: [number, number],
+    line: drawModLine,
     pressure: number | undefined,
-    style: brushStyle
+    style: brushStyle,
+    eventId: number
   ): Promise<number[][]> {
 
     const interval = await firstValueFrom(this._intervalSetting.changes$);
+    const blankSize = await firstValueFrom(this._blankSizeSetting.changes$);
     const now = Date.now();
 
-    if(now - this.lastDown > interval) {
-      this.lastDown = now;
-      return [[0, style.color.typoCode, style.size, ...to, ...to]];
+    /* if currently drawing dash */
+    if(this.dashStart !== undefined) {
+
+      /* stop dash if distance big enough */
+      if(this.getDistance(this.dashStart.position as [number, number], line.from) > (style.size / 10 * blankSize)) {
+        this.dashStart = undefined;
+      }
+      return [];
     }
-    return [];
+
+    /* if currently drawing line, end line after time passed; start dash */
+    if(this.lineStart !== undefined && now - this.lineStart.time > interval) {
+      this.lineStart = undefined;
+      this.dashStart = {eventId, position: line.to};
+      return [];
+    }
+
+    /* init a line */
+    if(this.lineStart === undefined) {
+      this.lineStart = {eventId, time: now};
+    }
+
+    /* line drawing */
+    return [[0, style.color.typoCode, style.size, ...line.from, ...line.to]];
+  }
+
+  private getDistance(from: [number, number], to: [number, number]): number {
+    return Math.sqrt(Math.pow(to[0] - from[0], 2) + Math.pow(to[1] - from[1], 2));
   }
 }

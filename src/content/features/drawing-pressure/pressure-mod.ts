@@ -1,5 +1,6 @@
 import { DrawingService } from "@/content/services/drawing/drawing.service";
-import { TypoDrawMod } from "@/content/services/tools/draw-mod";
+import { type drawModEffect, type drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
+import type { brushStyle } from "@/content/services/tools/tools.service";
 import { calculatePressurePoint } from "@/util/typo/pressure";
 import { inject } from "inversify";
 
@@ -19,17 +20,26 @@ export class PressureMod extends TypoDrawMod {
 
   /**
    * Set the brush size depending on the pressure
-   * @param from
-   * @param to
+   * @param line
    * @param pressure
    */
-  public async applyEffect(from: [number, number], to: [number, number], pressure: number | undefined): Promise<void> {
-    if(pressure === undefined) return;
+  public async applyEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<drawModEffect> {
+
+    if(pressure === undefined) {
+      return {
+        style,
+        lines: [line],
+      };
+    }
 
     const point = calculatePressurePoint(pressure, this._sensitivity, this._balance);
     const size = this._minSize + (this._maxSize - this._minSize) * point;
+    style.size = size;
 
-    this._drawingService.setSize(size);
+    return {
+      style,
+      lines: [line]
+    };
   }
 
   /**

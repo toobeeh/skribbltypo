@@ -1,4 +1,4 @@
-import { TypoDrawMod } from "@/content/services/tools/draw-mod";
+import { type drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 
 export abstract class TypoDrawTool extends TypoDrawMod {
@@ -9,12 +9,16 @@ export abstract class TypoDrawTool extends TypoDrawMod {
 
   /**
    * Create draw commands from a draw event
-   * @param from
-   * @param to
+   * @param line
    * @param pressure
    * @param brushStyle
+   * @param eventId
    */
-  public abstract createCommands(from: [number, number], to: [number, number], pressure: number | undefined, brushStyle: brushStyle): number[][] | Promise<number[][]>;
+  public abstract createCommands(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle, eventId: number): number[][] | Promise<number[][]>;
+
+  protected noCommands(): number[][] {
+    return [];
+  }
 
   /**
    * Create a cursor based on the current brush style that looks like the skribbl cursor

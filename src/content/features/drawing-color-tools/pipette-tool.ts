@@ -1,4 +1,4 @@
-import { DrawingService } from "@/content/services/drawing/drawing.service";
+import type { drawModEffect, drawModLine } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -12,37 +12,39 @@ import { inject } from "inversify";
 export class PipetteTool extends TypoDrawTool {
 
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
-  @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
   public createCursor() {
     return { source: "var(--file-img-pipette_cur-png)", x: 7, y: 37 };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public createCommands(from: [number, number], to: [number, number], pressure: number | undefined): number[][] {
-    return [];
-  }
+  public createCommands = this.noCommands;
 
   /**
    * Get the pixel color of the canvas at a certain position
-   * @param from
-   * @param to
+   * @param line
    * @param pressure
    * @param style
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async applyEffect(from: [number, number], to: [number, number], pressure: number | undefined, style: brushStyle): Promise<void> {
+  public async applyEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<drawModEffect> {
     const elements = await this._elementsSetup.complete();
     const canvas = elements.canvas;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) {
-      return;
+      return {
+        style,
+        lines: [line]
+      };
     }
 
-    const imageData = ctx.getImageData(to[0], to[1], 1, 1);
+    const imageData = ctx.getImageData(line.to[0], line.to[1], 1, 1);
     const rgb = imageData.data.slice(0, 3);
     const color = Color.fromRgb(rgb[0], rgb[1], rgb[2]);
-    this._drawingService.setColor(color);
+    style.color = color;
+
+    return {
+      style,
+      lines: [line]
+    };
   }
 }

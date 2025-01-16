@@ -258,6 +258,11 @@ export class DrawingService {
     ctx?.drawImage(img, x ?? 0, y ?? 0, dx ?? img.width, dy ?? img.height);
   }
 
+  public createLineCommands(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
+    const clipped = this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]]).flat();
+    return [0, colorCode ?? 1, size ?? 4, ...clipped];
+  }
+
   public async drawLine(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
     this._logger.debug("Drawing line", coordinates, colorCode, size);
 

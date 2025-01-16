@@ -1,6 +1,16 @@
 import type { brushStyle } from "@/content/services/tools/tools.service";
 import { injectable } from "inversify";
 
+export interface drawModLine {
+  from: [number, number];
+  to: [number, number];
+}
+
+export interface drawModEffect {
+  lines: drawModLine[],
+  style: brushStyle
+}
+
 @injectable()
 export abstract class TypoDrawMod {
 
@@ -11,11 +21,21 @@ export abstract class TypoDrawMod {
   public readonly disableSkribblSamplingRate = false;
 
   /**
-   * Apply the effect of the mod to a draw event
-   * @param from
-   * @param to
+   * Process a draw input line with style;
+   * output the same, modified or new lines along with processed style
+   * @param line
    * @param pressure
    * @param brushStyle
+   * @param eventId id of the event. if a mod previously created multiple lines for a single event, they have the same id
    */
-  public abstract applyEffect(from: [number, number], to: [number, number], pressure: number | undefined, brushStyle: brushStyle): void | Promise<void>;
+  public abstract applyEffect(
+    line: drawModLine,
+    pressure: number | undefined,
+    brushStyle: brushStyle,
+    eventId: number,
+  ): drawModEffect | Promise<drawModEffect>;
+
+  protected noEffect(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle): drawModEffect {
+    return {lines: [line], style: brushStyle};
+  }
 }

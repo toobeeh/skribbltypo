@@ -5,7 +5,7 @@ import { ColorChangedEventListener } from "@/content/events/color-changed.event"
 import { SizeChangedEventListener } from "@/content/events/size-changed.event";
 import { skribblTool, ToolChangedEventListener } from "@/content/events/tool-changed.event";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
-import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
+import type { drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
@@ -93,27 +93,69 @@ export class ToolsService {
     ).subscribe(async ([[start, end], tool, mods, style]) => {
       this._logger.debug("Activating tool and applying mods", start, end);
 
+      /* return if no mods or tool selected - else create draw commands through typo */
+      if(mods.length === 0 && !(tool instanceof TypoDrawTool)) return;
+
+      /* generate a shared id for every line created from the origin line */
+      const eventId = Date.now();
+
       /* if tool is a typotool, apply effects from it as well */
       const allMods = [...mods, ...(tool instanceof TypoDrawTool ? [tool] : [])];
 
+      let lines: drawModLine[] = [{from: [start[0], start[1]], to: [end[0], end[1]]}];
+      let modStyle = structuredClone(style);
+      const pressure = end[2];
+
       /* apply mods and wait for result */
       for (const mod of allMods) {
-        const modResult = mod.applyEffect([start[0], start[1]], [end[0], end[1]], end[2], style);
-        await modResult;
-        this._logger.debug("Mod applied", mod);
+
+        /* for each line - mods may append or skip lines */
+        const modLines: drawModLine[] = [];
+        for(const line of lines) {
+          const effect = await mod.applyEffect(line, pressure, style, eventId);
+          modLines.push(...effect.lines);
+          modStyle = effect.style;
+          this._logger.debug("Mod applied", mod);
+        }
+        lines = modLines;
       }
 
-      /* create draw commands from tool */
+      /* update brush style in skribbl if changed by mods */
+      if(modStyle.size !== style.size) {
+        this._logger.debug("Brush size changed by mods", modStyle.size);
+        this._drawingService.setSize(modStyle.size);
+      }
+
+      /* update brush color if changed by mods */
+      if(modStyle.color.typoCode !== style.color.typoCode) {
+        this._logger.debug("Brush color changed by mods", modStyle.color);
+        this._drawingService.setColor(modStyle.color);
+      }
+
+      /* create draw commands from tool based on processed lines and style */
+      const commands: number[][] = [];
       if(tool instanceof TypoDrawTool) {
-        const commands = await tool.createCommands([start[0], start[1]], [end[0], end[1]], end[2], style);
-        if(commands.length > 0) {
-          await this._drawingService.pasteDrawCommands(commands);
-          this._logger.debug("Draw commands created by tool", tool, commands);
-        }
-        else {
-          this._logger.debug("No draw commands created from tool", tool);
+        for(const line of lines) {
+          const lineCommands = await tool.createCommands(line, pressure, style, eventId);
+          if(lineCommands.length > 0) {
+            commands.push(...lineCommands);
+            this._logger.debug("Adding commands created by tool", tool, commands);
+          }
+          else {
+            this._logger.debug("No draw commands created from tool", tool);
+          }
         }
       }
+
+      /* create default draw commands as lines */
+      else {
+        for(const line of lines) {
+          commands.push(this._drawingService.createLineCommands([...line.from, ...line.to], style.color.typoCode, style.size));
+        }
+      }
+
+      /* paste commands */
+      await this._drawingService.pasteDrawCommands(commands);
     });
 
     /* set up brush style subscription */
@@ -124,11 +166,23 @@ export class ToolsService {
   }
 
   private onCanvasDown(event: PointerEvent) {
+
+    /* cancel event if mod active - will create draw commands via typo instead skribbl */
+    if(this._activeMods$.value.length > 0) {
+      event.stopImmediatePropagation();
+    }
+
     this._currentPointerDown$.next(true);
     this._lastPointerDownPosition$.next(event);
   }
 
   private onCanvasMove(event: PointerEvent) {
+
+    /* cancel event if mod active - will create draw commands via typo instead skribbl */
+    if(this._activeMods$.value.length > 0) {
+      event.stopImmediatePropagation();
+    }
+
     if (this._currentPointerDown$.value) {
       this._lastPointerDownPosition$.next(event);
     }
