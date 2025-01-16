@@ -6,8 +6,8 @@ import { EventProcessor } from "../core/event/eventProcessor";
 import type { EventRegistration } from "@/content/core/extension-container/extension-container";
 
 export enum skribblTool {
-  fill = 0,
-  brush = 1,
+  brush = 0,
+  fill = 1,
   deselected = -1,
   other = 2
 }

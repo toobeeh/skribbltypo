@@ -169,25 +169,31 @@ export class ToolsService {
 
   private onCanvasDown(event: PointerEvent) {
 
-    /* cancel event if mod active - will create draw commands via typo instead skribbl */
-    if(this._activeMods$.value.length > 0) {
+    /* process event through tools pipeline when typotool or skribbl brush + mods active */
+    if(
+      this._activeMods$.value.length > 0 && this._activeTool$.value === skribblTool.brush
+      || this._activeTool$.value instanceof TypoDrawTool
+    ) {
       event.stopImmediatePropagation();
-    }
 
-    this._currentPointerDown$.next(true);
-    this._currentPointerDownPosition$.next(event);
-    this._lastPointerDownPosition$.next(event);
+      this._currentPointerDown$.next(true);
+      this._currentPointerDownPosition$.next(event);
+      this._lastPointerDownPosition$.next(event);
+    }
   }
 
   private onCanvasMove(event: PointerEvent) {
 
-    /* cancel event if mod active - will create draw commands via typo instead skribbl */
-    if(this._activeMods$.value.length > 0) {
+    /* process event through tools pipeline when typotool or skribbl brush + mods active */
+    if(
+      this._activeMods$.value.length > 0 && this._activeTool$.value === skribblTool.brush
+      || this._activeTool$.value instanceof TypoDrawTool
+    ) {
       event.stopImmediatePropagation();
-    }
 
-    if (this._currentPointerDown$.value) {
-      this._currentPointerDownPosition$.next(event);
+      if (this._currentPointerDown$.value) {
+        this._currentPointerDownPosition$.next(event);
+      }
     }
   }
 
