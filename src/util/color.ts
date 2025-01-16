@@ -1,4 +1,34 @@
 export class Color {
+
+  public static readonly skribblColors = [
+    [255, 255, 255],
+    [0, 0, 0],
+    [193, 193, 193],
+    [80, 80, 80],
+    [239, 19, 11],
+    [116, 11, 7],
+    [255, 113, 0],
+    [194, 56, 0],
+    [255, 228, 0],
+    [232, 162, 0],
+    [0, 204, 0],
+    [0, 70, 25],
+    [0, 255, 145],
+    [0, 120, 93],
+    [0, 178, 255],
+    [0, 86, 158],
+    [35, 31, 211],
+    [14, 8, 101],
+    [163, 0, 186],
+    [85, 0, 105],
+    [223, 105, 167],
+    [135, 53, 84],
+    [255, 172, 142],
+    [204, 119, 77],
+    [160, 82, 45],
+    [99, 48, 13]
+  ];
+
   get r() { return this._r; }
   get g() { return this._g; }
   get b() { return this._b; }
@@ -42,6 +72,11 @@ export class Color {
   }
 
   get typoCode() {
+
+    /* try to convert to original skribbl color */
+    const skribblIndex = Color.skribblColors.findIndex(c => c[0] === this._r && c[1] === this._g && c[2] === this._b);
+    if(skribblIndex !== -1) return skribblIndex;
+
     const hexString = ((this._r << 16) | (this._g << 8) | this._b).toString(16).toUpperCase();
     return parseInt(hexString, 16) + 10000; // 10000 is the offset to identify that color index is a hex code
   }

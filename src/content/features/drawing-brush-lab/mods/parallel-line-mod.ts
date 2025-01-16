@@ -27,9 +27,6 @@ export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
     return {
       style,
       lines: [line, { from: fromShift, to: toShift }]
-    }; /* TODO apply mods on skribbl pen tool?
-     -> cancel original event if mods active
-     -> create lines in typo instead skribbl
-     -> check undo checkpoint triggering in skribbl with draw commands..*/
+    };
   }
 }
