@@ -113,7 +113,7 @@ export class DrawingBrushLabFeature extends TypoFeature {
     this._toolbarItems$.next({ tools, mods });
   }
 
-  public activateTool(tool: TypoDrawTool){
+  public activateTool(tool: TypoDrawTool | skribblTool){
     this._toolsService.activateTool(tool);
   }
 

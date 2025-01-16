@@ -68,6 +68,9 @@
              if(!tool.active){
                feature.activateTool(tool.item);
              }
+             else {
+               feature.activateTool(skribblTool.brush);
+             }
            }}
       >
         <div class="icon" style="background-image: {tool.item.icon}"></div>
