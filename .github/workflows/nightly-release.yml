@@ -26,6 +26,7 @@ jobs:
         env:
           REPO: self
           BRANCH: nightly
-          FOLDER: chrome
+          FOLDER: .dist
+          TARGET_DIR: chrome
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MESSAGE: "nightly build: ({sha}) {msg}"
