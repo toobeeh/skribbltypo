@@ -6,14 +6,26 @@ import fs from "fs";
 import ManifestV3 = chrome.runtime.ManifestV3;
 
 /**
- * Build the extension
+ * Build the extension for chrome browsers
  * based on the crx plugin
  * extended to include css variables for all chrome accessible resource urls
  * @param options
  */
-export const buildExtension = (options: ManifestV3Export): PluginOption[] => {
+export const buildChromeExtension = (
+  options: ManifestV3Export,
+  version: "stable" | "beta" | "alpha" = "stable",
+  buildCommit: string | undefined = undefined
+): PluginOption[] => {
+
+  /* get manifest */
   const mv3 = options as unknown as ManifestV3;
+
+  /* add css url gen to manifest */
   mv3.content_scripts[0].js.push("cssgen/css-urls.ts");
+
+  /* add version name to manifest */
+  mv3.version_name = `${mv3.version} ${version}-crx${buildCommit ? " " + buildCommit : ""}`;
+
   const crxOriginal = crx({ manifest: mv3 as unknown as ManifestV3Export });
 
   return [

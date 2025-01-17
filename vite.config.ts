@@ -1,18 +1,30 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import path from "path";
 import { sveltePreprocess } from "svelte-preprocess";
 import checker from "vite-plugin-checker";
-import { buildExtension } from "./css-resources.plugin";
+import { buildChromeExtension } from "./buildChromeExtension.plugin";
 import manifest from "./src/manifest";
 
+/**
+ * Build depending on environment
+ * mode: production or development
+ * commit: the commit hash of the build
+ *
+ * if production -> stable build
+ * if commit and development -> beta build
+ * if no commit and development -> alpha build
+ */
 export default defineConfig(({ mode }) => {
   const production = mode === "production";
+  const env = loadEnv(mode, process.cwd(), "");
+  const commit = env.COMMIT; /* try to get commit from env */
+  const version = production ? "stable" : commit ? "beta" : "alpha";
 
   return {
     esbuild: {
-      minifyIdentifiers: true,
-      keepNames: true,
+      minifyIdentifiers: production,
+      keepNames: !production,
     },
     publicDir: "public",
     build: {
@@ -26,7 +38,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [
-      buildExtension(manifest),
+      buildChromeExtension(manifest, version, commit),
       svelte({
         compilerOptions: {
           dev: !production,

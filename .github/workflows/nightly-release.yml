@@ -1,0 +1,31 @@
+name: Build the extension in dev mode and push build to the nightly branch
+
+on:
+  push:
+    branches:
+      - skribbltypo-ts
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and Push
+    env:
+      COMMIT: ${{ github.sha }}"
+    steps:
+      - name: git-checkout
+        uses: actions/checkout@v2
+
+      - name: Install node dependencies
+        run: npm install
+
+      - name: Build extension in dev mode with commit as env -> nightly versioning
+        run: npm run build-dev
+
+      - name: Push to nightly branch
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: nightly
+          FOLDER: chrome
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: "nightly build: ({sha}) {msg}"
