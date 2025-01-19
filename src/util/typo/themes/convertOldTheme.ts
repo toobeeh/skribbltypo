@@ -1,3 +1,4 @@
+import type { oldThemeOptions } from "@/util/typo/themes/oldTheme";
 import { type typoTheme } from "@/util/typo/themes/theme";
 
 /**
