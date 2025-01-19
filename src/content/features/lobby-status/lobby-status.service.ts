@@ -11,7 +11,7 @@ import type {
 import type { ILobbyHub } from "@/signalr/TypedSignalR.Client/tobeh.Avallone.Server.Hubs.Interfaces";
 import type { HubConnection } from "@microsoft/signalr";
 import { inject, injectable } from "inversify";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 
 interface lobbyConnectionState {
   connection: HubConnection,
@@ -30,6 +30,10 @@ export class LobbyStatusService implements featureBinding {
   private _existingTypoLobbyStates = new Map<string, TypoLobbyStateDto>();
   private _abortConnecting?: () => void; /** abort the connection while it is still in setup phase and _connection is still undefined */
 
+  private _dropAnnounced$ = new Subject<DropAnnouncementDto>();
+  private _dropClaimed$ = new Subject<DropClaimResultDto>();
+  private _awardGifted$ = new Subject<AwardGiftedDto>();
+
   constructor(@inject(loggerFactory) loggerFactory: loggerFactory) {
     this._logger = loggerFactory(this);
   }
@@ -41,7 +45,14 @@ export class LobbyStatusService implements featureBinding {
   async onFeatureDestroy(): Promise<void> {
     await this.destroyConnection();
     this._existingTypoLobbyStates.clear();
+    this._dropClaimed$.complete();
+    this._dropAnnounced$.complete();
+    this._awardGifted$.complete();
   }
+
+  public get dropAnnounced$() { return this._dropAnnounced$.asObservable(); }
+  public get dropClaimed$() { return this._dropClaimed$.asObservable(); }
+  public get awardGifted$() { return this._awardGifted$.asObservable(); }
 
   /**
    * The current connection state
@@ -57,6 +68,9 @@ export class LobbyStatusService implements featureBinding {
     return connection;
   }
 
+  /**
+   * Observable containing the current connection, emits when connection changed or settings updated
+   */
   public get connection$(){
     return this._connection$.asObservable();
   }
@@ -80,9 +94,9 @@ export class LobbyStatusService implements featureBinding {
     this._socketService.createReceiver("ILobbyReceiver").register(connection, {
       lobbyOwnershipResigned: this.lobbyOwnershipResigned.bind(this),
       typoLobbySettingsUpdated: this.typoLobbySettingsUpdated.bind(this),
-      dropAnnounced: async (drop: DropAnnouncementDto) => {},
-      dropClaimed: async (claimResult: DropClaimResultDto) => {},
-      awardGifted: async (award: AwardGiftedDto) => {},
+      dropAnnounced: async drop => this._dropAnnounced$.next(drop),
+      dropClaimed: async result => this._dropClaimed$.next(result),
+      awardGifted: async award => this._awardGifted$.next(award)
     });
 
     connection.onclose(async (error) => {

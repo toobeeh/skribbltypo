@@ -40,6 +40,7 @@
 {#if $currentDrop !== undefined}
   <div class="typo-drop"
        on:click={() => {
+         if($currentDrop !== undefined) feature.claimDrop($currentDrop.dropId);
          $currentDrop = undefined;
        }}
        style="left: calc((100% - 48px) * ({$currentDrop.position} / 100)); background-image: {getDropUrl($currentDrop.eventDropId)}"

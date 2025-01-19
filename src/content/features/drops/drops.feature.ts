@@ -1,3 +1,4 @@
+import { LobbyStatusService } from "@/content/features/lobby-status/lobby-status.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
@@ -9,6 +10,7 @@ import DropsComponent from "./drops.svelte";
 export class DropsFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
+  @inject(LobbyStatusService) private readonly _lobbyStatusService!: LobbyStatusService;
 
   public readonly name = "Drops";
   public readonly description = "Show drops to collect extra bubbles when you're playing";
@@ -27,17 +29,20 @@ export class DropsFeature extends TypoFeature {
         drops: apiData.drops
       },
     });
-
-    setInterval(() => this._dropsService.publishDropAnnouncement({dropId: 1, position: 100, eventDropId: 10}), 5000);
   }
 
   protected override onDestroy(): Promise<void> | void {
     this._component?.$destroy();
   }
+  
+  public async claimDrop(id: number){
+    const result = await this._lobbyStatusService.connection.hub.claimDrop({ dropId: id });
+    console.log(result);
+  }
 
   public currentDropStore(){
     return fromObservable(
-      this._dropsService.drops$.pipe(
+      this._lobbyStatusService.dropAnnounced$.pipe(
         switchMap(drop => of(drop).pipe(
           mergeWith(
 
@@ -47,8 +52,8 @@ export class DropsFeature extends TypoFeature {
             ),
 
             /* set to undefined when someone else clears */
-            this._dropsService.claims$.pipe(
-              filter(claim => claim.claim.clearedDrop),
+            this._lobbyStatusService.dropClaimed$.pipe(
+              filter(claim => claim.clearedDrop),
               map(() => undefined)
             )
           )
