@@ -3,7 +3,7 @@
 /* tslint:disable */
 // @ts-nocheck
 import type { IStreamResult, Subject } from '@microsoft/signalr';
-import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, TypoLobbySettingsDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
+import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, DropClaimDto, DropClaimResultDto, AwardGiftDto, TypoLobbySettingsDto, DropAnnouncementDto, AwardGiftedDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
 
 export type IGuildLobbiesHub = {
     /**
@@ -33,6 +33,16 @@ export type ILobbyHub = {
     * @returns Transpiled from System.Threading.Tasks.Task
     */
     updateTypoLobbySettings(typoSettings: SkribblLobbyTypoSettingsUpdateDto): Promise<void>;
+    /**
+    * @param dropClaim Transpiled from tobeh.Avallone.Server.Classes.Dto.DropClaimDto
+    * @returns Transpiled from System.Threading.Tasks.Task<tobeh.Avallone.Server.Classes.Dto.DropClaimResultDto>
+    */
+    claimDrop(dropClaim: DropClaimDto): Promise<DropClaimResultDto>;
+    /**
+    * @param awardGift Transpiled from tobeh.Avallone.Server.Classes.Dto.AwardGiftDto
+    * @returns Transpiled from System.Threading.Tasks.Task
+    */
+    giftAward(awardGift: AwardGiftDto): Promise<void>;
 }
 
 export type IOnlineItemsHub = {
@@ -56,6 +66,21 @@ export type ILobbyReceiver = {
     * @returns Transpiled from System.Threading.Tasks.Task
     */
     lobbyOwnershipResigned(): Promise<void>;
+    /**
+    * @param drop Transpiled from tobeh.Avallone.Server.Classes.Dto.DropAnnouncementDto
+    * @returns Transpiled from System.Threading.Tasks.Task
+    */
+    dropAnnounced(drop: DropAnnouncementDto): Promise<void>;
+    /**
+    * @param award Transpiled from tobeh.Avallone.Server.Classes.Dto.AwardGiftedDto
+    * @returns Transpiled from System.Threading.Tasks.Task
+    */
+    awardGifted(award: AwardGiftedDto): Promise<void>;
+    /**
+    * @param claimResult Transpiled from tobeh.Avallone.Server.Classes.Dto.DropClaimResultDto
+    * @returns Transpiled from System.Threading.Tasks.Task
+    */
+    dropClaimed(claimResult: DropClaimResultDto): Promise<void>;
 }
 
 export type IOnlineItemsReceiver = {

@@ -1,21 +1,20 @@
 import { type MemberDto } from "@/api";
+import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { ExtensionSetting } from "@/content/core/settings/setting";
+import { LobbyStatusService } from "@/content/features/lobby-status/lobby-status.service";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { MemberService } from "@/content/services/member/member.service";
 import type { componentData } from "@/content/services/modal/modal.service";
-import { SocketService } from "@/content/services/socket/socket.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import type {
-  SkribblLobbyStateDto, TypoLobbySettingsDto,
-  TypoLobbyStateDto,
+  SkribblLobbyStateDto,
+
 } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
-import type { ILobbyHub } from "@/signalr/TypedSignalR.Client/tobeh.Avallone.Server.Hubs.Interfaces";
 import { repeatAfterDelay } from "@/util/rxjs/repeatAfterDelay";
 import type { skribblLobby } from "@/util/skribbl/lobby";
 import { fromObservable } from "@/util/store/fromObservable";
-import type { HubConnection } from "@microsoft/signalr";
 import {
   BehaviorSubject,
   combineLatestWith,
@@ -31,32 +30,42 @@ import IconButton from "@/lib/icon-button/icon-button.svelte";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import LobbyStatus from "./lobby-status.svelte";
 
-interface lobbyConnectionState {
-  connection: HubConnection,
-  hub: ILobbyHub,
-  typoLobbyState: TypoLobbyStateDto,
-  member: MemberDto
-}
 
 export class LobbyStatusFeature extends TypoFeature {
-
-  @inject(SocketService) private readonly _socketService!: SocketService;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(GlobalSettingsService) private readonly _settingsService!: GlobalSettingsService;
+  @inject(LobbyStatusService) private readonly _lobbyStatusService!: LobbyStatusService;
 
-  private _privateLobbyWhitelistEnabledSetting = new ExtensionSetting<boolean>("private_whitelist_enabled", false, this);
-  private _publicLobbyWhitelistEnabledSetting = new ExtensionSetting<boolean>("public_whitelist_enabled", false, this);
-  private _privateLobbyWhitelistedServersSetting = new ExtensionSetting<string[]>("private_whitelisted_servers", [], this);
-  private _publicLobbyWhitelistedServersSetting = new ExtensionSetting<string[]>("public_whitelisted_servers", [], this);
+  protected override get boundServices(): featureBinding[] {
+    return [this._lobbyStatusService];
+  }
+
+  private _privateLobbyWhitelistEnabledSetting = new ExtensionSetting<boolean>(
+    "private_whitelist_enabled",
+    false,
+    this,
+  );
+  private _publicLobbyWhitelistEnabledSetting = new ExtensionSetting<boolean>(
+    "public_whitelist_enabled",
+    false,
+    this,
+  );
+  private _privateLobbyWhitelistedServersSetting = new ExtensionSetting<string[]>(
+    "private_whitelisted_servers",
+    [],
+    this,
+  );
+  private _publicLobbyWhitelistedServersSetting = new ExtensionSetting<string[]>(
+    "public_whitelisted_servers",
+    [],
+    this,
+  );
 
   private _lobbySubscription?: Subscription;
-  private _connection$ = new BehaviorSubject<undefined | lobbyConnectionState | "unauthorized">(undefined);
-  private _abortConnecting?: () => void; /** abort the connection while it is still in setup phase and _connection is still undefined */
-  private _currentBackendProcessing?: Promise<void>; /** a promise that resolves if the current backend lobby update finished */
-  private _existingTypoLobbyStates = new Map<string, TypoLobbyStateDto>();
+  private _currentBackendProcessing?: Promise<void>; /** a promise that resolves when the current backend lobby update finished */
   private _triggerManualRefresh$ = new BehaviorSubject(undefined);
 
   private _controlIcon?: IconButton;
@@ -66,32 +75,10 @@ export class LobbyStatusFeature extends TypoFeature {
   private _lobbyTypeSubscription?: Subscription;
 
   /**
-   * The current connection state
-   * Throws if not connected
-   * @private
-   */
-  private get connection(): lobbyConnectionState {
-    const connection = this._connection$.value;
-    if(connection === undefined || connection === "unauthorized") {
-      this._logger.error("connection is not initialized");
-      throw new Error("connection is not initialized");
-    }
-    return connection;
-  }
-
-  /**
-   * Whether the current connection is established
-   * @private
-   */
-  private get isConnected() {
-    return this._connection$.value !== undefined && this._connection$.value !== "unauthorized";
-  }
-
-  /**
    * A store containing the current connection state
    */
   public get connectionStore() {
-    return fromObservable(this._connection$, undefined);
+    return fromObservable(this._lobbyStatusService.connection$, undefined);
   }
 
   /**
@@ -102,38 +89,54 @@ export class LobbyStatusFeature extends TypoFeature {
   }
 
   public readonly name = "Lobby Status";
-  public readonly description = "Share your current lobby with typo to use avatar decorations, give awards and catch drops.";
+  public readonly description =
+    "Share your current lobby with typo to use avatar decorations, give awards and catch drops.";
   public readonly featureId = 19;
 
   protected override async onActivate() {
-    this._lobbyTypeSubscription = this._lobbyService.lobby$.pipe(
-      map(lobby => lobby === null ? null : (lobby.id === null ? "practice" : (lobby.private ? "custom" : "public"))),
-      distinctUntilChanged()
-    ).subscribe(async type => {
-      if(type === "public" || type === "custom") {
-        await this.setupSettings();
-      }
-      else {
-        this.destroySettings();
-      }
-    });
+    this._lobbyTypeSubscription = this._lobbyService.lobby$
+      .pipe(
+        map((lobby) =>
+          lobby === null
+            ? null
+            : lobby.id === null
+              ? "practice"
+              : lobby.private
+                ? "custom"
+                : "public",
+        ),
+        distinctUntilChanged(),
+      )
+      .subscribe(async (type) => {
+        if (type === "public" || type === "custom") {
+          await this.setupSettings();
+        } else {
+          this.destroySettings();
+          this._flyoutComponent?.close();
+        }
+      });
 
-    this._lobbySubscription = repeatAfterDelay(this._lobbyService.lobby$.pipe(
-      combineLatestWith(this._triggerManualRefresh$),
-      map(([lobby]) => lobby),
-    ), 30 * 1000).pipe(
-      debounceTime(2000), // start connection only after player has been in the lobby for 2s to avoid spamming
-      combineLatestWith(this._memberService.member$),
-      debounce(() => this._currentBackendProcessing ?? of(0)) // allow only one backend processing at a time
-    ).subscribe(([lobby, member]) => this._currentBackendProcessing = this.processLobbyUpdate(lobby, member));
+    this._lobbySubscription = repeatAfterDelay(
+      this._lobbyService.lobby$.pipe(
+        combineLatestWith(this._triggerManualRefresh$),
+        map(([lobby]) => lobby),
+      ),
+      30 * 1000,
+    )
+      .pipe(
+        debounceTime(2000), // start connection only after player has been in the lobby for 2s to avoid spamming
+        combineLatestWith(this._memberService.member$),
+        debounce(() => this._currentBackendProcessing ?? of(0)), // allow only one backend processing at a time
+      )
+      .subscribe(
+        ([lobby, member]) =>
+          (this._currentBackendProcessing = this.processLobbyUpdate(lobby, member)),
+      );
   }
 
   protected override async onDestroy() {
     this._lobbySubscription?.unsubscribe();
-    this._connection$.next(await this.destroyConnection());
-    this._existingTypoLobbyStates.clear();
     this._lobbyTypeSubscription?.unsubscribe();
-
     this.destroySettings();
   }
 
@@ -141,7 +144,7 @@ export class LobbyStatusFeature extends TypoFeature {
    * Sets up the lobby settings/status UI
    * @private
    */
-  private async setupSettings(){
+  private async setupSettings() {
     const elements = await this._elementsSetup.complete();
 
     this._controlIcon = new IconButton({
@@ -153,13 +156,12 @@ export class LobbyStatusFeature extends TypoFeature {
         size: "2rem",
         hoverMove: false,
         greyscaleInactive: true,
-        tooltipAction: this.createTooltip
-      }
+        tooltipAction: this.createTooltip,
+      },
     });
 
     /* open settings when icon clicked */
     this._controlIconSubscription = this._controlIcon.click$.subscribe(() => {
-
       /* if already opened, return */
       if (this._flyoutComponent) {
         return;
@@ -184,7 +186,7 @@ export class LobbyStatusFeature extends TypoFeature {
           title: "Lobby Status",
           closeStrategy: "explicit",
           iconName: "file-img-connection-gif",
-          alignment: "top"
+          alignment: "top",
         },
       });
 
@@ -201,7 +203,7 @@ export class LobbyStatusFeature extends TypoFeature {
    * Destroys the lobby settings/status UI
    * @private
    */
-  private destroySettings(){
+  private destroySettings() {
     this._controlIcon?.$destroy();
     this._controlIconSubscription?.unsubscribe();
     this._controlIcon = undefined;
@@ -211,152 +213,80 @@ export class LobbyStatusFeature extends TypoFeature {
   }
 
   /**
-   * Sets up the connection to the lobby hub and initializes the receiver
-   * @private
-   */
-  private setupConnection(){
-    const connection = this._socketService.createConnection("ILobbyHub");
-    const hub = this._socketService.createHub("ILobbyHub").createHubProxy(connection);
-    this._socketService.createReceiver("ILobbyReceiver").register(connection, {
-      lobbyOwnershipResigned: this.lobbyOwnershipResigned.bind(this),
-      typoLobbySettingsUpdated: this.typoLobbySettingsUpdated.bind(this),
-    });
-    connection.onclose(async (error) => {
-      this._logger.debug("SignalR Connection closed", error);
-      this._connection$.next(undefined);
-    });
-
-    return { connection, hub };
-  }
-
-  /**
-   * Destroys the current connection if it exists, aborts a current connection setup if it is in progress,
-   * and closes the flyout if opened
-   * @private
-   */
-  private async destroyConnection() {
-    if(this._connection$.value !== undefined && this._connection$.value !== "unauthorized") {
-      await this._connection$.value.connection.stop();
-    }
-    if(this._abortConnecting) {
-      this._abortConnecting();
-    }
-
-    /* close the flyout when lobby left */
-    this._flyoutComponent?.close();
-
-    return undefined;
-  }
-
-  /**
    * Processes a new lobby update
    * Connects to the server if in lobby and not yet connected, or disconnects if lobby left, or updates state if already connected
    * @param lobby the current lobby data
    * @param member the authenticated member data
    * @private
    */
-  private async processLobbyUpdate(lobby: skribblLobby | null, member: MemberDto | undefined | null): Promise<void> {
-
+  private async processLobbyUpdate(
+    lobby: skribblLobby | null,
+    member: MemberDto | undefined | null,
+  ): Promise<void> {
     this._logger.info("processing lobby status update", lobby, member?.userName);
 
     /* if member is null and connection exists, disconnect */
-    if(member === null || member === undefined){
-      await this.destroyConnection();
-      this._connection$.next("unauthorized");
+    if (member === null || member === undefined) {
+      await this._lobbyStatusService.destroyConnection(true);
       return;
     }
 
     /* if lobby is null or practice and connection exists, disconnect */
-    if(lobby === null || lobby.id === null) {
-      this._connection$.next(await this.destroyConnection());
+    if (lobby === null || lobby.id === null) {
+      await this._lobbyStatusService.destroyConnection();
       return;
     }
 
     /* if lobby exists, but connection null, connect */
-    if(lobby && !this.isConnected) {
-      const connection = this.setupConnection();
-      this._abortConnecting = async () => {
-        this._logger.info("Aborting connection while still in setup phase");
-        await connection.connection.stop();
-      };
+    if (lobby && !this._lobbyStatusService.isConnected) {
+      const lobbyDto = this.mapLobbyToDto(lobby);
+      const result = await this._lobbyStatusService.setupConnection(
+        lobby.id,
+        lobbyDto,
+        lobby.meId,
+        member,
+      );
 
-      try {
-        await connection.connection.start();
-      }
-      catch (e) {
-        this._logger.error("Failed to setup socket connection", e);
-        this._connection$.next(await this.destroyConnection());
-        return;
-      }
-      const claim = this._existingTypoLobbyStates.get(lobby.id)?.ownershipClaimToken;
-      const state = await connection.hub.lobbyDiscovered({ownerClaimToken: claim, lobby: this.mapLobbyToDto(lobby), playerId: lobby.meId});
-      this._logger.info("Lobby discovered", state);
-      this._connection$.next({...connection, typoLobbyState: state, member});
-      this._abortConnecting = undefined;
-      this._existingTypoLobbyStates.set(state.lobbyId, state);
+      const { typoLobbyState, hub } = this._lobbyStatusService.connection;
 
       // set default settings if owner and not a reconnect (existing claim undefined)
-      if(state.playerIsOwner && claim === undefined) {
-        const defaults = lobby.private ?{
-          whitelistEnabled: await this._privateLobbyWhitelistEnabledSetting.getValue(),
-          whitelist: await this._privateLobbyWhitelistedServersSetting.getValue()
-        } : {
-          whitelistEnabled: await this._publicLobbyWhitelistEnabledSetting.getValue(),
-          whitelist: await this._publicLobbyWhitelistedServersSetting.getValue()
-        };
+      if (typoLobbyState.playerIsOwner && result === "connected") {
+        const defaults = lobby.private
+          ? {
+              whitelistEnabled: await this._privateLobbyWhitelistEnabledSetting.getValue(),
+              whitelist: await this._privateLobbyWhitelistedServersSetting.getValue(),
+            }
+          : {
+              whitelistEnabled: await this._publicLobbyWhitelistEnabledSetting.getValue(),
+              whitelist: await this._publicLobbyWhitelistedServersSetting.getValue(),
+            };
         try {
-          await connection.hub.updateTypoLobbySettings({
+          await hub.updateTypoLobbySettings({
             description: "",
             whitelistAllowedServers: defaults.whitelistEnabled,
-            allowedServers: defaults.whitelist});
-        }
-        catch (e) {
+            allowedServers: defaults.whitelist,
+          });
+        } catch (e) {
           this._logger.error("Failed to set defaults", e);
         }
       }
     }
 
     /* if lobby exists, and connected, send update */
-    if(lobby && this.isConnected) {
+    if (lobby && this._lobbyStatusService.isConnected) {
 
       /* if current lobby is different from current connection, disconnect and reconnect, then run again */
-      if(lobby.id !== this.connection.typoLobbyState.lobbyId) {
+      if (lobby.id !== this._lobbyStatusService.connection.typoLobbyState.lobbyId) {
         this._logger.info("Lobby changed, reconnecting");
-        this._connection$.next(await this.destroyConnection());
+        await this._lobbyStatusService.destroyConnection();
         return this.processLobbyUpdate(lobby, member);
-      }
-
-      else await this.connection.hub.updateSkribblLobbyState(this.mapLobbyToDto(lobby));
+      } else
+        await this._lobbyStatusService.connection.hub.updateSkribblLobbyState(
+          this.mapLobbyToDto(lobby),
+        );
     }
 
     this._logger.info("Lobby status processed");
-  }
-
-  /**
-   * Signalr event handler when lobby ownership has been resigned
-   * Attempts to claim the lobby ownership as a reaction
-   * @private
-   */
-  private async lobbyOwnershipResigned() {
-    this._logger.info("Lobby ownership resigned, claiming now");
-    await this.connection.hub.claimLobbyOwnership();
-  }
-
-  /**
-   * Signalr event handler when typo lobby settings have been updated
-   * Saves new properties to current connection info
-   * @param state
-   * @private
-   */
-  private async typoLobbySettingsUpdated(state: TypoLobbySettingsDto) {
-    const savedSettings = this._existingTypoLobbyStates.get(this.connection.typoLobbyState.lobbyId);
-    if(savedSettings) savedSettings.lobbySettings = state;
-
-    this.connection.typoLobbyState.lobbySettings = state;
-    this.connection.typoLobbyState.playerIsOwner = state.lobbyOwnershipClaim === this.connection.typoLobbyState.ownershipClaim;
-    this._connection$.next(this.connection); // notify change
-
-    this._logger.info("Lobby state updated", this.connection.typoLobbyState);
   }
 
   /**
@@ -365,19 +295,25 @@ export class LobbyStatusFeature extends TypoFeature {
    * @private
    */
   private mapLobbyToDto(lobby: skribblLobby): SkribblLobbyStateDto {
-    if(lobby.id === null) throw new Error("cannot map practice lobby to state dto");
+    if (lobby.id === null) throw new Error("cannot map practice lobby to state dto");
 
     return {
       link: lobby.id,
       ownerId: lobby.ownerId ?? undefined,
       round: lobby.round,
-      players: lobby.players.map(player => ({ name: player.name, isDrawing: false, score: player.score, playerId: player.id, hasGuessed: player.guessed })),
+      players: lobby.players.map((player) => ({
+        name: player.name,
+        isDrawing: false,
+        score: player.score,
+        playerId: player.id,
+        hasGuessed: player.guessed,
+      })),
       settings: {
         language: lobby.settings.language,
         players: lobby.settings.players,
         rounds: lobby.settings.rounds,
-        drawTime: lobby.settings.drawTime
-      }
+        drawTime: lobby.settings.drawTime,
+      },
     };
   }
 
@@ -388,33 +324,39 @@ export class LobbyStatusFeature extends TypoFeature {
    * @param whitelistAllowedServers Whether the lobby invite will be shown only in servers in the allowedServers list
    * @param allowedServers A list of server IDs which are allowed to show the lobby invite
    */
-  public async updateLobbySettings(description: string, whitelistAllowedServers: boolean, allowedServers: Record<string, boolean>) {
+  public async updateLobbySettings(
+    description: string,
+    whitelistAllowedServers: boolean,
+    allowedServers: Record<string, boolean>,
+  ) {
     const toast = await this._toastService.showLoadingToast("Updating lobby settings");
 
     /* write settings to defaults */
-    this._lobbyService.lobby$.subscribe(lobby => {
-      if(!lobby) return;
-      if(lobby.private) {
+    this._lobbyService.lobby$.subscribe((lobby) => {
+      if (!lobby) return;
+      if (lobby.private) {
         this._privateLobbyWhitelistEnabledSetting.setValue(whitelistAllowedServers);
-        this._privateLobbyWhitelistedServersSetting.setValue(Object.keys(allowedServers).filter(key => allowedServers[key]));
-      }
-      else {
+        this._privateLobbyWhitelistedServersSetting.setValue(
+          Object.keys(allowedServers).filter((key) => allowedServers[key]),
+        );
+      } else {
         this._publicLobbyWhitelistEnabledSetting.setValue(whitelistAllowedServers);
-        this._publicLobbyWhitelistedServersSetting.setValue(Object.keys(allowedServers).filter(key => allowedServers[key]));
+        this._publicLobbyWhitelistedServersSetting.setValue(
+          Object.keys(allowedServers).filter((key) => allowedServers[key]),
+        );
       }
     });
 
     try {
-      await this.connection.hub.updateTypoLobbySettings({
+      await this._lobbyStatusService.connection.hub.updateTypoLobbySettings({
         description,
         whitelistAllowedServers,
         allowedServers: Object.entries(allowedServers)
           .filter(([, value]) => value)
-          .map(([key]) => key)
+          .map(([key]) => key),
       });
       toast.resolve();
-    }
-    catch (e) {
+    } catch (e) {
       this._logger.error("Failed to update lobby settings", e);
       toast.reject();
     }
@@ -424,9 +366,12 @@ export class LobbyStatusFeature extends TypoFeature {
    * Disconnect the current lobby connection
    * The next lobby change event will reconnect as if lobby was first discovered
    */
-  public async resetConnection(){
-    this._connection$.next(await this.destroyConnection());
-    await this._toastService.showToast(undefined, "Connection reset; reconnecting in next update cycle");
+  public async resetConnection() {
+    await this._lobbyStatusService.destroyConnection();
+    await this._toastService.showToast(
+      undefined,
+      "Connection reset; reconnecting in next update cycle",
+    );
   }
 
   /**

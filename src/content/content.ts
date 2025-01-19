@@ -35,11 +35,13 @@ import { DrawingBrushLabFeature } from "@/content/features/drawing-brush-lab/dra
 import { DrawingColorPalettesFeature } from "@/content/features/drawing-color-palettes/drawing-color-palettes.feature";
 import { DrawingColorToolsFeature } from "@/content/features/drawing-color-tools/drawing-color-tools.feature";
 import { DrawingPressureFeature } from "@/content/features/drawing-pressure/drawing-pressure.feature";
+import { DropsFeature } from "@/content/features/drops/drops.feature";
 import { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
 import { HotkeysFeature } from "@/content/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
 import { LineToolFeature } from "@/content/features/line-tool/line-tool.feature";
 import { LobbyStatusFeature } from "@/content/features/lobby-status/lobby-status.feature";
+import { LobbyStatusService } from "@/content/features/lobby-status/lobby-status.service";
 import { LobbyTimeVisualizerFeature } from "@/content/features/lobby-time-visualizer/lobby-time-visualizer.feature";
 import { LoggingFeature } from "@/content/features/logging/logging.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
@@ -128,7 +130,8 @@ new ExtensionContainer(interceptor)
     {type: PlayersService, scope: "singleton"},
     {type: ChatService, scope: "singleton"},
     {type: LobbyInteractionsService, scope: "singleton"},
-    {type: ThemesService, scope: "singleton"}
+    {type: ThemesService, scope: "singleton"},
+    {type: LobbyStatusService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
@@ -206,7 +209,8 @@ new ExtensionContainer(interceptor)
     ChatCopyFormattedFeature,
     DrawingPressureFeature,
     ChatCommandsFeature,
-    DrawingBrushLabFeature
+    DrawingBrushLabFeature,
+    DropsFeature
   );
 
 /* indicate for interceptor that content script has loaded */

@@ -4,7 +4,7 @@
 // @ts-nocheck
 import type { HubConnection, IStreamResult, Subject } from '@microsoft/signalr';
 import type { IGuildLobbiesHub, ILobbyHub, IOnlineItemsHub, IGuildLobbiesReceiver, ILobbyReceiver, IOnlineItemsReceiver } from './tobeh.Avallone.Server.Hubs.Interfaces';
-import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, TypoLobbySettingsDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
+import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, DropClaimDto, DropClaimResultDto, AwardGiftDto, TypoLobbySettingsDto, DropAnnouncementDto, AwardGiftedDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
 
 
 // components
@@ -132,6 +132,14 @@ class ILobbyHub_HubProxy implements ILobbyHub {
     public readonly updateTypoLobbySettings = async (typoSettings: SkribblLobbyTypoSettingsUpdateDto): Promise<void> => {
         return await this.connection.invoke("UpdateTypoLobbySettings", typoSettings);
     }
+
+    public readonly claimDrop = async (dropClaim: DropClaimDto): Promise<DropClaimResultDto> => {
+        return await this.connection.invoke("ClaimDrop", dropClaim);
+    }
+
+    public readonly giftAward = async (awardGift: AwardGiftDto): Promise<void> => {
+        return await this.connection.invoke("GiftAward", awardGift);
+    }
 }
 
 class IOnlineItemsHub_HubProxyFactory implements HubProxyFactory<IOnlineItemsHub> {
@@ -186,13 +194,22 @@ class ILobbyReceiver_Binder implements ReceiverRegister<ILobbyReceiver> {
 
         const __typoLobbySettingsUpdated = (...args: [TypoLobbySettingsDto]) => receiver.typoLobbySettingsUpdated(...args);
         const __lobbyOwnershipResigned = () => receiver.lobbyOwnershipResigned();
+        const __dropAnnounced = (...args: [DropAnnouncementDto]) => receiver.dropAnnounced(...args);
+        const __awardGifted = (...args: [AwardGiftedDto]) => receiver.awardGifted(...args);
+        const __dropClaimed = (...args: [DropClaimResultDto]) => receiver.dropClaimed(...args);
 
         connection.on("TypoLobbySettingsUpdated", __typoLobbySettingsUpdated);
         connection.on("LobbyOwnershipResigned", __lobbyOwnershipResigned);
+        connection.on("DropAnnounced", __dropAnnounced);
+        connection.on("AwardGifted", __awardGifted);
+        connection.on("DropClaimed", __dropClaimed);
 
         const methodList: ReceiverMethod[] = [
             { methodName: "TypoLobbySettingsUpdated", method: __typoLobbySettingsUpdated },
-            { methodName: "LobbyOwnershipResigned", method: __lobbyOwnershipResigned }
+            { methodName: "LobbyOwnershipResigned", method: __lobbyOwnershipResigned },
+            { methodName: "DropAnnounced", method: __dropAnnounced },
+            { methodName: "AwardGifted", method: __awardGifted },
+            { methodName: "DropClaimed", method: __dropClaimed }
         ]
 
         return new ReceiverMethodSubscription(connection, methodList);

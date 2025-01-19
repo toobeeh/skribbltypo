@@ -2,6 +2,54 @@
 /* eslint-disable */
 /* tslint:disable */
 
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.AwardGiftDto */
+export type AwardGiftDto = {
+    /** Transpiled from int */
+    awardInventoryId: number;
+}
+
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.AwardGiftedDto */
+export type AwardGiftedDto = {
+    /** Transpiled from int */
+    receiverLobbyPlayerId: number;
+    /** Transpiled from int */
+    awarderLobbyPlayerId: number;
+    /** Transpiled from int */
+    awardInventoryId: number;
+    /** Transpiled from int */
+    awardId: number;
+}
+
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.DropAnnouncementDto */
+export type DropAnnouncementDto = {
+    /** Transpiled from long */
+    dropId: number;
+    /** Transpiled from int */
+    eventDropId?: number;
+    /** Transpiled from int */
+    position: number;
+}
+
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.DropClaimDto */
+export type DropClaimDto = {
+    /** Transpiled from long */
+    dropId: number;
+}
+
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.DropClaimResultDto */
+export type DropClaimResultDto = {
+    /** Transpiled from string */
+    username: string;
+    /** Transpiled from bool */
+    firstClaim: boolean;
+    /** Transpiled from bool */
+    clearedDrop: boolean;
+    /** Transpiled from int */
+    catchTime: number;
+    /** Transpiled from double */
+    leagueWeight: number;
+}
+
 /** Transpiled from tobeh.Avallone.Server.Classes.Dto.GuildLobbiesUpdatedDto */
 export type GuildLobbiesUpdatedDto = {
     /** Transpiled from string */
