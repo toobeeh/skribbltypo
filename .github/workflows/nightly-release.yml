@@ -1,4 +1,4 @@
-name: Build the extension in dev mode and push build to the nightly branch
+name: Build the extension in dev mode and push build to the nightly build repo
 
 on:
   push:
@@ -18,15 +18,16 @@ jobs:
       - name: Install node dependencies
         run: npm install
 
-      - name: Build extension in dev mode with commit as env -> nightly versioning
+      - name: Build extension in dev mode with commit as env for nightly versioning
         run: npm run build-dev
 
       - name: Push to nightly branch
         uses: s0/git-publish-subdir-action@develop
         env:
-          REPO: self
-          BRANCH: nightly
+          REPO: git@github.com:toobeeh/skribbltypo-nightly.git
+          BRANCH: main
           FOLDER: dist
           TARGET_DIR: chrome
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SSH_PRIVATE_KEY: ${{ secrets.NIGHTLY_DEPLOY_PK }}
           MESSAGE: "nightly build: ({sha}) {msg}"
+          COMMIT_NAME: "nightly build bot"
