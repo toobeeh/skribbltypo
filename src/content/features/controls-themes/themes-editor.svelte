@@ -1,6 +1,6 @@
 <script lang="ts">
 
-  import type { ControlsThemesFeature, savedTheme } from "@/content/features/controls-themes/controls-themes.feature";
+  import type { ControlsThemesFeature } from "@/content/features/controls-themes/controls-themes.feature";
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
   import ColorPickerButton from "@/lib/color-picker/color-picker-button.svelte";
   import { Color } from "@/util/color";
@@ -15,6 +15,7 @@
   let schemeEnableBackgroundTint = true;
   let schemeIngame = false;
   let shareId = "";
+  let importJson = "";
 
   export let feature: ControlsThemesFeature;
   export let variableHooks: Record<string, string[]>;
@@ -140,10 +141,10 @@
     <br>
 
     <div class="typo-themes-editor-header">
-          <div>If you have received a theme share ID, you can import it here:</div>
-          <br>
-          <input type="text" style="width: auto; margin-right: 1rem" placeholder="Share ID" bind:value={shareId} />
-          <FlatButton content="Import Theme" color="blue" on:click={async () => {
+      <div>If you have received a theme share ID, you can import it here:</div>
+      <br>
+      <input type="text" style="width: auto; margin-right: 1rem" placeholder="Share ID" bind:value={shareId} />
+      <FlatButton content="Import Theme" color="blue" on:click={async () => {
             const theme = await feature.importTheme(shareId);
             await feature.activateLocalTheme(theme.theme.meta.id);
             $activeThemeTab = "list";
@@ -329,7 +330,7 @@
         <div class="typo-themes-editor-content-section">
           <div class="group">
             <div>Custom CSS:</div>
-            <input type="text" placeholder=".logo-big &lbrace; display: none !important; }" bind:value={$loadedTheme.theme.misc.themeCss}
+            <input type="text" placeholder=".logo-big &lbrace; display: none !important; }" bind:value={$loadedTheme.theme.misc.cssText}
                    on:change={() => feature.updateLoadedEditorTheme($loadedTheme)} />
           </div>
 

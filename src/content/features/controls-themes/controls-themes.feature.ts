@@ -157,6 +157,21 @@ export class ControlsThemesFeature extends TypoFeature {
     }
   }
 
+  public async importOldTheme(theme: string){
+    const toast = await this._toastService.showLoadingToast("Converting old theme..");
+    try {
+
+      const oldTheme = JSON.parse(theme);
+      const newTheme = await this._themesService.importOldTheme(oldTheme.options, oldTheme.name);
+      toast.resolve("Old theme convert");
+      return newTheme;
+    }
+    catch(e) {
+      toast.reject("Failed to convert theme");
+      throw e;
+    }
+  }
+
   public async saveLoadedEditorTheme(){
     const toast = await this._toastService.showLoadingToast("Saving theme changes");
     try {
@@ -231,9 +246,11 @@ export class ControlsThemesFeature extends TypoFeature {
     try {
       const theme = await this._themesService.importTheme(shareId);
       toast.resolve(`Theme ${theme.theme.meta.name} imported`);
+      return theme;
     }
-    catch {
+    catch(e) {
       toast.reject("Failed to import theme");
+      throw e;
     }
   }
 

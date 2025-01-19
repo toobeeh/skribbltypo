@@ -36,7 +36,6 @@ export interface typoTheme {
     hideInGameLogo?: boolean,
     hideSkribblPanels?: boolean,
     themeCssUrl?: string,
-    themeCss?: string,
     cssText?: string,
     htmlText?: string
   },

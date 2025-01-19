@@ -2,6 +2,8 @@ import { ExtensionSetting } from "@/content/core/settings/setting";
 import { ApiService } from "@/content/services/api/api.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { fromObservable } from "@/util/store/fromObservable";
+import { convertOldTheme } from "@/util/typo/themes/convertOldTheme";
+import type { oldThemeOptions } from "@/util/typo/themes/oldTheme";
 import { createEmptyTheme, type savedTheme, type serializableTheme, type typoTheme } from "@/util/typo/themes/theme";
 import { inject, injectable } from "inversify";
 import { type ThemeListingDto, ThemesApi } from "@/api";
@@ -128,6 +130,29 @@ export class ThemesService {
     await this._savedThemesSetting.setValue([savedTheme, ...themes.filter(t => t.theme.meta.id !== savedTheme.theme.meta.id)]);
     this._loadedEditorTheme$.next(undefined);
     await this._activeThemeSetting.setValue(savedTheme.theme.meta.id);
+    return savedTheme;
+  }
+
+  public async importOldTheme(options: oldThemeOptions, name: string){
+    this._logger.info("Importing old theme", options);
+
+    const theme = createEmptyTheme("Unknown", name);
+    convertOldTheme(options, theme);
+    const themes = await this._savedThemesSetting.getValue();
+    const existingTheme = themes.find(t => t.theme.meta.id === theme.meta.id);
+    if(existingTheme !== undefined){
+      this._logger.warn("Theme already exists, assigning new ID", theme);
+      theme.meta.id = Date.now();
+    }
+
+    const savedTheme: savedTheme = {
+      theme: theme as serializableTheme,
+      savedAt: Date.now(),
+      publicTheme: undefined,
+      enableManage: true,
+    };
+
+    await this._savedThemesSetting.setValue([savedTheme, ...themes]);
     return savedTheme;
   }
 

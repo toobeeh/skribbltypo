@@ -9,11 +9,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build and Push
-    env:
-      COMMIT: ${{ github.sha }}"
     steps:
       - name: git-checkout
         uses: actions/checkout@v2
+
+      - name: Set short SHA in COMMIT env variable
+        run: echo "COMMIT=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
 
       - name: Install node dependencies
         run: npm install
