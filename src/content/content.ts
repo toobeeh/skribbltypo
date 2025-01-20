@@ -41,7 +41,7 @@ import { HotkeysFeature } from "@/content/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/content/features/image-agent/image-agent.feature";
 import { LineToolFeature } from "@/content/features/line-tool/line-tool.feature";
 import { LobbyStatusFeature } from "@/content/features/lobby-status/lobby-status.feature";
-import { LobbyStatusService } from "@/content/features/lobby-status/lobby-status.service";
+import { LobbyConnectionService } from "@/content/features/lobby-status/lobby-connection.service";
 import { LobbyTimeVisualizerFeature } from "@/content/features/lobby-time-visualizer/lobby-time-visualizer.feature";
 import { LoggingFeature } from "@/content/features/logging/logging.feature";
 import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.feature";
@@ -131,7 +131,7 @@ new ExtensionContainer(interceptor)
     {type: ChatService, scope: "singleton"},
     {type: LobbyInteractionsService, scope: "singleton"},
     {type: ThemesService, scope: "singleton"},
-    {type: LobbyStatusService, scope: "singleton"}
+    {type: LobbyConnectionService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,

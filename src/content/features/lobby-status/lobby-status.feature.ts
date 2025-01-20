@@ -1,7 +1,7 @@
 import { type MemberDto } from "@/api";
 import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { ExtensionSetting } from "@/content/core/settings/setting";
-import { LobbyStatusService } from "@/content/features/lobby-status/lobby-status.service";
+import { LobbyConnectionService } from "@/content/features/lobby-status/lobby-connection.service";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { MemberService } from "@/content/services/member/member.service";
@@ -37,10 +37,10 @@ export class LobbyStatusFeature extends TypoFeature {
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(GlobalSettingsService) private readonly _settingsService!: GlobalSettingsService;
-  @inject(LobbyStatusService) private readonly _lobbyStatusService!: LobbyStatusService;
+  @inject(LobbyConnectionService) private readonly _lobbyConnectionService!: LobbyConnectionService;
 
   protected override get boundServices(): featureBinding[] {
-    return [this._lobbyStatusService];
+    return [this._lobbyConnectionService];
   }
 
   private _privateLobbyWhitelistEnabledSetting = new ExtensionSetting<boolean>(
@@ -78,7 +78,7 @@ export class LobbyStatusFeature extends TypoFeature {
    * A store containing the current connection state
    */
   public get connectionStore() {
-    return fromObservable(this._lobbyStatusService.connection$, undefined);
+    return fromObservable(this._lobbyConnectionService.connection$, undefined);
   }
 
   /**
@@ -227,27 +227,27 @@ export class LobbyStatusFeature extends TypoFeature {
 
     /* if member is null and connection exists, disconnect */
     if (member === null || member === undefined) {
-      await this._lobbyStatusService.destroyConnection(true);
+      await this._lobbyConnectionService.destroyConnection(true);
       return;
     }
 
     /* if lobby is null or practice and connection exists, disconnect */
     if (lobby === null || lobby.id === null) {
-      await this._lobbyStatusService.destroyConnection();
+      await this._lobbyConnectionService.destroyConnection();
       return;
     }
 
     /* if lobby exists, but connection null, connect */
-    if (lobby && !this._lobbyStatusService.isConnected) {
+    if (lobby && !this._lobbyConnectionService.isConnected) {
       const lobbyDto = this.mapLobbyToDto(lobby);
-      const result = await this._lobbyStatusService.setupConnection(
+      const result = await this._lobbyConnectionService.setupConnection(
         lobby.id,
         lobbyDto,
         lobby.meId,
         member,
       );
 
-      const { typoLobbyState, hub } = this._lobbyStatusService.connection;
+      const { typoLobbyState, hub } = this._lobbyConnectionService.connection;
 
       // set default settings if owner and not a reconnect (existing claim undefined)
       if (typoLobbyState.playerIsOwner && result === "connected") {
@@ -273,15 +273,15 @@ export class LobbyStatusFeature extends TypoFeature {
     }
 
     /* if lobby exists, and connected, send update */
-    if (lobby && this._lobbyStatusService.isConnected) {
+    if (lobby && this._lobbyConnectionService.isConnected) {
 
       /* if current lobby is different from current connection, disconnect and reconnect, then run again */
-      if (lobby.id !== this._lobbyStatusService.connection.typoLobbyState.lobbyId) {
+      if (lobby.id !== this._lobbyConnectionService.connection.typoLobbyState.lobbyId) {
         this._logger.info("Lobby changed, reconnecting");
-        await this._lobbyStatusService.destroyConnection();
+        await this._lobbyConnectionService.destroyConnection();
         return this.processLobbyUpdate(lobby, member);
       } else
-        await this._lobbyStatusService.connection.hub.updateSkribblLobbyState(
+        await this._lobbyConnectionService.connection.hub.updateSkribblLobbyState(
           this.mapLobbyToDto(lobby),
         );
     }
@@ -348,7 +348,7 @@ export class LobbyStatusFeature extends TypoFeature {
     });
 
     try {
-      await this._lobbyStatusService.connection.hub.updateTypoLobbySettings({
+      await this._lobbyConnectionService.connection.hub.updateTypoLobbySettings({
         description,
         whitelistAllowedServers,
         allowedServers: Object.entries(allowedServers)
@@ -367,7 +367,7 @@ export class LobbyStatusFeature extends TypoFeature {
    * The next lobby change event will reconnect as if lobby was first discovered
    */
   public async resetConnection() {
-    await this._lobbyStatusService.destroyConnection();
+    await this._lobbyConnectionService.destroyConnection();
     await this._toastService.showToast(
       undefined,
       "Connection reset; reconnecting in next update cycle",

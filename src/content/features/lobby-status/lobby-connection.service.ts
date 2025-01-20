@@ -21,7 +21,7 @@ interface lobbyConnectionState {
 }
 
 @injectable()
-export class LobbyStatusService implements featureBinding {
+export class LobbyConnectionService implements featureBinding {
   @inject(SocketService) private readonly _socketService!: SocketService;
 
   private readonly _logger;

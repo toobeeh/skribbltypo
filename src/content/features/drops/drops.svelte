@@ -3,7 +3,7 @@
   import type { DropsFeature } from "./drops.feature";
   export let feature: DropsFeature;
   export let drops: EventDropDto[];
-  const currentDrop = feature.currentDropStore();
+  const currentDrop = feature.currentDropStore;
 
   function getDropUrl(id?: number){
     const drop = drops.find(drop => drop.id === id);
@@ -39,9 +39,13 @@
 
 {#if $currentDrop !== undefined}
   <div class="typo-drop"
-       on:click={() => {
-         if($currentDrop !== undefined) feature.claimDrop($currentDrop.dropId);
+       on:click={async () => {
+         const id = $currentDrop?.dropId;
          $currentDrop = undefined;
+         if(id) {
+           const claim = await feature.claimDrop(id);
+           if(claim !== undefined) feature.processClaim(claim, true);
+         }
        }}
        style="left: calc((100% - 48px) * ({$currentDrop.position} / 100)); background-image: {getDropUrl($currentDrop.eventDropId)}"
   ></div>

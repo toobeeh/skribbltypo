@@ -1,11 +1,11 @@
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
 import { MessageReceivedEventListener } from "@/content/events/message-received.event";
-import { LobbyInteractionsService } from "@/content/services/lobby-interactions/lobby-interactions.service";
 import { PlayersService } from "@/content/services/players/players.service";
 import type { SkribblLobbyPlayer } from "@/content/services/players/skribblLobbyPlayer";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject, injectable, postConstruct } from "inversify";
 import { filter, map, mergeWith, Subject, withLatestFrom } from "rxjs";
+import MessageComponent from "./message.svelte";
 
 interface pendingMessage {
   player: SkribblLobbyPlayer;
@@ -25,7 +25,6 @@ export class ChatService {
 
   @inject(ElementsSetup) private _elementsSetup!: ElementsSetup;
   @inject(PlayersService) private _lobbyPlayersService!: PlayersService;
-  @inject(LobbyInteractionsService) private _test!: LobbyInteractionsService;
   @inject(MessageReceivedEventListener) private _messageReceivedEventListener!: MessageReceivedEventListener;
 
   private readonly _logger;
@@ -133,5 +132,20 @@ export class ChatService {
 
   public get messageReceived$() {
     return this._messageReceived$.asObservable();
+  }
+
+  public async addChatMessage(content: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"){
+    const elements = await this._elementsSetup.complete();
+
+    const container = elements.chatContent;
+    const isScrolledDown = container.scrollHeight - container.scrollTop - container.clientHeight < 1;
+
+    const message = new MessageComponent({
+      target: container,
+      props: { title: title ?? "", content, style }
+    });
+    
+    if(isScrolledDown) container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
+    return message;
   }
 }

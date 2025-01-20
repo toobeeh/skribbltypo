@@ -48,6 +48,10 @@ export type DropClaimResultDto = {
     catchTime: number;
     /** Transpiled from double */
     leagueWeight: number;
+    /** Transpiled from long */
+    dropId: number;
+    /** Transpiled from bool */
+    leagueMode: boolean;
 }
 
 /** Transpiled from tobeh.Avallone.Server.Classes.Dto.GuildLobbiesUpdatedDto */
