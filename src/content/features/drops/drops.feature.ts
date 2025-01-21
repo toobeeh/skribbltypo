@@ -42,6 +42,7 @@ export class DropsFeature extends TypoFeature {
   private _currentDrop$ = new Subject<DropAnnouncementDto | undefined>();
   private _dropSummarySubscription?: Subscription;
   private _dropAnnouncedSubscription?: Subscription;
+  private _dropClaimedSubscription?: Subscription;
 
   private _enableDropSummary = this.useSetting(new BooleanExtensionSetting("drop_summary", true, this)
     .withName("Drop Summary")
@@ -55,7 +56,7 @@ export class DropsFeature extends TypoFeature {
     const elements = await this._elementsSetup.complete();
     const apiData = await this._apiDataSetup.complete();
 
-    this._lobbyConnectionService.dropClaimed$.subscribe(
+    this._dropClaimedSubscription = this._lobbyConnectionService.dropClaimed$.subscribe(
       claim => this.processClaim(claim, false)
     );
 
@@ -106,7 +107,7 @@ export class DropsFeature extends TypoFeature {
       /* drop has been cleared */
       if(prev !== undefined && current === undefined){
         const currentClaims = claims.filter(c => c.dropId === prev?.dropId);
-        const title = "Dop Summary";
+        const title = "Drop Summary";
         const content = "\n" + (currentClaims.length === 0 ? "The drop  timed out :(" :  currentClaims
           .map(c => `${getEmoji(c)} ${c.username}: ${c.catchTime}ms (${Math.round(c.leagueWeight * 100)}%)`)
           .join("\n"));
@@ -121,8 +122,10 @@ export class DropsFeature extends TypoFeature {
     this._recordedClaims$.next([]);
     this._dropSummarySubscription?.unsubscribe();
     this._dropAnnouncedSubscription?.unsubscribe();
+    this._dropClaimedSubscription?.unsubscribe();
     this._dropSummarySubscription = undefined;
     this._dropAnnouncedSubscription = undefined;
+    this._dropClaimedSubscription = undefined;
   }
 
   public get currentDropStore(){

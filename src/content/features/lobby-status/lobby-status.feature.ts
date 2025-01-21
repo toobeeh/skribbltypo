@@ -19,7 +19,7 @@ import {
   BehaviorSubject,
   combineLatestWith,
   debounce,
-  debounceTime, distinctUntilChanged,
+  distinctUntilChanged, interval,
   map,
   of,
   type Subscription,
@@ -124,7 +124,7 @@ export class LobbyStatusFeature extends TypoFeature {
       30 * 1000,
     )
       .pipe(
-        debounceTime(2000), // start connection only after player has been in the lobby for 2s to avoid spamming
+        debounce(() => this._lobbyConnectionService.isConnected ? of(null) : interval(2000)), // start connection only after player has been in the lobby for 2s to avoid spamming
         combineLatestWith(this._memberService.member$),
         debounce(() => this._currentBackendProcessing ?? of(0)), // allow only one backend processing at a time
       )
@@ -303,7 +303,7 @@ export class LobbyStatusFeature extends TypoFeature {
       round: lobby.round,
       players: lobby.players.map((player) => ({
         name: player.name,
-        isDrawing: false,
+        isDrawing: player.id === lobby.drawerId,
         score: player.score,
         playerId: player.id,
         hasGuessed: player.guessed,

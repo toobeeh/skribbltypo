@@ -1,4 +1,4 @@
-import { AnnouncementsApi, EmojisApi, EventsApi, ScenesApi, SpritesApi, ThemesApi } from "@/api";
+import { AnnouncementsApi, AwardsApi, EmojisApi, EventsApi, ScenesApi, SpritesApi, ThemesApi } from "@/api";
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
 import { ApiService } from "@/content/services/api/api.service";
 import { ToastService } from "@/content/services/toast/toast.service";
@@ -15,7 +15,8 @@ function getData(
   eventsApi: EventsApi,
   emojisApi: EmojisApi,
   announcementsApi: AnnouncementsApi,
-  themesApi: ThemesApi
+  themesApi: ThemesApi,
+  awardsApi: AwardsApi
 ) {
   return {
     sprites: spritesApi.getAllSprites(),
@@ -23,7 +24,8 @@ function getData(
     emojis: emojisApi.getAllEmojisCached({ limit: 100000, animated: true, statics: true }),
     announcements: announcementsApi.getAnnouncements(),
     themes: themesApi.getAllThemes(),
-    drops: eventsApi.getAllEventDrops()
+    drops: eventsApi.getAllEventDrops(),
+    awards: awardsApi.getAllAwards()
   };
 }
 export type apiData = ReturnType<typeof promiseAllObject<ReturnType<typeof getData>>>;
@@ -45,7 +47,8 @@ export class ApiDataSetup extends Setup<apiData> {
       this._apiService.getApi(EventsApi),
       this._apiService.getApi(EmojisApi),
       this._apiService.getApi(AnnouncementsApi),
-      this._apiService.getApi(ThemesApi)
+      this._apiService.getApi(ThemesApi),
+      this._apiService.getApi(AwardsApi)
     ));
 
     promise.catch((e) => {

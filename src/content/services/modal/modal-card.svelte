@@ -60,6 +60,8 @@
     animation: slideIn 0.15s ease-out;
     backdrop-filter: blur(4px);
 
+    max-height: calc(100vh - 4rem);
+
     display: flex;
     flex-direction: column;
     align-items: center;

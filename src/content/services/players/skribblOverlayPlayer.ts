@@ -33,6 +33,8 @@ export class SkribblOverlayPlayer implements SkribblPlayerDisplay {
     return this._overlayContainer;
   }
 
+  readonly iconsContainer = null;
+
   set useBackground(value: boolean) {
     /* no implementation */
   }

@@ -1,3 +1,4 @@
+import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { fromObservable } from "@/util/store/fromObservable";
 import { MemberService } from "../../services/member/member.service";
 import UserInfo from "./user-info.svelte";
@@ -9,6 +10,7 @@ export class UserInfoFeature extends TypoFeature {
 
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(MemberService) private readonly _memberService!: MemberService;
+  @inject(GlobalSettingsService) private readonly _globalSettingsService!: GlobalSettingsService;
 
   private _element?: UserInfo;
 
@@ -33,6 +35,10 @@ export class UserInfoFeature extends TypoFeature {
 
   get memberStore() {
     return fromObservable(this._memberService.member$, null);
+  }
+
+  get devmodeStore() {
+    return this._globalSettingsService.settings.devMode.store;
   }
 
   public login(){

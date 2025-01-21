@@ -48,6 +48,7 @@ import { PanelCabinFeature } from "@/content/features/panel-cabin/panel-cabin.fe
 import { PanelChangelogFeature } from "@/content/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/content/features/panel-filters/panel-filters.feature";
 import { PanelLobbiesFeature } from "@/content/features/panel-lobbies/panel-lobbies.feature";
+import { PlayerAwardsFeature } from "@/content/features/player-awards/player-awards-feature";
 import { PlayerIdsFeature } from "@/content/features/player-ids/player-ids.feature";
 import { PlayerScenesFeature } from "@/content/features/player-scenes/player-scenes.feature";
 import { PlayerSpritesFeature } from "@/content/features/player-sprites/player-sprites.feature";
@@ -210,7 +211,8 @@ new ExtensionContainer(interceptor)
     DrawingPressureFeature,
     ChatCommandsFeature,
     DrawingBrushLabFeature,
-    DropsFeature
+    DropsFeature,
+    PlayerAwardsFeature
   );
 
 /* indicate for interceptor that content script has loaded */

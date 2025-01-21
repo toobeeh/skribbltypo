@@ -19,6 +19,7 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   private readonly _playerContainer: HTMLElement;
   private readonly _avatarContainer: HTMLElement;
   private readonly _backgroundContainer: HTMLElement;
+  private readonly _iconsContainer: HTMLElement;
 
   private readonly _playerStyle: HTMLStyleElement;
 
@@ -36,6 +37,7 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
     this._playerContainer = requireElement(`#game-players .player[playerid='${this._player.id}']`);
     this._avatarContainer = requireElement(".avatar", this._playerContainer);
     this._backgroundContainer = requireElement(".player-background", this._playerContainer);
+    this._iconsContainer = requireElement(".player-icons", this._playerContainer);
 
     this._elementId = "typo-lobby-player-" + SkribblLobbyPlayer.idCounter++;
     this._playerStyle = document.createElement("style");
@@ -67,6 +69,10 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
 
   public get backgroundContainer() {
     return this._backgroundContainer;
+  }
+
+  get iconsContainer(): HTMLElement {
+    return this._iconsContainer;
   }
 
   public set useBackground(value: boolean) {

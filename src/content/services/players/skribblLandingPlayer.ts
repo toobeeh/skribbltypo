@@ -21,6 +21,8 @@ export class SkribblLandingPlayer implements SkribblPlayerDisplay {
     return this._customizerContainer;
   }
 
+  readonly iconsContainer = null;
+
   set useBackground(value: boolean) {
     this._customizerContainer.style.backgroundColor = value ? "" : "transparent";
     this._customizerContainer.style.zIndex = value ? "" : "1";

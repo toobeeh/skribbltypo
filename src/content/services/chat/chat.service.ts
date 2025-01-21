@@ -134,7 +134,7 @@ export class ChatService {
     return this._messageReceived$.asObservable();
   }
 
-  public async addChatMessage(content: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"){
+  public async addChatMessage(content?: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"){
     const elements = await this._elementsSetup.complete();
 
     const container = elements.chatContent;

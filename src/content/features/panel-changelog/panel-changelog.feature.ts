@@ -1,4 +1,5 @@
 import { AnnouncementDtoTypeEnum } from "@/api";
+import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -9,6 +10,7 @@ export class PanelChangelogFeature extends TypoFeature {
 
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
+  @inject(GlobalSettingsService) private readonly _globalSettingsService!: GlobalSettingsService;
 
   private _component?: PanelChangelog;
 
@@ -35,6 +37,14 @@ export class PanelChangelogFeature extends TypoFeature {
 
   protected override onDestroy(): void {
     this._component?.$destroy();
+  }
+
+  public get devmodeStore() {
+    return this._globalSettingsService.settings.devMode.store;
+  }
+
+  public getVersion(){
+    return chrome.runtime.getManifest().version_name;
   }
 
   public readonly changelog = "I am the changelog :)";

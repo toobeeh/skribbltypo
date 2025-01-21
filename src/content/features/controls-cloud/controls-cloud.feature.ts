@@ -66,7 +66,7 @@ export class ControlsCloudFeature extends TypoFeature {
           return;
         }
 
-        await this._cloudService.uploadToCloud(image, member);
+        await this._cloudService.uploadToCloud(image, member, true); /* link pending awards if any */
       });
 
     /* listen for click on icon */

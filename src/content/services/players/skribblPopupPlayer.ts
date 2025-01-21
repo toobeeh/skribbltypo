@@ -42,6 +42,8 @@ export class SkribblPopupPlayer implements SkribblPlayerDisplay {
     return this._playerPopup;
   }
 
+  readonly iconsContainer = null;
+
   set useBackground(value: boolean) {
     /* no implementation */
   }

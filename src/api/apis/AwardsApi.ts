@@ -31,7 +31,7 @@ export class AwardsApi extends runtime.BaseAPI {
      *   Required Roles: None  Rate limit default: 10 Requests / 60000 ms TTL
      * Get all awards
      */
-    async getNextDropRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AwardDto>>> {
+    async getAllAwardsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AwardDto>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -50,8 +50,8 @@ export class AwardsApi extends runtime.BaseAPI {
      *   Required Roles: None  Rate limit default: 10 Requests / 60000 ms TTL
      * Get all awards
      */
-    async getNextDrop(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AwardDto>> {
-        const response = await this.getNextDropRaw(initOverrides);
+    async getAllAwards(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AwardDto>> {
+        const response = await this.getAllAwardsRaw(initOverrides);
         return await response.value();
     }
 

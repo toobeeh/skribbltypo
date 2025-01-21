@@ -6,8 +6,7 @@
   import ColorPicker from "@/lib/color-picker/color-picker-button.svelte";
   export let feature: PanelChangelogFeature;
   export let changes: AnnouncementDto[] | undefined = undefined;
-
-  let color: Color = Color.fromHex("#45588d");
+  const devmode = feature.devmodeStore;
 </script>
 
 <style lang="scss">
@@ -44,10 +43,20 @@
         }
       }
     }
+
+    .typo-version {
+      font-size: .8rem;
+      opacity: .7;
+    }
   }
 </style>
 
 <div class="panel-changelog">
+  {#if $devmode}
+    <p class="typo-version">
+      Typo version: {feature.getVersion()}
+    </p>
+  {/if}
   <div class="changelog">
     {#if changes === undefined}
       <Bounceload content="Loading changelog.." />

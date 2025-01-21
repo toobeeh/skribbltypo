@@ -35,6 +35,8 @@ export class SkribblScoreboardPodiumPlayer implements SkribblPlayerDisplay {
     return this._playerContainer;
   }
 
+  readonly iconsContainer = null;
+
   set useBackground(value: boolean) {
     /* no implementation */
   }

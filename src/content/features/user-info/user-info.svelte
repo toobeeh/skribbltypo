@@ -4,6 +4,7 @@
 
   export let feature: UserInfoFeature;
   const member = feature.memberStore;
+  const devmode  = feature.devmodeStore;
 </script>
 
 <style lang="scss">
@@ -89,5 +90,12 @@
       <div><span>🫧</span><span>Bubbles:</span><span>{$member.bubbles}</span></div>
       <div><span>💧</span><span>Drops:</span><span>{Math.round($member.drops * 10) / 10}</span></div>
     </div>
+
+    {#if $devmode}
+      <div class="member-info-stats">
+        <div><span></span><span>Typo ID:</span><span>{$member.userLogin}</span></div>
+      </div>
+    {/if}
+
   {/if}
 </div>

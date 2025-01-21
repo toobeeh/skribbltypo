@@ -35,6 +35,11 @@ export interface SkribblPlayerDisplay {
   get container(): HTMLElement;
 
   /**
+   * Container where icons of the player are displayed
+   */
+  get iconsContainer(): HTMLElement | null;
+
+  /**
    * Set the background of the player's background container
    * @param value
    */
