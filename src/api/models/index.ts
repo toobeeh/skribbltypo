@@ -3,6 +3,7 @@
 export * from './AccessTokenDto';
 export * from './AnnouncementDto';
 export * from './AwardDto';
+export * from './AwardInventoryDto';
 export * from './CloudDeleteDto';
 export * from './CloudImageDto';
 export * from './CloudSearchDto';

@@ -15,6 +15,7 @@
 
 import * as runtime from '../runtime';
 import type {
+  AwardInventoryDto,
   SceneInventoryDto,
   SetActiveSceneDto,
   SpriteComboDto,
@@ -23,6 +24,8 @@ import type {
   SpriteSlotDto,
 } from '../models/index';
 import {
+    AwardInventoryDtoFromJSON,
+    AwardInventoryDtoToJSON,
     SceneInventoryDtoFromJSON,
     SceneInventoryDtoToJSON,
     SetActiveSceneDtoFromJSON,
@@ -36,6 +39,10 @@ import {
     SpriteSlotDtoFromJSON,
     SpriteSlotDtoToJSON,
 } from '../models/index';
+
+export interface GetMemberAvailableAwardInventoryRequest {
+    login: number;
+}
 
 export interface GetMemberSceneInventoryRequest {
     login: number;
@@ -68,6 +75,49 @@ export interface SetMemberSpriteSlotRequest {
  * 
  */
 export class InventoryApi extends runtime.BaseAPI {
+
+    /**
+     *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
+     * Get all awards in the inventory of a member which are available to gift
+     */
+    async getMemberAvailableAwardInventoryRaw(requestParameters: GetMemberAvailableAwardInventoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AwardInventoryDto>>> {
+        if (requestParameters['login'] == null) {
+            throw new runtime.RequiredError(
+                'login',
+                'Required parameter "login" was null or undefined when calling getMemberAvailableAwardInventory().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearer", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/member/{login}/inventory/awards/available`.replace(`{${"login"}}`, encodeURIComponent(String(requestParameters['login']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AwardInventoryDtoFromJSON));
+    }
+
+    /**
+     *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
+     * Get all awards in the inventory of a member which are available to gift
+     */
+    async getMemberAvailableAwardInventory(requestParameters: GetMemberAvailableAwardInventoryRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AwardInventoryDto>> {
+        const response = await this.getMemberAvailableAwardInventoryRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      *   Required Roles: Moderator - Role override if {login} matches the client login.  Rate limit default: 30 Requests / 60000 ms TTL
