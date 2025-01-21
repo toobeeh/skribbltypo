@@ -3,7 +3,7 @@ name: Build the extension in dev mode and push build to the nightly build repo
 on:
   push:
     branches:
-      - skribbltypo-ts
+      - develop
 
 jobs:
   build:
