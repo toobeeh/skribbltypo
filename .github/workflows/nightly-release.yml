@@ -30,7 +30,7 @@ jobs:
           FOLDER: dist
           TARGET_DIR: chrome
           SSH_PRIVATE_KEY: ${{ secrets.NIGHTLY_DEPLOY_PK }}
-          MESSAGE: "toobeeh/skribbltypo@{sha} {msg}"
+          MESSAGE: "{msg}\noriginal commit: toobeeh/skribbltypo@{sha}"
           COMMIT_NAME: "nightly build"
           COMMIT_EMAIL: "dev.tobeh@gmail.com"
           SKIP_EMPTY_COMMITS: true

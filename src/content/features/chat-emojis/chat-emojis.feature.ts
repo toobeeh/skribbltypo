@@ -82,6 +82,7 @@ export class ChatEmojisFeature extends TypoFeature {
             const text = elements.chatInput.value;
             elements.chatInput.value = text.slice(0, text.lastIndexOf(":")) + `:${this.getEmojiId(emoji)}:`;
             this._flyoutComponent?.close();
+            elements.chatInput.focus();
           }
         },
       };
@@ -175,6 +176,11 @@ export class ChatEmojisFeature extends TypoFeature {
   }
 
   parseUnfinishedEmoji(text: string) {
+
+    /* remove all parsed emotes */
+    const parsedEmojiPattern = /:([a-zA-Z0-9_-]+):/g;
+    text = text.replace(parsedEmojiPattern, "");
+
     const emojiPattern = /:([a-zA-Z0-9_-]*)$/;
     const match = emojiPattern.exec(text);
     return match?.[1];
