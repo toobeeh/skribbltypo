@@ -13,11 +13,12 @@ import { InterpretableError } from "@/content/core/commands/results/interpretabl
 import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
+import { TextExtensionSetting } from "@/content/core/settings/setting";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import { fromObservable } from "@/util/store/fromObservable";
-import { Subject, type Subscription, switchMap, withLatestFrom } from "rxjs";
+import { filter, Subject, type Subscription, switchMap, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
@@ -55,7 +56,15 @@ export class ChatCommandsFeature extends TypoFeature {
       },
       true,
       ["Enter"],
+      undefined,
+      false
     ),
+  );
+
+  private readonly _customPrefixSetting = this.useSetting(
+    new TextExtensionSetting("custom_prefix", "", this)
+      .withName("Custom Command Prefix")
+      .withDescription("Set a custom prefix for chat commands that will trigger the command prompt, additionally to ' / '")
   );
 
   protected override async onActivate() {
@@ -96,7 +105,10 @@ export class ChatCommandsFeature extends TypoFeature {
      * execute interpreted command on hotkey submission
      */
     this._submitSubscription = this._hotkeySubmitted$
-      .pipe(withLatestFrom(this._commandResults$))
+      .pipe(
+        withLatestFrom(this._commandResults$, this._commandArgs$),
+        filter(([, , args]) => args.startsWith("/")),
+      )
       .subscribe(async ([, results]) => this.commandSubmitted(results));
   }
 
@@ -116,7 +128,7 @@ export class ChatCommandsFeature extends TypoFeature {
     return fromObservable(this._commandResults$, []);
   }
 
-  public get submitHotkeyStorage(){
+  public get submitHotkeyStore(){
     return this._submitCommandHotkey.comboSetting.store;
   }
 
@@ -125,19 +137,29 @@ export class ChatCommandsFeature extends TypoFeature {
    * check if starts with / and show command input instead
    */
   async handleInputEvent(event: Event ) {
+    const target = event.currentTarget as HTMLInputElement | null;
+    const customPrefix = await this._customPrefixSetting.getValue();
+    if(target !== null && (target.value === "/" || customPrefix !== "" && target.value === customPrefix)){
+      await this.switchToCommandMode();
+    }
+  }
+
+  /**
+   * Hide the original chat input and open the command input
+   * @private
+   */
+  private async switchToCommandMode() {
     const elements = await this._elements.complete();
-    const target = event.currentTarget as HTMLInputElement;
-    if(target.value === "/") {
-      target.value = "";
-      if(!this._commandInput){
-        this._commandInput = new CommandInput({
-          target: elements.chatForm,
-          props: {
-            onInput: (args: string) => this._commandArgs$.next(args),
-          },
-        });
-        this._commandArgs$.next("/");
-      }
+    elements.chatInput.value = "";
+    elements.chatInput.dispatchEvent(new Event("input"));
+    if(!this._commandInput){
+      this._commandInput = new CommandInput({
+        target: elements.chatForm,
+        props: {
+          onInput: (args: string) => this._commandArgs$.next(args),
+        },
+      });
+      this._commandArgs$.next("/");
     }
   }
 

@@ -68,6 +68,8 @@ export class ChatQuickReactFeature extends TypoFeature {
       () => this.toggleQuickReactMenu(),
       true,
       ["ControlRight"],
+      undefined,
+      false
     ),
   );
 

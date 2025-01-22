@@ -17,6 +17,7 @@ export class HotkeyAction {
     defaultEnabled?: boolean,
     private _defaultCombo?: string[],
     private _releaseAction?: () => (void | Promise<void>),
+    private _preventWhenInputActive = true
   ) {
     this._enabledSetting = new ExtensionSetting(`
     hotkey.${this._key}.enabled`,
@@ -56,11 +57,11 @@ export class HotkeyAction {
    * return observable holds the result, if executed or not
    * @param keys a combination of key codes, see https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
    */
-  public executeIfMatches(keys: string[]) {
+  public executeIfMatches(keys: string[], inputActive: boolean) {
     return this._enabledSetting.changes$.pipe(
       take(1),
       withLatestFrom(this._comboSetting.changes$),
-      map(([enabled, combo]) => enabled && combo.length > 0 ? combo : null),
+      map(([enabled, combo]) => enabled && !(this._preventWhenInputActive && inputActive) && combo.length > 0 ? combo : null),
       map(combo => combo ? combo.length === keys.length && combo.every(key => keys.includes(key)) : false),
       switchMap(matches => {
         if(!matches) return of(false);

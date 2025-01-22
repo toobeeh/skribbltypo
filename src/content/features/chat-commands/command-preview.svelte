@@ -11,7 +11,7 @@
   export let feature: ChatCommandsFeature;
 
   const currentCommands = feature.commandResultStore;
-  const combo = feature.submitHotkeyStorage;
+  const combo = feature.submitHotkeyStore;
 </script>
 
 <style lang="scss">

@@ -1,7 +1,5 @@
 <script lang="ts">
-
   export let onInput: (args: string) => void;
-
 </script>
 
 
@@ -13,7 +11,12 @@
 
 </style>
 
-<input id="typo-command-input" type="text" autofocus value="/" placeholder="Type your command here.." on:input={e => onInput(e.currentTarget.value)} on:submit={e => {
-  e.preventDefault();
-  e.stopImmediatePropagation();
-}} />
+<input id="typo-command-input" autofocus type="text" value="/" placeholder="Type your command here.."
+   on:input={e => {
+     onInput(e.currentTarget.value);
+   }}
+   on:submit={e => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+   }}
+/>

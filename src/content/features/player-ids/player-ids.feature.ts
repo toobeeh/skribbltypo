@@ -21,6 +21,7 @@ export class PlayerIdsFeature extends TypoFeature {
       true,
       ["AltLeft"],
       () => this.setRevealState(false),
+      false
     ),
   );
 
