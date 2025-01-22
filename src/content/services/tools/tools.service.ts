@@ -5,10 +5,10 @@ import { ColorChangedEventListener } from "@/content/events/color-changed.event"
 import { SizeChangedEventListener } from "@/content/events/size-changed.event";
 import { skribblTool, ToolChangedEventListener } from "@/content/events/tool-changed.event";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
+import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
 import type { drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
-import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
@@ -39,7 +39,7 @@ export class ToolsService {
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
   @inject(ToolChangedEventListener) private readonly _toolChangedListener!: ToolChangedEventListener;
   @inject(ExtensionContainer) private readonly _extensionContainer!: ExtensionContainer;
-  @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
+  @inject(LobbyService) private readonly _lobbyService!: LobbyService;
   @inject(SizeChangedEventListener) private readonly _sizeChangedListener!: SizeChangedEventListener;
   @inject(ColorChangedEventListener) private readonly _colorChangedListener!: ColorChangedEventListener;
 
@@ -91,6 +91,13 @@ export class ToolsService {
     });
 
     this.drawCoordinates$.pipe(
+
+      /* only when currently drawing */
+      withLatestFrom(this._lobbyService.lobby$),
+      filter(([, lobby]) => lobby?.meId === lobby?.drawerId),
+      map(([coords]) => coords),
+
+      /* add current mods, tools and style */
       withLatestFrom(this._activeTool$, this._activeMods$, this._activeBrushStyle$),
     ).subscribe(async ([[start, end], tool, mods, style]) => {
       this._logger.debug("Activating tool and applying mods", start, end);
