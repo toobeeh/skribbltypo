@@ -274,29 +274,35 @@ export class DrawingService {
     const canvasWidth = 800;
     const canvasHeight = 600;
 
+    /* if target and origin out of bounds, return dummy coords */
+    if((origin[0] < 0 && target[0] < 0) || (origin[0] >= canvasWidth && target[0] >= canvasWidth) ||
+       (origin[1] < 0 && target[1] < 0) || (origin[1] >= canvasHeight && target[1] >= canvasHeight)){
+      return [[-1, -1], [-1, -1]];
+    }
+
     /* if target x is outside of canvas, calculate new target by intersection of canvas bounds */
-    if (target[0] < 0 || target[0] > canvasWidth) {
+    if (target[0] < 0 || target[0] >= canvasWidth) {
       const slope = (target[1] - origin[1]) / (target[0] - origin[0]);
       const y = slope * ((target[0] < 0 ? 0 : canvasWidth - 1) - origin[0]) + origin[1];
       target = [target[0] < 0 ? 0 : canvasWidth - 1, y];
     }
 
     /* if target y is outside of canvas, calculate new target by intersection of canvas bounds */
-    if (target[1] < 0 || target[1] > canvasHeight) {
+    if (target[1] < 0 || target[1] >= canvasHeight) {
       const slope = (target[0] - origin[0]) / (target[1] - origin[1]);
       const x = slope * ((target[1] < 0 ? 0 : canvasHeight - 1) - origin[1]) + origin[0];
       target = [x, target[1] < 0 ? 0 : canvasHeight - 1];
     }
 
     /* if origin y is outside of canvas, calculate new origin by intersection of canvas bounds */
-    if (origin[1] < 0 || origin[1] > canvasHeight) {
+    if (origin[1] < 0 || origin[1] >= canvasHeight) {
       const slope = (target[0] - origin[0]) / (target[1] - origin[1]);
       const x = slope * ((origin[1] < 0 ? 0 : canvasHeight - 1) - origin[1]) + origin[0];
       origin = [x, origin[1] < 0 ? 0 : canvasHeight - 1];
     }
 
     /* if origin x is outside of canvas, calculate new origin by intersection of canvas bounds */
-    if (origin[0] < 0 || origin[0] > canvasWidth) {
+    if (origin[0] < 0 || origin[0] >= canvasWidth) {
       const slope = (target[1] - origin[1]) / (target[0] - origin[0]);
       const y = slope * ((origin[0] < 0 ? 0 : canvasWidth - 1) - origin[0]) + origin[1];
       origin = [origin[0] < 0 ? 0 : canvasWidth - 1, y];

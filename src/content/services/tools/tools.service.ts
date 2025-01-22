@@ -183,6 +183,8 @@ export class ToolsService {
     ) {
       event.stopImmediatePropagation();
 
+      (event.currentTarget as HTMLCanvasElement).setPointerCapture(event.pointerId);
+
       this._currentPointerDown$.next(true);
       this._currentPointerDownPosition$.next(event);
       this._lastPointerDownPosition$.next(event);
