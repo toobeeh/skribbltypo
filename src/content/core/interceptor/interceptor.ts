@@ -2,9 +2,11 @@ import { requireElement } from "@/util/document/requiredQuerySelector";
 import { BehaviorSubject, filter, firstValueFrom, forkJoin, map } from "rxjs";
 
 export interface prioritizedCanvasEvents {
-  add: HTMLCanvasElement["addEventListener"],
+  add: (priority: listenerPriority) => HTMLCanvasElement["addEventListener"],
   remove: HTMLCanvasElement["removeEventListener"]
 }
+
+export type listenerPriority = "preDraw" | "draw" | "postDraw";
 
 export class Interceptor {
 
@@ -14,8 +16,7 @@ export class Interceptor {
   private readonly _patchLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _canvasPrioritizedEventsReady$ = new BehaviorSubject<prioritizedCanvasEvents | undefined>(undefined);
 
-  private readonly _canvasEventTarget = document.createElement("canvas");
-  private readonly _canvasEventListener = new Map<string, Set<(e: Event) => (undefined | boolean)>>();
+  private readonly _canvasEventListener = new Map<string, Map<listenerPriority, Set<{priority: listenerPriority, handler: (e: Event) => (undefined | boolean)}>>>();
 
   private readonly _patchLoaded = firstValueFrom(this._patchLoaded$.pipe(
     filter(v => v),
@@ -92,13 +93,33 @@ export class Interceptor {
   }
 
   private listenPrioritizedCanvasElements() {
-    this._canvasEventTarget.addEventListener = (type: string, listener: (e: Event) => (undefined | boolean)) => {
-      if(!this._canvasEventListener.has(type)) this._canvasEventListener.set(type, new Set());
-      this._canvasEventListener.get(type)?.add(listener);
+    const addListener = (priority: listenerPriority) => {
+      return (type: string, listener: (e: Event) => (undefined | boolean)) => {
+        const listeners = this._canvasEventListener.get(type);
+        if(listeners === undefined) {
+          this._canvasEventListener.set(type, new Map([[priority, new Set([{priority, handler: listener}])]]));
+        } else {
+          const priorityListeners = listeners.get(priority);
+          if(priorityListeners === undefined) {
+            listeners.set(priority, new Set([{priority, handler: listener}]));
+          } else {
+            priorityListeners.add({priority, handler: listener});
+          }
+        }
+      };
     };
 
-    this._canvasEventTarget.removeEventListener = (type: string, listener: (e: Event) => (undefined | boolean)) => {
-      if(this._canvasEventListener.has(type)) this._canvasEventListener.get(type)?.delete(listener);
+    const removeListener = (type: string, listener: (e: Event) => (undefined | boolean)) => {
+      const listeners = this._canvasEventListener.get(type);
+      if(listeners === undefined) return;
+
+      for(const priorityListeners of listeners.values()){
+        for(const priorityListener of priorityListeners){
+          if(priorityListener.handler === listener) {
+            priorityListeners.delete(priorityListener);
+          }
+        }
+      }
     };
 
     const canvas = requireElement("#game-canvas > canvas");
@@ -111,10 +132,16 @@ export class Interceptor {
           const eventListeners = this._canvasEventListener.get(eventType);
           if(eventListeners === undefined) return;
 
-          for(const listener of eventListeners){
+          const listeners = [
+            ...eventListeners.get("preDraw") ?? [],
+            ...eventListeners.get("draw") ?? [],
+            ...eventListeners.get("postDraw") ?? []
+          ];
 
-            /* if listener returns false, cancel event */
-            if(listener(event) === false) {
+          for(const listener of listeners){
+
+            /* if listener returns false, cancel event and do not process any other listeners */
+            if(listener.handler(event) === false) {
               event.stopImmediatePropagation();
               return;
             }
@@ -124,8 +151,8 @@ export class Interceptor {
     }
 
     this._canvasPrioritizedEventsReady$.next({
-      add: this._canvasEventTarget.addEventListener,
-      remove: this._canvasEventTarget.removeEventListener
+      add: addListener,
+      remove: removeListener
     });
   }
 

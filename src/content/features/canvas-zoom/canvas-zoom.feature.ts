@@ -70,7 +70,7 @@ export class CanvasZoomFeature extends TypoFeature {
 
   protected override async onActivate() {
     const { add } =  await this._prioritizedCanvasEventsSetup.complete();
-    add("pointerdown", this._canvasClickListener);
+    add("preDraw")("pointerdown", this._canvasClickListener);
 
     this._zoomStyle = new CSSStyleSheet();
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, this._zoomStyle];
@@ -184,6 +184,7 @@ export class CanvasZoomFeature extends TypoFeature {
       const next = this._zoomActive$.value === false;
       if(next) this._zoomLevel$.next(1);
       this._zoomActive$.next(next ? [event.offsetX , event.offsetY] : false);
+      return false;
     }
   }
 

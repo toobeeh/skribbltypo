@@ -85,8 +85,8 @@ export class ToolsService {
 
     /* set up listeners */
     this._prioritizedCanvasEventsSetup.complete().then(({add}) => {
-      add("pointerdown", this.onCanvasDown.bind(this));
-      add("pointermove", this.onCanvasMove.bind(this));
+      add("draw")("pointerdown", this.onCanvasDown.bind(this));
+      add("draw")("pointermove", this.onCanvasMove.bind(this));
       document.addEventListener("pointerup", this.onDocumentUp.bind(this));
     });
 

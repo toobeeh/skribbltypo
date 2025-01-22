@@ -327,8 +327,9 @@ export class ToolbarImageLabFeature extends TypoFeature {
   private async waitForCanvasClick(cancel?: Promise<void>): Promise<PointerEvent> {
     const click = new Subject<PointerEvent >();
     const listener = (e: PointerEvent) => {
-      click.next(e);
       e.stopImmediatePropagation();
+      click.next(e);
+      return false;
     };
 
     cancel?.then(() => {
@@ -337,7 +338,7 @@ export class ToolbarImageLabFeature extends TypoFeature {
     });
 
     const events = await this._canvasEventsSetup.complete();
-    events.add("pointerdown", listener);
+    events.add("preDraw")("pointerdown", listener);
     const result = await firstValueFrom(click);
     events.remove("pointerdown", listener);
     return result;

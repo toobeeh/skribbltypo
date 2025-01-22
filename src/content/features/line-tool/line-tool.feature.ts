@@ -63,7 +63,7 @@ export class LineToolFeature extends TypoFeature {
   private _linePreview?: HTMLCanvasElement;
 
   private readonly _canvasClickListener = this.onCanvasDown.bind(this);
-  private readonly _documentMoveListener = this.onDocumentMove.bind(this);
+  private readonly _canvasMoveListener = this.onCanvasMove.bind(this);
   private readonly _documentUpListener = this.onDocumentUp.bind(this);
 
   protected override async onActivate() {
@@ -77,8 +77,8 @@ export class LineToolFeature extends TypoFeature {
     elements.canvasWrapper.appendChild(this._linePreview);
 
     const { add } = await this._prioritizedCanvasEventsSetup.complete();
-    add("pointerdown", this._canvasClickListener);
-    document.addEventListener("pointermove", this._documentMoveListener);
+    add("preDraw")("pointerdown", this._canvasClickListener);
+    add("preDraw")("pointermove", this._canvasMoveListener);
     document.addEventListener("pointerup", this._documentUpListener);
 
     /* pipe to detect current mode depending on hotkey action */
@@ -193,7 +193,7 @@ export class LineToolFeature extends TypoFeature {
   protected override async onDestroy() {
     const { remove } = await this._prioritizedCanvasEventsSetup.complete();
     remove("pointerdown", this._canvasClickListener);
-    document.removeEventListener("pointermove", this._documentMoveListener);
+    remove("pointermove", this._canvasMoveListener);
     document.removeEventListener("pointerup", this._documentUpListener);
 
     this._linePreview?.remove();
@@ -271,12 +271,14 @@ export class LineToolFeature extends TypoFeature {
    * @param event
    * @private
    */
-  private onCanvasDown(event: MouseEvent) {
+  private onCanvasDown(event: PointerEvent) {
     this._logger.debug("Canvas clicked", event);
     if (this._lineListenToggle$.value) {
+      (event.target as HTMLCanvasElement).setPointerCapture(event.pointerId);
       event.preventDefault();
       event.stopImmediatePropagation();
       this._originCoordinates$.next([event.offsetX, event.offsetY]);
+      return false;
     }
   }
 
@@ -285,7 +287,7 @@ export class LineToolFeature extends TypoFeature {
    * @param event
    * @private
    */
-  private async onDocumentMove(event: MouseEvent) {
+  private async onCanvasMove(event: PointerEvent) {
     /* if listening, cancel event and calculate new endpoint */
     if (this._lineListenToggle$.value) {
       this._logger.debug("Document pointer moved", event);
