@@ -3,6 +3,7 @@ import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { type stickyToastHandle, ToastService } from "@/content/services/toast/toast.service";
+import { type brushStyle, ToolsService } from "@/content/services/tools/tools.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
   PrioritizedCanvasEventsSetup
@@ -24,6 +25,7 @@ export class LineToolFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
+  @inject(ToolsService) private readonly _toolsService!: ToolsService;
 
   public override get featureInfoComponent(): componentData<LineToolInfo> {
     return { componentType: LineToolInfo, props: {} };
@@ -150,8 +152,10 @@ export class LineToolFeature extends TypoFeature {
         pairwise(),
 
         tap(data => this._logger.debug("Line accepted", data)),
+      ).pipe(
+        withLatestFrom(this._toolsService.activeBrushStyle$)
       )
-      .subscribe(async ([[, prevOrigin, prevTarget], [listening, origin, target]]) => {
+      .subscribe(async ([[[, prevOrigin, prevTarget], [listening, origin, target]], style]) => {
 
         if (!origin || listening === "disabled") {
           return;
@@ -166,11 +170,11 @@ export class LineToolFeature extends TypoFeature {
           );
           if (prevTarget) { // if last was drag
             this._logger.info("Connecting with last drag end", prevTarget);
-            await this.drawLine(prevTarget, origin);
+            await this.drawLine(prevTarget, origin, style);
           }
           else if (prevOrigin) { // if last was also one-click
             this._logger.info("Connecting with last click", prevOrigin);
-            await this.drawLine(prevOrigin, origin);
+            await this.drawLine(prevOrigin, origin, style);
           }
           else {
             this._logger.info("No previous line to connect to; waiting for next");
@@ -181,7 +185,7 @@ export class LineToolFeature extends TypoFeature {
         } else {
 
           // regular drag action
-          await this.drawLine(origin, target);
+          await this.drawLine(origin, target, style);
         }
       });
   }
@@ -384,16 +388,17 @@ export class LineToolFeature extends TypoFeature {
    * Draw a line and reset current selected coordinates
    * @param origin
    * @param target
-   * @param canvas
+   * @param style
    * @private
    */
   private async drawLine(
     origin: [number, number],
-    target: [number, number]
+    target: [number, number],
+    style: brushStyle
   ) {
     if (!origin || !target) return;
 
-    await this._drawingService.drawLine([...origin, ...target]);
+    await this._drawingService.drawLine([...origin, ...target], style.color.skribblCode, style.size);
 
     this._originCoordinates$.next(undefined);
     this._targetCoordinates$.next(undefined);

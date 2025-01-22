@@ -299,6 +299,10 @@ export class ToolsService {
     return this._activeMods$.asObservable();
   }
 
+  public get activeBrushStyle$() {
+    return this._activeBrushStyle$.asObservable();
+  }
+
   public get lastPointerDownPosition$() {
     return this._lastPointerDownPosition$.asObservable();
   }
