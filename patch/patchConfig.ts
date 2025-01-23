@@ -187,6 +187,14 @@ export const gameJsPatchConfig = {
                             ##PERFOUTER##(##PERFINNER##(e.detail)); 
                             // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
                         });
+                        document.addEventListener("collapseUndoActions", (e) => {
+                            const shrinkCount = e.detail;
+                            const firstCollapsedIndex = ##PUSHACTION##.length - shrinkCount + 1;
+                            const collapsed = ##PUSHACTION##.slice(0, firstCollapsedIndex);
+                            const lastCollapsedIndex = collapsed.length === 0 ? 0 : collapsed.length - 1
+                            collapsed[lastCollapsedIndex] = ##PUSHACTION##[##PUSHACTION##.length - 1];
+                            ##PUSHACTION## = collapsed;
+                        });
                         document.addEventListener("addTypoTooltips", () => {
                             [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
                                 elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));

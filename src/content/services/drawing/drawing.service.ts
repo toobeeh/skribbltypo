@@ -259,14 +259,16 @@ export class DrawingService {
   }
 
   public createLineCommands(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
-    const clipped = this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]]).flat();
+    const clipped = this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]])?.flat();
+    if(clipped === undefined) return;
     return [0, colorCode ?? 1, size ?? 4, ...clipped];
   }
 
   public async drawLine(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
     this._logger.debug("Drawing line", coordinates, colorCode, size);
 
-    const clipped = this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]]).flat();
+    const clipped = this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]])?.flat();
+    if(clipped === undefined) return;
     await this.pasteDrawCommands([[0, colorCode ?? 1, size ?? 4, ...clipped]]);
   }
 
@@ -277,7 +279,7 @@ export class DrawingService {
     /* if target and origin out of bounds, return dummy coords */
     if((origin[0] < 0 && target[0] < 0) || (origin[0] >= canvasWidth && target[0] >= canvasWidth) ||
        (origin[1] < 0 && target[1] < 0) || (origin[1] >= canvasHeight && target[1] >= canvasHeight)){
-      return [[-1, -1], [-1, -1]];
+      return undefined;
     }
 
     /* if target x is outside of canvas, calculate new target by intersection of canvas bounds */

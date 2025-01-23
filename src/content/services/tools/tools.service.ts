@@ -16,13 +16,9 @@ import { Color } from "@/util/color";
 import type { Type } from "@/util/types/type";
 import { inject, injectable, postConstruct } from "inversify";
 import {
-  BehaviorSubject,
-  combineLatestWith,
-  distinctUntilChanged,
-  filter,
-  map,
-  pairwise,
-  switchMap,
+  BehaviorSubject, combineLatestWith, distinctUntilChanged,
+  filter, map, mergeMap, pairwise, share, Subject,
+  switchMap, takeUntil, toArray,
   withLatestFrom,
 } from "rxjs";
 
@@ -47,6 +43,8 @@ export class ToolsService {
   private readonly _activeTool$ = new BehaviorSubject<TypoDrawTool | skribblTool>(skribblTool.brush);
   private readonly _activeMods$ = new BehaviorSubject<TypoDrawMod[]>([]);
   private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000"), size: 1 });
+
+  private readonly _collapseSignal$ = new Subject<undefined>();
 
   private readonly _currentPointerDown$ = new BehaviorSubject<boolean>(false);
   private readonly _currentPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
@@ -90,7 +88,8 @@ export class ToolsService {
       document.addEventListener("pointerup", this.onDocumentUp.bind(this));
     });
 
-    this.drawCoordinates$.pipe(
+    /* process draw commands and produce promises in real-time with amount of created draw commands */
+    const activeResults$ = this.drawCoordinates$.pipe(
 
       /* only when currently drawing */
       withLatestFrom(this._lobbyService.lobby$),
@@ -99,79 +98,104 @@ export class ToolsService {
 
       /* add current mods, tools and style */
       withLatestFrom(this._activeTool$, this._activeMods$, this._activeBrushStyle$),
-    ).subscribe(async ([[start, end], tool, mods, style]) => {
-      this._logger.debug("Activating tool and applying mods", start, end);
 
-      /* return if no mods or tool selected - else create draw commands through typo */
-      if(mods.length === 0 && !(tool instanceof TypoDrawTool)) return;
+      map(([[start, end], tool, mods, style]) => this.processDrawCoordinates(start, end, tool, mods, style)),
+      share() // Share the same stream with multiple subscribers
+    );
 
-      /* generate a shared id for every line created from the origin line */
-      const eventId = Date.now();
-
-      /* if tool is a typotool, apply effects from it as well */
-      const allMods = [...mods, ...(tool instanceof TypoDrawTool ? [tool] : [])];
-
-      let lines: drawModLine[] = [{from: [start[0], start[1]], to: [end[0], end[1]]}];
-      let modStyle = structuredClone(style);
-      const pressure = end[2];
-
-      /* apply mods and wait for result */
-      for (const mod of allMods) {
-
-        /* for each line - mods may append or skip lines */
-        const modLines: drawModLine[] = [];
-        for(const line of lines) {
-          const effect = await mod.applyEffect(line, pressure, style, eventId);
-          modLines.push(...effect.lines);
-          modStyle = effect.style;
-          this._logger.debug("Mod applied", mod);
-        }
-        lines = modLines;
-      }
-
-      /* update brush style in skribbl if changed by mods */
-      if(modStyle.size !== style.size) {
-        this._logger.debug("Brush size changed by mods", modStyle.size);
-        this._drawingService.setSize(modStyle.size);
-      }
-
-      /* update brush color if changed by mods */
-      if(modStyle.color.typoCode !== style.color.typoCode) {
-        this._logger.debug("Brush color changed by mods", modStyle.color);
-        this._drawingService.setColor(modStyle.color);
-      }
-
-      /* create draw commands from tool based on processed lines and style */
-      const commands: number[][] = [];
-      if(tool instanceof TypoDrawTool) {
-        for(const line of lines) {
-          const lineCommands = await tool.createCommands(line, pressure, style, eventId);
-          if(lineCommands.length > 0) {
-            commands.push(...lineCommands);
-            this._logger.debug("Adding commands created by tool", tool, commands);
-          }
-          else {
-            this._logger.debug("No draw commands created from tool", tool);
-          }
-        }
-      }
-
-      /* create default draw commands as lines */
-      else {
-        for(const line of lines) {
-          commands.push(this._drawingService.createLineCommands([...line.from, ...line.to], style.color.skribblCode, style.size));
-        }
-      }
-
-      /* paste commands */
-      await this._drawingService.pasteDrawCommands(commands);
-    });
+    /* when collapse emits, count all emitted commands and collapse them to an action */
+    this._collapseSignal$
+      .pipe(
+        // Wait for all active async operations to complete since the last signal
+        mergeMap(() =>
+          activeResults$.pipe(
+            // Collect results until the next signal
+            takeUntil(this._collapseSignal$),
+            toArray(), // Accumulate the sum
+          )
+        )
+      )
+      .subscribe(async (sum) => {
+        const performedCommands = await Promise.all(sum);
+        const totalCommands = performedCommands.reduce((a, b) => a + b, 0);
+        this.collapseDrawCommands(totalCommands);
+      });
 
     /* set up brush style subscription */
     this._sizeChangedListener.events$.pipe(
       combineLatestWith(this._colorChangedListener.events$),
       map(([size, color]) => ({ size: size.data, color: color.data }))
     ).subscribe(style => this._activeBrushStyle$.next(style));
+  }
+
+  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, tool: TypoDrawTool | skribblTool, mods: TypoDrawMod[], style: brushStyle) {
+    this._logger.debug("Activating tool and applying mods", start, end);
+
+    /* return if no mods or tool selected - else create draw commands through typo */
+    if(mods.length === 0 && !(tool instanceof TypoDrawTool)) return 0;
+
+    /* generate a shared id for every line created from the origin line */
+    const eventId = Date.now();
+
+    /* if tool is a typotool, apply effects from it as well */
+    const allMods = [...mods, ...(tool instanceof TypoDrawTool ? [tool] : [])];
+
+    let lines: drawModLine[] = [{from: [start[0], start[1]], to: [end[0], end[1]]}];
+    let modStyle = structuredClone(style);
+    const pressure = end[2];
+
+    /* apply mods and wait for result */
+    for (const mod of allMods) {
+
+      /* for each line - mods may append or skip lines */
+      const modLines: drawModLine[] = [];
+      for(const line of lines) {
+        const effect = await mod.applyEffect(line, pressure, style, eventId);
+        modLines.push(...effect.lines);
+        modStyle = effect.style;
+        this._logger.debug("Mod applied", mod);
+      }
+      lines = modLines;
+    }
+
+    /* update brush style in skribbl if changed by mods */
+    if(modStyle.size !== style.size) {
+      this._logger.debug("Brush size changed by mods", modStyle.size);
+      this._drawingService.setSize(modStyle.size);
+    }
+
+    /* update brush color if changed by mods */
+    if(modStyle.color.typoCode !== style.color.typoCode) {
+      this._logger.debug("Brush color changed by mods", modStyle.color);
+      this._drawingService.setColor(modStyle.color);
+    }
+
+    /* create draw commands from tool based on processed lines and style */
+    const commands: number[][] = [];
+    if(tool instanceof TypoDrawTool) {
+      for(const line of lines) {
+        const lineCommands = await tool.createCommands(line, pressure, style, eventId);
+        if(lineCommands.length > 0) {
+          commands.push(...lineCommands);
+          this._logger.debug("Adding commands created by tool", tool, commands);
+        }
+        else {
+          this._logger.debug("No draw commands created from tool", tool);
+        }
+      }
+    }
+
+    /* create default draw commands as lines */
+    else {
+      for(const line of lines) {
+        const lineCommand = this._drawingService.createLineCommands([...line.from, ...line.to], style.color.skribblCode, style.size);
+        if(lineCommand !== undefined) commands.push(lineCommand);
+      }
+    }
+
+    /* paste commands */
+    await this._drawingService.pasteDrawCommands(commands);
+    return commands.length;
   }
 
   private onCanvasDown(event: PointerEvent) {
@@ -210,6 +234,14 @@ export class ToolsService {
     this._currentPointerDown$.next(false);
     this._currentPointerDownPosition$.next(null);
     this._lastPointerDownPosition$.next(null);
+
+    /* init collapsing of single draw commands to joined action */
+    this._collapseSignal$.next(undefined);
+  }
+
+  private collapseDrawCommands(amount: number){
+    this._logger.debug("Collapsing draw commands", amount);
+    document.dispatchEvent(new CustomEvent("collapseUndoActions", { detail: amount }));
   }
 
   private get drawCoordinates$() {
