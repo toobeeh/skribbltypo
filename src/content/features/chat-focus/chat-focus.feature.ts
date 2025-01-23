@@ -29,6 +29,8 @@ export class ChatFocusFeature extends TypoFeature {
     async () => (await this.elementsSetup.complete()).chatInput.focus(),
     true,
     ["Tab"],
+    undefined,
+    false
   ));
 
   private _autoFocusChatInputSetting = this.useSetting(
