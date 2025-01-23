@@ -167,6 +167,7 @@
     }
   }
 </style>
+
 <div class="typo-cabin" class:loading={loading}>
 
   <div class="typo-cabin-saving">
@@ -195,6 +196,13 @@
                   await feature.setScene(scene?.scene ?? null, scene?.shift, $memberStore.memberData.member.userLogin);
                   loading = false;
                }
+             }}
+
+             on:contextmenu={async (event) => {
+               event.preventDefault();
+               loading = true;
+               await feature.setScene(null, undefined, $memberStore.memberData.member.userLogin);
+               loading = false;
              }}
         >
           {#if $memberStore.scene && $memberStore.scene.scene}
@@ -248,6 +256,13 @@
                   await feature.setSpriteOnSlot(slot + 1, sprite, $memberStore.memberData.member.userLogin);
                   loading = false;
                }
+             }}
+
+             on:contextmenu={async (event) => {
+               event.preventDefault();
+               loading = true;
+               await feature.setSpriteOnSlot(slot + 1, null, $memberStore.memberData.member.userLogin);
+               loading = false;
              }}
         >
 
