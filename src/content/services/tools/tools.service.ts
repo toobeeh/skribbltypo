@@ -207,6 +207,9 @@ export class ToolsService {
     ) {
       event.stopImmediatePropagation();
 
+      /* disable skribbl command rate */
+      this.setSkribblCommandRateBypass(true);
+
       (event.currentTarget as HTMLCanvasElement).setPointerCapture(event.pointerId);
 
       this._currentPointerDown$.next(true);
@@ -237,11 +240,19 @@ export class ToolsService {
 
     /* init collapsing of single draw commands to joined action */
     this._collapseSignal$.next(undefined);
+
+    /* re-enable skribbl command rate */
+    this.setSkribblCommandRateBypass(false);
   }
 
   private collapseDrawCommands(amount: number){
     this._logger.debug("Collapsing draw commands", amount);
     document.dispatchEvent(new CustomEvent("collapseUndoActions", { detail: amount }));
+  }
+
+  private setSkribblCommandRateBypass(state: boolean) {
+    this._logger.debug("Setting skribbl command rate bypass", state);
+    document.body.dataset["bypassCommandRate"] = state ? "true" : "false";
   }
 
   private get drawCoordinates$() {

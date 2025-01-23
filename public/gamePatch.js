@@ -1256,12 +1256,14 @@
   var S, sn = 0,
     cn = 0,
     dn = (setInterval(function() {
-      var e, t, n;
-      S && L.id == Z && M == x && 0 < (e = v.length - ut) && (t = ut + 8, n = v.slice(ut, t), S.emit("data", {
-        id: Ia,
-        data: n
-      }), ut = Math.min(t, v.length), console.log(`Sent ${n.length} commands. ${e} remaining.`))
-    }, 50), setInterval(function() {
+        var e, t, n;
+        S && L.id == Z && M == x && 0 < (e = v.length - ut) && (t = ut + 8, n = v.slice(ut, t), S.emit("data", {
+          id: Ia,
+          data: n
+        }), ut = Math.min(t, v.length),
+        false &&console.log(`Sent ${n.length} commands. ${e} remaining.`))
+      },
+      document.body.dataset.bypassCommandRate === 'true' ? 0 :50), setInterval(function() {
       S && L.id == Z && M != x && ht < v.length && (Kt(Zt(v[ht]), v[ht]), ht++)
     }, 1), c.querySelector("#game-canvas .overlay")),
     un = c.querySelector("#game-canvas .overlay-content"),

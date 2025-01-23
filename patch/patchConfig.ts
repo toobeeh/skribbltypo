@@ -862,5 +862,27 @@ export const gameJsPatchConfig = {
         },
       ],
     },
+    {
+      name: "Bypass skribbl command emit limitation",
+      replacements: [
+      ],
+      injections: [
+        {
+          position: '(\\)\\)\\s*\\},\\s*)\\d+\\)',
+          code: `document.body.dataset.bypassCommandRate === 'true' ? 0 :`,
+        },
+      ],
+    },
+    {
+      name: "Disable skribbl comamnd logs",
+      replacements: [
+      ],
+      injections: [
+        {
+          position: '(\s*)console\\.log\\(`Sent',
+          code: `false && `,
+        },
+      ],
+    },
   ],
 };
