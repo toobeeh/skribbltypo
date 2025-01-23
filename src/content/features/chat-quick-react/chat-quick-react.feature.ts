@@ -51,8 +51,19 @@ export class ChatQuickReactFeature extends TypoFeature {
     .addParam(new NumericOptionalCommandParameter("Player ID", "The ID of the player to votekick, leave empty for current drawer", id => ({ id })))
     .run(async (args, command) => {
       const lobby = await firstValueFrom(this._lobbyService.lobby$);
+
+      /* set player id to current drawer to default */
+      if(args.id === undefined) args.id = lobby?.drawerId ?? undefined;
+
+      /* check if current player is self */
+      if(args.id !== undefined && args.id === lobby?.meId) {
+        return new InterpretableError(command, "You can't votekick yourself :(");
+      }
+
+      /* find player by id */
       const target = lobby?.players.find(player => player.id === args.id);
-      if(target === undefined) return new InterpretableError(command, "Player not found");
+      if(target === undefined && args.id !== undefined) return new InterpretableError(command, "Selected player not found");
+      else if (target === undefined) return new InterpretableError(command, "No default player to votekick");
 
       await this.votekickPlayer(target);
       return new InterpretableSilentSuccess(command);
