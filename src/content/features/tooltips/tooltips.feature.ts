@@ -25,13 +25,13 @@ export class TooltipsFeature extends TypoFeature {
     ).subscribe(([target, tooltips]) => {
       this.handleTooltipChange(target, tooltips);
     });
-    document.body.addEventListener("pointerover", this._pointeroverListener);
+    document.addEventListener("pointerover", this._pointeroverListener);
   }
 
   protected override async onDestroy() {
     this._targetSubscription?.unsubscribe();
     this._targetSubscription = undefined;
-    document.body.removeEventListener("pointerover", this._pointeroverListener);
+    document.removeEventListener("pointerover", this._pointeroverListener);
 
     this._activeTooltips.forEach(t => t.tooltip.remove());
     this._activeTooltips.clear();
@@ -61,6 +61,7 @@ export class TooltipsFeature extends TypoFeature {
         this._currentTarget.next(null);
       }
     }
+    else this._currentTarget.next(null);
   }
 
   /**
