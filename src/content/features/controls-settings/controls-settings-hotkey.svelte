@@ -80,6 +80,9 @@
   <!-- save -->
   <div class="button-container"> <FlatButton content="Save combo" color="green" on:click={() => {
     feature.setHotkeyCombo(hotkey, recordedKeys);
+    if(recordedKeys.length > 0){
+      $enabledStore = true;
+    }
   }} /> </div>
 
   <!-- enabled toggle -->
@@ -87,7 +90,16 @@
 
   <!-- recording area -->
   <div style="grid-column: 2 / span 3">
-    <input value="{recordedKeys.join(' + ')}" bind:this={recordingElement} type="text" placeholder="Press Keys" on:keydown={async event => {
+    <input
+      value="{recordedKeys.join(' + ')}"
+      bind:this={recordingElement}
+      type="text"
+      placeholder="Press Keys"
+      on:click={() => {
+        recordedKeys = [];
+        recordingElement.value = '';
+      }}
+      on:keydown={async event => {
         event.preventDefault();
         if(!recordedKeys.includes(event.code)) {
           recordedKeys.push(event.code);
