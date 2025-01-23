@@ -42,6 +42,11 @@
     padding: 1rem;
     align-items: center;
 
+    .inputs-disabled-hint {
+      font-size: .8rem;
+      opacity: .7;
+    }
+
     .button-container {
       font-size: 1em;
     }
@@ -56,7 +61,12 @@
   <h3>{hotkey.name}</h3>
 
   <!-- description -->
-  <div>{hotkey.description}</div>
+  <div>
+    {hotkey.description}
+    {#if hotkey.disabledOnInputs}
+      <br><span class="inputs-disabled-hint">Disabled in text inputs</span>
+    {/if}
+  </div>
 
   <!-- reset -->
   <div class="button-container"> <FlatButton content="Reset to default" color="orange" on:click={async () => {

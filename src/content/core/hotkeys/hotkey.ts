@@ -32,6 +32,10 @@ export class HotkeyAction {
     );
   }
 
+  public get disabledOnInputs(){
+    return this._preventWhenInputActive;
+  }
+
   public get name() {
     return this._name;
   }
