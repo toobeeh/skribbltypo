@@ -1,5 +1,5 @@
+import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { inject } from "inversify";
-import { appendElement, createElement } from "@/util/document/appendElement";
 import { Setup } from "../../core/setup/setup";
 import { GamePatchReadySetup } from "../game-patch-ready/game-patch-ready.setup";
 import Controls from "./controls.svelte";
@@ -7,16 +7,19 @@ import Controls from "./controls.svelte";
 export class ControlsSetup extends Setup<HTMLElement> {
 
   @inject(GamePatchReadySetup) private _gameReadySetup!: GamePatchReadySetup;
+  @inject(GlobalSettingsService) private _settingsService!: GlobalSettingsService;
 
   protected async runSetup(): Promise<HTMLElement> {
 
     await this._gameReadySetup.complete();
 
-    const controls = appendElement(createElement("<div class='typo-controls'></div>"), "afterbegin", document.body);
-    new Controls({
-      target: controls
+    const component = new Controls({
+      target: document.body,
+      props:{
+        globalSettings: this._settingsService
+      }
     });
 
-    return controls;
+    return await component.element;
   }
 }

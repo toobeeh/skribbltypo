@@ -1,4 +1,4 @@
-import { BooleanExtensionSetting } from "@/content/core/settings/setting";
+import { BooleanExtensionSetting, ChoiceExtensionSetting } from "@/content/core/settings/setting";
 import { inject, injectable } from "inversify";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 
@@ -9,6 +9,22 @@ export class GlobalSettingsService {
     devMode: new BooleanExtensionSetting("devMode", false)
       .withName("Developer Mode")
       .withDescription("Enable some developer features & settings"),
+    controlsPosition: new ChoiceExtensionSetting<"topright" | "topleft" | "bottomright" | "bottomleft">("controlsPosition", "topleft")
+      .withName("Control Icons Position")
+      .withDescription("The position where the typo controls are displayed")
+      .withChoices([
+        {name: "Top Right", choice: "topright"},
+        {name: "Top Left", choice: "topleft"},
+        {name: "Bottom Right", choice: "bottomright"},
+        {name: "Bottom Left", choice: "bottomleft"}
+      ]),
+    controlsDirection: new ChoiceExtensionSetting<"vertical" | "horizontal">("controlsDirection", "vertical")
+      .withName("Control Icons Direction")
+      .withDescription("The direction where the typo controls are lined up")
+      .withChoices([
+        {name: "Horizontal", choice: "horizontal"},
+        {name: "Vertical", choice: "vertical"},
+      ]),
   };
 
   private readonly _logger;
