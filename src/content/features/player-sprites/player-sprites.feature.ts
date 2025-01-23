@@ -136,7 +136,7 @@ export class PlayerSpritesFeature extends TypoFeature {
       return {
         sprite: spriteData,
         slot: sprite.slot,
-        shift: playerShifts.find((shift) => shift.slot === sprite.itemId)?.itemId
+        shift: playerShifts.find((shift) => shift.slot === sprite.slot)?.itemId
       };
     }).filter((slot) => slot !== undefined);
 
@@ -162,11 +162,11 @@ export class PlayerSpritesFeature extends TypoFeature {
         lobbyKey: "practice",
       } : undefined;
 
-      const shift = sprite.colorShift ? {
+      const shift = sprite.colorShift && sprite.slot ? {
         itemId: sprite.colorShift,
         type: OnlineItemTypeDto.SpriteShift,
         lobbyPlayerId: 0,
-        slot: sprite.spriteId,
+        slot: sprite.slot,
         lobbyKey: "practice",
       } : undefined;
 

@@ -52,6 +52,8 @@ export class PanelLobbiesFeature extends TypoFeature {
   protected override onDestroy(): void {
     this._component?.$destroy();
     this._connection?.stop();
+    this._memberSubscription?.unsubscribe();
+    this._memberSubscription = undefined;
   }
 
   public get lobbiesStore(){
