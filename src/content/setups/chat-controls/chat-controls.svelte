@@ -8,7 +8,9 @@
     gap: .5rem;
     margin-top: .5rem;
     margin-right: .5rem;
+    margin-left: auto;
     height: min-content;
     z-index: 1;
+    user-select: none;
   }
 </style>
