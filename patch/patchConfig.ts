@@ -874,7 +874,7 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Disable skribbl comamnd logs",
+      name: "Disable skribbl command logs",
       replacements: [
       ],
       injections: [

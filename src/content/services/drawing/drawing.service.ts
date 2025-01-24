@@ -223,8 +223,8 @@ export class DrawingService {
     const paste = (command: number[]) => document.dispatchEvent(new CustomEvent("performDrawCommand", {detail: command}));
     for(const command of commands) {
 
-      if(command.some(n => isNaN(n))){
-        this._logger.warn("Invalid draw command, skipping", command);
+      if(command.some(n => isNaN(n))) {
+        this._logger.warn("Invalid command", command);
         continue;
       }
 
@@ -321,6 +321,9 @@ export class DrawingService {
       const y = slope * ((origin[0] < 0 ? 0 : canvasWidth - 1) - origin[0]) + origin[1];
       origin = [origin[0] < 0 ? 0 : canvasWidth - 1, y];
     }
+
+    origin = [Math.ceil(origin[0]), Math.ceil(origin[1])];
+    target = [Math.ceil(target[0]), Math.ceil(target[1])];
 
     return [origin, target];
   }

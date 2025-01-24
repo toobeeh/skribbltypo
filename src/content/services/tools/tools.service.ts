@@ -175,7 +175,11 @@ export class ToolsService {
     /* create draw commands from tool based on processed lines and style */
     const commands: number[][] = [];
     if(tool instanceof TypoDrawTool) {
-      for(const line of lines) {
+      for(let line of lines) {
+
+        /* make sure line is safe - decimal places should not be submitted to skribbl */
+        line = {from: [Math.ceil(line.from[0]), Math.ceil(line.from[1])], to: [Math.ceil(line.to[0]), Math.ceil(line.to[1])]};
+
         const lineCommands = await tool.createCommands(line, pressure, style, eventId);
         if(lineCommands.length > 0) {
           commands.push(...lineCommands);
@@ -196,6 +200,7 @@ export class ToolsService {
     }
 
     /* paste commands */
+    this._logger.info("Pasting draw commands", commands);
     await this._drawingService.pasteDrawCommands(commands);
     return commands.length;
   }

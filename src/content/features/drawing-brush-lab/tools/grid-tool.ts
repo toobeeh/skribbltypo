@@ -55,8 +55,8 @@ export class GridTool extends TypoDrawTool implements BrushLabItem {
     const canvasHeight = 600;
     const rows = await firstValueFrom(this._rowsSetting.changes$);
     const columns = await firstValueFrom(this._columnsSetting.changes$);
-    const rowHeight = canvasHeight / rows;
-    const columnWidth = canvasWidth / columns;
+    const rowHeight = Math.ceil(canvasHeight / rows);
+    const columnWidth = Math.ceil(canvasWidth / columns);
 
     const commands = [];
     for(let i = 1; i < rows; i++){

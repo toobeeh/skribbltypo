@@ -10,6 +10,7 @@ export abstract class TypoDrawTool extends ConstantDrawMod {
 
   /**
    * Create draw commands from a draw event
+   * IMPORTANT that the line numbers are whole numbers
    * @param line
    * @param pressure
    * @param brushStyle
