@@ -10,7 +10,8 @@ export type listenerPriority = "preDraw" | "draw" | "postDraw";
 
 export class Interceptor {
 
-  private readonly _canvasFound = new BehaviorSubject<boolean>(false);
+  private readonly _canvasFound$ = new BehaviorSubject<boolean>(false);
+  private readonly _socketioLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _contentScriptLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _tokenProcessed$ = new BehaviorSubject<boolean>(false);
   private readonly _patchLoaded$ = new BehaviorSubject<boolean>(false);
@@ -29,7 +30,7 @@ export class Interceptor {
 
   constructor(private _debuggingEnabled = false) {
     forkJoin([
-      this._canvasFound, this._contentScriptLoaded$, this._tokenProcessed$
+      this._canvasFound$, this._contentScriptLoaded$, this._tokenProcessed$, this._socketioLoaded$
     ]).subscribe(() => {
         this.debug("All prerequisites executed, injecting patch and listening to canvas events");
         this.listenPrioritizedCanvasElements();
@@ -38,6 +39,7 @@ export class Interceptor {
 
     this.debug("Interceptor initialized, starting listeners for token and game.js");
     this.processToken();
+    this.listenForSocketio();
     this.listenForCanvas();
   }
 
@@ -76,14 +78,52 @@ export class Interceptor {
     this._tokenProcessed$.complete();
   }
 
+  private listenForSocketio(){
+    this.debug("Listening on DOM buildup until socketio script is added");
+
+    /* check if canvas is already added */
+    if(element("script[src='js/socket.io.js']")) {
+      this.debug("Socketio script already present");
+      this._socketioLoaded$.next(true);
+      this._socketioLoaded$.complete();
+      return;
+    }
+
+    /* observe changes in child list */
+    const scriptObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if(mutation.type === "childList") {
+
+          /* if game.js script element is found */
+          const target = [...mutation.addedNodes].find(n => n.nodeName === "SCRIPT" && (n as HTMLScriptElement).src.includes("socket.io.js"));
+          if(target){
+            this.debug("Socketio script found");
+            const script = target as HTMLScriptElement;
+            script.addEventListener("load", () => {
+              this.debug("Socketio script loaded");
+              this._socketioLoaded$.next(true);
+              this._socketioLoaded$.complete();
+            });
+            scriptObserver.disconnect();
+          }
+        }
+      });
+    });
+
+    scriptObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
   private listenForCanvas(){
     this.debug("Listening on DOM buildup until canvas element is added");
 
     /* check if canvas is already added */
     if(element("#game-canvas > canvas")) {
       this.debug("Canvas already present");
-      this._canvasFound.next(true);
-      this._canvasFound.complete();
+      this._canvasFound$.next(true);
+      this._canvasFound$.complete();
       return;
     }
 
@@ -96,8 +136,8 @@ export class Interceptor {
           const target = [...mutation.addedNodes].find(n => n.nodeName === "CANVAS" && (n as HTMLCanvasElement).parentElement?.id === "game-canvas");
           if(target){
             this.debug("Canvas found");
-            this._canvasFound.next(true);
-            this._canvasFound.complete();
+            this._canvasFound$.next(true);
+            this._canvasFound$.complete();
           }
         }
       });
