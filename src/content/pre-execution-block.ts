@@ -41,6 +41,8 @@ console.log(`%c
         ➜ Join the community: https://discord.com/invite/pAapmUmWAM
         ➜ Find more infos at: https://www.typo.rip/
         ➜ Support development: https://patreon.com/skribbltypo
+        
+        [ ${chrome.runtime.getManifest().version_name} ]
                                                                     
                                                     `,
   "color: lightblue",

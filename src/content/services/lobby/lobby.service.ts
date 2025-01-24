@@ -107,7 +107,9 @@ export class LobbyService {
         /* emit updated lobby */
         this._logger.debug("Lobby update processed", currentLobby);
         return currentLobby;
-      })
+      }),
+      debounceTime(100), /* debounce to prevent spamming */
+      distinctUntilChanged((curr, prev) => JSON.stringify(curr) === JSON.stringify(prev)) /* if join-leave spam debounced, take only changes */
     ).subscribe(data => this._currentLobby$.next(data));
 
     this.lobby$.subscribe(data => {
@@ -142,10 +144,7 @@ export class LobbyService {
   }
 
   public get lobby$(){
-    return this._currentLobby$.pipe(
-      debounceTime(100), /* debounce to prevent spamming */
-      distinctUntilChanged((curr, prev) => JSON.stringify(curr) === JSON.stringify(prev)) /* if join-leave spam debounced, take only changes */
-    );
+    return this._currentLobby$.asObservable();
   }
 
   public get discoveredLobbies$(){
