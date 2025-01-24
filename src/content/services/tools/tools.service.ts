@@ -178,7 +178,7 @@ export class ToolsService {
       for(let line of lines) {
 
         /* make sure line is safe - decimal places should not be submitted to skribbl */
-        line = {from: [Math.ceil(line.from[0]), Math.ceil(line.from[1])], to: [Math.ceil(line.to[0]), Math.ceil(line.to[1])]};
+        line = {from: [Math.floor(line.from[0]), Math.floor(line.from[1])], to: [Math.floor(line.to[0]), Math.floor(line.to[1])]};
 
         const lineCommands = await tool.createCommands(line, pressure, style, eventId);
         if(lineCommands.length > 0) {

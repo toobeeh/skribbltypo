@@ -322,8 +322,8 @@ export class DrawingService {
       origin = [origin[0] < 0 ? 0 : canvasWidth - 1, y];
     }
 
-    origin = [Math.ceil(origin[0]), Math.ceil(origin[1])];
-    target = [Math.ceil(target[0]), Math.ceil(target[1])];
+    origin = [Math.floor(origin[0]), Math.floor(origin[1])];
+    target = [Math.floor(target[0]), Math.floor(target[1])];
 
     return [origin, target];
   }

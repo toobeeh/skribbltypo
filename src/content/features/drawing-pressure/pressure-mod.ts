@@ -35,7 +35,7 @@ export class PressureMod extends ConstantDrawMod {
     }
 
     const point = calculatePressurePoint(pressure, this._sensitivity, this._balance);
-    const size = this._minSize + (this._maxSize - this._minSize) * point;
+    const size = Math.floor(this._minSize + (this._maxSize - this._minSize) * point);
     style.size = size;
 
     return {
