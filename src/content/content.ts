@@ -106,7 +106,7 @@ import { ToolbarSetup } from "./setups/toolbar/toolbar.setup";
  */
 
 /* interceptor to patch DOM build */
-const interceptor = new Interceptor();
+const interceptor = new Interceptor(false);
 
 /* set initial log level */
 LoggingService.defaultLogLevel = "warn";

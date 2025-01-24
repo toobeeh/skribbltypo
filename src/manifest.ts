@@ -26,7 +26,10 @@ export default defineManifest({
   content_scripts: [
     {
       matches: ["https://skribbl.io/*"],
-      js: ["src/content/content.ts"],
+      js: [
+        "src/content/content.ts",
+        "src/content/pre-execution-block.ts"
+      ],
       run_at: "document_start",
     }
   ],

@@ -1,4 +1,4 @@
-import { requireElement } from "@/util/document/requiredQuerySelector";
+import { element, requireElement } from "@/util/document/requiredQuerySelector";
 import { BehaviorSubject, filter, firstValueFrom, forkJoin, map } from "rxjs";
 
 export interface prioritizedCanvasEvents {
@@ -10,7 +10,7 @@ export type listenerPriority = "preDraw" | "draw" | "postDraw";
 
 export class Interceptor {
 
-  private readonly _originalGameStopped$ = new BehaviorSubject<boolean>(false);
+  private readonly _canvasFound = new BehaviorSubject<boolean>(false);
   private readonly _contentScriptLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _tokenProcessed$ = new BehaviorSubject<boolean>(false);
   private readonly _patchLoaded$ = new BehaviorSubject<boolean>(false);
@@ -27,24 +27,34 @@ export class Interceptor {
     filter(v => v !== undefined)
   ));
 
-  constructor() {
+  constructor(private _debuggingEnabled = false) {
     forkJoin([
-      this._originalGameStopped$, this._contentScriptLoaded$, this._tokenProcessed$])
-      .subscribe(() => {
+      this._canvasFound, this._contentScriptLoaded$, this._tokenProcessed$
+    ]).subscribe(() => {
+        this.debug("All prerequisites executed, injecting patch and listening to canvas events");
         this.listenPrioritizedCanvasElements();
         this.injectPatch();
       });
 
+    this.debug("Interceptor initialized, starting listeners for token and game.js");
     this.processToken();
-    this.stopOriginalGame();
+    this.listenForCanvas();
+  }
+
+  private debug(...args: unknown[]){
+    if(!this._debuggingEnabled) return;
+    console.log("[INTERCEPTOR DEBUG]", ...args);
   }
 
   private injectPatch() {
+    this.debug("Injecting game patch");
+
     const patch = document.createElement("script");
     patch.src = chrome.runtime.getURL("gamePatch.js");
     patch.onload = async () => {
 
       /* signalize patched game is ready */
+      this.debug("Game patch loaded");
       this._patchLoaded$.next(true);
       this._patchLoaded$.complete();
     };
@@ -52,6 +62,7 @@ export class Interceptor {
   }
 
   private async processToken(){
+    this.debug("Processing token");
     const url = new URL(window.location.href);
     const tokenParam = url.searchParams.get("accessToken");
     if(tokenParam !== null) {
@@ -60,27 +71,33 @@ export class Interceptor {
       window.history.replaceState({}, "", url.toString());
     }
 
+    this.debug("Token processed");
     this._tokenProcessed$.next(true);
     this._tokenProcessed$.complete();
   }
 
-  private stopOriginalGame(){
+  private listenForCanvas(){
+    this.debug("Listening on DOM buildup until canvas element is added");
+
+    /* check if canvas is already added */
+    if(element("#game-canvas > canvas")) {
+      this.debug("Canvas already present");
+      this._canvasFound.next(true);
+      this._canvasFound.complete();
+      return;
+    }
 
     /* observe changes in child list */
     const scriptObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if(mutation.type === "childList") {
 
-          /* if game.js script element is found */
-          const target = [...mutation.addedNodes].find(n => n.nodeName === "SCRIPT" && (n as HTMLScriptElement).src.includes("game.js"));
+          /* if canvas element is found */
+          const target = [...mutation.addedNodes].find(n => n.nodeName === "CANVAS" && (n as HTMLCanvasElement).parentElement?.id === "game-canvas");
           if(target){
-            const script = target as HTMLScriptElement;
-            script.type = "javascript/blocked"; // block for chrome
-            script.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true }); // block for firefox
-            script.remove();
-            scriptObserver.disconnect();
-            this._originalGameStopped$.next(true);
-            this._originalGameStopped$.complete();
+            this.debug("Canvas found");
+            this._canvasFound.next(true);
+            this._canvasFound.complete();
           }
         }
       });
@@ -92,6 +109,11 @@ export class Interceptor {
     });
   }
 
+  /**
+   * Listen to all events on the canvas and execute prioritized listeners first
+   * Makes it possible to override skribbl event bindings on the canvas
+   * @private
+   */
   private listenPrioritizedCanvasElements() {
     const addListener = (priority: listenerPriority) => {
       return (type: string, listener: (e: Event) => (undefined | boolean)) => {
@@ -159,8 +181,13 @@ export class Interceptor {
   public triggerPatchInjection(){
     if(this._contentScriptLoaded$.closed) throw new Error("Already triggered patch injection");
 
+    this.debug("Content script loaded, triggering patch injection");
     this._contentScriptLoaded$.next(true);
     this._contentScriptLoaded$.complete();
+  }
+
+  public enableDebugging(){
+    this._debuggingEnabled = true;
   }
 
   public get patchLoaded() {
