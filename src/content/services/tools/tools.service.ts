@@ -9,6 +9,7 @@ import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
 import type { drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
+import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
@@ -38,6 +39,7 @@ export class ToolsService {
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
   @inject(SizeChangedEventListener) private readonly _sizeChangedListener!: SizeChangedEventListener;
   @inject(ColorChangedEventListener) private readonly _colorChangedListener!: ColorChangedEventListener;
+  @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
 
   private readonly _logger: LoggerService;
   private readonly _activeTool$ = new BehaviorSubject<TypoDrawTool | skribblTool>(skribblTool.brush);
@@ -89,7 +91,7 @@ export class ToolsService {
     });
 
     /* process draw commands and produce promises in real-time with amount of created draw commands */
-    const activeResults$ = this.drawCoordinates$.pipe(
+    const activeResults$ = this.mapDrawCoordinates().pipe(
 
       /* only when currently drawing */
       withLatestFrom(this._lobbyService.lobby$),
@@ -255,12 +257,19 @@ export class ToolsService {
     document.body.dataset["bypassCommandRate"] = state ? "true" : "false";
   }
 
-  private get drawCoordinates$() {
+  private mapDrawCoordinates() {
     return this._currentPointerDown$.pipe(
       distinctUntilChanged(),
       filter(down => down),
-      switchMap(() => this._currentPointerDownPosition$.pipe(
-        map(event => event !== null ? this.mapPointerEventToDrawCoordinate(event) : null)
+
+      /* get canvas & domrect every pointer down, eg in case zoom changes */
+      switchMap(async () => {
+        this._logger.debug("Retrieving new rect");
+        const elements = await this._elementsSetup.complete();
+        return [elements.canvas, elements.canvas.getBoundingClientRect()] as const;
+      }),
+      switchMap(([canvas, rect]) => this._currentPointerDownPosition$.pipe(
+        map(event => event !== null ? this.mapPointerEventToDrawCoordinate(event, canvas, rect) : null)
       )),
       pairwise(),
       map(([prev, curr]) => prev === null && curr !== null ? [curr, curr] : [prev, curr]),  /* if pointer down, make dot at start pos */
@@ -272,15 +281,15 @@ export class ToolsService {
   /**
    * Map a pointer event to draw coordinates
    * @param event
+   * @param canvas
+   * @param canvasRect
    * @private
    */
-  private mapPointerEventToDrawCoordinate(event: PointerEvent): drawCoordinateEvent {
-    const canvas = event.currentTarget as HTMLCanvasElement;
+  private mapPointerEventToDrawCoordinate(event: PointerEvent, canvas: HTMLCanvasElement, canvasRect: DOMRect): drawCoordinateEvent {
 
     /* calculate canvas pixel position from canvas dimensions and actual rendered rectangle */
-    const rect = canvas.getBoundingClientRect();
-    const canvasX = event.offsetX * canvas.width / rect.width;
-    const canvasY = event.offsetY * canvas.height / rect.height;
+    const canvasX = event.offsetX * canvas.width / canvasRect.width;
+    const canvasY = event.offsetY * canvas.height / canvasRect.height;
 
     return [canvasX, canvasY, event.pointerType === "pen" ? event.pressure : undefined];
   }

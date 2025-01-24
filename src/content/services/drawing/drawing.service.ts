@@ -219,8 +219,15 @@ export class DrawingService {
    * @param stopped
    */
   public async pasteDrawCommands(commands: number[][], stopped?: () => boolean) {
+    this._logger.debug("Pasting draw commands", commands);
     const paste = (command: number[]) => document.dispatchEvent(new CustomEvent("performDrawCommand", {detail: command}));
     for(const command of commands) {
+
+      if(command.some(n => isNaN(n))){
+        this._logger.warn("Invalid draw command, skipping", command);
+        continue;
+      }
+
       if(stopped?.()) return;
       paste(command);
       await wait(2);
@@ -261,6 +268,11 @@ export class DrawingService {
   public createLineCommands(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
     const clipped = this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]])?.flat();
     if(clipped === undefined) return;
+
+    if(clipped.some(n => isNaN(n))){
+      this._logger.warn("Invalid line coordinates", coordinates, clipped);
+    }
+
     return [0, colorCode ?? 1, size ?? 4, ...clipped];
   }
 
