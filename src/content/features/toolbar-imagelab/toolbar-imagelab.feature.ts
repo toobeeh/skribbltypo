@@ -1,5 +1,7 @@
+import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
+import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { type componentData, type componentDataFactory, ModalService } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -9,7 +11,16 @@ import {
 import { fromObservable } from "@/util/store/fromObservable";
 import { chooseFile } from "@/util/upload";
 import { inject } from "inversify";
-import { BehaviorSubject, combineLatest, filter, firstValueFrom, Subject, Subscription, take } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatest,
+  filter,
+  firstValueFrom,
+  Subject,
+  Subscription,
+  take,
+  withLatestFrom,
+} from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarImageLab from "./toolbar-imagelab.svelte";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
@@ -23,6 +34,8 @@ export class ToolbarImageLabFeature extends TypoFeature {
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(ModalService) private readonly _modalService!: ModalService;
   @inject(PrioritizedCanvasEventsSetup) private readonly _canvasEventsSetup!: PrioritizedCanvasEventsSetup;
+  @inject(LobbyService) private readonly _lobbyService!: LobbyService;
+  @inject(LobbyLeftEventListener) private readonly _lobbyLeftEventListener!: LobbyLeftEventListener;
 
   public readonly name = "Image Laboratory";
   public readonly description =
@@ -193,6 +206,29 @@ export class ToolbarImageLabFeature extends TypoFeature {
    * @param commands
    */
   public async pasteDrawCommands(commands: savedDrawCommands){
+
+    /* check if currently in a lobby */
+    const lobby = await firstValueFrom(this._lobbyService.lobby$);
+    if(lobby === null){
+      await this._toastService.showToast("Can't paste outside of a lobby");
+      return;
+    }
+
+    /* check if allowed to paste */
+    if(lobby.drawerId !== lobby.meId){
+      await this._toastService.showToast("You can only paste while you are drawing");
+      return;
+    }
+
+    /* subscribe to lobby leave and abort pasting */
+    this._lobbyLeftEventListener.events$.pipe(
+      take(1),
+      withLatestFrom(this._pasteInProgress)
+    ).subscribe(([, paste]) => {
+      /* MUST be this paste since paste can be only started when in lobby */
+      if(paste) this._pasteInProgress.next(false);
+    });
+
     if(this.clearBeforePaste) this._drawingService.clearImage();
     this._pasteInProgress.next(true);
     await this._drawingService.pasteDrawCommands(commands.commands, () => !this._pasteInProgress.value);
