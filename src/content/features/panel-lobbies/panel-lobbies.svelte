@@ -84,6 +84,10 @@
             <FlatButton content="{lobby.userName}" color="{lobby.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(lobby.lobbyId, lobby.userName)}  />
           </div>
         {/each}
+
+        {#if $lobbies.length === 0}
+          <span>None of your friends are online.</span>
+        {/if}
       </div>
     {/if}
   </div>
