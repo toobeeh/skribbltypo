@@ -24,7 +24,7 @@ export class ChatRecallFeature extends TypoFeature {
       if(this._historyIndex === undefined) {
         if(event.key === "ArrowUp"){
           this._historyIndex = this._history.length - 1;
-          element.value = this._history[this._historyIndex];
+          element.value = this._history[this._historyIndex] ?? "";
         }
       }
 
