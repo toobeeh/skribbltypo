@@ -71,7 +71,7 @@ export type GuildLobbyDto = {
     /** Transpiled from string */
     language: string;
     /** Transpiled from string */
-    invite: string;
+    lobbyId: string;
     /** Transpiled from bool */
     private: boolean;
 }

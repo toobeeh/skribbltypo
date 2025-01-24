@@ -81,7 +81,7 @@
       <div class="typo-lobbies-discord-buttons">
         {#each $lobbies as lobby}
           <div use:feature.createTooltip={{title: feature.buildButtonTooltip(lobby), lock: "Y"}}>
-            <FlatButton content="{lobby.userName}" color="{lobby.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(lobby.invite, lobby.userName)}  />
+            <FlatButton content="{lobby.userName}" color="{lobby.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(lobby.lobbyId, lobby.userName)}  />
           </div>
         {/each}
       </div>

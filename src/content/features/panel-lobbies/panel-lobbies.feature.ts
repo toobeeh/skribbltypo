@@ -138,7 +138,7 @@ export class PanelLobbiesFeature extends TypoFeature {
     const list = Array.from(lobbies.values()).flat();
 
     list.forEach(lobby => {
-      if(!distinct.some(l => l.invite === lobby.invite && l.userName === lobby.userName)){
+      if(!distinct.some(l => l.lobbyId === lobby.lobbyId && l.userName === lobby.userName)){
         distinct.push(lobby);
       }
     });
