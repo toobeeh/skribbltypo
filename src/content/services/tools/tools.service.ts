@@ -123,7 +123,9 @@ export class ToolsService {
     const allMods = [...mods, ...(tool instanceof TypoDrawTool ? [tool] : [])];
 
     let lines: drawModLine[] = [{from: [start[0], start[1]], to: [end[0], end[1]]}];
-    let modStyle = structuredClone(style);
+
+    /* copy to avoid reference issues */
+    let modStyle = {size: style.size, color: Color.fromTypoCode(style.color.typoCode)};
     const pressure = end[2];
 
     /* apply mods and wait for result */
@@ -132,7 +134,7 @@ export class ToolsService {
       /* for each line - mods may append or skip lines */
       const modLines: drawModLine[] = [];
       for(const line of lines) {
-        const effect = await mod.applyEffect(line, pressure, style, eventId);
+        const effect = await mod.applyEffect(line, pressure, modStyle, eventId);
         modLines.push(...effect.lines);
         modStyle = effect.style;
         this._logger.debug("Mod applied", mod);
