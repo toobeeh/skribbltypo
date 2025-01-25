@@ -1,6 +1,7 @@
 import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
+import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { type componentData, type componentDataFactory, ModalService } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
@@ -19,7 +20,6 @@ import {
   Subject,
   Subscription,
   take,
-  withLatestFrom,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarImageLab from "./toolbar-imagelab.svelte";
@@ -35,7 +35,7 @@ export class ToolbarImageLabFeature extends TypoFeature {
   @inject(ModalService) private readonly _modalService!: ModalService;
   @inject(PrioritizedCanvasEventsSetup) private readonly _canvasEventsSetup!: PrioritizedCanvasEventsSetup;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
-  @inject(LobbyLeftEventListener) private readonly _lobbyLeftEventListener!: LobbyLeftEventListener;
+  @inject(GlobalSettingsService) private readonly _globalSettingsService!: GlobalSettingsService;
 
   public readonly name = "Image Laboratory";
   public readonly description =
@@ -61,9 +61,14 @@ export class ToolbarImageLabFeature extends TypoFeature {
   }
 
   public clearBeforePaste = false;
+  public pasteInstant = false;
 
   public get locked(){
     return fromObservable(this._drawingService.pasteInProgress$, false);
+  }
+
+  public get devmodeStore(){
+    return this._globalSettingsService.settings.devMode.store;
   }
 
   protected override async onActivate() {
@@ -203,6 +208,7 @@ export class ToolbarImageLabFeature extends TypoFeature {
   /**
    * Start a pasting process using the drawing service
    * @param commands
+   * @param pasteInstant
    */
   public async pasteDrawCommands(commands: savedDrawCommands){
 
@@ -220,7 +226,7 @@ export class ToolbarImageLabFeature extends TypoFeature {
     }
 
     if(this.clearBeforePaste) this._drawingService.clearImage();
-    await this._drawingService.pasteDrawCommands(commands.commands);
+    await this._drawingService.pasteDrawCommands(commands.commands, !this.pasteInstant);
   }
 
   /**

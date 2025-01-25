@@ -5,6 +5,7 @@
   import type { ToolbarImageLabFeature } from "./toolbar-imagelab.feature";
   export let feature: ToolbarImageLabFeature;
   const store = feature.savedDrawCommandsStore;
+  const devmode = feature.devmodeStore;
   feature.customName = "";
 
   const locked = feature.locked;
@@ -92,4 +93,8 @@
   <FlatButton content="Save Current Image" color="green" on:click={() => feature.saveCurrentDrawCommands()} />
   <input type="text" class="typo" placeholder="Custom save name" bind:value={feature.customName} />
   <Checkbox bind:checked={feature.clearBeforePaste} description="Clear before paste" />
+
+  {#if $devmode}
+    <Checkbox bind:checked={feature.pasteInstant} description="Paste instant (practice!)" />
+  {/if}
 </div>
