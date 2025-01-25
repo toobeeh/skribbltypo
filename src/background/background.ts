@@ -20,13 +20,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   else if(request.type === "get setting"){
     (async () => {
       const data = await chrome.storage.local.get(request.key as string);
-      const item = data[request.key] ?? null;
+      let item = data[request.key] ?? null;
+      if(item === "_undefined_") item = undefined;
       sendResponse(item);
     })();
     return true;
   }
 
   else if(request.type === "set setting"){
+
+    /* map undefined to string */
+    if(request.value === undefined) request.value = "_undefined_";
     chrome.storage.local.set({ [request.key]: request.value });
   }
 });

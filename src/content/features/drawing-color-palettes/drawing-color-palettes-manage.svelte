@@ -47,7 +47,7 @@ When you are done, click "Save Palette" to save the changes.<br>
 <br>
 
 <h3>Saved palettes</h3>
-<br><br>
+<br>
 <div class="typo-color-palette-manage-list">
   {#each $palettes as palette}
     {#key palette}
@@ -67,6 +67,7 @@ When you are done, click "Save Palette" to save the changes.<br>
     />
   {/each}
 </div>
+<br>
 
 <h3>Import a palette</h3>
 You can import existing palettes by pasting their data here.<br>
