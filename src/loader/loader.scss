@@ -1,0 +1,32 @@
+body {
+    > * {
+        opacity: 0;
+        transition: opacity 0.2s;
+        transition-delay: .1s;
+    }
+
+    &[data-typo_loaded="true"] > * {
+        opacity: 1;
+    }
+
+    &:after {
+        display: grid;
+        place-content: center;
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        opacity: 1;
+        transition: opacity 0.2s;
+        background-image: var(--file-img-wand-gif);
+        background-size: 10rem;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    &[data-typo_loaded="true"]:after {
+        opacity: 0;
+    }
+}

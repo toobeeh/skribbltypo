@@ -1,5 +1,5 @@
 import { element, requireElement } from "@/util/document/requiredQuerySelector";
-import { BehaviorSubject, filter, firstValueFrom, forkJoin, map } from "rxjs";
+import { BehaviorSubject, combineLatestWith, filter, firstValueFrom,  map, tap } from "rxjs";
 
 export interface prioritizedCanvasEvents {
   add: (priority: listenerPriority) => HTMLCanvasElement["addEventListener"],
@@ -10,8 +10,8 @@ export type listenerPriority = "preDraw" | "draw" | "postDraw";
 
 export class Interceptor {
 
+  private readonly _typoBodyLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _canvasFound$ = new BehaviorSubject<boolean>(false);
-  private readonly _socketioLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _contentScriptLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _tokenProcessed$ = new BehaviorSubject<boolean>(false);
   private readonly _patchLoaded$ = new BehaviorSubject<boolean>(false);
@@ -19,28 +19,35 @@ export class Interceptor {
 
   private readonly _canvasEventListener = new Map<string, Map<listenerPriority, Set<{priority: listenerPriority, handler: (e: Event) => (undefined | boolean)}>>>();
 
-  private readonly _patchLoaded = firstValueFrom(this._patchLoaded$.pipe(
-    filter(v => v),
-    map(() => void 0)
-  ));
-
   private readonly _canvasPrioritizedEventsReady = firstValueFrom(this._canvasPrioritizedEventsReady$.pipe(
     filter(v => v !== undefined)
   ));
 
   constructor(private _debuggingEnabled = false) {
-    forkJoin([
-      this._canvasFound$, this._contentScriptLoaded$, this._tokenProcessed$, this._socketioLoaded$
-    ]).subscribe(() => {
-        this.debug("All prerequisites executed, injecting patch and listening to canvas events");
-        this.listenPrioritizedCanvasElements();
-        this.injectPatch();
-      });
+    this._typoBodyLoaded$.pipe(
+
+      /* wait until typo loaded body manually - see loader.ts */
+      filter((loaded) => loaded),
+
+      /* trigger listeners that have to run on typo loaded body */
+      tap(() => this.listenForCanvas()),
+
+      /* wait for all prerequisites */
+      combineLatestWith(this._canvasFound$, this._contentScriptLoaded$, this._tokenProcessed$),
+      filter(([, canvas, content, token]) => canvas && content && token)
+    ).subscribe(() => {
+      this.debug("All prerequisites executed, injecting patch and listening to canvas events");
+      this.listenPrioritizedCanvasElements();
+      this.injectPatch();
+    });
 
     this.debug("Interceptor initialized, starting listeners for token and game.js");
+    this.waitForTypoLoadedBody();
     this.processToken();
-    this.listenForSocketio();
-    this.listenForCanvas();
+
+    this.patchLoaded$.subscribe(() => {
+      document.body.dataset["typo_loaded"] = "true";
+    });
   }
 
   private debug(...args: unknown[]){
@@ -78,39 +85,30 @@ export class Interceptor {
     this._tokenProcessed$.complete();
   }
 
-  private listenForSocketio(){
-    this.debug("Listening on DOM buildup until socketio script is added");
+  private waitForTypoLoadedBody(){
+    this.debug("Listening for body from typo loader");
 
-    /* check if canvas is already added */
-    if(element("script[src='js/socket.io.js']")) {
-      this.debug("Socketio script already present");
-      this._socketioLoaded$.next(true);
-      this._socketioLoaded$.complete();
+    /* check if body is already added */
+    if(document.body.dataset["typo_loader"] === "true") {
+      this.debug("Body already loaded");
+      this._typoBodyLoaded$.next(true);
+      this._typoBodyLoaded$.complete();
       return;
     }
 
     /* observe changes in child list */
-    const scriptObserver = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if(mutation.type === "childList") {
+    const bodyObserver = new MutationObserver(() => {
 
-          /* if game.js script element is found */
-          const target = [...mutation.addedNodes].find(n => n.nodeName === "SCRIPT" && (n as HTMLScriptElement).src.includes("socket.io.js"));
-          if(target){
-            this.debug("Socketio script found");
-            const script = target as HTMLScriptElement;
-            script.addEventListener("load", () => {
-              this.debug("Socketio script loaded");
-              this._socketioLoaded$.next(true);
-              this._socketioLoaded$.complete();
-            });
-            scriptObserver.disconnect();
-          }
-        }
-      });
+      /* if body is not from typo loader, skip */
+      if(document.body.dataset["typo_loader"] === "true") {
+        this.debug("Typo body loaded");
+        this._typoBodyLoaded$.next(true);
+        this._typoBodyLoaded$.complete();
+        bodyObserver.disconnect();
+      }
     });
 
-    scriptObserver.observe(document.body, {
+    bodyObserver.observe(document, {
       childList: true,
       subtree: true
     });
@@ -129,6 +127,7 @@ export class Interceptor {
 
     /* observe changes in child list */
     const scriptObserver = new MutationObserver((mutations) => {
+
       mutations.forEach((mutation) => {
         if(mutation.type === "childList") {
 
@@ -230,8 +229,11 @@ export class Interceptor {
     this._debuggingEnabled = true;
   }
 
-  public get patchLoaded() {
-    return this._patchLoaded;
+  public get patchLoaded$() {
+    return this._patchLoaded$.pipe(
+      filter(v => v),
+      map(() => void 0)
+    );
   }
 
   public get canvasPrioritizedEventsReady() {

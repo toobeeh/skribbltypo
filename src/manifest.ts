@@ -27,11 +27,18 @@ export default defineManifest({
     {
       matches: ["https://skribbl.io/*"],
       js: [
+        "src/loader/loader.ts",
         "src/content/content.ts",
-        "src/content/pre-execution-block.ts"
+        /*"src/content/pre-execution-block.ts"*/
       ],
       run_at: "document_start",
-    }
+    },
+    /*{
+      matches: ["https://skribbl.io/never"],
+      js: [
+        "src/content/content.ts"
+      ]
+    }*/
   ],
   web_accessible_resources: [
     {
@@ -41,7 +48,7 @@ export default defineManifest({
     {
       matches: ["https://skribbl.io/*"],
       resources: ["**/*.js.map", "gamePatch.js"]
-    }
+    },
   ],
   permissions: ["storage"],
 });

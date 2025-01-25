@@ -12,6 +12,6 @@ export class GamePatchReadySetup extends Setup<void> {
   @inject(Interceptor) private readonly _interceptor!: Interceptor;
 
   protected async runSetup(): Promise<void> {
-    return this._interceptor.patchLoaded;
+    return this._interceptor.patchLoaded$;
   }
 }
