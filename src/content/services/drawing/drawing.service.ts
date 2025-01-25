@@ -8,18 +8,14 @@ import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay
 import { arrayChunk } from "@/util/arrayChunk";
 import type { Color } from "@/util/color";
 import { ImageData } from "@/util/imageData";
-import { wait } from "@/util/wait";
 import { inject, injectable } from "inversify";
 import {
   BehaviorSubject,
-  concatMap, debounce,
-  debounceTime,
+  concatMap, debounceTime,
   delay, distinctUntilChanged,
   filter,
   map,
-  merge, mergeWith, of, scan, startWith,
-  Subject, switchMap, take, takeUntil, takeWhile, tap,
-  timer,
+  merge, mergeWith, of, scan, Subject, tap,
   withLatestFrom,
 } from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";

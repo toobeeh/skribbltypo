@@ -1,4 +1,3 @@
-import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";

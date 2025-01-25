@@ -18,9 +18,8 @@ import type { Type } from "@/util/types/type";
 import { inject, injectable, postConstruct } from "inversify";
 import {
   BehaviorSubject, combineLatestWith, distinctUntilChanged,
-  filter, map, mergeMap, pairwise, share, Subject,
-  switchMap, takeUntil, toArray,
-  withLatestFrom,
+  filter, map, pairwise, Subject,
+  switchMap, withLatestFrom,
 } from "rxjs";
 
 export type drawCoordinateEvent = [number, number, number?];
