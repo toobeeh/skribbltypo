@@ -47,7 +47,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
       .withDescription("The name of the currently active palette");
 
   private readonly _hideOriginalPaletteStyle = createElement(`<style>
-    #game #game-toolbar .colors :is(.top, .bottom) {
+    #game #game-toolbar .colors:has(.top) {
       display: none;
     }
   </style>`);
@@ -99,7 +99,8 @@ export class DrawingColorPalettesFeature extends TypoFeature {
 
     if(this._hideOriginalPaletteStyle.parentElement === null) document.body.appendChild(this._hideOriginalPaletteStyle);
     this._colorPalettePicker = new ColorPalettePicker({
-      target: elements.colorContainer,
+      target: elements.skribblToolbar,
+      anchor: elements.colorContainer,
       props: {
         feature: this,
         palette

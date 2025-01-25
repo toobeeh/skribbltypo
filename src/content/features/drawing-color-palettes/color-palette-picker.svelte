@@ -9,6 +9,10 @@
 
 <style lang="scss">
 
+  :global(#game-toolbar) .typo-palette.colors {
+    height: fit-content;
+  }
+
   .typo-palette-picker {
     display: grid;
     overflow: hidden;
@@ -22,10 +26,12 @@
   }
 </style>
 
-<div class="typo-palette-picker" style="grid-template-columns: repeat({palette.columns}, auto)">
-  {#each palette.colorHexCodes as color}
-    <div class="typo-palette-picker-item"
-         on:click={() => feature.setColor(color)}
-         style="background-color: {color};"></div>
-  {/each}
+<div class="colors typo-palette">
+  <div class="typo-palette-picker" style="grid-template-columns: repeat({palette.columns}, auto)">
+    {#each palette.colorHexCodes as color}
+      <div class="typo-palette-picker-item"
+           on:click={() => feature.setColor(color)}
+           style="background-color: {color};"></div>
+    {/each}
+  </div>
 </div>
