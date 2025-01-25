@@ -62,9 +62,8 @@ export class ToolbarImageLabFeature extends TypoFeature {
 
   public clearBeforePaste = false;
 
-  private _pasteInProgress = new BehaviorSubject<boolean>(false);
   public get locked(){
-    return fromObservable(this._pasteInProgress, false);
+    return fromObservable(this._drawingService.pasteInProgress$, false);
   }
 
   protected override async onActivate() {
@@ -220,26 +219,15 @@ export class ToolbarImageLabFeature extends TypoFeature {
       return;
     }
 
-    /* subscribe to lobby leave and abort pasting */
-    this._lobbyLeftEventListener.events$.pipe(
-      take(1),
-      withLatestFrom(this._pasteInProgress)
-    ).subscribe(([, paste]) => {
-      /* MUST be this paste since paste can be only started when in lobby */
-      if(paste) this._pasteInProgress.next(false);
-    });
-
     if(this.clearBeforePaste) this._drawingService.clearImage();
-    this._pasteInProgress.next(true);
-    await this._drawingService.pasteDrawCommands(commands.commands, () => !this._pasteInProgress.value);
-    this._pasteInProgress.next(false);
+    await this._drawingService.pasteDrawCommands(commands.commands);
   }
 
   /**
    * Stop a paste in progress
    */
   public abortPaste(){
-    this._pasteInProgress.next(false);
+    this._drawingService.cancelPendingDrawCommands();
   }
 
   /**

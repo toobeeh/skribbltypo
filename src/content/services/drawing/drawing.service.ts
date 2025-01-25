@@ -10,7 +10,18 @@ import type { Color } from "@/util/color";
 import { ImageData } from "@/util/imageData";
 import { wait } from "@/util/wait";
 import { inject, injectable } from "inversify";
-import { BehaviorSubject, debounceTime, map, merge, withLatestFrom } from "rxjs";
+import {
+  BehaviorSubject,
+  concatMap, debounce,
+  debounceTime,
+  delay, distinctUntilChanged,
+  filter,
+  map,
+  merge, of, startWith,
+  Subject, switchMap, take, takeUntil, takeWhile, tap,
+  timer,
+  withLatestFrom,
+} from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import { LobbyLeftEvent, LobbyLeftEventListener } from "../../events/lobby-left.event";
 
@@ -37,6 +48,10 @@ export class DrawingService {
   private _currentCommands$ = new BehaviorSubject<number[][]>([]);
   private _drawingState$ = new BehaviorSubject<"drawing" | "idle">("idle");
 
+  private _pasteInProgress$ = new BehaviorSubject<boolean>(false);
+  private _abortCommands$ = new BehaviorSubject<number>(Number.MAX_VALUE);
+  private _incomingDrawCommands$ = new Subject<number[]>();
+
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
     @inject(LobbyLeftEventListener) private readonly lobbyLeft: LobbyLeftEventListener,
@@ -60,6 +75,48 @@ export class DrawingService {
     this.commands$.pipe(debounceTime(1000)).subscribe(data => {
       this._logger.debug("Commands updated", data);
     });
+
+    /* cancel always when lobby left */
+    lobbyLeft.events$.subscribe(() => this.cancelPendingDrawCommands());
+
+    this._incomingDrawCommands$.pipe(
+
+      /* not very satisfied with the access of the .value .. but it works */
+      concatMap((value) => {
+        const scheduledTime = Date.now();
+        const abort = this._abortCommands$.value;
+
+        /* if command is aborted, return as cancelled. else return as scheduled */
+        if(scheduledTime < abort) return of(value).pipe(
+          delay(2)
+        );
+        else return of(null);
+      }),
+
+      /* filter out cancelled commands */
+      filter(value => value !== null),
+
+      /* perform commands */
+      tap((command) => this.onDrawCommand(command)),
+
+      /* after 50ms of no commands, treat as action */
+      debounceTime(50),
+    ).subscribe(() => {
+      this._logger.debug("finished pasting");
+      this._pasteInProgress$.next(false);
+      this._abortCommands$.next(Number.MAX_VALUE);
+    });
+  }
+
+  private onDrawCommand(command: number[]) {
+    this._logger.debug("Incoming draw command", command);
+
+    if(command.some(n => isNaN(n))) {
+      this._logger.warn("Invalid command", command);
+      return;
+    }
+
+    document.dispatchEvent(new CustomEvent("performDrawCommand", {detail: command}));
   }
 
   /**
@@ -218,20 +275,20 @@ export class DrawingService {
    * @param commands
    * @param stopped
    */
-  public async pasteDrawCommands(commands: number[][], stopped?: () => boolean) {
+  public async pasteDrawCommands(commands: number[][]) {
     this._logger.debug("Pasting draw commands", commands);
-    const paste = (command: number[]) => document.dispatchEvent(new CustomEvent("performDrawCommand", {detail: command}));
-    for(const command of commands) {
+    this._pasteInProgress$.next(true);
+    commands.forEach(command => this._incomingDrawCommands$.next(command));
+  }
 
-      if(command.some(n => isNaN(n))) {
-        this._logger.warn("Invalid command", command);
-        continue;
-      }
+  public cancelPendingDrawCommands(){
+    this._abortCommands$.next(Date.now());
+  }
 
-      if(stopped?.()) return;
-      paste(command);
-      await wait(2);
-    }
+  public get pasteInProgress$(){
+    return this._pasteInProgress$.pipe(
+      distinctUntilChanged()
+    );
   }
 
   public setColor(color: Color) {
