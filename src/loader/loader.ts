@@ -24,7 +24,7 @@ scriptObserver.observe(document, {
 const content = new Promise<HTMLElement>(async (resolve) => {
 
   /* fetch original skribbl doc and prevent game from executing */
-  let html = await (await fetch("./")).text();
+  let html = await (await fetch(window.location.href)).text();
   html = html.replaceAll("game.js", "game.jsx");
 
   /* create new document wit loaded content */
@@ -35,12 +35,18 @@ const content = new Promise<HTMLElement>(async (resolve) => {
   resolve(body);
 });
 
+const loaded = new Promise<void>(resolve => {
+  if(document.readyState === "complete") resolve();
+  document.addEventListener("DOMContentLoaded", () => resolve());
+});
+
 /**
  * replace document body as soon as loaded
  * this has the advantage that if typo is for some reason injected after the game.js is loaded,
  * the whole page will reset and execution of the game.js is in the hands of typo
  */
-content.then(async body => {
+loaded.then(async () => {
+  const body = await content;
   document.body = body;
   scriptObserver.disconnect();
   signature();
