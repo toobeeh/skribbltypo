@@ -6,7 +6,7 @@ import { LobbyStateChangedEvent, LobbyStateChangedEventListener } from "@/conten
 import { RoundStartedEvent, RoundStartedEventListener } from "@/content/events/round-started.event";
 import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/word-guessed.event";
 import { inject, injectable } from "inversify";
-import { BehaviorSubject, debounceTime, distinctUntilChanged, map, merge, withLatestFrom } from "rxjs";
+import { BehaviorSubject, debounceTime, distinctUntilChanged, map, merge, tap, withLatestFrom } from "rxjs";
 import type { skribblLobby } from "@/util/skribbl/lobby";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import { LobbyJoinedEvent, LobbyJoinedEventListener } from "../../events/lobby-joined.event";
@@ -19,6 +19,7 @@ export class LobbyService {
   private readonly _logger;
 
   private _currentLobby$ = new BehaviorSubject<skribblLobby | null>(null);
+  private _currentLobbyDebounced$ = new BehaviorSubject<skribblLobby | null>(null);
   private _discoveredLobbies$ = new BehaviorSubject<Map<string, skribblLobby & {seenAt: number}>>(new Map());
 
   constructor(
@@ -108,9 +109,14 @@ export class LobbyService {
         this._logger.debug("Lobby update processed", currentLobby);
         return currentLobby;
       }),
+
+      /* emit to processing stream */
+      tap(lobby => this._currentLobby$.next(lobby)),
+
+      /* emit debounced to publishing stream */
       debounceTime(100), /* debounce to prevent spamming */
       distinctUntilChanged((curr, prev) => JSON.stringify(curr) === JSON.stringify(prev)) /* if join-leave spam debounced, take only changes */
-    ).subscribe(data => this._currentLobby$.next(data));
+    ).subscribe(data => this._currentLobbyDebounced$.next(data));
 
     this.lobby$.subscribe(data => {
       this._logger.info("Lobby changed", data);
@@ -144,7 +150,7 @@ export class LobbyService {
   }
 
   public get lobby$(){
-    return this._currentLobby$.asObservable();
+    return this._currentLobbyDebounced$.asObservable();
   }
 
   public get discoveredLobbies$(){
