@@ -22,6 +22,23 @@
       aspect-ratio: 1;
       height: calc(var(--UNIT) / 2);
       cursor: pointer;
+      position: relative;
+
+      &:after {
+        content: "";
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        right: 2px;
+        bottom: 2px;
+        border-radius: 3px;
+      }
+
+      &:hover:after {
+        border-width: 3px;
+        border-style: solid;
+        border-color: rgba(0, 0, 0, 0.6);
+      }
     }
   }
 </style>
