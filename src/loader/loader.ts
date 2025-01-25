@@ -1,6 +1,12 @@
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import "./loader.scss";
 
+/* check if document is loaded so that socketio is available, or wait for dom loaded */
+const loaded = new Promise<void>(resolve => {
+  if(document.readyState === "interactive" || document.readyState === "complete" || Object.keys(window).includes("io")) resolve();
+  document.addEventListener("DOMContentLoaded", () => resolve());
+});
+
 /* prevent game.js to be sure, in case it gets executed on new body */
 const scriptObserver = new MutationObserver((nodes) => {
 
@@ -33,11 +39,6 @@ const content = new Promise<HTMLElement>(async (resolve) => {
   const body = requireElement("body", newDoc);
   body.dataset["typo_loader"] = "true";
   resolve(body);
-});
-
-const loaded = new Promise<void>(resolve => {
-  if(document.readyState === "complete") resolve();
-  document.addEventListener("DOMContentLoaded", () => resolve());
 });
 
 /**
