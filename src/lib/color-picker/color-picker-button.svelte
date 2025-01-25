@@ -14,22 +14,27 @@
   let closing = false;
 
   const openPopup = (event: MouseEvent) => {
-    event.stopImmediatePropagation();
+    /*event.stopImmediatePropagation();*/
     closing = false;
     const anchor = event.target as HTMLElement;
     const rect = anchor.getBoundingClientRect();
-    document.addEventListener("click", () => {
+
+    const handler = (e: MouseEvent) => {
+
+      if(e.target === anchor) return;
+      document.removeEventListener("click", handler);
 
       /* dispatch changed event */
       colorChanged?.(color);
 
       /* close popup */
       closing = true;
-        setTimeout(() => {
-          popupPosition = undefined;
-        }, 150);
-      }, {once: true }
-    );
+      setTimeout(() => {
+        popupPosition = undefined;
+      }, 150);
+    };
+
+    document.addEventListener("click", handler);
     
     let left, right, bottom, top: string | undefined;
     let transformOrigin: string;
@@ -119,7 +124,8 @@
   {#if popupPosition}
     <div class="color-picker-popout" class:closing={closing}
          style="top: {popupPosition.top}; left: {popupPosition.left}; right: {popupPosition.right}; bottom: {popupPosition.bottom}; transform-origin: {popupPosition.transformOrigin};"
-         on:click={e => e.stopImmediatePropagation()}>
+         on:click={e => e.stopImmediatePropagation()}
+    >
       <ColorPicker bind:color={color} allowAlpha="{allowAlpha}" description="{description}" />
     </div>
   {/if}
