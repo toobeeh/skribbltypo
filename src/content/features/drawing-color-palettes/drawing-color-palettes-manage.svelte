@@ -50,12 +50,14 @@ When you are done, click "Save Palette" to save the changes.<br>
 <br><br>
 <div class="typo-color-palette-manage-list">
   {#each $palettes as palette}
-    <ColorPaletteBuilder
-      initialPalette="{palette}"
-      onPaletteSave={(newPalette) => feature.savePalette(newPalette, palette.name)}
-      onPaletteExport={(newPalette) => feature.exportPalette(newPalette)}
-      onPaletteDelete="{() => feature.removePalette(palette.name)}"
-    />
+    {#key palette}
+      <ColorPaletteBuilder
+        initialPalette="{palette}"
+        onPaletteSave={(newPalette) => feature.savePalette(newPalette, palette.name)}
+        onPaletteExport={(newPalette) => feature.exportPalette(newPalette)}
+        onPaletteDelete="{() => feature.removePalette(palette.name)}"
+      />
+    {/key}
   {/each}
 
   {#each Object.values(defaultPalettes) as palette}
