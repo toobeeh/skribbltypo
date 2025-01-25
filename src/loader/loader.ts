@@ -1,6 +1,25 @@
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import "./loader.scss";
 
+/* prevent game.js to be sure, in case it gets executed on new body */
+const scriptObserver = new MutationObserver((nodes) => {
+
+  nodes.forEach(node => {
+    if(node instanceof HTMLScriptElement){
+      if(node.src.includes("game.js")) {
+        node.addEventListener("beforescriptexecute", e => e.preventDefault(), { once: true }); // block for firefox
+        node.src = ""; /* to be sure */
+        node.remove();
+      }
+    }
+  });
+});
+
+scriptObserver.observe(document, {
+  childList: true,
+  subtree: true
+});
+
 /* start loading skribbl page */
 const content = new Promise<HTMLElement>(async (resolve) => {
 
@@ -23,6 +42,7 @@ const content = new Promise<HTMLElement>(async (resolve) => {
  */
 content.then(async body => {
   document.body = body;
+  scriptObserver.disconnect();
   signature();
 });
 

@@ -24,6 +24,7 @@ body {
         background-size: 10rem;
         background-repeat: no-repeat;
         background-position: center;
+        pointer-events: none;
     }
 
     &[data-typo_loaded="true"]:after {

@@ -1,5 +1,5 @@
 import { element, requireElement } from "@/util/document/requiredQuerySelector";
-import { BehaviorSubject, combineLatestWith, filter, firstValueFrom,  map, tap } from "rxjs";
+import { BehaviorSubject, combineLatestWith, filter, firstValueFrom, map, type Observable, tap } from "rxjs";
 
 export interface prioritizedCanvasEvents {
   add: (priority: listenerPriority) => HTMLCanvasElement["addEventListener"],
@@ -229,7 +229,7 @@ export class Interceptor {
     this._debuggingEnabled = true;
   }
 
-  public get patchLoaded$() {
+  public get patchLoaded$(): Observable<void> {
     return this._patchLoaded$.pipe(
       filter(v => v),
       map(() => void 0)
