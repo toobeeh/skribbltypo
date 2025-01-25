@@ -90,8 +90,8 @@ export class ToolsService {
       document.addEventListener("pointerup", this.onDocumentUp.bind(this));
     });
 
-    /* process draw commands and produce promises in real-time with amount of created draw commands */
-    const activeResults$ = this.mapDrawCoordinates().pipe(
+    /* process draw commands */
+    this.mapDrawCoordinates().pipe(
 
       /* only when currently drawing */
       withLatestFrom(this._lobbyService.lobby$),
@@ -100,28 +100,9 @@ export class ToolsService {
 
       /* add current mods, tools and style */
       withLatestFrom(this._activeTool$, this._activeMods$, this._activeBrushStyle$),
-
-      map(([[start, end], tool, mods, style]) => this.processDrawCoordinates(start, end, tool, mods, style)),
-      share() // Share the same stream with multiple subscribers
+    ).subscribe(([[start, end], tool, mods, style]) =>
+      this.processDrawCoordinates(start, end, tool, mods, style)
     );
-
-    /* when collapse emits, count all emitted commands and collapse them to an action */
-    this._collapseSignal$
-      .pipe(
-        // Wait for all active async operations to complete since the last signal
-        mergeMap(() =>
-          activeResults$.pipe(
-            // Collect results until the next signal
-            takeUntil(this._collapseSignal$),
-            toArray(), // Accumulate the sum
-          )
-        )
-      )
-      .subscribe(async (sum) => {
-        const performedCommands = await Promise.all(sum);
-        const totalCommands = performedCommands.reduce((a, b) => a + b, 0);
-        this.collapseDrawCommands(totalCommands);
-      });
 
     /* set up brush style subscription */
     this._sizeChangedListener.events$.pipe(
@@ -201,7 +182,7 @@ export class ToolsService {
 
     /* paste commands */
     this._logger.info("Pasting draw commands", commands);
-    await this._drawingService.pasteDrawCommands(commands);
+    await this._drawingService.pasteDrawCommands(commands, false);
     return commands.length;
   }
 
@@ -250,11 +231,6 @@ export class ToolsService {
 
     /* re-enable skribbl command rate */
     this.setSkribblCommandRateBypass(false);
-  }
-
-  private collapseDrawCommands(amount: number){
-    this._logger.debug("Collapsing draw commands", amount);
-    document.dispatchEvent(new CustomEvent("collapseUndoActions", { detail: amount }));
   }
 
   private setSkribblCommandRateBypass(state: boolean) {

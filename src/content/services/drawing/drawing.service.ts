@@ -17,7 +17,7 @@ import {
   delay, distinctUntilChanged,
   filter,
   map,
-  merge, of, startWith,
+  merge, mergeWith, of, scan, startWith,
   Subject, switchMap, take, takeUntil, takeWhile, tap,
   timer,
   withLatestFrom,
@@ -50,7 +50,7 @@ export class DrawingService {
 
   private _pasteInProgress$ = new BehaviorSubject<boolean>(false);
   private _abortCommands$ = new BehaviorSubject<number>(Number.MAX_VALUE);
-  private _incomingDrawCommands$ = new Subject<number[]>();
+  private _incomingDrawCommands$ = new Subject<[number[], boolean]>(); /* [commands, scheduled] -> scheduled false when cancel/schedule skipped */
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -82,7 +82,10 @@ export class DrawingService {
     this._incomingDrawCommands$.pipe(
 
       /* not very satisfied with the access of the .value .. but it works */
-      concatMap((value) => {
+      concatMap(([value, scheduled]) => {
+
+        if(!scheduled) return of(value);
+
         const scheduledTime = Date.now();
         const abort = this._abortCommands$.value;
 
@@ -99,10 +102,16 @@ export class DrawingService {
       /* perform commands */
       tap((command) => this.onDrawCommand(command)),
 
+      /* count amount of pasted commands, reset when not drawing*/
+      mergeWith(this._pasteInProgress$),
+      scan((acc, pastingOrCommands) => pastingOrCommands === false ? 0 : pastingOrCommands === true ? acc : acc + 1, 0),
+      filter(count => count > 0),
+
       /* after 50ms of no commands, treat as action */
       debounceTime(50),
-    ).subscribe(() => {
-      this._logger.debug("finished pasting");
+    ).subscribe((count) => {
+      this._logger.debug("finished pasting", count);
+      document.dispatchEvent(new CustomEvent("collapseUndoActions", { detail: count }));
       this._pasteInProgress$.next(false);
       this._abortCommands$.next(Number.MAX_VALUE);
     });
@@ -110,12 +119,6 @@ export class DrawingService {
 
   private onDrawCommand(command: number[]) {
     this._logger.debug("Incoming draw command", command);
-
-    if(command.some(n => isNaN(n))) {
-      this._logger.warn("Invalid command", command);
-      return;
-    }
-
     document.dispatchEvent(new CustomEvent("performDrawCommand", {detail: command}));
   }
 
@@ -273,12 +276,12 @@ export class DrawingService {
   /**
    * Paste draw commands on the canvas
    * @param commands
-   * @param stopped
+   * @param scheduled set to false to skip 2ms-delay-scheduling (scheduled react to cancel signal)
    */
-  public async pasteDrawCommands(commands: number[][]) {
+  public async pasteDrawCommands(commands: number[][], scheduled = true) {
     this._logger.debug("Pasting draw commands", commands);
     this._pasteInProgress$.next(true);
-    commands.forEach(command => this._incomingDrawCommands$.next(command));
+    commands.forEach(command => this._incomingDrawCommands$.next([command, scheduled]));
   }
 
   public cancelPendingDrawCommands(){
