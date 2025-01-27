@@ -7,7 +7,7 @@ import { skribblTool, ToolChangedEventListener } from "@/content/events/tool-cha
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
-import type { drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
+import { TypoDrawMod, type drawModLine } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
@@ -306,6 +306,10 @@ export class ToolsService {
 
     /* broadcast active tool */
     this._activeTool$.next(tool);
+
+    /* dry-run tool to trigger early settings load */
+    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000"), size: 1}, 0);
+    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000"), size: 1}, 0);
   }
 
   public activateMod(mod: TypoDrawMod) {
