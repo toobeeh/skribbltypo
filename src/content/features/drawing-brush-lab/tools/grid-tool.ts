@@ -12,7 +12,7 @@ export class GridTool extends TypoDrawTool implements BrushLabItem {
   @inject(ToolsService) private readonly _toolsService!: ToolsService;
 
   readonly name: string = "Grid Generator";
-  readonly description: string = "Draw dotted lines with a customizable interval";
+  readonly description: string = "Click anywhere on the canvas to create a grid";
   readonly icon: string = "var(--file-img-line-grid-gif)";
 
   private _rowsSetting = new NumericExtensionSetting("brushlab.grid.rows", 6)

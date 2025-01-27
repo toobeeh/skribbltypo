@@ -276,6 +276,7 @@ export class DrawingService {
    */
   public async pasteDrawCommands(commands: number[][], scheduled = true) {
     this._logger.debug("Pasting draw commands", commands);
+    if(commands.length === 0) return;
     this._pasteInProgress$.next(true);
     commands.forEach(command => this._incomingDrawCommands$.next([command, scheduled]));
   }
