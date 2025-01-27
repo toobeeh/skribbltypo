@@ -146,9 +146,9 @@ export class DropsFeature extends TypoFeature {
    * Send a drop claim and show an error if fails - probably timeout or already cleared
    * @param id
    */
-  public async claimDrop(id: number){
+  public async claimDrop(token: string){
     try {
-      const result = await this._lobbyConnectionService.connection.hub.claimDrop({ dropId: id });
+      const result = await this._lobbyConnectionService.connection.hub.claimDrop({ dropToken: token });
       return result;
     }
     catch(e){

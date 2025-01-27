@@ -22,6 +22,8 @@ export type AwardGiftedDto = {
 
 /** Transpiled from tobeh.Avallone.Server.Classes.Dto.DropAnnouncementDto */
 export type DropAnnouncementDto = {
+    /** Transpiled from string */
+    dropToken: string;
     /** Transpiled from long */
     dropId: number;
     /** Transpiled from int */
@@ -32,8 +34,8 @@ export type DropAnnouncementDto = {
 
 /** Transpiled from tobeh.Avallone.Server.Classes.Dto.DropClaimDto */
 export type DropClaimDto = {
-    /** Transpiled from long */
-    dropId: number;
+    /** Transpiled from string */
+    dropToken: string;
 }
 
 /** Transpiled from tobeh.Avallone.Server.Classes.Dto.DropClaimResultDto */

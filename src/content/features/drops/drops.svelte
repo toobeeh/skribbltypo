@@ -40,10 +40,10 @@
 {#if $currentDrop !== undefined}
   <div class="typo-drop"
        on:click={async () => {
-         const id = $currentDrop?.dropId;
+         const token = $currentDrop?.dropToken;
          $currentDrop = undefined;
-         if(id) {
-           const claim = await feature.claimDrop(id);
+         if(token) {
+           const claim = await feature.claimDrop(token);
            if(claim !== undefined) feature.processClaim(claim, true);
          }
        }}
