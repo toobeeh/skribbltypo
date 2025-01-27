@@ -1,9 +1,7 @@
-import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ConstantDrawMod, type constantDrawModEffect } from "@/content/services/tools/constant-draw-mod";
 import { type drawModLine } from "@/content/services/tools/draw-mod";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 import { calculatePressurePoint } from "@/util/typo/pressure";
-import { inject } from "inversify";
 
 /**
  * Tool that allows the user to pick a color from the canvas
@@ -25,7 +23,7 @@ export class PressureMod extends ConstantDrawMod {
    * @param eventId
    * @param strokeId
    */
-  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle, eventId: number, strokeId: number): Promise<constantDrawModEffect> {
+  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<constantDrawModEffect> {
 
     if(pressure === undefined) {
       return {
