@@ -15,8 +15,9 @@ export abstract class TypoDrawTool extends ConstantDrawMod {
    * @param pressure
    * @param brushStyle
    * @param eventId
+   * @param strokeId
    */
-  public abstract createCommands(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle, eventId: number): number[][] | Promise<number[][]>;
+  public abstract createCommands(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle, eventId: number, strokeId: number): number[][] | Promise<number[][]>;
 
   protected noCommands(): number[][] {
     return [];

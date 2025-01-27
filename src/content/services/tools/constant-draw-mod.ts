@@ -16,14 +16,16 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
    * @param pressure
    * @param brushStyle
    * @param eventId
+   * @param strokeId
    */
   public async applyEffect(
     line: drawModLine,
     pressure: number | undefined,
     brushStyle: brushStyle,
-    eventId: number
+    eventId: number,
+    strokeId: number
   ): Promise<drawModEffect>{
-    const effect = this.applyConstantEffect(line, pressure, brushStyle, eventId);
+    const effect = this.applyConstantEffect(line, pressure, brushStyle, eventId, strokeId);
     const awaited = effect instanceof Promise ? await effect : effect;
     return {
       lines: [awaited.line],
@@ -36,13 +38,16 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
    * @param line
    * @param pressure
    * @param brushStyle
+   * @param eventId
+   * @param strokeId
    * @protected
    */
   protected abstract applyConstantEffect(
     line: drawModLine,
     pressure: number | undefined,
     brushStyle: brushStyle,
-    eventId: number
+    eventId: number,
+    strokeId: number
   ): constantDrawModEffect | Promise<constantDrawModEffect>;
 
   protected noConstantEffect(

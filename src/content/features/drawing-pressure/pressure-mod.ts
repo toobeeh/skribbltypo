@@ -11,8 +11,6 @@ import { inject } from "inversify";
  */
 export class PressureMod extends ConstantDrawMod {
 
-  @inject(DrawingService) private readonly _drawingService!: DrawingService;
-
   private readonly _maxSize = 40;
   private readonly _minSize = 4;
 
@@ -24,8 +22,10 @@ export class PressureMod extends ConstantDrawMod {
    * @param line
    * @param pressure
    * @param style
+   * @param eventId
+   * @param strokeId
    */
-  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<constantDrawModEffect> {
+  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle, eventId: number, strokeId: number): Promise<constantDrawModEffect> {
 
     if(pressure === undefined) {
       return {

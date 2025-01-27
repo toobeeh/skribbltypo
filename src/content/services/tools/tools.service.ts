@@ -28,6 +28,11 @@ export interface brushStyle {
   size: number;
 }
 
+interface strokePointerEvent {
+  strokeId: number,
+  event: PointerEvent
+}
+
 @injectable()
 export class ToolsService {
 
@@ -47,8 +52,8 @@ export class ToolsService {
 
   private readonly _collapseSignal$ = new Subject<undefined>();
 
-  private readonly _currentPointerDown$ = new BehaviorSubject<boolean>(false);
-  private readonly _currentPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
+  private readonly _currentPointerDown$ = new BehaviorSubject<number | null>(null);
+  private readonly _currentPointerDownPosition$ = new BehaviorSubject<strokePointerEvent | null>(null);
   private readonly _lastPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
   private readonly _canvasCursorStyle = document.createElement("style");
 
@@ -99,8 +104,8 @@ export class ToolsService {
 
       /* add current mods, tools and style */
       withLatestFrom(this._activeTool$, this._activeMods$, this._activeBrushStyle$),
-    ).subscribe(([[start, end], tool, mods, style]) =>
-      this.processDrawCoordinates(start, end, tool, mods, style)
+    ).subscribe(([stroke, tool, mods, style]) =>
+      this.processDrawCoordinates(stroke.coordinates[0], stroke.coordinates[1], tool, mods, style, stroke.strokeId)
     );
 
     /* set up brush style subscription */
@@ -110,7 +115,7 @@ export class ToolsService {
     ).subscribe(style => this._activeBrushStyle$.next(style));
   }
 
-  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, tool: TypoDrawTool | skribblTool, mods: TypoDrawMod[], style: brushStyle) {
+  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, tool: TypoDrawTool | skribblTool, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
     this._logger.debug("Activating tool and applying mods", start, end);
 
     /* return if no mods or tool selected - else create draw commands through typo */
@@ -134,7 +139,7 @@ export class ToolsService {
       /* for each line - mods may append or skip lines */
       const modLines: drawModLine[] = [];
       for(const line of lines) {
-        const effect = await mod.applyEffect(line, pressure, modStyle, eventId);
+        const effect = await mod.applyEffect(line, pressure, modStyle, eventId, strokeId);
         modLines.push(...effect.lines);
         modStyle = effect.style;
         this._logger.debug("Mod applied", mod);
@@ -162,7 +167,7 @@ export class ToolsService {
         /* make sure line is safe - decimal places should not be submitted to skribbl */
         line = {from: [Math.floor(line.from[0]), Math.floor(line.from[1])], to: [Math.floor(line.to[0]), Math.floor(line.to[1])]};
 
-        const lineCommands = await tool.createCommands(line, pressure, style, eventId);
+        const lineCommands = await tool.createCommands(line, pressure, style, eventId, strokeId);
         if(lineCommands.length > 0) {
           commands.push(...lineCommands);
           this._logger.debug("Adding commands created by tool", tool, commands);
@@ -176,7 +181,7 @@ export class ToolsService {
     /* create default draw commands as lines */
     else {
       for(const line of lines) {
-        const lineCommand = this._drawingService.createLineCommands([...line.from, ...line.to], style.color.skribblCode, style.size);
+        const lineCommand = this._drawingService.createLineCommands([...line.from, ...line.to], modStyle.color.skribblCode, modStyle.size);
         if(lineCommand !== undefined) commands.push(lineCommand);
       }
     }
@@ -201,8 +206,9 @@ export class ToolsService {
 
       (event.currentTarget as HTMLCanvasElement).setPointerCapture(event.pointerId);
 
-      this._currentPointerDown$.next(true);
-      this._currentPointerDownPosition$.next(event);
+      const strokeId = Date.now();
+      this._currentPointerDown$.next(strokeId);
+      this._currentPointerDownPosition$.next({strokeId, event});
       this._lastPointerDownPosition$.next(event);
     }
   }
@@ -216,14 +222,15 @@ export class ToolsService {
     ) {
       event.stopImmediatePropagation();
 
-      if (this._currentPointerDown$.value) {
-        this._currentPointerDownPosition$.next(event);
+      const strokeId = this._currentPointerDown$.value;
+      if (strokeId !== null) {
+        this._currentPointerDownPosition$.next({ event, strokeId });
       }
     }
   }
 
   private onDocumentUp() {
-    this._currentPointerDown$.next(false);
+    this._currentPointerDown$.next(null);
     this._currentPointerDownPosition$.next(null);
     this._lastPointerDownPosition$.next(null);
 
@@ -242,21 +249,34 @@ export class ToolsService {
   private mapDrawCoordinates() {
     return this._currentPointerDown$.pipe(
       distinctUntilChanged(),
-      filter(down => down),
+      filter(down => down !== null),
 
       /* get canvas & domrect every pointer down, eg in case zoom changes */
-      switchMap(async () => {
+      switchMap(async (id) => {
         this._logger.debug("Retrieving new rect");
         const elements = await this._elementsSetup.complete();
-        return [elements.canvas, elements.canvas.getBoundingClientRect()] as const;
+        return [elements.canvas, elements.canvas.getBoundingClientRect(), id] as const;
       }),
-      switchMap(([canvas, rect]) => this._currentPointerDownPosition$.pipe(
-        map(event => event !== null ? this.mapPointerEventToDrawCoordinate(event, canvas, rect) : null)
+      switchMap(([canvas, rect, strokeId]) => this._currentPointerDownPosition$.pipe(
+        filter(data => data === null || data.strokeId === strokeId),
+        map(data => data !== null ? { coordinates: this.mapPointerEventToDrawCoordinate(data.event, canvas, rect), strokeId } : null)
       )),
       pairwise(),
-      map(([prev, curr]) => prev === null && curr !== null ? [curr, curr] : [prev, curr]),  /* if pointer down, make dot at start pos */
-      filter(([prev, curr]) => prev !== null && curr !== null),
-      map(([prev, curr]) => [prev, curr] as [drawCoordinateEvent, drawCoordinateEvent])
+      map(([prev, curr]) => {
+
+        /* if pointer down, make dot at start pos */
+        if(prev === null && curr !== null){
+          return {coordinates: [curr.coordinates, curr.coordinates] as const, strokeId: curr.strokeId};
+        }
+
+        /* if current null, return null, prev check for typeguard */
+        if(curr === null || prev === null) return null;
+
+        /* else return coordinates */
+        return {coordinates: [prev.coordinates, curr.coordinates] as const, strokeId: curr.strokeId};
+
+      }),
+      filter(coords => coords !== null),
     );
   }
 
@@ -308,8 +328,8 @@ export class ToolsService {
     this._activeTool$.next(tool);
 
     /* dry-run tool to trigger early settings load */
-    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000"), size: 1}, 0);
-    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000"), size: 1}, 0);
+    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000"), size: 1}, 0, 0);
+    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000"), size: 1}, 0, 0);
   }
 
   public activateMod(mod: TypoDrawMod) {

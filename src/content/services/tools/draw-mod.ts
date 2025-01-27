@@ -27,12 +27,14 @@ export abstract class TypoDrawMod {
    * @param pressure
    * @param brushStyle
    * @param eventId id of the event. if a mod previously created multiple lines for a single event, they have the same id
+   * @param strokeId id of the stroke. each event during a pointer-down to pointer-up cycle shares the same stroke id
    */
   public abstract applyEffect(
     line: drawModLine,
     pressure: number | undefined,
     brushStyle: brushStyle,
     eventId: number,
+    strokeId: number
   ): drawModEffect | Promise<drawModEffect>;
 
   protected noEffect(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle): drawModEffect {
