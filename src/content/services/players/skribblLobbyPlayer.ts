@@ -25,6 +25,8 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
 
   private _backgroundRuleIndex: number | undefined;
   private _fontColorRuleIndex: number | undefined;
+  private _fontColorGuessedRuleIndex: number | undefined;
+  private _fontShadowRuleIndex: number | undefined;
   private _resizeRuleIndex: number | undefined;
   private _alignRuleIndex: number | undefined;
   private _playerIdRuleIndex: number | undefined;
@@ -85,11 +87,24 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
 
   public set useSafeColor(value: boolean) {
     this._fontColorRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
-      .${this._elementId} > :not(.player-bubble) * { 
+      .${this._elementId}:not(.guessed) > :not(.player-bubble) *, .${this._elementId}:is(.guessed) > :not(.player-bubble) *:not(.player-name) { 
         color: White !important; 
-        text-shadow: 0px 0px 25px black, 0px 0px 10px black, 0px 0px 5px black !important;
       }` : undefined,
       this._fontColorRuleIndex
+    );
+
+    this._fontColorGuessedRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+      .${this._elementId}:is(.guessed) .player-name { 
+        color: #56ce27 !important;
+      }` : undefined,
+      this._fontColorGuessedRuleIndex
+    );
+
+    this._fontShadowRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+      .${this._elementId} > :not(.player-bubble) * { 
+        text-shadow: 0px 0px 25px black, 0px 0px 10px black, 0px 0px 5px black !important;
+      }` : undefined,
+      this._fontShadowRuleIndex
     );
   }
 
