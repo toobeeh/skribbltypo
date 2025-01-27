@@ -84,7 +84,7 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
 
   public set useSafeColor(value: boolean) {
     this._fontColorRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
-      .${this._elementId} * { 
+      .${this._elementId} > :not(.player-bubble) * { 
         color: White !important; 
         text-shadow: 0px 0px 25px black, 0px 0px 10px black, 0px 0px 5px black !important;
       }` : undefined,
