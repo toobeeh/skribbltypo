@@ -62,13 +62,13 @@ export class MandalaMod extends TypoDrawMod implements BrushLabItem {
   }
 
   calculateMirroredLine(axis: "x" | "y" | "xy", center: [number, number], from: number[], to: number[]): {from: [number, number], to: [number, number]}{
-    if(axis === "x"){
+    if(axis === "y"){
       return {
         from: [center[0] - (from[0] - center[0]), from[1]],
         to: [center[0] - (to[0] - center[0]), to[1]]
       };
     }
-    else if(axis === "y"){
+    else if(axis === "x"){
       return {
         from: [from[0], center[1] - (from[1] - center[1])],
         to: [to[0], center[1] - (to[1] - center[1])]
