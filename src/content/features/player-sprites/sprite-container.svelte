@@ -9,6 +9,7 @@
 
   $: {
     playerDisplay.resizeToFitAvatar = sprites.length > 0;
+    playerDisplay.hideAvatar = sprites.some(sprite => sprite.sprite.isSpecial);
   }
 
   const getUrl = (slot: spriteSlot) => {

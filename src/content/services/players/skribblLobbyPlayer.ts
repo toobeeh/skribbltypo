@@ -29,6 +29,7 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   private _alignRuleIndex: number | undefined;
   private _playerIdRuleIndex: number | undefined;
   private _playerInfoRuleIndex: number | undefined;
+  private _playerHideAvatarRuleIndex: number | undefined;
 
   public constructor(private readonly _player: skribblPlayer, private readonly _lobbyKey?: string, private readonly _playerLogin?: number) {
 
@@ -116,5 +117,12 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
           content: "#${this._player.id}"; 
        }` : undefined,
       this._playerInfoRuleIndex);
+  }
+
+  public set hideAvatar(value: boolean) {
+    this._playerHideAvatarRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+      .${this._elementId} .avatar > :is(.eyes, .mouth, .color) { display: ${value ? "none" : "block"}
+      }` : undefined,
+      this._playerHideAvatarRuleIndex);
   }
 }

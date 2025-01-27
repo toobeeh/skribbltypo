@@ -3,7 +3,7 @@ import type {
   SkribblPlayerDisplay,
 } from "@/content/services/players/skribblPlayerDisplay.interface";
 import { createElement } from "@/util/document/appendElement";
-import { requireElement } from "@/util/document/requiredQuerySelector";
+import { elements, requireElement } from "@/util/document/requiredQuerySelector";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 
 export class SkribblScoreboardPodiumPlayer implements SkribblPlayerDisplay {
@@ -51,5 +51,15 @@ export class SkribblScoreboardPodiumPlayer implements SkribblPlayerDisplay {
 
   set viewPlayerId(value: boolean) {
     /* no implementation */
+  }
+
+  /**
+   * remove the elements; as container is disposable and updates in the short timespan it is shown can be ignored
+   * @param value
+   */
+  set hideAvatar(value: boolean) {
+    if(value){
+      elements(":is(.eyes, .mouth, .color)", this._avatarContainer).forEach(element => element.remove());
+    }
   }
 }

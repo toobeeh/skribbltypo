@@ -1,8 +1,16 @@
 import type { concretePlayerIdentification, SkribblPlayerDisplay } from "@/content/services/players/skribblPlayerDisplay.interface";
+import { replaceOrAddCssRule } from "@/util/document/replaceOrAddCssRule";
 
 export class SkribblLandingPlayer implements SkribblPlayerDisplay {
 
+  private _playerHideAvatarRuleIndex: number | undefined;
+  private readonly _playerStyle: HTMLStyleElement;
+  private readonly _containerId = "typo-customize-player-display";
+
   constructor(private readonly _login: number, private _customizerContainer: HTMLElement, private _avatarContainer: HTMLElement) {
+    this._customizerContainer.classList.add(this._containerId);
+    this._playerStyle = document.createElement("style");
+    this._customizerContainer.appendChild(this._playerStyle);
   }
 
   get typoId(): concretePlayerIdentification {
@@ -38,5 +46,12 @@ export class SkribblLandingPlayer implements SkribblPlayerDisplay {
 
   set viewPlayerId(value: boolean) {
     /* no implementation */
+  }
+
+  public set hideAvatar(value: boolean) {
+    this._playerHideAvatarRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+      .${this._containerId} .avatar > :is(.eyes, .mouth, .color) { display: ${value ? "none" : "block"}
+      }` : undefined,
+      this._playerHideAvatarRuleIndex);
   }
 }

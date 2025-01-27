@@ -62,4 +62,10 @@ export interface SkribblPlayerDisplay {
    * @param value
    */
   set viewPlayerId(value: boolean);
+
+  /**
+   * Hide the skribbl vanilla avatar (skin, mouth, eyes)
+   * @param value
+   */
+  set hideAvatar(value: boolean);
 }
