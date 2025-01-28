@@ -82,11 +82,13 @@ export class DropsFeature extends TypoFeature {
               /* set to undefined after timeout of 2s */
               this._lobbyConnectionService.dropCleared$.pipe(
                 filter((clear) => clear.dropId === drop.dropId),
+                tap(() => this._logger.info("Drop cleared by server event", drop)),
                 map(() => undefined),
               ),
 
               /* set to undefined when someone else clears */
               this._lobbyConnectionService.dropClaimed$.pipe(
+                tap((claim) => this._logger.info("Other claim arrived", claim)),
                 filter((claim) => claim.clearedDrop),
                 map(() => undefined),
               ),
