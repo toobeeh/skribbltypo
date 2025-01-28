@@ -56,6 +56,12 @@ export type DropClaimResultDto = {
     leagueMode: boolean;
 }
 
+/** Transpiled from tobeh.Avallone.Server.Classes.Dto.DropClearDto */
+export type DropClearDto = {
+    /** Transpiled from long */
+    dropId: number;
+}
+
 /** Transpiled from tobeh.Avallone.Server.Classes.Dto.GuildLobbiesUpdatedDto */
 export type GuildLobbiesUpdatedDto = {
     /** Transpiled from string */

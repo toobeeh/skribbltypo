@@ -21,7 +21,7 @@ export class SocketService {
 
   private readonly _logger;
 
-  private _baseUrl = "https://sockets.typo.rip";
+  private _baseUrl = /*"http://localhost:5001";*/ "https://sockets.typo.rip";
   private _token = "";
 
   constructor(

@@ -4,11 +4,12 @@ import { ChatService } from "@/content/services/chat/chat.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import type { DropAnnouncementDto, DropClaimResultDto } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
+import { parseSignalRError } from "@/util/signalr/parseErrorOrThrow";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
 import {
   BehaviorSubject,
-  delay, distinctUntilChanged,
+  distinctUntilChanged,
   filter,
   map,
   mergeWith,
@@ -33,88 +34,105 @@ export class DropsFeature extends TypoFeature {
   public readonly description = "Show drops to collect extra bubbles when you're playing";
   public readonly featureId = 40;
 
-  public override get featureManagementComponent(){
-    return {componentType: DropsInfoComponent, props: {feature: this}};
+  public override get featureManagementComponent() {
+    return { componentType: DropsInfoComponent, props: { feature: this } };
   }
 
   private _component?: DropsComponent;
   private _recordedClaims$ = new BehaviorSubject<DropClaimResultDto[]>([]);
-  private _currentDrop$ = new Subject<DropAnnouncementDto | undefined>();
+  private _currentDrop$ = new Subject<{ drop: DropAnnouncementDto, timestamp: number } | undefined>();
   private _dropSummarySubscription?: Subscription;
   private _dropAnnouncedSubscription?: Subscription;
   private _dropClaimedSubscription?: Subscription;
 
-  private _enableDropSummary = this.useSetting(new BooleanExtensionSetting("drop_summary", true, this)
-    .withName("Drop Summary")
-    .withDescription("Show a chat message with all drop catches after a drop"));
+  private _enableDropSummary = this.useSetting(
+    new BooleanExtensionSetting("drop_summary", true, this)
+      .withName("Drop Summary")
+      .withDescription("Show a chat message with all drop catches after a drop"),
+  );
 
-  private _enableOtherDropNotifications = this.useSetting(new BooleanExtensionSetting("drop_notifications", true, this)
-    .withName("Drop Notifications")
-    .withDescription("Show a chat message when someone else catches a drop"));
+  private _enableOtherDropNotifications = this.useSetting(
+    new BooleanExtensionSetting("drop_notifications", true, this)
+      .withName("Drop Notifications")
+      .withDescription("Show a chat message when someone else catches a drop"),
+  );
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
     const apiData = await this._apiDataSetup.complete();
 
-    this._dropClaimedSubscription = this._lobbyConnectionService.dropClaimed$.subscribe(
-      claim => this.processClaim(claim, false)
+    this._dropClaimedSubscription = this._lobbyConnectionService.dropClaimed$.subscribe((claim) =>
+      this.processClaim(claim, false),
     );
 
     this._component = new DropsComponent({
       target: elements.canvasWrapper,
       props: {
         feature: this,
-        drops: apiData.drops
+        drops: apiData.drops,
       },
     });
 
     /* process claims and announcements to set/clear the current drop */
-    this._dropAnnouncedSubscription = this._lobbyConnectionService.dropAnnounced$.pipe(
-      switchMap(drop => of(drop).pipe(
-        mergeWith(
+    this._dropAnnouncedSubscription = this._lobbyConnectionService.dropAnnounced$
+      .pipe(
+        switchMap((drop) =>
+          of(drop).pipe(
+            mergeWith(
+              /* set to undefined after timeout of 2s */
+              this._lobbyConnectionService.dropCleared$.pipe(
+                filter((clear) => clear.dropId === drop.dropId),
+                map(() => undefined),
+              ),
 
-          /* set to undefined after timeout of 2s */
-          of(undefined).pipe(
-            delay(2000)
+              /* set to undefined when someone else clears */
+              this._lobbyConnectionService.dropClaimed$.pipe(
+                filter((claim) => claim.clearedDrop),
+                map(() => undefined),
+              ),
+            ),
           ),
-
-          /* set to undefined when someone else clears */
-          this._lobbyConnectionService.dropClaimed$.pipe(
-            filter(claim => claim.clearedDrop),
-            map(() => undefined)
-          )
-        )
-      )),
-      tap(drop => this._logger.info("Setting drop", drop))
-    ).subscribe(this._currentDrop$);
+        ),
+        tap((drop) => this._logger.info("Setting drop", drop)),
+      )
+      .subscribe(drop => this._currentDrop$.next(drop === undefined ? undefined :{drop, timestamp: Date.now()}));
 
     /* subscribe to changes in the current drop and build a summary of claims when it's cleared */
-    this._dropSummarySubscription = this._currentDrop$.pipe(
-      startWith(undefined),
-      distinctUntilChanged(),
-      pairwise(),
-      withLatestFrom(this._recordedClaims$, this._enableDropSummary.changes$)
-    ).subscribe(([[prev, current], claims, summaryEnabled]) => {
-      if(!summaryEnabled) return;
+    this._dropSummarySubscription = this._currentDrop$
+      .pipe(
+        startWith(undefined),
+        distinctUntilChanged(),
+        pairwise(),
+        withLatestFrom(this._recordedClaims$, this._enableDropSummary.changes$),
+      )
+      .subscribe(([[prev, current], claims, summaryEnabled]) => {
+        if (!summaryEnabled) return;
 
-      const getEmoji = (claim: DropClaimResultDto) => {
-        if(claim.clearedDrop) return "🛡️";
-        if(claim.firstClaim) return "💎";
-        if(claim.leagueMode) return "🧿";
-        return "💧";
-      };
+        const getEmoji = (claim: DropClaimResultDto) => {
+          if (claim.clearedDrop) return "🛡️";
+          if (claim.firstClaim) return "💎";
+          if (claim.leagueMode) return "🧿";
+          return "💧";
+        };
 
-      /* drop has been cleared */
-      if(prev !== undefined && current === undefined){
-        const currentClaims = claims.filter(c => c.dropId === prev?.dropId);
-        const title = "Drop Summary";
-        const content = "\n" + (currentClaims.length === 0 ? "The drop  timed out :(" :  currentClaims
-          .map(c => `${getEmoji(c)} ${c.username}: ${c.catchTime}ms (${Math.round(c.leagueWeight * 100)}%)`)
-          .join("\n"));
+        /* drop has been cleared */
+        if (prev !== undefined && current === undefined) {
+          const currentClaims = claims.filter((c) => c.dropId === prev?.drop.dropId);
+          const title = "Drop Summary";
+          const content =
+            "\n" +
+            (currentClaims.length === 0
+              ? "The drop  timed out :("
+              : currentClaims
+                  .map(
+                    (c) =>
+                      `${getEmoji(c)} ${c.username}: ${c.catchTime}ms (${Math.round(c.leagueWeight * 100)}%)`,
+                  )
+                  .join("\n"));
 
-        this._chatService.addChatMessage(content, title, "info");
-      }
-    });
+          this._chatService.addChatMessage(content, title, "info");
+        }
+      });
   }
 
   protected override onDestroy(): Promise<void> | void {
@@ -128,32 +146,31 @@ export class DropsFeature extends TypoFeature {
     this._dropClaimedSubscription = undefined;
   }
 
-  public get currentDropStore(){
-    return fromObservable(
-      this._currentDrop$,
-      undefined
-    );
+  public get currentDropStore() {
+    return fromObservable(this._currentDrop$, undefined);
   }
 
-  public get recordedClaimsStore(){
-    return fromObservable(
-      this._recordedClaims$,
-      []
-    );
+  public get recordedClaimsStore() {
+    return fromObservable(this._recordedClaims$, []);
   }
 
   /**
    * Send a drop claim and show an error if fails - probably timeout or already cleared
-   * @param id
+   * @param drop
+   * @param timestamp
    */
-  public async claimDrop(token: string){
+  public async claimDrop(drop: DropAnnouncementDto, timestamp: number) {
+    this._logger.info("Claiming drop after delay", Date.now() - timestamp);
+
     try {
-      const result = await this._lobbyConnectionService.connection.hub.claimDrop({ dropToken: token });
+      const result = await this._lobbyConnectionService.connection.hub.claimDrop({
+        dropToken: drop.dropToken,
+      });
       return result;
-    }
-    catch(e){
-      this._logger.error("Failed to claim drop", e);
-      await this._toastService.showToast("Failed to claim drop", e + "");
+    } catch (e) {
+      const error = parseSignalRError(e);
+      this._logger.error("Failed to claim drop", error);
+      await this._toastService.showToast(error.message);
       return undefined;
     }
   }
@@ -163,18 +180,19 @@ export class DropsFeature extends TypoFeature {
    * @param claim
    * @param ownClaim
    */
-  public async processClaim(claim: DropClaimResultDto, ownClaim: boolean){
+  public async processClaim(claim: DropClaimResultDto, ownClaim: boolean) {
     this._logger.debug("Processing claim", claim);
     this._recordedClaims$.next([...this._recordedClaims$.value, claim]);
 
     const enabledOtherNotifications = await this._enableOtherDropNotifications.getValue();
-    if(!ownClaim && !enabledOtherNotifications) return;
+    if (!ownClaim && !enabledOtherNotifications) return;
 
-    const title = ownClaim ? "Yeee!" : (claim.clearedDrop ? "Oops.." : "");
-    const message = ownClaim ?
-      `You caught the drop after ${claim.catchTime}ms (${Math.round(claim.leagueWeight * 100)}%)` :
-      (claim.clearedDrop ? `${claim.username} cleared the drop after ${claim.catchTime}ms` :
-        `${claim.username} caught the drop after ${claim.catchTime}ms`);
+    const title = ownClaim ? "Yeee!" : claim.clearedDrop ? "Oops.." : "";
+    const message = ownClaim
+      ? `You caught the drop after ${claim.catchTime}ms (${Math.round(claim.leagueWeight * 100)}%)`
+      : claim.clearedDrop
+        ? `${claim.username} cleared the drop after ${claim.catchTime}ms`
+        : `${claim.username} caught the drop after ${claim.catchTime}ms`;
 
     await this._chatService.addChatMessage(message, title, "info");
   }

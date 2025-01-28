@@ -138,7 +138,7 @@ export class ChatService {
     const elements = await this._elementsSetup.complete();
 
     const container = elements.chatContent;
-    const isScrolledDown = container.scrollHeight - container.scrollTop - container.clientHeight < 1;
+    const isScrolledDown = container.scrollHeight - container.scrollTop - container.clientHeight < 50; // allow small margin to scroll down
 
     const message = new MessageComponent({
       target: container,

@@ -5,7 +5,7 @@ import { SocketService } from "@/content/services/socket/socket.service";
 import type {
   AwardGiftedDto,
   DropAnnouncementDto,
-  DropClaimResultDto, SkribblLobbyStateDto, TypoLobbySettingsDto,
+  DropClaimResultDto, DropClearDto, SkribblLobbyStateDto, TypoLobbySettingsDto,
   TypoLobbyStateDto,
 } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
 import type { ILobbyHub } from "@/signalr/TypedSignalR.Client/tobeh.Avallone.Server.Hubs.Interfaces";
@@ -32,6 +32,7 @@ export class LobbyConnectionService implements featureBinding {
 
   private _dropAnnounced$ = new Subject<DropAnnouncementDto>();
   private _dropClaimed$ = new Subject<DropClaimResultDto>();
+  private _dropCleared$ = new Subject<DropClearDto>();
   private _awardGifted$ = new Subject<AwardGiftedDto>();
 
   constructor(@inject(loggerFactory) loggerFactory: loggerFactory) {
@@ -45,14 +46,12 @@ export class LobbyConnectionService implements featureBinding {
   async onFeatureDestroy(): Promise<void> {
     await this.destroyConnection();
     this._existingTypoLobbyStates.clear();
-    this._dropClaimed$.complete();
-    this._dropAnnounced$.complete();
-    this._awardGifted$.complete();
   }
 
   public get dropAnnounced$() { return this._dropAnnounced$.asObservable(); }
   public get dropClaimed$() { return this._dropClaimed$.asObservable(); }
   public get awardGifted$() { return this._awardGifted$.asObservable(); }
+  public get dropCleared$() { return this._dropCleared$.asObservable(); }
 
   /**
    * The current connection state
@@ -96,7 +95,8 @@ export class LobbyConnectionService implements featureBinding {
       typoLobbySettingsUpdated: this.typoLobbySettingsUpdated.bind(this),
       dropAnnounced: async drop => this._dropAnnounced$.next(drop),
       dropClaimed: async result => this._dropClaimed$.next(result),
-      awardGifted: async award => this._awardGifted$.next(award)
+      awardGifted: async award => this._awardGifted$.next(award),
+      dropCleared: async clear => this._dropCleared$.next(clear)
     });
 
     connection.onclose(async (error) => {
