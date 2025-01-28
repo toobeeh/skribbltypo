@@ -37,14 +37,13 @@
   }
 </style>
 
-{#if $currentDrop !== undefined}
+{#if $currentDrop !== undefined && $currentDrop.ownClaimed === false}
   <div class="typo-drop"
        on:click={async () => {
          if($currentDrop) {
            const claim = await feature.claimDrop($currentDrop.drop, $currentDrop.timestamp);
            if(claim !== undefined) feature.processClaim(claim, true);
          }
-         $currentDrop = undefined;
        }}
        style="left: calc((100% - 48px) * ({$currentDrop.drop.position} / 100)); background-image: {getDropUrl($currentDrop.drop.eventDropId)}"
   ></div>
