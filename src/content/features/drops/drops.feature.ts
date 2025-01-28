@@ -1,4 +1,5 @@
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
+import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { LobbyConnectionService } from "@/content/features/lobby-status/lobby-connection.service";
 import { ChatService } from "@/content/services/chat/chat.service";
 import { ToastService } from "@/content/services/toast/toast.service";
@@ -29,6 +30,7 @@ export class DropsFeature extends TypoFeature {
   @inject(LobbyConnectionService) private readonly _lobbyConnectionService!: LobbyConnectionService;
   @inject(ChatService) private readonly _chatService!: ChatService;
   @inject(ToastService) private readonly _toastService!: ToastService;
+  @inject(LobbyLeftEventListener) private readonly _lobbyLeftEventListener!: LobbyLeftEventListener;
 
   public readonly name = "Drops";
   public readonly description = "Show drops to collect extra bubbles when you're playing";
@@ -92,6 +94,11 @@ export class DropsFeature extends TypoFeature {
                 filter((claim) => claim.clearedDrop),
                 map(() => undefined),
               ),
+
+              /* clear on lobby leave */
+              this._lobbyLeftEventListener.events$.pipe(
+                map(() => undefined),
+              )
             ),
           ),
         ),
