@@ -87,14 +87,14 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
 
   public set useSafeColor(value: boolean) {
     this._fontColorRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
-      .${this._elementId}:not(.guessed) > :not(.player-bubble) *, .${this._elementId}:is(.guessed) > :not(.player-bubble) *:not(.player-name) { 
+      .${this._elementId}:not(.guessed) > :not(.player-bubble) * { 
         color: White !important; 
       }` : undefined,
       this._fontColorRuleIndex
     );
 
     this._fontColorGuessedRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
-      .${this._elementId}:is(.guessed) .player-name { 
+      .${this._elementId}:is(.guessed) > :not(.player-bubble) * { 
         color: #56ce27 !important;
       }` : undefined,
       this._fontColorGuessedRuleIndex
