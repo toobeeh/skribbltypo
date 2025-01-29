@@ -1,4 +1,4 @@
-body {
+html[data-typo_loading_screen="true"] body {
     > * {
         opacity: 0;
         transition: opacity 0.2s;

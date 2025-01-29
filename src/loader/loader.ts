@@ -1,6 +1,10 @@
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import "./loader.scss";
 
+document.documentElement.dataset["typo_loading_screen"] = !(
+  window.location.pathname === "/terms" || window.location.pathname === "/credits"
+) + "";
+
 /* check if document is loaded so that socketio is available, or wait for dom loaded */
 const loaded = new Promise<void>(resolve => {
   if(document.readyState === "interactive" || document.readyState === "complete" || Object.keys(window).includes("io")) resolve();
@@ -31,7 +35,7 @@ const content = new Promise<HTMLElement>(async (resolve) => {
 
   /* fetch original skribbl doc and prevent game from executing */
   let html = await (await fetch(window.location.href)).text();
-  html = html.replaceAll("game.js", "game.jsx");
+  html = html.replaceAll("game.js", "game.jsblocked");
 
   /* create new document wit loaded content */
   const newDoc = document.createElement("html");
