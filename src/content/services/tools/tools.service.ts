@@ -7,6 +7,7 @@ import { skribblTool, ToolChangedEventListener } from "@/content/events/tool-cha
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
+import { CoordinateListener } from "@/content/services/tools/coordinateListener";
 import { TypoDrawMod, type drawModLine } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -17,20 +18,15 @@ import { Color } from "@/util/color";
 import type { Type } from "@/util/types/type";
 import { inject, injectable, postConstruct } from "inversify";
 import {
-  BehaviorSubject, combineLatestWith, distinctUntilChanged,
-  filter, map, pairwise, Subject,
-  switchMap, withLatestFrom,
+  BehaviorSubject, combineLatestWith,
+  map,
+  withLatestFrom,
 } from "rxjs";
 
 export type drawCoordinateEvent = [number, number, number?];
 export interface brushStyle {
   color: Color;
   size: number;
-}
-
-interface strokePointerEvent {
-  strokeId: number,
-  event: PointerEvent
 }
 
 @injectable()
@@ -49,12 +45,8 @@ export class ToolsService {
   private readonly _activeTool$ = new BehaviorSubject<TypoDrawTool | skribblTool>(skribblTool.brush);
   private readonly _activeMods$ = new BehaviorSubject<TypoDrawMod[]>([]);
   private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000"), size: 1 });
-
-  private readonly _collapseSignal$ = new Subject<undefined>();
-
-  private readonly _currentPointerDown$ = new BehaviorSubject<number | null>(null);
-  private readonly _currentPointerDownPosition$ = new BehaviorSubject<strokePointerEvent | null>(null);
   private readonly _lastPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
+
   private readonly _canvasCursorStyle = document.createElement("style");
 
   constructor(@inject(loggerFactory) loggerFactory: loggerFactory) {
@@ -87,32 +79,38 @@ export class ToolsService {
       }
     });
 
-    /* set up listeners */
-    this._prioritizedCanvasEventsSetup.complete().then(({add}) => {
-      add("draw")("pointerdown", this.onCanvasDown.bind(this));
-      add("draw")("pointermove", this.onCanvasMove.bind(this));
-      document.addEventListener("pointerup", this.onDocumentUp.bind(this));
-    });
-
-    /* process draw commands */
-    this.mapDrawCoordinates().pipe(
-
-      /* only when currently drawing */
-      withLatestFrom(this._lobbyService.lobby$),
-      filter(([, lobby]) => lobby?.meId === lobby?.drawerId),
-      map(([coords]) => coords),
-
-      /* add current mods, tools and style */
-      withLatestFrom(this._activeTool$, this._activeMods$, this._activeBrushStyle$),
-    ).subscribe(([stroke, tool, mods, style]) =>
-      this.processDrawCoordinates(stroke.coordinates[0], stroke.coordinates[1], tool, mods, style, stroke.strokeId)
-    );
-
     /* set up brush style subscription */
     this._sizeChangedListener.events$.pipe(
       combineLatestWith(this._colorChangedListener.events$),
       map(([size, color]) => ({ size: size.data, color: color.data }))
     ).subscribe(style => this._activeBrushStyle$.next(style));
+
+    (async () => {
+      const elements = await this._elementsSetup.complete();
+      const listeners = await this._prioritizedCanvasEventsSetup.complete();
+
+      const coordinateListener = new CoordinateListener(elements.canvas);
+      listeners.add("draw")("pointerdown", coordinateListener.onCanvasPointerDown.bind(coordinateListener));
+      listeners.add("draw")("pointermove", coordinateListener.onCanvasPointerMove.bind(coordinateListener));
+      document.addEventListener("pointerup", coordinateListener.onDocumentPointerUp.bind(coordinateListener));
+
+      coordinateListener.strokes$.pipe(
+        withLatestFrom(this._activeTool$, this._activeMods$, this._activeBrushStyle$),
+      ).subscribe(([stroke, tool, mods, style]) => {
+        this.processDrawCoordinates(stroke.from, stroke.to, tool, mods, style, stroke.stroke);
+      });
+
+      coordinateListener.pointerDown$.subscribe((position) => this._lastPointerDownPosition$.next(position));
+
+      this._lobbyService.lobby$.pipe(
+        map(lobby => lobby?.meId === lobby?.drawerId),
+        combineLatestWith(this._activeTool$, this._activeMods$),
+        map(([isDrawer, tool, mods]) => isDrawer && (tool instanceof TypoDrawTool || mods.length > 0)),
+      ).subscribe((enabled) => {
+        console.log("enabled", enabled);
+        coordinateListener.enabled = enabled;
+      });
+    })();
   }
 
   private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, tool: TypoDrawTool | skribblTool, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
@@ -181,7 +179,7 @@ export class ToolsService {
     /* create default draw commands as lines */
     else {
       for(const line of lines) {
-        const lineCommand = this._drawingService.createLineCommands([...line.from, ...line.to], modStyle.color.skribblCode, modStyle.size);
+        const lineCommand = this._drawingService.createLineCommands([...line.from, ...line.to], modStyle.color.skribblCode, modStyle.size, false);
         if(lineCommand !== undefined) commands.push(lineCommand);
       }
     }
@@ -192,109 +190,6 @@ export class ToolsService {
     return commands.length;
   }
 
-  private onCanvasDown(event: PointerEvent) {
-
-    /* process event through tools pipeline when typotool or skribbl brush + mods active */
-    if(
-      this._activeMods$.value.length > 0 && this._activeTool$.value === skribblTool.brush
-      || this._activeTool$.value instanceof TypoDrawTool
-    ) {
-      event.stopImmediatePropagation();
-
-      /* disable skribbl command rate */
-      this.setSkribblCommandRateBypass(true);
-
-      (event.currentTarget as HTMLCanvasElement).setPointerCapture(event.pointerId);
-
-      const strokeId = Date.now();
-      this._currentPointerDown$.next(strokeId);
-      this._currentPointerDownPosition$.next({strokeId, event});
-      this._lastPointerDownPosition$.next(event);
-    }
-  }
-
-  private onCanvasMove(event: PointerEvent) {
-
-    /* process event through tools pipeline when typotool or skribbl brush + mods active */
-    if(
-      this._activeMods$.value.length > 0 && this._activeTool$.value === skribblTool.brush
-      || this._activeTool$.value instanceof TypoDrawTool
-    ) {
-      event.stopImmediatePropagation();
-
-      const strokeId = this._currentPointerDown$.value;
-      if (strokeId !== null) {
-        this._currentPointerDownPosition$.next({ event, strokeId });
-      }
-    }
-  }
-
-  private onDocumentUp() {
-    this._currentPointerDown$.next(null);
-    this._currentPointerDownPosition$.next(null);
-    this._lastPointerDownPosition$.next(null);
-
-    /* init collapsing of single draw commands to joined action */
-    this._collapseSignal$.next(undefined);
-
-    /* re-enable skribbl command rate */
-    this.setSkribblCommandRateBypass(false);
-  }
-
-  private setSkribblCommandRateBypass(state: boolean) {
-    this._logger.debug("Setting skribbl command rate bypass", state);
-    document.body.dataset["bypassCommandRate"] = state ? "true" : "false";
-  }
-
-  private mapDrawCoordinates() {
-    return this._currentPointerDown$.pipe(
-      distinctUntilChanged(),
-      filter(down => down !== null),
-
-      /* get canvas & domrect every pointer down, eg in case zoom changes */
-      switchMap(async (id) => {
-        this._logger.debug("Retrieving new rect");
-        const elements = await this._elementsSetup.complete();
-        return [elements.canvas, elements.canvas.getBoundingClientRect(), id] as const;
-      }),
-      switchMap(([canvas, rect, strokeId]) => this._currentPointerDownPosition$.pipe(
-        filter(data => data === null || data.strokeId === strokeId),
-        map(data => data !== null ? { coordinates: this.mapPointerEventToDrawCoordinate(data.event, canvas, rect), strokeId } : null)
-      )),
-      pairwise(),
-      map(([prev, curr]) => {
-
-        /* if pointer down, make dot at start pos */
-        if(prev === null && curr !== null){
-          return {coordinates: [curr.coordinates, curr.coordinates] as const, strokeId: curr.strokeId};
-        }
-
-        /* if current null, return null, prev check for typeguard */
-        if(curr === null || prev === null) return null;
-
-        /* else return coordinates */
-        return {coordinates: [prev.coordinates, curr.coordinates] as const, strokeId: curr.strokeId};
-
-      }),
-      filter(coords => coords !== null),
-    );
-  }
-
-  /**
-   * Map a pointer event to draw coordinates
-   * @param event
-   * @param canvas
-   * @param canvasRect
-   * @private
-   */
-  private mapPointerEventToDrawCoordinate(event: PointerEvent, canvas: HTMLCanvasElement, canvasRect: DOMRect): drawCoordinateEvent {
-
-    /* calculate canvas pixel position from canvas dimensions and actual rendered rectangle */
-    const canvasX = event.offsetX * canvas.width / canvasRect.width;
-    const canvasY = event.offsetY * canvas.height / canvasRect.height;
-
-    return [canvasX, canvasY, event.pointerType === "pen" ? event.pressure : undefined];
-  }
 
   /**
    * Set the selected skribbl tool id in the game patch

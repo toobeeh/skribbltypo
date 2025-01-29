@@ -46,7 +46,7 @@ export class GridTool extends TypoDrawTool implements BrushLabItem {
   ): Promise<number[][]> {
 
     const lastPointerDown = await firstValueFrom(this._toolsService.lastPointerDownPosition$);
-    if(this._lastDownEvent === lastPointerDown){
+    if( lastPointerDown === null || this._lastDownEvent === lastPointerDown){
       return [];
     }
 

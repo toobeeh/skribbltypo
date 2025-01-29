@@ -322,13 +322,11 @@ export class DrawingService {
     ctx?.drawImage(img, x ?? 0, y ?? 0, dx ?? img.width, dy ?? img.height);
   }
 
-  public createLineCommands(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
-    const clipped = this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]])?.flat();
+  public createLineCommands(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined, clip = true){
+    const clipped = clip ?
+      this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]])?.flat() :
+      [Math.floor(coordinates[0]), Math.floor(coordinates[1]), Math.floor(coordinates[2]), Math.floor(coordinates[3])];
     if(clipped === undefined) return;
-
-    if(clipped.some(n => isNaN(n))){
-      this._logger.warn("Invalid line coordinates", coordinates, clipped);
-    }
 
     return [0, colorCode ?? 1, size ?? 4, ...clipped];
   }
