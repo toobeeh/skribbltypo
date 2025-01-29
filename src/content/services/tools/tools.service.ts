@@ -105,7 +105,7 @@ export class ToolsService {
       this._lobbyService.lobby$.pipe(
         map(lobby => lobby?.meId === lobby?.drawerId),
         combineLatestWith(this._activeTool$, this._activeMods$),
-        map(([isDrawer, tool, mods]) => isDrawer && (tool instanceof TypoDrawTool || mods.length > 0)),
+        map(([isDrawer, tool, mods]) => isDrawer && (tool instanceof TypoDrawTool || tool === skribblTool.brush && mods.length > 0)),
       ).subscribe((enabled) => {
         console.log("enabled", enabled);
         coordinateListener.enabled = enabled;
