@@ -36,7 +36,7 @@ export class DeafGuessChallenge extends TypoChallenge<boolean> {
 
       /* subscribe to new chat messages and collect content elements */
       if(!this._messagesSubscription){
-        this._messagesSubscription = this._chatService.messageReceived$.subscribe(message => {
+        this._messagesSubscription = this._chatService.playerMessageReceived$.subscribe(message => {
           if(this._blurredMessages){
             this._blurredMessages.push(message.contentElement);
           }

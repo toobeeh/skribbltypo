@@ -37,7 +37,7 @@ export class ChatEmojisFeature extends TypoFeature {
 
     /* process received messages */
     const emojis = (await this._apiDataSetup.complete()).emojis;
-    this._subscription = this._chatService.messageReceived$.subscribe(({ contentElement }) => {
+    this._subscription = this._chatService.playerMessageReceived$.subscribe(({ contentElement }) => {
       this.processAddedMessage(contentElement, emojis);
     });
 

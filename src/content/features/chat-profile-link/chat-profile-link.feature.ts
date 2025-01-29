@@ -27,7 +27,7 @@ export class ChatProfileLinkFeature extends TypoFeature {
     this._component = new ChatProfileLink({target: elements.chatContent});
 
     /* listen for messages and add handler for click */
-    this._subscription = this._chatService.messageReceived$.subscribe(({titleElement, player}) => {
+    this._subscription = this._chatService.playerMessageReceived$.subscribe(({titleElement, player}) => {
       titleElement.classList.add("typo-chat-profile-link");
       this._addedElements.push({ titleElement, player });
     });

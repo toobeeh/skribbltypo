@@ -1,8 +1,29 @@
 <script lang="ts">
 
+  import type { pendingElement } from "@/content/services/chat/chat.service";
+  import { onMount } from "svelte";
+
   export let content: string = "";
   export let title: string = "";
   export let style: "info" | "success" | "warn" | "normal" = "normal"
+
+  let resolve: (value: pendingElement) => void;
+  export const message = new Promise<pendingElement>((res) => resolve = res);
+
+  let messageElement: HTMLElement;
+  let titleElement: HTMLElement;
+  let contentElement: HTMLElement;
+
+  onMount(() => {
+    resolve({
+      element: messageElement,
+      title,
+      content,
+      contentElement,
+      titleElement
+    });
+  });
+
 
 </script>
 
@@ -36,7 +57,7 @@
 
 </style>
 
-<p class="typo-chat-message" >
-  <b class="{style}">{title}</b>
-  <span>{content}</span>
+<p bind:this={messageElement} class="typo-chat-message" >
+  <b bind:this={titleElement} class="{style}">{title}</b>
+  <span bind:this={contentElement}>{content}</span>
 </p>

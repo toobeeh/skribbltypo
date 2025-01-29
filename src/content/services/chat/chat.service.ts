@@ -7,12 +7,12 @@ import { inject, injectable, postConstruct } from "inversify";
 import { filter, map, mergeWith, Subject, withLatestFrom } from "rxjs";
 import MessageComponent from "./message.svelte";
 
-interface pendingMessage {
+export interface pendingMessage {
   player: SkribblLobbyPlayer;
   content: string;
 }
 
-interface pendingElement {
+export interface pendingElement {
   title: string;
   content: string;
   element: HTMLElement;
@@ -31,7 +31,7 @@ export class ChatService {
 
   private _elementDiscovered$ = new Subject<pendingElement>();
   private _messageDiscovered$ = new Subject<pendingMessage>();
-  private _messageReceived$ = new Subject<pendingMessage & pendingElement>();
+  private _playerMessageReceived$ = new Subject<pendingMessage & pendingElement>();
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory
@@ -103,7 +103,7 @@ export class ChatService {
     ).subscribe(() => {
       const matches = this.findMessageMatches(pendingMessages, pendingElements);
       for(const match of matches){
-        this._messageReceived$.next(match);
+        this._playerMessageReceived$.next(match);
         this._logger.debug("Message match found", match);
       }
     });
@@ -130,8 +130,12 @@ export class ChatService {
     return matches;
   }
 
-  public get messageReceived$() {
-    return this._messageReceived$.asObservable();
+  public get chatMessageAdded$() {
+    return this._elementDiscovered$.asObservable();
+  }
+
+  public get playerMessageReceived$() {
+    return this._playerMessageReceived$.asObservable();
   }
 
   public async addChatMessage(content?: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"){
@@ -144,8 +148,11 @@ export class ChatService {
       target: container,
       props: { title: title ?? "", content, style }
     });
-    
+
+    const chatMessage = await message.message;
     if(isScrolledDown) container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
+
+    this._elementDiscovered$.next(chatMessage);
     return message;
   }
 }
