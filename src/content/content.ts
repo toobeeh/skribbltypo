@@ -20,7 +20,7 @@ import { textOverlayVisibilityChangedEventRegistration } from "@/content/events/
 import { toolChangedEventRegistration } from "@/content/events/tool-changed.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
 import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.feature";
-import { ChatClearFeature } from "@/content/features/chat-clear/chat-focus.feature";
+import { ChatClearFeature } from "@/content/features/chat-clear/chat-clear.feature";
 import { ChatCommandsFeature } from "@/content/features/chat-commands/chat-commands.feature";
 import { ChatCopyFormattedFeature } from "@/content/features/chat-copy-formatted/chat-copy-formatted.feature";
 import { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";

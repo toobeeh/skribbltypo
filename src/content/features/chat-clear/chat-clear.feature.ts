@@ -42,10 +42,11 @@ export class ChatClearFeature extends TypoFeature {
           this._chatService.chatMessageAdded$.pipe(
             withLatestFrom(this._autoFocusChatInputSetting.changes$),
             scan((acc, [message, limit]) => {
+
               /* no limit set or limit not reached, accumulate */
               if (limit <= 0 || acc.length < limit) return [...acc, message.element];
 
-              /* else if limit reached, delete last and add new */
+              /* else limit reached, delete last and add new */
               acc[0].remove();
               return [...acc.slice(1), message.element];
             }, [] as HTMLElement[]),
@@ -59,8 +60,7 @@ export class ChatClearFeature extends TypoFeature {
             ))
           ),
         ),
-      )
-      .subscribe();
+      ).subscribe();
   }
 
   protected override async onDestroy() {
