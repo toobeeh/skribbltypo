@@ -3,6 +3,7 @@ import { MessageReceivedEventListener } from "@/content/events/message-received.
 import { PlayersService } from "@/content/services/players/players.service";
 import type { SkribblLobbyPlayer } from "@/content/services/players/skribblLobbyPlayer";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { inject, injectable, postConstruct } from "inversify";
 import { filter, map, mergeWith, Subject, withLatestFrom } from "rxjs";
 import MessageComponent from "./message.svelte";
@@ -26,6 +27,7 @@ export class ChatService {
   @inject(ElementsSetup) private _elementsSetup!: ElementsSetup;
   @inject(PlayersService) private _lobbyPlayersService!: PlayersService;
   @inject(MessageReceivedEventListener) private _messageReceivedEventListener!: MessageReceivedEventListener;
+  @inject(SkribblMessageRelaySetup) private _messageRelaySetup!: SkribblMessageRelaySetup;
 
   private readonly _logger;
 
@@ -138,6 +140,22 @@ export class ChatService {
     return this._playerMessageReceived$.asObservable();
   }
 
+  /**
+   * Sends a chat message over socket.io as the player
+   */
+  public async sendChatMessage(content: string){
+    this._logger.debug("Sending chat message", content);
+
+    const relay = await this._messageRelaySetup.complete();
+    relay.insertMessage({id: 30, data: {msg: content}});
+  }
+
+  /**
+   * Add a chat message to the local chat history
+   * @param content
+   * @param title
+   * @param style
+   */
   public async addChatMessage(content?: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"){
     const elements = await this._elementsSetup.complete();
 

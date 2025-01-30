@@ -25,6 +25,7 @@ import { ChatCommandsFeature } from "@/content/features/chat-commands/chat-comma
 import { ChatCopyFormattedFeature } from "@/content/features/chat-copy-formatted/chat-copy-formatted.feature";
 import { ChatEmojisFeature } from "@/content/features/chat-emojis/chat-emojis.feature";
 import { ChatFocusFeature } from "@/content/features/chat-focus/chat-focus.feature";
+import { ChatMessageSplitsFeature } from "@/content/features/chat-message-splits/chat-message-splits.feature";
 import { ChatProfileLinkFeature } from "@/content/features/chat-profile-link/chat-profile-link.feature";
 import { ChatQuickReactFeature } from "@/content/features/chat-quick-react/chat-quick-react.feature";
 import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
@@ -214,7 +215,8 @@ new ExtensionContainer(interceptor)
     DrawingBrushLabFeature,
     DropsFeature,
     PlayerAwardsFeature,
-    ChatClearFeature
+    ChatClearFeature,
+    ChatMessageSplitsFeature
   );
 
 /* indicate for interceptor that content script has loaded */
