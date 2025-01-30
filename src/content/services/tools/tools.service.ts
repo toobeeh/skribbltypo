@@ -188,7 +188,7 @@ export class ToolsService {
         /* make sure line is safe - decimal places should not be submitted to skribbl */
         line = {from: [Math.floor(line.from[0]), Math.floor(line.from[1])], to: [Math.floor(line.to[0]), Math.floor(line.to[1])]};
 
-        const lineCommands = await tool.createCommands(line, pressure, style, eventId, strokeId);
+        const lineCommands = await tool.createCommands(line, pressure, modStyle, eventId, strokeId);
         if(lineCommands.length > 0) {
           commands.push(...lineCommands);
           this._logger.debug("Adding commands created by tool", tool, commands);
