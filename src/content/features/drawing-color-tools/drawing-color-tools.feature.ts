@@ -92,6 +92,6 @@ export class DrawingColorToolsFeature extends TypoFeature {
 
   public updatePickedColor(color: Color){
     this._logger.info("Color picked", color);
-    this._drawingService.setColor(color);
+    this._drawingService.setColor(color.skribblCode);
   }
 }

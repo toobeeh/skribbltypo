@@ -1,6 +1,7 @@
 import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
 import { type drawModLine } from "@/content/services/tools/draw-mod";
 import type { brushStyle } from "@/content/services/tools/tools.service";
+import { Color } from "@/util/color";
 
 export abstract class TypoDrawTool extends ConstantDrawMod {
 
@@ -29,7 +30,7 @@ export abstract class TypoDrawTool extends ConstantDrawMod {
    * @protected
    */
   protected createSkribblLikeCursor(brushStyle: brushStyle){
-    const color = brushStyle.color.rgbArray;
+    const color = Color.fromSkribblCode(brushStyle.color).rgbArray;
 
     // Set the alpha component
     color[3] = 0.8;

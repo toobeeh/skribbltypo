@@ -39,12 +39,12 @@ export class DotTool extends TypoDrawTool implements BrushLabItem {
     const now = Date.now();
 
     if(this.lastDown.eventId === eventId){
-      return [[0, style.color.skribblCode, style.size, ...line.to, ...line.to]];
+      return [[0, style.color, style.size, ...line.to, ...line.to]];
     }
     else if(now - this.lastDown.time > interval) {
       this.lastDown.time = now;
       this.lastDown.eventId = eventId;
-      return [[0, style.color.skribblCode, style.size, ...line.to, ...line.to]];
+      return [[0, style.color, style.size, ...line.to, ...line.to]];
     }
     return [];
   }

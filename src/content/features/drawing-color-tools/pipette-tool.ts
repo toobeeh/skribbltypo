@@ -34,7 +34,7 @@ export class PipetteTool extends TypoDrawTool {
     if (ctx !== null){
       const imageData = ctx.getImageData(line.to[0], line.to[1], 1, 1);
       const rgb = imageData.data.slice(0, 3);
-      style.color = Color.fromRgb(rgb[0], rgb[1], rgb[2]);
+      style.color = Color.fromRgb(rgb[0], rgb[1], rgb[2]).skribblCode;
     }
 
     return this.noConstantEffect(line, pressure, style);

@@ -73,7 +73,7 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
     }
 
     /* line drawing */
-    return [[0, style.color.skribblCode, style.size, ...line.from, ...line.to]];
+    return [[0, style.color, style.size, ...line.from, ...line.to]];
   }
 
   private getDistance(from: [number, number], to: [number, number]): number {

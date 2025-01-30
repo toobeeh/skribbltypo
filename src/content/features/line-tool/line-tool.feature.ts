@@ -400,7 +400,7 @@ export class LineToolFeature extends TypoFeature {
   ) {
     if (!origin || !target) return;
 
-    await this._drawingService.drawLine([...origin, ...target], style.color.skribblCode, style.size);
+    await this._drawingService.drawLine([...origin, ...target], style.color, style.size);
 
     this._originCoordinates$.next(undefined);
     this._targetCoordinates$.next(undefined);

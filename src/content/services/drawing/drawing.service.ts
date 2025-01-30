@@ -6,7 +6,6 @@ import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/wor
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
-import type { Color } from "@/util/color";
 import { ImageData } from "@/util/imageData";
 import { inject, injectable } from "inversify";
 import {
@@ -291,9 +290,23 @@ export class DrawingService {
     );
   }
 
-  public setColor(color: Color) {
+  /**
+   *
+   * @param color the skribbl color code
+   */
+  public setColor(color: number) {
     this._logger.debug("Setting color", color);
-    document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color.typoCode}}));
+    document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color}}));
+  }
+
+  /**
+   * Disable or enable cursor updates
+   * Prevents performance bottlenecks when mods change cursor properties frequently
+   * When set to false, cursor will be updated once
+   * @param state
+   */
+  public disableCursorUpdates(state: boolean){
+    document.dispatchEvent(new CustomEvent("disableCursorUpdates", {detail: state}));
   }
 
   /**
@@ -322,7 +335,7 @@ export class DrawingService {
     ctx?.drawImage(img, x ?? 0, y ?? 0, dx ?? img.width, dy ?? img.height);
   }
 
-  public createLineCommands(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined, clip = true){
+  public createLineCommand(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined, clip = true){
     const clipped = clip ?
       this.clipLine([coordinates[0], coordinates[1]], [coordinates[2], coordinates[3]])?.flat() :
       [Math.floor(coordinates[0]), Math.floor(coordinates[1]), Math.floor(coordinates[2]), Math.floor(coordinates[3])];

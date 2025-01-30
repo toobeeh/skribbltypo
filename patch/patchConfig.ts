@@ -88,6 +88,11 @@ export const gameJsPatchConfig = {
           target:
             "wheelDeltaY, [a-zA-Z0-9&_\\-$]+ = Math\\.sign\\([a-zA-Z0-9&_\\-$]+\\);\\s+([a-zA-Z0-9&_\\-$]+)\\(",
         },
+        {
+          source: "##UPDATECURSOR##",
+          target:
+            "function\\s*([a-zA-Z0-9&_\\-$]+)\\(\\)\\s*{\\s*var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.cursor;",
+        },
       ],
       injections: [
         {
@@ -137,6 +142,7 @@ export const gameJsPatchConfig = {
                         };
                     },
                     disconnect: undefined,
+                    skipCursorUpdate: false,
                     lastConnect: 0,
                     initListeners: (() => {
                         let abort = false; 
@@ -144,6 +150,10 @@ export const gameJsPatchConfig = {
                         document.addEventListener("selectSkribblSize", (event) => ##SELECTSIZE##(event.detail));
                         document.addEventListener("clearDrawing", () => ##CLEARACTION##());
                         document.addEventListener("abortJoin", () => abort = true); 
+                        document.addEventListener("disableCursorUpdates", e => {
+                            typo.skipCursorUpdate = e.detail === true;
+                            if(e.detail === false) ##UPDATECURSOR##(); // update cursor when updates reenabled
+                        });
                         document.addEventListener("joinLobby", (e) => {
                             abort = false;
                             let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
@@ -171,7 +181,7 @@ export const gameJsPatchConfig = {
                             // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
                         });
                         document.addEventListener("setColor", (e) => {
-                            let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
+                            let rgb = e.detail.code < 10000 ? ##COLORS##[e.detail.code] : typo.typoCodeToRgb(e.detail.code);
                             let match = ##COLORS##.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
                             // IDENTIFY [0, 59, 120], -> COLORS
                             let code = match >= 0 ? match : e.detail.code;
@@ -215,6 +225,14 @@ export const gameJsPatchConfig = {
                     },
                     rgbToHex: (r, g, b) => {
                         return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+                    },
+                    typoCodeToRgb: (code) => {
+                      const decimal = code - 10000;
+                      return [
+                          (decimal >> 16) & 255, // Red
+                          (decimal >> 8) & 255,  // Green
+                          decimal & 255          // Blue
+                      ];
                     }
                 }
                 // TYPOEND
@@ -247,8 +265,12 @@ export const gameJsPatchConfig = {
         {
           position:
             "(clearRect\\(0, 0, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\);)\\s+var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\s*,",
-          code: '// TYPOMOD\n// desc: cursor with custom color\nvar ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.hexToRgb((##COLORINDEX## - 10000).toString(16).padStart(6, "0"));\n// TYPOEND \npatchcode#customcursor',
+          code: '// TYPOMOD\n// desc: cursor with custom color\nvar ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.typoCodeToRgb(##COLORINDEX##);\n// TYPOEND \npatchcode#customcursor',
         },
+        {
+          position: "(\\s)var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.cursor;",
+          code: "// TYPOMOD\n// desc: dont update cursor when typo updates if very frequently to avoid performance drop\nif(typo.skipCursorUpdate === true) return;\n",
+        }
       ],
     },
     {
@@ -269,7 +291,7 @@ export const gameJsPatchConfig = {
         {
           position:
             '(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\("#color-preview-primary"\\)\\.style\\.fill =',
-          code: '##COLORCODE## > 10000 ? ##SETCOLOR##(typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, "0"))) :',
+          code: '##COLORCODE## > 10000 ? ##SETCOLOR##(typo.typoCodeToRgb(##COLORCODE##)) :',
         },
       ],
     },
@@ -291,7 +313,7 @@ export const gameJsPatchConfig = {
         {
           position:
             '(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\("#color-preview-secondary"\\)\\.style\\.fill =',
-          code: '##COLORCODE## > 10000 ? ##SETCOLOR##(typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, "0"))) :',
+          code: '##COLORCODE## > 10000 ? ##SETCOLOR##(typo.typoCodeToRgb(##COLORCODE##)) :',
         },
       ],
     },
@@ -312,7 +334,7 @@ export const gameJsPatchConfig = {
         },
         {
           position: "([^{]+?length[^}]+?;)\\s+return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:",
-          code: 'else ##COLORCODE## = typo.hexToRgb((##COLORCODE## - 10000).toString(16).padStart(6, "0"));/* TYPOEND */',
+          code: 'else ##COLORCODE## = typo.typoCodeToRgb(##COLORCODE##);/* TYPOEND */',
         },
       ],
     },

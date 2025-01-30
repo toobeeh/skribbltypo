@@ -18,14 +18,18 @@ import { Color } from "@/util/color";
 import type { Type } from "@/util/types/type";
 import { inject, injectable, postConstruct } from "inversify";
 import {
-  BehaviorSubject, combineLatestWith,
-  map,
+  BehaviorSubject, combineLatestWith, filter,
+  map, mergeWith, switchMap,
   withLatestFrom,
 } from "rxjs";
 
 export type drawCoordinateEvent = [number, number, number?];
 export interface brushStyle {
-  color: Color;
+
+  /**
+   * the original skribbl color code, or typo encoded hex
+   */
+  color: number;
   size: number;
 }
 
@@ -44,9 +48,8 @@ export class ToolsService {
   private readonly _logger: LoggerService;
   private readonly _activeTool$ = new BehaviorSubject<TypoDrawTool | skribblTool>(skribblTool.brush);
   private readonly _activeMods$ = new BehaviorSubject<TypoDrawMod[]>([]);
-  private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000"), size: 1 });
+  private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000").skribblCode, size: 1 });
   private readonly _lastPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
-
   private readonly _canvasCursorStyle = document.createElement("style");
 
   constructor(@inject(loggerFactory) loggerFactory: loggerFactory) {
@@ -56,6 +59,12 @@ export class ToolsService {
   @postConstruct()
   private postConstruct() {
     this._logger.debug("Post construct");
+    this.initListeners();
+  }
+
+  private async initListeners(){
+    const elements = await this._elementsSetup.complete();
+    const listeners = await this._prioritizedCanvasEventsSetup.complete();
 
     /* change tool when skribbl tool changed */
     this._toolChangedListener.events$.subscribe(event => {
@@ -82,57 +91,70 @@ export class ToolsService {
     /* set up brush style subscription */
     this._sizeChangedListener.events$.pipe(
       combineLatestWith(this._colorChangedListener.events$),
-      map(([size, color]) => ({ size: size.data, color: color.data }))
+      map(([size, color]) => ({ size: size.data, color: color.data.skribblCode }))
     ).subscribe(style => this._activeBrushStyle$.next(style));
 
-    (async () => {
-      const elements = await this._elementsSetup.complete();
-      const listeners = await this._prioritizedCanvasEventsSetup.complete();
+    /* set up events for custom stroke listener */
+    const coordinateListener = new CoordinateListener(elements.canvas);
+    listeners.add("draw")("pointerdown", coordinateListener.onCanvasPointerDown.bind(coordinateListener));
+    listeners.add("draw")("pointermove", coordinateListener.onCanvasPointerMove.bind(coordinateListener));
+    document.addEventListener("pointerup", coordinateListener.onDocumentPointerUp.bind(coordinateListener));
 
-      const coordinateListener = new CoordinateListener(elements.canvas);
-      listeners.add("draw")("pointerdown", coordinateListener.onCanvasPointerDown.bind(coordinateListener));
-      listeners.add("draw")("pointermove", coordinateListener.onCanvasPointerMove.bind(coordinateListener));
-      document.addEventListener("pointerup", coordinateListener.onDocumentPointerUp.bind(coordinateListener));
+    /* current tools and draw style */
+    const drawingMeta$ = this._activeTool$.pipe(
+      combineLatestWith(this._activeMods$, this._activeBrushStyle$),
+      map(([tool, mods, style]) => {
+        const typoMods = tool instanceof TypoDrawTool ? [tool, ...mods] : mods;
+        const typoTool = tool instanceof TypoDrawTool ? tool : undefined;
+        return [style, typoTool, typoMods] as const;
+      })
+    );
 
-      coordinateListener.strokes$.pipe(
-        withLatestFrom(this._activeTool$, this._activeMods$, this._activeBrushStyle$),
-      ).subscribe(([stroke, tool, mods, style]) => {
-        this.processDrawCoordinates(stroke.from, stroke.to, tool, mods, style, stroke.stroke);
-      });
+    /* disable cursor updates while drawing with mods */
+    this._activeMods$.pipe(
+      combineLatestWith(this._activeTool$),
+      filter(([mods, tool]) => tool instanceof TypoDrawTool || mods.length > 0),
+      switchMap(() => coordinateListener.pointerDown$.pipe(
+        map(() => true),
+        mergeWith(coordinateListener.pointerUp$.pipe(map(() => false)))
+      ))
+    ).subscribe((isDrawing) => {
+      this._drawingService.disableCursorUpdates(isDrawing);
+    });
 
-      coordinateListener.pointerDown$.subscribe((position) => this._lastPointerDownPosition$.next(position));
+    /* listen for strokes and create typo tool commands */
+    coordinateListener.strokes$.pipe(
+      withLatestFrom(drawingMeta$)
+    ).subscribe(([stroke, [style, tool, mods]]) => {
+      this.processDrawCoordinates(stroke.from, stroke.to, tool, mods, style, stroke.stroke);
+    });
 
-      this._lobbyService.lobby$.pipe(
-        map(lobby => lobby?.meId === lobby?.drawerId),
-        combineLatestWith(this._activeTool$, this._activeMods$),
-        map(([isDrawer, tool, mods]) => isDrawer && (tool instanceof TypoDrawTool || tool === skribblTool.brush && mods.length > 0)),
-      ).subscribe((enabled) => {
-        console.log("enabled", enabled);
-        coordinateListener.enabled = enabled;
-      });
-    })();
+    /* update last pointer down */
+    coordinateListener.pointerDown$.subscribe((position) => this._lastPointerDownPosition$.next(position));
+
+    /* set listening state of coordinate listener */
+    this._lobbyService.lobby$.pipe(
+      map(lobby => lobby?.meId === lobby?.drawerId),
+      combineLatestWith(this._activeTool$, this._activeMods$),
+      map(([isDrawer, tool, mods]) => isDrawer && (tool instanceof TypoDrawTool || tool === skribblTool.brush && mods.length > 0)),
+    ).subscribe((enabled) => {
+      coordinateListener.enabled = enabled;
+    });
   }
 
-  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, tool: TypoDrawTool | skribblTool, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
+  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, tool: TypoDrawTool | undefined, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
     this._logger.debug("Activating tool and applying mods", start, end);
-
-    /* return if no mods or tool selected - else create draw commands through typo */
-    if(mods.length === 0 && !(tool instanceof TypoDrawTool)) return 0;
 
     /* generate a shared id for every line created from the origin line */
     const eventId = Date.now();
-
-    /* if tool is a typotool, apply effects from it as well */
-    const allMods = [...mods, ...(tool instanceof TypoDrawTool ? [tool] : [])];
-
     let lines: drawModLine[] = [{from: [start[0], start[1]], to: [end[0], end[1]]}];
 
     /* copy to avoid reference issues */
-    let modStyle = {size: style.size, color: Color.fromTypoCode(style.color.typoCode)};
+    let modStyle = structuredClone(style);
     const pressure = end[2];
 
     /* apply mods and wait for result */
-    for (const mod of allMods) {
+    for (const mod of mods) {
 
       /* for each line - mods may append or skip lines */
       const modLines: drawModLine[] = [];
@@ -145,21 +167,22 @@ export class ToolsService {
       lines = modLines;
     }
 
-    /* update brush style in skribbl if changed by mods */
-    if(modStyle.size !== style.size) {
+    /* update brush size in skribbl if changed by mods */
+    /* disabled for now because of efficiency reasons - size only affects current event */
+    /*if(modStyle.size !== style.size) {
       this._logger.debug("Brush size changed by mods", modStyle.size);
       this._drawingService.setSize(modStyle.size);
-    }
+    }*/
 
     /* update brush color if changed by mods */
-    if(modStyle.color.typoCode !== style.color.typoCode) {
+    if(modStyle.color !== style.color) {
       this._logger.debug("Brush color changed by mods", modStyle.color);
       this._drawingService.setColor(modStyle.color);
     }
 
     /* create draw commands from tool based on processed lines and style */
     const commands: number[][] = [];
-    if(tool instanceof TypoDrawTool) {
+    if(tool !== undefined) {
       for(let line of lines) {
 
         /* make sure line is safe - decimal places should not be submitted to skribbl */
@@ -179,7 +202,7 @@ export class ToolsService {
     /* create default draw commands as lines */
     else {
       for(const line of lines) {
-        const lineCommand = this._drawingService.createLineCommands([...line.from, ...line.to], modStyle.color.skribblCode, modStyle.size, false);
+        const lineCommand = this._drawingService.createLineCommand([...line.from, ...line.to], modStyle.color, modStyle.size, false);
         if(lineCommand !== undefined) commands.push(lineCommand);
       }
     }
@@ -187,7 +210,6 @@ export class ToolsService {
     /* paste commands */
     this._logger.info("Pasting draw commands", commands);
     await this._drawingService.pasteDrawCommands(commands, false);
-    return commands.length;
   }
 
 
@@ -223,8 +245,8 @@ export class ToolsService {
     this._activeTool$.next(tool);
 
     /* dry-run tool to trigger early settings load */
-    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000"), size: 1}, 0, 0);
-    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000"), size: 1}, 0, 0);
+    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0);
+    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0);
   }
 
   public activateMod(mod: TypoDrawMod) {

@@ -76,6 +76,7 @@
         };
       },
       disconnect: undefined,
+      skipCursorUpdate: false,
       lastConnect: 0,
       initListeners: (() => {
         let abort = false;
@@ -83,6 +84,10 @@
         document.addEventListener("selectSkribblSize", (event) => It(event.detail));
         document.addEventListener("clearDrawing", () => Vt());
         document.addEventListener("abortJoin", () => abort = true);
+        document.addEventListener("disableCursorUpdates", e => {
+          typo.skipCursorUpdate = e.detail === true;
+          if(e.detail === false) vt(); // update cursor when updates reenabled
+        });
         document.addEventListener("joinLobby", (e) => {
           abort = false;
           let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
@@ -110,7 +115,7 @@
           // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
         });
         document.addEventListener("setColor", (e) => {
-          let rgb = typo.hexToRgb((e.detail.code - 10000).toString(16).padStart(6, "0"));
+          let rgb = e.detail.code < 10000 ? wt[e.detail.code] : typo.typoCodeToRgb(e.detail.code);
           let match = wt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
           // IDENTIFY [0, 59, 120], -> COLORS
           let code = match >= 0 ? match : e.detail.code;
@@ -154,6 +159,14 @@
       },
       rgbToHex: (r, g, b) => {
         return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+      },
+      typoCodeToRgb: (code) => {
+        const decimal = code - 10000;
+        return [
+          (decimal >> 16) & 255, // Red
+          (decimal >> 8) & 255,  // Green
+          decimal & 255          // Blue
+        ];
       }
     }
   // TYPOEND,
@@ -863,7 +876,10 @@
     o = (yt.width = et + 2, yt.height = et + 2, yt.getContext("2d"));
 
   function vt() {
-    var e = st[bt].cursor;
+
+// TYPOMOD
+// desc: dont update cursor when typo updates if very frequently to avoid performance drop
+    if(typo.skipCursorUpdate === true) return;var e = st[bt].cursor;
     if (L.id == Z && M == x) {
       if (bt == Je) {
         var t = yt.width,
@@ -872,7 +888,7 @@
         o.clearRect(0, 0, t, t);
 // TYPOMOD
 // desc: cursor with custom color
-        var a = St < 10000 ? wt[St] : typo.hexToRgb((St - 10000).toString(16).padStart(6, "0"));
+        var a = St < 10000 ? wt[St] : typo.typoCodeToRgb(St);
 // TYPOEND
 
         a = [(a = 1 == l.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
@@ -961,14 +977,14 @@
 
   function Wt(e) {
     var t =
-      e > 10000 ? Ut(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ut(wt[e]);
+      e > 10000 ? Ut(typo.typoCodeToRgb(e)) : Ut(wt[e]);
     St = e, c.querySelector("#color-preview-primary").style.fill = t
       , document.dispatchEvent(new CustomEvent("skribblColorChanged", {detail: t})), c.querySelector("#game-toolbar .color-preview-mobile").style.backgroundColor = t, vt()
   }
 
   function Ot(e) {
     var t =
-      e > 10000 ? Ut(typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"))) : Ut(wt[e]);
+      e > 10000 ? Ut(typo.typoCodeToRgb(e)) : Ut(wt[e]);
     kt = e, c.querySelector("#color-preview-secondary").style.fill = t, vt()
   }
 
@@ -994,7 +1010,7 @@
     /*TYPOMOD
     desc: if color code > 1000 -> customcolor*/if(e < 1000)
       e = q(e, 0, wt.length), e = wt[e];
-    else e = typo.hexToRgb((e - 10000).toString(16).padStart(6, "0"));/* TYPOEND */
+    else e = typo.typoCodeToRgb(e);/* TYPOEND */
     return {
       r: e[0],
       g: e[1],

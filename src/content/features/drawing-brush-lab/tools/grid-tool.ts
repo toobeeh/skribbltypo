@@ -60,10 +60,10 @@ export class GridTool extends TypoDrawTool implements BrushLabItem {
 
     const commands = [];
     for(let i = 1; i < rows; i++){
-      commands.push([0, style.color.skribblCode, style.size, 0, i * rowHeight, canvasWidth, i * rowHeight]);
+      commands.push([0, style.color, style.size, 0, i * rowHeight, canvasWidth, i * rowHeight]);
     }
     for(let i = 1; i < columns; i++){
-      commands.push([0, style.color.skribblCode, style.size, i * columnWidth, 0, i * columnWidth, canvasHeight]);
+      commands.push([0, style.color, style.size, i * columnWidth, 0, i * columnWidth, canvasHeight]);
     }
 
     return commands;

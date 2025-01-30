@@ -41,6 +41,10 @@ export class CoordinateListener {
     return this._pointerDown$.asObservable();
   }
 
+  public get pointerUp$() {
+    return this._pointerUp$.asObservable();
+  }
+
   public onCanvasPointerDown(event: PointerEvent) {
     if (!this._enabled) return;
 

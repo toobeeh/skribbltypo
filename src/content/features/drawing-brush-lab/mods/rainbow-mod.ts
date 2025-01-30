@@ -53,8 +53,8 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
       /* skip first two indexes (monochromes)*/
       if(index < 2) index = 2;
 
-      const color = colors[index];
-      style.color = Color.fromRgb(color[0], color[1], color[2]);
+      /* map index back to original palette index */
+      style.color = index * 2 + (mode === "light" ? 0 : 1);
 
       this.lastSwitch = {
         eventId: eventId,

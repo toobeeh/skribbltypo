@@ -239,7 +239,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   public setColor(colorHex: string){
     this._logger.info(`Setting color to ${colorHex}`);
     const color = Color.fromHex(colorHex);
-    this._drawingService.setColor(color);
+    this._drawingService.setColor(color.skribblCode);
   }
 
   public get savedPalettesStore() {
