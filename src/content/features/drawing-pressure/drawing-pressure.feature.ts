@@ -22,7 +22,7 @@ export class DrawingPressureFeature extends TypoFeature {
   }
 
   private readonly _performanceEnabledSetting = this.useSetting(
-    new BooleanExtensionSetting("pressure_performance", false, this)
+    new BooleanExtensionSetting("pressure_performance", true, this)
       .withName("Performance Mode")
       .withDescription("Better pressure support for less performant devices, but can't be used in combination with the brush laboratory.")
   );
