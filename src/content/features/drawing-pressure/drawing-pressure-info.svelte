@@ -44,7 +44,9 @@
 <div>
   <p>
     Typo modifies pressure so that you can use the full brush size range without switching brush sizes in skribbl.<br>
-    Additionally, you can customize the sensitivity of the pen pressure.
+    Additionally, you can customize the sensitivity of the pen pressure.<br>
+    By default, aa performance mode is activated. This mode is recommended for devices with lower performance.<br>
+    To use pressure in combination with the typo brush laboratory, disable performance mode.
   </p>
   <br>
 

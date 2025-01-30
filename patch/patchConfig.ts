@@ -722,12 +722,9 @@ export const gameJsPatchConfig = {
           code: `
               /* TYPOMOD use typo pressure */
               (() => {
-                  if (0 <= ##PRESSURE## && localStorage.typoink == 'true') {
-                      const calcSkribblSize = (val) => Number(val) * 36 + 4;
-                      const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
-                      const sensitivity = 100 - Number(localStorage.sens);
-                      let levelled = calcLevelledSize(##PRESSURE##, sensitivity);
-                      ##TYPOSIZE## = Math.round(calcSkribblSize(levelled));
+                  if (0 <= ##PRESSURE## && document.documentElement.dataset["typo_pressure_performance"]) {
+                      const pressure = eval(document.documentElement.dataset["typo_pressure_performance"])(##PRESSURE##);
+                      ##TYPOSIZE## = Math.max(4, Math.round(40 * pressure));
                   }
               })(),
               `,

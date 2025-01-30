@@ -1189,12 +1189,9 @@
       bt == Je && (e = qt, 0 <= ft && (e = (e - Qe) * q(ft, 0, 1) + Qe),
         /* TYPOMOD use typo pressure */
         (() => {
-          if (0 <= ft && localStorage.typoink == 'true') {
-            const calcSkribblSize = (val) => Number(val) * 36 + 4;
-            const calcLevelledSize = (val, level) => Math.pow(Number(val), Math.pow(1.5, (Number(level) - 50) / 10));
-            const sensitivity = 100 - Number(localStorage.sens);
-            let levelled = calcLevelledSize(ft, sensitivity);
-            e = Math.round(calcSkribblSize(levelled));
+          if (0 <= ft && document.documentElement.dataset["typo_pressure_performance"]) {
+            const pressure = eval(document.documentElement.dataset["typo_pressure_performance"])(ft);
+            e = Math.max(4, Math.round(40 * pressure));
           }
         })(),l = Math.ceil(.5 * e), s = q(Math.floor(gt[0]), -l, C.width + l), o = q(Math.floor(gt[1]), -l, C.height + l), r = q(Math.floor(b[0]), -l, C.width + l), i = q(Math.floor(b[1]), -l, C.height + l), t = t, e = e, a = s, o = o, r = r, i = i, n = [Ze, t, e, a, o, r, i]), null != n && jt(n)
     }

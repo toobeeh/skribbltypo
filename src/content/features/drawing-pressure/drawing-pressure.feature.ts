@@ -1,8 +1,8 @@
-import { NumericExtensionSetting } from "@/content/core/settings/setting";
+import { BooleanExtensionSetting, NumericExtensionSetting } from "@/content/core/settings/setting";
 import { PressureMod } from "@/content/features/drawing-pressure/pressure-mod";
 import type { componentData } from "@/content/services/modal/modal.service";
-import type { TypoDrawMod } from "@/content/services/tools/draw-mod";
 import { ToolsService } from "@/content/services/tools/tools.service";
+import { calculatePressurePoint } from "@/util/typo/pressure";
 import { inject } from "inversify";
 import { combineLatestWith, type Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
@@ -15,11 +15,17 @@ export class DrawingPressureFeature extends TypoFeature {
   public readonly description = "Use the full size range and custom sensitivity for pen pressure";
   public readonly featureId = 37;
 
-  private _paramsSubscription?: Subscription;
+  private _performanceEnabledSubscription?: Subscription;
 
   public override get featureInfoComponent(): componentData<DrawingPressureInfo>{
     return { componentType: DrawingPressureInfo, props: { feature: this }};
   }
+
+  private readonly _performanceEnabledSetting = this.useSetting(
+    new BooleanExtensionSetting("pressure_performance", false, this)
+      .withName("Performance Mode")
+      .withDescription("Better pressure support for less performant devices, but can't be used in combination with the brush laboratory.")
+  );
 
   private readonly _pressureParamSensitivitySetting = this.useSetting(
     new NumericExtensionSetting("pressure_sensitivity", 6, this)
@@ -37,17 +43,42 @@ export class DrawingPressureFeature extends TypoFeature {
       .withSlider(1/20)
   );
 
-  private _pressureMod?: TypoDrawMod;
+  private _pressureMod?: PressureMod;
 
   protected override async onActivate() {
-    const mod = this._pressureMod = this._toolsService.resolveModOrTool(PressureMod);
-    this._toolsService.activateMod(this._pressureMod);
 
-    this._paramsSubscription = this._pressureParamSensitivitySetting.changes$.pipe(
-      combineLatestWith(this._pressureParamBalanceSetting.changes$)
-    ).subscribe(([sensitivity, balance]) => {
-      mod.setParams(sensitivity, balance);
+    this._performanceEnabledSubscription = this._performanceEnabledSetting.changes$.pipe(
+      combineLatestWith(this._pressureParamSensitivitySetting.changes$, this._pressureParamBalanceSetting.changes$)
+    ).subscribe(async ([performanceMode, sensitivity, balance]) => {
+      if(performanceMode){
+        if(this._pressureMod) {
+          this._toolsService.removeMod(this._pressureMod);
+          this._pressureMod = undefined;
+        }
+
+        document.documentElement.dataset["typo_pressure_performance"] = this.getPerformanceFunctionEval(sensitivity, balance);
+      }
+      else {
+        if(!this._pressureMod){
+          this._pressureMod = this._toolsService.resolveModOrTool(PressureMod);
+          this._toolsService.activateMod(this._pressureMod);
+        }
+        this._pressureMod.setParams(sensitivity, balance);
+
+        document.documentElement.dataset["typo_pressure_performance"] = "";
+      }
     });
+  }
+
+  /**
+   * An eval function which is used by tha game patch to calculate the typo pressure
+   * Probably not the most performant option (ironic), but good enough & prevents duplicating the function.
+   * @param s
+   * @param b
+   * @private
+   */
+  private getPerformanceFunctionEval(s: number, b: number){
+    return `(pressure) => (${calculatePressurePoint.toString()})(pressure, ${s}, ${b})`;
   }
 
   protected override async onDestroy() {
@@ -56,8 +87,10 @@ export class DrawingPressureFeature extends TypoFeature {
       this._pressureMod = undefined;
     }
 
-    this._paramsSubscription?.unsubscribe();
-    this._paramsSubscription = undefined;
+    document.documentElement.dataset["typo_pressure_performance"] = "";
+
+    this._performanceEnabledSubscription?.unsubscribe();
+    this._performanceEnabledSubscription = undefined;
   }
 
   public get balanceSettingStore(){
