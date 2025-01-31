@@ -116,7 +116,7 @@ export class LobbyConnectionService implements featureBinding {
       this._logger.error("Failed to setup socket connection", e);
       await this.destroyConnection();
       this._connection$.next(undefined);
-      throw e;
+      return "failed";
     }
 
     const state = await hub.lobbyDiscovered({ownerClaimToken: claim, lobby, playerId});

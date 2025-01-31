@@ -247,6 +247,11 @@ export class LobbyStatusFeature extends TypoFeature {
         member,
       );
 
+      if(result === "failed") {
+        this._logger.error("Failed to setup connection, retrying in next update cycle");
+        return;
+      }
+
       const { typoLobbyState, hub } = this._lobbyConnectionService.connection;
 
       // set default settings if owner and not a reconnect (existing claim undefined)
