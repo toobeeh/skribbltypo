@@ -98,7 +98,7 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
 
         ${stringHasContent(theme.images.urlLogo) ? `
           div.logo-big a {display: flex; justify-content: center }
-          div.logo-big img {max-height:20vh; content: url(${theme.images.urlLogo}) }
+          div.logo-big img, div#game-logo img {max-height:20vh; content: url(${theme.images.urlLogo}) }
         ` : ""}
 
         ${
