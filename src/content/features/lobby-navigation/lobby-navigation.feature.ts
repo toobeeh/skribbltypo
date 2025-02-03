@@ -1,7 +1,8 @@
 import { ExtensionCommand } from "@/content/core/commands/command";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
+import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { inject } from "inversify";
-import { filter, take, tap } from "rxjs";
+import { filter, type Subscription, take, tap } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { LobbyService } from "../../services/lobby/lobby.service";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
@@ -17,6 +18,12 @@ export class LobbyNavigationFeature extends TypoFeature {
 
   private _component?: LobbyNavigation;
 
+  private readonly _overrideLogoExitSetting = this.useSetting(
+    new BooleanExtensionSetting("overrideLogoExit", true, this)
+      .withName("Enhanced Logo Exit")
+      .withDescription("Exit the lobby instead reloading skribbl when clicking the logo"),
+  );
+
   private readonly _nextCommand = this.useCommand(
     new ExtensionCommand("skip", this, "Skip Lobby", "Leave the current lobby and join another"),
   ).run(async (command) => {
@@ -31,6 +38,9 @@ export class LobbyNavigationFeature extends TypoFeature {
     return new InterpretableSuccess(command, "Skipped lobby");
   });
 
+  private _logoClickListener = this.onLogoClick.bind(this);
+  private _settingChangeSubscription?: Subscription;
+
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
 
@@ -41,10 +51,28 @@ export class LobbyNavigationFeature extends TypoFeature {
         feature: this,
       },
     });
+
+    this._settingChangeSubscription = this._overrideLogoExitSetting.changes$.subscribe((value) => {
+      if (value) {
+        elements.logoIngame.addEventListener("click", this._logoClickListener);
+      } else {
+        elements.logoIngame.removeEventListener("click", this._logoClickListener);
+      }
+    });
   }
 
-  protected override onDestroy(): Promise<void> | void {
+  protected override async onDestroy(): Promise<void> {
     this._component?.$destroy();
+    const elements = await this._elementsSetup.complete();
+    elements.logoIngame.removeEventListener("click", this._logoClickListener);
+  }
+
+  private onLogoClick(event: Event){
+    event.stopImmediatePropagation();
+    event.preventDefault();
+    this._settingChangeSubscription?.unsubscribe();
+    this._settingChangeSubscription = undefined;
+    this.exitLobby();
   }
 
   public nextLobby() {

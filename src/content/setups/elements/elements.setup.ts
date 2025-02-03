@@ -53,6 +53,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     textOverlay: requireElement("#game-canvas .overlay-content > .text"),
     gameRate: requireElement("#game-rate"),
     inputName: requireElement("input.input-name") as HTMLInputElement,
+    logoIngame: requireElement("#game-logo img"),
     chatControls,
     ...panels,
     toolbar,
