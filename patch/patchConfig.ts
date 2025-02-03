@@ -403,10 +403,6 @@ export const gameJsPatchConfig = {
             'function ([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?\\) {[^}]+?\\.querySelector\\("#home"\\)\\.style\\.display = "none"',
         },
         {
-          source: "##SELECTORFCT##",
-          target: '([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?, "mousemove"[\\s\\S]+?\\}\\);',
-        },
-        {
           source: "##SOCKET##",
           target: '\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\("connect"',
         },
@@ -416,11 +412,11 @@ export const gameJsPatchConfig = {
           position: '(e.classList.add\\("show"\\)\\s+})',
           code: `
                 /* TYPOMOD desc: add event handlers for typo features */
-                ##SELECTORFCT##(".avatar-customizer .container", "pointerdown", () => {
-                const data = typo.createFakeLobbyData();
-                typo.messagePort.postMessage({ id: 10, data });
-                //document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
-                ##JOIN##(data);
+                document.addEventListener("joinPractice", () => {
+                  const data = typo.createFakeLobbyData();
+                  typo.messagePort.postMessage({ id: 10, data });
+                  //document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
+                  ##JOIN##(data);
                 });
                 
                 ##SOCKET## = new Proxy({},{

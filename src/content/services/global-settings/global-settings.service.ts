@@ -25,6 +25,9 @@ export class GlobalSettingsService {
         {name: "Horizontal", choice: "horizontal"},
         {name: "Vertical", choice: "vertical"},
       ]),
+    showLandingOutfit: new BooleanExtensionSetting("showLandingOutfit", true)
+      .withName("Customizer Outfit")
+      .withDescription("Show your current outfit on the avatar customizer"),
   };
 
   private readonly _logger;

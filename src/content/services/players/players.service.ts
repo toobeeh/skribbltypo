@@ -1,5 +1,4 @@
 import { loggerFactory } from "@/content/core/logger/loggerFactory.interface";
-import { LobbyInteractedEventListener } from "@/content/events/lobby-interacted.event";
 import { LobbyJoinedEventListener } from "@/content/events/lobby-joined.event";
 import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { LobbyPlayerChangedEventListener } from "@/content/events/lobby-player-changed.event";
@@ -17,6 +16,7 @@ import { SkribblScoreboardPodiumPlayer } from "@/content/services/players/skribb
 import { SkribblScoreboardRegularPlayer } from "@/content/services/players/skribblScoreboardRegularPlayer";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import type { SkribblPlayerDisplay } from "@/content/services/players/skribblPlayerDisplay.interface";
+import { LandingPlayerSetup } from "@/content/setups/landing-player/landing-player.setup";
 import { element } from "@/util/document/requiredQuerySelector";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 import { calculateLobbyKey } from "@/util/typo/lobbyKey";
@@ -24,13 +24,12 @@ import { inject, injectable, postConstruct } from "inversify";
 import {
   BehaviorSubject,
   combineLatestWith,
-  distinctUntilChanged, filter,
+  distinctUntilChanged, filter, from,
   map,
-  mergeWith,
-  startWith,
+  mergeWith, of,
+  startWith, switchMap,
   withLatestFrom,
 } from "rxjs";
-import { fromPromise } from "rxjs/internal/observable/innerFrom";
 
 @injectable()
 export class PlayersService {
@@ -43,9 +42,9 @@ export class PlayersService {
   @inject(ScoreboardVisibilityChangedEventListener) private readonly _scoreboardVisibleEvent!: ScoreboardVisibilityChangedEventListener;
   @inject(TextOverlayVisibilityChangedEventListener) private readonly _textOverlayVisibleEvent!: TextOverlayVisibilityChangedEventListener;
   @inject(PlayerPopupVisibilityChangedEventListener) private readonly _popupVisibleEvent!: PlayerPopupVisibilityChangedEventListener;
-  @inject(LobbyInteractedEventListener) private readonly _lobbyInteractedEvent!: LobbyInteractedEventListener;
   @inject(MemberService) private readonly _memberService!: MemberService;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
+  @inject(LandingPlayerSetup) private readonly _landingPlayerSetup!: LandingPlayerSetup;
 
   private readonly _logger;
   private readonly _lobbyPlayers$ = new BehaviorSubject<SkribblLobbyPlayer[]>([]);
@@ -70,17 +69,11 @@ export class PlayersService {
   }
 
   private setupLandingPlayer(){
-    this._memberService.member$.pipe(
-      withLatestFrom(
-        fromPromise(this._elementsSetup.complete())
-      ),
-      map(([member, elements]) => {
-        if(!member) return undefined;
-        return new SkribblLandingPlayer(Number(member.userLogin), elements.landingCustomizeContainer, elements.landingAvatarContainer);
-      })
-    ).subscribe(player => {
-      this._landingPlayer$.next(player);
-    });
+    of(undefined).pipe(
+      mergeWith(from(this._landingPlayerSetup.complete()).pipe(
+        switchMap(player => player)
+      ))
+    ).subscribe(player => this._landingPlayer$.next(player));
   }
 
   private setupLobbyPlayers() {

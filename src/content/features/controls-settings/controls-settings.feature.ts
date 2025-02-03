@@ -62,6 +62,7 @@ export class ControlsSettingsFeature extends TypoFeature {
     this.useSetting(this._settingsService.settings.devMode);
     this.useSetting(this._settingsService.settings.controlsPosition);
     this.useSetting(this._settingsService.settings.controlsDirection);
+    this.useSetting(this._settingsService.settings.showLandingOutfit);
   }
 
   protected override onDestroy(): Promise<void> | void {

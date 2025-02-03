@@ -33,6 +33,12 @@ import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
 import { ControlsThemesFeature } from "@/content/features/controls-themes/controls-themes.feature";
+import {
+  CustomizerOutfitToggleFeature
+} from "@/content/features/customizer-outfit-toggle/customizer-outfit-toggle.feature";
+import {
+  CustomizerPracticeJoinFeature
+} from "@/content/features/customizer-practice-join/customizer-practice-join.feature";
 import { DrawingBrushLabFeature } from "@/content/features/drawing-brush-lab/drawing-brush-lab.feature";
 import { DrawingColorPalettesFeature } from "@/content/features/drawing-color-palettes/drawing-color-palettes.feature";
 import { DrawingColorToolsFeature } from "@/content/features/drawing-color-tools/drawing-color-tools.feature";
@@ -78,6 +84,8 @@ import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
 import { CssColorVarSelectorsSetup } from "@/content/setups/css-color-var-selectors/cssColorVarSelectors.setup";
+import { CustomizerActionsSetup } from "@/content/setups/customizer-actions/customizer-actions.setup";
+import { LandingPlayerSetup } from "@/content/setups/landing-player/landing-player.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
@@ -150,7 +158,9 @@ new ExtensionContainer(interceptor)
     ToastSetup,
     ChatControlsSetup,
     PrioritizedCanvasEventsSetup,
-    CssColorVarSelectorsSetup
+    CssColorVarSelectorsSetup,
+    LandingPlayerSetup,
+    CustomizerActionsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
@@ -216,7 +226,9 @@ new ExtensionContainer(interceptor)
     DropsFeature,
     PlayerAwardsFeature,
     ChatClearFeature,
-    ChatMessageSplitsFeature
+    ChatMessageSplitsFeature,
+    CustomizerPracticeJoinFeature,
+    CustomizerOutfitToggleFeature
   );
 
 /* indicate for interceptor that content script has loaded */

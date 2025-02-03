@@ -1306,7 +1306,7 @@
     e.classList.add("show")
   }
   /* TYPOMOD desc: add event handlers for typo features */
-  D(".avatar-customizer .container", "pointerdown", () => {
+  document.addEventListener("joinPractice", () => {
     const data = typo.createFakeLobbyData();
     typo.messagePort.postMessage({ id: 10, data });
     //document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));

@@ -1,5 +1,6 @@
 import { ChatControlsSetup } from "@/content/setups/chat-controls/chat-controls.setup";
 import { ControlsSetup } from "@/content/setups/controls/controls.setup";
+import { CustomizerActionsSetup } from "@/content/setups/customizer-actions/customizer-actions.setup";
 import { SkribblInitializedSetup } from "@/content/setups/skribbl-initialized/skribbl-initialized.setup";
 import { ToastSetup } from "@/content/setups/toast/toast.setup";
 import { Setup } from "../../core/setup/setup";
@@ -15,8 +16,9 @@ import { ToolbarSetup } from "../toolbar/toolbar.setup";
  * @param controls
  * @param toastContainer
  * @param chatControls
+ * @param customizerActions
  */
-function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement, toastContainer: HTMLElement, chatControls: HTMLElement){
+function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolbar: HTMLElement, controls: HTMLElement, toastContainer: HTMLElement, chatControls: HTMLElement, customizerActions: HTMLElement){
   return {
     panelContainer: requireElement(".panels"),
     avatarPanel: requireElement(".panel:not(.typo-panel)"),
@@ -39,8 +41,9 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     hints: requireElement("#game-word .hints"),
     canvasWrapper: requireElement("#game-canvas"),
     canvas: requireElement("#game-canvas canvas") as HTMLCanvasElement,
-    landingAvatarContainer: requireElement(".avatar-customizer .avatar"),
+    landingAvatar: requireElement(".avatar-customizer .avatar"),
     landingCustomizeContainer: requireElement(".avatar-customizer"),
+    landingAvatarContainer: requireElement(".avatar-customizer .container"),
     skribblTools: requireElement(".toolbar-group-tools"),
     skribblActions: requireElement(".toolbar-group-actions"),
     skribblToolbar: requireElement("#game-toolbar"),
@@ -58,7 +61,8 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     ...panels,
     toolbar,
     controls,
-    toastContainer
+    toastContainer,
+    customizerActions
   };
 }
 export type typoElements = ReturnType<typeof getElements>;
@@ -74,6 +78,7 @@ export class ElementsSetup extends Setup<typoElements> {
   @inject(ChatControlsSetup) private _chatControlsSetup!: ChatControlsSetup;
   @inject(ToastSetup) private _toastSetup!: ToastSetup;
   @inject(SkribblInitializedSetup) private _gameReadySetup!: SkribblInitializedSetup;
+  @inject(CustomizerActionsSetup) private _customizerIconsSetup!: CustomizerActionsSetup;
 
   protected async runSetup(): Promise<ReturnType<typeof getElements>> {
     await this._gameReadySetup.complete();
@@ -82,6 +87,7 @@ export class ElementsSetup extends Setup<typoElements> {
     const controls = await this._controlsSetup.complete();
     const chatControls = await this._chatControlsSetup.complete();
     const toastContainer = await this._toastSetup.complete();
-    return getElements(panels, toolbar, controls, toastContainer, chatControls);
+    const customizerActions = await this._customizerIconsSetup.complete();
+    return getElements(panels, toolbar, controls, toastContainer, chatControls, customizerActions);
   }
 }
