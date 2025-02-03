@@ -1,5 +1,5 @@
 Canvas Zoom lets you zoom the drawing canvas, so you can work on details more easily. <br>
-To start zooming, press the "Zoom Start" hotkey and click somewhere on the canvas while holding the hotkey. <br>
-The center of the zoomed area will be where you clicked. <br><br>
+To start zooming, press the "Zoom Toggle" hotkey.<br>
+The center of the zoomed area will be at your last mouse position. The mouse has to be on the canvas when you enable zoom. <br><br>
 To adjust the zoom level, you can press the Zoom Level hotkeys.<br>
-You can exit the zoom like you entered it, by pressing the "Zoom Start" hotkey and clicking somewhere on the canvas. <br>
+You can exit the zoom by pressing the "Zoom Toggle" hotkey again. <br>

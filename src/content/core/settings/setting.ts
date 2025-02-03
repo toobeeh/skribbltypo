@@ -1,7 +1,7 @@
 import type { TypoFeature } from "@/content/core/feature/feature";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { fromObservable } from "@/util/store/fromObservable";
-import { BehaviorSubject, of, switchMap } from "rxjs";
+import { BehaviorSubject, from, of, switchMap } from "rxjs";
 import BooleanSettingInput from "@/lib/settings/boolean-setting-input.svelte";
 import NumericSettingInput from "@/lib/settings/numeric-setting-input.svelte";
 import ChoiceSettingInput from "@/lib/settings/choice-setting-input.svelte";
@@ -75,7 +75,7 @@ export class ExtensionSetting<TValue extends serializable> {
 
   public get changes$() {
     return this._changes.pipe(
-      switchMap((data) => data === null ? this.getValue() : of(data))
+      switchMap((data) => data === null ? from(this.getValue()) : of(data))
     );
   }
 

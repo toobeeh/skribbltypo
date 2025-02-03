@@ -1,6 +1,7 @@
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { ImageResetEventListener } from "@/content/events/image-reset.event";
+import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import type { componentData } from "@/content/services/modal/modal.service";
@@ -11,9 +12,9 @@ import {
 import { inject } from "inversify";
 import {
   BehaviorSubject,
-  combineLatestWith, distinctUntilChanged, filter, map, mergeWith,
+  combineLatestWith, distinctUntilChanged, filter, mergeWith,
   pairwise,
-  type Subscription, tap, withLatestFrom,
+  type Subscription, take, tap, withLatestFrom,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import CanvasZoomInfo from "./canvas-zoom-info.svelte";
@@ -23,6 +24,7 @@ export class CanvasZoomFeature extends TypoFeature {
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(PrioritizedCanvasEventsSetup) private readonly _prioritizedCanvasEventsSetup!: PrioritizedCanvasEventsSetup;
   @inject(LobbyStateChangedEventListener) private readonly _lobbyStateChangedEventListener!: LobbyStateChangedEventListener;
+  @inject(LobbyLeftEventListener) private readonly _lobbyLeftEventListener!: LobbyLeftEventListener;
   @inject(ImageResetEventListener) private readonly _imageResetEventListener!: ImageResetEventListener;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
 
@@ -38,15 +40,26 @@ export class CanvasZoomFeature extends TypoFeature {
     .withName("Zoom Only When Drawing")
     .withDescription("Only allow start zooming with the hotkey when you're currently drawing"));
 
-  private readonly _startZoomHotkey = this.useHotkey(new HotkeyAction(
-    "start_zoom",
-    "Start Zoom",
-    "While pressed, a click on the canvas will start zooming",
+  private readonly _toggleZoomHotkey = this.useHotkey(new HotkeyAction(
+    "toggle_zoom",
+    "Toggle Zoom",
+    "Toggles canvas zooming on or off",
     this,
-    () => this._zoomListenToggle$.next(true),
+    () => {
+      this._currentMouseoverCoordinates$.pipe(
+        withLatestFrom(this._zoomActive$.pipe(tap(() => console.log("active"))), this._enableOnlyWhenDrawingSetting.changes$.pipe(tap(() => console.log("setting"))), this._lobbyService.lobby$.pipe(tap(() => console.log("lobby")))),
+        take(1),
+      ).subscribe(([coords, active, onlyWhenDrawing, lobby]) => {
+        if(onlyWhenDrawing && (lobby === null || lobby.drawerId !== lobby.meId)) {
+          this._zoomActive$.next(false);
+        }
+        else {
+          this._zoomActive$.next((active !== false || coords === null) ? false : coords);
+        }
+      });
+    },
     true,
-    ["ControlLeft"],
-    () => this._zoomListenToggle$.next(false)
+    ["ControlLeft"]
   ));
 
   private readonly _zoomLevelHotkeys = [1,2,3,4,5].map(level => this.useHotkey(new HotkeyAction(
@@ -59,92 +72,64 @@ export class CanvasZoomFeature extends TypoFeature {
     [`Digit${level}`],
   )));
 
-  private _zoomListenToggle$ = new BehaviorSubject<boolean>(false);
+  private _currentMouseoverCoordinates$ = new BehaviorSubject<[number, number] | null>(null);
   private _zoomActive$ = new BehaviorSubject<[number, number] | false>(false);
   private _zoomLevel$ = new BehaviorSubject<number>(1);
   private _toastHandle?: stickyToastHandle;
   private _zoomStateSubscription?: Subscription;
+  private _zoomResetSubscription?: Subscription;
   private _zoomStyle?: CSSStyleSheet;
 
-  private readonly _canvasClickListener = this.onCanvasClick.bind(this);
+  private readonly _canvasPointermoveListener = this.onCanvasPointermove.bind(this);
+  private readonly _canvasPointeroutListener = this.onCanvasPointerout.bind(this);
 
   protected override async onActivate() {
     const { add } =  await this._prioritizedCanvasEventsSetup.complete();
-    add("preDraw")("pointerdown", this._canvasClickListener);
+    add("postDraw")("pointermove", this._canvasPointermoveListener);
+    add("postDraw")("pointerout", this._canvasPointeroutListener);
 
     this._zoomStyle = new CSSStyleSheet();
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, this._zoomStyle];
 
-    const zoomTogglePipe$ = this._zoomListenToggle$.pipe(
-
-      /* only allow activation when currently drawing */
-      withLatestFrom(this._lobbyService.lobby$, this._enableOnlyWhenDrawingSetting.changes$),
-      filter(([active, lobby, onlyWhenDrawing]) => !active || !onlyWhenDrawing || lobby !== null && lobby.drawerId === lobby.meId),
-      map(([active]) => active),
-      distinctUntilChanged(),
-      tap(active => this._logger.info("Zoom activation", active)),
-    );
-
-    /* pipe that combines manual enable/disable with events that trigger disable */
-    const zoomActivePipe$ = this._zoomActive$.pipe(
-
-      /* only allow activation when listening*/
-      withLatestFrom(zoomTogglePipe$),
-      filter(([active, listening]) => !active || listening),
-      map(([active]) => active),
-
+    /* reset zoom */
+    this._zoomResetSubscription = this._imageResetEventListener.events$.pipe( /* on image clear */
       mergeWith(
-        /* reset when drawing started / ended */
-        this._lobbyStateChangedEventListener.events$.pipe(
+        this._lobbyStateChangedEventListener.events$.pipe( /* when drawing revealed or started */
           filter(
             (event) =>
               event.data.drawingRevealed !== undefined ||
               event.data.drawingStarted !== undefined,
-          ),
-          map(() => "reset" as const),
+          )
         ),
+        this._lobbyLeftEventListener.events$ /* when leaving the lobby */
+      )
+    ).subscribe(() => {
+      this._zoomActive$.next(false);
+    });
 
-        /* reset drawing on clear */
-        this._imageResetEventListener.events$.pipe(
-          filter((event) => event.data === 0),
-          map(() => "reset" as const),
-        ),
-      ),
-
-      /* emit to source if reset detected */
-      tap(data => {
-        if (data === "reset") {
-          this._zoomActive$.next(false);
-          this._logger.info("Resetting zoom state");
-        }
-      }),
-
-      /* map reset signal out */
-      filter(data => data !== "reset"),
+    this._zoomStateSubscription = this._zoomActive$.pipe(
       distinctUntilChanged(),
-
-      tap(active => this._logger.info("Zoom active state", active))
-    );
-
-    this._zoomStateSubscription = zoomTogglePipe$.pipe(
-      combineLatestWith(zoomActivePipe$, this._zoomLevel$),
+      combineLatestWith(this._zoomLevel$),
       pairwise()
     ).subscribe(state => this.processZoomStateUpdate(state));
   }
 
   protected override async onDestroy() {
     const { remove } = await this._prioritizedCanvasEventsSetup.complete();
-    remove("pointerdown", this._canvasClickListener);
+    remove("pointermove", this._canvasPointermoveListener);
+    remove("pointerout", this._canvasPointeroutListener);
 
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter(s => s !== this._zoomStyle);
     this._zoomStyle = undefined;
 
     this._toastHandle?.close();
     this._zoomStateSubscription?.unsubscribe();
+    this._zoomResetSubscription?.unsubscribe();
     this._zoomStateSubscription = undefined;
+    this._zoomResetSubscription = undefined;
     this._toastHandle = undefined;
     this._zoomActive$.next(false);
-    this._zoomListenToggle$.next(false);
+    this._currentMouseoverCoordinates$.next(null);
   }
 
   private async setZoom(level: number | undefined, position: [number, number] | undefined){
@@ -176,25 +161,41 @@ export class CanvasZoomFeature extends TypoFeature {
     `);
   }
 
-  private onCanvasClick(event: MouseEvent){
-    this._logger.debug("Canvas clicked", event);
-    if(this._zoomListenToggle$.value) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      const next = this._zoomActive$.value === false;
-      if(next) this._zoomLevel$.next(1);
-      this._zoomActive$.next(next ? [event.offsetX , event.offsetY] : false);
-      return false;
-    }
+  private onCanvasPointermove(event: MouseEvent){
+     if(this._zoomActive$.value === false) this._currentMouseoverCoordinates$.next([event.offsetX, event.offsetY]);
   }
 
-  private async processZoomStateUpdate([[prevListening, prevActive, prevLevel], [listening, active, level]]: [[boolean, false | [number, number], number], [boolean, false | [number, number], number]]){
-    this._logger.debug("Zoom state processing", { prevListening, prevActive, prevLevel }, { listening, active, level }, this._toastHandle);
+  private onCanvasPointerout(){
+    this._currentMouseoverCoordinates$.next(null);
+  }
+
+  private async processZoomStateUpdate([[prevState, prevLevel], [state, level]]: [[false | [number, number], number], [false | [number, number], number]]){
+    this._logger.debug("Zoom state processing", {prevState, prevLevel}, {state, level}, this._toastHandle);
 
     /* update canvas element */
-    await this.setZoom(active !== false ? level : undefined, active !== false ? active : undefined);
+    await this.setZoom(state !== false ? level : undefined, state !== false ? state : undefined);
 
-    /* if not active and not yet changed, but listening, and previously not listening show toast with initial message */
+    /* if just triggered, show toast */
+    if(state && !prevState){
+      if(this._toastHandle !== undefined){
+        this._logger.warn("Toast handle unexpected existing when just triggered");
+        this._toastHandle.close();
+      }
+      this._toastHandle = await this._toastService.showStickyToast("Canvas zoom", "Click one of the zoom level hotkeys to set the zoom level");
+    }
+
+    /* if just stopped, remove toast */
+    if(!state && prevState){
+      if(this._toastHandle === undefined){
+        this._logger.warn("Toast handle unexpected not existing when just stopped");
+      }
+      this._toastHandle?.close();
+      this._toastHandle = undefined;
+    }
+
+    return;
+
+    /*/!* if not active and not yet changed, but listening, and previously not listening show toast with initial message *!/
     if(active === false && prevActive === false && listening && !prevListening) {
       if(this._toastHandle !== undefined){
         this._logger.warn("Toast handle unexpected existing when not active and listening");
@@ -203,7 +204,7 @@ export class CanvasZoomFeature extends TypoFeature {
       this._toastHandle = await this._toastService.showStickyToast("Starting Zoom", "Click on the canvas to start zooming");
     }
 
-    /* if stopped listening and not active (not entered), or not active changed and toast existent, remove toast */
+    /!* if stopped listening and not active (not entered), or not active changed and toast existent, remove toast *!/
     else if(!listening && prevListening && active === false && prevActive === false || active === false && prevActive !== false) {
       if(!this._toastHandle && !active && prevActive !== false) {
         this._logger.warn("Toast handle unexpected not existing when ended active", { listening, active, level });
@@ -212,7 +213,7 @@ export class CanvasZoomFeature extends TypoFeature {
       this._toastHandle = undefined;
     }
 
-    /* if active and not yet changed and listening and previously not listening, show hint to stop zooming */
+    /!* if active and not yet changed and listening and previously not listening, show hint to stop zooming *!/
     else if(active !== false && prevActive !== false && listening && !prevListening){
       if(this._toastHandle === undefined){
         this._logger.error("Toast handle unexpected not existing when active and listening");
@@ -221,9 +222,9 @@ export class CanvasZoomFeature extends TypoFeature {
       this._toastHandle.update("Stopping Zoom", "Click on the canvas to exit zooming");
     }
 
-    /* if active show zoom level message */
+    /!* if active show zoom level message *!/
     else if(active !== false){
-      if(this._toastHandle === undefined){ /* when zoom is re-triggered without releasing hotkey*/
+      if(this._toastHandle === undefined){ /!* when zoom is re-triggered without releasing hotkey*!/
         this._toastHandle = await this._toastService.showStickyToast("Starting Zoom", "Click on the canvas to start zooming");
       }
       this._toastHandle.update("Canvas Zoom Active", `Current zoom level: ${level}`);
@@ -233,7 +234,7 @@ export class CanvasZoomFeature extends TypoFeature {
       this._logger.warn("Toast handle unexpected existing when in inactive catch-all state");
       this._toastHandle.close();
       this._toastHandle = undefined;
-    }
+    }*/
   }
 
   public get onlyWhenDrawingStore(){
