@@ -20,5 +20,6 @@
   <FlatButton content="Download PNG" color="green" on:click={() => feature.saveAsPng()}  />
   <FlatButton content="Download GIF" color="green" on:click={() => feature.saveAsGif()} />
   <FlatButton content="Download Draw Progress" color="green" on:click={() => feature.saveAsDrawCommands()} />
+  <FlatButton content="Copy to Clipboard" color="blue" on:click={() => feature.saveToClipboard()}  />
   <FlatButton content="Save in Cloud" color="blue" on:click={() => feature.saveInCloud()} />
 </div>

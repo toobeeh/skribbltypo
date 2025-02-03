@@ -1,6 +1,7 @@
 import { ExtensionCommand } from "@/content/core/commands/command";
 import { StringOptionalCommandParameter } from "@/content/core/commands/params/string-optional-command-parameter";
 import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
+import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ImageFinishedService } from "@/content/services/image-finished/image-finished.service";
@@ -9,6 +10,7 @@ import { MemberService } from "@/content/services/member/member.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import { copyBlobToClipboard } from "@/util/clipboard";
 import { downloadBlob, downloadText } from "@/util/download";
 import { inject } from "inversify";
 import { catchError, combineLatest, map, of, Subscription, take, withLatestFrom } from "rxjs";
@@ -57,6 +59,17 @@ export class ToolbarSaveFeature extends TypoFeature {
       return new InterpretableSilentSuccess(command);
     })
   );
+
+  private readonly _copyHotkey = this.useHotkey(
+    new HotkeyAction(
+      "save",
+      "Copy to Clipboard",
+      "Copy the current image to the clipboard",
+      this,
+      () => this.saveToClipboard(),
+      true,
+      ["ControlLeft", "KeyC"]
+    ));
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -172,6 +185,30 @@ export class ToolbarSaveFeature extends TypoFeature {
       const drawer = lobby.players.find(player => player.id === meta.drawerId)?.name ?? "unknown";
       downloadBlob(blob, (this._customName ?? `skribbl-${meta.word.hints}-by-${drawer}`) + ".png");
       toast.resolve();
+    });
+  }
+
+  async saveToClipboard(){
+    this._logger.debug("Saving to clipboard");
+
+    const toast = await this._toastService.showLoadingToast("Saving image to clipboard");
+    combineLatest({
+      blob: fromPromise(this._drawingService.getCurrentImageData()).pipe(map(data => data.blob))
+    }).pipe(
+      catchError(err => {
+        this._logger.error("Failed to copy image", err);
+        toast.reject();
+        throw err;
+      })
+    ).subscribe(async ({ blob }) => {
+      try {
+        await copyBlobToClipboard(blob);
+        toast.resolve();
+      }
+      catch(err){
+        this._logger.error("Failed to copy image", err);
+        toast.reject("Failed to copy image");
+      }
     });
   }
 
