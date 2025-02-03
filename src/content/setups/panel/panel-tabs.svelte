@@ -20,6 +20,14 @@
     display:none;
   }
 
+  :global(#home .panel.panel-right){
+    margin-left: 20px; /* like skribbl info panels below */
+  }
+
+  :global(#home .panel.panel-left){
+    margin-right: 20px; /* like skribbl info panels below */
+  }
+
   :global(#home .panel.typo-panel) {
       flex: 0 0 400px;
       max-height: calc(400px - 2em);
