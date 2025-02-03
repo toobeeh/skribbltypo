@@ -39,7 +39,7 @@ export class ToolbarSaveFeature extends TypoFeature {
   private _customName?: string;
 
   public set customName(value: string | undefined){
-    const val = value?.replace(/[^a-z0-9]/gi, "_").toLowerCase() ?? undefined;
+    const val = value?.replace(/[^a-z0-9]/gi, "_") ?? undefined;
     this._customName = val && val.length > 0 ? val : undefined;
   }
 
