@@ -149,6 +149,11 @@ export class ChatQuickReactFeature extends TypoFeature {
     this._rateInteractionsStyle.remove();
   }
 
+  private async hideGameRate(){
+    const elements = await this._elements.complete();
+    elements.gameRate.style.display = "none";
+  }
+
   async toggleQuickReactMenu() {
     if (this._flyoutComponent) {
       this._flyoutComponent.close();
@@ -216,6 +221,7 @@ export class ChatQuickReactFeature extends TypoFeature {
     }
 
     await this._lobbyInteractionsService.likePlayer();
+    await this.hideGameRate();
     toast.resolve(`Liked the drawing of ${player.name}`);
   }
 
@@ -234,6 +240,7 @@ export class ChatQuickReactFeature extends TypoFeature {
     }
 
     await this._lobbyInteractionsService.dislikePlayer();
+    await this.hideGameRate();
     toast.resolve(`Disliked the drawing of ${player.name}`);
   }
 
