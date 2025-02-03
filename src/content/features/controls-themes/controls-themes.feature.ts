@@ -90,7 +90,7 @@ export class ControlsThemesFeature extends TypoFeature {
     });
   }
 
-  protected override onDestroy(): Promise<void> | void {
+  protected override async onDestroy(): Promise<void> {
     this._iconComponent?.$destroy();
     this._iconClickSubscription?.unsubscribe();
     this._iconClickSubscription = undefined;
@@ -98,6 +98,7 @@ export class ControlsThemesFeature extends TypoFeature {
     this._themeResetSubscription = undefined;
     this._currentThemeSubscription?.unsubscribe();
     this._currentThemeSubscription = undefined;
+    await this.setThemeElements(undefined);
   }
 
   public get savedThemesStore() {
