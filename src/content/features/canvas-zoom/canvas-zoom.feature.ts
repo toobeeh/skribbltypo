@@ -14,7 +14,7 @@ import {
   BehaviorSubject,
   combineLatestWith, distinctUntilChanged, filter, mergeWith,
   pairwise,
-  type Subscription, take, tap, withLatestFrom,
+  type Subscription, take,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import CanvasZoomInfo from "./canvas-zoom-info.svelte";
