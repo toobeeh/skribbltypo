@@ -8,7 +8,7 @@
   export const getSprites = () => sprites;
 
   $: {
-    playerDisplay.resizeToFitAvatar = sprites.length > 0;
+    playerDisplay.adjustToContainSprites = sprites.length > 0;
     playerDisplay.hideAvatar = sprites.some(sprite => sprite.sprite.isSpecial);
   }
 
@@ -19,7 +19,7 @@
   }
 
   onDestroy(() => {
-    playerDisplay.resizeToFitAvatar = false;
+    playerDisplay.adjustToContainSprites = false;
   });
 </script>
 

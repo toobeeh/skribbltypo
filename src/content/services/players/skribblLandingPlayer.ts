@@ -40,7 +40,7 @@ export class SkribblLandingPlayer implements SkribblPlayerDisplay {
     /* no implementation */
   }
 
-  set resizeToFitAvatar(value: boolean) {
+  set adjustToContainSprites(value: boolean) {
     /* no implementation */
   }
 

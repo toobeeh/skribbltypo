@@ -55,7 +55,7 @@ export interface SkribblPlayerDisplay {
    * Modify the container to fit a modified avatar size (eg sprites)
    * @param value
    */
-  set resizeToFitAvatar(value: boolean);
+  set adjustToContainSprites(value: boolean);
 
   /**
    * Toggle the visibility of the lobby player Id

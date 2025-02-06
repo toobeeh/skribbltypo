@@ -28,6 +28,7 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   private _fontColorGuessedRuleIndex: number | undefined;
   private _fontShadowRuleIndex: number | undefined;
   private _resizeRuleIndex: number | undefined;
+  private _elevateDrawingRuleIndex: number | undefined;
   private _alignRuleIndex: number | undefined;
   private _playerIdRuleIndex: number | undefined;
   private _playerInfoRuleIndex: number | undefined;
@@ -108,7 +109,7 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
     );
   }
 
-  public set resizeToFitAvatar(value: boolean) {
+  public set adjustToContainSprites(value: boolean) {
     this._resizeRuleIndex = replaceOrAddCssRule(this._playerStyle,
       value ? `.${this._elementId} { height: 56px !important; }` : undefined,
       this._resizeRuleIndex
@@ -117,6 +118,11 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
     this._alignRuleIndex = replaceOrAddCssRule(this._playerStyle,
       value ? `.${this._elementId} .player-avatar-container { top: calc((100% - var(--UNIT)) / 2) !important; }` : undefined,
       this._alignRuleIndex
+    );
+
+    this._elevateDrawingRuleIndex = replaceOrAddCssRule(this._playerStyle,
+      value ? `#game-players .${this._elementId} .player-avatar-container .avatar .drawing { z-index: 100; }` : undefined,
+      this._elevateDrawingRuleIndex
     );
   }
 
