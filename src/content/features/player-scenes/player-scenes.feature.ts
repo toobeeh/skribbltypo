@@ -104,6 +104,7 @@ export class PlayerScenesFeature extends TypoFeature {
       const sceneUpdated = container.getScene()?.scene.id !== scene?.scene.id || container.getScene()?.shift !== scene?.shift;
 
       if(sceneUpdated){
+        this._logger.info("Updating scene for player", player, scene, playerItems);
         container.$set({ scene: scene });
       }
     }

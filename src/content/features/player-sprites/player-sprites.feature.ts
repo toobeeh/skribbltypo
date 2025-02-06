@@ -101,6 +101,7 @@ export class PlayerSpritesFeature extends TypoFeature {
       });
 
       if (slotsUpdated) {
+        this._logger.info("Updating sprite slots for player", player, slots, playerItems);
         container.$set({ sprites: slots });
       }
     }
