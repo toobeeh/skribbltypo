@@ -1,7 +1,18 @@
-import App from "./Popup.svelte";
+import Popup from "./Popup.svelte";
 
-const app = new App({
-  target: document.getElementById("app") ?? document,
+const popup = new Popup({
+  target: document.body,
+  props: {
+    mode: "external"
+  },
 });
 
-export default app;
+/* check if skribbl currently active */
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  if(tabs.length > 0 && tabs[0].url !== undefined) {
+    const url = URL.parse(tabs[0].url);
+    if(url?.hostname === "skribbl.io") {
+      popup.$set({ mode: "skribbl" });
+    }
+  }
+});
