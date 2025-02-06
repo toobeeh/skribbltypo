@@ -1,7 +1,7 @@
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import "./loader.scss";
 
-document.documentElement.dataset["typo_loading_screen"] = !(
+document.documentElement.dataset["typo_loading_screen_disabled"] = (
   window.location.pathname === "/terms" || window.location.pathname === "/credits"
 ) + "";
 
