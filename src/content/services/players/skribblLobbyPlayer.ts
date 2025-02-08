@@ -88,21 +88,21 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
 
   public set useSafeColor(value: boolean) {
     this._fontColorRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
-      .${this._elementId}:not(.guessed) > :not(.player-bubble) * { 
+      .${this._elementId}:not(.guessed) > :not(.player-bubble) *, .${this._elementId}:not(.guessed) .player-info:after { 
         color: White !important; 
       }` : undefined,
       this._fontColorRuleIndex
     );
 
     this._fontColorGuessedRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
-      .${this._elementId}:is(.guessed) > :not(.player-bubble) * { 
+      .${this._elementId}:is(.guessed) > :not(.player-bubble) *, .${this._elementId}:is(.guessed) .player-info:after { 
         color: #56ce27 !important;
       }` : undefined,
       this._fontColorGuessedRuleIndex
     );
 
     this._fontShadowRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
-      .${this._elementId} > :not(.player-bubble) * { 
+      .${this._elementId} > :not(.player-bubble) *, .${this._elementId} .player-info:after { 
         text-shadow: 0px 0px 25px black, 0px 0px 10px black, 0px 0px 5px black !important;
       }` : undefined,
       this._fontShadowRuleIndex

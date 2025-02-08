@@ -2,16 +2,22 @@ export const replaceOrAddCssRule = (styleSheet: HTMLStyleElement, cssText: strin
   if (cssText === undefined) {
     if (index !== undefined) {
       const rule = styleSheet.sheet?.cssRules[index];
-      if(rule) rule.cssText = ".placeholder-empty-rule:not(*) {color: unset;}";
+      if(rule) {
+        styleSheet.sheet?.deleteRule(index);
+        styleSheet.sheet?.insertRule(".placeholder-empty-rule:not(*) {color: unset;}", index);
+      }
     }
-    return undefined;
+    return index;
   }
 
   if (index !== undefined) {
     const rule = styleSheet.sheet?.cssRules[index];
-    if(rule) rule.cssText = cssText;
+    if(rule) {
+      styleSheet.sheet?.deleteRule(index);
+      styleSheet.sheet?.insertRule(cssText, index);
+    }
     return index;
   }
 
-  return styleSheet.sheet?.insertRule(cssText);
+  return styleSheet.sheet?.insertRule(cssText, styleSheet.sheet?.cssRules.length);
 };
