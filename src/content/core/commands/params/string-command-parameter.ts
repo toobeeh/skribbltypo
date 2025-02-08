@@ -9,15 +9,29 @@ export class StringCommandParameter<TSource, TMapped> extends ExtensionCommandPa
     super(name, description);
   }
 
-  public readonly typeName = "word";
+  public readonly typeName = "text";
+  public readonly typeDescription = "a single word or text wrapped in quotes";
 
   protected readArg(args: string): { argument: TMapped; remainder: string } {
 
     /* get next arg */
-    const split = args.trim().split(" ");
+    const regex = /^\s*(["'])(.*?)\1/;
+
+    let arg = "";
+    let remainder = "";
+    const matchQuoted = args.trim().match(regex);
+
+    if(matchQuoted !== null){
+      arg = matchQuoted[2];
+      remainder = args.trim().slice(matchQuoted[0].length).trim();
+    }
+    else {
+      const split = args.trim().split(" ");
+      arg = split[0].trim();
+      remainder = split.slice(1).join(" ");
+    }
 
     /* check if whitespace */
-    const arg = split[0].trim();
     if(arg.length < 1 ){
       throw new InterpretableEmptyRemainder(this);
     }
@@ -26,7 +40,6 @@ export class StringCommandParameter<TSource, TMapped> extends ExtensionCommandPa
     const argument = this._mapping(arg);
 
     /* return with remainder args */
-    const remainder = split.slice(1).join(" ");
     return { remainder, argument };
   }
 }

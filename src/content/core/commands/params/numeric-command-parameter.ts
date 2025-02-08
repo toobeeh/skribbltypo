@@ -14,6 +14,7 @@ export class NumericCommandParameter<TSource, TMapped> extends ExtensionCommandP
   }
 
   public readonly typeName = "number";
+  public readonly typeDescription = "any number";
 
   protected readArg(args: string): { argument: TMapped; remainder: string } {
 

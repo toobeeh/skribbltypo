@@ -13,6 +13,7 @@ export class NumericOptionalCommandParameter<TSource, TMapped> extends Extension
   }
 
   public readonly typeName = "number?";
+  public readonly typeDescription = "empty or any number";
 
   protected readArg(args: string, dontMarkAsInterpreting: () => void): { argument: TMapped; remainder: string } {
 

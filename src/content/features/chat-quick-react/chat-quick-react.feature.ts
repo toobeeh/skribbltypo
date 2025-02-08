@@ -1,5 +1,6 @@
 import { ExtensionCommand } from "@/content/core/commands/command";
 import { NumericOptionalCommandParameter } from "@/content/core/commands/params/numeric-optional-command-parameter";
+import { StringOptionalCommandParameter } from "@/content/core/commands/params/string-optional-command-parameter";
 import { InterpretableError } from "@/content/core/commands/results/interpretable-error";
 import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
@@ -46,7 +47,7 @@ export class ChatQuickReactFeature extends TypoFeature {
   });
 
   private readonly _kickCommand = this.useCommand(
-    new ExtensionCommand("kick", this, "Votekick", "Kick the current (default) or another player"),
+    new ExtensionCommand("kick", this, "Votekick by ID", "Kick the current (default) or another player by ID"),
   ).withParameters(params => params
     .addParam(new NumericOptionalCommandParameter("Player ID", "The ID of the player to votekick, leave empty for current drawer", id => ({ id })))
     .run(async (args, command) => {
@@ -64,6 +65,28 @@ export class ChatQuickReactFeature extends TypoFeature {
       const target = lobby?.players.find(player => player.id === args.id);
       if(target === undefined && args.id !== undefined) return new InterpretableError(command, "Selected player not found");
       else if (target === undefined) return new InterpretableError(command, "No default player to votekick");
+
+      await this.votekickPlayer(target);
+      return new InterpretableSilentSuccess(command);
+    })
+  );
+
+  private readonly _kickByNameCommand = this.useCommand(
+    new ExtensionCommand("kick", this, "Votekick by name", "Kick the current (default) or another player by name"),
+  ).withParameters(params => params
+    .addParam(new StringOptionalCommandParameter("Player Name", "The name of the player to votekick", name => ({ name })))
+    .run(async (args, command) => {
+      const lobby = await firstValueFrom(this._lobbyService.lobby$);
+
+      /* find player by name, or default current drawer */
+      const target = args.name === undefined ? lobby?.players.find(p => p.id === lobby?.drawerId) : lobby?.players.find(player => player.name.toLowerCase() === args.name?.toLowerCase());
+      if(target === undefined && args.name !== undefined) return new InterpretableError(command, "Selected player not found");
+      else if (target === undefined) return new InterpretableError(command, "No default player to votekick");
+
+      /* check if current player is self */
+      if(target.id === lobby?.meId) {
+        return new InterpretableError(command, "You can't votekick yourself :(");
+      }
 
       await this.votekickPlayer(target);
       return new InterpretableSilentSuccess(command);
@@ -246,7 +269,7 @@ export class ChatQuickReactFeature extends TypoFeature {
 
   public async votekickPlayer(player: skribblPlayer | undefined) {
 
-    const toast = await this._toastService.showLoadingToast("Voting to kick current player");
+    const toast = await this._toastService.showLoadingToast(`Voting to kick ${player === undefined ? "current player" : player.name}`);
 
     try {
       const targetPlayer = await this.getCurrentInteractionPlayer(interactions => interactions.votekickAvailable);

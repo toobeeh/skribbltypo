@@ -59,14 +59,17 @@
       }
 
       .typo-command-result-description {
-
+        .typo-command-result-param-type {
+          display: block;
+          opacity: .7;
+        }
       }
 
       .typo-command-result-state {
         display: flex;
         gap: .5rem;
         align-items: center;
-        margin-top: .5rem;
+        margin-top: .3rem;
         opacity: .7;
 
         img {
@@ -105,15 +108,23 @@
         <div class="typo-command-result-description">
           {#if result.context.currentInterpretedParameter === undefined}
             {result.context.command.description}
-          {:else}
-            <b>{result.context.currentInterpretedParameter.name}:</b> {result.context.currentInterpretedParameter.description}
+          {:else if !feature.otherHasExecutionTarget(result, $currentCommands)}
+            <b>{result.context.currentInterpretedParameter.name}:</b> {result.context.currentInterpretedParameter.description}<br>
+            <span class="typo-command-result-param-type">
+              <b>Content: </b>{result.context.currentInterpretedParameter.typeDescription}
+            </span>
           {/if}
         </div>
 
         {#if !(result.result instanceof InterpretableCommandPartialMatch)}
           <div class="typo-command-result-state">
-            <img src="" alt="icon" style="content: var(--{feature.isValidCommand(result) ? 'file-img-enabled-gif' : 'file-img-disabled-gif'})">
-            <span>{feature.getResultStateMessage(result, $combo)}</span>
+            {#if feature.otherHasExecutionTarget(result, $currentCommands)}
+              <span>Another command is prioritized</span>
+            {:else }
+              <img src="" alt="icon" style="content: var(--{feature.isValidCommand(result) ? 'file-img-enabled-gif' : 'file-img-disabled-gif'})">
+              <span>{feature.getResultStateMessage(result, $combo)}</span>
+            {/if}
+
           </div>
         {/if}
 

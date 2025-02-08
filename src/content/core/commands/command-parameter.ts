@@ -35,6 +35,7 @@ export abstract class ExtensionCommandParameter<TSource, TParam>
   }
 
   public abstract readonly typeName: string;
+  public abstract readonly typeDescription: string;
 
   /**
    * Set the action to be executed after interpretation

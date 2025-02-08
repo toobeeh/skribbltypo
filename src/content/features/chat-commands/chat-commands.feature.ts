@@ -1,8 +1,10 @@
+import { ExtensionCommand } from "@/content/core/commands/command";
 import {
   type ExtensionCommandParameter,
 
 } from "@/content/core/commands/command-parameter";
 import { type CommandExecutionResult } from "@/content/core/commands/commands.service";
+import { StringCommandParameter } from "@/content/core/commands/params/string-command-parameter";
 import {
   InterpretableArgumentParsingError
 } from "@/content/core/commands/results/interpretable-argument-parsing-error";
@@ -67,6 +69,15 @@ export class ChatCommandsFeature extends TypoFeature {
       .withDescription("Set a custom prefix for chat commands that will trigger the command prompt, additionally to ' / '")
   );
 
+  private readonly _echoCommand = this.useCommand(
+    new ExtensionCommand("echo", this, "Echo", "Echo a text :)"),
+  ).withParameters(params => params
+    .addParam(new StringCommandParameter("text", "The text to echo", text => ({text})))
+    .run(async ({text}, command) => {
+          return new InterpretableSuccess(command, text);
+    })
+  );
+
   protected override async onActivate() {
 
     const elements = await this._elements.complete();
@@ -98,7 +109,15 @@ export class ChatCommandsFeature extends TypoFeature {
       .subscribe((results) => {
         this._logger.debug("Command results changed", results);
         this.setFlyoutState(results.length > 0, elements);
-        this._commandResults$.next(results);
+        const sorted = [...results]
+          .sort((a, b) => {
+            const aIsSuccess = a.result instanceof InterpretableSuccess;
+            const bIsSuccess = b.result instanceof InterpretableSuccess;
+
+            if (aIsSuccess === bIsSuccess) return 0;
+            return aIsSuccess ? -1 : 1;
+          });
+        this._commandResults$.next(sorted);
       });
 
     /**
@@ -269,6 +288,16 @@ export class ChatCommandsFeature extends TypoFeature {
    */
   public isValidCommand(result: CommandExecutionResult) {
     return result.result instanceof InterpretableSuccess;
+  }
+
+  /**
+   * Check if there are other commands that are the current execution target
+   * @param result
+   * @param commands
+   */
+  public otherHasExecutionTarget(result: CommandExecutionResult, commands: CommandExecutionResult[]) {
+    const successes = commands.filter((command) => command.result instanceof InterpretableSuccess);
+    return successes.length == 0 || successes[0] !== result;
   }
 
   /**
