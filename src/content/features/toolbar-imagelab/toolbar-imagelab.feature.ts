@@ -8,6 +8,7 @@ import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
+import { downloadText } from "@/util/download";
 import { fromObservable } from "@/util/store/fromObservable";
 import { chooseFile } from "@/util/upload";
 import { inject } from "inversify";
@@ -179,6 +180,27 @@ export class ToolbarImageLabFeature extends TypoFeature {
       }
 
       this._drawCommandsService.saveDrawCommands(this._customName ?? state.word.hints, commands);
+    });
+  }
+
+  /**
+   * gets the draww commands of the current image and saves them locally as a file
+   */
+  public downloadCurrentDrawCommands(){
+    combineLatest({
+      commands: this._drawingService.commands$,
+      state: this._drawingService.imageState$
+    }).pipe(
+      take(1)
+    ).subscribe(({commands,  state}) => {
+      if(state === null) {
+        this._logger.warn("Attempted to save commands, but state null. In a lobby?");
+        throw new Error("state is null");
+      }
+
+      const name = this._customName ?? state.word.hints;
+      const json = JSON.stringify(commands);
+      downloadText(json, `${name}.skd`);
     });
   }
 

@@ -85,12 +85,13 @@
     </div>
   {/each}
 
-  <FlatButton content="Paste Image" color="blue" on:click={async () => {
+  <FlatButton content="Paste Image" color="green" on:click={async () => {
     const data = await feature.pickImageFromLocal();
     if(data != null) await feature.pasteImageToLocation(data);
   }} />
-  <FlatButton content="Load SKD File" color="green" on:click={() => feature.addDrawCommandsFromFile()} />
   <FlatButton content="Save Current Image" color="green" on:click={() => feature.saveCurrentDrawCommands()} />
+  <FlatButton content="Load SKD File" color="blue" on:click={() => feature.addDrawCommandsFromFile()} />
+  <FlatButton content="Download Current SKD" color="blue" on:click={() => feature.downloadCurrentDrawCommands()} />
   <input type="text" class="typo" placeholder="Custom save name" bind:value={feature.customName} />
   <Checkbox bind:checked={feature.clearBeforePaste} description="Clear before paste" />
 
