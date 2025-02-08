@@ -38,8 +38,8 @@
 
   .typo-awards-icon {
     position: absolute;
-    top: 4px;
-    left: 4px;
+    top: 60px;
+    right: 4px;
   }
 
   .typo-awards-presentation {
