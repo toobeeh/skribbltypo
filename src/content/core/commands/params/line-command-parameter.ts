@@ -9,6 +9,7 @@ export class LineCommandParameter<TSource, TMapped> extends ExtensionCommandPara
   }
 
   public readonly typeName = "text";
+  public readonly typeDescription = "any text";
 
   protected readArg(args: string): { argument: TMapped; remainder: string } {
 
