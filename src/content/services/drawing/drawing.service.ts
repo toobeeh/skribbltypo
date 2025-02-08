@@ -98,15 +98,23 @@ export class DrawingService {
       tap((command) => this.onDrawCommand(command)),
 
       /* count amount of pasted commands, reset when not drawing*/
-      mergeWith(this._pasteInProgress$),
+      mergeWith(this._pasteInProgress$.pipe(
+        distinctUntilChanged()
+      )),
       scan((acc, pastingOrCommands) => pastingOrCommands === false ? 0 : pastingOrCommands === true ? acc : acc + 1, 0),
-      filter(count => count > 0),
+      /*filter(count => count > 0),*/
+
+      /* inset when aborted to "finish" state even when no commands were pending */
+      mergeWith(this._abortCommands$.pipe(
+        distinctUntilChanged(),
+        map(() => 0)
+      )),
 
       /* after 50ms of no commands, treat as action */
       debounceTime(50),
     ).subscribe((count) => {
       this._logger.debug("finished pasting", count);
-      document.dispatchEvent(new CustomEvent("collapseUndoActions", { detail: count }));
+      if(count > 0) document.dispatchEvent(new CustomEvent("collapseUndoActions", { detail: count }));
       this._pasteInProgress$.next(false);
       this._abortCommands$.next(Number.MAX_VALUE);
     });
