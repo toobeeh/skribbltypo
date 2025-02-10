@@ -6,6 +6,7 @@ import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/wor
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
+import { CanvasCommandProcessor } from "@/util/gif/canvasCommandProcessor";
 import { ImageData } from "@/util/imageData";
 import { inject, injectable } from "inversify";
 import {
@@ -118,6 +119,21 @@ export class DrawingService {
       this._pasteInProgress$.next(false);
       this._abortCommands$.next(Number.MAX_VALUE);
     });
+
+    /*setTimeout(() => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 800;
+      canvas.height = 600;
+      document.body.appendChild(canvas);
+      const context = canvas.getContext("2d");
+      if(context){
+        const processor = new CanvasCommandProcessor(context);
+        this.draw.events$.subscribe(event => {
+          event.data.forEach(command => processor.processDrawCommand(command));
+        });
+      }
+    }, 2000);*/
+
   }
 
   private onDrawCommand(command: number[]) {

@@ -29,20 +29,19 @@ export default defineManifest({
       js: [
         "src/loader/loader.ts",
         "src/content/content.ts",
-        /*"src/content/pre-execution-block.ts"*/
       ],
       run_at: "document_start",
     },
-    /*{
+    {
       matches: ["https://skribbl.io/never"],
       js: [
-        "src/content/content.ts"
+        "src/util/gif/gifRenderer.ts"
       ]
-    }*/
+    }
   ],
   web_accessible_resources: [
     {
-      resources: ["icons/16Fit.png", "icons/32CircleFit.png", "icons/128MaxFit.png", "img/**"],
+      resources: ["icons/16Fit.png", "icons/32CircleFit.png", "icons/128MaxFit.png", "img/**", "assets/gifRenderer.ts.js"],
       matches: ["https://skribbl.io/*"],
     },
     {

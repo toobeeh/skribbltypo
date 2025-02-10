@@ -214,6 +214,31 @@ export class ToolbarSaveFeature extends TypoFeature {
 
   saveAsGif() {
     this._logger.debug("Saving as gif");
+
+    combineLatest({
+      commands: this._drawingService.commands$,
+      state: this._drawingService.imageState$
+    }).pipe(
+      take(1)
+    ).subscribe(async ({commands,  state}) => {
+      if(state === null) {
+        this._logger.warn("Attempted to save commands, but state null. In a lobby?");
+        throw new Error("state is null");
+      }
+
+
+      /* todo: build worker separately */
+      const url = chrome.runtime.getURL("assets/gifRenderer.ts.js");
+      const js = await(await fetch(url)).text();
+      const blob = new Blob([js], { type: "application/javascript" });
+      const worker = new Worker(URL.createObjectURL(blob));
+      worker.addEventListener("message", e => console.log(e));
+      worker.postMessage({ commands, duration: 5000 });
+
+
+      /*const gif = await createGif(commands, 5000);
+      console.log(gif);*/
+    });
   }
 
   async saveAsDrawCommands() {
