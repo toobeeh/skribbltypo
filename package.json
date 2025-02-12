@@ -11,8 +11,8 @@
   "scripts": {
     "dev": "vite build --watch --mode development",
     "dev-hmr": "vite",
-    "build-dev": "npm run lint && vite build --mode development",
-    "build-prod": "npm run lint && vite build --mode production",
+    "build-dev": "npm run generate:workers && npm run lint && vite build --mode development",
+    "build-prod": "npm run generate:workers && npm run lint && vite build --mode production",
     "fmt": "prettier --write '**/*.{svelte,ts,json,css,scss,md}'",
     "lint": "eslint . ",
     "generate:patch": "npx tsx patch/executePatch.ts",
