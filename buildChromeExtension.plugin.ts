@@ -10,6 +10,8 @@ import ManifestV3 = chrome.runtime.ManifestV3;
  * based on the crx plugin
  * extended to include css variables for all chrome accessible resource urls
  * @param options
+ * @param version
+ * @param buildCommit
  */
 export const buildChromeExtension = (
   options: ManifestV3Export,

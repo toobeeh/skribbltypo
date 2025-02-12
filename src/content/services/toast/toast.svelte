@@ -50,6 +50,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    white-space: preserve;
 
     &.closing {
       animation: slideOut 0.15s ease-out forwards;

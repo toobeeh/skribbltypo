@@ -12,6 +12,12 @@ import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { copyBlobToClipboard } from "@/util/clipboard";
 import { downloadBlob, downloadText } from "@/util/download";
+import {
+  type IGifRendererParent,
+  type IGifRendererWorker,
+} from "@/worker/gif-renderer/gif-renderer.worker";
+import { TypedWorkerExecutor } from "@/worker/typed-worker";
+import { gifRendererWorkerBase64 } from "@/worker/workers";
 import { inject } from "inversify";
 import { catchError, combineLatest, map, of, Subscription, take, withLatestFrom } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
@@ -212,32 +218,55 @@ export class ToolbarSaveFeature extends TypoFeature {
     });
   }
 
-  saveAsGif() {
+  async saveAsGif() {
     this._logger.debug("Saving as gif");
+    const toast = await this._toastService.showStickyToast("Generating GIF");
 
     combineLatest({
       commands: this._drawingService.commands$,
+      lobby: this._lobbyService.lobby$.pipe(take(1)),
       state: this._drawingService.imageState$
     }).pipe(
       take(1)
-    ).subscribe(async ({commands,  state}) => {
+    ).subscribe(async ({commands, lobby, state}) => {
       if(state === null) {
         this._logger.warn("Attempted to save commands, but state null. In a lobby?");
+        toast.resolve("No drawing active");
         throw new Error("state is null");
       }
 
+      if(!lobby) {
+        this._logger.error("Failed to get lobby, not joined?");
+        toast.resolve("Failed to get lobby details");
+        throw new Error("Not joined in lobby");
+      }
 
-      /* todo: build worker separately */
-      const url = chrome.runtime.getURL("assets/gifRenderer.ts.js");
-      const js = await(await fetch(url)).text();
-      const blob = new Blob([js], { type: "application/javascript" });
-      const worker = new Worker(URL.createObjectURL(blob));
-      worker.addEventListener("message", e => console.log(e));
-      worker.postMessage({ commands, duration: 5000 });
+      const progressBar = (progress: number) => {
+        const doneChar = "█";
+        const leftChar = "░";
+        const length = 10;
+        const done = Math.floor(progress * length);
+        const left = length - done;
+        return `${doneChar.repeat(done)}${leftChar.repeat(left)}`;
+      };
 
+      const drawer = lobby.players.find(player => player.id === state.drawerId)?.name ?? "unknown";
+      const name = this._customName ?? `skribbl-${state.word.hints}-by-${drawer}`;
 
-      /*const gif = await createGif(commands, 5000);
-      console.log(gif);*/
+      const workerBlob = new Blob([atob(gifRendererWorkerBase64)], { type: "application/javascript" });
+      const worker = new TypedWorkerExecutor<IGifRendererWorker, IGifRendererParent>(
+        URL.createObjectURL(workerBlob),
+        {
+          frameRendered: (index, total) => {
+            toast.update(`Rendering GIF..   ${progressBar(index / total)} (${Math.floor(index*100/total).toString().padStart(2, " ")}%)`);
+          }
+        }
+      );
+      const gif = await worker.run("renderGif", commands, 5000);
+      /*const gif = gifRendererWorker.renderGif(commands, 5000);*/
+
+      toast.resolve(`${name} rendered`, 3000);
+      downloadBlob(gif, `${name}.gif`);
     });
   }
 

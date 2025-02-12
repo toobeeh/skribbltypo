@@ -3,10 +3,8 @@ import { defineManifest } from "@crxjs/vite-plugin";
 /// @ts-expect-error errors in the IDE, but it's fine
 import packageData from "../package.json";
 
-const isDev = process.env.NODE_ENV == "development";
-
 export default defineManifest({
-  name: `${packageData.displayName || packageData.name}${isDev ? " ➡️ Dev" : ""}`,
+  name: `${packageData.displayName || packageData.name}`,
   description: packageData.description,
   version: packageData.version,
   manifest_version: 3,
@@ -35,13 +33,13 @@ export default defineManifest({
     {
       matches: ["https://skribbl.io/never"],
       js: [
-        "src/util/gif/gifRenderer.ts"
+        "src/worker/gif-renderer/gif-renderer.worker.ts"
       ]
     }
   ],
   web_accessible_resources: [
     {
-      resources: ["icons/16Fit.png", "icons/32CircleFit.png", "icons/128MaxFit.png", "img/**", "assets/gifRenderer.ts.js"],
+      resources: ["icons/16Fit.png", "icons/32CircleFit.png", "icons/128MaxFit.png", "img/**", "assets/*.worker.ts.js"],
       matches: ["https://skribbl.io/*"],
     },
     {

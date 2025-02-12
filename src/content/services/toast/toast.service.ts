@@ -14,6 +14,7 @@ export interface stickyToastHandle {
   close: () => void;
   update: (title?: string, content?: string) => void;
   closed$: Observable<void>;
+  resolve: (message?: string, timeout?: number) => void;
 }
 
 @injectable()
@@ -81,7 +82,11 @@ export class ToastService {
       update: (title?: string, content?: string) => {
         toast.$set({title, content});
       },
-      closed$: closed.asObservable()
+      closed$: closed.asObservable(),
+      resolve: (message?: string, timeout?: number) => {
+        toast.$set({showLoading: false, title: message ?? "Done"});
+        setTimeout(() => toast.close(), timeout ?? 3000);
+      }
     };
   }
 

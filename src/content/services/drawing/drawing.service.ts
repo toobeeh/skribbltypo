@@ -6,7 +6,6 @@ import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/wor
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { SkribblMessageRelaySetup } from "@/content/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
-import { CanvasCommandProcessor } from "@/util/gif/canvasCommandProcessor";
 import { ImageData } from "@/util/imageData";
 import { inject, injectable } from "inversify";
 import {

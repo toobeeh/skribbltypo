@@ -1,4 +1,4 @@
-import { applyPaletteSync, buildPaletteSync, utils as imageqUtils } from "image-q";
+import { Color } from "@/util/color";
 import { GifWriter } from "omggif";
 
 export class GifEncoder {
@@ -7,49 +7,58 @@ export class GifEncoder {
   private buffer: Uint8Array;
   private gifWriter: GifWriter;
   private frameCount = 0;
+  private colors: Map<string, { color: Color, index: number }>;
 
-  constructor() {
-    this.buffer = new Uint8Array(0);
-    this.gifWriter = new GifWriter([], this.width, this.height, { loop: 0 });
-  }
+  constructor(colorSet: Set<Color>, frameCount: number) {
+    this.buffer = new Uint8Array(this.width * this.height * 5 * frameCount);
+    this.gifWriter = new GifWriter(this.buffer, this.width, this.height, { loop: 1 });
 
-  private ensureBufferSize(requiredSize: number): void {
-    if (this.buffer.length < requiredSize) {
-      const newBuffer = new Uint8Array(requiredSize * 2);
-      newBuffer.set(this.buffer);
-      this.buffer = newBuffer;
-      this.gifWriter = new GifWriter(this.buffer, this.width, this.height, { loop: 0 });
-    }
-  }
+    const colorToKey = (color: Color) => color.rgbArray.slice(0,3).join(",");
 
-  addFrame(imageData: Uint8ClampedArray, delay: number): void {
-    // Convert RGBA to RGB (drop alpha)
-    const rgbData = new Uint8Array(this.width * this.height * 3);
-    for (let i = 0, j = 0; i < imageData.length; i += 4, j += 3) {
-      rgbData[j] = imageData[i];      // Red
-      rgbData[j + 1] = imageData[i + 1]; // Green
-      rgbData[j + 2] = imageData[i + 2]; // Blue
+    const white = Color.fromRgb(255, 255, 255);
+    this.colors = new Map(
+      colorSet.values().map((color, index) => [color.rgbArray.slice(0,3).toString(), { color, index }]),
+    );
+
+    if(!this.colors.has(colorToKey(white))){
+      this.colors.set(colorToKey(white), { color: white, index: this.colors.size });
     }
 
-    // Perform color quantization to get a 256-color palette
-    const container = imageqUtils.PointContainer.fromUint8Array(rgbData, this.width, this.height);
-    const palette = buildPaletteSync([container], {
-      colors: 256,
-      colorDistanceFormula: "euclidean",
-      paletteQuantization: "neuquant",
+    const nextPowerOfTwo = (n: number) => Math.pow(2, Math.ceil(Math.log2(n)));
+    const requiredSize = nextPowerOfTwo(this.colors.size);
+    if(this.colors.size < requiredSize){
+      const fill = new Array(requiredSize - this.colors.size).fill(white);
+      fill.forEach((color, index) => {
+        this.colors.set(`fill-${index}`, { color, index: this.colors.size });
+      });
+    }
+  }
+  
+  private get palette(){
+    return [...this.colors.values()].map(c => {
+      const rgb = c.color.rgbArray;
+      return rgb[2] | (rgb[1] << 8) | (rgb[0] << 16);
     });
-    const appliedContainer = applyPaletteSync(container, palette);
-    const indexedPixels = [...appliedContainer.toUint8Array()];
-    const paletteColors = appliedContainer.getPointArray().map((point) => point.rgba.slice(0, 3)).flat();
+  }
 
+  private mapToPaletteIndex(color: number[]){
+    return this.colors.get(color.toString())?.index ?? 0;
+  }
 
-    // Ensure buffer size before adding frame
-    this.ensureBufferSize(this.gifWriter.end() + this.width * this.height);
+  addFrame(imageData: Uint8ClampedArray, delayMs: number): void {
+
+    const palette = this.palette;
+    const indexedPixels = [];
+    for(let i = 0; i < imageData.length; i += 4){
+      const color = [imageData[i], imageData[i + 1], imageData[i + 2]];
+      indexedPixels.push(this.mapToPaletteIndex(color));
+    }
 
     // Add frame to GIF
     this.gifWriter.addFrame(0, 0, this.width, this.height, indexedPixels, {
-      delay,
-      palette: paletteColors
+      delay: delayMs / 10,
+      palette: palette,
+      disposal: 2
     });
 
     this.frameCount++;

@@ -13,10 +13,10 @@
     "dev-hmr": "vite",
     "build-dev": "npm run lint && vite build --mode development",
     "build-prod": "npm run lint && vite build --mode production",
-    "preview": "vite preview",
     "fmt": "prettier --write '**/*.{svelte,ts,json,css,scss,md}'",
     "lint": "eslint . ",
     "generate:patch": "npx tsx patch/executePatch.ts",
+    "generate:workers": "npx tsx patch/generateWorkers.ts",
     "generate:api": "openapi-generator-cli generate -i https://api.typo.rip/openapi.json -g typescript-fetch -o src/api/ -p=removeOperationIdPrefix=true",
     "generate:signalr": "dotnet tsrts --project C:/Users/tobeh/repos/Avallone/tobeh.Avallone.Server/tobeh.Avallone.Server.csproj --output src/signalr"
   },
@@ -30,6 +30,7 @@
     "@types/omggif": "^1.0.5",
     "@typescript-eslint/eslint-plugin": "^8.6.0",
     "@typescript-eslint/parser": "^8.6.0",
+    "esbuild": "^0.25.0",
     "eslint": "^9.11.0",
     "globals": "^15.9.0",
     "gulp": "^4.0.2",
@@ -48,7 +49,6 @@
   "dependencies": {
     "@abraham/reflection": "^0.12.0",
     "@microsoft/signalr": "^8.0.7",
-    "image-q": "^4.0.0",
     "inversify": "^6.0.2",
     "omggif": "^1.0.10",
     "reflect-metadata": "^0.2.2",
