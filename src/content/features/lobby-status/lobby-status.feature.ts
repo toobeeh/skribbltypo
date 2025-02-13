@@ -22,7 +22,7 @@ import {
   distinctUntilChanged, interval,
   map,
   of,
-  type Subscription,
+  type Subscription, withLatestFrom,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -106,10 +106,20 @@ export class LobbyStatusFeature extends TypoFeature {
                 : "public",
         ),
         distinctUntilChanged(),
+        combineLatestWith(this._lobbyConnectionService.connection$)
       )
-      .subscribe(async (type) => {
-        if (type === "public" || type === "custom") {
-          await this.setupSettings();
+      .subscribe(async ([type, connection]) => {
+        if ((type === "public" || type === "custom") && connection !== "unauthorized") {
+          if(!this._controlIcon) await this.setupSettings();
+
+          const open = connection?.typoLobbyState.lobbySettings.whitelistAllowedServers === false;
+          const icon = connection === undefined ? "file-img-connection-loading-gif" : open ? "file-img-connection-open-gif" : "file-img-connection-gif";
+          const greyscale = connection !== undefined;
+          this._controlIcon?.$set({
+            icon,
+            greyscaleInactive: greyscale,
+          });
+
         } else {
           this.destroySettings();
           this._flyoutComponent?.close();
