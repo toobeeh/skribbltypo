@@ -29,6 +29,14 @@ export class SkribblMessageRelaySetup extends Setup<messageRelay> {
           if(ports.length === 0) return;
 
           const observable = new Subject<any>(); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+          /* debug */
+          document.addEventListener("insertSkribblEmit", (e: Event) => {
+            this._logger.debug("insertSkribblEmit", (e as CustomEvent).detail);
+
+            ports[0].postMessage((e as CustomEvent).detail);
+          });
+
           ports[0].onmessage = (message) => {
 
             /* log everything except draw commands */

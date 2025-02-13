@@ -19,6 +19,7 @@ import { sizeChangedEventRegistration } from "@/content/events/size-changed.even
 import { textOverlayVisibilityChangedEventRegistration } from "@/content/events/text-overlay-visible.event";
 import { toolChangedEventRegistration } from "@/content/events/tool-changed.event";
 import { wordGuessedEventRegistration } from "@/content/events/word-guessed.event";
+import { CanvasRateIconsFeature } from "@/content/features/canvas-rate-icons/canvas-rate-icons.feature";
 import { CanvasZoomFeature } from "@/content/features/canvas-zoom/canvas-zoom.feature";
 import { ChatClearFeature } from "@/content/features/chat-clear/chat-clear.feature";
 import { ChatCommandsFeature } from "@/content/features/chat-commands/chat-commands.feature";
@@ -228,7 +229,8 @@ new ExtensionContainer(interceptor)
     ChatClearFeature,
     ChatMessageSplitsFeature,
     CustomizerPracticeJoinFeature,
-    CustomizerOutfitToggleFeature
+    CustomizerOutfitToggleFeature,
+    CanvasRateIconsFeature
   );
 
 /* indicate for interceptor that content script has loaded */
