@@ -98,14 +98,15 @@
   }
 
   div.content-top {
-    /*backdrop-filter: blur(4px);*/
     position: fixed;
-    top: 7vh;
+    top: calc(7vh + 1px);
     z-index: 9999;
-    border-bottom: 3vh solid var(--COLOR_PANEL_BG);
-    border-left: 100vw solid transparent;
-    height: 0;
-    width: 1px;
+    background: var(--COLOR_PANEL_BG);
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+    backdrop-filter: blur(4px);
+    border: none;
+    height: 3vh;
+    width: 100vw;
     animation: slideIn 0.15s ease-out;
 
     &.closing {
