@@ -26,6 +26,8 @@ export default defineConfig(({ mode }) => {
       minifyIdentifiers: production,
       keepNames: !production,
     },
+    test: {
+    },
     publicDir: "public",
     build: {
       sourcemap: true,
