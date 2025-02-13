@@ -1,6 +1,6 @@
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject, injectable } from "inversify";
-import { type Observable, Subject } from "rxjs";
+import { firstValueFrom, type Observable, Subject } from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import Toast from "./toast.svelte";
 
@@ -8,6 +8,16 @@ export interface loadingToastHandle {
   close: () => void;
   resolve: (message?: string, timeout?: number) => void;
   reject: (message?: string, title?: string, timeout?: number) => void;
+}
+
+export interface promptToastHandle {
+  close: () => void;
+  result: Promise<string | null>;
+}
+
+export interface confirmToastHandle {
+  close: () => void;
+  result: Promise<boolean>;
 }
 
 export interface stickyToastHandle {
@@ -121,6 +131,74 @@ export class ToastService {
         if(message !== undefined) toast.$set({content: message});
         setTimeout(() => toast.close(), timeout ?? 3000);
       }
+    };
+  }
+
+  public async showPromptToast(title: string, content: string | undefined = undefined, timeout: number | undefined = 10000): Promise<promptToastHandle> {
+    const elements = await this._elementsSetup.complete();
+
+    const result = new Subject<string | null>();
+    const toast = new Toast({
+      target: elements.toastContainer,
+      props: {
+        closeHandler: () => {
+          toast.$destroy();
+          if(!result.closed) result.next(null);
+          result.complete();
+        },
+        promptHandler: (value: string) => {
+          result.next(value);
+          toast.close();
+        },
+        title,
+        content,
+        showLoading: false
+      }
+    });
+
+    if (timeout) {
+      setTimeout(() => {
+        toast.close();
+      }, timeout);
+    }
+
+    return {
+      close: () => toast.close(),
+      result: firstValueFrom(result)
+    };
+  }
+
+  public async showConfirmToast(title: string, content: string | undefined = undefined, timeout: number | undefined = 10000): Promise<confirmToastHandle> {
+    const elements = await this._elementsSetup.complete();
+
+    const result = new Subject<boolean>();
+    const toast = new Toast({
+      target: elements.toastContainer,
+      props: {
+        closeHandler: () => {
+          toast.$destroy();
+          if(!result.closed) result.next(false);
+          result.complete();
+        },
+        confirmHandler: (value: boolean) => {
+          result.next(value);
+          toast.close();
+        },
+        title,
+        content,
+        showLoading: false
+      }
+    });
+
+    if (timeout) {
+      setTimeout(() => {
+        toast.close();
+      }, timeout);
+    }
+
+    return {
+      close: () => toast.close(),
+      result: firstValueFrom(result)
     };
   }
 }

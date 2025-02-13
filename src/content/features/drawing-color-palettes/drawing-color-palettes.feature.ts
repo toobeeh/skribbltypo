@@ -115,6 +115,11 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   public async removePalette(name: string) {
     this._logger.info(`Removing palette ${name}`);
 
+    if(! await (await this._toastService.showConfirmToast(`Do you want to remove the palette ${name}?`)).result){
+      this._logger.info(`User canceled removal of palette ${name}`);
+      return;
+    }
+
     const toast = await this._toastService.showLoadingToast(`Removing palette ${name}`);
     const palettes = await this._savedPalettesSetting.getValue();
     const index = palettes.findIndex(p => p.name === name);

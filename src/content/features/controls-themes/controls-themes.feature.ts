@@ -220,6 +220,12 @@ export class ControlsThemesFeature extends TypoFeature {
   }
 
   public async removeSavedTheme(localId: number){
+
+    if(! await(await this._toastService.showConfirmToast("Do you want to delete the theme?")).result){
+      this._logger.info("User canceled theme removal");
+      return;
+    }
+
     const toast = await this._toastService.showLoadingToast("Removing theme");
     try {
       const theme = await this._themesService.removeSavedTheme(localId);

@@ -1,11 +1,16 @@
 <script lang="ts">
   import Bounceload from "@/lib/bounceload/bounceload.svelte";
+  import IconButton from "@/lib/icon-button/icon-button.svelte";
 
   export let content: string | undefined;
   export let title: string | undefined;
   export let closeHandler: () => void;
+  export let confirmHandler: ((result: boolean) => void) | undefined = undefined;
+  export let promptHandler: ((result: string) => void) | undefined = undefined;
   export let showLoading = false;
   export let allowClose = true;
+  
+  let promptContent = "";
 
   let closing = false;
   export const close = () => {
@@ -50,7 +55,8 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    white-space: preserve;
+    white-space-collapse: preserve;
+    gap: .5rem;
 
     &.closing {
       animation: slideOut 0.15s ease-out forwards;
@@ -60,8 +66,20 @@
       cursor: progress;
     }
 
-    h3 {
-      margin-bottom: .5rem;
+    form {
+      display: flex;
+      width: 100%;
+
+      input[type=submit]{
+        display: none;
+      }
+    }
+
+    .typo-toast-confirm {
+      width:100%;
+      display: flex;
+      flex-direction: row;
+      gap: 1rem;
     }
 
     .close-toast {
@@ -94,8 +112,25 @@
       </span>
     {/if}
 
-    {#if content !== undefined}
+    {#if content !== undefined && promptHandler === undefined}
       <span>{content}</span>
+    {/if}
+
+    {#if promptHandler !== undefined}
+      <form on:submit={(e) =>{
+        e.preventDefault();
+        promptHandler(promptContent);
+      }}>
+        <input type="submit" hidden />
+        <input bind:value={promptContent} type="text" placeholder="{content}">
+      </form>
+    {/if}
+
+    {#if confirmHandler !== undefined}
+      <div class="typo-toast-confirm">
+        <IconButton icon="file-img-enabled-gif" name="Confirm" hoverMove="{false}" size="1.5rem" on:click={() => confirmHandler(true)} />
+        <IconButton icon="file-img-disabled-gif" name="Abort" hoverMove="{false}" size="1.5rem" on:click={() => confirmHandler(false)} />
+      </div>
     {/if}
   {/if}
 </div>
