@@ -1,6 +1,6 @@
 const BLANK = "_";
 const FILLER = "‎";
-const DIACRITICS: { [key: string]: string } = {
+const DIACRITICS:Record<string, string> = {
   "ä": "a",
   "ö": "o",
   "ü": "u",
@@ -45,14 +45,14 @@ function isTheSameLetter(char: string, otherChar: string): boolean {
  * Fills the guess to the same length as the word/hint
  */
 export function getOverlayContent(guess: string, hints: string): string {
-    guess = guess.replaceAll(" ", "").replaceAll("-", "")
+    guess = guess.replaceAll(" ", "").replaceAll("-", "");
 
     let result = "";
     let guessIndex = 0;
 
     for (let hintIndex = 0; hintIndex < hints.length; hintIndex++) {
-      let guessChar = guess.charAt(guessIndex);
-      let hintChar = hints.charAt(hintIndex);
+      const guessChar = guess.charAt(guessIndex);
+      const hintChar = hints.charAt(hintIndex);
 
       if (hintChar === " " || hintChar === "-") {
         result = result.concat(hintChar);
