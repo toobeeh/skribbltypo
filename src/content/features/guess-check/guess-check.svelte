@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { GuessCheckFeature } from "@/content/features/guess-check/guess-check.feature";
+  import { guessCorrectHint, guessMatchesHint } from "./guess-overlay";
 
   export let feature: GuessCheckFeature;
   const guess = feature.guessChangedStore;
@@ -80,8 +81,8 @@
     {#if $guess !== null}
       {#each $guess.overlayContent as guessCharacter, index}
         <span class="overlay-character"
-              class:hidden={feature.guessCorrectHint(guessCharacter, index, $guess.hints)}
-              class:warning={!feature.guessMatchesHint(guessCharacter, index, $guess.hints)}
+              class:hidden={guessCorrectHint(guessCharacter, index, $guess.hints)}
+              class:warning={!guessMatchesHint(guessCharacter, index, $guess.hints)}
         >
           {guessCharacter}
         </span>

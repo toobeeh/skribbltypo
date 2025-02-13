@@ -7,6 +7,7 @@ import { combineLatestWith, distinctUntilChanged, map, mergeWith, tap } from "rx
 import { TypoFeature } from "../../core/feature/feature";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import GuessCheck from "./guess-check.svelte";
+import { getOverlayContent } from "./guess-overlay";
 
 export class GuessCheckFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
@@ -43,53 +44,22 @@ export class GuessCheckFeature extends TypoFeature {
       mergeWith(this._lobbyLeftEventListener.events$.pipe(  /* reset when lobby left */
         map(() => null)
       )),
-      map(event => event?.data.toLowerCase().trim() ?? ""),
+      map(event => event?.data ?? ""),
       distinctUntilChanged(),
       combineLatestWith(this._drawingService.imageState$.pipe(
         map(image => {
           if(image === null || image.word.solution !== undefined) return null;
-          return image.word.hints.toLowerCase();
+          return image.word.hints;
         }),
         distinctUntilChanged()
       )),
       map(([guess, hints]) => hints === null ? null : ({
         guess,
         hints,
-        overlayContent: this.getOverlayContent(guess, hints)})),
+        overlayContent: getOverlayContent(guess, hints)})),
       tap(data => this._logger.debug("Guess Check data update", data))
     );
     return fromObservable(events, null);
   }
 
-  /**
-   * fills the guess to the same length as the word/hint
-   * @param guess
-   * @param hints
-   * @private
-   */
-  private getOverlayContent(guess: string, hints: string){
-    guess = guess.slice(0, hints.length);
-    const filler = "‎".repeat(hints.length - guess.length);
-    return guess + filler;
-  }
-
-  /**
-   * Whether the character matches a revealed hint or blank or is a filler character
-   * @param character
-   * @param index
-   * @param hints
-   */
-  public guessMatchesHint(character: string, index: number, hints: string){
-    return hints[index] === character || character === "‎" || hints[index] === "_";
-  }
-
-  /**
-   * Whether the character exactly matches a revealed hint
-   * @param character
-   * @param index
-   * @param hints
-   */
-  public guessCorrectHint(character: string, index: number, hints: string){
-    return hints[index] === character && hints[index] !== "_";
-  }
 }
