@@ -19,7 +19,7 @@ import {
 import { TypedWorkerExecutor } from "@/worker/typed-worker";
 import { gifRendererWorkerBase64 } from "@/worker/workers";
 import { inject } from "inversify";
-import { catchError, combineLatest, map, of, Subscription, take, withLatestFrom } from "rxjs";
+import { catchError, combineLatest, map, of, Subscription, switchMap, take, withLatestFrom } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
 import { TypoFeature } from "../../core/feature/feature";
 import ToolbarSave from "./toolbar-save.svelte";
@@ -225,10 +225,20 @@ export class ToolbarSaveFeature extends TypoFeature {
     combineLatest({
       commands: this._drawingService.commands$,
       lobby: this._lobbyService.lobby$.pipe(take(1)),
-      state: this._drawingService.imageState$
+      state: this._drawingService.imageState$,
+      duration: fromPromise(this._toastService.showPromptToast("Generate GIF", "Enter the preferred duration in seconds")).pipe(
+        switchMap(v => v.result)
+      )
     }).pipe(
       take(1)
-    ).subscribe(async ({commands, lobby, state}) => {
+    ).subscribe(async ({commands, lobby, state, duration}) => {
+
+      const durationMs = parseFloat(duration ?? "") * 1000;
+      if(Number.isNaN(durationMs)){
+        toast.resolve("Invalid duration entered");
+        return;
+      }
+
       if(state === null) {
         this._logger.warn("Attempted to save commands, but state null. In a lobby?");
         toast.resolve("No drawing active");
@@ -262,7 +272,7 @@ export class ToolbarSaveFeature extends TypoFeature {
           }
         }
       );
-      const gif = await worker.run("renderGif", commands, 5000);
+      const gif = await worker.run("renderGif", commands, durationMs);
       /*const gif = gifRendererWorker.renderGif(commands, 5000);*/
 
       toast.resolve(`${name} rendered`, 3000);
