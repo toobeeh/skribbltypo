@@ -22,7 +22,7 @@ import {
   distinctUntilChanged, interval,
   map,
   of,
-  type Subscription, withLatestFrom,
+  type Subscription,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";

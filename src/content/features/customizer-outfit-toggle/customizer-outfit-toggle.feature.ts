@@ -50,7 +50,7 @@ export class CustomizerOutfitToggleFeature extends TypoFeature {
           greyscaleInactive: true,
           size: "30px",
           icon: "file-img-mask-gif",
-          name: "Toggle Outfit",
+          name: "Toggle Outfit View",
           order: 2,
           tooltipAction: this.createTooltip,
           lockTooltip: "Y"

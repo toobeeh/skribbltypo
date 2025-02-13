@@ -118,21 +118,6 @@ export class DrawingService {
       this._pasteInProgress$.next(false);
       this._abortCommands$.next(Number.MAX_VALUE);
     });
-
-    /*setTimeout(() => {
-      const canvas = document.createElement("canvas");
-      canvas.width = 800;
-      canvas.height = 600;
-      document.body.appendChild(canvas);
-      const context = canvas.getContext("2d");
-      if(context){
-        const processor = new CanvasCommandProcessor(context);
-        this.draw.events$.subscribe(event => {
-          event.data.forEach(command => processor.processDrawCommand(command));
-        });
-      }
-    }, 2000);*/
-
   }
 
   private onDrawCommand(command: number[]) {
