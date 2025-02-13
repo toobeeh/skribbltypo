@@ -1,9 +1,24 @@
+import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { BooleanExtensionSetting, ChoiceExtensionSetting } from "@/content/core/settings/setting";
 import { inject, injectable } from "inversify";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 
 @injectable()
 export class GlobalSettingsService {
+
+  private _globalHotkeysList = {
+    exitModal: new HotkeyAction(
+      "modal_close",
+      "Close Modal",
+      "Close open modals using a hotkey",
+      undefined,
+      () => {
+        return void 0;
+      },
+      true,
+      ["Escape"]
+    )
+  };
 
   private _settings = {
     devMode: new BooleanExtensionSetting("devMode", false)
@@ -36,6 +51,14 @@ export class GlobalSettingsService {
     @inject(loggerFactory) loggerFactory: loggerFactory,
   ) {
     this._logger = loggerFactory(this);
+  }
+
+  public get globalHotkeys(){
+    return this._globalHotkeysList;
+  }
+
+  public get globalHotkeysList(){
+    return Object.values(this._globalHotkeysList);
   }
 
   public get settings(){

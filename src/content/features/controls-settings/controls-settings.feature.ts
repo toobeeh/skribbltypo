@@ -59,6 +59,8 @@ export class ControlsSettingsFeature extends TypoFeature {
   }
 
   protected override postConstruct() {
+    this._settingsService.globalHotkeysList.forEach(hotkey => this.useHotkey(hotkey));
+
     this.useSetting(this._settingsService.settings.devMode);
     this.useSetting(this._settingsService.settings.controlsPosition);
     this.useSetting(this._settingsService.settings.controlsDirection);
@@ -68,6 +70,10 @@ export class ControlsSettingsFeature extends TypoFeature {
   protected override onDestroy(): Promise<void> | void {
     this._iconClickSubscription?.unsubscribe();
     this._iconComponent?.$destroy();
+  }
+
+  public override get hotkeys() {
+    return this._settingsService.globalHotkeysList;
   }
 
   public get features() {

@@ -1,3 +1,5 @@
+import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
+import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { inject, injectable } from "inversify";
 import { firstValueFrom, Subject } from "rxjs";
 import type { ComponentProps, SvelteComponent } from "svelte";
@@ -22,8 +24,22 @@ export class ModalService {
 
   private readonly _logger;
 
+  private _modalClosed$ = new Subject<void>();
+  private readonly _closeHotkey = new HotkeyAction(
+    "modal_close",
+    "Close Modal",
+    "Close open modals using a hotkey",
+    undefined,
+    () => {
+      this._modalClosed$.next();
+    },
+    true,
+    ["KeyA"]
+  );
+
   constructor(
-    @inject(loggerFactory) loggerFactory: loggerFactory
+    @inject(loggerFactory) loggerFactory: loggerFactory,
+    @inject(GlobalSettingsService) private readonly _globalSettingsService: GlobalSettingsService
   ) {
     this._logger = loggerFactory(this);
   }
@@ -54,6 +70,10 @@ export class ModalService {
         },
         title
       }
+    });
+
+    this._globalSettingsService.globalHotkeys.exitModal.once(() => {
+      modal.$destroy();
     });
   }
 
@@ -96,6 +116,11 @@ export class ModalService {
         },
         title
       }
+    });
+
+    this._globalSettingsService.globalHotkeys.exitModal.once(() => {
+      modal.$destroy();
+      result$.next(undefined);
     });
 
     const result = await firstValueFrom(result$);

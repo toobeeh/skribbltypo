@@ -7,12 +7,13 @@ export class HotkeyAction {
 
   private _enabledSetting: ExtensionSetting<boolean>;
   private _comboSetting: ExtensionSetting<string[]>;
+  private _onceListeners: (() => (void | Promise<void>))[] = [];
 
   constructor(
     private _key: string,
     private _name: string,
     private _description: string,
-    private _feature: TypoFeature,
+    private _feature: TypoFeature | undefined,
     private _action: () => (void | Promise<void>),
     defaultEnabled?: boolean,
     private _defaultCombo?: string[],
@@ -56,6 +57,10 @@ export class HotkeyAction {
     return this._defaultCombo;
   }
 
+  public once(action: () => (void | Promise<void>)) {
+    this._onceListeners.push(action);
+  }
+
   /**
    * checks if a key combination is active and matches, and executes if positive
    * return observable holds the result, if executed or not
@@ -70,7 +75,13 @@ export class HotkeyAction {
       switchMap(matches => {
         if(!matches) return of(false);
         const result = this._action();
-        return result instanceof Promise ? fromPromise(result).pipe(map(() => true)) : of(true);
+
+        const onceListeners = [...this._onceListeners];
+        this._onceListeners = [];
+        const results = onceListeners.map(listener => listener());
+        results.push(result);
+
+        return Promise.all(results);
       })
     );
   }
