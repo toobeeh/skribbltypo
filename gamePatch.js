@@ -35,6 +35,156 @@
 // TYPOMOD
     // desc: create re-useable functions
     , typo = {
+
+      /* mod sequence injection for custom draw commands */
+      msi: {
+        /* incoming draw commands are part of an injected mod */
+        mod: {
+          selected: undefined, /* index of selected mod */
+          buffer: undefined, /* buffer to construct mod */
+          apply: undefined /* function to apply constructed mod */
+        },
+
+        modes: [
+
+          /* custom color mode */
+          (buffer) => {
+            return (command) => {
+
+              /* skip if buffer empty */
+              if(buffer.length === 0) return command;
+
+              /* if brush or fill */
+              if(command[0] <= 1) {
+                command[1] = buffer[0];
+              }
+
+              return command;
+            }
+          }
+        ],
+
+        fromSenaryDoubleDecimalBase: (senary, decimal1, decimal0) => {
+          return decimal0 + decimal1 * 10 + Number.parseInt(senary.toString(), 6) * 100;
+        },
+
+        fromOctalDoubleDecimalBase: (octal, decimal1, decimal0) => {
+          return decimal0 + decimal1 * 10 + Number.parseInt(octal.toString(), 8) * 100;
+        },
+
+        /* bases of data: width x height x width x height -> odd sdd odd sdd */
+        parseInjectedSequence: (odd1, sdd1, odd0, sdd0) => {
+          const parseDigits = (num) => {
+            const str = num.toString().padStart(3, '0');
+            return [str[0], str[1], str[2]].map(Number);
+          };
+
+          const [sdd0_s, sdd0_d1, sdd0_d0] = parseDigits(sdd0);
+          const [odd0_o, odd0_d1, odd0_d0] = parseDigits(odd0);
+          const [sdd1_s, sdd1_d1, sdd1_d0] = parseDigits(sdd1);
+          const [odd1_o, odd1_d1, odd1_d0] = parseDigits(odd1);
+
+          return typo.msi.fromSenaryDoubleDecimalBase(sdd0_s, sdd0_d1, sdd0_d0)
+            + 600 * typo.msi.fromOctalDoubleDecimalBase(odd0_o, odd0_d1, odd0_d0)
+            + 600 * 800 * typo.msi.fromSenaryDoubleDecimalBase(sdd1_s, sdd1_d1, sdd1_d0)
+            + 600 * 800 * 600 * typo.msi.fromOctalDoubleDecimalBase(odd1_o, odd1_d1, odd1_d0);
+        },
+
+        toSenaryDoubleDecimalBase: (number) => {
+          const senary = Math.floor(number / 100);
+          const decimal1 = Math.floor((number % 100) / 10);
+          const decimal0 = number % 10;
+          return [senary, decimal1, decimal0];
+        },
+
+        toOctalDoubleDecimalBase: (number) => {
+          const octal = Math.floor(number / 100);
+          const decimal1 = Math.floor((number % 100) / 10);
+          const decimal0 = number % 10;
+          return [octal, decimal1, decimal0];
+        },
+
+        toInjectedSequence: (number) => {
+          const odd1 = Math.floor(number / (600 * 800 * 600));
+          const sdd1 = Math.floor((number % (600 * 800 * 600)) / (600 * 800));
+          const odd0 = Math.floor((number % (600 * 800)) / 600);
+          const sdd0 = number % 600;
+
+          const sdd0Array = typo.msi.toSenaryDoubleDecimalBase(sdd0);
+          const odd0Array = typo.msi.toOctalDoubleDecimalBase(odd0);
+          const sdd1Array = typo.msi.toSenaryDoubleDecimalBase(sdd1);
+          const odd1Array = typo.msi.toOctalDoubleDecimalBase(odd1);
+
+          return [
+            odd1Array[0] * 100 + odd1Array[1] * 10 + odd1Array[2],
+            sdd1Array[0] * 100 + sdd1Array[1] * 10 + sdd1Array[2],
+            odd0Array[0] * 100 + odd0Array[1] * 10 + odd0Array[2],
+            sdd0Array[0] * 100 + sdd0Array[1] * 10 + sdd0Array[2]
+          ];
+        },
+
+        /* if tool = 0 (brush), color 0, size 4, and all coords 0 -> MSI init/finish signal */
+        isMSIInitSignal: (command) => {
+          return (command[0] === 0 && command[1] === 0 && command[2] === 5 && command[3] === 0 && command[4] === 0 && command[5] === 0 && command[6] === 0);
+        },
+
+        /* if tool = 0 (brush), color 0, size 40 and all coords 0 -> MSI reset signal */
+        isResetSignal: (command) => {
+          return (command[0] === 0 && command[1] === 0 && command[2] === 39 && command[3] === 0 && command[4] === 0 && command[5] === 0 && command[6] === 0);
+        },
+
+        processIncomingCommand: (command) => {
+          const msiInitSignal = typo.msi.isMSIInitSignal(command);
+          const resetSignal = typo.msi.isResetSignal(command);
+          const processingMode = typo.msi.mod.selected === undefined && Array.isArray(typo.msi.mod.buffer);
+          const processingBuffer = typo.msi.mod.selected !== undefined && typo.msi.mod.apply === undefined && Array.isArray(typo.msi.mod.buffer);
+          const mod = typo.msi.mod.apply;
+
+          if(resetSignal){
+            console.log("MSI reset signal received.");
+            typo.msi.mod.selected = undefined;
+            typo.msi.mod.buffer = undefined;
+            typo.msi.mod.apply = undefined;
+            return undefined;
+          }
+
+          if(msiInitSignal && !processingBuffer) {
+            console.log("MSI init signal received.");
+            typo.msi.mod.selected = undefined;
+            typo.msi.mod.buffer = [];
+            typo.msi.mod.apply = undefined;
+            return undefined;
+          }
+
+          if(msiInitSignal && processingBuffer) {
+            console.log("MSI finish signal received.");
+            typo.msi.mod.apply = typo.msi.mod.selected(typo.msi.mod.buffer);
+            return undefined;
+          }
+
+          if(processingMode){
+            const mode = typo.msi.parseInjectedSequence(command[3], command[4], command[5], command[6]);
+            console.log("MSI mode selection received.", mode);
+            typo.msi.mod.selected = (typo.msi.modes[mode - 1] ?? (() => c => c));
+            return undefined;
+          }
+
+          if(processingBuffer){
+            const packet = typo.msi.parseInjectedSequence(command[3], command[4], command[5], command[6]);
+            console.log("MSI buffer processing.", packet);
+            typo.msi.mod.buffer.push(packet);
+            return undefined;
+          }
+
+          if(mod){
+            console.log("MSI mod applying.");
+            return typo.msi.mod.apply(command);
+          }
+
+          return command;
+        }
+      },
+
       messagePort: (()=>{
         const channel = new MessageChannel();
         window.postMessage("skribblMessagePort", "*", [channel.port2]);
@@ -1909,7 +2059,10 @@
         }
         break;
       case Ia:
-        for (var s = 0; s < n.length; s++) jt(n[s]);
+        for (var s = 0; s < n.length; s++) {
+          const c = typo.msi.processIncomingCommand(n[s]);
+          if(c!== undefined) jt(c);
+        }
         break;
       case Ra:
         Ft(!0);
