@@ -265,25 +265,22 @@ export const gameJsPatchConfig = {
                       currentCode: undefined,
                       closeColors: {},
                       getClosestSkribblColor: code => {
-                      
                         const existing = typo.msiColorSwitch.closeColors[code];
                         if(existing !== undefined) return existing;
-                      
+
                         const rgb = typo.typoCodeToRgb(code);
-                        const hsl = typo.rgbToHsl(rgb[0], rgb[1], rgb[2]);
-                        const smallestCircularDiff = (a,b) => Math.min(Math.abs(a - b), Math.abs(a + 360 - b), Math.abs(a - 360 - b));
-                        const distance = (hsl1, hsl2) => {
-                          const dh = smallestCircularDiff(hsl1[0], hsl2[0]) / 360;
-                          const ds = hsl1[1] - hsl2[1];
-                          const dl = hsl1[2] - hsl2[2];
-              
-                          return Math.sqrt(dh * dh + ds * ds + dl * dl);
-                        }
-                    
-                        const colors = ##SKRIBBLCOLORS##.slice(1).map(c => typo.rgbToHsl(c[0], c[1], c[2]));
-                        const color = colors.reduce((closestIndex, color, index) => 
-                          distance(hsl, color) < distance(hsl, colors[closestIndex]) ? index : closestIndex
-                        , 0);
+                        const lab = typo.rgbToLab(rgb);
+                        const distance = (c1, c2) =>
+                          Math.sqrt(
+                            Math.pow(c1[0] - c2[0], 2) +
+                            Math.pow(c1[1] - c2[1], 2) +
+                            Math.pow(c1[2] - c2[2], 2)
+                          );
+
+                        const colors = ##SKRIBBLCOLORS##.map(c => typo.rgbToLab(c));
+                        const color = colors.reduce((closestIndex, color, index) =>
+                            distance(lab, color) < distance(lab, colors[closestIndex]) ? index : closestIndex
+                          , 0);
                         typo.msiColorSwitch.closeColors[code] = color;
                         return color;
                       },
@@ -443,19 +440,45 @@ export const gameJsPatchConfig = {
                             });
                         });
                     })(),
-                    rgbToHsl: (r, g, b) => {
-                      r /= 255; g /= 255; b /= 255;
-                      let max = Math.max(r, g, b);
-                      let min = Math.min(r, g, b);
-                      let d = max - min;
-                      let h;
-                      if (d === 0) h = 0;
-                      else if (max === r) h = (g - b) / d % 6;
-                      else if (max === g) h = (b - r) / d + 2;
-                      else if (max === b) h = (r - g) / d + 4;
-                      let l = (min + max) / 2;
-                      let s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
-                      return [h * 60, s, l];
+                    rgbToXyz: (R, G, B) => {
+                      let r = R / 255;
+                      let g = G / 255;
+                      let b = B / 255;
+
+                      r = (r > 0.04045) ? Math.pow((r + 0.055) / 1.055, 2.4) : (r / 12.92);
+                      g = (g > 0.04045) ? Math.pow((g + 0.055) / 1.055, 2.4) : (g / 12.92);
+                      b = (b > 0.04045) ? Math.pow((b + 0.055) / 1.055, 2.4) : (b / 12.92);
+
+                      let x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+                      let y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+                      let z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+                      return [x, y, z];
+                    },
+                    xyzToLab: (x, y, z) => {
+                      const REF_X = 0.95047;
+                      const REF_Y = 1.00000;
+                      const REF_Z = 1.08883;
+                    
+                      let fx = f(x / REF_X);
+                      let fy = f(y / REF_Y);
+                      let fz = f(z / REF_Z);
+                    
+                      let L = 116 * fy - 16;
+                      let a = 500 * (fx - fy);
+                      let b = 200 * (fy - fz);
+                    
+                      return [L, a, b];
+                    
+                      function f(value) {
+                        return (value > 0.008856)
+                          ? Math.pow(value, 1 / 3)
+                          : (7.787 * value) + (16 / 116);
+                      }
+                    },
+                    rgbToLab: ([R, G, B]) => {
+                      const [x, y, z] = typo.rgbToXyz(R, G, B);
+                      return typo.xyzToLab(x, y, z);
                     },
                     hexToRgb: (hex) => {
                         let arrBuff = new ArrayBuffer(4);
