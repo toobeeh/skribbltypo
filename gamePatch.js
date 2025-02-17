@@ -38,6 +38,13 @@
 
       /* mod sequence injection for custom draw commands */
       msi: {
+
+        reset: () => {
+          typo.msi.mod.selected = undefined;
+          typo.msi.mod.buffer = undefined;
+          typo.msi.mod.apply = undefined
+        },
+
         /* incoming draw commands are part of an injected mod */
         mod: {
           selected: undefined, /* index of selected mod */
@@ -141,7 +148,7 @@
           const mod = typo.msi.mod.apply;
 
           if(resetSignal){
-            console.log("MSI reset signal received.");
+            /*console.log("MSI reset signal received.");*/
             typo.msi.mod.selected = undefined;
             typo.msi.mod.buffer = undefined;
             typo.msi.mod.apply = undefined;
@@ -149,7 +156,7 @@
           }
 
           if(msiInitSignal && !processingBuffer) {
-            console.log("MSI init signal received.");
+            /*console.log("MSI init signal received.");*/
             typo.msi.mod.selected = undefined;
             typo.msi.mod.buffer = [];
             typo.msi.mod.apply = undefined;
@@ -157,31 +164,64 @@
           }
 
           if(msiInitSignal && processingBuffer) {
-            console.log("MSI finish signal received.");
+            /*console.log("MSI finish signal received.");*/
             typo.msi.mod.apply = typo.msi.mod.selected(typo.msi.mod.buffer);
             return undefined;
           }
 
           if(processingMode){
             const mode = typo.msi.parseInjectedSequence(command[3], command[4], command[5], command[6]);
-            console.log("MSI mode selection received.", mode);
+            /*console.log("MSI mode selection received.", mode);*/
             typo.msi.mod.selected = (typo.msi.modes[mode - 1] ?? (() => c => c));
             return undefined;
           }
 
           if(processingBuffer){
             const packet = typo.msi.parseInjectedSequence(command[3], command[4], command[5], command[6]);
-            console.log("MSI buffer processing.", packet);
+            /*console.log("MSI buffer processing.", packet);*/
             typo.msi.mod.buffer.push(packet);
             return undefined;
           }
 
           if(mod){
-            console.log("MSI mod applying.");
+            /*console.log("MSI mod applying.");*/
             return typo.msi.mod.apply(command);
           }
 
           return command;
+        }
+      },
+
+      msiColorSwitch: {
+        currentCode: undefined,
+        ensureColorSequence: command => {
+          const color = command[1];
+
+          /* sanitize color to black for non-typo users */
+          if(color > 10000){
+            command[1] = 1;
+          }
+
+          /* if color is typo color and not already initiated */
+          if(color > 10000 && color !== typo.msiColorSwitch.currentCode){
+            typo.msiColorSwitch.currentCode = color;
+            const codeData = typo.msi.toInjectedSequence(color);
+            const sequence = [
+              [0, 0, 5, 0,0,0,0],
+              [0, 0, 5, 0,0,0,1],
+              [0, 0, 5, ...codeData],
+              [0, 0, 5, 0,0,0,0]
+            ];
+            return sequence;
+          }
+
+          /* if color is original but typo color initiated */
+          if(color < 10000 && typo.msiColorSwitch.currentCode !== undefined){
+            typo.msiColorSwitch.currentCode = undefined;
+            return [[0, 0, 39, 0,0,0,0]];
+          }
+
+          return undefined;
         }
       },
 
@@ -1380,9 +1420,20 @@
   let ln = 90;
   var S, sn = 0,
     cn = 0,
-    dn = (setInterval(function() {
+    insertColorSwitches = (commands) => {
+      inserted = [];
+      for (let i = 0; i < commands.length; i++) {
+        const command = commands[i];
+        const t = typo.msiColorSwitch.ensureColorSequence(command);
+        if(t !== undefined) inserted.push(...t);
+        inserted.push(command);
+      }
+
+      commands.splice(0, commands.length, ...inserted);
+    }
+    dn = (setInterval(function() { /*t = typo.msiColorSwitch.ensureColorSequence(e), (t !== undefined && M == x ? v.push(...t) : 1), */
       var e, t, n;
-      S && L.id == Z && M == x && 0 < (e = v.length - ut) && (t = ut + 8, n = v.slice(ut, t), S.emit("data", {
+      S && L.id == Z && M == x && 0 < (e = v.length - ut) && (t = ut + 8, n = v.slice(ut, t), insertColorSwitches(n), S.emit("data", {
         id: Ia,
         data: n
       }), ut = Math.min(t, v.length), console.log(`Sent ${n.length} commands. ${e} remaining.`))
@@ -1874,6 +1925,8 @@
       /* TYPOEND */
     } else e.id != Z && (W[0].textContent = E("WAITING"), W[0].classList.add("waiting"), W[1].style.display = "none", W[2].style.display = "none");
     if (e.id == Z) {
+      typo.msi.reset();
+      typo.msiColorSwitch.currentCode = undefined;
       if (M = e.data.id, T.playSound(kn), Ft(!0), e.data.drawCommands && (v = e.data.drawCommands), y(E("$ is drawing now!", O(M).name), "", f($e), !0), !t)
         for (o = 0; o < w.length; o++) Fa(w[o], !1);
       W[0].classList.remove("waiting"), M == x ? (a = e.data.word, W[0].textContent = E("DRAW THIS"), W[1].style.display = "", W[2].style.display = "none", W[1].textContent = a, Pn.classList.remove("toolbar-hidden"), vt()) : (da(!0), pa(e.data.word, !1), ma(e.data.hints))
