@@ -11,15 +11,16 @@ Therefore it lives under the constraints of valid draw command data, which consi
 
 ```
 [0] -> 0..2 (tool)
-[1] -> 4..39 (color)
-[2] -> 0..799 (startX)
-[3] -> 0..599 (startY)
-[4] -> 0..799 (endX)
-[5] -> 0..599 (endY)
+[1] -> 0..39 (color)
+[2] -> 4..39 (size)
+[3] -> 0..799 (startX)
+[4] -> 0..599 (startY)
+[5] -> 0..799 (endX)
+[6] -> 0..599 (endY)
 ```
 
 The goal is to send a decimal data package per draw command.  
-Decimal data is encoded to a custom numeric base representation in index 2-5 to allow maximum package size.  
+Decimal data is encoded to a custom numeric base representation in index 3-6 to allow maximum package size.  
 This results in following bases (d: decimal, o: octal, s: septal):
 `odd cdd odd cdd` (named as MSI base in the following)
 
