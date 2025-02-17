@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & Discord integration",
-  "version": "26.3.12",
+  "version": "26.3.13",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
