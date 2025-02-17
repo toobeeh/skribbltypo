@@ -93,6 +93,10 @@ export const gameJsPatchConfig = {
           target:
             "function\\s*([a-zA-Z0-9&_\\-$]+)\\(\\)\\s*{\\s*var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.cursor;",
         },
+        {
+          source: "##SKRIBBLCOLORS##",
+          target: "([a-zA-Z0-9&_\\-$]+)\\s*=\\s*\\[\\s*\\[255, 255, 255\\],\\s*\\[0, 0, 0\\]",
+        },
       ],
       injections: [
         {
@@ -259,12 +263,33 @@ export const gameJsPatchConfig = {
               
                     msiColorSwitch: {
                       currentCode: undefined,
+                      closeColors: {},
+                      getClosestSkribblColor: code => {
+                      
+                        const existing = typo.msiColorSwitch.closeColors[code];
+                        if(existing !== undefined) return existing;
+                      
+                        const rgb = typo.typoCodeToRgb(code);
+                        const distance = (c1, c2) => 
+                          Math.sqrt(
+                            Math.pow(c1[0] - c2[0], 2) + 
+                            Math.pow(c1[1] - c2[1], 2) + 
+                            Math.pow(c1[2] - c2[2], 2)
+                          );
+                    
+                        const colors = ##SKRIBBLCOLORS##.slice(1);
+                        const color = colors.reduce((closestIndex, color, index) => 
+                          distance(rgb, color) < distance(rgb, colors[closestIndex]) ? index : closestIndex
+                        , 0);
+                        typo.msiColorSwitch.closeColors[code] = color;
+                        return color;
+                      },
                       ensureColorSequence: command => {
                         const color = command[1];
               
                         /* sanitize color to black for non-typo users */
                         if(color > 10000){
-                          command[1] = 1;
+                          command[1] = typo.msiColorSwitch.getClosestSkribblColor(color);
                         }
               
                         /* if color is typo color and not already initiated */
