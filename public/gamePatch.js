@@ -202,12 +202,13 @@
           const rgb = typo.typoCodeToRgb(code);
           const hsl = typo.rgbToHsl(rgb[0], rgb[1], rgb[2]);
           const smallestCircularDiff = (a,b) => Math.min(Math.abs(a - b), Math.abs(a + 360 - b), Math.abs(a - 360 - b));
-          const distance = (c1, c2) =>
-            Math.sqrt(
-              Math.pow(smallestCircularDiff(c1[0], c2[0]) / 360, 2) +
-              Math.pow(c1[1] - c2[1], 2) +
-              Math.pow(c1[2] - c2[2], 2)
-            );
+          const distance = (hsl1, hsl2) => {
+            const dh = smallestCircularDiff(hsl1[0], hsl2[0]) / 360;
+            const ds = hsl1[1] - hsl2[1];
+            const dl = hsl1[2] - hsl2[2];
+
+            return Math.sqrt(dh * dh + ds * ds + dl * dl);
+          }
 
           const colors = wt.slice(1).map(c => typo.rgbToHsl(c[0], c[1], c[2]));
           const color = colors.reduce((closestIndex, color, index) =>
@@ -1506,8 +1507,7 @@
     cn = 0,
     dn = (setInterval(function() {
         var e, t, n;
-        S && L.id == Z && M == x && 0 < (e = v.length - ut) && (t = ut + 8, n = v.slice(ut, t),
-          typo.msiColorSwitch.insertColorSwitches(n), S.emit("data", {
+        S && L.id == Z && M == x && 0 < (e = v.length - ut) && (t = ut + 8, n = v.slice(ut, t), S.emit("data", {
           id: Ia,
           data: n
         }), ut = Math.min(t, v.length),
@@ -1858,9 +1858,35 @@
       typo.messagePort.onmessage = data => S.emit("data", data.data);
 
       const originalEmit = S.emit.bind(S);
-      S.emit = function(...data) {
-        typo.emitPort.postMessage(data);
-        originalEmit(...data);
+      S.emit = function(...event) {
+        typo.emitPort.postMessage(event);
+
+        const {data, id} = event[1];
+
+        if(id === Ia){
+          const events = [];
+          const buffer = [];
+          for(const command of data){
+            const sequence = typo.msiColorSwitch.ensureColorSequence(command);
+            if(sequence === undefined) buffer.push(command);
+            else {
+              if(buffer.length > 0) events.push({id: Ia, data: buffer});
+              events.push({id: Ia, data: sequence});
+              events.push({id: Ta, data: v.length});
+              buffer.push(command);
+            }
+          }
+
+          if(buffer.length > 0) events.push({id: Ia, data: buffer});
+
+          for(event of events){
+            originalEmit("data", event);
+          }
+        }
+
+        else {
+          originalEmit(...event) /* replace recursion prevention */;
+        }
       };
       /* TYPOEND */
       Jn(!1), S.on("joinerr", function(e) {

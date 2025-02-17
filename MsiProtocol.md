@@ -51,6 +51,20 @@ Mods can also execute one-time actions on construction and return an empty funct
 The reset signal is defined by the command `[0, 0, 39, 0,0,0,0]`.  
 It resets the current mod function and following draw commands will be regulary parsed only by skribbl.
 
+## Implementation
+The protocol functions are implemented in the "typo" functions in the game patch.  
+The receiving end sends each received draw command to the protocol parser, which processes the command and applies it to the MSI state.  
+If the command was part of the msi protocol, the parser returns undefined and the command is ignored.  
+If the parser returns a command, it is either the original command or the modified command if a MSI mod was currently active.  
+
+The sender/drawer which initiates MSI protocol packets needs to invoke sending the MSI packets in different places of the code.  
+For example, the color mod is implemented in a proxy of the socket emit function.  
+There, it listens to outgoing events and intercepts command packets.  
+The intercepted command packets are processed and if necessary, MSI sequences are added.  
+Also, after a sequence is sent, an "undo" event is sent to the server, which removes all lines that have been created by the MSI packet sequence for non-typo clients.
+
+Additionally, the sender can send a 
+
 ## Considerations
 The protocol has two downsides:
 - Large overhead for frequent application, like rapid color change
