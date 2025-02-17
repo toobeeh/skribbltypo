@@ -200,16 +200,18 @@
           if(existing !== undefined) return existing;
 
           const rgb = typo.typoCodeToRgb(code);
+          const hsl = typo.rgbToHsl(rgb[0], rgb[1], rgb[2]);
+          const smallestCircularDiff = (a,b) => Math.min(Math.abs(a - b), Math.abs(a + 360 - b), Math.abs(a - 360 - b));
           const distance = (c1, c2) =>
             Math.sqrt(
-              Math.pow(c1[0] - c2[0], 2) +
+              Math.pow(smallestCircularDiff(c1[0], c2[0]) / 360, 2) +
               Math.pow(c1[1] - c2[1], 2) +
               Math.pow(c1[2] - c2[2], 2)
             );
 
-          const colors = wt.slice(1);
+          const colors = wt.slice(1).map(c => typo.rgbToHsl(c[0], c[1], c[2]));
           const color = colors.reduce((closestIndex, color, index) =>
-              distance(rgb, color) < distance(rgb, colors[closestIndex]) ? index : closestIndex
+              distance(hsl, color) < distance(hsl, colors[closestIndex]) ? index : closestIndex
             , 0);
           typo.msiColorSwitch.closeColors[code] = color;
           return color;
@@ -370,6 +372,20 @@
           });
         });
       })(),
+      rgbToHsl: (r, g, b) => {
+        r /= 255; g /= 255; b /= 255;
+        let max = Math.max(r, g, b);
+        let min = Math.min(r, g, b);
+        let d = max - min;
+        let h;
+        if (d === 0) h = 0;
+        else if (max === r) h = (g - b) / d % 6;
+        else if (max === g) h = (b - r) / d + 2;
+        else if (max === b) h = (r - g) / d + 4;
+        let l = (min + max) / 2;
+        let s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+        return [h * 60, s, l];
+      },
       hexToRgb: (hex) => {
         let arrBuff = new ArrayBuffer(4);
         let vw = new DataView(arrBuff);
