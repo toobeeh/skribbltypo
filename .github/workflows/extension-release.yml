@@ -150,7 +150,7 @@ jobs:
           }' > ./dist/updates.json
 
       - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
 
