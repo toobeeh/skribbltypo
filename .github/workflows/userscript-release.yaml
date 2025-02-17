@@ -2,7 +2,8 @@ name: Userscript Release Commit
 on:
   push:
     branches:
-      - develop
+      - legacy-v26
+
 jobs:
   publish-userscript:
     runs-on: ubuntu-latest

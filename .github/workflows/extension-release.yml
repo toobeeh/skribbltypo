@@ -2,7 +2,7 @@ name: Firefox & Chrome Web Extension Release
 on:
   push:
     branches:
-      - master
+      - legacy-v26
 jobs:
   release:
     name: "Create a release"
