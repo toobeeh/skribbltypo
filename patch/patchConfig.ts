@@ -766,9 +766,9 @@ export const gameJsPatchConfig = {
                 typo.messagePort.onmessage = data => ##SOCKET##.emit("data", data.data);
                 
                 const originalEmit = ##SOCKET##.emit.bind(##SOCKET##);
-                ##SOCKET##.emit = function(...data) {
-                  typo.emitPort.postMessage(data);
-                  originalEmit(...data);
+                ##SOCKET##.emit = function(...event) {
+                  typo.emitPort.postMessage(event);
+                  originalEmit(...event);
                 };
                 /* TYPOEND */
 `,
@@ -1178,21 +1178,6 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Insert MSI color sequences",
-      replacements: [
-        {
-          source: "##CMDBATCH##",
-          target: '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.slice\\([a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\),\\s*typo.msiColorSwitch',
-        },
-      ],
-      injections: [
-        {
-          position: '([a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\.slice\\([a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\),) [a-zA-Z0-9&_\\-$]+\\.emit\\("data"[^\\)]+\\)',
-          code: `typo.msiColorSwitch.insertColorSwitches(##CMDBATCH##),`,
-        },
-      ],
-    },
-    {
       name: "Insert MSI color override",
       replacements: [
         {
@@ -1208,6 +1193,61 @@ export const gameJsPatchConfig = {
         {
           position: '(case [a-zA-Z0-9&_\\-$]+:\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; [a-zA-Z0-9&_\\-$]+ < [a-zA-Z0-9&_\\-$]+\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+\\))',
           code: `##CMDBATCH##[##CMDINDEX##] = typo.msi.processIncomingCommand(##CMDBATCH##[##CMDINDEX##]), ##CMDBATCH##[##CMDINDEX##] !== undefined && `,
+        },
+      ],
+    },
+    {
+      name: "Insert MSI color sequences",
+      replacements: [
+        {
+          source: "originalEmit\\(\\.\\.\\.event\\);",
+          target: '(\\s)',
+        },
+        {
+          source: "##CMDARRAY##",
+          target:
+            "if\\s\\([a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+)\\.[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[",
+        },
+        {
+          source: "##CMDEVENTID##",
+          target: 'case ([a-zA-Z0-9&_\\-$]+):\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; [a-zA-Z0-9&_\\-$]+ < [a-zA-Z0-9&_\\-$]+\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+\\)',
+        },
+        {
+          source: "##UNDOEVENTID##",
+          target: '"undo\\.gif"[^}]+"data", {\\s+id: ([a-zA-Z0-9&_\\-$]+)',
+        },
+      ],
+      injections: [
+        {
+          position: `postMessage\\([a-zA-Z0-9&_\\-$]+\\);\\s+(originalEmit\\(\\.\\.\\.event\\);)`,
+          code: `  
+            const {data, id} = event[1];
+    
+            if(id === ##CMDEVENTID##){
+              const events = [];
+              const buffer = [];
+              for(const command of data){
+                const sequence = typo.msiColorSwitch.ensureColorSequence(command);
+                if(sequence === undefined) buffer.push(command);
+                else {
+                  if(buffer.length > 0) events.push({id: ##CMDEVENTID##, data: buffer});
+                  events.push({id: ##CMDEVENTID##, data: sequence});
+                  events.push({id: ##UNDOEVENTID##, data: ##CMDARRAY##.length});
+                  buffer.push(command);
+                }
+              }
+    
+              if(buffer.length > 0) events.push({id: ##CMDEVENTID##, data: buffer});
+    
+              for(event of events){
+                originalEmit("data", event);
+              }
+            }
+    
+            else {
+              originalEmit(...event) /* replace recursion prevention */;
+            }
+          `,
         },
       ],
     },
