@@ -53,7 +53,7 @@ jobs:
           exclusions: "*.git* *.xpi skribbltypo.user.js userscript-gen.js readme.md patch.json /*extensions/* *.web-extension-id .editorconfig .github/"
 
       - name: Append to artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: typo-chromium-release-${{ env.VERSION }}
           path: typo-chromium-release-${{ env.VERSION }}.zip
@@ -102,7 +102,7 @@ jobs:
           timeout: 900000
 
       - name: Archive signed XPI
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: typo-firefox-signed-release-${{env.VERSION}}
           path: ${{ steps.web-ext-sign.outputs.target }}
