@@ -15,6 +15,8 @@
     flex-direction: row;
     align-items: center;
     gap: 2rem;
+    position: absolute;
+    top: calc(var(--UNIT) + var(--BORDER_GAP));
 
     .typo-brush-lab-mods, .typo-brush-lab-tools {
       display: flex;

@@ -1,3 +1,4 @@
+import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { skribblTool } from "@/content/events/tool-changed.event";
 import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
 import { MandalaMod } from "@/content/features/drawing-brush-lab/mods/mandala-mod";
@@ -51,6 +52,18 @@ export class DrawingBrushLabFeature extends TypoFeature {
     NoiseMod,
     TiltMod
   ];
+
+  private readonly _brushLabToggleHotkey = this.useHotkey(
+    new HotkeyAction(
+      "toggle_lab",
+      "Toggle Brush Lab",
+      "Toggle the visibility of the brush lab below skribbl tools",
+      this,
+      () => this._labSwitchComponent?.toggle(),
+      true,
+      ["Shift", "KeyL"]
+    )
+  );
 
   public override get featureInfoComponent(): componentData<DrawingBrushLabInfo> {
     return { componentType: DrawingBrushLabInfo, props: { feature: this } };
