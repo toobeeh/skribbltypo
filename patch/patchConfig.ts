@@ -1204,9 +1204,9 @@ export const gameJsPatchConfig = {
           target: '(\\s)',
         },
         {
-          source: "##CMDARRAY##",
+          source: "##CMDSENTINDEX##",
           target:
-            "if\\s\\([a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+)\\.[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[",
+            "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+) \\+ 8",
         },
         {
           source: "##CMDEVENTID##",
@@ -1226,13 +1226,15 @@ export const gameJsPatchConfig = {
             if(id === ##CMDEVENTID##){
               const events = [];
               const buffer = [];
+              let sent = 0; /* to calculate correct undo offset */
+              
               for(const command of data){
                 const sequence = typo.msiColorSwitch.ensureColorSequence(command);
                 if(sequence === undefined) buffer.push(command);
                 else {
                   if(buffer.length > 0) events.push({id: ##CMDEVENTID##, data: buffer});
                   events.push({id: ##CMDEVENTID##, data: sequence});
-                  events.push({id: ##UNDOEVENTID##, data: ##CMDARRAY##.length});
+                  events.push({id: ##UNDOEVENTID##, data: ##CMDSENTINDEX## + sent});
                   buffer.push(command);
                 }
               }
