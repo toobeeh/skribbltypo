@@ -69,6 +69,7 @@ import { ToolbarSaveFeature } from "@/content/features/toolbar-save/toolbar-save
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { TooltipsFeature } from "@/content/features/tooltips/tooltips.feature";
 import { ChatService } from "@/content/services/chat/chat.service";
+import { ColorsService } from "@/content/services/colors/colors.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
@@ -143,7 +144,8 @@ new ExtensionContainer(interceptor)
     {type: ChatService, scope: "singleton"},
     {type: LobbyInteractionsService, scope: "singleton"},
     {type: ThemesService, scope: "singleton"},
-    {type: LobbyConnectionService, scope: "singleton"}
+    {type: LobbyConnectionService, scope: "singleton"},
+    {type: ColorsService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,

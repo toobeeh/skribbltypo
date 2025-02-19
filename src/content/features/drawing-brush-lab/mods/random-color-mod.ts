@@ -1,0 +1,67 @@
+import {
+  NumericExtensionSetting,
+  type serializable,
+  SettingWithInput,
+} from "@/content/core/settings/setting";
+import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
+import { defaultPalettes } from "@/content/features/drawing-color-palettes/default-palettes";
+import { ColorsService } from "@/content/services/colors/colors.service";
+import { ConstantDrawMod, type constantDrawModEffect } from "@/content/services/tools/constant-draw-mod";
+import { type drawModLine } from "@/content/services/tools/draw-mod";
+import { type brushStyle } from "@/content/services/tools/tools.service";
+import { Color } from "@/util/color";
+import { inject } from "inversify";
+import { firstValueFrom } from "rxjs";
+
+export class RandomColorMod extends ConstantDrawMod implements BrushLabItem {
+  @inject(ColorsService) private readonly _colorsService!: ColorsService;
+
+  readonly description = "Switches colors of the current palette randomly while drawing.";
+  readonly icon = "var(--file-img-line-random-color-gif)";
+  readonly name = "Random Colors";
+
+  private _colorSwitchSetting = new NumericExtensionSetting("brushlab.rainbow.distance", 20)
+    .withName("Color Switch Distance")
+    .withDescription("The distance between the color switches")
+    .withSlider(1)
+    .withBounds(1,100);
+
+  private lastSwitch?: { eventId: number, position: [number, number]};
+
+  readonly settings = [
+    this._colorSwitchSetting
+  ] as SettingWithInput<serializable>[];
+
+  public async applyConstantEffect(
+    line: drawModLine,
+    pressure: number | undefined,
+    style: brushStyle,
+    eventId: number
+  ): Promise<constantDrawModEffect> {
+
+    const distance = await firstValueFrom(this._colorSwitchSetting.changes$);
+    const colors = await firstValueFrom(this._colorsService.pickerColors$) ?? defaultPalettes.skribblPalette;
+
+    if(this.lastSwitch === undefined || this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
+
+      /* random index */
+      const index = Math.floor(Math.random() * colors.colorHexCodes.length);
+      const color = Color.fromHex(colors.colorHexCodes[index]);
+      style.color = color.typoCode;
+
+      this.lastSwitch = {
+        eventId: eventId,
+        position: line.from,
+      };
+    }
+
+    return {
+      style,
+      line: line
+    };
+  }
+
+  private getDistance(from: [number, number], to: [number, number]): number {
+    return Math.sqrt(Math.pow(to[0] - from[0], 2) + Math.pow(to[1] - from[1], 2));
+  }
+}

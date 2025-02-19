@@ -1,11 +1,12 @@
-import { ExtensionSetting, type serializable } from "@/content/core/settings/setting";
+import { type serializable } from "@/content/core/settings/setting";
+import { ColorsService, type pickerColors } from "@/content/services/colors/colors.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { Color } from "@/util/color";
 import { createElement } from "@/util/document/appendElement";
-import { combineLatestWith, distinctUntilChanged, map, type Subscription, tap } from "rxjs";
+import {type Subscription, } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import ColorPalettesInfo from "./drawing-color-palettes-info.svelte";
@@ -25,6 +26,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
+  @inject(ColorsService) private readonly _colorsService!: ColorsService;
 
   public readonly name = "Color Palettes";
   public readonly description = "Use custom color palettes instead of the default skribbl colors";
@@ -38,14 +40,6 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     return {componentType: ColorPalettesManage, props: { feature: this }};
   }
 
-  private _savedPalettesSetting = new ExtensionSetting<palette[]>("saved_palettes", [], this)
-      .withName("Auto Focus Chat Input")
-      .withDescription("Automatically focus the chat input when someone else starts drawing");
-
-  private _activePaletteSetting = new ExtensionSetting<string | undefined>("active_palette", undefined, this)
-      .withName("Active Palette")
-      .withDescription("The name of the currently active palette");
-
   private readonly _hideOriginalPaletteStyle = createElement(`<style>
     #game #game-toolbar .colors:has(.top) {
       display: none;
@@ -56,22 +50,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   private _colorPalettePicker?: ColorPalettePicker;
 
   protected override async onActivate() {
-    this._activePaletteSubscription = this._activePaletteSetting.changes$.pipe(
-      combineLatestWith(this._savedPalettesSetting.changes$),
-
-      /* if changed and active does not exist, update current  to undefined */
-      tap(([activePalette, savedPalettes]) => {
-        if(activePalette !== undefined && ![...savedPalettes, ...Object.values(defaultPalettes)]
-          .some(p => p.name === activePalette)) {
-          this._activePaletteSetting.setValue(undefined);
-        }
-      }),
-      map(([activePalette, savedPalettes]) => activePalette !== undefined ?
-        [...savedPalettes, ...Object.values(defaultPalettes)].find(p => p.name === activePalette) :
-        undefined
-      ),
-      distinctUntilChanged()
-    ).subscribe(palette => this.updatePaletteStyle(palette));
+    this._activePaletteSubscription = this._colorsService.pickerColors$.subscribe(palette => this.updatePaletteStyle(palette));
   }
 
   protected override async onDestroy() {
@@ -86,11 +65,11 @@ export class DrawingColorPalettesFeature extends TypoFeature {
    * @param palette
    * @private
    */
-  private async updatePaletteStyle(palette: palette | undefined){
-    this._logger.info("Updating palette style", palette);
+  private async updatePaletteStyle(colors: pickerColors | undefined){
+    this._logger.info("Updating palette style", colors);
 
     this._colorPalettePicker?.$destroy();
-    if(palette === undefined){
+    if(colors === undefined){
       this._hideOriginalPaletteStyle.remove();
       return;
     }
@@ -103,7 +82,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
       anchor: elements.colorContainer,
       props: {
         feature: this,
-        palette
+        colors
       }
     });
   }
@@ -121,17 +100,9 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     }
 
     const toast = await this._toastService.showLoadingToast(`Removing palette ${name}`);
-    const palettes = await this._savedPalettesSetting.getValue();
-    const index = palettes.findIndex(p => p.name === name);
-    if(index === -1) {
-      this._logger.error(`Palette with name ${name} does not exist`);
-      toast.reject(`Palette with name ${name} does not exist`);
-      return;
-    }
 
     try {
-      palettes.splice(index, 1);
-      await this._savedPalettesSetting.setValue(palettes);
+      await this._colorsService.removePalette(name);
     }
     catch (e) {
       this._logger.error(`Failed to remove palette ${name}`, e);
@@ -194,17 +165,8 @@ export class DrawingColorPalettesFeature extends TypoFeature {
       return;
     }
 
-    let palettes = await this._savedPalettesSetting.getValue();
-    if(palettes.some(p => p.name === palette.name && p.name !== overwrite)) {
-      this._logger.error(`Palette with name ${palette.name} already exists`);
-      toast.reject(`Palette with name ${palette.name} already exists`);
-      return;
-    }
-
     try {
-      palettes = palettes.filter(p => p.name !== overwrite);
-      palettes.push(palette);
-      await this._savedPalettesSetting.setValue(palettes);
+      await this._colorsService.savePalette(palette, overwrite);
     }
     catch (e) {
       this._logger.error(`Failed to save palette ${palette.name}`, e);
@@ -248,11 +210,11 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   }
 
   public get savedPalettesStore() {
-    return this._savedPalettesSetting.store;
+    return this._colorsService.savedPalettesSetting.store;
   }
 
   public get activePaletteStore() {
-    return this._activePaletteSetting.store;
+    return this._colorsService.activePaletteSetting.store;
   }
 
   public get defaultPalettes() {

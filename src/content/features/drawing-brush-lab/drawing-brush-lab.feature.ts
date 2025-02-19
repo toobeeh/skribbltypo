@@ -5,6 +5,7 @@ import { MandalaMod } from "@/content/features/drawing-brush-lab/mods/mandala-mo
 import { NoiseMod } from "@/content/features/drawing-brush-lab/mods/noise-mod";
 import { ParallelLineMod } from "@/content/features/drawing-brush-lab/mods/parallel-line-mod";
 import { RainbowMod } from "@/content/features/drawing-brush-lab/mods/rainbow-mod";
+import { RandomColorMod } from "@/content/features/drawing-brush-lab/mods/random-color-mod";
 import { SculptMod } from "@/content/features/drawing-brush-lab/mods/sculpt-mod";
 import { TiltMod } from "@/content/features/drawing-brush-lab/mods/tilt-mod";
 import { DashTool } from "@/content/features/drawing-brush-lab/tools/dash-tool";
@@ -48,6 +49,7 @@ export class DrawingBrushLabFeature extends TypoFeature {
     DotTool,
     DashTool,
     RainbowMod,
+    RandomColorMod,
     GridTool,
     NoiseMod,
     TiltMod
@@ -61,7 +63,7 @@ export class DrawingBrushLabFeature extends TypoFeature {
       this,
       () => this._labSwitchComponent?.toggle(),
       true,
-      ["Shift", "KeyL"]
+      ["ShiftLeft", "KeyL"]
     )
   );
 

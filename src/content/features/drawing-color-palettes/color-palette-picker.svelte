@@ -1,9 +1,9 @@
 <script lang="ts">
   import {
-    DrawingColorPalettesFeature,
-    type palette,
+    DrawingColorPalettesFeature
   } from "@/content/features/drawing-color-palettes/drawing-color-palettes.feature";
-  export let palette: palette;
+  import type { pickerColors } from "@/content/services/colors/colors.service";
+  export let colors: pickerColors;
   export let feature: DrawingColorPalettesFeature;
 </script>
 
@@ -44,8 +44,8 @@
 </style>
 
 <div class="colors typo-palette">
-  <div class="typo-palette-picker" style="grid-template-columns: repeat({palette.columns}, auto)">
-    {#each palette.colorHexCodes as color}
+  <div class="typo-palette-picker" style="grid-template-columns: repeat({colors.columns}, auto)">
+    {#each colors.colorHexCodes as color}
       <div class="typo-palette-picker-item"
            on:click={() => feature.setColor(color)}
            style="background-color: {color};"></div>
