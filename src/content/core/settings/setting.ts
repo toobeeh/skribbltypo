@@ -6,6 +6,7 @@ import BooleanSettingInput from "@/lib/settings/boolean-setting-input.svelte";
 import NumericSettingInput from "@/lib/settings/numeric-setting-input.svelte";
 import ChoiceSettingInput from "@/lib/settings/choice-setting-input.svelte";
 import TextSettingInput from "@/lib/settings/text-setting-input.svelte";
+import ColorHexSettingInput from "@/lib/settings/color-hex-setting-input.svelte";
 import type { SvelteComponent } from "svelte";
 
 export type primitive = string | number | boolean;
@@ -105,6 +106,15 @@ export class TextExtensionSetting extends SettingWithInput<string> {
   public override get componentData()  {
     return {
       componentType: TextSettingInput,
+      props: { setting: this }
+    };
+  }
+}
+
+export class HexColorExtensionSetting extends SettingWithInput<string> {
+  public override get componentData()  {
+    return {
+      componentType: ColorHexSettingInput,
       props: { setting: this }
     };
   }

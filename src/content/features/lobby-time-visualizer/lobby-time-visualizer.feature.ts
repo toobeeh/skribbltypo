@@ -1,4 +1,4 @@
-import { BooleanExtensionSetting } from "@/content/core/settings/setting";
+import { BooleanExtensionSetting, HexColorExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyJoinedEventListener } from "@/content/events/lobby-joined.event";
 import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
@@ -31,6 +31,14 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
   public override get featureInfoComponent(): componentData<LobbyTimeVisualizerInfo>{
     return { componentType: LobbyTimeVisualizerInfo, props: {}};
   }
+
+  private readonly _colorStartSetting = this.useSetting(new HexColorExtensionSetting("visualizer_color_start", "#46d536", this)
+    .withName("Color Start")
+    .withDescription("Start color of the visualizer bar"));
+
+  private readonly _colorEndSetting = this.useSetting(new HexColorExtensionSetting("visualizer_color_end", "#fa2b08", this)
+    .withName("Color End")
+    .withDescription("End color of the visualizer bar"));
 
   private _enableChooseVisualizer = this.useSetting(new BooleanExtensionSetting("choose_visualizer", true, this)
     .withName("Choose Visualizer")
@@ -119,11 +127,15 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
     /* delay to separate animations.. */
     await firstValueFrom(of(1).pipe(delay(10)));
 
+    const startColor = await this._colorStartSetting.getValue();
+    const endColor = await this._colorEndSetting.getValue();
+
     /* add current visualizer */
     await this._visualizerStyle.replace(`  
       @keyframes countdown {
-        from { width: ${ Math.floor(time * 100 / max) }%; }
-        to { width: 0%; }
+        0% { width: ${ Math.floor(time * 100 / max) }%; background-color: ${startColor}; }
+        50% { width: ${ Math.floor(time * 50 / max) }%; background-color: ${startColor}; }
+        100% { width: 0%; background-color: ${endColor}; }
       }
     
       #game-canvas:after {
@@ -133,7 +145,6 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
         left: 0;
         width: 0;
         height: .3rem;
-        background-color: LightGreen;
         animation: countdown ${time * 1000}ms linear;
       }
     `);
