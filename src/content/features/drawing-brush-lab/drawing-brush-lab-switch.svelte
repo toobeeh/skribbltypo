@@ -17,6 +17,11 @@
     display: none;
   }*/
 
+  /* change grid area height */
+  :global(#game-toolbar:has(.typo-brush-lab-switch.expanded)){
+    grid-template-rows: max-content;
+  }
+
   /* hide typo brushlab section */
   :global(#game-toolbar:not(:has(.typo-brush-lab-switch.expanded)) > .typo-brush-lab-group){
     display: none;

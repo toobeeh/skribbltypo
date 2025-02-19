@@ -10,13 +10,14 @@
 <style lang="scss">
 
   .typo-brush-lab-group {
-    grid-area: preview / preview / preview / tools;
+    /*grid-area: preview / preview / preview / tools;*/
     display: flex;
     flex-direction: row;
     align-items: center;
     gap: 2rem;
-    position: absolute;
-    top: calc(var(--UNIT) + var(--BORDER_GAP));
+    grid-row: 2;
+    /*position: absolute;
+    top: calc(var(--UNIT) + var(--BORDER_GAP));*/
 
     .typo-brush-lab-mods, .typo-brush-lab-tools {
       display: flex;
