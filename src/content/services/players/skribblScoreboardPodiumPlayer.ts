@@ -7,16 +7,24 @@ import { elements, requireElement } from "@/util/document/requiredQuerySelector"
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 
 export class SkribblScoreboardPodiumPlayer implements SkribblPlayerDisplay {
-
   private readonly _playerContainer: HTMLElement;
   private readonly _avatarContainer: HTMLElement;
   private _placeholderBackgroundContainer: HTMLElement;
 
-  constructor(private readonly _player: skribblPlayer, private readonly _lobbyKey: string) {
-    this._playerContainer = requireElement(`.overlay-content .result.show .podests > div:has(.avatar[playerid='${this._player.id}'])`);
+  constructor(
+    private readonly _player: skribblPlayer,
+    private readonly _lobbyKey: string,
+  ) {
+    this._playerContainer = requireElement(
+      `.overlay-content .result.show .podests > div:has(.avatar[playerid='${this._player.id}'])`,
+    );
     this._avatarContainer = requireElement(".avatar", this._playerContainer);
     this._placeholderBackgroundContainer = createElement("<div style=\"display: none;\"></div>");
     this._playerContainer.appendChild(this._placeholderBackgroundContainer);
+  }
+
+  destroy() {
+    this._placeholderBackgroundContainer.remove();
   }
 
   get typoId(): anonymousPlayerIdentification {
@@ -58,8 +66,10 @@ export class SkribblScoreboardPodiumPlayer implements SkribblPlayerDisplay {
    * @param value
    */
   set hideAvatar(value: boolean) {
-    if(value){
-      elements(":is(.eyes, .mouth, .color)", this._avatarContainer).forEach(element => element.remove());
+    if (value) {
+      elements(":is(.eyes, .mouth, .color)", this._avatarContainer).forEach((element) =>
+        element.remove(),
+      );
     }
   }
 }

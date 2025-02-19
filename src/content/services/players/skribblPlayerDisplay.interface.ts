@@ -17,6 +17,11 @@ export const isConcretePlayerIdentification = (value: object): value is concrete
  */
 export interface SkribblPlayerDisplay {
 
+  /**
+   * Destroy the player display and clean up styles
+   */
+  destroy(): void;
+
   get typoId(): typoPlayerIdentification;
 
   /**

@@ -26,7 +26,7 @@ import {
   combineLatestWith,
   distinctUntilChanged, filter, from,
   map,
-  mergeWith, of,
+  mergeWith, of, pairwise,
   startWith, switchMap,
   withLatestFrom,
 } from "rxjs";
@@ -52,6 +52,7 @@ export class PlayersService {
   private readonly _scoreboardPlayers$ = new BehaviorSubject<SkribblPlayerDisplay[]>([]);
   private readonly _popupPlayer$ = new BehaviorSubject<SkribblPlayerDisplay | undefined>(undefined);
   private readonly _overlayPlayer$ = new BehaviorSubject<SkribblPlayerDisplay | undefined>(undefined);
+  private readonly _players$ = new BehaviorSubject<SkribblPlayerDisplay[]>([]);
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -66,6 +67,34 @@ export class PlayersService {
     this.setupScoreboardPlayers();
     this.setupPopupPlayer();
     this.setupOverlayPlayer();
+    this.setupCombinedPlayers();
+  }
+
+  private setupCombinedPlayers(){
+    this._lobbyPlayers$.pipe(
+      startWith([]),
+      combineLatestWith(
+        this.landingPlayer$,
+        this.scoreboardPlayers$,
+        this.popupPlayer$,
+        this.overlayPlayer$
+      ),
+      map(([players, landing, scoreboard, popup, overlay]) => [
+        ...players,
+        landing,
+        ...scoreboard,
+        popup,
+        overlay
+      ]
+        .filter(player => player !== undefined) as SkribblPlayerDisplay[])
+    ).subscribe(this._players$);
+
+    /* destroy when removed */
+    this.players$.pipe(
+      pairwise()
+    ).subscribe(([oldPlayers, newPlayers]) => {
+      oldPlayers.filter(player => !newPlayers.includes(player)).forEach(player => player.destroy());
+    });
   }
 
   private setupLandingPlayer(){
@@ -276,22 +305,6 @@ export class PlayersService {
   }
 
   public get players$() {
-    return this._lobbyPlayers$.pipe(
-      startWith([]),
-      combineLatestWith(
-        this.landingPlayer$,
-        this.scoreboardPlayers$,
-        this.popupPlayer$,
-        this.overlayPlayer$
-      ),
-      map(([players, landing, scoreboard, popup, overlay]) => [
-        ...players,
-        landing,
-        ...scoreboard,
-        popup,
-        overlay
-      ]
-        .filter(player => player !== undefined) as SkribblPlayerDisplay[])
-    );
+    return this._players$.asObservable();
   }
 }

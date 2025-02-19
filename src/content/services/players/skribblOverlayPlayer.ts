@@ -7,14 +7,21 @@ import { elements, requireElement } from "@/util/document/requiredQuerySelector"
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 
 export class SkribblOverlayPlayer implements SkribblPlayerDisplay {
-
   private readonly _avatarContainer: HTMLElement;
   private _placeholderBackgroundContainer: HTMLElement;
 
-  constructor(private readonly _player: skribblPlayer, private readonly _lobbyKey: string, private readonly _overlayContainer: HTMLElement) {
+  constructor(
+    private readonly _player: skribblPlayer,
+    private readonly _lobbyKey: string,
+    private readonly _overlayContainer: HTMLElement,
+  ) {
     this._avatarContainer = requireElement(".avatar", this._overlayContainer);
     this._placeholderBackgroundContainer = createElement("<div style=\"display: none;\"></div>");
     this._overlayContainer.appendChild(this._placeholderBackgroundContainer);
+  }
+
+  destroy() {
+    this._placeholderBackgroundContainer.remove();
   }
 
   get typoId(): anonymousPlayerIdentification {
@@ -56,8 +63,10 @@ export class SkribblOverlayPlayer implements SkribblPlayerDisplay {
    * @param value
    */
   set hideAvatar(value: boolean) {
-    if(value){
-      elements(":is(.eyes, .mouth, .color)", this._avatarContainer).forEach(element => element.remove());
+    if (value) {
+      elements(":is(.eyes, .mouth, .color)", this._avatarContainer).forEach((element) =>
+        element.remove(),
+      );
     }
   }
 }

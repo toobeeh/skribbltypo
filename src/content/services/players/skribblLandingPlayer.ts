@@ -2,15 +2,23 @@ import type { concretePlayerIdentification, SkribblPlayerDisplay } from "@/conte
 import { replaceOrAddCssRule } from "@/util/document/replaceOrAddCssRule";
 
 export class SkribblLandingPlayer implements SkribblPlayerDisplay {
-
   private _playerHideAvatarRuleIndex: number | undefined;
   private readonly _playerStyle: HTMLStyleElement;
   private readonly _containerId = "typo-customize-player-display";
 
-  constructor(private readonly _login: number, private _customizerContainer: HTMLElement, private _avatarContainer: HTMLElement) {
+  constructor(
+    private readonly _login: number,
+    private _customizerContainer: HTMLElement,
+    private _avatarContainer: HTMLElement,
+  ) {
     this._customizerContainer.classList.add(this._containerId);
     this._playerStyle = document.createElement("style");
     this._customizerContainer.appendChild(this._playerStyle);
+  }
+
+  destroy() {
+    this._playerStyle.remove();
+    this._customizerContainer.classList.remove(this._containerId);
   }
 
   get typoId(): concretePlayerIdentification {
@@ -49,9 +57,14 @@ export class SkribblLandingPlayer implements SkribblPlayerDisplay {
   }
 
   public set hideAvatar(value: boolean) {
-    this._playerHideAvatarRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+    this._playerHideAvatarRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `
       .${this._containerId} .avatar > :is(.eyes, .mouth, .color) { display: ${value ? "none" : "block"}
-      }` : undefined,
-      this._playerHideAvatarRuleIndex);
+      }`
+        : undefined,
+      this._playerHideAvatarRuleIndex,
+    );
   }
 }

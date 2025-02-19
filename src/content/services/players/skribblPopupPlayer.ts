@@ -6,7 +6,6 @@ import { elements, requireElement } from "@/util/document/requiredQuerySelector"
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 
 export class SkribblPopupPlayer implements SkribblPlayerDisplay {
-
   private readonly _avatarContainer: HTMLElement;
   private _placeholderBackgroundContainer: HTMLElement;
 
@@ -14,19 +13,24 @@ export class SkribblPopupPlayer implements SkribblPlayerDisplay {
     private readonly _player: skribblPlayer,
     private readonly _playerPopup: HTMLElement,
     private readonly _lobbyKey?: string,
-    private readonly _playerLogin?: number
+    private readonly _playerLogin?: number,
   ) {
-
-    if(_lobbyKey === undefined && _playerLogin === undefined) throw new Error("No identification provided");
+    if (_lobbyKey === undefined && _playerLogin === undefined)
+      throw new Error("No identification provided");
 
     this._avatarContainer = requireElement(".avatar", this._playerPopup);
     this._placeholderBackgroundContainer = createElement("<div style=\"display: none;\"></div>");
     this._playerPopup.appendChild(this._placeholderBackgroundContainer);
   }
 
+  destroy() {
+    this._placeholderBackgroundContainer.remove();
+  }
+
   get typoId(): typoPlayerIdentification {
-    if(this._playerLogin !== undefined) return { login: this._playerLogin };
-    if(this._lobbyKey !== undefined) return { lobbyKey: this._lobbyKey, lobbyPlayerId: this._player.id };
+    if (this._playerLogin !== undefined) return { login: this._playerLogin };
+    if (this._lobbyKey !== undefined)
+      return { lobbyKey: this._lobbyKey, lobbyPlayerId: this._player.id };
     throw new Error("No identification provided");
   }
 
@@ -65,8 +69,10 @@ export class SkribblPopupPlayer implements SkribblPlayerDisplay {
    * @param value
    */
   set hideAvatar(value: boolean) {
-    if(value){
-      elements(":is(.eyes, .mouth, .color)", this._avatarContainer).forEach(element => element.remove());
+    if (value) {
+      elements(":is(.eyes, .mouth, .color)", this._avatarContainer).forEach((element) =>
+        element.remove(),
+      );
     }
   }
 }

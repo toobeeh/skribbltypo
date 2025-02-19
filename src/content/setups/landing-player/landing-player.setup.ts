@@ -20,12 +20,11 @@ export class LandingPlayerSetup extends Setup<Observable<SkribblLandingPlayer | 
     const elements = await this._elementsSetup.complete();
 
     return this._memberService.member$.pipe(
-      map((member) => {
-        if(member === undefined || member === null || elements === undefined) return undefined;
-        return new SkribblLandingPlayer(Number(member.userLogin), elements.landingCustomizeContainer, elements.landingAvatar);
-      }),
       combineLatestWith(this._globalSettingsService.settings.showLandingOutfit.changes$),
-      map(([player, showLandingOutfit]) => showLandingOutfit ? player : undefined),
+      map(([member, enabled]) => {
+        if(member === undefined || member === null || elements === undefined || !enabled) return undefined;
+        return new SkribblLandingPlayer(Number(member.userLogin), elements.landingCustomizeContainer, elements.landingAvatar);
+      })
     );
   }
 }

@@ -11,7 +11,6 @@ import type {
  * for the lobby player containers in-game
  */
 export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
-
   private static idCounter = 0;
 
   private readonly _elementId;
@@ -34,9 +33,13 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   private _playerInfoRuleIndex: number | undefined;
   private _playerHideAvatarRuleIndex: number | undefined;
 
-  public constructor(private readonly _player: skribblPlayer, private readonly _lobbyKey?: string, private readonly _playerLogin?: number) {
-
-    if(_lobbyKey === undefined && _playerLogin === undefined) throw new Error("No identification provided");
+  public constructor(
+    private readonly _player: skribblPlayer,
+    private readonly _lobbyKey?: string,
+    private readonly _playerLogin?: number,
+  ) {
+    if (_lobbyKey === undefined && _playerLogin === undefined)
+      throw new Error("No identification provided");
 
     this._playerContainer = requireElement(`#game-players .player[playerid='${this._player.id}']`);
     this._avatarContainer = requireElement(".avatar", this._playerContainer);
@@ -49,9 +52,15 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
     this._playerContainer.appendChild(this._playerStyle);
   }
 
+  destroy() {
+    this._playerContainer.classList.remove(this._elementId);
+    this._playerStyle.remove();
+  }
+
   public get typoId(): typoPlayerIdentification {
-    if(this._playerLogin !== undefined) return { login: this._playerLogin };
-    if(this._lobbyKey !== undefined) return { lobbyKey: this._lobbyKey, lobbyPlayerId: this._player.id };
+    if (this._playerLogin !== undefined) return { login: this._playerLogin };
+    if (this._lobbyKey !== undefined)
+      return { lobbyKey: this._lobbyKey, lobbyPlayerId: this._player.id };
     throw new Error("No identification provided");
   }
 
@@ -80,70 +89,107 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   }
 
   public set useBackground(value: boolean) {
-    this._backgroundRuleIndex = replaceOrAddCssRule(this._playerStyle,
-      !value ? `.${this._elementId} .player-background { background-color: transparent !important; }` : undefined,
-      this._backgroundRuleIndex
+    this._backgroundRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      !value
+        ? `.${this._elementId} .player-background { background-color: transparent !important; }`
+        : undefined,
+      this._backgroundRuleIndex,
     );
   }
 
   public set useSafeColor(value: boolean) {
-    this._fontColorRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+    this._fontColorRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `
       .${this._elementId}:not(.guessed) > :not(.player-bubble) *, .${this._elementId}:not(.guessed) .player-info:after { 
         color: White !important; 
-      }` : undefined,
-      this._fontColorRuleIndex
+      }`
+        : undefined,
+      this._fontColorRuleIndex,
     );
 
-    this._fontColorGuessedRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+    this._fontColorGuessedRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `
       .${this._elementId}:is(.guessed) > :not(.player-bubble) *, .${this._elementId}:is(.guessed) .player-info:after { 
         color: #56ce27 !important;
-      }` : undefined,
-      this._fontColorGuessedRuleIndex
+      }`
+        : undefined,
+      this._fontColorGuessedRuleIndex,
     );
 
-    this._fontShadowRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+    this._fontShadowRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `
       .${this._elementId} > :not(.player-bubble) *, .${this._elementId} .player-info:after { 
         text-shadow: 0px 0px 25px black, 0px 0px 10px black, 0px 0px 5px black !important;
-      }` : undefined,
-      this._fontShadowRuleIndex
+      }`
+        : undefined,
+      this._fontShadowRuleIndex,
     );
   }
 
   public set adjustToContainSprites(value: boolean) {
-    this._resizeRuleIndex = replaceOrAddCssRule(this._playerStyle,
+    this._resizeRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
       value ? `.${this._elementId} { height: 56px !important; }` : undefined,
-      this._resizeRuleIndex
+      this._resizeRuleIndex,
     );
 
-    this._alignRuleIndex = replaceOrAddCssRule(this._playerStyle,
-      value ? `.${this._elementId} .player-avatar-container { top: calc((100% - var(--UNIT)) / 2) !important; }` : undefined,
-      this._alignRuleIndex
+    this._alignRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `.${this._elementId} .player-avatar-container { top: calc((100% - var(--UNIT)) / 2) !important; }`
+        : undefined,
+      this._alignRuleIndex,
     );
 
-    this._elevateDrawingRuleIndex = replaceOrAddCssRule(this._playerStyle,
-      value ? `#game-players .${this._elementId} .player-avatar-container .avatar .drawing { z-index: 100; }` : undefined,
-      this._elevateDrawingRuleIndex
+    this._elevateDrawingRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `#game-players .${this._elementId} .player-avatar-container .avatar .drawing { z-index: 100; }`
+        : undefined,
+      this._elevateDrawingRuleIndex,
     );
   }
 
   public set viewPlayerId(value: boolean) {
-    this._playerIdRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+    this._playerIdRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `
        .${this._elementId} .player-score { 
           display: none; 
-       }` : undefined,
-      this._playerIdRuleIndex);
+       }`
+        : undefined,
+      this._playerIdRuleIndex,
+    );
 
-    this._playerInfoRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+    this._playerInfoRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `
        .${this._elementId} .player-info:after { 
           content: "#${this._player.id}"; 
-       }` : undefined,
-      this._playerInfoRuleIndex);
+       }`
+        : undefined,
+      this._playerInfoRuleIndex,
+    );
   }
 
   public set hideAvatar(value: boolean) {
-    this._playerHideAvatarRuleIndex = replaceOrAddCssRule(this._playerStyle, value ? `
+    this._playerHideAvatarRuleIndex = replaceOrAddCssRule(
+      this._playerStyle,
+      value
+        ? `
       .${this._elementId} .avatar > :is(.eyes, .mouth, .color) { display: ${value ? "none" : "block"}
-      }` : undefined,
-      this._playerHideAvatarRuleIndex);
+      }`
+        : undefined,
+      this._playerHideAvatarRuleIndex,
+    );
   }
 }
