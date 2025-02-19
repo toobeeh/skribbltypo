@@ -1,8 +1,12 @@
-import { type drawModEffect, type drawModLine, TypoDrawMod } from "@/content/services/tools/draw-mod";
+import {
+  type drawModEffect,
+  type lineCoordinates,
+  TypoDrawMod,
+} from "@/content/services/tools/draw-mod";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 
 export interface constantDrawModEffect {
-  line: drawModLine,
+  line: lineCoordinates,
   style: brushStyle
 }
 
@@ -19,7 +23,7 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
    * @param strokeId
    */
   public async applyEffect(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     brushStyle: brushStyle,
     eventId: number,
@@ -43,7 +47,7 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
    * @protected
    */
   protected abstract applyConstantEffect(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     brushStyle: brushStyle,
     eventId: number,
@@ -51,7 +55,7 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
   ): constantDrawModEffect | Promise<constantDrawModEffect>;
 
   protected noConstantEffect(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     brushStyle: brushStyle
   ): constantDrawModEffect | Promise<constantDrawModEffect> {

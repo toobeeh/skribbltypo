@@ -159,7 +159,7 @@ export class ToolsService {
       /* for each line - mods may append or skip lines */
       const modLines: drawModLine[] = [];
       for(const line of lines) {
-        const effect = await mod.applyEffect(line, pressure, modStyle, eventId, strokeId);
+        const effect = await mod.applyEffect(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId);
         modLines.push(...effect.lines);
         modStyle = effect.style;
         this._logger.debug("Mod applied", mod);
@@ -188,7 +188,7 @@ export class ToolsService {
         /* make sure line is safe - decimal places should not be submitted to skribbl */
         line = {from: [Math.floor(line.from[0]), Math.floor(line.from[1])], to: [Math.floor(line.to[0]), Math.floor(line.to[1])]};
 
-        const lineCommands = await tool.createCommands(line, pressure, modStyle, eventId, strokeId);
+        const lineCommands = await tool.createCommands(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId);
         if(lineCommands.length > 0) {
           commands.push(...lineCommands);
           this._logger.debug("Adding commands created by tool", tool, commands);
@@ -202,7 +202,12 @@ export class ToolsService {
     /* create default draw commands as lines */
     else {
       for(const line of lines) {
-        const lineCommand = this._drawingService.createLineCommand([...line.from, ...line.to], modStyle.color, modStyle.size, false);
+        const lineCommand = this._drawingService.createLineCommand(
+          [...line.from, ...line.to],
+          line.styleOverride?.color ?? modStyle.color,
+          line.styleOverride?.size ?? modStyle.size,
+          false
+        );
         if(lineCommand !== undefined) commands.push(lineCommand);
       }
     }

@@ -1,9 +1,14 @@
 import type { brushStyle } from "@/content/services/tools/tools.service";
 import { injectable } from "inversify";
 
-export interface drawModLine {
+export interface lineCoordinates {
   from: [number, number];
   to: [number, number];
+
+}
+
+export interface drawModLine extends lineCoordinates {
+  styleOverride?: brushStyle;
 }
 
 export interface drawModEffect {
@@ -30,7 +35,7 @@ export abstract class TypoDrawMod {
    * @param strokeId id of the stroke. each event during a pointer-down to pointer-up cycle shares the same stroke id
    */
   public abstract applyEffect(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     brushStyle: brushStyle,
     eventId: number,
