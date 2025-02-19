@@ -8,6 +8,7 @@ import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
   PrioritizedCanvasEventsSetup
 } from "@/content/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
+import { Color } from "@/util/color";
 import { inject } from "inversify";
 import {
   BehaviorSubject, catchError,
@@ -143,16 +144,16 @@ export class LineToolFeature extends TypoFeature {
         pairwise(),
 
         /* update ui */
-        tap(([prev, current]) => this.processUiStateUpdate(prev, current)),
-        map(([, current]) => current),
+        withLatestFrom(this._toolsService.activeBrushStyle$),
+        tap(([[prev, current], style]) => this.processUiStateUpdate(prev, current, style)),
+        map(([[, current]]) => current),
 
         /* map to current and emit only when line accepted */
         debounce(() => this._lineAccept$.pipe(take(1), tap(() => this._logger.debug("Line accept debounce emitted")))),
         startWith(["disabled", undefined, undefined] as ["disabled", undefined, undefined]),
-        pairwise(),
-
-        tap(data => this._logger.debug("Line accepted", data)),
       ).pipe(
+        pairwise(),
+        tap(data => this._logger.debug("Line accepted", data)),
         withLatestFrom(this._toolsService.activeBrushStyle$)
       )
       .subscribe(async ([[[, prevOrigin, prevTarget], [listening, origin, target]], style]) => {
@@ -214,30 +215,35 @@ export class LineToolFeature extends TypoFeature {
    * @private
    */
   private calculateSnap(origin: [number, number], target: [number, number]): [number, number] {
-    const dx = Math.abs(target[0] - origin[0]);
-    const dy = Math.abs(target[1] - origin[1]);
+    const dx = target[0] - origin[0];
+    const dy = target[1] - origin[1];
 
-    /* if horizontal */
-    if (dx > dy) {
+    /* horizontal */
+    if (Math.abs(dx) > 2 * Math.abs(dy)) {
       return [target[0], origin[1]];
-    } else if (dy > dx) {
+    }
 
-    /* if vertical */
+    /* vertical */
+    if (Math.abs(dy) > 2 * Math.abs(dx)) {
       return [origin[0], target[1]];
-    } else {
+    }
 
-    /* if diagonal */
-      return target;
+    /* diagonal */
+    if (Math.abs(dx) > Math.abs(dy)) {
+      return [origin[0] + Math.sign(dx) * Math.abs(dy), origin[1] + dy];
+    } else {
+      return [origin[0] + dx, origin[1] + Math.sign(dy) * Math.abs(dx)];
     }
   }
 
   /**
    * Update the line preview canvas with the current line origin and target coordinates
    * @param coordinates
+   * @param style
    * @private
    */
   private async setPreview(
-    coordinates: [number, number, number | undefined, number | undefined] | undefined,
+    coordinates: [number, number, number | undefined, number | undefined] | undefined, style: brushStyle
   ) {
     this._logger.debug("Updating preview", coordinates);
 
@@ -259,7 +265,10 @@ export class LineToolFeature extends TypoFeature {
       return;
     }
 
+    ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, this._linePreview.width, this._linePreview.height);
+    ctx.lineWidth = style.size;
+    ctx.strokeStyle = Color.fromSkribblCode(style.color).hex;
     ctx.beginPath();
     ctx.moveTo(coordinates[0], coordinates[1]);
     ctx.lineTo(coordinates[2], coordinates[3]);
@@ -317,6 +326,7 @@ export class LineToolFeature extends TypoFeature {
    * @param listening
    * @param origin
    * @param target
+   * @param style
    * @private
    */
   private async processUiStateUpdate(
@@ -330,6 +340,7 @@ export class LineToolFeature extends TypoFeature {
       [number, number] | undefined,
       [number, number] | undefined,
     ],
+    style: brushStyle
   ) {
     this._logger.debug(
       "Line state processing",
@@ -343,6 +354,7 @@ export class LineToolFeature extends TypoFeature {
       listening !== "disabled" && origin !== undefined
         ? [...origin, ...(target ?? [undefined, undefined])]
         : undefined,
+      style
     );
 
     /* if just entered line tool, add toast */
