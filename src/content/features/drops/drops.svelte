@@ -39,7 +39,7 @@
 
 {#if $currentDrop !== undefined && $currentDrop.ownClaimed === false}
   <div class="typo-drop"
-       on:click={async () => {
+       on:pointerdown={async () => {
          if($currentDrop) {
            const claim = await feature.claimDrop($currentDrop.drop, $currentDrop.timestamp);
            if(claim !== undefined) feature.processClaim(claim, true);
