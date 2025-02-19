@@ -53,6 +53,12 @@ export class LobbyStateChangedEventProcessor extends EventProcessor<lobbyStateUp
         this._logger.info("Lobby joined", update);
         events.next(new LobbyStateChangedEvent(update));
       }
+
+      /* lobby timer override */
+      if(event.id === 14){
+        this._logger.info("Lobby timer set", event.data);
+        events.next(new LobbyStateChangedEvent({timerSet: {time: event.data}}));
+      }
     });
 
     return events;

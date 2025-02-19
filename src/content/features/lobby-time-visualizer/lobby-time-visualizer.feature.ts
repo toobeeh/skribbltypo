@@ -1,8 +1,19 @@
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyJoinedEventListener } from "@/content/events/lobby-joined.event";
-import { LobbyStateChangedEvent, LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
+import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
+import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
 import type { componentData } from "@/content/services/modal/modal.service";
-import { delay, firstValueFrom, map, of, type Subscription, withLatestFrom } from "rxjs";
+import {
+  combineLatestWith,
+  delay,
+  firstValueFrom,
+  map,
+  mergeWith,
+  of,
+  pairwise, startWith,
+  type Subscription,
+  withLatestFrom,
+} from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import LobbyTimeVisualizerInfo from "./lobby-time-visualizer-info.svelte";
@@ -11,6 +22,7 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
 
   @inject(LobbyStateChangedEventListener) private readonly _lobbyStateChangedEventListener!: LobbyStateChangedEventListener;
   @inject(LobbyJoinedEventListener) private readonly _lobbyJoinedEventListener!: LobbyJoinedEventListener;
+  @inject(LobbyLeftEventListener) private readonly _lobbyLeftEventListener!: LobbyLeftEventListener;
 
   public readonly name = "Time Visualizer";
   public readonly description = "Shows a visual representation of time left to draw/choose";
@@ -40,21 +52,48 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
     this._visualizerStyle = new CSSStyleSheet();
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, this._visualizerStyle];
 
-    this.visualizerEventSubscription = this._lobbyStateChangedEventListener.events$.pipe(
+    this._lobbyJoinedEventListener.events$.pipe(
+      mergeWith(this._lobbyLeftEventListener.events$),
+      map(event => event.data),
+
+      combineLatestWith(this._lobbyStateChangedEventListener.events$),
       withLatestFrom(
         this._enableDrawVisualizer.changes$,
         this._enableGuessVisualizer.changes$,
-        this._enableChooseVisualizer.changes$,
-        this._lobbyJoinedEventListener.events$
+        this._enableChooseVisualizer.changes$
       ),
-      map(([event, draw, guess, choose, lobby]) => lobby && (
-        (draw && event.data.drawingStarted?.drawerId === lobby.data.meId ||
-        (guess && event.data.drawingStarted !== undefined && event.data.drawingStarted.drawerId !== lobby.data.meId) ||
-        (choose && event.data.drawerChoosingWord !== undefined) ? event : undefined
-        ))
-      )
-    ).subscribe((event) => {
-      this.visualizeEvent(event);
+
+      map(([[lobby, event], draw, guess, choose]) => event.data.timerSet?.time !== 0 && lobby !== null &&
+        (draw && event.data.drawingStarted?.drawerId === lobby.meId ||
+          (guess && event.data.drawingStarted !== undefined && event.data.drawingStarted.drawerId !== lobby.meId) ||
+          (choose && event.data.drawerChoosingWord !== undefined)
+        ) ? { event, lobby } : (event.data.timerSet ? {override: event.data.timerSet.time} : undefined)
+      ),
+
+      map(data => {
+        if(data === undefined) return undefined;
+        if(data.override) return {override: data.override};
+
+        const {event, lobby} = data;
+
+        if(event?.data.drawingStarted) return {max: lobby.settings.drawTime, time: event.data.drawingStarted.maxTime};
+        if(event?.data.drawerChoosingWord) return {max: event.data.drawerChoosingWord.maxTime, time: event.data.drawerChoosingWord.maxTime};
+
+        return undefined;
+      }),
+
+      startWith(undefined),
+      pairwise(),
+
+      map(([prev, current]) => {
+
+        if(current === undefined) return undefined;
+
+        if(current.override && prev?.max) return {time: current.override, max: prev.max};
+        return current.time && current.max ? {time: current.time, max: current.max} : undefined;
+      })
+    ).subscribe((data) => {
+      this.visualizeEvent(data);
     });
   }
 
@@ -64,8 +103,8 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
     document.adoptedStyleSheets = document.adoptedStyleSheets.filter(sheet => sheet !== this._visualizerStyle);
   }
 
-  private async visualizeEvent(event?: LobbyStateChangedEvent){
-    this._logger.debug("Visualize event", event);
+  private async visualizeEvent(data: {time: number, max: number} | undefined) {
+    this._logger.debug("Visualize event", data);
 
     if(this._visualizerStyle === undefined) {
       this._logger.error("Visualizer style not set");
@@ -74,13 +113,8 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
 
     /* reset styles*/
     await this._visualizerStyle.replace("");
-    if(event === undefined) return;
-
-    const time = event.data.drawingStarted?.maxTime ?? event.data.drawerChoosingWord?.maxTime;
-    if(time === undefined) {
-      this._logger.error("No time set for visualizer", event);
-      return;
-    }
+    if(data === undefined) return;
+    const {time, max} = data;
 
     /* delay to separate animations.. */
     await firstValueFrom(of(1).pipe(delay(10)));
@@ -88,7 +122,7 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
     /* add current visualizer */
     await this._visualizerStyle.replace(`  
       @keyframes countdown {
-        from { width: 100%; }
+        from { width: ${ Math.floor(time * 100 / max) }%; }
         to { width: 0%; }
       }
     

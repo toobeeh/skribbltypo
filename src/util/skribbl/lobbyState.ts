@@ -24,6 +24,9 @@ export interface lobbyStateUpdate {
   gameEnded?: {
     ranking: {playerId: number, rank: number}[],
     displayTime: number
+  },
+  timerSet?: {
+    time: number
   }
 }
 
@@ -76,6 +79,14 @@ export const parseLobbyStateUpdate = (data: any): lobbyStateUpdate | undefined =
         gameEnded: {
           ranking: data.data.map(([playerId, rank]: [number, number]) => ({playerId, rank})),
           displayTime: data.time as number
+        }
+      };
+    }
+
+    case 7: {
+      return {
+        timerSet: {
+          time: data.time as number
         }
       };
     }
