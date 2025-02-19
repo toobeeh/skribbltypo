@@ -25,7 +25,6 @@ export class HotkeysFeature extends TypoFeature {
     document.addEventListener("keyup", this.keyupListener);
     document.addEventListener("visibilitychange", this.visibilityChangeListener);
     window.addEventListener("blur", this.inactiveListener);
-    window.addEventListener("focusout", this.inactiveListener);
 
     /* when keys pressed, execute hotkeys that are not currently down */
     this._pressedSubscription = this._keysPressed$.pipe(
@@ -110,7 +109,8 @@ export class HotkeysFeature extends TypoFeature {
     this._keysPressed$.next([]);
   }
 
-  private handleDocumentInactive(){
+  private handleDocumentInactive(e: Event){
+    console.log(e);
     this._logger.info("Document inactive; releasing all keys");
     const released = [...this._pressedKeys];
     this._pressedKeys.clear();

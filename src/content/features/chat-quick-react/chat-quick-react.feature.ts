@@ -99,10 +99,12 @@ export class ChatQuickReactFeature extends TypoFeature {
       "Quick React",
       "Open the quick react menu",
       this,
-      () => this.toggleQuickReactMenu(),
+      () => { return void 0;},
       true,
       ["ControlRight"],
-      undefined,
+      () => {
+        this.toggleQuickReactMenu();
+      },
       false
     ),
   );
