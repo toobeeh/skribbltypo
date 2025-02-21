@@ -10,7 +10,14 @@ export interface palette extends pickerColors {
 }
 
 export interface pickerColors {
+
+  /** the amount of columns the available colors will be divided */
   columns: number,
+
+  /** the preferred width of the color display; eg if 2 columns should be stretched to the width of 4 columns */
+  preferredColumnWidth?: number
+
+  /** the color hex codes to display */
   colorHexCodes: string[]
 }
 

@@ -51,7 +51,7 @@
     {#each colors.colorHexCodes as color}
       <div class="typo-palette-picker-item"
            on:click={() => feature.setColor(color)}
-           style="background-color: {color};"></div>
+           style="background-color: {color}; width: {colors.preferredColumnWidth ? `calc(var(--UNIT) * ${colors.preferredColumnWidth / colors.columns}` : ''}"></div>
     {/each}
   </div>
 </div>
