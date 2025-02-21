@@ -51,6 +51,14 @@
         display: flex;
         gap: .2em;
 
+        > div.stat-icon {
+          height: 1.5rem;
+          aspect-ratio: 1;
+          background-position: center;
+          background-size: cover;
+          background-repeat: no-repeat;
+        }
+
         > span {
           font-weight: bold;
         }
@@ -87,8 +95,8 @@
     </div>
 
     <div class="member-info-stats">
-      <div><span>🫧</span><span>Bubbles:</span><span>{$member.bubbles}</span></div>
-      <div><span>💧</span><span>Drops:</span><span>{Math.round($member.drops * 10) / 10}</span></div>
+      <div><div class="stat-icon" style="content: var(--file-img-palantir-gif)"></div><span>Bubbles:</span><span>{$member.bubbles}</span></div>
+      <div><div class="stat-icon" style="content: var(--file-img-drop-gif)"></div><span>Drops:</span><span>{Math.round($member.drops * 10) / 10}</span></div>
     </div>
 
     {#if $devmode}
