@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { BooleanExtensionSetting, NumericExtensionSetting } from "@/content/core/settings/setting";
 import { PressureMod } from "@/content/features/drawing-pressure/pressure-mod";
 import type { componentData } from "@/content/services/modal/modal.service";
@@ -13,6 +14,9 @@ export class DrawingPressureFeature extends TypoFeature {
 
   public readonly name = "Modified Pen Pressure";
   public readonly description = "Use the full size range and custom sensitivity for pen pressure";
+  public readonly tags = [
+    FeatureTag.DRAWING,
+  ];
   public readonly featureId = 37;
 
   private _performanceEnabledSubscription?: Subscription;

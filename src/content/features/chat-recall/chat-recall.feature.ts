@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { MessageSentEventListener } from "@/content/events/message-sent.event";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -10,6 +11,9 @@ export class ChatRecallFeature extends TypoFeature {
 
   public readonly name = "Chat Recall";
   public readonly description = "Remembers your last messages so you can quickly recall them with arrow up/down in the chat box";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 15;
 
   private _history: string[] = [];

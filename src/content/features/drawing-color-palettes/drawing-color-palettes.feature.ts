@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { type serializable } from "@/content/core/settings/setting";
 import { ColorsService, type pickerColors } from "@/content/services/colors/colors.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
@@ -30,6 +31,9 @@ export class DrawingColorPalettesFeature extends TypoFeature {
 
   public readonly name = "Color Palettes";
   public readonly description = "Use custom color palettes instead of the default skribbl colors";
+  public readonly tags = [
+    FeatureTag.DRAWING
+  ];
   public readonly featureId = 32;
 
   public override get featureInfoComponent(): componentData<ColorPalettesInfo>{

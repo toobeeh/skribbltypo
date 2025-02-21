@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { MemberService } from "@/content/services/member/member.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
@@ -14,6 +15,10 @@ export class CustomizerOutfitToggleFeature extends TypoFeature {
 
   public readonly name = "Outfit Toggle";
   public readonly description = "Add a toggle to the customizer to show or hide your typo outfit";
+  public readonly tags = [
+    FeatureTag.SOCIAL,
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 45;
 
   private _iconComponent?: IconButton;

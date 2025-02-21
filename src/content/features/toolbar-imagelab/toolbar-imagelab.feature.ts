@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { DrawingService, type savedDrawCommands } from "@/content/services/drawing/drawing.service";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
@@ -40,6 +41,9 @@ export class ToolbarImageLabFeature extends TypoFeature {
   public readonly name = "Image Laboratory";
   public readonly description =
     "Adds an icon to the typo toolbar to save or paste skribbl drawings (SKDs) to a lobby";
+  public readonly tags = [
+    FeatureTag.DRAWING
+  ];
   public readonly featureId = 10;
 
   private _iconComponent?: IconButton;

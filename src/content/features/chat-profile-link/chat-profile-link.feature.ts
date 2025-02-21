@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ChatService } from "@/content/services/chat/chat.service";
 import type { SkribblLobbyPlayer } from "@/content/services/players/skribblLobbyPlayer";
 import { ToastService } from "@/content/services/toast/toast.service";
@@ -15,6 +16,10 @@ export class ChatProfileLinkFeature extends TypoFeature {
 
   public readonly name = "Chat Profile Link";
   public readonly description = "Open player profiles by clicking their name in the chat.";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY,
+    FeatureTag.INTERFACE
+  ];
   public readonly featureId = 23;
 
   private _subscription?: Subscription;

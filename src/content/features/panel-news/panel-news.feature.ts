@@ -1,4 +1,5 @@
 import { AnnouncementDtoTypeEnum } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -14,6 +15,9 @@ export class PanelNewsFeature extends TypoFeature {
 
   public readonly name = "Typo News";
   public readonly description = "Displays updates and typo hints on the start page";
+  public readonly tags = [
+    FeatureTag.INFORMATION
+  ];
   public readonly featureId = 7;
 
   protected override async onActivate() {

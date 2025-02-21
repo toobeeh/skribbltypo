@@ -14,6 +14,7 @@ import { InterpretableEmptyRemainder } from "@/content/core/commands/results/int
 import { InterpretableError } from "@/content/core/commands/results/interpretable-error";
 import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { TextExtensionSetting } from "@/content/core/settings/setting";
 import type { componentData } from "@/content/services/modal/modal.service";
@@ -33,6 +34,9 @@ export class ChatCommandsFeature extends TypoFeature {
 
   public readonly name = "Chat Commands";
   public readonly description = "Execute actions of other features with chat commands";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 38;
 
   private _interpreterSubscription?: Subscription;

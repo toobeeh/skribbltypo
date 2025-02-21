@@ -1,4 +1,5 @@
 import { ExtensionContainer } from "@/content/core/extension-container/extension-container";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ExtensionSetting } from "@/content/core/settings/setting";
 import type { TypoChallenge } from "@/content/features/toolbar-challenges/challenge";
 import { BlindGuessChallenge } from "@/content/features/toolbar-challenges/challenges/blind-guess-challenge";
@@ -24,6 +25,9 @@ export class ToolbarChallengesFeature extends TypoFeature {
   public readonly name = "Challenges";
   public readonly description =
     "Adds the option to enable game modifications to make the game more challenging";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 8;
 
   private _iconComponent?: IconButton;

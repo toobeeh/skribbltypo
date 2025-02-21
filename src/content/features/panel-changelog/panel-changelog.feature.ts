@@ -1,4 +1,5 @@
 import { AnnouncementDtoTypeEnum } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
 import { TypoFeature } from "../../core/feature/feature";
@@ -16,6 +17,9 @@ export class PanelChangelogFeature extends TypoFeature {
 
   public readonly name = "Changelog";
   public readonly description = "Displays a list of changes since the last updates on the start page";
+  public readonly tags = [
+    FeatureTag.INFORMATION
+  ];
   public readonly featureId = 4;
 
   protected override async onActivate() {

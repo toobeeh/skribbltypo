@@ -1,4 +1,5 @@
 import {type ThemeListingDto } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ThemesService } from "@/content/services/themes/themes.service";
@@ -33,6 +34,9 @@ export class ControlsThemesFeature extends TypoFeature {
   public readonly name = "Themes";
   public readonly description =
     "Customize the skribbl.io appearance with pre-made themes or your own style";
+  public readonly tags = [
+    FeatureTag.INTERFACE
+  ];
   public readonly featureId = 34;
 
   private _iconComponent?: IconButton;

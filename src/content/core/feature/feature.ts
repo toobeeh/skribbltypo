@@ -1,5 +1,6 @@
 import type { ExtensionCommand } from "@/content/core/commands/command";
 import { CommandsService } from "@/content/core/commands/commands.service";
+import type { FeatureTag } from "@/content/core/feature/feature-tags";
 import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { HotkeysService } from "@/content/core/hotkeys/hotkeys.service";
 import {
@@ -33,6 +34,7 @@ export abstract class TypoFeature {
 
   public abstract readonly name: string;
   public abstract readonly description: string;
+  public abstract readonly tags: FeatureTag[];
   public readonly toggleEnabled: boolean = true;
   public readonly developerFeature: boolean = false;
 
@@ -85,6 +87,10 @@ export abstract class TypoFeature {
 
   public get commands(): readonly ExtensionCommand[] {
     return this._commands;
+  }
+
+  public get featureTags(): readonly FeatureTag[] {
+    return this.tags;
   }
 
   /**

@@ -1,4 +1,5 @@
 import { type AwardDto, type AwardInventoryDto, InventoryApi, type MemberDto } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
@@ -45,6 +46,10 @@ export class PlayerAwardsFeature extends TypoFeature {
 
   public readonly name = "Awards";
   public readonly description = "Award drawings of other typo players with special awards";
+  public readonly tags = [
+    FeatureTag.SOCIAL,
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 41;
 
   public override readonly toggleEnabled = false;

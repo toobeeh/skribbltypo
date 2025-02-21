@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject } from "inversify";
 import { TypoFeature } from "../../core/feature/feature";
@@ -9,6 +10,9 @@ export class CanvasRateIconsFeature extends TypoFeature {
 
   public readonly name = "Improved Like Icons";
   public readonly description = "Sets new like/dislike icons which better fit the skribbl style.";
+  public readonly tags = [
+    FeatureTag.INTERFACE
+  ];
   public readonly featureId = 46;
 
   private _component?: CanvasRateIconsComponent;

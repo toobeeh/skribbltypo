@@ -1,14 +1,15 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { FeaturesService } from "@/content/core/feature/features.service";
 import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
+import IconButton from "@/lib/icon-button/icon-button.svelte";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
 import { Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
-import IconButton from "@/lib/icon-button/icon-button.svelte";
 import ControlsSettings from "./controls-settings.svelte";
 
 export class ControlsSettingsFeature extends TypoFeature {
@@ -20,6 +21,10 @@ export class ControlsSettingsFeature extends TypoFeature {
 
   public readonly name = "Typo Settings";
   public readonly description = "Manage the features of typo";
+  public readonly tags = [
+    FeatureTag.INFORMATION,
+    FeatureTag.DEVELOPMENT
+  ];
   public override readonly toggleEnabled = false;
   public readonly featureId = 1;
 
@@ -123,5 +128,32 @@ export class ControlsSettingsFeature extends TypoFeature {
 
     toast.resolve();
     return newCombo;
+  }
+
+  public featureImportance(tags: FeatureTag[]){
+    if(tags.includes(FeatureTag.DRAWING)) return 4;
+    if(tags.includes(FeatureTag.GAMEPLAY)) return 4;
+    if(tags.includes(FeatureTag.INTERFACE)) return 3;
+    if(tags.includes(FeatureTag.SOCIAL)) return 3;
+    if(tags.includes(FeatureTag.PALANTIR)) return 2;
+    if(tags.includes(FeatureTag.INFORMATION)) return 2;
+    if(tags.includes(FeatureTag.DEVELOPMENT)) return 1;
+    return 0;
+  }
+
+  public featureContainsText(feature: TypoFeature, content: string){
+    const search = content.toLowerCase();
+    return feature.name.toLowerCase().includes(search) || feature.description.toLowerCase().includes(search)
+      || feature.settings.some(s => s.name?.toLowerCase().includes(search) || s.description?.toLowerCase().includes(search))
+      || feature.commands.some(c => c.name?.toLowerCase().includes(search) || c.description?.toLowerCase().includes(search))
+      || feature.hotkeys.some(h => h.name?.toLowerCase().includes(search) || h.description?.toLowerCase().includes(search));
+  }
+
+  public searchFeatures(features: TypoFeature[], filterTags: FeatureTag[], content: string){
+    return features
+      .filter(f => filterTags.length === 0 || f.tags.some(t => filterTags.includes(t)))
+      .filter(f => content.length === 0 || this.featureContainsText(f, content))
+      .sort((a, b) => this.featureImportance(b.tags) - this.featureImportance(a.tags));
+
   }
 }

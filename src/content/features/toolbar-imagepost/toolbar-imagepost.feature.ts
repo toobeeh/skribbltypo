@@ -1,4 +1,5 @@
 import { GuildsApi, type MemberWebhookDto } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ApiService } from "@/content/services/api/api.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { ImageFinishedService, type skribblImage } from "@/content/services/image-finished/image-finished.service";
@@ -32,6 +33,10 @@ export class ToolbarImagePostFeature extends TypoFeature {
   public readonly name = "Image Post";
   public readonly description =
     "Adds an icon to the typo toolbar to send images from your lobby directly to one of your connected discord servers";
+  public readonly tags = [
+    FeatureTag.SOCIAL,
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 11;
 
   protected override get boundServices(){

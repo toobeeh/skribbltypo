@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyStateChangedEventListener } from "@/content/events/lobby-state-changed.event";
@@ -15,6 +16,9 @@ export class ChatFocusFeature extends TypoFeature {
 
   public readonly name = "Chat Focus";
   public readonly description = "Quickly focus the chat input with a hotkey or when someone starts drawing";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 28;
 
   public override get featureInfoComponent(): componentData<ChatFocusInfo>{

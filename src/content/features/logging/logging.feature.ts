@@ -1,4 +1,5 @@
 import { TypoFeature } from "@/content/core/feature/feature";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import type { LoggerService } from "@/content/core/logger/logger.service";
 import { LoggingService } from "@/content/core/logger/logging.service";
 import type { componentData } from "@/content/services/modal/modal.service";
@@ -11,6 +12,9 @@ export class LoggingFeature extends TypoFeature {
 
   public readonly name = "Logging";
   public readonly description = "Collect logs of services, features, setups and event processors.";
+  public readonly tags = [
+    FeatureTag.DEVELOPMENT
+  ];
   public readonly featureId = 24;
   public override readonly toggleEnabled = false;
   public override readonly developerFeature = true;

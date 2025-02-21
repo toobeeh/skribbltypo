@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ChatTypedEventListener } from "@/content/events/chat-typed.event";
 import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
@@ -17,6 +18,9 @@ export class GuessCheckFeature extends TypoFeature {
 
   public readonly name = "Guess Check";
   public readonly description = "Shows an overlay over the word hints to compare your current guess";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 18;
 
   private _component?: GuessCheck;

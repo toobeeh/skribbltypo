@@ -1,4 +1,5 @@
 import type { MemberDto } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { MemberService } from "@/content/services/member/member.service";
@@ -36,6 +37,10 @@ export class PanelLobbiesFeature extends TypoFeature {
   public readonly name = "Lobby List";
   public readonly description =
     "Displays online players from your connected discord servers on the start page";
+  public readonly tags = [
+    FeatureTag.SOCIAL,
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 6;
 
   protected override async onActivate() {

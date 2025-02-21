@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { ColorChangedEventListener } from "@/content/events/color-changed.event";
 import { skribblTool } from "@/content/events/tool-changed.event";
@@ -23,6 +24,9 @@ export class DrawingColorToolsFeature extends TypoFeature {
 
   public readonly name = "Color Tools";
   public readonly description = "Add a pipette and color picker to the toolbar";
+  public readonly tags = [
+    FeatureTag.DRAWING
+  ];
   public readonly featureId = 31;
 
   private readonly pipetteHotkey = this.useHotkey(new HotkeyAction(

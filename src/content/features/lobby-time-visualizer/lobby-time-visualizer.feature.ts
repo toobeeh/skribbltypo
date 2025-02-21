@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { BooleanExtensionSetting, HexColorExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyJoinedEventListener } from "@/content/events/lobby-joined.event";
 import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
@@ -26,6 +27,10 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
 
   public readonly name = "Time Visualizer";
   public readonly description = "Shows a visual representation of time left to draw/choose";
+  public readonly tags = [
+    FeatureTag.INFORMATION,
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 30;
 
   public override get featureInfoComponent(): componentData<LobbyTimeVisualizerInfo>{

@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject } from "inversify";
@@ -11,6 +12,9 @@ export class ToolbarFullscreenFeature extends TypoFeature {
   public readonly name = "Fullscreen";
   public readonly description =
     "Adds a toggle in-game to quickly enter/exit the browser fullscreen mode";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 9;
 
   private _iconComponent?: IconButton;

@@ -1,4 +1,5 @@
 import { TypoFeature } from "@/content/core/feature/feature";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { distinctUntilChanged, forkJoin, map, of, Subject, type Subscription, tap } from "rxjs";
 
@@ -6,6 +7,9 @@ export class HotkeysFeature extends TypoFeature {
 
   public readonly name = "Hotkeys";
   public readonly description = "Activate actions of features with key combinations";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 25;
 
   private _pressedKeys = new Set<string>();

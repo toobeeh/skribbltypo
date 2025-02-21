@@ -6,6 +6,7 @@ import {
   type SpriteInventoryDto,
   type SpriteSlotDto,
 } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { ApiService } from "@/content/services/api/api.service";
 import { MemberService } from "@/content/services/member/member.service";
@@ -37,6 +38,9 @@ export class PanelCabinFeature extends TypoFeature {
   public readonly name = "Outfit Cabin";
   public readonly description =
     "Displays a drag-n-drop interface on the start page to customize your sprite combo";
+  public readonly tags = [
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 3;
 
   private readonly _enableScenePickerSetting = this.useSetting(

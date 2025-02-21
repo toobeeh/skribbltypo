@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { ImageResetEventListener } from "@/content/events/image-reset.event";
@@ -34,6 +35,9 @@ export class CanvasZoomFeature extends TypoFeature {
 
   public readonly name = "Canvas Zoom";
   public readonly description = "Lets you zoom a section of the canvas when you're drawing";
+  public readonly tags = [
+    FeatureTag.DRAWING
+  ];
   public readonly featureId = 26;
 
   private readonly _enableOnlyWhenDrawingSetting = this.useSetting(new BooleanExtensionSetting("trigger_require_drawing", true, this)

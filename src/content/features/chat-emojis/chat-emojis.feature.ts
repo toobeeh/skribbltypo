@@ -1,4 +1,5 @@
 import type { EmojiDto } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ChatService } from "@/content/services/chat/chat.service";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { ApiDataSetup } from "@/content/setups/api-data/api-data.setup";
@@ -19,6 +20,9 @@ export class ChatEmojisFeature extends TypoFeature {
 
   public readonly name = "Chat Emojis";
   public readonly description = "Adds support for emojis using ':emoji-name:' format in the chat.";
+  public readonly tags = [
+    FeatureTag.SOCIAL
+  ];
   public readonly featureId = 22;
 
   private _inputListener = this.handleInputEvent.bind(this);

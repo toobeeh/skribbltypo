@@ -1,4 +1,5 @@
 import { CloudApi, type CloudImageDto, type CloudSearchDto, type MemberDto } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ImagelabService } from "@/content/features/toolbar-imagelab/imagelab.service";
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
@@ -33,6 +34,9 @@ export class ControlsCloudFeature extends TypoFeature {
   public readonly name = "Typo Cloud";
   public readonly description =
     "Saves all images from your lobbies in a cloud and adds a gallery to browse them";
+  public readonly tags = [
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 17;
 
   private _iconComponent?: IconButton;

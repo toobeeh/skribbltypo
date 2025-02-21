@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyLeftEventListener } from "@/content/events/lobby-left.event";
 import { LobbyConnectionService } from "@/content/features/lobby-status/lobby-connection.service";
@@ -34,6 +35,10 @@ export class DropsFeature extends TypoFeature {
 
   public readonly name = "Drops";
   public readonly description = "Show drops to collect extra bubbles when you're playing";
+  public readonly tags = [
+    FeatureTag.SOCIAL,
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 40;
 
   public override get featureManagementComponent() {

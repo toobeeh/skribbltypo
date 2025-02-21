@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ToastService } from "@/content/services/toast/toast.service";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
 import { BehaviorSubject, distinctUntilChanged, type Subscription } from "rxjs";
@@ -14,6 +15,9 @@ export class ChatCopyFormattedFeature extends TypoFeature {
 
   public readonly name = "Copy Chat Formatted";
   public readonly description = "Enables to copy selected chat messages formatted for discord messages";
+  public readonly tags = [
+    FeatureTag.INTERFACE
+  ];
   public readonly featureId = 36;
 
   private selectedText$ = new BehaviorSubject<string | null>(null); /* current chat message selection */

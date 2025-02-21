@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ExtensionSetting } from "@/content/core/settings/setting";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
@@ -23,6 +24,9 @@ export class ImageAgentFeature extends TypoFeature {
   public readonly name = "Image Agent";
   public readonly description = "Displays a reference image of the word when it's your turn to draw";
   public readonly featureId = 14;
+  public readonly tags = [
+    FeatureTag.DRAWING
+  ];
   protected override readonly featureEnabledDefault = false;
 
   protected override async onActivate() {

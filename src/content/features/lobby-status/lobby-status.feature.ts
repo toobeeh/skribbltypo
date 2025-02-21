@@ -1,4 +1,5 @@
 import { type MemberDto } from "@/api";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import type { featureBinding } from "@/content/core/feature/featureBinding";
 import { ExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyConnectionService } from "@/content/features/lobby-status/lobby-connection.service";
@@ -91,6 +92,10 @@ export class LobbyStatusFeature extends TypoFeature {
   public readonly name = "Lobby Status";
   public readonly description =
     "Share your current lobby with typo to use avatar decorations, give awards and catch drops.";
+  public readonly tags = [
+    FeatureTag.SOCIAL,
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 19;
 
   protected override async onActivate() {

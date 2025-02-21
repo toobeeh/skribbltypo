@@ -1,6 +1,7 @@
 
 import { ExtensionCommand } from "@/content/core/commands/command";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { NumericExtensionSetting } from "@/content/core/settings/setting";
 import { LobbyJoinedEventListener } from "@/content/events/lobby-joined.event";
 import { ChatService } from "@/content/services/chat/chat.service";
@@ -15,6 +16,10 @@ export class ChatClearFeature extends TypoFeature {
 
   public readonly name = "Chat Clear";
   public readonly description = "Clears old messages in the chat for better performance";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY,
+    FeatureTag.INTERFACE
+  ];
   public readonly featureId = 42;
 
   private _chatSubscription?: Subscription;

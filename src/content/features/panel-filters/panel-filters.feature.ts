@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ExtensionSetting, type serializableObject } from "@/content/core/settings/setting";
 import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
@@ -48,6 +49,9 @@ export class PanelFiltersFeature extends TypoFeature {
 
   public readonly name = "Lobby Filters";
   public readonly description = "Lets you create custom filters for a quick lobby search";
+  public readonly tags = [
+    FeatureTag.SOCIAL
+  ];
   public readonly featureId = 5;
 
   private _component?: PanelFilters;

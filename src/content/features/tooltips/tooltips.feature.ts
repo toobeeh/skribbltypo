@@ -1,4 +1,5 @@
 import { TypoFeature } from "@/content/core/feature/feature";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import type { registeredTooltip } from "@/content/core/tooltips/tooltips.service";
 import { BehaviorSubject, combineLatestWith, type Subscription } from "rxjs";
 import Tooltip from "./tooltip.svelte";
@@ -12,6 +13,9 @@ export class TooltipsFeature extends TypoFeature {
 
   public readonly name = "Tooltips";
   public readonly description = "Show helpful information when hovering over icons and buttons";
+  public readonly tags = [
+    FeatureTag.INTERFACE
+  ];
   public readonly featureId = 35;
 
   private readonly _pointeroverListener = this.handlePointerover.bind(this);

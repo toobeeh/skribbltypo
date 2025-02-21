@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { inject } from "inversify";
 import type { Subscription } from "rxjs";
@@ -10,6 +11,9 @@ export class CustomizerPracticeJoinFeature extends TypoFeature {
 
   public readonly name = "Practice Lobby";
   public readonly description = "Add an option to draw on your own without time limit";
+  public readonly tags = [
+    FeatureTag.DRAWING
+  ];
   public readonly featureId = 44;
 
   private _iconComponent?: IconButton;

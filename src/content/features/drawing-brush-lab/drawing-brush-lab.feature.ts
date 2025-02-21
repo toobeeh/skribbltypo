@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { skribblTool } from "@/content/events/tool-changed.event";
 import type { BrushLabItem } from "@/content/features/drawing-brush-lab/brush-lab-item.interface";
@@ -33,6 +34,9 @@ export class DrawingBrushLabFeature extends TypoFeature {
 
   public readonly name = "Brush Laboratory";
   public readonly description = "Add custom drawing tools for special effects to the toolbar";
+  public readonly tags = [
+    FeatureTag.DRAWING
+  ];
   public readonly featureId = 39;
 
   private _labSwitchComponent?: BrushLabSwitch;

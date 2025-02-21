@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { TypoFeature } from "@/content/core/feature/feature";
+  import { type FeatureTag, featureTags } from "@/content/core/feature/feature-tags";
   import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
   import { firstValueFrom } from "rxjs";
   import ControlsSettingsDetails from "./controls-settings-details.svelte";
@@ -8,6 +9,9 @@
   export let feature: ControlsSettingsFeature;
   const devMode = feature.devModeStore;
   let selectedDetailsFeature: TypoFeature | undefined;
+
+  let filterTags: FeatureTag[] = [];
+  let filterContent = "";
 
   const toggleFeature = async (feature: TypoFeature) => {
     if(feature.toggleEnabled === false) return feature;
@@ -37,6 +41,33 @@
     max-width: clamp(40em, 40em, 100%);
     text-align: left;
     padding-bottom: 2em;
+  }
+
+  .typo-features-filter {
+
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: auto auto;
+    padding-bottom: 2em;
+    align-items: center;
+
+    .filters {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .filter {
+      text-transform: lowercase;
+      cursor: pointer;
+      padding: .3rem;
+      background-color: var(--COLOR_PANEL_HI);
+      border-radius: 3px;
+      opacity: .6;
+
+      &.selected {
+        opacity: 1;
+      }
+    }
   }
 
   .typo-feature-settings {
@@ -72,7 +103,6 @@
     }
 
     .typo-features-list {
-      flex-grow: 1;
       width: 100%;
       display: flex;
       flex-direction: row;
@@ -93,8 +123,26 @@
       If you are unsure how a feature works, you can have a look at the typo website or join the typo discord server and get help there!
     </div>
 
+    <div class="typo-features-filter">
+      <h3>Filter by tags:</h3>
+      <div class="filters">
+        {#each featureTags as tag}
+        <span class="filter" class:selected={filterTags.includes(tag)} on:click={() => {
+          if(filterTags.includes(tag)) {
+            filterTags = filterTags.filter(t => t !== tag);
+          }
+          else {
+            filterTags = [...filterTags, tag];
+          }
+        }}>#{tag}</span>
+        {/each}
+      </div>
+      <h3>Filter by text:</h3>
+      <input type="text" bind:value={filterContent} placeholder="Search for feature/hotkey/command/setting name or description" />
+    </div>
+
     <div class="typo-features-list color-scrollbar">
-      {#each feature.features as feat}
+      {#each feature.searchFeatures(feature.features, filterTags, filterContent) as feat}
 
         <ControlsSettingsFeatureItem feature="{feat}" devmodeEnabled="{$devMode}" featureSettingsClicked="{() => selectedDetailsFeature = feat}" />
 

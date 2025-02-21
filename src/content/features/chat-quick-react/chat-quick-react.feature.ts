@@ -3,6 +3,7 @@ import { NumericOptionalCommandParameter } from "@/content/core/commands/params/
 import { StringOptionalCommandParameter } from "@/content/core/commands/params/string-optional-command-parameter";
 import { InterpretableError } from "@/content/core/commands/results/interpretable-error";
 import { InterpretableSilentSuccess } from "@/content/core/commands/results/interpretable-silent-success";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import {
   type lobbyAvailableInteractions,
@@ -30,6 +31,9 @@ export class ChatQuickReactFeature extends TypoFeature {
   public readonly name = "Quick React";
   public readonly description =
     "Adds accessibility to kick, like, and dislike via keyboard by pressing CTRL in the chat box.";
+  public readonly tags = [
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 33;
 
   private readonly _likeCommand = this.useCommand(

@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
@@ -34,6 +35,9 @@ export class LineToolFeature extends TypoFeature {
 
   public readonly name = "Line Tool";
   public readonly description = "Draw straight lines between two points";
+  public readonly tags = [
+    FeatureTag.DRAWING
+  ];
   public readonly featureId = 27;
 
   private readonly _startLineHotkey = this.useHotkey(

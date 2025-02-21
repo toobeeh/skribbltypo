@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { PlayersService } from "@/content/services/players/players.service";
 import { take } from "rxjs";
@@ -9,6 +10,10 @@ export class PlayerIdsFeature extends TypoFeature {
 
   public readonly name = "Player IDs";
   public readonly description = "Show player IDs in the lobby to execute commands like kick";
+  public readonly tags = [
+    FeatureTag.INFORMATION,
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 29;
 
   private readonly _revealIdsHotkey = this.useHotkey(

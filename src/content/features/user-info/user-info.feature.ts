@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { fromObservable } from "@/util/store/fromObservable";
 import { MemberService } from "../../services/member/member.service";
@@ -16,6 +17,10 @@ export class UserInfoFeature extends TypoFeature {
 
   public readonly name = "User Info";
   public readonly description = "Shows information about the logged-in user beneath the avatar selection";
+  public readonly tags = [
+    FeatureTag.INFORMATION,
+    FeatureTag.PALANTIR
+  ];
   public readonly featureId = 13;
 
   protected override async onActivate() {

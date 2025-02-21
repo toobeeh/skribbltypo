@@ -1,3 +1,4 @@
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -8,6 +9,10 @@ export class ChatMessageSplitsFeature extends TypoFeature {
 
   public readonly name = "Longer Chat Messages";
   public readonly description = "Allows typing longer chat messages and splits them";
+  public readonly tags = [
+    FeatureTag.INTERFACE,
+    FeatureTag.GAMEPLAY
+  ];
   public readonly featureId = 43;
 
   private _component?: ChatMessageSplitsComponent;

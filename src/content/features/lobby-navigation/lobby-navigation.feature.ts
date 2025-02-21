@@ -1,5 +1,6 @@
 import { ExtensionCommand } from "@/content/core/commands/command";
 import { InterpretableSuccess } from "@/content/core/commands/results/interpretable-success";
+import { FeatureTag } from "@/content/core/feature/feature-tags";
 import { BooleanExtensionSetting } from "@/content/core/settings/setting";
 import { inject } from "inversify";
 import { filter, type Subscription, take, tap } from "rxjs";
@@ -14,6 +15,9 @@ export class LobbyNavigationFeature extends TypoFeature {
 
   public readonly name = "Lobby Navigation";
   public readonly description = "Show a navigation bar in-game to exit or skip the current lobby";
+  public readonly tags = [
+    FeatureTag.SOCIAL
+  ];
   public readonly featureId = 2;
 
   private _component?: LobbyNavigation;

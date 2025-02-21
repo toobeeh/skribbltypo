@@ -45,6 +45,12 @@
       display: none;
     }
 
+    .feature-tags {
+      opacity: .5;
+      font-size: .9rem;
+      text-transform: lowercase;
+    }
+
     &.devMode .feature-id {
       display: block;
       position: absolute;
@@ -146,6 +152,10 @@
       {feature.description}
     </div>
   {/if}
+
+  <div class="feature-tags">
+    {feature.tags.map(t => "#" + t).join(" ")}
+  </div>
 
   <!-- feature id in dev mode -->
   <div class="feature-id">#{feature.featureId}</div>
