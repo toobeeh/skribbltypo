@@ -117,7 +117,7 @@ export class ChatQuickReactFeature extends TypoFeature {
       this,
       () => this.likeCurrentPlayer(),
       false,
-      [],
+      ["ControlRight", "ArrowUp"],
     ),
   );
 
@@ -129,7 +129,7 @@ export class ChatQuickReactFeature extends TypoFeature {
       this,
       () => this.dislikeCurrentPlayer(),
       false,
-      [],
+      ["ControlRight", "ArrowDown"],
     ),
   );
 
@@ -141,7 +141,7 @@ export class ChatQuickReactFeature extends TypoFeature {
       this,
       () => this.votekickPlayer(undefined),
       false,
-      [],
+      ["ControlRight", "ArrowLeft"],
     ),
   );
 
@@ -212,7 +212,6 @@ export class ChatQuickReactFeature extends TypoFeature {
         this._flyoutSubscription?.unsubscribe();
         this._flyoutSubscription = undefined;
 
-        const elements = await this._elements.complete();
         elements.chatInput.focus();
       });
     }
