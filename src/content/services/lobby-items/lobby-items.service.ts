@@ -29,6 +29,8 @@ export class LobbyItemsService {
       onlineItemsUpdated: this.onOnlineItemsUpdated.bind(this)
     });
     await connection.start();
+    this._socketService.reconnectOnUserInteraction(connection, () => this.setupConnection());
+    return connection;
   }
 
   async onOnlineItemsUpdated(update: OnlineItemsUpdatedDto) {

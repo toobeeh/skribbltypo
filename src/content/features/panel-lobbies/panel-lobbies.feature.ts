@@ -5,6 +5,7 @@ import { MemberService } from "@/content/services/member/member.service";
 import { SocketService } from "@/content/services/socket/socket.service";
 import { ToastService } from "@/content/services/toast/toast.service";
 import type { GuildLobbiesUpdatedDto, GuildLobbyDto } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
+import type { IGuildLobbiesHub } from "@/signalr/TypedSignalR.Client/tobeh.Avallone.Server.Hubs.Interfaces";
 import { fromObservable } from "@/util/store/fromObservable";
 import type { HubConnection } from "@microsoft/signalr";
 import { inject } from "inversify";
@@ -91,18 +92,19 @@ export class PanelLobbiesFeature extends TypoFeature {
     /* init with empty map */
     this._lobbies$.next(new Map());
 
-    /* connect to server */
-    const {connection, hubProxy} = await this.setupConnection();
-    this._connection = connection;
+    const initConnection = async () => {
 
-    /* subscribe to all guilds of the member */
-    const promises = member.guilds.map(async guild => {
-      const currentLobbies = await hubProxy.subscribeGuildLobbies(guild.guildID);
+      /* connect to server */
+      const {connection, hubProxy} = await this.setupConnection();
+      this._connection = connection;
 
-      /* set initial guild lobbies */
-      await this.onGuildLobbiesUpdated(currentLobbies);
-    });
-    await Promise.all(promises);
+      /* subscribe to all guilds of the member */
+      await this.subscribeToLobbies(member, hubProxy);
+      return connection;
+    };
+
+    const connection = await initConnection();
+    this._socketService.reconnectOnUserInteraction(connection, () => initConnection());
   }
 
   /**
@@ -117,6 +119,18 @@ export class PanelLobbiesFeature extends TypoFeature {
     });
     await connection.start();
     return { connection, hubProxy };
+  }
+
+  public async subscribeToLobbies(member: MemberDto, hub: IGuildLobbiesHub){
+
+    /* subscribe to all guilds of the member */
+    const promises = member.guilds.map(async guild => {
+      const currentLobbies = await hub.subscribeGuildLobbies(guild.guildID);
+
+      /* set initial guild lobbies */
+      await this.onGuildLobbiesUpdated(currentLobbies);
+    });
+    await Promise.all(promises);
   }
   
   private async onGuildLobbiesUpdated(lobbies: GuildLobbiesUpdatedDto){

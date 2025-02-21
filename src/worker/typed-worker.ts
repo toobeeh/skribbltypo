@@ -32,7 +32,6 @@ export class TypedWorkerExecutor<TWorker extends TypedWorkerDefinition, TParentD
 export class TypedWorker<TWorkerDefinition extends TypedWorkerDefinition, TParentDefinition extends TypedWorkerDefinition>{
   constructor(private worker: TWorkerDefinition){
     addEventListener("message", async (event) => {
-      console.log(event);
       const { methodName, args, messageId } = event.data;
       const result = await this.worker[methodName](...args);
       postMessage({ type: "result", messageId, result });

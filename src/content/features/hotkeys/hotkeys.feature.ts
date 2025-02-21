@@ -109,8 +109,7 @@ export class HotkeysFeature extends TypoFeature {
     this._keysPressed$.next([]);
   }
 
-  private handleDocumentInactive(e: Event){
-    console.log(e);
+  private handleDocumentInactive(){
     this._logger.info("Document inactive; releasing all keys");
     const released = [...this._pressedKeys];
     this._pressedKeys.clear();

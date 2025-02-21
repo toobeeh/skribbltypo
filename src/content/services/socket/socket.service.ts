@@ -1,6 +1,6 @@
 import { TokenService } from "@/content/core/token/token.service";
 import { getHubProxyFactory, getReceiverRegister } from "@/signalr/TypedSignalR.Client";
-import { HubConnectionBuilder, type IHttpConnectionOptions, LogLevel } from "@microsoft/signalr";
+import { type HubConnection, HubConnectionBuilder, type IHttpConnectionOptions, LogLevel } from "@microsoft/signalr";
 import { inject, injectable } from "inversify";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 
@@ -73,5 +73,17 @@ export class SocketService {
    */
   public set baseUrl(url: string) {
     this._baseUrl = url;
+  }
+
+  public reconnectOnUserInteraction(connection: HubConnection, builder: () => Promise<HubConnection>){
+    const interactionListener = async () => {
+      this._logger.info("User interaction detected, reconnecting...");
+      await builder();
+    };
+
+    connection.onclose(()  => {
+      this._logger.info("Connection closed, waiting for user interaction to reconnect...");
+      document.addEventListener("pointermove", interactionListener, {once: true});
+    });
   }
 }

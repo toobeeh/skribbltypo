@@ -12,9 +12,9 @@ import { ToastService } from "@/content/services/toast/toast.service";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import { copyBlobToClipboard } from "@/util/clipboard";
 import { downloadBlob, downloadText } from "@/util/download";
-import {
-  type IGifRendererParent,
-  type IGifRendererWorker,
+import type {
+  IGifRendererParent,
+  IGifRendererWorker,
 } from "@/worker/gif-renderer/gif-renderer.worker";
 import { TypedWorkerExecutor } from "@/worker/typed-worker";
 import { gifRendererWorkerBase64 } from "@/worker/workers";

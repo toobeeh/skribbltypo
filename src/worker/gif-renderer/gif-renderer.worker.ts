@@ -21,7 +21,6 @@ export interface IGifRendererParent extends TypedWorkerDefinition {
  */
 export const gifRendererWorker: IGifRendererWorker = {
   renderGif(commands: number[][], duration: number) {
-    console.log("Rendering gif", commands, duration);
     const offscreenCanvas = new OffscreenCanvas(800, 600);
     const context = offscreenCanvas.getContext("2d", {willReadFrequently: true});
     if(!context) throw new Error("Failed to get 2d context");
@@ -36,5 +35,5 @@ export const gifRendererWorker: IGifRendererWorker = {
   }
 };
 
-/* run worker when file is loaded */
+/* run worker when file is loaded; make sure only "type" imports are used in main context */
 const parent = new TypedWorker<IGifRendererWorker, IGifRendererParent>(gifRendererWorker);
