@@ -18,6 +18,9 @@
     overflow: hidden;
     border-radius: var(--BORDER_RADIUS);
 
+    max-width: calc(13 * var(--UNIT) / 2);
+    overflow-x: auto;
+
     .typo-palette-picker-item {
       aspect-ratio: 1;
       height: calc(var(--UNIT) / 2);
@@ -44,7 +47,7 @@
 </style>
 
 <div class="colors typo-palette">
-  <div class="typo-palette-picker" style="grid-template-columns: repeat({colors.columns}, auto)">
+  <div class="typo-palette-picker color-scrollbar" style="grid-template-columns: repeat({colors.columns}, auto)" use:feature.createTooltip={{title: "Choose a color!\nOnly typo users see custom colors.", lock: "Y"}} >
     {#each colors.colorHexCodes as color}
       <div class="typo-palette-picker-item"
            on:click={() => feature.setColor(color)}
