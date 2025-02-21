@@ -56,6 +56,8 @@ export class ChatCommandsFeature extends TypoFeature {
       "When pressed, the currently typed command will be submitted",
       this,
       async () => {
+        /* only process when interpreting */
+        if(!this._flyoutComponent) return;
         const elements = await this._elements.complete();
         elements.chatInput.value = "";
         this._hotkeySubmitted$.next(undefined);
