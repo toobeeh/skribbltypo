@@ -18,6 +18,23 @@
     margin-bottom: 10px; // like avatar customizer above
     color: var(--COLOR_PANEL_TEXT);
 
+    img.typo-icon {
+      height: 1.2em;
+      image-rendering: auto;
+      aspect-ratio: 1;
+      content: var(--file-img-typo-gif);
+    }
+
+    > .member-login {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
     > .member-info-header {
       display: flex;
       justify-content: space-between;
@@ -33,13 +50,6 @@
         opacity: 0.7;
         color: inherit;
         text-decoration: none;
-
-        > img {
-          height: 1.2em;
-          image-rendering: auto;
-          aspect-ratio: 1;
-          content: var(--file-img-typo-gif);
-        }
       }
     }
 
@@ -74,8 +84,9 @@
 
 <div class="member-info panel">
   {#if ($member === null)}
-    <div>
-      <input type="button" value="Login" on:click={() => feature.login()} />
+    <div class="member-login">
+      <img class="typo-icon" src="" alt="typo icon"/>
+      <span role="button" tabindex="0" on:keydown={() => feature.login()} on:click={() => feature.login()}>Log in with typo to collect bubbles and upgrade your avatar.</span>
     </div>
 
   {:else if ($member === undefined)}
@@ -87,7 +98,7 @@
 
     <div class="member-info-header">
       <a href="https://www.typo.rip">
-        <img alt="typo icon" src=""/>
+        <img class="typo-icon" alt="typo icon" src=""/>
         {$member.userName}
       </a>
       <a href="https://www.typo.rip/user">Manage</a>
