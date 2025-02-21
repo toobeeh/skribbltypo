@@ -113,7 +113,7 @@ export class LobbyStatusFeature extends TypoFeature {
           if(!this._controlIcon) await this.setupSettings();
 
           const open = connection?.typoLobbyState.lobbySettings.whitelistAllowedServers === false;
-          const icon = connection === undefined ? "file-img-connection-loading-gif" : open ? "file-img-connection-open-gif" : "file-img-connection-gif";
+          const icon = connection === undefined ? "file-img-connection-loading-gif" : open ? "file-img-connection-gif" : "file-img-connection-secure-gif";
           const greyscale = connection !== undefined;
           this._controlIcon?.$set({
             icon,
