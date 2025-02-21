@@ -38,7 +38,7 @@
           height: 1.2em;
           image-rendering: auto;
           aspect-ratio: 1;
-          content: var(--file-icons-128maxfit-png);
+          content: var(--file-img-typo-gif);
         }
       }
     }
