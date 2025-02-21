@@ -140,7 +140,7 @@ export class ChatEmojisFeature extends TypoFeature {
             emojiElement.style.setProperty("--typo-emoji-name", emojiDto.name);
             emojiElement.classList.add("typo-emoji");
             newTextNode.appendChild(emojiElement);
-            // todo: add tooltips
+            this.createTooltip(emojiElement, { title: emoji, lock: "Y" });
           }
           else {
             newTextNode.appendChild(document.createTextNode(emoji));
