@@ -27,7 +27,7 @@ export class LobbyJoinFailedEventProcessor extends EventProcessor<null, LobbyJoi
     const events = new Subject<LobbyJoinFailedEvent>();
 
     /* listen for practice lobby joined events from patched game */
-    document.addEventListener("joinLobbyResult", () => {
+    document.addEventListener("joinLobbyFailed", () => {
       events.next(new LobbyJoinFailedEvent(null));
     });
 

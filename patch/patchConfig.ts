@@ -1259,11 +1259,11 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: '}(\\s*)[a-zA-Z0-9&_\\-$]+\\({\\s*success: !1',
-          code: `document.dispatchEvent(new CustomEvent("joinLobbyResult")) & `,
+          code: `document.dispatchEvent(new CustomEvent("joinLobbyFailed")) & `,
         },
         {
           position: '(\\s+)switch \\(([a-zA-Z0-9&_\\-$]+)\\)[^"]+"Room not found!',
-          code: `document.dispatchEvent(new CustomEvent("joinLobbyResult")); `,
+          code: `document.dispatchEvent(new CustomEvent("joinLobbyFailed")); `,
         },
       ],
     },

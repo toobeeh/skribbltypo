@@ -1807,7 +1807,7 @@
           a && qe(ye, E("An unknown error occurred ('$')", e) + "\n\r" + E("Please try again later!"))
       }
 
-      document.dispatchEvent(new CustomEvent("joinLobbyResult")) & n({
+      document.dispatchEvent(new CustomEvent("joinLobbyFailed")) & n({
         success: !1,
         error: e
       })
@@ -1918,7 +1918,7 @@
       Jn(!1), S.on("joinerr", function(e) {
         ua(), qe(ye, (e => {
 
-          document.dispatchEvent(new CustomEvent("joinLobbyResult"));switch (e) {
+          document.dispatchEvent(new CustomEvent("joinLobbyFailed"));switch (e) {
             case 1:
               return E("Room not found!");
             case 2:
