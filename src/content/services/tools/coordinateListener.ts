@@ -1,3 +1,4 @@
+import type { strokeCause } from "@/content/services/tools/draw-mod";
 import type { drawCoordinateEvent } from "@/content/services/tools/tools.service";
 import { Subject } from "rxjs";
 
@@ -12,6 +13,7 @@ interface strokeCoordinates {
   from: drawCoordinateEvent,
   to: drawCoordinateEvent,
   stroke: number;
+  cause: strokeCause;
 }
 
 export class CoordinateListener {
@@ -64,10 +66,10 @@ export class CoordinateListener {
       canvasRect: rect,
       lastSampleDate: Date.now(),
       pointerDownId: event.pointerId,
-      lastCoordinates: coords,
+      lastCoordinates: coords
     };
 
-    this._strokes$.next({from: coords, to: coords, stroke: this._currentStroke.pointerDownId});
+    this._strokes$.next({from: coords, to: coords, cause: "down", stroke: this._currentStroke.pointerDownId});
     this._pointerDown$.next(event);
 
     /*document.body.dataset["bypassCommandRate"] = "true";*/
@@ -88,7 +90,7 @@ export class CoordinateListener {
       this._currentStroke.canvasRect,
     );
 
-    this._strokes$.next({from: this._currentStroke.lastCoordinates, to: coords, stroke: this._currentStroke.pointerDownId});
+    this._strokes$.next({from: this._currentStroke.lastCoordinates, to: coords, cause: "move", stroke: this._currentStroke.pointerDownId});
     this._currentStroke.lastCoordinates = coords;
   }
 
@@ -100,7 +102,7 @@ export class CoordinateListener {
       this._canvas,
       this._currentStroke.canvasRect,
     );
-    this._strokes$.next({from: this._currentStroke.lastCoordinates, to: coords, stroke: this._currentStroke.pointerDownId});
+    this._strokes$.next({from: this._currentStroke.lastCoordinates, to: coords, cause: "up", stroke: this._currentStroke.pointerDownId});
     this._pointerUp$.next(event);
     this._currentStroke = undefined;
 

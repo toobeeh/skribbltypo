@@ -55,7 +55,7 @@ export class SculptMod extends TypoDrawMod implements BrushLabItem {
       style,
       lines: [
         {from: line.from, to: mirroredLineCenter},
-        {from: mirroredLineCenter, to: line.to}
+        {from: mirroredLineCenter, to: line.to},
       ]
     };
   }

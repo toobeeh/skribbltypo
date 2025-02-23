@@ -71,7 +71,7 @@ export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
     for (let i = 0; i < count; i++) {
       const offsetLine = {
         from: [line.from[0] + (offset[0] * (i+1)), line.from[1] + (offset[1] *( i+1))] as [number, number],
-        to: [line.to[0] + (offset[0] * (i+1)), line.to[1] + (offset[1] * (i+1))] as [number, number]
+        to: [line.to[0] + (offset[0] * (i+1)), line.to[1] + (offset[1] * (i+1))] as [number, number],
       };
       lines.push(offsetLine);
     }

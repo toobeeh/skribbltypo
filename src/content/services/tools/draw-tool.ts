@@ -1,5 +1,5 @@
 import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
-import { type lineCoordinates } from "@/content/services/tools/draw-mod";
+import { type lineCoordinates, type strokeCause } from "@/content/services/tools/draw-mod";
 import type { brushStyle } from "@/content/services/tools/tools.service";
 import { Color } from "@/util/color";
 
@@ -17,8 +17,16 @@ export abstract class TypoDrawTool extends ConstantDrawMod {
    * @param brushStyle
    * @param eventId
    * @param strokeId
+   * @param strokeCause
    */
-  public abstract createCommands(line: lineCoordinates, pressure: number | undefined, brushStyle: brushStyle, eventId: number, strokeId: number): number[][] | Promise<number[][]>;
+  public abstract createCommands(
+    line: lineCoordinates,
+    pressure: number | undefined,
+    brushStyle: brushStyle,
+    eventId: number,
+    strokeId: number,
+    strokeCause: strokeCause
+  ): number[][] | Promise<number[][]>;
 
   protected noCommands(): number[][] {
     return [];

@@ -8,7 +8,7 @@ import { DrawingService } from "@/content/services/drawing/drawing.service";
 import { LobbyService } from "@/content/services/lobby/lobby.service";
 import { ConstantDrawMod } from "@/content/services/tools/constant-draw-mod";
 import { CoordinateListener } from "@/content/services/tools/coordinateListener";
-import { TypoDrawMod, type drawModLine } from "@/content/services/tools/draw-mod";
+import { TypoDrawMod, type drawModLine, type strokeCause } from "@/content/services/tools/draw-mod";
 import { TypoDrawTool } from "@/content/services/tools/draw-tool";
 import { ElementsSetup } from "@/content/setups/elements/elements.setup";
 import {
@@ -126,7 +126,7 @@ export class ToolsService {
     coordinateListener.strokes$.pipe(
       withLatestFrom(drawingMeta$)
     ).subscribe(([stroke, [style, tool, mods]]) => {
-      this.processDrawCoordinates(stroke.from, stroke.to, tool, mods, style, stroke.stroke);
+      this.processDrawCoordinates(stroke.from, stroke.to, stroke.cause, tool, mods, style, stroke.stroke);
     });
 
     /* update last pointer down */
@@ -142,7 +142,7 @@ export class ToolsService {
     });
   }
 
-  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, tool: TypoDrawTool | undefined, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
+  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, cause: strokeCause, tool: TypoDrawTool | undefined, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
     this._logger.debug("Activating tool and applying mods", start, end);
 
     /* generate a shared id for every line created from the origin line */
@@ -159,7 +159,7 @@ export class ToolsService {
       /* for each line - mods may append or skip lines */
       const modLines: drawModLine[] = [];
       for(const line of lines) {
-        const effect = await mod.applyEffect(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId);
+        const effect = await mod.applyEffect(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId, cause);
         modLines.push(...effect.lines);
         modStyle = effect.style;
         this._logger.debug("Mod applied", mod);
@@ -188,7 +188,7 @@ export class ToolsService {
         /* make sure line is safe - decimal places should not be submitted to skribbl */
         line = {from: [Math.floor(line.from[0]), Math.floor(line.from[1])], to: [Math.floor(line.to[0]), Math.floor(line.to[1])]};
 
-        const lineCommands = await tool.createCommands(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId);
+        const lineCommands = await tool.createCommands(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId, cause);
         if(lineCommands.length > 0) {
           commands.push(...lineCommands);
           this._logger.debug("Adding commands created by tool", tool, commands);
@@ -250,8 +250,8 @@ export class ToolsService {
     this._activeTool$.next(tool);
 
     /* dry-run tool to trigger early settings load */
-    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0);
-    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0);
+    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0, "down");
+    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0, "down");
   }
 
   public activateMod(mod: TypoDrawMod) {
