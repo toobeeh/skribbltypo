@@ -1,6 +1,6 @@
 import type { TypoFeature } from "@/content/core/feature/feature";
 import { ExtensionSetting } from "@/content/core/settings/setting";
-import { map, of, switchMap, take, tap, withLatestFrom } from "rxjs";
+import { map, of, switchMap, take } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
 
 export class HotkeyAction {
