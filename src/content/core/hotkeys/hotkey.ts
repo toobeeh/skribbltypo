@@ -1,6 +1,6 @@
 import type { TypoFeature } from "@/content/core/feature/feature";
 import { ExtensionSetting } from "@/content/core/settings/setting";
-import { map, of, switchMap, take, withLatestFrom } from "rxjs";
+import { map, of, switchMap, take, tap, withLatestFrom } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
 
 export class HotkeyAction {
@@ -20,8 +20,8 @@ export class HotkeyAction {
     private _releaseAction?: () => (void | Promise<void>),
     private _preventWhenInputActive = true
   ) {
-    this._enabledSetting = new ExtensionSetting(`
-    hotkey.${this._key}.enabled`,
+    this._enabledSetting = new ExtensionSetting(
+      `hotkey.${this._key}.enabled`,
       defaultEnabled === true && this._defaultCombo !== undefined && this._defaultCombo.length > 0,
       this._feature
     );
@@ -65,13 +65,20 @@ export class HotkeyAction {
    * checks if a key combination is active and matches, and executes if positive
    * return observable holds the result, if executed or not
    * @param keys a combination of key codes, see https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
+   * @param inputActive
    */
   public executeIfMatches(keys: string[], inputActive: boolean) {
     return this._enabledSetting.changes$.pipe(
       take(1),
-      withLatestFrom(this._comboSetting.changes$),
-      map(([enabled, combo]) => enabled && !(this._preventWhenInputActive && inputActive) && combo.length > 0 ? combo : null),
-      map(combo => combo ? combo.length === keys.length && combo.every(key => keys.includes(key)) : false),
+      switchMap(enabled => {
+        if(!enabled) return of(false);
+
+        return this._comboSetting.changes$.pipe(
+          take(1),
+          map((combo) => !(this._preventWhenInputActive && inputActive) && combo.length > 0 ? combo : null),
+          map(combo => combo ? combo.length === keys.length && combo.every(key => keys.includes(key)) : false),
+        );
+      }),
       switchMap(matches => {
         if(!matches) return of(false);
         const result = this._action();

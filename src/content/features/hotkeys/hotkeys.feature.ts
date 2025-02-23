@@ -41,7 +41,7 @@ export class HotkeysFeature extends TypoFeature {
       const inputActive = document.activeElement?.tagName === "INPUT";
 
       forkJoin(hotkeys.map(h => this._releaseCandidates.has(h) ?
-        of({ executed:false, hotkey: h }) :
+        of({ executed: false, hotkey: h }) :
         h.executeIfMatches(keys, inputActive).pipe(
           tap(executed => {
             if(executed) {

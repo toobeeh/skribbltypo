@@ -78,7 +78,7 @@ export class ToolbarSaveFeature extends TypoFeature {
       this,
       () => this.saveToClipboard(),
       true,
-      ["ControlLeft", "KeyC"]
+      ["AltLeft", "KeyC"]
     ));
 
   protected override async onActivate() {
