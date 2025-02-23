@@ -170,7 +170,8 @@ export class PanelLobbiesFeature extends TypoFeature {
   }
 
   public async joinLobby(id: string, targetName?: string){
-    await this._lobbyService.joinLobby(id);
-    await this._toastService.showToast(targetName ? `Joined the lobby of ${targetName}` : "Joined discovered lobby");
+    const result = await this._lobbyService.joinLobby(id);
+    if(result) await this._toastService.showToast(targetName ? `Joined the lobby of ${targetName}` : "Joined discovered lobby");
+    else await this._toastService.showToast(targetName ? `Failed to join the lobby of ${targetName}` : "Failed to join discovered lobby");
   }
 }

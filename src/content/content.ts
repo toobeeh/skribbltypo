@@ -8,6 +8,7 @@ import { drawEventRegistration } from "@/content/events/draw.event";
 import { hintsAddedEventRegistration } from "@/content/events/hints-added.event";
 import { imageResetEventRegistration } from "@/content/events/image-reset.event";
 import { lobbyInteractedEventRegistration } from "@/content/events/lobby-interacted.event";
+import { lobbyJoinFailedEventRegistration } from "@/content/events/lobby-join-failed.event";
 import { lobbyPlayerChangedEventRegistration } from "@/content/events/lobby-player-changed.event";
 import { lobbyStateChangedEventRegistration } from "@/content/events/lobby-state-changed.event";
 import { messageReceivedEventRegistration } from "@/content/events/message-received.event";
@@ -185,7 +186,8 @@ new ExtensionContainer(interceptor)
     playerPopupVisibilityChangedEventRegistration,
     textOverlayVisibilityChangedEventRegistration,
     lobbyInteractedEventRegistration,
-    canvasClearedEventRegistration
+    canvasClearedEventRegistration,
+    lobbyJoinFailedEventRegistration
   )
   .registerFeatures( /* register application features */
     UserInfoFeature,

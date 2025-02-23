@@ -1253,5 +1253,19 @@ export const gameJsPatchConfig = {
         },
       ],
     },
+    {
+      name: "Insert lobby join feedback",
+      replacements: [],
+      injections: [
+        {
+          position: '}(\\s*)[a-zA-Z0-9&_\\-$]+\\({\\s*success: !1',
+          code: `document.dispatchEvent(new CustomEvent("joinLobbyResult")) & `,
+        },
+        {
+          position: '(\\s+)switch \\(([a-zA-Z0-9&_\\-$]+)\\)[^"]+"Room not found!',
+          code: `document.dispatchEvent(new CustomEvent("joinLobbyResult")); `,
+        },
+      ],
+    },
   ],
 };

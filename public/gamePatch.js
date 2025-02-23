@@ -1,23 +1,23 @@
-((h, c, d, P) => {
-  let Y = 28,
-    z = 57,
-    U = 51,
-    n = [Y, z, U],
-    H = 0,
-    B = 1,
-    _ = 2,
-    G = 5,
-    K = 0,
-    F = 1,
-    V = 2,
-    j = 3,
-    Z = 4,
-    X = 5,
-    J = 6,
-    Q = 7,
-    ee = 1,
-    te = 2,
-    ne = {
+((h, c, d, O) => {
+  let P = 28,
+    Y = 57,
+    z = 51,
+    a = [P, Y, z],
+    B = 0,
+    U = 1,
+    H = 2,
+    _ = 5,
+    G = 0,
+    K = 1,
+    F = 2,
+    V = 3,
+    j = 4,
+    Z = 5,
+    X = 6,
+    J = 7,
+    Q = 1,
+    ee = 2,
+    te = {
       LANG: 0,
       SLOTS: 1,
       DRAWTIME: 2,
@@ -27,12 +27,12 @@
       WORDMODE: 6,
       CUSTOMWORDSONLY: 7
     },
-    ae = {
+    ne = {
       NORMAL: 0,
       HIDDEN: 1,
       COMBINATION: 2
     }
-// TYPOMOD 
+// TYPOMOD
     // desc: create re-useable functions
     , typo = {
       /* mod sequence injection for custom draw commands */
@@ -207,7 +207,7 @@
               Math.pow(c1[2] - c2[2], 2)
             );
 
-          const colors = wt.map(c => typo.rgbToLab(c));
+          const colors = kt.map(c => typo.rgbToLab(c));
           const color = colors.reduce((closestIndex, color, index) =>
               distance(lab, color) < distance(lab, colors[closestIndex]) ? index : closestIndex
             , 0);
@@ -300,13 +300,13 @@
       lastConnect: 0,
       initListeners: (() => {
         let abort = false;
-        document.addEventListener("selectSkribblTool", (event) => Nt(event.detail));
-        document.addEventListener("selectSkribblSize", (event) => It(event.detail));
-        document.addEventListener("clearDrawing", () => Vt());
+        document.addEventListener("selectSkribblTool", (event) => Tt(event.detail));
+        document.addEventListener("selectSkribblSize", (event) => At(event.detail));
+        document.addEventListener("clearDrawing", () => Ft());
         document.addEventListener("abortJoin", () => abort = true);
         document.addEventListener("disableCursorUpdates", e => {
           typo.skipCursorUpdate = e.detail === true;
-          if(e.detail === false) vt(); // update cursor when updates reenabled
+          if(e.detail === false) yt(); // update cursor when updates reenabled
         });
         document.addEventListener("joinLobby", (e) => {
           abort = false;
@@ -335,37 +335,37 @@
           // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
         });
         document.addEventListener("setColor", (e) => {
-          let rgb = e.detail.code < 10000 ? wt[e.detail.code] : typo.typoCodeToRgb(e.detail.code);
-          let match = wt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
+          let rgb = e.detail.code < 10000 ? kt[e.detail.code] : typo.typoCodeToRgb(e.detail.code);
+          let match = kt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
           // IDENTIFY [0, 59, 120], -> COLORS
           let code = match >= 0 ? match : e.detail.code;
-          if (e.detail.secondary) Ot(code);
+          if (e.detail.secondary) Wt(code);
           // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
-          else Wt(code);
+          else Nt(code);
           // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
         });
         document.addEventListener("performDrawCommand", (e) => {
           v.push(e.detail);
-          mt.push(v.length);
+          pt.push(v.length);
           // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
-          Kt(Zt(e.detail));
+          Gt(jt(e.detail));
           // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
         });
         document.addEventListener("collapseUndoActions", (e) => {
           const shrinkCount = e.detail;
-          const firstCollapsedIndex = mt.length - shrinkCount + 1;
-          const collapsed = mt.slice(0, firstCollapsedIndex);
+          const firstCollapsedIndex = pt.length - shrinkCount + 1;
+          const collapsed = pt.slice(0, firstCollapsedIndex);
           const lastCollapsedIndex = collapsed.length === 0 ? 0 : collapsed.length - 1
-          collapsed[lastCollapsedIndex] = mt[mt.length - 1];
-          mt = collapsed;
+          collapsed[lastCollapsedIndex] = pt[pt.length - 1];
+          pt = collapsed;
         });
         document.addEventListener("addTypoTooltips", () => {
           [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
             elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
             elem.removeAttribute("data-typo-tooltip");
-            elem.addEventListener("mouseenter", (e) => Oe(e.target));
+            elem.addEventListener("mouseenter", (e) => We(e.target));
             // IDENTIFY: x(e.target):
-            elem.addEventListener("mouseleave", (e) => Pe());
+            elem.addEventListener("mouseleave", (e) => Oe());
             // IDENTIFY: (e) => x():
           });
         });
@@ -430,20 +430,20 @@
       }
     }
   // TYPOEND,
-  oe = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  ae = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   if (h.localStorageAvailable = !1, void 0 !== d) try {
     d.setItem("feature_test", "yes"), "yes" === d.getItem("feature_test") && (d.removeItem("feature_test"), h.localStorageAvailable = !0)
   } catch (e) {}
   var u = [];
 
-  function re(e) {
+  function oe(e) {
     for (var t = 0; t < u.length; t++)
       if (u[t].name == e) return u[t]
   }
 
-  function ie(e, t, n, a, o) {
+  function re(e, t, n, a, o) {
     var r, i, l = t,
-      s = (h.localStorageAvailable && (r = d.getItem("hotkey_" + e)) && (t = r), re(e));
+      s = (h.localStorageAvailable && (r = d.getItem("hotkey_" + e)) && (t = r), oe(e));
     return s ? (s.key = t, s.def = l, s.desc = n) : (s = {
       name: e,
       desc: n,
@@ -452,37 +452,38 @@
       listing: $("item"),
       changed: [],
       cb: []
-    }, u.push(s), je(r = $("key", s.name), "text"), s.listing.appendChild(r), (i = c.createElement("input")).value = s.key, s.listing.appendChild(i), D(i, "keydown", function(e) {
+    }, u.push(s), Ve(r = $("key", s.name), "text"), s.listing.appendChild(r), (i = c.createElement("input")).value = s.key, s.listing.appendChild(i), D(i, "keydown", function(e) {
       for (var t = e.key, n = 0; n < u.length; n++)
         if (u[n].key == t) return void e.preventDefault();
       i.value = t, s.key = t;
       for (n = 0; n < s.changed.length; n++) s.changed[n](s);
-      return le(), e.preventDefault(), !1
+      return ie(), e.preventDefault(), !1
     }), g[p].querySelector("#hotkey-list").appendChild(s.listing)), a && s.cb.push(a), o && s.changed.push(o), s
   }
 
-  function le() {
+  function ie() {
     if (h.localStorageAvailable)
       for (var e = 0; e < u.length; e++) h.localStorage.setItem("hotkey_" + u[e].name, u[e].key)
   }
   var l = {
-    avatar: [Math.round(100 * Math.random()) % Y, Math.round(100 * Math.random()) % z, Math.round(100 * Math.random()) % U, -1],
+    avatar: [Math.round(100 * Math.random()) % P, Math.round(100 * Math.random()) % Y, Math.round(100 * Math.random()) % z, -1],
     volume: 100,
     dark: 0,
     filterChat: 1,
     pressureSensitivity: 1,
     displayLang: "en",
     undefined,
-    mobileChatLayout: "bottom"
+    mobileChatLayout: "bottom",
+    chatBubbles: 0
   };
 
-  function a(e, t) {
+  function e(e, t) {
     e = d.getItem(e);
     return null == e ? t : e
   }
 
-  function se() {
-    h.localStorageAvailable ? (d.setItem("name", Kn.value), d.setItem("lang", Fn.value), d.setItem("displaylang", l.displayLang), d.setItem("volume", l.volume), d.setItem("dark", 1 == l.dark ? 1 : 0), d.setItem("filter", 1 == l.filterChat ? 1 : 0), d.setItem("pressure", 1 == l.pressureSensitivity ? 1 : 0), d.setItem("ava", JSON.stringify(l.avatar)), d.setItem("mobileChatLayout", l.mobileChatLayout), d.setItem("keyboard", ze.value), d.setItem("keyboardlayout", Ue.value), console.log("Settings saved.")) : console.log("Settings not saved. LocalStorage unavailable.")
+  function le() {
+    h.localStorageAvailable ? (d.setItem("name", Kn.value), d.setItem("lang", Fn.value), d.setItem("displaylang", l.displayLang), d.setItem("volume", l.volume), d.setItem("dark", 1 == l.dark ? 1 : 0), d.setItem("filter", 1 == l.filterChat ? 1 : 0), d.setItem("pressure", 1 == l.pressureSensitivity ? 1 : 0), d.setItem("ava", JSON.stringify(l.avatar)), d.setItem("mobileChatLayout", l.mobileChatLayout), d.setItem("keyboard", Ye.value), d.setItem("keyboardlayout", ze.value), d.setItem("chatBubbles", l.chatBubbles), console.log("Settings saved.")) : console.log("Settings not saved. LocalStorage unavailable.")
   }
 
   function D(e, t, n) {
@@ -497,51 +498,51 @@
     return void 0 !== t && (n.textContent = t), n
   }
 
-  function ce(e, t, n) {
+  function se(e, t, n) {
     var a = c.createElement(e);
     if (void 0 !== t)
       for (var o = t.split(" "), r = 0; r < o.length; r++) a.classList.add(o[r]);
     return void 0 !== n && (a.textContent = n), a
   }
 
-  function de(e) {
+  function ce(e) {
     for (; e.firstChild;) e.removeChild(e.firstChild)
   }
 
-  function ue(e, t) {
+  function de(e, t) {
     var n = $("avatar"),
       a = $("color"),
       o = $("eyes"),
       r = $("mouth"),
       i = $("special"),
       l = $("owner");
-    return l.style.display = t ? "block" : "none", n.appendChild(a), n.appendChild(o), n.appendChild(r), n.appendChild(i), n.appendChild(l), n.parts = [a, o, r], he(n, e), n
+    return l.style.display = t ? "block" : "none", n.appendChild(a), n.appendChild(o), n.appendChild(r), n.appendChild(i), n.appendChild(l), n.parts = [a, o, r], ue(n, e), n
   }
 
-  function he(e, t) {
+  function ue(e, t) {
     function n(e, t, n) {
       var a = -t % n * 100,
         t = 100 * -Math.floor(t / n);
       e.style.backgroundPosition = a + "% " + t + "%"
     }
-    var a = t[0] % Y,
-      o = t[1] % z,
-      r = t[2] % U,
+    var a = t[0] % P,
+      o = t[1] % Y,
+      r = t[2] % z,
       t = t[3],
       a = (n(e.querySelector(".color"), a, 10), n(e.querySelector(".eyes"), o, 10), n(e.querySelector(".mouth"), r, 10), e.querySelector(".special"));
     0 <= t ? (a.style.display = "", n(a, t, 10)) : a.style.display = "none"
   }
 
-  function pe(e, t) {
+  function he(e, t) {
     e.querySelector(".owner").style.display = t ? "block" : "none"
   }
 
-  function me(e, t) {
+  function pe(e, t) {
     e.className = "avatar";
     for (var n of t) e.classList.add("filter-" + n)
   }
 
-  function ge(e, t, n, a) {
+  function me(e, t, n, a) {
     var o = {
       element: $("dots"),
       dots: [],
@@ -550,22 +551,22 @@
     };
     return e.appendChild(o.element), n.push(o.element), D(n, "DOMMouseScroll wheel", function(e) {
       var t;
-      1 < o.dots.length && (t = -e.deltaY || e.wheelDeltaY, t = Math.sign(t), ye(o, Math.min(o.dots.length - 1, Math.max(0, o.selected - t)), !0), e.preventDefault(), e.stopPropagation())
-    }), fe(o, t), o
+      1 < o.dots.length && (t = -e.deltaY || e.wheelDeltaY, t = Math.sign(t), fe(o, Math.min(o.dots.length - 1, Math.max(0, o.selected - t)), !0), e.preventDefault(), e.stopPropagation())
+    }), ge(o, t), o
   }
 
-  function fe(e, t) {
-    de(e.element), e.dots = [];
+  function ge(e, t) {
+    ce(e.element), e.dots = [];
     for (var n = 0; n < t; n++) {
       var a = $("dot");
       a.index = n, a.appendChild($("inner")), D(a, "click", function() {
-        ye(e, this.index, !0)
+        fe(e, this.index, !0)
       }), e.element.appendChild(a), e.dots.push(a)
     }
-    e.selected < 0 && (e.selected = 0), t <= e.selected && (e.selected = t - 1), ye(e, e.selected, !1)
+    e.selected < 0 && (e.selected = 0), t <= e.selected && (e.selected = t - 1), fe(e, e.selected, !1)
   }
 
-  function ye(e, t, n) {
+  function fe(e, t, n) {
     if (0 <= t && t < e.dots.length) {
       e.selected = t;
       for (var a = 0; a < e.dots.length; a++) e.dots[a].classList.remove("active");
@@ -573,71 +574,71 @@
     }
   }
   let s = 0,
-    ve = 1,
-    be = 2,
-    Se = 3,
+    ye = 1,
+    ve = 2,
+    be = 3,
     p = 4,
-    ke = 5;
+    Se = 5;
   var m = c.querySelector("#modal"),
-    we = m.querySelector(".modal-title .text"),
-    Ce = m.querySelector(".modal-content"),
+    ke = m.querySelector(".modal-title .text"),
+    we = m.querySelector(".modal-content"),
     g = [];
 
-  function qe(e) {
+  function Ce(e) {
     g[s].querySelector(".buttons button.mute").textContent = E(e ? "Unmute" : "Mute")
   }
 
-  function xe(e, t) {
+  function qe(e, t) {
     m.style.display = "block";
     for (var n = 0; n < g.length; n++) g[n].style.display = "none";
     g[e].style.display = "flex";
     var a = g[e];
     switch (e) {
-      case ve:
-        we.textContent = E("Something went wrong!"), a.querySelector(".message").textContent = t;
+      case ye:
+        ke.textContent = E("Something went wrong!"), a.querySelector(".message").textContent = t;
         break;
-      case be:
-        we.textContent = E("Disconnected!"), a.querySelector(".message").textContent = t;
+      case ve:
+        ke.textContent = E("Disconnected!"), a.querySelector(".message").textContent = t;
         break;
       case s:
-        we.textContent = t.id == x ? E("$ (You)", t.name) : t.name;
-        var o = (O(x).flags & k) == k,
+        ke.textContent = t.id == x ? E("$ (You)", t.name) : t.name;
+        var o = (W(x).flags & k) == k,
           r = (t.flags & k) == k,
           i = a.querySelector(".buttons"),
-          r = (i.style.display = t.id == x || r ? "none" : "flex", i.querySelector(".button-pair").style.display = x == R || o ? "flex" : "none", i.querySelector("button.report").style.display = t.reported ? "none" : "", qe(t.muted), a.querySelector(".report-menu").style.display = "none", a.querySelector(".invite").style.display = x == t.id ? "flex" : "none", Ce.querySelector(".player")),
-          o = (r.style.display = "", de(r), ue(t.avatar))
+          r = (i.style.display = t.id == x || r ? "none" : "flex", i.querySelector(".button-pair").style.display = x == En || o ? "flex" : "none", i.querySelector("button.report").style.display = t.reported ? "none" : "", Ce(t.muted), a.querySelector(".report-menu").style.display = "none", a.querySelector(".invite").style.display = x == t.id ? "flex" : "none", we.querySelector(".player")),
+          o = (r.style.display = "", ce(r), de(t.avatar))
         ; /*id in popup*/ r.setAttribute("playerid", t.id);;
-        pe(o, R == t.id), me(o, Ya(t)), r.appendChild(o);
-        break;
-      case ke:
-        we.textContent = E("Rooms"), roomsUpdate(t);
+        he(o, En == t.id), pe(o, Ya(t)), r.appendChild(o);
         break;
       case Se:
-        we.textContent = E("Invite your friends!");
+        ke.textContent = E("Rooms"), roomsUpdate(t);
+        break;
+      case be:
+        ke.textContent = E("Invite your friends!");
         break;
       case p:
-        we.textContent = E("Settings"), a.querySelector("#select-pressure-sensitivity").value = l.pressureSensitivity
+        ke.textContent = E("Settings"), a.querySelector("#select-pressure-sensitivity").value = l.pressureSensitivity
     }
   }
 
-  function Me() {
+  function xe() {
     m.style.display = "none"
   }
-  g[s] = m.querySelector(".modal-container-player"), g[ve] = m.querySelector(".modal-container-info"), g[be] = m.querySelector(".modal-container-info"), g[Se] = m.querySelector(".modal-container-room"), g[p] = m.querySelector(".modal-container-settings"), D([m.querySelector(".close"), g[ve].querySelector("button.ok")], "click", Me);
-  let Le = 0,
-    De = 2,
-    $e = 3,
-    Ee = 4,
-    Ae = 5,
-    Ie = 6,
-    Re = 7,
-    Te = ["BASE", "GUESSED", "CLOSE", "DRAWING", "JOIN", "LEAVE", "OWNER", "GUESSCHAT"];
+  g[s] = m.querySelector(".modal-container-player"), g[ye] = m.querySelector(".modal-container-info"), g[ve] = m.querySelector(".modal-container-info"), g[be] = m.querySelector(".modal-container-room"), g[p] = m.querySelector(".modal-container-settings"), D([m.querySelector(".close"), g[ye].querySelector("button.ok")], "click", xe);
+  let Me = 0,
+    Le = 2,
+    De = 3,
+    $e = 4,
+    Ee = 5,
+    Ae = 6,
+    Ie = 7,
+    Re = ["BASE", "GUESSED", "CLOSE", "DRAWING", "JOIN", "LEAVE", "OWNER", "GUESSCHAT"];
 
   function f(e) {
-    return "var(--COLOR_CHAT_TEXT_" + Te[e] + ")"
+    return "var(--COLOR_CHAT_TEXT_" + Re[e] + ")"
   }
 
-  function Ne(e, t, n, a) {
+  function Te(e, t, n, a) {
     var o = c.createElement("p"),
       r = c.createElement("b"),
       a = (r.textContent = a ? e : e + ": ", o.appendChild(r), o.style.color = n, c.createElement("span"));
@@ -645,21 +646,20 @@
   }
 
   function y(e, t, n, a) {
-    var o = Ne(e, t, n, a),
-      r = Gn.scrollHeight - Gn.scrollTop - Gn.clientHeight <= 20;
-    if (Gn.appendChild(o), r && (Gn.scrollTop = Gn.scrollHeight + 100), 0 < l.chatDeleteQuota)
+    var o, r = Te(e, t, n, a),
+      i = Gn.scrollHeight - Gn.scrollTop - Gn.clientHeight <= 20;
+    if (Gn.appendChild(r), i && (Gn.scrollTop = Gn.scrollHeight + 100), 0 < l.chatDeleteQuota)
       for (; Gn.childElementCount > l.chatDeleteQuota;) Gn.firstElementChild.remove();
-    var i = Ne(e, t, n, a);
-    return c.querySelector("#game-canvas .bubbles").appendChild(i), setTimeout(function() {
-      i.remove()
-    }, 2500), o
+    return (0 == l.chatBubbles || 1 == l.chatBubbles && M != x) && (o = Te(e, t, n, a), c.querySelector("#game-canvas .bubbles").appendChild(o), setTimeout(function() {
+      o.remove()
+    }, 2500)), r
   }
   var i = void 0,
-    We = void 0;
+    Ne = void 0;
 
-  function Oe(e) {
-    Pe();
-    for (var t = (We = e).dataset.tooltip, n = e.dataset.tooltipdir || "N", a = ((i = $("tooltip")).appendChild($("tooltip-arrow")), i.appendChild($("tooltip-content", E(t))), !1), o = e; o;) {
+  function We(e) {
+    Oe();
+    for (var t = (Ne = e).dataset.tooltip, n = e.dataset.tooltipdir || "N", a = ((i = $("tooltip")).appendChild($("tooltip-arrow")), i.appendChild($("tooltip-content", E(t))), !1), o = e; o;) {
       if ("fixed" == h.getComputedStyle(o).position) {
         a = !0;
         break
@@ -673,10 +673,10 @@
     "N" == n && (e = (t.left + t.right) / 2), "S" == n && (e = (t.left + t.right) / 2, r = t.bottom), "E" == n && (e = t.right, r = (t.top + t.bottom) / 2), "W" == n && (r = (t.top + t.bottom) / 2), a || (e += h.scrollX, r += h.scrollY), i.classList.add(n), i.style.left = e + "px", i.style.top = r + "px", c.body.appendChild(i)
   }
 
-  function Pe() {
-    i && (i.remove(), We = i = void 0)
+  function Oe() {
+    i && (i.remove(), Ne = i = void 0)
   }
-  let Ye = [{
+  let Pe = [{
     code: "en",
     name: "English",
     layout: [
@@ -725,9 +725,9 @@
       ["Z", "X", "C", "V", "B", "N", "M"]
     ]
   }];
-  var ze = c.querySelector("#select-mobile-keyboard-enabled"),
-    Ue = c.querySelector("#select-mobile-keyboard-layout"),
-    He = {
+  var Ye = c.querySelector("#select-mobile-keyboard-enabled"),
+    ze = c.querySelector("#select-mobile-keyboard-layout"),
+    Be = {
       elements: {
         main: c.querySelector("#game-keyboard"),
         input: c.querySelector("#game-keyboard .input"),
@@ -750,14 +750,14 @@
         return e.toLocaleUpperCase(this.lang)
       },
       init: function(e) {
-        this.lang = e.code, this.caps = !1, this.columns = 0, this.elements.keys = [], this.form = c.querySelector("#game-chat-input-mobile form"), this.input = this.form.querySelector("input"), de(this.elements.rows);
+        this.lang = e.code, this.caps = !1, this.columns = 0, this.elements.keys = [], this.form = c.querySelector("#game-chat-input-mobile form"), this.input = this.form.querySelector("input"), ce(this.elements.rows);
         var t = e.layout,
           i = this;
 
         function n(e, t, n) {
-          var a, o = ce("button", "key"),
+          var a, o = se("button", "key"),
             r = "PointerEvent" in h ? "pointerdown" : "click";
-          return Be.has(t) ? (a = Be.get(t), o.classList.add(a.class), o.appendChild(ce("span", "material-icons", a.icon)), D(o, r, function(e) {
+          return Ue.has(t) ? (a = Ue.get(t), o.classList.add(a.class), o.appendChild(se("span", "material-icons", a.icon)), D(o, r, function(e) {
             a.callback(i), e.preventDefault()
           })) : (o.textContent = i.getKeyLowercase(t), D(o, r, function(e) {
             i.inputAdd(t), e.preventDefault()
@@ -797,58 +797,58 @@
         this.elements.caps.classList.toggle("enabled", this.caps)
       }
     };
-  let Be = new Map;
+  let Ue = new Map;
 
-  function _e() {
-    1 == ze.value ? (_n[1].setAttribute("readonly", ""), c.documentElement.dataset.mobileKeyboard = "") : (_n[1].removeAttribute("readonly"), delete c.documentElement.dataset.mobileKeyboard)
+  function He() {
+    1 == Ye.value ? (_n[1].setAttribute("readonly", ""), c.documentElement.dataset.mobileKeyboard = "") : (_n[1].removeAttribute("readonly"), delete c.documentElement.dataset.mobileKeyboard)
   }
-  Be.set("backspace", {
+  Ue.set("backspace", {
     class: "wide",
     icon: "backspace",
     callback: function(e) {
       0 < e.input.value.length && (e.input.value = e.input.value.slice(0, -1), e.inputChanged())
     }
-  }), Be.set("caps", {
+  }), Ue.set("caps", {
     class: "wide",
     icon: "keyboard_capslock",
     callback: function(e) {
       e.toggleCaps()
     }
-  }), Be.set("enter", {
+  }), Ue.set("enter", {
     class: "wide",
     icon: "keyboard_return",
     callback: function(e) {
       e.enter()
     }
-  }), Be.set("space", {
+  }), Ue.set("space", {
     class: "extra-wide",
     icon: "space_bar",
     callback: function(e) {
       e.input.value += " ", e.inputChanged()
     }
   });
-  for (var e = 0; e < Ye.length; e++) {
-    var Ge = ce("option");
-    Ge.textContent = Ye[e].name, Ge.value = Ye[e].code, Ue.appendChild(Ge)
+  for (var t = 0; t < Pe.length; t++) {
+    var _e = se("option");
+    _e.textContent = Pe[t].name, _e.value = Pe[t].code, ze.appendChild(_e)
   }
-  D(Ue, "change", function(e) {
-    for (var t = void 0, n = 0; n < Ye.length; n++) Ye[n].code == this.value && (t = Ye[n]);
-    null != t && He.init(t)
-  }), D([ze, Ue], "change", function(e) {
-    se(), _e()
-  }), D(He.elements.main, "gesturestart gesturechange gestureend drag scroll", function(e) {
+  D(ze, "change", function(e) {
+    for (var t = void 0, n = 0; n < Pe.length; n++) Pe[n].code == this.value && (t = Pe[n]);
+    null != t && Be.init(t)
+  }), D([Ye, ze], "change", function(e) {
+    le(), He()
+  }), D(Be.elements.main, "gesturestart gesturechange gestureend drag scroll", function(e) {
     return e.preventDefault(), !1
-  }), He.init(Ye[0]);
-  var Ke = {},
-    Fe = [];
+  }), Be.init(Pe[0]);
+  var Ge = {},
+    Ke = [];
 
-  function Ve(e, t) {
+  function Fe(e, t) {
     e = e[t];
     return null != e && "" != e ? e : t
   }
 
   function E(e, t) {
-    var n = Ve(Ke[l.displayLang], e),
+    var n = Fe(Ge[l.displayLang], e),
       a = "",
       o = 0;
     Array.isArray(t) || (t = [t]);
@@ -859,21 +859,21 @@
     return a
   }
 
-  function je(e, t) {
+  function Ve(e, t) {
     if ("children" == t)
       for (var n = 0; n < e.children.length; n++) {
         var a = e.children[n].dataset.translate;
-        je(e.children[n], null == a ? "text" : a)
+        Ve(e.children[n], null == a ? "text" : a)
       } else {
       var o = "";
-      "text" == t && (o = e.textContent), 0 < (o = "placeholder" == t ? e.placeholder : o).length ? Fe.push({
+      "text" == t && (o = e.textContent), 0 < (o = "placeholder" == t ? e.placeholder : o).length ? Ke.push({
         key: o,
         element: e,
         type: t
       }) : (console.log("Empty key passed to translate with!"), console.log(e))
     }
   }
-  Ke.en = {}, Ke.de = {
+  Ge.en = {}, Ge.de = {
     "You have been kicked!": "Du wurdest gekickt!",
     "You have been banned!": "Du wurdest gebannt!",
     "You muted '$'!": "Du hast '$' stummgeschalten!",
@@ -1007,56 +1007,56 @@
     On: "An",
     Off: "Aus"
   };
-  let Ze = 0,
-    Xe = 1,
-    Je = 0,
-    Qe = 4,
-    et = 40;
-  var tt = [4, 10, 20, 32, 40],
-    nt = c.querySelector("#game-toolbar"),
-    at = nt.querySelector(".toolbar-group-tools"),
-    ot = nt.querySelector(".toolbar-group-actions"),
-    t = c.querySelector("#game-toolbar .sizes .size-preview"),
-    rt = c.querySelector("#game-toolbar .sizes .container"),
-    it = c.querySelector("#game-toolbar .colors");
+  let je = 0,
+    Ze = 1,
+    Xe = 0,
+    Je = 4,
+    Qe = 40;
+  var et = [4, 10, 20, 32, 40],
+    tt = c.querySelector("#game-toolbar"),
+    nt = tt.querySelector(".toolbar-group-tools"),
+    at = tt.querySelector(".toolbar-group-actions"),
+    n = c.querySelector("#game-toolbar .sizes .size-preview"),
+    ot = c.querySelector("#game-toolbar .sizes .container"),
+    rt = c.querySelector("#game-toolbar .colors");
 
-  function lt(e, t) {
+  function it(e, t) {
     var n, a, o, r = $("tool clickable"),
       i = (r.appendChild($("icon")), r.appendChild($("key")), t),
       l = (i.id = e, (i.element = r).toolIndex = e, r.querySelector(".icon").style.backgroundImage = "url(/img/" + t.graphic + ")", o = t.name, a = "S", (n = r).dataset.tooltip = o, n.dataset.tooltipdir = a, D(n, "pointerenter", function(e) {
-        Oe(e.target)
+        We(e.target)
       }), D(n, "pointerleave", function(e) {
-        Pe()
+        Oe()
       }), o = t.isAction ? (r.addEventListener("click", function(e) {
-        Tt(this.toolIndex)
-      }), ot.appendChild(r), ct[e] = i, ie(t.name, t.keydef, "", function() {
-        Tt(e)
+        Rt(this.toolIndex)
+      }), at.appendChild(r), st[e] = i, re(t.name, t.keydef, "", function() {
+        Rt(e)
       }, function(e) {
         l.textContent = e.key
       })) : (r.addEventListener("click", function(e) {
-        Nt(this.toolIndex)
-      }), at.appendChild(r), st[e] = i, ie(t.name, t.keydef, "", function() {
-        Nt(i.id)
+        Tt(this.toolIndex)
+      }), nt.appendChild(r), lt[e] = i, re(t.name, t.keydef, "", function() {
+        Tt(i.id)
       }, function(e) {
         l.textContent = e.key
       })), r.querySelector(".key"));
     l.textContent = o.key, t.hide && (r.style.display = "none")
   }
-  var st = [],
-    ct = (lt(Je, {
+  var lt = [],
+    st = (it(Xe, {
       isAction: !1,
       name: "Brush",
       keydef: "B",
       graphic: "pen.gif",
       cursor: 0
-    }), lt(1, {
+    }), it(1, {
       isAction: !1,
       name: "Fill",
       keydef: "F",
       graphic: "fill.gif",
       cursor: "url(/img/fill_cur.png) 7 38, default"
     }), []),
-    C = (lt(0, {
+    C = (it(0, {
       isAction: !0,
       name: "Undo",
       keydef: "U",
@@ -1064,22 +1064,22 @@
       action: function() {
         {
           var e;
-          M == x && 0 < mt.length && (mt.pop(), 0 < mt.length ? (Bt(e = mt[mt.length - 1]), S && S.emit("data", {
+          M == x && 0 < pt.length && (pt.pop(), 0 < pt.length ? (Ut(e = pt[pt.length - 1]), S && S.emit("data", {
             id: Ta,
             data: e
-          })) : Vt())
+          })) : Ft())
         }
       }
-    }), lt(1, {
+    }), it(1, {
       isAction: !0,
       name: "Clear",
       keydef: "C",
       graphic: "clear.gif",
-      action: Vt
+      action: Ft
     })
       /*TYPOMOD DESC: add tool for deselect*/
       ,
-      lt(-1, {
+      it(-1, {
         isAction: !1,
         name: "None",
         graphic: "",
@@ -1088,7 +1088,7 @@
       /*TYPOEND*/
       /*TYPOMOD DESC: add tool for pipette*/
       ,
-      lt(3, {
+      it(3, {
         isAction: !1,
         name: "Pipette",
         graphic: "",
@@ -1098,7 +1098,7 @@
       /* TYPOMOD DESC: add action for colorswitch */
       /*
       ,
-      lt(2, {
+      it(2, {
           isAction: !0,
           name: "Switcher",
           graphic: "",
@@ -1110,7 +1110,7 @@
       /* TYPOEND */
       /*TYPOMOD DESC: add action for brushlab*/
       ,
-      lt(3, {
+      it(3, {
         isAction: !0,
         name: "Lab",
         graphic: "",
@@ -1120,48 +1120,48 @@
         }
       })
       /*TYPOEND*/, c.querySelector("#game-canvas canvas")),
-    dt = C.getContext("2d", {
+    ct = C.getContext("2d", {
       willReadFrequently: !0
     }),
     v = [],
+    dt = 0,
     ut = 0,
-    ht = 0,
-    pt = [],
+    ht = [],
     r = [0, 9999, 9999, 0, 0],
-    mt = [],
+    pt = [],
     b = [0, 0],
-    gt = [0, 0],
-    ft = 0,
-    yt = c.createElement("canvas"),
-    o = (yt.width = et + 2, yt.height = et + 2, yt.getContext("2d"));
+    mt = [0, 0],
+    gt = 0,
+    ft = c.createElement("canvas"),
+    o = (ft.width = Qe + 2, ft.height = Qe + 2, ft.getContext("2d"));
 
-  function vt() {
+  function yt() {
 
 // TYPOMOD
 // desc: dont update cursor when typo updates if very frequently to avoid performance drop
-    if(typo.skipCursorUpdate === true) return;var e = st[bt].cursor;
-    if (L.id == Z && M == x) {
-      if (bt == Je) {
-        var t = yt.width,
-          n = qt;
+    if(typo.skipCursorUpdate === true) return;var e = lt[vt].cursor;
+    if (L.id == j && M == x) {
+      if (vt == Xe) {
+        var t = ft.width,
+          n = Ct;
         if (n <= 0) return;
         o.clearRect(0, 0, t, t);
 // TYPOMOD
 // desc: cursor with custom color
-        var a = St < 10000 ? wt[St] : typo.typoCodeToRgb(St);
+        var a = bt < 10000 ? kt[bt] : typo.typoCodeToRgb(bt);
 // TYPOEND
 
         a = [(a = 1 == l.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
         o.fillStyle = "rgba(" + a[0] + "," + a[1] + "," + a[2] + "," + a[3] + ")", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.fill(), o.strokeStyle = "#FFF", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.stroke(), o.strokeStyle = "#000", o.beginPath(), o.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), o.stroke();
-        a = t / 2, e = "url(" + yt.toDataURL() + ")" + a + " " + a + ", default"
+        a = t / 2, e = "url(" + ft.toDataURL() + ")" + a + " " + a + ", default"
       }
     } else e = "default";
     C.style.cursor = e
   }
-  var bt = 0,
+  var vt = 0,
+    bt = 0,
     St = 0,
-    kt = 0,
-    wt = [
+    kt = [
       [255, 255, 255],
       [0, 0, 0],
       [193, 193, 193],
@@ -1189,87 +1189,87 @@
       [160, 82, 45],
       [99, 48, 13]
     ],
-    Ct = ["White", "Black", "Light Gray", "Gray", "Red", "Dark Red", "Orange", "Dark Orange", "Yellow", "Dark Yellow", "Green", "Dark Green", "Mint", "Dark Mint", "Skyblue", "Dark Skyblue", "Seablue", "Dark Seablue", "Purple", "Dark Purple", "Pink", "Dark Pink", "Beige", "Dark Beige", "Brown", "Dark Brown"],
-    qt = 0,
-    xt = -1,
-    Mt = [];
+    wt = ["White", "Black", "Light Gray", "Gray", "Red", "Dark Red", "Orange", "Dark Orange", "Yellow", "Dark Yellow", "Green", "Dark Green", "Mint", "Dark Mint", "Skyblue", "Dark Skyblue", "Seablue", "Dark Seablue", "Purple", "Dark Purple", "Pink", "Dark Pink", "Beige", "Dark Beige", "Brown", "Dark Brown"],
+    Ct = 0,
+    qt = -1,
+    xt = [];
 
-  function Lt(e) {
-    return 20 + (e - Qe) / (et - Qe) * 80
+  function Mt(e) {
+    return 20 + (e - Je) / (Qe - Je) * 80
   }
-  for (e = 0; e < tt.length; e++) {
-    var Dt = $("size clickable"),
-      $t = $("icon"),
-      Et = ($t.style.backgroundSize = Lt(tt[e]) + "%", {
-        id: e,
-        size: tt[e],
-        element: Dt,
-        elementIcon: $t
+  for (t = 0; t < et.length; t++) {
+    var Lt = $("size clickable"),
+      Dt = $("icon"),
+      $t = (Dt.style.backgroundSize = Mt(et[t]) + "%", {
+        id: t,
+        size: et[t],
+        element: Lt,
+        elementIcon: Dt
       });
-    Dt.appendChild($t), rt.appendChild(Dt), Dt.size = Et, Mt.push(Et)
+    Lt.appendChild(Dt), ot.appendChild(Lt), Lt.size = $t, xt.push($t)
   }
-  for (var At = [$("top"), $("bottom")], e = 0; e < wt.length / 2; e++) At[0].appendChild(zt(2 * e)), At[1].appendChild(zt(2 * e + 1));
-  for (e = 0; e < At.length; e++) it.appendChild(At[e]);
+  for (var Et = [$("top"), $("bottom")], t = 0; t < kt.length / 2; t++) Et[0].appendChild(Yt(2 * t)), Et[1].appendChild(Yt(2 * t + 1));
+  for (t = 0; t < Et.length; t++) rt.appendChild(Et[t]);
 
-  function It(e) {
-    qt = q(e, Qe, et);
-    for (var t = Mt[Mt.length - 1], n = t.size, a = 0; a < Mt.length; a++) {
-      var o = Mt[a],
-        r = Math.abs(qt - o.size);
+  function At(e) {
+    Ct = q(e, Je, Qe);
+    for (var t = xt[xt.length - 1], n = t.size, a = 0; a < xt.length; a++) {
+      var o = xt[a],
+        r = Math.abs(Ct - o.size);
       r <= n && (n = r, t = o, 0), o.element.classList.remove("selected")
     }
-    t.element.classList.add("selected"), nt.querySelector(".size-preview .icon").style.backgroundSize = Lt(qt) + "%",
-      document.dispatchEvent(new CustomEvent("skribblSizeChanged", { detail: qt })), vt()
+    t.element.classList.add("selected"), tt.querySelector(".size-preview .icon").style.backgroundSize = Mt(Ct) + "%",
+      document.dispatchEvent(new CustomEvent("skribblSizeChanged", { detail: Ct })), yt()
   }
 
-  function Rt(e) {
+  function It(e) {
     e.classList.remove("clicked"), e.offsetWidth, e.classList.add("clicked")
   }
 
-  function Tt(e) {
-    Rt(ct[e].element), ct[e].action()
+  function Rt(e) {
+    It(st[e].element), st[e].action()
   }
 
-  function Nt(e, t) {
+  function Tt(e, t) {
 
-    /*toolidtarget*/ document.dispatchEvent(new CustomEvent("skribblToolChanged", {detail: e}));  Rt(st[e].element), e == bt && !t || (st[bt].element.classList.remove("selected"), st[e].element.classList.add("selected"), bt = e, vt())
+    /*toolidtarget*/ document.dispatchEvent(new CustomEvent("skribblToolChanged", {detail: e}));  It(lt[e].element), e == vt && !t || (lt[vt].element.classList.remove("selected"), lt[e].element.classList.add("selected"), vt = e, yt())
+  }
+
+  function Nt(e) {
+    var t =
+      e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
+    bt = e, c.querySelector("#color-preview-primary").style.fill = t
+      , document.dispatchEvent(new CustomEvent("skribblColorChanged", {detail: t})), c.querySelector("#game-toolbar .color-preview-mobile").style.backgroundColor = t, yt()
   }
 
   function Wt(e) {
     var t =
-      e > 10000 ? Ut(typo.typoCodeToRgb(e)) : Ut(wt[e]);
-    St = e, c.querySelector("#color-preview-primary").style.fill = t
-      , document.dispatchEvent(new CustomEvent("skribblColorChanged", {detail: t})), c.querySelector("#game-toolbar .color-preview-mobile").style.backgroundColor = t, vt()
+      e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
+    St = e, c.querySelector("#color-preview-secondary").style.fill = t, yt()
   }
 
-  function Ot(e) {
-    var t =
-      e > 10000 ? Ut(typo.typoCodeToRgb(e)) : Ut(wt[e]);
-    kt = e, c.querySelector("#color-preview-secondary").style.fill = t, vt()
+  function Ot() {
+    var e = bt;
+    Nt(St), Wt(e)
   }
 
   function Pt() {
-    var e = St;
-    Wt(kt), Ot(e)
+    ot.classList.remove("open")
   }
 
-  function Yt() {
-    rt.classList.remove("open")
+  function Yt(e) {
+    var t = $("color");
+    return t.style.backgroundColor = zt(kt[e]), t.colorIndex = e, t
   }
 
   function zt(e) {
-    var t = $("color");
-    return t.style.backgroundColor = Ut(wt[e]), t.colorIndex = e, t
-  }
-
-  function Ut(e) {
     return "rgb(" + e[0] + "," + e[1] + "," + e[2] + ")"
   }
 
-  function Ht(e) {
+  function Bt(e) {
     /*TYPOMOD
     desc: if color code > 1000 -> customcolor*/if(e < 1000)
-      e = q(e, 0, wt.length), e = wt[e];
+      e = q(e, 0, kt.length), e = kt[e];
     else e = typo.typoCodeToRgb(e);/* TYPOEND */
     return {
       r: e[0],
@@ -1278,78 +1278,78 @@
     }
   }
 
-  function Bt(e) {
-    if (v = v.slice(0, e), !(x != M && ht < e)) {
+  function Ut(e) {
+    if (v = v.slice(0, e), !(x != M && ut < e)) {
       /* TYPOMOD
               desc: replace draw commands because of redo*/        const keepCommands = v;
       /* TYPOEND*/
-      r = Gt();
-      e = Math.floor(v.length / _t);
-      pt = pt.slice(0, e), Qt();
-      for (var t = 0; t < pt.length; t++) {
-        var n = pt[t];
-        dt.putImageData(n.data, n.bounds[1], n.bounds[2])
+      r = _t();
+      e = Math.floor(v.length / Ht);
+      ht = ht.slice(0, e), Jt();
+      for (var t = 0; t < ht.length; t++) {
+        var n = ht[t];
+        ct.putImageData(n.data, n.bounds[1], n.bounds[2])
       }
-      for (t = pt.length * _t; t < v.length; t++) Kt(Zt(v[t]), v[t]);
-      ut = Math.min(v.length, ut), ht = Math.min(v.length, ht)
+      for (t = ht.length * Ht; t < v.length; t++) Gt(jt(v[t]), v[t]);
+      dt = Math.min(v.length, dt), ut = Math.min(v.length, ut)
 
       /* TYPOMOD
                log kept commands*/
       document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));
       /* TYPOEND*/}
   }
-  let _t = 50;
+  let Ht = 50;
 
-  function Gt() {
+  function _t() {
     return [0, 9999, 9999, 0, 0]
   }
 
-  function Kt(e) {
+  function Gt(e) {
     var t, n, a, o;
-    r[0] += 1, r[1] = Math.min(r[1], e[0]), r[2] = Math.min(r[2], e[1]), r[3] = Math.max(r[3], e[2]), r[4] = Math.max(r[4], e[3]), r[0] >= _t && (t = r[1], n = r[2], a = r[3], o = r[4], (a - t <= 0 || o - n <= 0) && (t = e[0], n = e[1], a = e[2], o = e[3]), e = dt.getImageData(t, n, a - t, o - n), pt.push({
+    r[0] += 1, r[1] = Math.min(r[1], e[0]), r[2] = Math.min(r[2], e[1]), r[3] = Math.max(r[3], e[2]), r[4] = Math.max(r[4], e[3]), r[0] >= Ht && (t = r[1], n = r[2], a = r[3], o = r[4], (a - t <= 0 || o - n <= 0) && (t = e[0], n = e[1], a = e[2], o = e[3]), e = ct.getImageData(t, n, a - t, o - n), ht.push({
       data: e,
       bounds: r
-    }), r = Gt())
+    }), r = _t())
   }
 
-  function Ft(e) {
-    return (e || 0 < v.length || 0 < mt.length || 0 < ut || 0 < ht) && (v = [], mt = [], ut = ht = 0, r = Gt(), pt = [], Qt(), 1)
+  function Kt(e) {
+    return (e || 0 < v.length || 0 < pt.length || 0 < dt || 0 < ut) && (v = [], pt = [], dt = ut = 0, r = _t(), ht = [], Jt(), 1)
   }
 
-  function Vt() {
-    M == x && Ft() && S && S.emit("data", {
+  function Ft() {
+    M == x && Kt() && S && S.emit("data", {
       id: Ra
     })
   }
 
-  function jt(e) {
+  function Vt(e) {
     var t, n, a, o, r, i;
-    ((t = e)[0] != Ze ? t[0] == Xe && 0 <= t[2] && t[2] < C.width && 0 <= t[3] && t[3] < C.height : (a = t[3], o = t[4], r = t[5], i = t[6], t = Math.ceil(t[2] / 2), n = (a + r) / 2, o = (o + i) / 2, r = Math.abs(r - a) / 2, a = Math.abs(i - i) / 2, (i = {
+    ((t = e)[0] != je ? t[0] == Ze && 0 <= t[2] && t[2] < C.width && 0 <= t[3] && t[3] < C.height : (a = t[3], o = t[4], r = t[5], i = t[6], t = Math.ceil(t[2] / 2), n = (a + r) / 2, o = (o + i) / 2, r = Math.abs(r - a) / 2, a = Math.abs(i - i) / 2, (i = {
       x1: -(t + r),
       y1: -(t + r),
       x2: C.width + t + r,
       y2: C.height + t + a
-    }).x1 < n && n < i.x2 && i.y1 < o && o < i.y2)) ? (v.push(e), x == M && Kt(Zt(e)))
+    }).x1 < n && n < i.x2 && i.y1 < o && o < i.y2)) ? (v.push(e), x == M && Gt(jt(e)))
       /* TYPOMOD  log draw commands */
       & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }))
       /* TYPOEND */: console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS")
   }
 
-  function Zt(e) {
+  function jt(e) {
     var t = [0, 0, C.width, C.height];
     switch (e[0]) {
-      case Ze:
-        var n = q(Math.floor(e[2]), Qe, et),
+      case je:
+        var n = q(Math.floor(e[2]), Je, Qe),
           a = Math.ceil(n / 2),
           o = q(Math.floor(e[3]), -a, C.width + a),
           r = q(Math.floor(e[4]), -a, C.height + a),
           i = q(Math.floor(e[5]), -a, C.width + a),
           a = q(Math.floor(e[6]), -a, C.height + a),
-          l = Ht(e[1]);
-        t[0] = q(o - n, 0, C.width), t[1] = q(r - n, 0, C.height), t[2] = q(i + n, 0, C.width), t[3] = q(a + n, 0, C.height), Jt(o, r, i, a, n, l.r, l.g, l.b);
+          l = Bt(e[1]);
+        t[0] = q(o - n, 0, C.width), t[1] = q(r - n, 0, C.height), t[2] = q(i + n, 0, C.width), t[3] = q(a + n, 0, C.height), Xt(o, r, i, a, n, l.r, l.g, l.b);
         break;
-      case Xe:
-        var l = Ht(e[1]),
+      case Ze:
+        var l = Bt(e[1]),
           o = q(Math.floor(e[2]), 0, C.width),
           r = q(Math.floor(e[3]), 0, C.height),
           i = o,
@@ -1357,7 +1357,7 @@
           s = l.r,
           c = l.g,
           d = l.b,
-          u = dt.getImageData(0, 0, C.width, C.height),
+          u = ct.getImageData(0, 0, C.width, C.height),
           h = [
             [i, a]
           ],
@@ -1370,9 +1370,9 @@
             return (t != s || n != c || e != d) && (t = Math.abs(t - p[0]), n = Math.abs(n - p[1]), e = Math.abs(e - p[2]), t < 3) && n < 3 && e < 3
           }, k = u.height, w = u.width; h.length;) {
             for (m = h.pop(), g = m[0], y = 4 * ((f = m[1]) * w + g); 0 <= f-- && S(y);) y -= 4 * w;
-            for (y += 4 * w, ++f, b = v = !1; f++ < k - 1 && S(y);) Xt(u, y, s, c, d), 0 < g && (S(y - 4) ? v || (h.push([g - 1, f]), v = !0) : v = v && !1), g < w - 1 && (S(y + 4) ? b || (h.push([g + 1, f]), b = !0) : b = b && !1), y += 4 * w
+            for (y += 4 * w, ++f, b = v = !1; f++ < k - 1 && S(y);) Zt(u, y, s, c, d), 0 < g && (S(y - 4) ? v || (h.push([g - 1, f]), v = !0) : v = v && !1), g < w - 1 && (S(y + 4) ? b || (h.push([g + 1, f]), b = !0) : b = b && !1), y += 4 * w
           }
-          dt.putImageData(u, 0, 0)
+          ct.putImageData(u, 0, 0)
         }
     }
     return t
@@ -1382,11 +1382,11 @@
     return e < t ? t : n < e ? n : e
   }
 
-  function Xt(e, t, n, a, o) {
+  function Zt(e, t, n, a, o) {
     0 <= t && t < e.data.length && (e.data[t] = n, e.data[t + 1] = a, e.data[t + 2] = o, e.data[t + 3] = 255)
   }
 
-  function Jt(e, t, n, a, o, r, i, l) {
+  function Xt(e, t, n, a, o, r, i, l) {
     function s(e, t) {
       for (var n = -c; n <= c; n++)
         for (var a, o = -c; o <= c; o++) n * n + o * o < d && 0 <= (a = 4 * ((t + o) * m.width + e + n)) && a < m.data.length && (m.data[a] = r, m.data[1 + a] = i, m.data[2 + a] = l, m.data[3 + a] = 255)
@@ -1397,7 +1397,7 @@
       u = Math.min(t, a) - c,
       h = Math.max(e, n) + c,
       p = Math.max(t, a) + c,
-      m = (e -= o, t -= u, n -= o, a -= u, dt.getImageData(o, u, h - o, p - u));
+      m = (e -= o, t -= u, n -= o, a -= u, ct.getImageData(o, u, h - o, p - u));
     if (e == n && t == a) s(e, t);
     else {
       s(e, t), s(n, a);
@@ -1410,29 +1410,29 @@
         var S = b << 1; - f < S && (b -= f, e += y), S < g && (b += g, t += v), s(e, t)
       }
     }
-    dt.putImageData(m, o, u)
+    ct.putImageData(m, o, u)
   }
 
-  function Qt() {
+  function Jt() {
     /* TYPOMOD
              desc: store data before clear */
     const data = document.querySelector("#game-canvas canvas").toDataURL();
     /* TYPOEND */
-    dt.fillStyle = "#FFF", dt.fillRect(0, 0, C.width, C.height)
+    ct.fillStyle = "#FFF", ct.fillRect(0, 0, C.width, C.height)
     /* TYPOMOD
              desc: dispatch clear event */
     ;document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));
     /* TYPOEND */
   }
 
-  function en(e) {
-    if (L.id == Z && M == x && -1 != xt) {
-      var t = 0 == xt ? St : kt,
+  function Qt(e) {
+    if (L.id == j && M == x && -1 != qt) {
+      var t = 0 == qt ? bt : St,
         n = null;
       if (e) {
         var e = ((e, t) => {
-          for (var n = (e = dt.getImageData(e, t, 1, 1)).data[0], a = e.data[1], o = e.data[2], r = 0; r < wt.length; r++) {
-            var i = wt[r];
+          for (var n = (e = ct.getImageData(e, t, 1, 1)).data[0], a = e.data[1], o = e.data[2], r = 0; r < kt.length; r++) {
+            var i = kt[r];
             if (0 == i[0] - n && 0 == i[1] - a && 0 == i[2] - o) return r
           }
           /* TYPOMOD
@@ -1441,61 +1441,61 @@
           /* TYPOEND */
           return r
         })(b[0], b[1]);
-        if (1 == bt) {
+        if (1 == vt) {
           if (e == t) return;
-          e = t, l = b[0], s = b[1], n = [Xe, e, l, s]
+          e = t, l = b[0], s = b[1], n = [Ze, e, l, s]
         }
       }
-      bt == Je && (e = qt, 0 <= ft && (e = (e - Qe) * q(ft, 0, 1) + Qe),
+      vt == Xe && (e = Ct, 0 <= gt && (e = (e - Je) * q(gt, 0, 1) + Je),
         /* TYPOMOD use typo pressure */
         (() => {
-          if (0 <= ft && document.documentElement.dataset["typo_pressure_performance"]) {
-            const pressure = eval(document.documentElement.dataset["typo_pressure_performance"])(ft);
+          if (0 <= gt && document.documentElement.dataset["typo_pressure_performance"]) {
+            const pressure = eval(document.documentElement.dataset["typo_pressure_performance"])(gt);
             e = Math.max(4, Math.round(40 * pressure));
           }
-        })(),l = Math.ceil(.5 * e), s = q(Math.floor(gt[0]), -l, C.width + l), o = q(Math.floor(gt[1]), -l, C.height + l), r = q(Math.floor(b[0]), -l, C.width + l), i = q(Math.floor(b[1]), -l, C.height + l), t = t, e = e, a = s, o = o, r = r, i = i, n = [Ze, t, e, a, o, r, i]), null != n && jt(n)
+        })(),l = Math.ceil(.5 * e), s = q(Math.floor(mt[0]), -l, C.width + l), o = q(Math.floor(mt[1]), -l, C.height + l), r = q(Math.floor(b[0]), -l, C.width + l), i = q(Math.floor(b[1]), -l, C.height + l), t = t, e = e, a = s, o = o, r = r, i = i, n = [je, t, e, a, o, r, i]), null != n && Vt(n)
     }
     var a, o, r, i, l, s
   }
 
-  function tn(e, t, n, a) {
+  function en(e, t, n, a) {
     var o = C.getBoundingClientRect(),
       e = Math.floor((e - o.left) / o.width * C.width),
       t = Math.floor((t - o.top) / o.height * C.height);
-    a ? (ft = n, gt[0] = b[0] = e, gt[1] = b[1] = t) : (gt[0] = b[0], gt[1] = b[1], ft = n, b[0] = e, b[1] = t)
+    a ? (gt = n, mt[0] = b[0] = e, mt[1] = b[1] = t) : (mt[0] = b[0], mt[1] = b[1], gt = n, b[0] = e, b[1] = t)
   }
 
-  function nn(e) {
+  function tn(e) {
     return 0 == e || 2 == e || 5 == e
   }
 
-  function an(e) {
-    var t = "Left-/Rightclick to choose a color!\n" + Ct[this.colorIndex];
-    c.querySelector("#game-toolbar .colors").dataset.tooltip = t, i && (i.querySelector(".tooltip-content").textContent = E(We.dataset.tooltip))
+  function nn(e) {
+    var t = "Left-/Rightclick to choose a color!\n" + wt[this.colorIndex];
+    c.querySelector("#game-toolbar .colors").dataset.tooltip = t, i && (i.querySelector(".tooltip-content").textContent = E(Ne.dataset.tooltip))
   }
 
-  function on(e) {
+  function an(e) {
     var t, n;
-    t = this.colorIndex, n = 0 == e.button, ((n = e.altKey ? !n : n) ? Wt : Ot)(t)
+    t = this.colorIndex, n = 0 == e.button, ((n = e.altKey ? !n : n) ? Nt : Wt)(t)
   }
-  D(nt, "contextmenu", function(e) {
+  D(tt, "contextmenu", function(e) {
     return e.preventDefault(), !1
   }), D("#game-toolbar .sizes .size", "click", function(e) {
     var t;
-    t = this.size.id, Rt((t = Mt[t]).element), It(t.size), Yt()
+    t = this.size.id, It((t = xt[t]).element), At(t.size), Pt()
   }), D([C], "DOMMouseScroll wheel", function(e) {
     e.preventDefault();
     e = -e.deltaY || e.wheelDeltaY, e = Math.sign(e);
-    It(qt + 2 * e)
-  }), ie("Swap", "S", "Swap the primary and secondary color.", Pt), D(nt.querySelector(".color-preview"), "click", function(e) {
-    Pt()
-  }), D(nt.querySelector(".color-preview-mobile"), "click", function(e) {
-    nt.querySelector(".colors").classList.toggle("open")
-  }), D(t, "click", function(e) {
-    rt.classList.toggle("open")
+    At(Ct + 2 * e)
+  }), re("Swap", "S", "Swap the primary and secondary color.", Ot), D(tt.querySelector(".color-preview"), "click", function(e) {
+    Ot()
+  }), D(tt.querySelector(".color-preview-mobile"), "click", function(e) {
+    tt.querySelector(".colors").classList.toggle("open")
+  }), D(n, "click", function(e) {
+    ot.classList.toggle("open")
   }), D(c, "keyup", function(e) {
     if ("Enter" == e.code) return _n[0].focus(), 0;
-    if ("input" == c.activeElement.tagName.toLowerCase() || "textarea" == c.activeElement.tagName.toLowerCase() || -1 != xt) return 0;
+    if ("input" == c.activeElement.tagName.toLowerCase() || "textarea" == c.activeElement.tagName.toLowerCase() || -1 != qt) return 0;
     for (var t = e.key.toLowerCase().replace("key", ""), n = 0; n < u.length; n++)
       if (u[n].key.toLowerCase() == t) {
         for (var a = 0; a < u[n].cb.length; a++) u[n].cb[a](u[n]);
@@ -1504,65 +1504,65 @@
   }), D(C, "contextmenu", function(e) {
     return e.preventDefault(), !1
   });
-  var rn = null;
-  "PointerEvent" in h ? (D("#game-toolbar .colors * .color", "pointerenter", an), D("#game-toolbar .colors * .color", "pointerdown", on), D(C, "pointerdown", function(e) {
+  var on = null;
+  "PointerEvent" in h ? (D("#game-toolbar .colors * .color", "pointerenter", nn), D("#game-toolbar .colors * .color", "pointerdown", an), D(C, "pointerdown", function(e) {
     var t, n, a, o;
-    null == rn && nn(e.button) && (h.getSelection ? h.getSelection().removeAllRanges() : c.selection && c.selection.empty(), t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = e.clientX, a = e.clientY, o = -1, t && (o = (oe && e.pressure, e.pressure)), rn = e.pointerId, xt = e.button, C.setPointerCapture(e.pointerId), v.length, tn(n, a, o, !0), en(!0))
+    null == on && tn(e.button) && (h.getSelection ? h.getSelection().removeAllRanges() : c.selection && c.selection.empty(), t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = e.clientX, a = e.clientY, o = -1, t && (o = (ae && e.pressure, e.pressure)), on = e.pointerId, qt = e.button, C.setPointerCapture(e.pointerId), v.length, en(n, a, o, !0), Qt(!0))
   }), D(C, "pointermove", function(e) {
     var t, n;
-    rn !== e.pointerId || (() => {
+    on !== e.pointerId || (() => {
       var e = performance.now();
       if (
-        document.body.dataset.bypassFps !== 'true' &&e - sn < 1e3 / ln) return 1;
-      sn = e
-    })() || (t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = -1, tn(e.clientX, e.clientY, n = t ? (oe && e.pressure, e.pressure) : n, !1), en(!1))
+        document.body.dataset.bypassFps !== 'true' &&e - ln < 1e3 / rn) return 1;
+      ln = e
+    })() || (t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = -1, en(e.clientX, e.clientY, n = t ? (ae && e.pressure, e.pressure) : n, !1), Qt(!1))
   }), D(C, "pointerup pointercancel", function(e) {
-    rn === e.pointerId && (cn != v.length && (cn = v.length, mt.push(cn)), rn = null, xt = -1, C.releasePointerCapture(e.pointerId))
-  })) : (D("#game-toolbar .colors * .color", "mouseenter", an), D("#game-toolbar .colors * .color", "click", on), D(C, "mousedown", function(e) {
-    nn(e.button) && (xt = e.button, v.length, tn(e.clientX, e.clientY, -1, !0), en(!0))
+    on === e.pointerId && (sn != v.length && (sn = v.length, pt.push(sn)), on = null, qt = -1, C.releasePointerCapture(e.pointerId))
+  })) : (D("#game-toolbar .colors * .color", "mouseenter", nn), D("#game-toolbar .colors * .color", "click", an), D(C, "mousedown", function(e) {
+    tn(e.button) && (qt = e.button, v.length, en(e.clientX, e.clientY, -1, !0), Qt(!0))
   }), D(c, "mousemove", function(e) {
-    tn(e.clientX, e.clientY, -1, !1), en(!1)
+    en(e.clientX, e.clientY, -1, !1), Qt(!1)
   }), D(c, "mouseup", function(e) {
-    -1 != xt && (cn != v.length && (cn = v.length, mt.push(cn)), xt = -1)
+    -1 != qt && (sn != v.length && (sn = v.length, pt.push(sn)), qt = -1)
   }));
-  let ln = 90;
-  var S, sn = 0,
-    cn = 0,
-    dn = (setInterval(function() {
+  let rn = 90;
+  var S, ln = 0,
+    sn = 0,
+    cn = (setInterval(function() {
         var e, t, n;
-        S && L.id == Z && M == x && 0 < (e = v.length - ut) && (t = ut + 8, n = v.slice(ut, t), S.emit("data", {
+        S && L.id == j && M == x && 0 < (e = v.length - dt) && (t = dt + 8, n = v.slice(dt, t), S.emit("data", {
           id: Ia,
           data: n
-        }), ut = Math.min(t, v.length),
+        }), dt = Math.min(t, v.length),
         false &&console.log(`Sent ${n.length} commands. ${e} remaining.`))
       },
       document.body.dataset.bypassCommandRate === 'true' ? 0 :50), setInterval(function() {
-      S && L.id == Z && M != x && ht < v.length && (Kt(Zt(v[ht]), v[ht]), ht++)
+      S && L.id == j && M != x && ut < v.length && (Gt(jt(v[ut]), v[ut]), ut++)
     }, 1), c.querySelector("#game-canvas .overlay")),
-    un = c.querySelector("#game-canvas .overlay-content"),
+    dn = c.querySelector("#game-canvas .overlay-content"),
     A = c.querySelector("#game-canvas .overlay-content .text"),
-    hn = c.querySelector("#game-canvas .overlay-content .words"),
-    pn = c.querySelector("#game-canvas .overlay-content .reveal"),
+    un = c.querySelector("#game-canvas .overlay-content .words"),
+    hn = c.querySelector("#game-canvas .overlay-content .reveal"),
     I = c.querySelector("#game-canvas .overlay-content .result"),
-    mn = c.querySelector("#game-canvas .overlay-content .room"),
-    gn = -100,
-    fn = 0,
-    yn = void 0;
+    pn = c.querySelector("#game-canvas .overlay-content .room"),
+    mn = -100,
+    gn = 0,
+    fn = void 0;
 
-  function vn(e, a, o) {
-    var r, i, l = gn,
-      s = fn,
+  function yn(e, a, o) {
+    var r, i, l = mn,
+      s = gn,
       c = e.top - l,
       d = e.opacity - s;
-    Math.abs(c) < .001 && Math.abs(d) < .001 ? o && o() : (r = void 0, i = 0, yn = h.requestAnimationFrame(function e(t) {
+    Math.abs(c) < .001 && Math.abs(d) < .001 ? o && o() : (r = void 0, i = 0, fn = h.requestAnimationFrame(function e(t) {
       var n = t - (r = null == r ? t : r),
         t = (r = t, (i = Math.min(i + n, a)) / a),
         n = (n = t) < .5 ? .5 * ((e, t) => e * e * ((t + 1) * e - t))(2 * n, 1.2 * 1.5) : .5 * (((e, t) => e * e * ((t + 1) * e + t))(2 * n - 2, 1.2 * 1.5) + 2);
-      gn = l + c * n, fn = s + t * t * (3 - 2 * t) * d, un.style.top = gn + "%", dn.style.opacity = fn, i == a ? o && o() : yn = h.requestAnimationFrame(e)
+      mn = l + c * n, gn = s + t * t * (3 - 2 * t) * d, dn.style.top = mn + "%", cn.style.opacity = gn, i == a ? o && o() : fn = h.requestAnimationFrame(e)
     }))
   }
 
-  function bn(e) {
+  function vn(e) {
     e.classList.add("show")
   }
   /* TYPOMOD desc: add event handlers for typo features */
@@ -1585,40 +1585,40 @@
   });
   /* TYPOEND */
 
-  function Sn(e) {
-    for (var t = 0; t < un.children.length; t++) un.children[t].classList.remove("show");
+  function bn(e) {
+    for (var t = 0; t < dn.children.length; t++) dn.children[t].classList.remove("show");
     switch (e.id) {
-      case Q:
-        bn(mn);
-        break;
-      case V:
-        bn(A), A.textContent = E("Round $", e.data + 1);
-        break;
-      case K:
-        bn(A), A.textContent = E("Waiting for players...");
+      case J:
+        vn(pn);
         break;
       case F:
-        bn(A), A.textContent = E("Game starting in a few seconds...");
+        vn(A), A.textContent = E("Round $", e.data + 1);
         break;
-      case X:
-        bn(pn), pn.querySelector("p span.word").textContent = e.data.word, pn.querySelector(".reason").textContent = (e => {
+      case G:
+        vn(A), A.textContent = E("Waiting for players...");
+        break;
+      case K:
+        vn(A), A.textContent = E("Game starting in a few seconds...");
+        break;
+      case Z:
+        vn(hn), hn.querySelector("p span.word").textContent = e.data.word, hn.querySelector(".reason").textContent = (e => {
           switch (e) {
-            case H:
-              return E("Everyone guessed the word!");
-            case _:
-              return E("The drawer left the game!");
             case B:
+              return E("Everyone guessed the word!");
+            case H:
+              return E("The drawer left the game!");
+            case U:
               return E("Time is up!");
-            case G:
+            case _:
               return E("Drawer got skipped!");
             default:
               return "Error!"
           }
         })(e.data.reason);
-        for (var n = pn.querySelector(".player-container"), a = (de(n), []), o = 0; o < e.data.scores.length; o += 3) {
+        for (var n = hn.querySelector(".player-container"), a = (ce(n), []), o = 0; o < e.data.scores.length; o += 3) {
           var r = e.data.scores[o + 0],
             i = (e.data.scores[o + 1], e.data.scores[o + 2]);
-          (s = O(r)) && a.push({
+          (s = W(r)) && a.push({
             name: s.name,
             score: i
           })
@@ -1633,9 +1633,9 @@
           s.score <= 0 && c.classList.add("zero"), l.appendChild(c), n.appendChild(l)
         }
         break;
-      case J:
-        bn(I);
-        for (var d = [I.querySelector(".podest-1"), I.querySelector(".podest-2"), I.querySelector(".podest-3"), I.querySelector(".ranks")], o = 0; o < 4; o++) de(d[o]);
+      case X:
+        vn(I);
+        for (var d = [I.querySelector(".podest-1"), I.querySelector(".podest-2"), I.querySelector(".podest-3"), I.querySelector(".ranks")], o = 0; o < 4; o++) ce(d[o]);
         if (0 < e.data.length) {
           for (var u = [
             [],
@@ -1643,7 +1643,7 @@
             [],
             []
           ], o = 0; o < e.data.length; o++)(s = {
-            player: O(r = e.data[o][0]),
+            player: W(r = e.data[o][0]),
             rank: e.data[o][1],
             title: e.data[o][2]
           }).player && u[Math.min(s.rank, 3)].push(s);
@@ -1658,14 +1658,14 @@
                 l = $("avatar-container"),
                 y = (f.appendChild(l), $("border"));
               y.appendChild($("rank-place", "#" + (h + 1))), y.appendChild($("rank-name", m)), y.appendChild($("rank-score", E("$ points", g))), f.appendChild(y), 0 == h && l.appendChild($("trophy"));
-              for (o = 0; o < p.length; o++) me(b = ue((s = p[o]).player.avatar, 0 == h), Ya(s.player)), b.style.left = 15 * -(p.length - 1) + 30 * o + "%",
+              for (o = 0; o < p.length; o++) pe(b = de((s = p[o]).player.avatar, 0 == h), Ya(s.player)), b.style.left = 15 * -(p.length - 1) + 30 * o + "%",
                 b.setAttribute("playerid", s.player.id),0 == h && (b.classList.add("winner"), b.style.animationDelay = -2.35 * o + "s"), l.appendChild(b)
             }
           }
           for (var v = Math.min(5, u[3].length), o = 0; o < v; o++) {
             var b, s = u[3][o],
               f = $("rank");
-            me(b = ue(s.player.avatar, !1), Ya(s.player)), f.appendChild(b), f.appendChild($("rank-place", "#" + (s.rank + 1))), f.appendChild($("rank-name", s.player.name)),
+            pe(b = de(s.player.avatar, !1), Ya(s.player)), f.appendChild(b), f.appendChild($("rank-place", "#" + (s.rank + 1))), f.appendChild($("rank-name", s.player.name)),
               f.setAttribute("playerid", s.player.id), /*elemanchor*/ f.appendChild($("rank-score", E("$ points", s.player.score))), d[3].appendChild(f)
           }
           0 < u[0].length ? (L = u[0].map(function(e) {
@@ -1673,9 +1673,9 @@
           }).join(", "), I.querySelector(".winner-name").textContent = (0 < u[0].length ? L : "<user left>") + " ", I.querySelector(".winner-text").textContent = 1 == u[0].length ? E("is the winner!") : E("are the winners!")) : (I.querySelector(".winner-name").textContent = "", I.querySelector(".winner-text").textContent = E("Nobody won!"))
         } else I.querySelector(".winner-name").textContent = "", I.querySelector(".winner-text").textContent = E("Nobody won!");
         break;
-      case j:
+      case V:
         if (e.data.words)
-          if (bn(A), bn(hn), de(hn), An[ne.WORDMODE] == ae.COMBINATION) {
+          if (vn(A), vn(un), ce(un), An[te.WORDMODE] == ne.COMBINATION) {
             A.textContent = E("Choose the first word");
             for (var S = e.data.words.length / 2, k = [], w = [], C = 0, o = 0; o < S; o++) {
               var q = $("word", e.data.words[o]),
@@ -1686,7 +1686,7 @@
                 A.textContent = E("Choose the second word")
               }), D(x, "click", function() {
                 ha([C, this.index])
-              }), hn.appendChild(q), hn.appendChild(x)
+              }), un.appendChild(q), un.appendChild(x)
             }
           } else {
             A.textContent = E("Choose a word");
@@ -1694,27 +1694,27 @@
               var M = $("word", e.data.words[o]);
               M.index = o, D(M, "click", function() {
                 ha(this.index)
-              }), hn.appendChild(M)
+              }), un.appendChild(M)
             }
           }
         else {
-          bn(A);
-          var L = (s = O(e.data.id)) ? s.name : E("User"),
-            L = (A.textContent = "", A.appendChild(ce("span", void 0, E("$ is choosing a word!", L))), ue(s
-            && (A.setAttribute("playerid", s.id) || true) /*overlayanchor*/ ? s.avatar : [0, 0, 0, 0], e.data.id == R));
-          s && me(L, Ya(s)), L.style.width = "2em", L.style.height = "2em", A.appendChild(L)
+          vn(A);
+          var L = (s = W(e.data.id)) ? s.name : E("User"),
+            L = (A.textContent = "", A.appendChild(se("span", void 0, E("$ is choosing a word!", L))), de(s
+            && (A.setAttribute("playerid", s.id) || true) /*overlayanchor*/ ? s.avatar : [0, 0, 0, 0], e.data.id == En));
+          s && pe(L, Ya(s)), L.style.width = "2em", L.style.height = "2em", A.appendChild(L)
         }
     }
   }
-  let kn = 0,
-    wn = 1,
-    Cn = 2,
-    qn = 3,
-    xn = 4,
-    Mn = 5,
-    Ln = 6;
+  let Sn = 0,
+    kn = 1,
+    wn = 2,
+    Cn = 3,
+    qn = 4,
+    xn = 5,
+    Mn = 6;
 
-  function Dn(e, t) {
+  function Ln(e, t) {
     this.url = t, this.buffer = null, this.loaded = !1;
     var n = this,
       a = new XMLHttpRequest;
@@ -1727,21 +1727,21 @@
     }, a.send()
   }
 
-  function $n() {
+  function Dn() {
     this.context = null, this.gain = null, this.sounds = new Map, h.addEventListener("load", this.load.bind(this), !1)
   }
-  $n.prototype.addSound = function(e, t) {
-    this.sounds.set(e, new Dn(this, t))
-  }, $n.prototype.loadSounds = function() {
-    this.addSound(kn, "/audio/roundStart.ogg"), this.addSound(wn, "/audio/roundEndSuccess.ogg"), this.addSound(Cn, "/audio/roundEndFailure.ogg"), this.addSound(qn, "/audio/join.ogg"), this.addSound(xn, "/audio/leave.ogg"), this.addSound(Mn, "/audio/playerGuessed.ogg"), this.addSound(Ln, "/audio/tick.ogg")
-  }, $n.prototype.playSound = function(e) {
+  Dn.prototype.addSound = function(e, t) {
+    this.sounds.set(e, new Ln(this, t))
+  }, Dn.prototype.loadSounds = function() {
+    this.addSound(Sn, "/audio/roundStart.ogg"), this.addSound(kn, "/audio/roundEndSuccess.ogg"), this.addSound(wn, "/audio/roundEndFailure.ogg"), this.addSound(Cn, "/audio/join.ogg"), this.addSound(qn, "/audio/leave.ogg"), this.addSound(xn, "/audio/playerGuessed.ogg"), this.addSound(Mn, "/audio/tick.ogg")
+  }, Dn.prototype.playSound = function(e) {
     var t, n;
     null == this.context ? this.load() : "running" != this.context.state ? this.context.resume().then(function() {
       this.playSound(e)
     }) : null != this.context && 0 < l.volume && this.sounds.has(e) && (t = this.sounds.get(e)).loaded && ((n = this.context.createBufferSource()).buffer = t.buffer, n.connect(this.gain), n.start(0))
-  }, $n.prototype.setVolume = function(e) {
+  }, Dn.prototype.setVolume = function(e) {
     g[p].querySelector("#volume .title .icon").classList.toggle("muted", e <= 0), g[p].querySelector("#volume .volume-value").textContent = e <= 0 ? "Muted" : e + "%", this.gain && (this.gain.gain.value = e / 100)
-  }, $n.prototype.load = function() {
+  }, Dn.prototype.load = function() {
     if (null == this.context) try {
       h.AudioContext = h.AudioContext || h.webkitAudioContext, this.context = new AudioContext, this.gain = this.context.createGain(), this.gain.connect(this.context.destination), this.setVolume(l.volume), console.log("AudioContext created."), this.loadSounds()
     } catch (e) {
@@ -1749,11 +1749,11 @@
     }
   };
   let k = 4,
-    En = location.origin + "/api/play";
-  K;
+    $n = location.origin + "/api/play";
+  G;
   var w = [],
     x = 0,
-    R = -1,
+    En = -1,
     M = -1,
     An = [],
     L = {
@@ -1764,19 +1764,19 @@
     In = -1,
     Rn = 0,
     Tn = void 0,
-    T = new $n,
-    N = void 0,
+    R = new Dn,
+    T = void 0,
     Nn = !1,
     Wn = !1,
     On = c.querySelector("#game"),
     Pn = c.querySelector("#game-wrapper"),
-    t = c.querySelector("#game-canvas .room"),
+    n = c.querySelector("#game-canvas .room"),
     Yn = c.querySelector("#game-players"),
     zn = c.querySelector("#game-players .players-list"),
-    Un = c.querySelector("#game-players-footer"),
-    Hn = (c.querySelector("#game-board"), c.querySelector("#game-bar"), c.querySelector("#game-round .text")),
-    W = [c.querySelector("#game-word .description"), c.querySelector("#game-word .word"), c.querySelector("#game-word .hints .container")],
-    Bn = (c.querySelector("#game-chat"), [c.querySelector("#game-chat form"), c.querySelector("#game-chat-input-mobile form")]),
+    Bn = c.querySelector("#game-players-footer"),
+    Un = (c.querySelector("#game-board"), c.querySelector("#game-bar"), c.querySelector("#game-round .text")),
+    N = [c.querySelector("#game-word .description"), c.querySelector("#game-word .word"), c.querySelector("#game-word .hints .container")],
+    Hn = (c.querySelector("#game-chat"), [c.querySelector("#game-chat form"), c.querySelector("#game-chat-input-mobile form")]),
     _n = [c.querySelector("#game-chat input"), c.querySelector("#game-chat-input-mobile input")],
     Gn = c.querySelector("#game-chat .chat-content"),
     Kn = c.querySelector("#home .container-name-lang input"),
@@ -1801,12 +1801,13 @@
           });
         case 503:
         case 0:
-          a && xe(ve, E("Servers are currently undergoing maintenance!") + "\n\r" + E("Please try again later!") + "\n\rStatus: " + e);
+          a && qe(ye, E("Servers are currently undergoing maintenance!") + "\n\r" + E("Please try again later!") + "\n\rStatus: " + e);
           break;
         default:
-          a && xe(ve, E("An unknown error occurred ('$')", e) + "\n\r" + E("Please try again later!"))
+          a && qe(ye, E("An unknown error occurred ('$')", e) + "\n\r" + E("Please try again later!"))
       }
-      n({
+
+      document.dispatchEvent(new CustomEvent("joinLobbyResult")) & n({
         success: !1,
         error: e
       })
@@ -1850,13 +1851,13 @@
   }
 
   function na(e, t, n) {
-    T.context && T.context.resume && T.context.resume(), S && ua();
+    R.context && R.context.resume && R.context.resume(), S && ua();
     var a, o = 0,
       r = {
         transports: ["websocket", "polling"],
         closeOnBeforeunload: !1
       };
-    "URL" in h && "127.0.0.1" != (a = new URL(e)).hostname && "localhost" != a.hostname && (r.path = "/" + a.port + "/", e = a.protocol + "//" + a.hostname), (S = P(e, r)).on("connect", function() {
+    "URL" in h && "127.0.0.1" != (a = new URL(e)).hostname && "localhost" != a.hostname && (r.path = "/" + a.port + "/", e = a.protocol + "//" + a.hostname), (S = O(e, r)).on("connect", function() {
       /* TYPOMOD
                            desc: disconnect socket & leave lobby */
       document.addEventListener('socketEmit', event =>
@@ -1897,7 +1898,7 @@
             else {
               if(buffer.length > 0) events.push({id: Ia, data: buffer});
               events.push({id: Ia, data: sequence});
-              events.push({id: Ta, data: ut + sent});
+              events.push({id: Ta, data: dt + sent});
               buffer.push(command);
             }
           }
@@ -1915,8 +1916,9 @@
       };
       /* TYPOEND */
       Jn(!1), S.on("joinerr", function(e) {
-        ua(), xe(ve, (e => {
-          switch (e) {
+        ua(), qe(ye, (e => {
+
+          document.dispatchEvent(new CustomEvent("joinLobbyResult"));switch (e) {
             case 1:
               return E("Room not found!");
             case 2:
@@ -1956,23 +1958,23 @@
       if(!S.typoDisconnect)
         /*TYPOEND*/
         switch (console.log("socket disconnect: " + e), o) {
-          case ee:
-            xe(be, E("You have been kicked!"));
+          case Q:
+            qe(ve, E("You have been kicked!"));
             break;
-          case te:
-            xe(be, E("You have been banned!"));
+          case ee:
+            qe(ve, E("You have been banned!"));
             break;
           default:
-            xe(be, E("Connection lost!") + "\n" + e)
+            qe(ve, E("Connection lost!") + "\n" + e)
         }
       ua()
     }), S.on("connect_error", function(e) {
-      ua(), Jn(!1), xe(ve, e.message)
+      ua(), Jn(!1), qe(ye, e.message)
     })
   }
 
   function aa(e) {
-    T.playSound(qn), Nt(Je, !0), It(12), Wt(1), Ot(0), Ft(!0), de(Gn), c.querySelector("#home").style.display = "none", c.querySelector("#game").style.display = "flex", x = e.me, In = e.type, Tn = e.id, c.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id, An = e.settings, oa(), de(zn), w = [];
+    R.playSound(Cn), Tt(Xe, !0), At(12), Nt(1), Wt(0), Kt(!0), ce(Gn), c.querySelector("#home").style.display = "none", c.querySelector("#game").style.display = "flex", x = e.me, In = e.type, Tn = e.id, c.querySelector("#input-invite").value = "https://skribbl.io/?" + e.id, An = e.settings, oa(), ce(zn), w = [];
     for (var t = 0; t < e.users.length; t++) za(e.users[t], !1);
     Ga(), Ka(), ia(e.round), fa(e.owner), sa(e.state, !0), Wn || (setTimeout(function() {
       try {
@@ -2003,8 +2005,8 @@
 
   function ia(e) {
     var e = (Rn = e) + 1,
-      t = An[ne.ROUNDS];
-    Hn.textContent = E("Round $ of $", [e, t])
+      t = An[te.ROUNDS];
+    Un.textContent = E("Round $ of $", [e, t])
   }
 
   function la() {
@@ -2015,69 +2017,69 @@
 
   function sa(e, t) {
     var n, a;
-    if (n = L = e, null != yn && (h.cancelAnimationFrame(yn), yn = void 0), n.id == Z ? vn({
+    if (n = L = e, null != fn && (h.cancelAnimationFrame(fn), fn = void 0), n.id == j ? yn({
       top: -100,
       opacity: 0
     }, 600, function() {
-      dn.classList.remove("show")
-    }) : dn.classList.contains("show") ? vn({
+      cn.classList.remove("show")
+    }) : cn.classList.contains("show") ? yn({
       top: -100,
       opacity: 1
     }, 600, function() {
-      Sn(n), vn({
+      bn(n), yn({
         top: 0,
         opacity: 1
       }, 600)
-    }) : (dn.classList.add("show"), Sn(n), vn({
+    }) : (cn.classList.add("show"), bn(n), yn({
       top: 0,
       opacity: 1
     }, 600)), a = e.time, oo(), ro(a), no = setInterval(function() {
       ro(Math.max(0, ao - 1));
       var e = -1;
-      L.id == Z && (e = Qa), L.id == j && (e = eo), to.style.animationName = ao < e ? ao % 2 == 0 ? "rot_left" : "rot_right" : "none", ao < e && T.playSound(Ln), ao <= 0 && oo()
-    }, 1e3), Pn.classList.add("toolbar-hidden"), vt(), da(!1), e.id == Q ? (la(), Pn.classList.add("room")) : Pn.classList.remove("room"), e.id == V && (ia(e.data), 0 == e.data) && la(), e.id == X) {
+      L.id == j && (e = Qa), L.id == V && (e = eo), to.style.animationName = ao < e ? ao % 2 == 0 ? "rot_left" : "rot_right" : "none", ao < e && R.playSound(Mn), ao <= 0 && oo()
+    }, 1e3), Pn.classList.add("toolbar-hidden"), yt(), da(!1), e.id == J ? (la(), Pn.classList.add("room")) : Pn.classList.remove("room"), e.id == F && (ia(e.data), 0 == e.data) && la(), e.id == Z) {
       x != M && ga(e.data.word);
       for (var o = 0; o < e.data.scores.length; o += 3) {
         var r = e.data.scores[o + 0],
           i = e.data.scores[o + 1];
         e.data.scores[o + 2];
-        (c = O(r)) && (c.score = i)
+        (c = W(r)) && (c.score = i)
       }
       Ka();
       for (var l = !0, o = 0; o < w.length; o++)
         if (w[o].guessed) {
           l = !1;
           break
-        } l ? T.playSound(Cn) : T.playSound(wn), y(E("The word was '$'", e.data.word), "", f(Ee), !0)
+        } l ? R.playSound(wn) : R.playSound(kn), y(E("The word was '$'", e.data.word), "", f($e), !0)
       /* TYPOMOD
                    desc: log finished drawing */
       ;document.dispatchEvent(new CustomEvent("drawingFinished", { detail: e.data.word }));
       /* TYPOEND */
-    } else e.id != Z && (W[0].textContent = E("WAITING"), W[0].classList.add("waiting"), W[1].style.display = "none", W[2].style.display = "none");
-    if (e.id == Z) {
+    } else e.id != j && (N[0].textContent = E("WAITING"), N[0].classList.add("waiting"), N[1].style.display = "none", N[2].style.display = "none");
+    if (e.id == j) {
       if (M = e.data.id,
         typo.msi.reset(),
-        typo.msiColorSwitch.currentCode = undefined,T.playSound(kn), Ft(!0), e.data.drawCommands && (v = e.data.drawCommands), y(E("$ is drawing now!", O(M).name), "", f($e), !0), !t)
+        typo.msiColorSwitch.currentCode = undefined,R.playSound(Sn), Kt(!0), e.data.drawCommands && (v = e.data.drawCommands), y(E("$ is drawing now!", W(M).name), "", f(De), !0), !t)
         for (o = 0; o < w.length; o++) Fa(w[o], !1);
-      W[0].classList.remove("waiting"), M == x ? (a = e.data.word, W[0].textContent = E("DRAW THIS"), W[1].style.display = "", W[2].style.display = "none", W[1].textContent = a, Pn.classList.remove("toolbar-hidden"), vt()) : (da(!0), pa(e.data.word, !1), ma(e.data.hints))
+      N[0].classList.remove("waiting"), M == x ? (a = e.data.word, N[0].textContent = E("DRAW THIS"), N[1].style.display = "", N[2].style.display = "none", N[1].textContent = a, Pn.classList.remove("toolbar-hidden"), yt()) : (da(!0), pa(e.data.word, !1), ma(e.data.hints))
     } else {
       M = -1;
       for (o = 0; o < w.length; o++) Fa(w[o], !1)
     }
-    if (e.id == J && 0 < e.data.length) {
+    if (e.id == X && 0 < e.data.length) {
       for (var s = [], i = 0, o = 0; o < e.data.length; o++) {
         var c, d = e.data[o][0],
           u = e.data[o][1];
-        (c = O(d)) && 0 == u && (i = c.score, s.push(c.name))
+        (c = W(d)) && 0 == u && (i = c.score, s.push(c.name))
       }
-      1 == s.length ? y(E("$ won with a score of $!", [s[0], i]), "", f(Ie), !0) : 1 < s.length && y(E("$ and $ won with a score of $!", [s.slice(0, -1).join(", "), s[s.length - 1], i]), "", f(Ie), !0)
+      1 == s.length ? y(E("$ won with a score of $!", [s[0], i]), "", f(Ae), !0) : 1 < s.length && y(E("$ and $ won with a score of $!", [s.slice(0, -1).join(", "), s[s.length - 1], i]), "", f(Ae), !0)
     }
     for (o = 0; o < w.length; o++) Va(w[o], w[o].id == M);
     Ga()
   }
 
   function ca(e) {
-    S && S.connected && L.id == Z && (S.emit("data", {
+    S && S.connected && L.id == j && (S.emit("data", {
       id: Sa,
       data: e
     }), da(!1))
@@ -2088,15 +2090,15 @@
   }
 
   function ua() {
-    console.log("lobby left"), S && S.close(), Ft(!(S = void 0)), oo(), w = [], An = [], L = {
-      id: M = R = -1,
+    console.log("lobby left"), S && S.close(), Kt(!(S = void 0)), oo(), w = [], An = [], L = {
+      id: M = En = -1,
       time: x = 0,
       data: 0
     }, c.querySelector("#home").style.display = "", c.querySelector("#game").style.display = "none"
   }
 
   function ha(e) {
-    S && S.connected && L.id == j && S.emit("data", {
+    S && S.connected && L.id == V && S.emit("data", {
       id: Aa,
       data: e
     })
@@ -2104,14 +2106,14 @@
 
   function pa(e, t) {
     for (var n = e.length - 1, a = 0; a < e.length; a++) n += e[a];
-    var o = !t && 1 == An[ne.WORDMODE];
-    o && (n = 3), W[0].textContent = E(o ? "WORD HIDDEN" : "GUESS THIS"), W[1].style.display = "none", W[2].style.display = "", de(W[2]), W[2].hints = [];
-    for (a = 0; a < n; a++) W[2].hints[a] = $("hint", o ? "?" : "_"), W[2].appendChild(W[2].hints[a]);
-    o || W[2].appendChild($("word-length", e.join(" ")))
+    var o = !t && 1 == An[te.WORDMODE];
+    o && (n = 3), N[0].textContent = E(o ? "WORD HIDDEN" : "GUESS THIS"), N[1].style.display = "none", N[2].style.display = "", ce(N[2]), N[2].hints = [];
+    for (a = 0; a < n; a++) N[2].hints[a] = $("hint", o ? "?" : "_"), N[2].appendChild(N[2].hints[a]);
+    o || N[2].appendChild($("word-length", e.join(" ")))
   }
 
   function ma(e) {
-    for (var t = W[2].hints, n = 0; n < e.length; n++) {
+    for (var t = N[2].hints, n = 0; n < e.length; n++) {
       var a = e[n][0],
         o = e[n][1];
       t[a].textContent = o, t[a].classList.add("uncover")
@@ -2119,19 +2121,19 @@
   }
 
   function ga(e) {
-    (!W[2].hints || W[2].hints.length < e.length) && pa([e.length], !0);
+    (!N[2].hints || N[2].hints.length < e.length) && pa([e.length], !0);
     for (var t = [], n = 0; n < e.length; n++) t.push([n, e.charAt(n)]);
     ma(t)
   }
 
   function fa(e) {
-    R = e;
-    for (var t = 0; t < w.length; t++) pe(w[t].element, w[t].id == R), Ba(w[t], 0, w[t].id == R);
-    var n = x != R;
+    En = e;
+    for (var t = 0; t < w.length; t++) he(w[t].element, w[t].id == En), Ha(w[t], 0, w[t].id == En);
+    var n = x != En;
     c.querySelector("#button-start-game").disabled = n;
     for (var a = 0; a < ja.length; a++) ja[a].element.disabled = n;
-    e = O(R);
-    e && y(E("$ is now the room owner!", e.name), "", f(Ie), !0)
+    e = W(En);
+    e && y(E("$ is now the room owner!", e.name), "", f(Ae), !0)
   }
   let ya = 1,
     va = 2,
@@ -2181,14 +2183,14 @@
       case ya:
         var a = za(n, !0);
         Ka(), a.joinTimeout = setTimeout(() => {
-          y(E("$ joined the room!", a.name), "", f(Ee), !0), T.playSound(qn), a.joinTimeout = void 0
+          y(E("$ joined the room!", a.name), "", f($e), !0), R.playSound(Cn), a.joinTimeout = void 0
         }, 0 == In ? 1e3 : 0);
         break;
       case ka:
-        (a = O(n.id)) && (a.avatar = n.avatar, he(a.element.avatar, a.avatar));
+        (a = W(n.id)) && (a.avatar = n.avatar, ue(a.element.avatar, a.avatar));
         break;
       case wa:
-        (a = O(n.id)) && (a.name = n.name, a.element.querySelector(".player-name").textContent = n.name);
+        (a = W(n.id)) && (a.name = n.name, a.element.querySelector(".player-name").textContent = n.name);
         break;
       case va:
         (a = (e => {
@@ -2200,63 +2202,63 @@
           switch (e) {
             default:
               return E("$ left the room!", t);
-            case ee:
+            case Q:
               return E("$ has been kicked!", t);
-            case te:
+            case ee:
               return E("$ has been banned!", t)
           }
-        })(n.reason, a.name), "", f(Ae), !0), T.playSound(xn)) : (clearTimeout(a.joinTimeout), a.joinTimeout = void 0), n.id != M || n.reason != ee && n.reason != te || Ft(!0));
+        })(n.reason, a.name), "", f(Ee), !0), R.playSound(qn)) : (clearTimeout(a.joinTimeout), a.joinTimeout = void 0), n.id != M || n.reason != Q && n.reason != ee || Kt(!0));
         break;
       case ba:
-        var o = O(n[0]),
-          r = O(n[1]),
+        var o = W(n[0]),
+          r = W(n[1]),
           i = n[2],
           l = n[3];
-        o && r && y(E("$ is voting to kick $ ($/$)", [o.name, r.name, i, l]), "", f(De), !0);
+        o && r && y(E("$ is voting to kick $ ($/$)", [o.name, r.name, i, l]), "", f(Le), !0);
         break;
       case Da:
-        (a = O(n.id)) && (y(E("$ guessed the word!", a.name), "", f(Ee), !0).classList.add("guessed"), Fa(a, !0), T.playSound(Mn), n.id == x) && ga(n.word);
+        (a = W(n.id)) && (y(E("$ guessed the word!", a.name), "", f($e), !0).classList.add("guessed"), Fa(a, !0), R.playSound(xn), n.id == x) && ga(n.word);
         break;
       case Sa:
-        (a = O(n.id)) && (o = a, r = 0 == n.vote ? "thumbsdown.gif" : "thumbsup.gif", (i = $("icon")).style.backgroundImage = "url(/img/" + r + ")", r = Ha(o, i).getBoundingClientRect(), o = .9 * (r.bottom - r.top), i.style.width = o + "px", i.style.height = o + "px", n.vote ? y(E("$ liked the drawing!", a.name), "", f(Ee), !0) : y(E("$ disliked the drawing!", a.name), "", f(Ae), !0));
+        (a = W(n.id)) && (o = a, r = 0 == n.vote ? "thumbsdown.gif" : "thumbsup.gif", (i = $("icon")).style.backgroundImage = "url(/img/" + r + ")", r = Ua(o, i).getBoundingClientRect(), o = .9 * (r.bottom - r.top), i.style.width = o + "px", i.style.height = o + "px", n.vote ? y(E("$ liked the drawing!", a.name), "", f($e), !0) : y(E("$ disliked the drawing!", a.name), "", f(Ee), !0));
         break;
       case Ea:
         fa(n);
         break;
       case $a:
-        y(E("$ is close!", n), "", f(De), !0);
+        y(E("$ is close!", n), "", f(Le), !0);
         break;
       case Na:
-        Ua(O(n.id), n.msg);
+        Ba(W(n.id), n.msg);
         break;
       case Oa:
-        y(E("Spam detected! You're sending messages too quickly."), "", f(Ae), !0);
+        y(E("Spam detected! You're sending messages too quickly."), "", f(Ee), !0);
         break;
       case Wa:
         switch (n.id) {
           case 0:
-            y(E("You need at least 2 players to start the game!"), "", f(Ae), !0);
+            y(E("You need at least 2 players to start the game!"), "", f(Ee), !0);
             break;
           case 100:
-            y(E("Server restarting in about $ seconds!", n.data), "", f(Ae), !0)
+            y(E("Server restarting in about $ seconds!", n.data), "", f(Ee), !0)
         }
         break;
       case Ia:
         for (var s = 0; s < n.length; s++)
-          n[s] = typo.msi.processIncomingCommand(n[s]), n[s] !== undefined && jt(n[s]);
+          n[s] = typo.msi.processIncomingCommand(n[s]), n[s] !== undefined && Vt(n[s]);
         break;
       case Ra:
-        Ft(!0);
+        Kt(!0);
         break;
       case Ta:
-        Bt(n);
+        Ut(n);
         break;
       default:
         return void console.log("Unimplemented data packed received with id " + t)
     }
   }
 
-  function O(e) {
+  function W(e) {
     for (var t = 0; t < w.length; t++) {
       var n = w[t];
       if (n.id == e) return n
@@ -2292,11 +2294,11 @@
     if (2 == r)
       for (i = 0; i < 3; i++) o.appendChild($("background-wave"));
     var r = $("player-avatar-container"),
-      l = ue(n.avatar),
-      r = (n.element.drawing = $("drawing"), (n.element.avatar = l).appendChild(n.element.drawing), r.appendChild(l), n.element.appendChild(r), zn.appendChild(n.element), me(l, Ya(n)), $("player-info")),
+      l = de(n.avatar),
+      r = (n.element.drawing = $("drawing"), (n.element.avatar = l).appendChild(n.element.drawing), r.appendChild(l), n.element.appendChild(r), zn.appendChild(n.element), pe(l, Ya(n)), $("player-info")),
       l = $("player-name", e),
       e = (n.id == x && l.classList.add("me"), r.appendChild(l), r.appendChild($("player-rank", "#" + n.rank)), r.appendChild($("player-score", E("$ points", n.score))), a && r.appendChild($("player-tag", "ADMIN")), n.element.appendChild(r), D(n.element, "click", function() {
-        N = n, xe(s, n)
+        T = n, qe(s, n)
       }), $("player-icons")),
       l = $("icon owner"),
       a = $("icon muted");
@@ -2307,13 +2309,13 @@
     return e.appendChild(l), e.appendChild(a), n.element.appendChild(e), n.element.icons = [l, a], Fa(n, n.guessed), t && Ga(), n
   }
 
-  function Ua(e, t) {
+  function Ba(e, t) {
     var n, a, o;
-    !e.muted && (o = ((a = O(x)).flags & k) == k, n = e.id == M || e.guessed, x == M || a.guessed || !n || o) && (a = (e.flags & k) == k, o = Le, n && (o = Re), a && (o = Ae), Ha(e, $("text", t)), y(e.name, t, f(o), !1)
+    !e.muted && (o = ((a = W(x)).flags & k) == k, n = e.id == M || e.guessed, x == M || a.guessed || !n || o) && (a = (e.flags & k) == k, o = Me, n && (o = Ie), a && (o = Ee), Ua(e, $("text", t)), y(e.name, t, f(o), !1)
       .setAttribute("playerid", e.id))
   }
 
-  function Ha(e, t) {
+  function Ua(e, t) {
     e.bubble && (clearTimeout(e.bubble.timeout), e.bubble.remove(), e.bubble = void 0);
     var n = $("player-bubble"),
       a = $("content");
@@ -2322,15 +2324,15 @@
     }, 1500), n
   }
 
-  function Ba(e, t, n) {
+  function Ha(e, t, n) {
     n ? e.element.icons[t].classList.add("visible") : e.element.icons[t].classList.remove("visible")
   }
   var _a = void 0;
 
   function Ga() {
-    L.id, Q;
+    L.id, J;
     for (var e = getComputedStyle(Pn).getPropertyValue("--PLAYERS_PER_PAGE"), t = (e <= 0 && (t = Math.max(48, Yn.clientHeight), e = Math.floor(t / 48)), Math.ceil(w.length / e)), n = 0; n < w.length; n++) w[n].page = Math.floor(n / e);
-    null == _a ? _a = ge(Un, t, [Yn], function(e, t, n) {
+    null == _a ? _a = me(Bn, t, [Yn], function(e, t, n) {
       for (var a = [], o = 0; o < w.length; o++) {
         var r = (i = w[o]).page == t;
         i.element.style.display = r ? "" : "none", r && a.push(i.element)
@@ -2339,7 +2341,7 @@
         for (var i, o = 0; o < a.length; o++)(i = a[o]).classList.remove("first"), i.classList.remove("last"), o % 2 == 0 ? i.classList.remove("odd") : i.classList.add("odd");
         a[0].classList.add("first"), a[a.length - 1].classList.add("last")
       }
-    }) : fe(_a, t), _a.element.style.display = 1 < t ? "" : "none"
+    }) : ge(_a, t), _a.element.style.display = 1 < t ? "" : "none"
   }
 
   function Ka() {
@@ -2360,7 +2362,7 @@
   function Va(e, t) {
     e.element.drawing.style.display = t ? "block" : "none"
   }
-  for (var ja = [], Za = t.querySelectorAll('*[id^="item-"]'), Xa = 0; Xa < Za.length; Xa++) {
+  for (var ja = [], Za = n.querySelectorAll('*[id^="item-"]'), Xa = 0; Xa < Za.length; Xa++) {
     var Ja = {
       id: Za[Xa].id.replace("item-settings-", ""),
       element: Za[Xa],
@@ -2384,16 +2386,16 @@
   function ro(e) {
     ao = e, to.textContent = ao
   }
-  var io, lo = (t = c.querySelector("#tutorial")).querySelectorAll(".page"),
-    so = ge(t.querySelector(".navigation"), lo.length, [t.querySelector(".pages")], function(e, t, n) {
+  var io, lo = (n = c.querySelector("#tutorial")).querySelectorAll(".page"),
+    so = me(n.querySelector(".navigation"), lo.length, [n.querySelector(".pages")], function(e, t, n) {
       n && clearInterval(co);
       for (var a = 0; a < lo.length; a++) lo[a].classList.remove("active");
       lo[t].classList.add("active")
     }),
     co = setInterval(function() {
-      so.selected < 4 ? ye(so, so.selected + 1, !1) : ye(so, 0, !1)
+      so.selected < 4 ? fe(so, so.selected + 1, !1) : fe(so, 0, !1)
     }, 3500),
-    t = c.querySelector("#game-settings");
+    n = c.querySelector("#game-settings");
 
   function uo() {
     var e;
@@ -2413,27 +2415,27 @@
     e = e.querySelector(".characters");
     0 == (e.textContent = t) ? e.classList.remove("visible") : e.classList.add("visible")
   }
-  c.querySelector("#audio"), c.querySelector("#lightbulb"), D(t, "click", function() {
-    xe(p)
+  c.querySelector("#audio"), c.querySelector("#lightbulb"), D(n, "click", function() {
+    qe(p)
   }), "virtualKeyboard" in navigator && (navigator.virtualKeyboard.overlaysContent = !0, navigator.virtualKeyboard.addEventListener("geometrychange", e => {
     uo()
-  })), h.visualViewport ? (D(h.visualViewport, "resize", ho), oe && D(h.visualViewport, "scroll", ho)) : D(h, "resize", ho), h.onunload = function() {
+  })), h.visualViewport ? (D(h.visualViewport, "resize", ho), ae && D(h.visualViewport, "scroll", ho)) : D(h, "resize", ho), h.onunload = function() {
     S && ua()
   }, D(c, "PointerEvent" in h ? "pointerdown" : "click", function(e) {
-    if (e.target == m) return Me(), e.preventDefault(), !1;
-    He.elements.main.contains(e.target) ? e.preventDefault() : ("1" == ze.value && _n[1].blur(), c.querySelector("#game-toolbar .sizes").contains(e.target) || Yt(), e.target != c.querySelector("#game-toolbar .color-preview-mobile") && it.classList.remove("open"))
-  }), D([Kn, Fn], "change", se), D(Vn, "click",
+    if (e.target == m) return xe(), e.preventDefault(), !1;
+    Be.elements.main.contains(e.target) ? e.preventDefault() : ("1" == Ye.value && _n[1].blur(), c.querySelector("#game-toolbar .sizes").contains(e.target) || Pt(), e.target != c.querySelector("#game-toolbar .color-preview-mobile") && rt.classList.remove("open"))
+  }), D([Kn, Fn], "change", le), D(Vn, "click",
     typo.joinLobby = function() {
       var t, e, n, a, o;
       n = h.location.href,
-        typo.lastConnect = Date.now(), o = "", n = n.split("?"), t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o, Nn || (e = "" != t ? "id=" + t : "lang=" + Fn.value, Me(), Jn(!0), ta(function() {
-        Qn(En, e, function(e) {
+        typo.lastConnect = Date.now(), o = "", n = n.split("?"), t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o, Nn || (e = "" != t ? "id=" + t : "lang=" + Fn.value, xe(), Jn(!0), ta(function() {
+        Qn($n, e, function(e) {
           Jn(!1), e.success && na(e.data, t)
         }, !0)
       }))
     }), D(jn, "click", function() {
-    Nn || (Me(), Jn(!0), ta(function() {
-      Qn(En, "lang=" + Fn.value, function(e) {
+    Nn || (xe(), Jn(!0), ta(function() {
+      Qn($n, "lang=" + Fn.value, function(e) {
         e.success ? na(e.data, 0, 1) : Jn(!1)
       }, !0)
     }))
@@ -2455,7 +2457,7 @@
       })
     }
   }), D([c.querySelector("#button-invite"), c.querySelector("#modal-player-button-invite")], "click", function() {
-    y(E("Copied room link to clipboard!"), "", f(De), !0);
+    y(E("Copied room link to clipboard!"), "", f(Le), !0);
     var e = "https://skribbl.io/?" + Tn;
     if (navigator.clipboard) navigator.clipboard.writeText(e).then(function() {
       console.log("Async: Copying to clipboard was successful!")
@@ -2474,62 +2476,64 @@
       c.body.removeChild(t)
     }
   }), D(g[s].querySelector("button.kick"), "click", function() {
-    Me(), null != N && N.id != x && S && S.emit("data", {
+    xe(), null != T && T.id != x && S && S.emit("data", {
       id: 3,
-      data: N.id
+      data: T.id
     })
   }), D(g[s].querySelector("button.ban"), "click", function() {
-    Me(), null != N && N.id != x && S && S.emit("data", {
+    xe(), null != T && T.id != x && S && S.emit("data", {
       id: 4,
-      data: N.id
+      data: T.id
     })
   }), D(g[s].querySelector("button.votekick"), "click", function() {
-    Me(), null != N && N.id != x && S && (N.id == R ? y(E("You can not votekick the lobby owner!"), "", f(Ae), !0) : S.emit("data", {
+    xe(), null != T && T.id != x && S && (T.id == En ? y(E("You can not votekick the lobby owner!"), "", f(Ee), !0) : S.emit("data", {
       id: ba,
-      data: N.id
+      data: T.id
     }))
   }), D(g[s].querySelector("button.mute"), "click", function() {
-    null != N && N.id != x && (N.muted = !N.muted, Ba(N, 1, N.muted), N.muted ? y(E("You muted '$'!", N.name), "", f(Ae), !0) : y(E("You unmuted '$'!", N.name), "", f(Ae), !0), S && S.emit("data", {
+    null != T && T.id != x && (T.muted = !T.muted, Ha(T, 1, T.muted), T.muted ? y(E("You muted '$'!", T.name), "", f(Ee), !0) : y(E("You unmuted '$'!", T.name), "", f(Ee), !0), S && S.emit("data", {
       id: 7,
-      data: N.id
-    }), qe(N.muted))
+      data: T.id
+    }), Ce(T.muted))
   }), D(g[s].querySelector("button.report"), "click", function() {
     g[s].querySelector(".buttons").style.display = "none", g[s].querySelector(".player").style.display = "none", g[s].querySelector(".report-menu").style.display = "";
     for (var e = g[s].querySelectorAll(".report-menu input"), t = 0; t < e.length; t++) e[t].checked = !1
   }), D(g[s].querySelector("button#report-send"), "click", function() {
     var e = 0;
-    g[s].querySelector("#report-reason-toxic").checked && (e |= 1), g[s].querySelector("#report-reason-spam").checked && (e |= 2), g[s].querySelector("#report-reason-bot").checked && (e |= 4), 0 < e && (null != N && N.id != x && (N.reported = !0, S && S.emit("data", {
+    g[s].querySelector("#report-reason-toxic").checked && (e |= 1), g[s].querySelector("#report-reason-spam").checked && (e |= 2), g[s].querySelector("#report-reason-bot").checked && (e |= 4), 0 < e && (null != T && T.id != x && (T.reported = !0, S && S.emit("data", {
       id: 6,
       data: {
-        id: N.id,
+        id: T.id,
         reasons: e
       }
-    }), y(E("Your report for '$' has been sent!", N.name), "", f(De), !0)), Me())
+    }), y(E("Your report for '$' has been sent!", T.name), "", f(Le), !0)), xe())
   }), D(g[p].querySelector("#volume input"), "change", function(e) {
-    l.volume = e.target.value, T.setVolume(l.volume), T.playSound(Mn), se()
+    l.volume = e.target.value, R.setVolume(l.volume), R.playSound(xn), le()
   }), D(g[p].querySelector("#select-pressure-sensitivity"), "change", function(e) {
-    l.pressureSensitivity = e.target.value, se()
+    l.pressureSensitivity = e.target.value, le()
   }), D(g[p].querySelector("#select-mobile-chat-input"), "change", function(e) {
-    l.mobileChatLayout = e.target.value, po(), se()
+    l.mobileChatLayout = e.target.value, po(), le()
+  }), D(g[p].querySelector("#select-chat-bubbles"), "change", function(e) {
+    l.chatBubbles = e.target.value, le()
   }), D(g[p].querySelector("button.reset"), "click", function() {
     for (var e = 0; e < u.length; e++) {
       var t = u[e];
       t.key = t.def, t.listing.querySelector("input").value = t.key;
       for (var n = 0; n < t.changed.length; n++) t.changed[n](t)
     }
-    le()
+    ie()
   }), D(_n[1], "focus", function(e) {
     function t(e) {
       h.removeEventListener("scroll", t), h.scroll(0, 0), e.preventDefault()
     }
-    uo(), On.classList.add("mobile-input-focus"), oe && (h.addEventListener("scroll", t), setTimeout(function() {
+    uo(), On.classList.add("mobile-input-focus"), ae && (h.addEventListener("scroll", t), setTimeout(function() {
       t(e)
     }, 200), e.preventDefault())
   }), D(_n[1], "blur", function(e) {
     uo(), On.classList.remove("mobile-input-focus")
   }), D(_n, "input", function(e) {
     mo(this.parentNode, this.value.length)
-  }), D(Bn, "submit", function(e) {
+  }), D(Hn, "submit", function(e) {
     const input = this.querySelector("input"); let rest = input.value.substring(100);
     input.value = input.value.substring(0,100);
     if(rest.length > 0) setTimeout(()=>{input.value = rest; this.dispatchEvent(new Event("submit"));},180);
@@ -2538,19 +2542,19 @@
     return e.value && (e = e.value, S && S.connected ? S.emit("data", {
       id: Na,
       data: e
-    }) : Ua(O(x), e)), this.reset(), mo(this, 0), !1
-  }), uo(), h.localStorageAvailable ? (Kn.value = a("name", ""), Fn.value = (e => {
+    }) : Ba(W(x), e)), this.reset(), mo(this, 0), !1
+  }), uo(), h.localStorageAvailable ? (Kn.value = e("name", ""), Fn.value = (e => {
     for (var t = c.querySelectorAll("#home .panel .container-name-lang select option"), n = 0; n < t.length; n++)
       if (t[n].value == e) return t[n].value;
     return 0
-  })(a("lang", 0)), l.displayLang = a("displaylang", "en"), l.volume = parseInt(a("volume", 100)), l.filterChat = 1 == parseInt(a("filter", 1)) ? 1 : 0, l.pressureSensitivity = 1 == parseInt(a("pressure", 1)) ? 1 : 0, l.avatar = (t = "ava", Vn = l.avatar, null == (t = d.getItem(t)) ? Vn : JSON.parse(t)), l.mobileChatLayout = a("mobileChatLayout", "bottom"), ze.value = a("keyboard", oe ? 1 : 0), Ue.value = a("keyboardlayout", "en"), _e(), g[p].querySelector("#select-mobile-chat-input").value = l.mobileChatLayout, g[p].querySelector("#volume input").value = l.volume, T.setVolume(l.volume), po(), console.log("Settings loaded.")) : console.log("Settings not loaded. LocalStorage unavailable.");
+  })(e("lang", 0)), l.displayLang = e("displaylang", "en"), l.volume = parseInt(e("volume", 100)), l.filterChat = 1 == parseInt(e("filter", 1)) ? 1 : 0, l.pressureSensitivity = 1 == parseInt(e("pressure", 1)) ? 1 : 0, l.avatar = (n = "ava", Vn = l.avatar, null == (n = d.getItem(n)) ? Vn : JSON.parse(n)), l.mobileChatLayout = e("mobileChatLayout", "bottom"), l.chatBubbles = e("chatBubbles", 0), Ye.value = e("keyboard", ae ? 1 : 0), ze.value = e("keyboardlayout", "en"), He(), g[p].querySelector("#select-chat-bubbles").value = l.chatBubbles, g[p].querySelector("#select-mobile-chat-input").value = l.mobileChatLayout, g[p].querySelector("#volume input").value = l.volume, R.setVolume(l.volume), po(), console.log("Settings loaded.")) : console.log("Settings not loaded. LocalStorage unavailable.");
   for (var go = c.querySelectorAll("[data-translate]"), fo = 0; fo < go.length; fo++) {
     var yo = go[fo];
-    je(yo, yo.dataset.translate)
+    Ve(yo, yo.dataset.translate)
   }
-  for (var vo = Ke[l.displayLang], bo = 0; bo < Fe.length; bo++) {
-    var So = Fe[bo],
-      ko = Ve(vo, So.key);
+  for (var vo = Ge[l.displayLang], bo = 0; bo < Ke.length; bo++) {
+    var So = Ke[bo],
+      ko = Fe(vo, So.key);
     "text" == So.type && (So.element.textContent = ko), "placeholder" == So.type && (So.element.placeholder = ko)
   }
 
@@ -2558,24 +2562,24 @@
     io.parts[e].classList.remove("bounce"), io.parts[e].offsetWidth, io.parts[e].classList.add("bounce")
   }
   D(jn = c.querySelectorAll("[data-tooltip]"), "pointerenter", function(e) {
-    Oe(e.target)
+    We(e.target)
   }), D(jn, "pointerleave", function(e) {
-    Pe()
-  }), Vn = (Bn = c.querySelector("#home .avatar-customizer")).querySelector(".container"), t = Bn.querySelectorAll(".arrows.left .arrow"), jn = Bn.querySelectorAll(".arrows.right .arrow"), Bn = Bn.querySelectorAll(".randomize"), (io = ue(l.avatar)).classList.add("fit"), Vn.appendChild(io), D(t, "click", function() {
+    Oe()
+  }), Vn = (Hn = c.querySelector("#home .avatar-customizer")).querySelector(".container"), n = Hn.querySelectorAll(".arrows.left .arrow"), jn = Hn.querySelectorAll(".arrows.right .arrow"), Hn = Hn.querySelectorAll(".randomize"), (io = de(l.avatar)).classList.add("fit"), Vn.appendChild(io), D(n, "click", function() {
     var e = parseInt(this.dataset.avatarIndex);
-    --l.avatar[e], l.avatar[e] < 0 && (l.avatar[e] = n[e] - 1), wo(e), he(io, l.avatar), se()
+    --l.avatar[e], l.avatar[e] < 0 && (l.avatar[e] = a[e] - 1), wo(e), ue(io, l.avatar), le()
   }), D(jn, "click", function() {
     var e = parseInt(this.dataset.avatarIndex);
-    l.avatar[e] += 1, l.avatar[e] >= n[e] && (l.avatar[e] = 0), wo(e), he(io, l.avatar), se()
-  }), D(Bn, "click", function() {
-    l.avatar[0] = Math.floor(Math.random() * n[0]), l.avatar[1] = Math.floor(Math.random() * n[1]), l.avatar[2] = Math.floor(Math.random() * n[2]), wo(1), wo(2), he(io, l.avatar), se()
+    l.avatar[e] += 1, l.avatar[e] >= a[e] && (l.avatar[e] = 0), wo(e), ue(io, l.avatar), le()
+  }), D(Hn, "click", function() {
+    l.avatar[0] = Math.floor(Math.random() * a[0]), l.avatar[1] = Math.floor(Math.random() * a[1]), l.avatar[2] = Math.floor(Math.random() * a[2]), wo(1), wo(2), ue(io, l.avatar), le()
   });
   for (var Co = Math.round(8 * Math.random()), qo = c.querySelector("#home .logo-big .avatar-container"), xo = 0; xo < 8; xo++) {
     var Mo = [0, 0, 0, -1],
-      Mo = (Mo[0] = xo, Mo[1] = Math.round(100 * Math.random()) % z, Mo[2] = Math.round(100 * Math.random()) % U, 100 * Math.random() < 1 && (Mo[3] = Math.floor(20 * Math.random())), Zn && 100 * Math.random() < 35 && (Mo[3] = 96 + Math.floor(4 * Math.random())), ue(Mo, Co == xo));
+      Mo = (Mo[0] = xo, Mo[1] = Math.round(100 * Math.random()) % Y, Mo[2] = Math.round(100 * Math.random()) % z, 100 * Math.random() < 1 && (Mo[3] = Math.floor(20 * Math.random())), Zn && 100 * Math.random() < 35 && (Mo[3] = 96 + Math.floor(4 * Math.random())), de(Mo, Co == xo));
     Mo.index = xo, qo.appendChild(Mo), D(Mo, "click", function() {
       var e = [this.index, 0, 0, -1];
-      e[1] = Math.round(100 * Math.random()) % z, e[2] = Math.round(100 * Math.random()) % U, 1e3 * Math.random() < 10 && (e[3] = Math.floor(20 * Math.random())), he(this, e), this.classList.remove("clicked"), this.offsetWidth, this.classList.add("clicked")
+      e[1] = Math.round(100 * Math.random()) % Y, e[2] = Math.round(100 * Math.random()) % z, 1e3 * Math.random() < 10 && (e[3] = Math.floor(20 * Math.random())), ue(this, e), this.classList.remove("clicked"), this.offsetWidth, this.classList.add("clicked")
     })
   }
   Xn && (c.documentElement.dataset.halloween = "")

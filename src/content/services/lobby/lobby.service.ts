@@ -1,3 +1,4 @@
+import { LobbyJoinFailedListener } from "@/content/events/lobby-join-failed.event";
 import {
   LobbyPlayerChangedEvent,
   LobbyPlayerChangedEventListener,
@@ -6,7 +7,16 @@ import { LobbyStateChangedEvent, LobbyStateChangedEventListener } from "@/conten
 import { RoundStartedEvent, RoundStartedEventListener } from "@/content/events/round-started.event";
 import { WordGuessedEvent, WordGuessedEventListener } from "@/content/events/word-guessed.event";
 import { inject, injectable } from "inversify";
-import { BehaviorSubject, debounceTime, distinctUntilChanged, map, merge, tap, withLatestFrom } from "rxjs";
+import {
+  BehaviorSubject,
+  debounceTime,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  merge, mergeWith,
+  tap,
+  withLatestFrom,
+} from "rxjs";
 import type { skribblLobby } from "@/util/skribbl/lobby";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 import { LobbyJoinedEvent, LobbyJoinedEventListener } from "../../events/lobby-joined.event";
@@ -30,7 +40,8 @@ export class LobbyService {
     @inject(LobbyStateChangedEventListener) private readonly lobbyStateChanged: LobbyStateChangedEventListener,
     @inject(RoundStartedEventListener) private readonly roundStarted: RoundStartedEventListener,
     @inject(WordGuessedEventListener) private readonly wordGuessed: WordGuessedEventListener,
-    @inject(ElementsSetup) private readonly elementsSetup: ElementsSetup
+    @inject(ElementsSetup) private readonly elementsSetup: ElementsSetup,
+    @inject(LobbyJoinFailedListener) private readonly lobbyJoinFailedListener: LobbyJoinFailedListener
   ) {
     this._logger = loggerFactory(this);
 
@@ -138,7 +149,13 @@ export class LobbyService {
     elements.load.style.display = "block";
     elements.home.style.display = "none";
 
+    const result = firstValueFrom(this.lobbyJoinFailedListener.events$.pipe(
+      mergeWith(this.lobbyJoined.events$),
+      map(event => event instanceof LobbyJoinedEvent),
+    ));
+
     document.dispatchEvent(new CustomEvent("joinLobby", {detail: id}));
+    return result;
   }
 
   public leaveLobby(){
