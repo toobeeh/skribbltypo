@@ -786,7 +786,7 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: '(\\.on\\("disconnect", function[^{]*{)',
-          code: "/* TYPOMOD\n                 DESC: no msg if disconnect intentionally */\n                if(!##SOCKET##.typoDisconnect)\n                /*TYPOEND*/",
+          code: "/* TYPOMOD\n                 DESC: no msg if disconnect intentionally */\n document.dispatchEvent(new CustomEvent(\"leftLobby\"));                if(!##SOCKET##.typoDisconnect)\n                /*TYPOEND*/",
         },
       ],
     },
@@ -1254,7 +1254,7 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Insert lobby join feedback",
+      name: "Insert lobby join failure feedback",
       replacements: [],
       injections: [
         {

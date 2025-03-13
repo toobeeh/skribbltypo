@@ -108,7 +108,7 @@ export class PanelCabinFeature extends TypoFeature {
    */
   getItemThumbnailUrl(item: SpriteDto | SceneDto | undefined, shift: number | undefined) {
     return item
-      ? shift
+      ? shift !== undefined
         ? `https://static.typo.rip/sprites/rainbow/modulate.php?url=${item.url}&hue=${shift}`
         : item.url
       : "";
