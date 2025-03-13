@@ -389,7 +389,7 @@ export const gameJsPatchConfig = {
                                 // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
                                 // ##PRIVATELBBY## = !1 
                                 // IDENTIFY: x:  = !1   
-                                if (e.detail) window.history.pushState({path: window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);
+                                window.history.pushState({path: window.location.origin + '?' + (e.detail ?? "")}, '', window.location.origin + '?' + (e.detail ?? ""));
                                 // ##JOINLOBBY##(e.detail?.join ? e.detail.join : "");
                                 // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
                                 typo.joinLobby(); 

@@ -319,7 +319,7 @@
             // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
             // ##PRIVATELBBY## = !1
             // IDENTIFY: x:  = !1
-            if (e.detail) window.history.pushState({path: window.location.origin + '?' + e.detail}, '', window.location.origin + '?' + e.detail);
+            window.history.pushState({path: window.location.origin + '?' + (e.detail ?? "")}, '', window.location.origin + '?' + (e.detail ?? ""));
             // ##JOINLOBBY##(e.detail?.join ? e.detail.join : "");
             // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
             typo.joinLobby();
@@ -1955,7 +1955,7 @@
     }), S.on("disconnect", function(e) {
       /* TYPOMOD
                        DESC: no msg if disconnect intentionally */
-      if(!S.typoDisconnect)
+      document.dispatchEvent(new CustomEvent("leftLobby"));                if(!S.typoDisconnect)
         /*TYPOEND*/
         switch (console.log("socket disconnect: " + e), o) {
           case Q:
