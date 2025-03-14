@@ -284,13 +284,17 @@ export class LineToolFeature extends TypoFeature {
    * @param event
    * @private
    */
-  private onCanvasDown(event: PointerEvent) {
+  private async onCanvasDown(event: PointerEvent) {
     this._logger.debug("Canvas clicked", event);
     if (this._lineListenToggle$.value) {
-      (event.target as HTMLCanvasElement).setPointerCapture(event.pointerId);
+      const canvas = (event.target as HTMLCanvasElement); 
+      canvas.setPointerCapture(event.pointerId);
       event.preventDefault();
       event.stopImmediatePropagation();
-      this._originCoordinates$.next([event.offsetX, event.offsetY]);
+      const boundingRect = canvas.getBoundingClientRect();
+      const realX = canvas.width * event.offsetX / boundingRect.width;
+      const realY = canvas.height * event.offsetY / boundingRect.height;
+      this._originCoordinates$.next([realX, realY]);
       return false;
     }
   }
@@ -306,8 +310,8 @@ export class LineToolFeature extends TypoFeature {
       this._logger.debug("Document pointer moved", event);
       const canvas = (await this._elementsSetup.complete()).canvas;
       const boundingRect = canvas.getBoundingClientRect();
-      const offsetX = event.clientX - boundingRect.left;
-      const offsetY = event.clientY - boundingRect.top;
+      const offsetX = canvas.width * (event.clientX - boundingRect.left) / boundingRect.width;
+      const offsetY = canvas.height * (event.clientY - boundingRect.top) / boundingRect.height;
       this._targetCoordinates$.next([offsetX, offsetY]);
     }
   }
