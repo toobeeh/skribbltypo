@@ -32,6 +32,7 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
   private _playerIdRuleIndex: number | undefined;
   private _playerInfoRuleIndex: number | undefined;
   private _playerHideAvatarRuleIndex: number | undefined;
+  private _zLayerRuleIndex: number | undefined;
 
   public constructor(
     private readonly _player: skribblPlayer,
@@ -50,6 +51,12 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
     this._playerStyle = document.createElement("style");
     this._playerContainer.classList.add(this._elementId);
     this._playerContainer.appendChild(this._playerStyle);
+
+    replaceOrAddCssRule(
+      this._playerStyle,
+      `.${this._elementId} { z-index: ${_player.id}; }`,
+      this._zLayerRuleIndex
+    );
   }
 
   destroy() {
