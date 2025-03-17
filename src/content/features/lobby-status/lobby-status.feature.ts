@@ -23,7 +23,7 @@ import {
   distinctUntilChanged, interval,
   map,
   of,
-  type Subscription,
+  type Subscription, tap,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -139,14 +139,23 @@ export class LobbyStatusFeature extends TypoFeature {
       30 * 1000,
     )
       .pipe(
+        tap((data) => this._logger.debug("Lobby status update triggered", data)),
         debounce(() => this._lobbyConnectionService.isConnected ? of(null) : interval(2000)), // start connection only after player has been in the lobby for 2s to avoid spamming
         combineLatestWith(this._memberService.member$),
         debounce(() => this._currentBackendProcessing ?? of(0)), // allow only one backend processing at a time
       )
       .subscribe(
         ([lobby, member]) =>
-          (this._currentBackendProcessing = this.processLobbyUpdate(lobby, member)),
+          (this._currentBackendProcessing = (async () => { /* wrap in try catch to avoid error in debounce */
+            try {
+              await this.processLobbyUpdate(lobby, member);
+            }
+            catch (e) {
+              this._logger.error("Error in lobby status update", e);
+            }
+          })()),
       );
+    this._lobbySubscription.add(() => this._logger.info("Lobby status update sub stopped"));
   }
 
   protected override async onDestroy() {
