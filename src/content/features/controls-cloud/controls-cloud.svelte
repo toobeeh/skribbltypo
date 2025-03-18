@@ -235,7 +235,10 @@
         if($member === null || $member === undefined || selectedImage === null) throw new Error("illegal state");
         await feature.saveAsPng(selectedImage);
       }} />
-      <FlatButton content="Download GIF" color="green" />
+      <FlatButton content="Download GIF" color="green" on:click={async () => {
+        if($member === null || $member === undefined || selectedImage === null) throw new Error("illegal state");
+        await feature.saveAsGif(selectedImage);
+      }} />
       <FlatButton content="Copy Link" color="green" on:click={async () => {
         if($member === null || $member === undefined || selectedImage === null) throw new Error("illegal state");
         await feature.copyToClipboard(selectedImage);

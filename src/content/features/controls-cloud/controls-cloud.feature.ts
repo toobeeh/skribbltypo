@@ -14,6 +14,9 @@ import { ImageData } from "@/util/imageData";
 import { fromObservable } from "@/util/store/fromObservable";
 import { getCloudCommands } from "@/util/typo/getCloudCommands";
 import { getCloudMeta } from "@/util/typo/getCloudMeta";
+import type { IGifRendererParent, IGifRendererWorker } from "@/worker/gif-renderer/gif-renderer.worker";
+import { TypedWorkerExecutor } from "@/worker/typed-worker";
+import { gifRendererWorkerBase64 } from "@/worker/workers";
 import { inject } from "inversify";
 import { Subscription, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
@@ -153,6 +156,45 @@ export class ControlsCloudFeature extends TypoFeature {
     catch(e){
       this._logger.error("Failed to download image", e);
       toast.reject();
+      throw e;
+    }
+  }
+
+  public async saveAsGif(image: CloudImageDto){
+    const durationPrompt = await this._toastService.showPromptToast("Generate GIF", "Enter the preferred duration in seconds");
+    const durationMs = await durationPrompt.result;
+    if(durationMs === null) return;
+
+    const toast = await this._toastService.showStickyToast("Rendering image GIF");
+    try {
+      const commands = await getCloudCommands(image.commandsUrl);
+
+      const progressBar = (progress: number) => {
+        const doneChar = "█";
+        const leftChar = "░";
+        const length = 10;
+        const done = Math.floor(progress * length);
+        const left = length - done;
+        return `${doneChar.repeat(done)}${leftChar.repeat(left)}`;
+      };
+
+      const workerBlob = new Blob([atob(gifRendererWorkerBase64)], { type: "application/javascript" });
+      const worker = new TypedWorkerExecutor<IGifRendererWorker, IGifRendererParent>(
+        URL.createObjectURL(workerBlob),
+        {
+          frameRendered: (index, total) => {
+            toast.update(`Rendering GIF..   ${progressBar(index / total)} (${Math.floor(index*100/total).toString().padStart(2, " ")}%)`);
+          }
+        }
+      );
+      const gif = await worker.run("renderGif", commands, parseFloat(durationMs ?? "") * 1000);
+      downloadBlob(gif, `${image.name}-by-${image.author}.gif`.replaceAll(" ", "_"));
+
+      toast.resolve("GIF rendering complete");
+    }
+    catch(e){
+      this._logger.error("Failed to download image", e);
+      toast.resolve("An error occurred");
       throw e;
     }
   }

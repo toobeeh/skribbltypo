@@ -244,7 +244,7 @@ export class ToolbarSaveFeature extends TypoFeature {
       }
 
       if(state === null) {
-        this._logger.warn("Attempted to save commands, but state null. In a lobby?");
+        this._logger.warn("Attempted to gif commands, but state null. In a lobby?");
         toast.resolve("No drawing active");
         throw new Error("state is null");
       }
