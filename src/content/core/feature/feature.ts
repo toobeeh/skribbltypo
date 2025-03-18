@@ -9,7 +9,13 @@ import {
 import type { HotkeyAction } from "@/content/core/hotkeys/hotkey";
 import { type tooltipParams, TooltipsService } from "@/content/core/tooltips/tooltips.service";
 import type { componentData } from "@/content/services/modal/modal.service";
+import {
+  OnboardingService,
+  type onboardingTaskHandle,
+  type onboardingTaskRegistration,
+} from "@/content/services/onboarding/onboarding.service";
 import { inject, injectable, postConstruct } from "inversify";
+import { firstValueFrom } from "rxjs";
 import type { SvelteComponent } from "svelte";
 import type { Action } from "svelte/action";
 import { loggerFactory } from "../logger/loggerFactory.interface";
@@ -31,6 +37,7 @@ export abstract class TypoFeature {
   private _hotkeys: HotkeyAction[] = [];
   private _settings: SettingWithInput<serializable>[] = [];
   private _commands: ExtensionCommand[] = [];
+  private onboardingTaskFactories: (() => void)[] = [];
 
   public abstract readonly name: string;
   public abstract readonly description: string;
@@ -50,6 +57,26 @@ export abstract class TypoFeature {
   protected useHotkey(action: HotkeyAction) {
     this._hotkeys.push(action);
     return action;
+  }
+  
+  protected useOnboardingTask(registration: Omit<onboardingTaskRegistration, "feature">): Promise<onboardingTaskHandle> {
+    return new Promise<onboardingTaskHandle>((resolve) => {
+      const factory = () => {
+
+        const startWithActivation = async () => {
+          if(!this._isActivated) {
+            this._logger.debug("Activating feature for onboarding task", registration.key);
+            await this.activate();
+          }
+          registration.start();
+        };
+
+        const handle = this._onboardingService.registerTask({ ...registration, feature: this, start: startWithActivation });
+        resolve(handle);
+      };
+
+      this.onboardingTaskFactories.push(factory);
+    });
   }
 
   /**
@@ -137,7 +164,8 @@ export abstract class TypoFeature {
     @inject(loggerFactory) loggerFactory: loggerFactory,
     @inject(HotkeysService) protected readonly _hotkeysService: HotkeysService,
     @inject(TooltipsService) protected readonly _tooltipsService: TooltipsService,
-    @inject(CommandsService) protected readonly _commandsService: CommandsService
+    @inject(CommandsService) protected readonly _commandsService: CommandsService,
+    @inject(OnboardingService) protected readonly _onboardingService: OnboardingService
   ) {
     this._logger = loggerFactory(this);
   }
@@ -156,6 +184,11 @@ export abstract class TypoFeature {
     const postConstruct = this.postConstruct();
     if(postConstruct instanceof Promise) postConstruct.then(loadActivation);
     else loadActivation();
+
+    /* construct delegated onboarding task registrations */
+    for(const factory of this.onboardingTaskFactories) {
+      factory();
+    }
   }
 
   /**

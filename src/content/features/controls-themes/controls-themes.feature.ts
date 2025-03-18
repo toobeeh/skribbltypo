@@ -39,16 +39,24 @@ export class ControlsThemesFeature extends TypoFeature {
   ];
   public readonly featureId = 34;
 
+  private readonly _onboardingTask = this.useOnboardingTask({
+    key: "theme_activated",
+    name: "Activate a theme",
+    description: "Select a theme to customize the style of skribbl.",
+    start: () => this.openThemesPopup()
+  });
+
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
   private _themeResetSubscription?: Subscription;
   private _currentThemeSubscription?: Subscription;
   private _activeThemeTab$ = new BehaviorSubject<"editor" | "list" | "browser">("list");
   private _themeElements: HTMLElement[] = [];
+  private _variableHooks?: Record<string, string[]>;
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
-    const variableHooks = await this._cssColorVarSelectorsSetup.complete();
+    this._variableHooks = await this._cssColorVarSelectorsSetup.complete();
 
     /* create icon and attach to controls */
     this._iconComponent = new IconButton({
@@ -65,14 +73,7 @@ export class ControlsThemesFeature extends TypoFeature {
 
     /* listen for click on icon */
     this._iconClickSubscription = this._iconComponent.click$.subscribe(() => {
-      const themesComponent: componentData<ControlsThemes> = {
-        componentType: ControlsThemes,
-        props: {
-          feature: this,
-          variableHooks
-        },
-      };
-      this._modalService.showModal(themesComponent.componentType, themesComponent.props, "Typo Themes");
+      this.openThemesPopup();
     });
 
     /* Switch to original/no theme when invalid theme detected */
@@ -103,6 +104,19 @@ export class ControlsThemesFeature extends TypoFeature {
     this._currentThemeSubscription?.unsubscribe();
     this._currentThemeSubscription = undefined;
     await this.setThemeElements(undefined);
+    this._variableHooks = undefined;
+  }
+
+  private openThemesPopup(){
+    if(!this._variableHooks) throw new Error("Themes feature not activated?");
+    const themesComponent: componentData<ControlsThemes> = {
+      componentType: ControlsThemes,
+      props: {
+        feature: this,
+        variableHooks: this._variableHooks
+      },
+    };
+    this._modalService.showModal(themesComponent.componentType, themesComponent.props, "Typo Themes");
   }
 
   public get savedThemesStore() {
@@ -205,6 +219,7 @@ export class ControlsThemesFeature extends TypoFeature {
     const toast = await this._toastService.showLoadingToast("Activating theme");
     try {
       const theme = await this._themesService.activateLocalTheme(id);
+      (await this._onboardingTask).complete();
       toast.resolve(`Theme ${theme.theme.meta.name} activated`);
     }
     catch {
@@ -216,6 +231,7 @@ export class ControlsThemesFeature extends TypoFeature {
     const toast = await this._toastService.showLoadingToast("Activating theme");
     try {
       const localTheme = await this._themesService.activatePublicTheme(theme);
+      (await this._onboardingTask).complete();
       toast.resolve(`Theme ${localTheme.theme.meta.name} activated`);
     }
     catch {

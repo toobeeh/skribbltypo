@@ -1,3 +1,4 @@
+import { OnboardingService } from "@/content/services/onboarding/onboarding.service";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, filter, firstValueFrom, forkJoin, of, switchMap, take } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
@@ -31,7 +32,8 @@ export class MemberService {
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
     @inject(ApiService) private readonly _apiService: ApiService,
-    @inject(TokenService) private readonly _tokenService: TokenService
+    @inject(TokenService) private readonly _tokenService: TokenService,
+    @inject(OnboardingService) private readonly _onboardingService: OnboardingService
   ) {
     this._logger = loggerFactory(this);
     this._tokenService.token
@@ -57,6 +59,18 @@ export class MemberService {
       })
     ).subscribe(data => {
       this._memberData$.next(data);
+    });
+
+    const task = _onboardingService.registerTask({
+      key: "logged_in",
+      name: "Log in with Discord",
+      description: "Connect your discord account to typo to connect with friends and upgrade your avatar outfit.",
+      start: () => this.login()
+    });
+
+    this._member$.subscribe(member => {
+      if(member) task.complete();
+      else task.clear();
     });
   }
 

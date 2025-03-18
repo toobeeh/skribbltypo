@@ -32,8 +32,8 @@ export class ChatClearFeature extends TypoFeature {
     return new InterpretableSuccess(command, "Chat cleared");
   });
 
-  private _autoFocusChatInputSetting = this.useSetting(
-    new NumericExtensionSetting("clear_quota", 100, this)
+  private _clearChatQuotaSetting = this.useSetting(
+    new NumericExtensionSetting("clear_quota", 200, this)
       .withName("Message Limit")
       .withDescription(
         "When the chat contains more than this limit, old messages are deleted. Set to 0 to disable.",
@@ -45,7 +45,7 @@ export class ChatClearFeature extends TypoFeature {
       .pipe(
         switchMap(() =>
           this._chatService.chatMessageAdded$.pipe(
-            withLatestFrom(this._autoFocusChatInputSetting.changes$),
+            withLatestFrom(this._clearChatQuotaSetting.changes$),
             scan((acc, [message, limit]) => {
 
               /* no limit set or limit not reached, accumulate */

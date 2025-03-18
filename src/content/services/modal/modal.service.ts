@@ -19,6 +19,10 @@ export interface componentDataFactory<TComponent extends SvelteComponent, TResul
   validate?: (result: TResult) => Promise<boolean> | boolean;
 }
 
+export interface modalHandle {
+  close: () => void;
+}
+
 @injectable()
 export class ModalService {
 
@@ -49,7 +53,7 @@ export class ModalService {
     args: ComponentProps<TComponent>,
     title: string,
     style: "document" | "card" = "document"
-  ) {
+  ): modalHandle {
 
     const componentData: componentData<TComponent> = {componentType: componentType, props: args};
     const modal = style === "document" ? new ModalDocument({
@@ -75,6 +79,12 @@ export class ModalService {
     this._globalSettingsService.globalHotkeys.exitModal.once(() => {
       modal.$destroy();
     });
+
+    return {
+      close: () => {
+        modal.$destroy();
+      }
+    };
   }
 
   public async showPrompt<TComponent extends SvelteComponent, TResult>(

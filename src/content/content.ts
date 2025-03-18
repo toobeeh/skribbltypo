@@ -33,6 +33,7 @@ import { ChatQuickReactFeature } from "@/content/features/chat-quick-react/chat-
 import { ChatRecallFeature } from "@/content/features/chat-recall/chat-recall.feature";
 import { CloudService } from "@/content/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/content/features/controls-cloud/controls-cloud.feature";
+import { ControlsOnboardingFeature } from "@/content/features/controls-onboarding/controls-onboarding.feature";
 import { ControlsSettingsFeature } from "@/content/features/controls-settings/controls-settings.feature";
 import { ControlsThemesFeature } from "@/content/features/controls-themes/controls-themes.feature";
 import {
@@ -78,6 +79,7 @@ import { ImageFinishedService } from "@/content/services/image-finished/image-fi
 import { ImagePostService } from "@/content/features/toolbar-imagepost/image-post.service";
 import { LobbyInteractionsService } from "@/content/services/lobby-interactions/lobby-interactions.service";
 import { LobbyItemsService } from "@/content/services/lobby-items/lobby-items.service";
+import { OnboardingService } from "@/content/services/onboarding/onboarding.service";
 import { PlayersService } from "@/content/services/players/players.service";
 import { SocketService } from "@/content/services/socket/socket.service";
 import { ThemesService } from "@/content/services/themes/themes.service";
@@ -146,7 +148,8 @@ new ExtensionContainer(interceptor)
     {type: LobbyInteractionsService, scope: "singleton"},
     {type: ThemesService, scope: "singleton"},
     {type: LobbyConnectionService, scope: "singleton"},
-    {type: ColorsService, scope: "singleton"}
+    {type: ColorsService, scope: "singleton"},
+    {type: OnboardingService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
@@ -234,7 +237,8 @@ new ExtensionContainer(interceptor)
     ChatMessageSplitsFeature,
     CustomizerPracticeJoinFeature,
     CustomizerOutfitToggleFeature,
-    CanvasRateIconsFeature
+    CanvasRateIconsFeature,
+    ControlsOnboardingFeature
   );
 
 /* indicate for interceptor that content script has loaded */
