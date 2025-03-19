@@ -1,5 +1,6 @@
 import {type ThemeListingDto } from "@/api";
 import { FeatureTag } from "@/content/core/feature/feature-tags";
+import { ExtensionSetting } from "@/content/core/settings/setting";
 import { GlobalSettingsService } from "@/content/services/global-settings/global-settings.service";
 import { type componentData, ModalService } from "@/content/services/modal/modal.service";
 import { ThemesService } from "@/content/services/themes/themes.service";
@@ -53,6 +54,9 @@ export class ControlsThemesFeature extends TypoFeature {
   private _activeThemeTab$ = new BehaviorSubject<"editor" | "list" | "browser">("list");
   private _themeElements: HTMLElement[] = [];
   private _variableHooks?: Record<string, string[]>;
+
+  private readonly _importedOldThemes = new ExtensionSetting<boolean>("imported_old_themes", false, this);
+  private readonly _importedOldThemes2 = new ExtensionSetting<boolean>("imported_old_themes2", false, this);
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -184,7 +188,7 @@ export class ControlsThemesFeature extends TypoFeature {
 
       /* OLD old themes, compatibility mode */
       const oldThemes = localStorage.getItem("themes");
-      if(oldThemes !== null) {
+      if(!(await this._importedOldThemes.getValue()) && oldThemes !== null) {
         const oldThemesObject = JSON.parse(oldThemes);
         if (!Array.isArray(oldThemesObject)) throw new Error("invalid themes data");
         for (const theme of oldThemesObject) {
@@ -194,12 +198,12 @@ export class ControlsThemesFeature extends TypoFeature {
             this._logger.error("Failed to import old typo theme", e);
           }
         }
-        localStorage.removeItem("themes");
+        await this._importedOldThemes.setValue(true);
       }
 
       /* themes saved in previous typo version */
       const oldThemes2 = localStorage.getItem("themesv2");
-      if(oldThemes2 !== null){
+      if(!(await this._importedOldThemes2.getValue()) && oldThemes2 !== null){
         const oldThemes2Object = JSON.parse(oldThemes2);
         if(!Array.isArray(oldThemes2Object)) throw new Error("invalid themes data");
         for(const theme of oldThemes2Object){
@@ -210,7 +214,7 @@ export class ControlsThemesFeature extends TypoFeature {
             this._logger.error("Failed to import old typo theme", e);
           }
         }
-        localStorage.removeItem("themesv2");
+        await this._importedOldThemes2.setValue(true);
       }
     }
     catch(e) {

@@ -1,5 +1,5 @@
 import { FeatureTag } from "@/content/core/feature/feature-tags";
-import { type serializable } from "@/content/core/settings/setting";
+import { ExtensionSetting, type serializable } from "@/content/core/settings/setting";
 import { ColorsService, type pickerColors } from "@/content/services/colors/colors.service";
 import { DrawingService } from "@/content/services/drawing/drawing.service";
 import type { componentData } from "@/content/services/modal/modal.service";
@@ -49,6 +49,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
       display: none;
     }
   </style>`);
+  private readonly _importedPalettes = new ExtensionSetting<boolean>("imported_palettes", false, this);
 
   private _activePaletteSubscription?: Subscription;
   private _colorPalettePicker?: ColorPalettePicker;
@@ -57,15 +58,17 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     this._activePaletteSubscription = this._colorsService.pickerColors$.subscribe(palette => this.updatePaletteStyle(palette));
 
     /* import old palettes. remove in a future version after grace period */
-    try {
-      const savedPalettes = this.parseSavedOldTypoPalettes().filter(p => p.name !== "sketchfulPalette");
-      for(const palette of savedPalettes){
-        await this.savePalette(palette);
+    if(!(await this._importedPalettes.getValue())){
+      try {
+        const savedPalettes = this.parseSavedOldTypoPalettes().filter(p => p.name !== "sketchfulPalette");
+        for(const palette of savedPalettes){
+          await this._colorsService.savePalette(palette);
+        }
+        this._logger.info("Imported old typo palettes", savedPalettes);
+        await this._importedPalettes.setValue(true);
       }
-      this._logger.info("Imported old typo palettes", savedPalettes);
-      localStorage.removeItem("customPalettes");
+      catch {}
     }
-    catch {}
   }
 
   protected override async onDestroy() {
