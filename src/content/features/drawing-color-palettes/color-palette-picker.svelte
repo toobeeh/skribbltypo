@@ -50,7 +50,7 @@
   <div class="typo-palette-picker color-scrollbar" style="grid-template-columns: repeat({colors.columns}, auto)" use:feature.createTooltip={{title: "Choose a color!\nOnly typo users see custom colors.", lock: "Y"}} >
     {#each colors.colorHexCodes as color}
       <div class="typo-palette-picker-item"
-           on:click={() => feature.setColor(color)}
+           on:pointerdown={() => feature.setColor(color)}
            style="background-color: {color}; width: {colors.preferredColumnWidth ? `calc(var(--UNIT) * ${colors.preferredColumnWidth / colors.columns}` : ''}"></div>
     {/each}
   </div>
