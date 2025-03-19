@@ -93,6 +93,9 @@ export class ControlsThemesFeature extends TypoFeature {
       this._logger.debug("Active theme changed", theme);
       this.setThemeElements(theme);
     });
+
+    /* remove in future versions when compatibility not anymore needed */
+    await this.importOldTypoThemes();
   }
 
   protected override async onDestroy(): Promise<void> {
@@ -176,17 +179,62 @@ export class ControlsThemesFeature extends TypoFeature {
     }
   }
 
-  public async importOldTheme(theme: string){
-    const toast = await this._toastService.showLoadingToast("Converting old theme..");
+  public async importOldTypoThemes(){
     try {
 
-      const oldTheme = JSON.parse(theme);
-      const newTheme = await this._themesService.importOldTheme(oldTheme.options, oldTheme.name);
-      toast.resolve("Old theme convert");
-      return newTheme;
+      /* OLD old themes, compatibility mode */
+      const oldThemes = localStorage.getItem("themes");
+      if(oldThemes !== null) {
+        const oldThemesObject = JSON.parse(oldThemes);
+        if (!Array.isArray(oldThemesObject)) throw new Error("invalid themes data");
+        for (const theme of oldThemesObject) {
+          try {
+            await this.importOldTheme(theme);
+          } catch(e) {
+            this._logger.error("Failed to import old typo theme", e);
+          }
+        }
+        localStorage.removeItem("themes");
+      }
+
+      /* themes saved in previous typo version */
+      const oldThemes2 = localStorage.getItem("themesv2");
+      if(oldThemes2 !== null){
+        const oldThemes2Object = JSON.parse(oldThemes2);
+        if(!Array.isArray(oldThemes2Object)) throw new Error("invalid themes data");
+        for(const theme of oldThemes2Object){
+          try {
+            await this._themesService.importThemeFromString(JSON.stringify(theme));
+          }
+          catch(e) {
+            this._logger.error("Failed to import old typo theme", e);
+          }
+        }
+        localStorage.removeItem("themesv2");
+      }
     }
     catch(e) {
-      toast.reject("Failed to convert theme");
+      this._logger.error("Failed to import old typo themes", e);
+      throw e;
+    }
+  }
+
+  public async importOldTheme(oldTheme: object){
+    try {
+      if(typeof oldTheme !== "object") throw new Error("Invalid theme data");
+      const oldThemeKeys = new Map(Object.entries(oldTheme));
+      const options = oldThemeKeys.get("options");
+      const name = oldThemeKeys.get("name");
+      if(typeof options !== "object") throw new Error("Invalid theme options");
+      if(typeof name !== "string") throw new Error("Invalid theme name");
+
+      if(name === "Original") {
+        this._logger.info("Skipping original theme");
+        return;
+      }
+      await this._themesService.importOldTheme(options, name);
+    }
+    catch(e) {
       throw e;
     }
   }
@@ -241,7 +289,7 @@ export class ControlsThemesFeature extends TypoFeature {
 
   public async removeSavedTheme(localId: number){
 
-    if(! await(await this._toastService.showConfirmToast("Do you want to delete the theme?")).result){
+    if(! await(await this._toastService.showConfirmToast("Do you want to delete the theme?", undefined, 10000, {confirm: "Delete theme", cancel: "Cancel deletion"})).result){
       this._logger.info("User canceled theme removal");
       return;
     }

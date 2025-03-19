@@ -156,6 +156,30 @@ export class ThemesService {
     return savedTheme;
   }
 
+  async importThemeFromString(themeString: string) {
+    const theme = JSON.parse(themeString);
+    if(typeof theme !== "object" || theme === null){
+      throw new Error("Invalid theme data");
+    }
+
+    const savedTheme: savedTheme = {
+      theme: theme as serializableTheme,
+      savedAt: Date.now(),
+      publicTheme: undefined,
+      enableManage: true,
+    };
+
+    const themes = await this._savedThemesSetting.getValue();
+    const existingTheme = themes.find(t => t.theme.meta.id === theme.meta.id);
+    if(existingTheme !== undefined){
+      this._logger.warn("Theme already exists, assigning new ID", theme);
+      theme.meta.id = Date.now();
+    }
+
+    await this._savedThemesSetting.setValue([savedTheme, ...themes]);
+    return savedTheme;
+  }
+
   /**
    * Download a featured theme and save to local themes
    * @param theme

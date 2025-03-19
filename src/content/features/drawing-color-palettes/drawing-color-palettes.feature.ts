@@ -109,7 +109,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   public async removePalette(name: string) {
     this._logger.info(`Removing palette ${name}`);
 
-    if(! await (await this._toastService.showConfirmToast(`Do you want to remove the palette ${name}?`)).result){
+    if(! await (await this._toastService.showConfirmToast(`Do you want to remove the palette ${name}?`, undefined, 10000, {confirm: "Delete palette", cancel: "Cancel deletion"})).result){
       this._logger.info(`User canceled removal of palette ${name}`);
       return;
     }
