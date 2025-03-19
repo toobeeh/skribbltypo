@@ -15,7 +15,7 @@
       padding: 1em;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
+      grid-template-rows: 1fr 1fr 1fr;
       grid-gap: .5em;
       place-items: center;
       position: relative;
@@ -62,7 +62,7 @@
 
   .play {
       grid-column: 1;
-      grid-row: 1 / span 2;
+      grid-row: 1 / span 3;
       font-size: 3em;
       justify-content: center;
   }
@@ -88,6 +88,11 @@
 <a href="https://www.typo.rip" target="_blank" class="icon-item extra">
   <div class="icon" style="background-image: url({chrome.runtime.getURL('/img/typo.gif')})"></div>
   Typo Website
+</a>
+
+<a href="https://patreon.com/skribbltypo" target="_blank" class="icon-item extra">
+  <div class="icon" style="background-image: url({chrome.runtime.getURL('/img/coin.gif')})"></div>
+  Support Typo
 </a>
 
 <a href="https://discord.com/invite/pAapmUmWAM" target="_blank" class="icon-item extra">

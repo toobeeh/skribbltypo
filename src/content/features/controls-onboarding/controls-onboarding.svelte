@@ -29,7 +29,8 @@
     "file-img-line-random-color-gif",
     "file-img-discord-gif",
     "file-img-connection-gif",
-    "file-img-tasks-gif"
+    "file-img-tasks-gif",
+    "file-img-coin-gif"
   ];
   let shuffledArray = icons.sort(() => Math.random() - 0.5);
   let currentIndex = 0;
