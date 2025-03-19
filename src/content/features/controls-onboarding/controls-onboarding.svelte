@@ -75,6 +75,11 @@
     }, 3000);
   }
 
+  const activateFeaturePreset = (preset: "recommended" | "mobile" | "minimal" | "all" | "none") => {
+    feature.activateFeaturePreset(preset);
+    if(firstLoad) activeTab = "tasks";
+  }
+
   let activeTab: "presets" | "tasks" | "extras" = firstLoad ? "presets" : "tasks";
   let hideHero = false;
   const useTab = (tab: "presets" | "tasks" | "extras") => {
@@ -304,35 +309,35 @@
 
     <br>
     <div class="typo-onboarding-presets">
-      <div class="typo-onboarding-preset" on:click={() => feature.activateFeaturePreset("recommended")}>
+      <div class="typo-onboarding-preset" on:click={() => activateFeaturePreset("recommended")}>
         <h3>Recommended</h3>
         <div>
           A set of the most popular typo features that will enhance your skribbl.io experience.
         </div>
       </div>
 
-      <div class="typo-onboarding-preset" on:click={() => feature.activateFeaturePreset("mobile")}>
+      <div class="typo-onboarding-preset" on:click={() => activateFeaturePreset("mobile")}>
         <h3>Tablet & Phone</h3>
         <div>
           Activates only features that will - probably - work on mobile devices.
         </div>
       </div>
 
-      <div class="typo-onboarding-preset" on:click={() => feature.activateFeaturePreset("minimal")}>
+      <div class="typo-onboarding-preset" on:click={() => activateFeaturePreset("minimal")}>
         <h3>Minimal</h3>
         <div>
           Skribbl looks as close to original as possible, but essential features are still present.
         </div>
       </div>
 
-      <div class="typo-onboarding-preset" on:click={() => feature.activateFeaturePreset("all")}>
+      <div class="typo-onboarding-preset" on:click={() => activateFeaturePreset("all")}>
         <h3>Everything</h3>
         <div>
           The full package; all nifty tools that typo has to offer!
         </div>
       </div>
 
-      <div class="typo-onboarding-preset" on:click={() => feature.activateFeaturePreset("none")}>
+      <div class="typo-onboarding-preset" on:click={() => activateFeaturePreset("none")}>
         <h3>Nothing</h3>
         <div>
           Vanilla skribbl.io experience. You will only notice the settings button.
