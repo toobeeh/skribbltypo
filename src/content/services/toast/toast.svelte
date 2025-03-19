@@ -9,6 +9,8 @@
   export let promptHandler: ((result: string) => void) | undefined = undefined;
   export let showLoading = false;
   export let allowClose = true;
+  export let confirmNaming: string | undefined = undefined;
+  export let cancelNaming: string | undefined = undefined;
   
   let promptContent = "";
 
@@ -80,6 +82,14 @@
       display: flex;
       flex-direction: row;
       gap: 1rem;
+
+      span {
+        display: flex;
+        flex-direction: row;
+        gap: .5rem;
+        cursor: pointer;
+        align-items: center;
+      }
     }
 
     .close-toast {
@@ -128,8 +138,14 @@
 
     {#if confirmHandler !== undefined}
       <div class="typo-toast-confirm">
-        <IconButton icon="file-img-enabled-gif" name="Confirm" hoverMove="{false}" size="1.5rem" on:click={() => confirmHandler(true)} />
-        <IconButton icon="file-img-disabled-gif" name="Abort" hoverMove="{false}" size="1.5rem" on:click={() => confirmHandler(false)} />
+        <span on:click={() => confirmHandler(true)}>
+        <IconButton icon="file-img-enabled-gif" name="Confirm" hoverMove="{false}" size="1.5rem" />
+          {confirmNaming ?? ""}
+        </span>
+        <span on:click={() => confirmHandler(false)}>
+        <IconButton icon="file-img-disabled-gif" name="Abort" hoverMove="{false}" size="1.5rem" />
+          {cancelNaming ?? ""}
+        </span>
       </div>
     {/if}
   {/if}

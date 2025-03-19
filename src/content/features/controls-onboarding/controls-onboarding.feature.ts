@@ -44,7 +44,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
   @inject(FeaturesService) private readonly _featuresService!: FeaturesService;
   @inject(ToastService) private readonly _toastService!: ToastService;
 
-  public readonly name = "Onboarding";
+  public readonly name = "Get Started";
   public readonly description =
     "Quickly set up typo to your likes";
   public readonly tags = [
@@ -53,7 +53,13 @@ export class ControlsOnboardingFeature extends TypoFeature {
   ];
   public readonly featureId = 47;
 
-  private readonly _firstLoadSetting = this.useSetting(new BooleanExtensionSetting("first_load", true, this));
+  private readonly _firstLoadSetting = new BooleanExtensionSetting("first_load", true, this);
+  private readonly _onboardingTask = this.useOnboardingTask({
+    key: "finalize_onboarding",
+    name: "Finish Onboarding",
+    description: "Choose whether to disable 'Get Started'. This should be your last task! ;)",
+    start: () => this.finalizeOnboarding()
+  });
 
   private readonly _featurePresets = {
     recommended: {
@@ -122,7 +128,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
         hoverMove: false,
         size: "48px",
         icon: "file-img-tasks-gif",
-        name: "Onboarding",
+        name: "Get Started",
         order: 4,
         tooltipAction: this.createTooltip
       },
@@ -162,7 +168,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
         firstLoad
       },
     };
-    this._currentModal = this._modalService.showModal(onboardingComponent.componentType, onboardingComponent.props, firstLoad ? "" : "Typo Onboarding");
+    this._currentModal = this._modalService.showModal(onboardingComponent.componentType, onboardingComponent.props, firstLoad ? "" : "Get Started");
   }
 
   public async activateFeaturePreset(preset: keyof typeof ControlsOnboardingFeature.prototype._featurePresets) {
@@ -204,5 +210,25 @@ export class ControlsOnboardingFeature extends TypoFeature {
 
   public closeOnboardingIfOpen(){
     this._currentModal?.close();
+  }
+
+  public async finalizeOnboarding() {
+    const task = await this._onboardingTask;
+    const tasks = await this._onboardingService.getOnboardingTasks();
+    const allOtherCompleted = tasks.every(t => t.completed || t.key === task.task.key);
+
+    const title = allOtherCompleted ? "✨ You have completed all onboarding tasks!" : "Not all tasks completed yet!";
+    const description = allOtherCompleted ?
+      "Do you want to remove the onboarding icon?\nYou can always enable it again in the settings to read guides or select presets." :
+      "You have not completed all onboarding tasks yet.\nDo you still want to disable onboarding?\nYou can always enable it again in the settings to read guides or select presets.";
+    const confirm = await this._toastService.showConfirmToast(title, description, 30000, {confirm: "Disable onboarding", cancel: "Keep enabled"});
+    const result = await confirm.result;
+
+    if(allOtherCompleted){
+      task.complete();
+    }
+    if(result) {
+      this.destroy();
+    }
   }
 }

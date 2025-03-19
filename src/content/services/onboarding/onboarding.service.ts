@@ -22,6 +22,8 @@ export interface onboardingTaskRegistration {
 export interface onboardingTaskHandle {
   complete: () => void;
   clear: () => void;
+  completed: () => Promise<boolean>;
+  task: onboardingTask;
 }
 
 @injectable()
@@ -67,7 +69,12 @@ export class OnboardingService {
           tasks.splice(tasks.indexOf(taskId), 1);
           this._completedTasks.setValue(tasks);
         }
-      })
+      }),
+      completed: async () => {
+        const tasks = await this._completedTasks.getValue();
+        return tasks.includes(taskId);
+      },
+      task
     };
   }
 

@@ -168,7 +168,7 @@ export class ToastService {
     };
   }
 
-  public async showConfirmToast(title: string, content: string | undefined = undefined, timeout: number | undefined = 10000): Promise<confirmToastHandle> {
+  public async showConfirmToast(title: string, content: string | undefined = undefined, timeout: number | undefined = 30000, naming?: {confirm: string, cancel: string}): Promise<confirmToastHandle> {
     const elements = await this._elementsSetup.complete();
 
     const result = new Subject<boolean>();
@@ -186,7 +186,9 @@ export class ToastService {
         },
         title,
         content,
-        showLoading: false
+        showLoading: false,
+        confirmNaming: naming?.confirm,
+        cancelNaming: naming?.cancel
       }
     });
 

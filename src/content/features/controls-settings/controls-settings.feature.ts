@@ -20,7 +20,7 @@ export class ControlsSettingsFeature extends TypoFeature {
   @inject(GlobalSettingsService) private readonly _settingsService!: GlobalSettingsService;
 
   public readonly name = "Typo Settings";
-  public readonly description = "Manage the features of typo";
+  public readonly description = "Customize Typo to your liking";
   public readonly tags = [
     FeatureTag.INFORMATION,
     FeatureTag.DEVELOPMENT
@@ -37,7 +37,6 @@ export class ControlsSettingsFeature extends TypoFeature {
 
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
-
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -143,11 +142,11 @@ export class ControlsSettingsFeature extends TypoFeature {
   }
 
   public featureImportance(tags: FeatureTag[]){
-    if(tags.includes(FeatureTag.DRAWING)) return 4;
-    if(tags.includes(FeatureTag.GAMEPLAY)) return 4;
-    if(tags.includes(FeatureTag.INTERFACE)) return 3;
-    if(tags.includes(FeatureTag.SOCIAL)) return 3;
-    if(tags.includes(FeatureTag.PALANTIR)) return 2;
+    if(tags.includes(FeatureTag.DRAWING)) return 7;
+    if(tags.includes(FeatureTag.GAMEPLAY)) return 6;
+    if(tags.includes(FeatureTag.INTERFACE)) return 6;
+    if(tags.includes(FeatureTag.SOCIAL)) return 4;
+    if(tags.includes(FeatureTag.PALANTIR)) return 3;
     if(tags.includes(FeatureTag.INFORMATION)) return 2;
     if(tags.includes(FeatureTag.DEVELOPMENT)) return 1;
     return 0;

@@ -355,8 +355,15 @@
       {#await feature.getChecklist()}
         <Bounceload content="Loading checklist.." />
       {:then checklist}
+
+        {#if checklist.every((task) => task.completed)}
+          <span>Congrats, you have completed all tasks!</span>
+        {:else}
+          <span>Complete following tasks to finalize your skribbl setup</span>
+        {/if}
+
         {#each checklist as task}
-          <div class="typo-onboarding-task" class:done={task.completed} on:click={() => {
+          <div class="typo-onboarding-task" style="order: {task.completed ? 2 : 1}" class:done={task.completed} on:click={() => {
             if(!task.completed){
               feature.closeOnboardingIfOpen();
               task.start();
