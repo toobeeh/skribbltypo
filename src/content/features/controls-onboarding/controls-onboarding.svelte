@@ -287,7 +287,7 @@
 
 </style>
 <div class="typo-onboarding-wrapper color-scrollbar">
-  <div bind:this={hero} class="typo-onboarding-hero {hideHero ? 'hidden' : ''}">
+  <div bind:this={hero} class="typo-onboarding-hero {hideHero ? 'hidden' : ''}" on:click={() => useTab(activeTab)}>
     <div bind:this={heading}>
       <h2>{firstLoad ? "Welcome to" : "Thanks for using"} typo ✨</h2>
       <b>Typo is the toolbox for everything you need on skribbl.io</b>
