@@ -37,3 +37,8 @@ img {
 .tool[data-tooltip="Lab"], .tool[data-tooltip="None"], .tool[data-tooltip="Pipette"] {
   display: none;
 }
+
+/* fix player list (and therefore player bubbles) being being below canvas */
+#game-players {
+    z-index: 1;
+}
