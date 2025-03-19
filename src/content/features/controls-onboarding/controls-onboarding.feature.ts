@@ -121,7 +121,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
       props: {
         hoverMove: false,
         size: "48px",
-        icon: "file-img-wand-gif",
+        icon: "file-img-tasks-gif",
         name: "Onboarding",
         order: 4,
         tooltipAction: this.createTooltip

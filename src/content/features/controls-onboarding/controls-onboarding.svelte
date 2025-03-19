@@ -28,7 +28,8 @@
     "file-img-trash-gif",
     "file-img-line-random-color-gif",
     "file-img-discord-gif",
-    "file-img-connection-gif"
+    "file-img-connection-gif",
+    "file-img-tasks-gif"
   ];
   let shuffledArray = icons.sort(() => Math.random() - 0.5);
   let currentIndex = 0;
@@ -77,7 +78,7 @@
 
   const activateFeaturePreset = (preset: "recommended" | "mobile" | "minimal" | "all" | "none") => {
     feature.activateFeaturePreset(preset);
-    if(firstLoad) activeTab = "tasks";
+    if(firstLoad) useTab("tasks");
   }
 
   let activeTab: "presets" | "tasks" | "extras" = firstLoad ? "presets" : "tasks";
