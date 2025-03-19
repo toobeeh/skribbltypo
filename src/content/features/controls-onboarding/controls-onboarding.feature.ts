@@ -110,6 +110,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
   private _currentModal?: modalHandle;
+  private _taskCompletedSubscription?: Subscription;
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -120,7 +121,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
       props: {
         hoverMove: false,
         size: "48px",
-        icon: "file-img-light-gif",
+        icon: "file-img-wand-gif",
         name: "Onboarding",
         order: 4,
         tooltipAction: this.createTooltip
@@ -137,12 +138,18 @@ export class ControlsOnboardingFeature extends TypoFeature {
       this.showOnboarding(true);
       await this._firstLoadSetting.setValue(false);
     }
+
+    this._taskCompletedSubscription = this._onboardingService.taskCompleted$.subscribe(task => {
+      this._toastService.showToast("🎉 Congrats!", `You have completed the onboarding task "${task.name}"!`);
+    });
   }
 
   protected override async onDestroy(): Promise<void> {
     this._iconComponent?.$destroy();
     this._iconClickSubscription?.unsubscribe();
     this._iconClickSubscription = undefined;
+    this._taskCompletedSubscription?.unsubscribe();
+    this._taskCompletedSubscription = undefined;
   }
 
   private showOnboarding(firstLoad = false) {

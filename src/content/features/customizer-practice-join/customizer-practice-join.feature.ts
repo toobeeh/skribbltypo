@@ -19,6 +19,13 @@ export class CustomizerPracticeJoinFeature extends TypoFeature {
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
 
+  private readonly _onboardingTask = this.useOnboardingTask({
+    key: "practice_joined",
+    name: "Enter the practice mode",
+    description: "Click the palette icon next to the avatar customizer to join a free draw practice mode.",
+    start: () => void 1
+  });
+
   protected override async onActivate() {
 
     const elements = await this._elementsSetup.complete();
@@ -39,8 +46,9 @@ export class CustomizerPracticeJoinFeature extends TypoFeature {
     });
 
     /* listen for click on icon */
-    this._iconClickSubscription = this._iconComponent.click$.subscribe(() => {
+    this._iconClickSubscription = this._iconComponent.click$.subscribe(async () => {
       document.dispatchEvent(new CustomEvent("joinPractice"));
+      (await this._onboardingTask).complete();
     });
   }
 

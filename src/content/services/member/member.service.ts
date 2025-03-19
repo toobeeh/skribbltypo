@@ -69,7 +69,8 @@ export class MemberService {
     });
 
     this._member$.subscribe(member => {
-      if(member) task.complete();
+      if(member === undefined) return; /*member not loaded yet*/
+      if(member !== null) task.complete();
       else task.clear();
     });
   }

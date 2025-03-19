@@ -1,6 +1,8 @@
 <script lang="ts">
   import ControlsOnboardingEmoji from "./controls-onboarding-emoji.svelte";
   import Bounceload from "@/lib/bounceload/bounceload.svelte";
+  import OldTypoOnboarding from "./extras/old-typo-onboarding.svelte";
+  import TypoCreditsOnboarding from "./extras/typo-credits-onboarding.svelte";
   import type { ControlsOnboardingFeature } from "@/content/features/controls-onboarding/controls-onboarding.feature";
   import { onDestroy, onMount } from "svelte";
 
@@ -73,13 +75,19 @@
     }, 3000);
   }
 
-  let activeTab: "presets" | "checklist" | "guides" = "presets";
+  let activeTab: "presets" | "tasks" | "extras" = firstLoad ? "presets" : "tasks";
   let hideHero = false;
-  const useTab = (tab: "presets" | "checklist" | "guides") => {
+  const useTab = (tab: "presets" | "tasks" | "extras") => {
     hideHero = true;
     activeTab = tab;
     currentIcons.forEach((icon) => icon.$destroy());
   }
+
+  let extraSections = [
+    {name: "Typo Update Changes", component: OldTypoOnboarding},
+    {name: "Credits / Imprint", component: TypoCreditsOnboarding}
+  ];
+  let activeSection: typeof extraSections[number] = extraSections[0];
 
   onMount(() => {
     interval = setInterval(() => {
@@ -138,6 +146,7 @@
       opacity: 0;
       user-select: none;
       transition: opacity .4s;
+      transition-delay: .5s;
       text-align: center;
       font-size: .8rem;
       z-index: 10;
@@ -239,6 +248,37 @@
     }
   }
 
+  .typo-onboarding-extras {
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+    align-self: stretch;
+    padding: 0 2rem 2rem 2rem;
+
+    .typo-onboarding-extras-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      b {
+        cursor: pointer;
+        opacity: .5;
+        user-select: none;
+
+        &.active {
+          opacity: 1;
+        }
+      }
+    }
+
+    .typo-onboarding-extras-content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+
 </style>
 <div class="typo-onboarding-wrapper color-scrollbar">
   <div bind:this={hero} class="typo-onboarding-hero {hideHero ? 'hidden' : ''}">
@@ -251,15 +291,15 @@
 
   <div class="onboarding-tabs">
     <h4 class:active={activeTab === "presets"} on:click={() => useTab("presets")}>Feature Presets</h4>
-    <h4 class:active={activeTab === "checklist"} on:click={() => useTab("checklist")}>Checklist</h4>
-    <h4 class:active={activeTab === "guides"} on:click={() => useTab("guides")}>Guides</h4>
+    <h4 class:active={activeTab === "tasks"} on:click={() => useTab("tasks")}>Onboarding Tasks</h4>
+    <h4 class:active={activeTab === "extras"} on:click={() => useTab("extras")}>More Info</h4>
   </div>
   <br>
 
   {#if activeTab === "presets"}
     <p style="text-align: center">
       To customize your experience, you can select from a variety of feature presets below.<br>
-      You can always activate, deactivate, or customize features in the settings (the wrench icon), or come back to this page (light bulb icon).
+      You can always activate, deactivate, or customize features in the settings (the wrench icon), or come back to this page (magic wand icon).
     </p>
 
     <br>
@@ -301,7 +341,7 @@
     </div>
   {/if}
 
-  {#if activeTab === "checklist"}
+  {#if activeTab === "tasks"}
 
     <div class="typo-onboarding-checklist">
 
@@ -335,6 +375,25 @@
 
     </div>
   {/if}
+
+  {#if activeTab === "extras"}
+
+    <div class="typo-onboarding-extras">
+
+      <div class="typo-onboarding-extras-sections">
+        {#each extraSections as section}
+          <b class:active={activeSection === section} on:click={() => activeSection = section}>{section.name}</b>
+        {/each}
+      </div>
+
+      <div class="typo-onboarding-extras-content">
+        <svelte:component this={activeSection.component} />
+      </div>
+
+    </div>
+
+  {/if}
+
 
 </div>
 

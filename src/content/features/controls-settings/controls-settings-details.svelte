@@ -12,6 +12,8 @@
   export let feature: TypoFeature;
   export let settingsFeature: ControlsSettingsFeature;
 
+  settingsFeature.completeOnboardingTask();
+
   let settingsComponent: componentData<SvelteComponent> | undefined;
   let infoComponent: componentData<SvelteComponent> | undefined;
   let featureHotkeys: HotkeyAction[] = [];

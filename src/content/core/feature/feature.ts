@@ -15,7 +15,6 @@ import {
   type onboardingTaskRegistration,
 } from "@/content/services/onboarding/onboarding.service";
 import { inject, injectable, postConstruct } from "inversify";
-import { firstValueFrom } from "rxjs";
 import type { SvelteComponent } from "svelte";
 import type { Action } from "svelte/action";
 import { loggerFactory } from "../logger/loggerFactory.interface";

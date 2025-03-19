@@ -28,8 +28,16 @@ export class ControlsSettingsFeature extends TypoFeature {
   public override readonly toggleEnabled = false;
   public readonly featureId = 1;
 
+  private readonly _onboardingTask = this.useOnboardingTask({
+    key: "feature_opened",
+    name: "Open settings of a feature",
+    description: "Click the wrench icon and open the settings of a typo feature to adjust it to your likes.",
+    start: () => this.openSettingsPopup()
+  });
+
   private _iconComponent?: IconButton;
   private _iconClickSubscription?: Subscription;
+
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -49,18 +57,22 @@ export class ControlsSettingsFeature extends TypoFeature {
 
     /* listen for click on icon */
     this._iconClickSubscription = this._iconComponent.click$.subscribe(() => {
-      const settingsComponent: componentData<ControlsSettings> = {
-        componentType: ControlsSettings,
-        props: {
-          feature: this,
-        },
-      };
-      this._modalService.showModal(
-        settingsComponent.componentType,
-        settingsComponent.props,
-        "Typo Settings",
-      );
+      this.openSettingsPopup();
     });
+  }
+
+  private openSettingsPopup(){
+    const settingsComponent: componentData<ControlsSettings> = {
+      componentType: ControlsSettings,
+      props: {
+        feature: this,
+      },
+    };
+    this._modalService.showModal(
+      settingsComponent.componentType,
+      settingsComponent.props,
+      "Typo Settings",
+    );
   }
 
   protected override postConstruct() {
@@ -155,5 +167,9 @@ export class ControlsSettingsFeature extends TypoFeature {
       .filter(f => content.length === 0 || this.featureContainsText(f, content))
       .sort((a, b) => this.featureImportance(b.tags) - this.featureImportance(a.tags));
 
+  }
+
+  public async completeOnboardingTask(){
+    (await this._onboardingTask).complete();
   }
 }
