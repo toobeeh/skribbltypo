@@ -55,6 +55,17 @@ export class DrawingColorPalettesFeature extends TypoFeature {
 
   protected override async onActivate() {
     this._activePaletteSubscription = this._colorsService.pickerColors$.subscribe(palette => this.updatePaletteStyle(palette));
+
+    /* import old palettes. remove in a future version after grace period */
+    try {
+      const savedPalettes = this.parseSavedOldTypoPalettes().filter(p => p.name !== "sketchfulPalette");
+      for(const palette of savedPalettes){
+        await this.savePalette(palette);
+      }
+      this._logger.info("Imported old typo palettes", savedPalettes);
+      localStorage.removeItem("customPalettes");
+    }
+    catch {}
   }
 
   protected override async onDestroy() {
@@ -138,6 +149,49 @@ export class DrawingColorPalettesFeature extends TypoFeature {
       this._logger.error("Failed to parse palette from json", e);
       this._toastService.showToast("Failed to read palette", "Invalid palette format. Check the JSON data!");
       throw e;
+    }
+  }
+
+  public parseSavedOldTypoPalettes(): palette[]{
+    this._logger.info("Parsing saved old typo palette");
+
+    try {
+      const data = localStorage.getItem("customPalettes");
+      if(data === null) return [];
+
+      const palettes = JSON.parse(data);
+      if(!Array.isArray(palettes)) throw new Error("Palette data is not an array");
+
+      const parsed: palette[] = [];
+      palettes.forEach((p: unknown) => {
+        if(typeof p !== "object" || p === null) throw new Error("Palette is not an object");
+        const map = new Map(Object.entries(p));
+        const name = map.get("name");
+        const colors = map.get("colors");
+        const rowCount = map.get("rowCount");
+        if(typeof name !== "string" || !Array.isArray(colors) || typeof rowCount !== "number") throw new Error("Palette is missing properties");
+
+        const mappedColors: Color[] = [];
+        for(const color of colors){
+          if(typeof color !== "object") throw new Error("Color data is not a object");
+          const map = new Map(Object.entries(color));
+          const rgb = map.get("color");
+          if(typeof rgb !== "string") throw new Error("Color is not a string");
+          mappedColors.push(Color.fromRgbString(rgb));
+        }
+
+        parsed.push({
+          name,
+          columns: rowCount,
+          colorHexCodes: mappedColors.map(c => c.hex)
+        });
+      });
+
+      return parsed;
+    }
+    catch(e){
+      this._logger.error("Failed to parse saved old typo palette", e);
+      return [];
     }
   }
 
