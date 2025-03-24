@@ -73,7 +73,17 @@ export class Interceptor {
   private async processToken(){
     this.debug("Processing token");
     const url = new URL(window.location.href);
-    const tokenParam = url.searchParams.get("accessToken");
+    let tokenParam = url.searchParams.get("accessToken");
+
+    /* for compatibility of old typo, can be removed in later versions */
+    if(tokenParam === null){
+      const fallbackOldToken = localStorage.getItem("accessToken");
+      if(fallbackOldToken !== null) {
+        tokenParam = fallbackOldToken;
+        localStorage.removeItem("accessToken");
+      }
+    }
+
     if(tokenParam !== null) {
       await chrome.runtime.sendMessage({ type: "set token", token: tokenParam });
       url.searchParams.delete("accessToken");
