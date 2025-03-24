@@ -88,11 +88,12 @@
     hideHero = true;
     activeTab = tab;
     currentIcons.forEach((icon) => icon.$destroy());
+    if(tab === "extras") feature.completeInfoTask();
   }
 
   let extraSections = [
-    {name: "Typo Update Changes", component: OldTypoOnboarding},
-    {name: "Credits / Imprint", component: TypoCreditsOnboarding}
+    {name: "Introducing the new Typo", component: OldTypoOnboarding},
+    {name: "Credits & Imprint", component: TypoCreditsOnboarding}
   ];
   let activeSection: typeof extraSections[number] = extraSections[0];
 
@@ -228,6 +229,7 @@
     flex-direction: column;
     gap: 1rem;
     align-items: center;
+    margin-top: 1rem;
 
     .typo-onboarding-task {
       cursor: pointer;
@@ -350,8 +352,6 @@
 
   {#if activeTab === "tasks"}
 
-    <div class="typo-onboarding-checklist">
-
       {#await feature.getChecklist()}
         <Bounceload content="Loading checklist.." />
       {:then checklist}
@@ -359,35 +359,51 @@
         {#if checklist.every((task) => task.completed)}
           <span>Congrats, you have completed all tasks!</span>
         {:else}
-          <span>Complete following tasks to finalize your skribbl setup</span>
+          <span>Complete all tasks to finalize your skribbl setup:</span>
         {/if}
 
-        {#each checklist as task}
-          <div class="typo-onboarding-task" style="order: {task.completed ? 2 : 1}" class:done={task.completed} on:click={() => {
-            if(!task.completed){
-              feature.closeOnboardingIfOpen();
-              task.start();
-            }
-          }}>
-            <h4>
-              {task.name}
-            </h4>
+        <div class="typo-onboarding-checklist">
+          {#each checklist.filter(task => !task.completed) as task}
+            <div class="typo-onboarding-task" style="order: {task.priority}"  on:click={async () => {
+              const close = await task.start();
+              if(close !== false) feature.closeOnboardingIfOpen();
+            }}>
+              <h4>
+                {task.name}
+              </h4>
 
-            <div class="details">
-              {#if task.completed}
-                <img src="" style="content: var(--file-img-enabled-gif); height: 1.5rem;">
-                <b>Done</b>
-              {:else}
+              <div class="details">
                 <img src="" style="content: var(--file-img-arrow-right-gif); height: 1.5rem;">
-              {/if}
-              <div class="description">{task.description}</div>
-            </div>
+                <div class="description">{task.description}</div>
+              </div>
 
-          </div>
-        {/each}
+            </div>
+          {/each}
+        </div>
+
+
+        <div class="typo-onboarding-checklist">
+          {#each checklist.filter(task => task.completed) as task}
+            <div class="typo-onboarding-task done" style="order: {task.priority}">
+              <h4>
+                {task.name}
+              </h4>
+
+              <div class="details">
+                {#if task.completed}
+                  <img src="" style="content: var(--file-img-enabled-gif); height: 1.5rem;">
+                  <b>Done</b>
+                {:else}
+                  <img src="" style="content: var(--file-img-arrow-right-gif); height: 1.5rem;">
+                {/if}
+                <div class="description">{task.description}</div>
+              </div>
+
+            </div>
+          {/each}
+        </div>
       {/await}
 
-    </div>
   {/if}
 
   {#if activeTab === "extras"}

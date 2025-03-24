@@ -65,7 +65,8 @@ export class MemberService {
       key: "logged_in",
       name: "Log in with Discord",
       description: "Connect your discord account to typo to connect with friends and upgrade your avatar outfit.",
-      start: () => this.login()
+      start: () => this.login(),
+      priority: 2
     });
 
     this._member$.subscribe(member => {

@@ -8,7 +8,10 @@ export interface onboardingTask {
   name: string;
   description: string;
   key: string;
-  start: () => void;
+  priority: number;
+
+  /* return false to keep open onboarding popup */
+  start: () => (void | boolean | Promise<boolean>); // eslint-disable-line @typescript-eslint/no-invalid-void-type
 }
 
 export interface onboardingTaskRegistration {
@@ -16,7 +19,8 @@ export interface onboardingTaskRegistration {
   feature?: TypoFeature,
   name: string,
   description: string,
-  start: () => void
+  start: () => (void | boolean | Promise<boolean>); // eslint-disable-line @typescript-eslint/no-invalid-void-type
+  priority?: number;
 }
 
 export interface onboardingTaskHandle {
@@ -44,11 +48,12 @@ export class OnboardingService {
   registerTask(registration: onboardingTaskRegistration): onboardingTaskHandle{
     const taskId = `${registration.feature?.name ?? "global"}_${registration.key}`;
 
-    const task = {
+    const task: onboardingTask = {
       name: registration.name,
       description: registration.description,
       key: taskId,
-      start: registration.start
+      start: registration.start,
+      priority: registration.priority ?? Number.MAX_SAFE_INTEGER
     };
     this._tasks.push(task);
 

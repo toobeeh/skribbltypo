@@ -67,7 +67,7 @@ export abstract class TypoFeature {
             this._logger.debug("Activating feature for onboarding task", registration.key);
             await this.activate();
           }
-          registration.start();
+          return await registration.start() ?? true;
         };
 
         const handle = this._onboardingService.registerTask({ ...registration, feature: this, start: startWithActivation });

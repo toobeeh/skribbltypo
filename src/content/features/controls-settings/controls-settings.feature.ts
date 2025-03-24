@@ -32,7 +32,8 @@ export class ControlsSettingsFeature extends TypoFeature {
     key: "feature_opened",
     name: "Open settings of a feature",
     description: "Click the wrench icon and open the settings of a typo feature to adjust it to your likes.",
-    start: () => this.openSettingsPopup()
+    start: () => this.openSettingsPopup(),
+    priority: 2
   });
 
   private _iconComponent?: IconButton;

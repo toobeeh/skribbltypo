@@ -54,11 +54,24 @@ export class ControlsOnboardingFeature extends TypoFeature {
   public readonly featureId = 47;
 
   private readonly _firstLoadSetting = new BooleanExtensionSetting("first_load", true, this);
-  private readonly _onboardingTask = this.useOnboardingTask({
+  private readonly _finishOnboardingTask = this.useOnboardingTask({
     key: "finalize_onboarding",
     name: "Finish Onboarding",
     description: "Choose whether to disable 'Get Started'. This should be your last task! ;)",
-    start: () => this.finalizeOnboarding()
+    start: () => this.finalizeOnboarding(),
+    priority: Number.MAX_SAFE_INTEGER
+  });
+
+
+  private readonly _viewInfoTask = this.useOnboardingTask({
+    key: "info_opened",
+    name: "Read about the new typo",
+    description: "Open the 'more info' tab to read an intro and changes of the new typo.",
+    start: async () => {
+      await this._toastService.showToast("Scroll up and open the 'More Info' tab to complete the challenge!");
+      return false;
+    },
+    priority: 1
   });
 
   private readonly _featurePresets = {
@@ -213,7 +226,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
   }
 
   public async finalizeOnboarding() {
-    const task = await this._onboardingTask;
+    const task = await this._finishOnboardingTask;
     const tasks = await this._onboardingService.getOnboardingTasks();
     const allOtherCompleted = tasks.every(t => t.completed || t.key === task.task.key);
 
@@ -230,5 +243,11 @@ export class ControlsOnboardingFeature extends TypoFeature {
     if(result) {
       this.destroy();
     }
+
+    return false;
+  }
+
+  public async completeInfoTask(){
+    (await this._viewInfoTask).complete();
   }
 }
