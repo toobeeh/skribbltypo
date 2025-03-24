@@ -22,30 +22,31 @@
 </p>
 
 <h4>A quick-start guide</h4>
+<div>
+  <p>
+    All typo features can now be customized, so you don't have anything that messes with your optimal skribbl experience.<br>
+    To customize typo, click the wrench icon at the top left (unless customized to somewhere else ;).<br>
+    There, you can:
+  </p>
 
-<p>
-  All typo features can now be customized, so you don't have anything that messes with your optimal skribbl experience.<br>
-  To customize typo, click the wrench icon at the top left (unless customized to somewhere else ;).<br>
-  There, you can:
-</p>
+  <ul>
+    <li>Enable or disable every feature</li>
+    <li>Adjust feature settings to your likes</li>
+    <li>Customize hotkeys and chat commands of features</li>
+    <li>View some extra info & hints about features</li>
+  </ul>
 
-<ul>
-  <li>Enable or disable every feature</li>
-  <li>Adjust feature settings to your likes</li>
-  <li>Customize hotkeys and chat commands of features</li>
-  <li>View some extra info & hints about features</li>
-</ul>
+  <p>
+    To get started, you can browse through the feature list and view their details.<br>
+    Features are also categorized by tags so you can easily find what you are looking for.<br>
+    Most of the features did not change much, but you might discover some new ones or notice features that you didn't know of!<br>
+    To change general typo settings or reset typo, choose the "Typo Settings" feature in the settings.<br>
+    If you have any questions or feedback, join the community on <a href="https://discord.com/invite/pAapmUmWAM">Discord</a>!
+  </p>
+</div>
 
-<p>
-  To get started, you can browse through the feature list and view their details.<br>
-  Features are also categorized by tags so you can easily find what you are looking for.<br>
-  Most of the features did not change much, but you might discover some new ones or notice features that you didn't know of!<br>
-  To change general typo settings or reset typo, choose the "Typo Settings" feature in the settings.<br>
-  If you have any questions or feedback, join the community on <a href="https://discord.com/invite/pAapmUmWAM">Discord</a>!
-</p>
 
 <h4>The most important changes</h4>
-
 <div>
   <p>
     <b>➜ Typo Settings</b><br>
