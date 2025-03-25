@@ -1,7 +1,7 @@
 import { crx, ManifestV3Export } from "@crxjs/vite-plugin";
 import { PluginOption } from "vite";
-import { deleteCssUrlsArtifacts } from "./css-urls-delete.plugin";
-import { generateCssUrlsArtifacts } from "./css-urls-generate.plugin";
+import { deleteCssAssetUrlsArtifacts } from "./css-asset-urls-delete.plugin";
+import { generateCssAssetUrlsArtifacts } from "./css-asset-urls-generate.plugin";
 import ManifestV3 = chrome.runtime.ManifestV3;
 
 /**
@@ -29,12 +29,12 @@ export const buildChromeExtension = (
   return [
 
     /* generate a content script providing css urls for web accessible resources */
-    generateCssUrlsArtifacts(mv3),
+    generateCssAssetUrlsArtifacts(mv3),
 
     /* apply crx plugin */
     ...crxOriginal,
 
     /* delete artifacts from css url script */
-    deleteCssUrlsArtifacts()
+    deleteCssAssetUrlsArtifacts()
   ];
 };

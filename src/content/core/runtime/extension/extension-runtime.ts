@@ -16,4 +16,8 @@ export default class ExtensionRuntime implements TypoRuntime {
   async setToken(token: string | null): Promise<void> {
     await chrome.runtime.sendMessage({ type: "set token", token });
   }
+
+  getManifest(): chrome.runtime.Manifest {
+    return chrome.runtime.getManifest();
+  }
 }

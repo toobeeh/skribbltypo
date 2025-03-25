@@ -26,4 +26,9 @@ export interface TypoRuntime {
    * get the access token from the persistent storage of the runtime
    */
   getToken(): Promise<string | null>;
+
+  /**
+   * get the manifest of the runtime
+   */
+  getManifest(): chrome.runtime.Manifest;
 }

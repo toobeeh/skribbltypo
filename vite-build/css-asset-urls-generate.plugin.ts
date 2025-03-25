@@ -7,7 +7,7 @@ import fs from "fs";
  * A plugin to generate a content script which provides css urls for resources specified in the manifest
  * @param manifest
  */
-export const generateCssUrlsArtifacts = (manifest: chrome.runtime.ManifestV3): PluginOption => {
+export const generateCssAssetUrlsArtifacts = (manifest: chrome.runtime.ManifestV3): PluginOption => {
   return {
     name: "build-css-injector",
     enforce: "pre",

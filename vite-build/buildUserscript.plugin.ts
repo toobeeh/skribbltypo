@@ -1,7 +1,5 @@
 import { crx, ManifestV3Export } from "@crxjs/vite-plugin";
 import { PluginOption } from "vite";
-import { deleteCssUrlsArtifacts } from "./css-urls-delete.plugin";
-import { generateCssUrlsArtifacts } from "./css-urls-generate.plugin";
 import ManifestV3 = chrome.runtime.ManifestV3;
 
 /**
@@ -21,23 +19,12 @@ export const buildUserscript = (
   /* get manifest */
   const mv3 = manifest as unknown as ManifestV3;
 
-  /* add css url gen to manifest */
-  mv3.content_scripts[0].js.push("cssgen/css-urls.ts");
-
   /* add version name to manifest */
-  mv3.version_name = `${mv3.version} ${version}-crx${buildCommit ? " " + buildCommit : ""}`;
-
-  const crxOriginal = crx({ manifest: mv3 as unknown as ManifestV3Export });
+  mv3.version_name = `${mv3.version} ${version}-usc${buildCommit ? " " + buildCommit : ""}`;
 
   return [
 
-    /* generate a content script providing css urls for web accessible resources */
-    generateCssUrlsArtifacts(mv3),
-
     /* apply crx plugin */
-    ...crxOriginal,
-
-    /* delete artifacts from css url script */
-    deleteCssUrlsArtifacts()
+    ...crx({ manifest: mv3 as unknown as ManifestV3Export }),
   ];
 };

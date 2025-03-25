@@ -29,12 +29,6 @@ export default defineManifest({
         "src/content/content.ts",
       ],
       run_at: "document_start",
-    },
-    {
-      matches: ["https://skribbl.io/never"],
-      js: [
-        "src/worker/gif-renderer/gif-renderer.worker.ts"
-      ]
     }
   ],
   web_accessible_resources: [

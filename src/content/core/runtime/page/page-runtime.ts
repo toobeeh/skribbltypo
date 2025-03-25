@@ -2,12 +2,11 @@ import type { TypoRuntime } from "@/content/core/runtime/typo-runtime.interface"
 import { type IDBPDatabase, openDB } from "idb";
 
 export default class PageRuntime implements TypoRuntime {
-
   private readonly _db: Promise<IDBPDatabase>;
 
   constructor() {
     this._db = openDB("skribbltypo", 1, {
-      upgrade: database => {
+      upgrade: (database) => {
         database.createObjectStore("settings");
         database.createObjectStore("token");
       },
@@ -28,5 +27,9 @@ export default class PageRuntime implements TypoRuntime {
 
   async setToken(token: string | null): Promise<void> {
     await (await this._db).put("token", token, "token");
+  }
+
+  getManifest(): chrome.runtime.Manifest {
+    return "PAGE_RUNTIME_MANIFEST_PLACEHOLDER" as unknown as chrome.runtime.Manifest;
   }
 }

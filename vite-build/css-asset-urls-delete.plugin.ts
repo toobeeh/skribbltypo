@@ -6,7 +6,7 @@ import fs from "fs";
  * A plugin to remove artifacts created by the css url generator
  * @param manifest
  */
-export const deleteCssUrlsArtifacts = (): PluginOption => {
+export const deleteCssAssetUrlsArtifacts = (): PluginOption => {
   return {
     name: "delete-css-injector",
       enforce: "post",

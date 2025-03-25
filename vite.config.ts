@@ -23,8 +23,6 @@ export default defineConfig(({ mode }) => {
   const target = env.TARGET ?? "extension"; /* try to get target from env */
   const version = production ? "stable" : commit ? "beta" : "alpha";
 
-  console.log(`${env.TARGET}`);
-
   return {
     esbuild: {
       minifyIdentifiers: production,
