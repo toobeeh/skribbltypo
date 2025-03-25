@@ -6,5 +6,5 @@
     "allowSyntheticDefaultImports": true
   },
   "include": ["vite.config.ts",
-    "buildChromeExtension.plugin.ts", "src/manifest.ts", ".cssgen/css-urls.ts", "patch"]
+    "vite-build/*.ts", "src/manifest.ts", "patch"]
 }

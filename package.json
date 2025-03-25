@@ -11,8 +11,8 @@
   "scripts": {
     "dev": "vite build --watch --mode development",
     "dev-hmr": "vite",
-    "build-dev": "npm run generate:workers && npm run lint && vite build --mode development",
-    "build-prod": "npm run generate:workers && npm run lint && vite build --mode production",
+    "build-dev": "npm run generate:workers && npm run lint && cross-env TARGET=userscript  vite build --mode development",
+    "build-prod": "cross-env TARGET=extension npm run generate:workers && npm run lint && vite build --mode production",
     "fmt": "prettier --write '**/*.{svelte,ts,json,css,scss,md}'",
     "lint": "eslint . ",
     "test": "vitest --config vitest.config.ts",
@@ -31,6 +31,7 @@
     "@types/omggif": "^1.0.5",
     "@typescript-eslint/eslint-plugin": "^8.6.0",
     "@typescript-eslint/parser": "^8.6.0",
+    "cross-env": "^7.0.3",
     "esbuild": "^0.25.0",
     "eslint": "^9.11.0",
     "globals": "^15.9.0",
@@ -52,6 +53,7 @@
   "dependencies": {
     "@abraham/reflection": "^0.12.0",
     "@microsoft/signalr": "^8.0.7",
+    "idb": "^8.0.2",
     "inversify": "^6.0.2",
     "omggif": "^1.0.10",
     "reflect-metadata": "^0.2.2",

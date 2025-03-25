@@ -22,7 +22,12 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ]
+      ],
+      "runtime": [
+        /* default to page runtime */
+        "./src/content/core/runtime/page/page-runtime.ts",
+        /*"./src/content/core/runtime/page/extension-runtime.ts",*/
+      ],
     }
   },
   "include": ["src", "package.json"],

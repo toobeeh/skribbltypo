@@ -1,3 +1,4 @@
+import { typoRuntime } from "@/content/core/runtime/runtime";
 import { element, requireElement } from "@/util/document/requiredQuerySelector";
 import { BehaviorSubject, combineLatestWith, filter, firstValueFrom, map, type Observable, tap } from "rxjs";
 
@@ -85,7 +86,7 @@ export class Interceptor {
     }
 
     if(tokenParam !== null) {
-      await chrome.runtime.sendMessage({ type: "set token", token: tokenParam });
+      await typoRuntime.setToken(tokenParam);
       url.searchParams.delete("accessToken");
       window.history.replaceState({}, "", url.toString());
     }

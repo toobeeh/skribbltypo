@@ -1,6 +1,7 @@
 import { inject, injectable } from "inversify";
 import { BehaviorSubject } from "rxjs";
 import { loggerFactory } from "../logger/loggerFactory.interface";
+import { typoRuntime } from "../runtime/runtime";
 
 @injectable()
 export class TokenService {
@@ -16,7 +17,7 @@ export class TokenService {
   }
 
   private async initToken() {
-    const token = await chrome.runtime.sendMessage({ type: "get token" });
+    const token = await typoRuntime.getToken();
     this._logger.info("Authenticated", token);
     this._token.next(token);
   }
@@ -29,7 +30,7 @@ export class TokenService {
   }
 
   public async removeToken(){
-    await chrome.runtime.sendMessage({ type: "set token", token: null });
+    await typoRuntime.setToken(null);
     this._token.next(null);
   }
 }

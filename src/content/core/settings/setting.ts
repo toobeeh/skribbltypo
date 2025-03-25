@@ -1,4 +1,5 @@
 import type { TypoFeature } from "@/content/core/feature/feature";
+import { typoRuntime } from "@/content/core/runtime/runtime";
 import type { componentData } from "@/content/services/modal/modal.service";
 import { fromObservable } from "@/util/store/fromObservable";
 import { BehaviorSubject, from, of, switchMap } from "rxjs";
@@ -36,7 +37,7 @@ export class ExtensionSetting<TValue extends serializable> {
   }
 
   public async getValue(): Promise<TValue> {
-    const string = await chrome.runtime.sendMessage({ type: "get setting", key: this.globalKey });
+    const string = await typoRuntime.getSetting(this.globalKey);
     if(string === undefined || string === null) return this.defaultValue;
     const value = JSON.parse(string) as TValue;
 
@@ -48,7 +49,7 @@ export class ExtensionSetting<TValue extends serializable> {
 
   public async setValue(value: TValue) {
     const json = JSON.stringify(value);
-    await chrome.runtime.sendMessage({ type: "set setting", key: this.globalKey, value: json });
+    await typoRuntime.writeSetting(this.globalKey, json);
     this._changes.next(value);
   }
 
