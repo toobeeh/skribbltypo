@@ -32,8 +32,8 @@ const cyrb53 = (str, seed = 0) => {
     console.log("FAILED INJECTIONS\n", res.failedInjections.map(i => `Position: ${i.injection.injectionPositionRegex}\nCode: ${i.injection.injectionCode}`).join("\n\n"));
     console.log("FAILED REPLACEMENTS\n", res.failedReplacements.map(i => `Source: ${i.replacement.sourceRegex}\nTarget: ${i.replacement.targetRegex}`).join("\n\n"));
     console.log("TOTAL\n", res.failedReplacements.length, res.failedInjections.length);
-    fs.writeFileSync(`./public/failed-gamePatch-${gameHash}.js`, res.patchedCode);
+    fs.writeFileSync(`./assets/failed-gamePatch-${gameHash}.js`, res.patchedCode);
     throw new Error("Failed to apply patch");
   }
-  fs.writeFileSync(`./public/gamePatch-${gameHash}.js`, res.patchedCode);
+  fs.writeFileSync(`./assets/gamePatch-${gameHash}.js`, res.patchedCode);
 })();
