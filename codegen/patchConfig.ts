@@ -9,7 +9,7 @@ export const gameJsPatchConfig = {
         {
           source: "##CONTNAMEIN##",
           target:
-            '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\("#home \\.container-name-lang input"',
+            "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.container-name-lang input\"",
         },
         {
           source: "##SETTINGS##",
@@ -19,17 +19,17 @@ export const gameJsPatchConfig = {
         {
           source: "##BTNPLAY##",
           target:
-            '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\("#home \\.panel \\.button-play"\\)',
+            "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#home \\.panel \\.button-play\"\\)",
         },
         {
           source: "##LOADING##",
           target:
-            '([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?,\\s+.*querySelector\\(\\"#load\\"\\).style.display =',
+            "([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?,\\s+.*querySelector\\(\\\"#load\\\"\\).style.display =",
         },
         {
           source: "##GOHOME##",
           target:
-            'function ([a-zA-Z0-9&_\\-$]+)\\(\\) \\{[^}]+?data: 0\\s+?}[^}]+?\\.querySelector\\("#home"\\).style.display =',
+            "function ([a-zA-Z0-9&_\\-$]+)\\(\\) \\{[^}]+?data: 0\\s+?}[^}]+?\\.querySelector\\(\"#home\"\\).style.display =",
         },
         {
           source: "##COLORS##",
@@ -38,21 +38,21 @@ export const gameJsPatchConfig = {
         {
           source: "##SECFILL##",
           target:
-            'function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-secondary"\\).style.fill =',
+            "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-secondary\"\\).style.fill =",
         },
         {
           source: "##PRIMFILL##",
           target:
-            'function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-primary"\\).style.fill =',
+            "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {\\s+[^}]+?#color-preview-primary\"\\).style.fill =",
         },
         {
           source: "##PUSHCMD##",
           target:
-            '.getContext\\("2d", {\\s*willReadFrequently[^}]*}\\)\\s*,\\s*([a-zA-Z0-9&_\\-$]+) = \\[\\]',
+            ".getContext\\(\"2d\", {\\s*willReadFrequently[^}]*}\\)\\s*,\\s*([a-zA-Z0-9&_\\-$]+) = \\[\\]",
         },
         {
           source: "##PUSHACTION##",
-          target: '[a-zA-Z0-9&_\\-$]+\\.length, ([a-zA-Z0-9&_\\-$]+)\\.push'
+          target: "[a-zA-Z0-9&_\\-$]+\\.length, ([a-zA-Z0-9&_\\-$]+)\\.push"
         },
         {
           source: "##PERFOUTER##",
@@ -514,7 +514,7 @@ export const gameJsPatchConfig = {
         {
           source: "##COLORINDEX##",
           target:
-            '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+,\\s+?[a-zA-Z0-9&_\\-$]+\\.querySelector\\("#color-preview-primary"\\)\\.style.fill =',
+            "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+,\\s+?[a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"#color-preview-primary\"\\)\\.style.fill =",
         },
         {
           source: "##COLORS##",
@@ -529,7 +529,7 @@ export const gameJsPatchConfig = {
         {
           position:
             "(clearRect\\(0, 0, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\);)\\s+var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\s*,",
-          code: '// TYPOMOD\n// desc: cursor with custom color\nvar ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.typoCodeToRgb(##COLORINDEX##);\n// TYPOEND \npatchcode#customcursor',
+          code: "// TYPOMOD\n// desc: cursor with custom color\nvar ##COLORCODE## = ##COLORINDEX## < 10000 ? ##COLORS##[##COLORINDEX##] : typo.typoCodeToRgb(##COLORINDEX##);\n// TYPOEND \npatchcode#customcursor",
         },
         {
           position: "(\\s)var [a-zA-Z0-9&_\\-$]+ = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.cursor;",
@@ -543,19 +543,19 @@ export const gameJsPatchConfig = {
         {
           source: "##COLORCODE##",
           target:
-            '[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\("#color-preview-primary"\\)\\.style\\.fill =',
+            "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill =",
         },
         {
           source: "##SETCOLOR##",
           target:
-            ':\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\("#color-preview-primary"\\)\\.style\\.fill =',
+            ":\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill =",
         },
       ],
       injections: [
         {
           position:
-            '(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\("#color-preview-primary"\\)\\.style\\.fill =',
-          code: '##COLORCODE## > 10000 ? ##SETCOLOR##(typo.typoCodeToRgb(##COLORCODE##)) :',
+            "(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\(\"#color-preview-primary\"\\)\\.style\\.fill =",
+          code: "##COLORCODE## > 10000 ? ##SETCOLOR##(typo.typoCodeToRgb(##COLORCODE##)) :",
         },
       ],
     },
@@ -565,19 +565,19 @@ export const gameJsPatchConfig = {
         {
           source: "##COLORCODE##",
           target:
-            '[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\("#color-preview-secondary"\\)\\.style\\.fill =',
+            "[a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+), [^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill =",
         },
         {
           source: "##SETCOLOR##",
           target:
-            ':\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\("#color-preview-secondary"\\)\\.style\\.fill =',
+            ":\\s*([a-zA-Z0-9&_\\-$]+)[^}]+?;[^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill =",
         },
       ],
       injections: [
         {
           position:
-            '(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\("#color-preview-secondary"\\)\\.style\\.fill =',
-          code: '##COLORCODE## > 10000 ? ##SETCOLOR##(typo.typoCodeToRgb(##COLORCODE##)) :',
+            "(var [a-zA-Z0-9&_\\-$]+ =) [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\);[^}]+?\\.querySelector\\(\"#color-preview-secondary\"\\)\\.style\\.fill =",
+          code: "##COLORCODE## > 10000 ? ##SETCOLOR##(typo.typoCodeToRgb(##COLORCODE##)) :",
         },
       ],
     },
@@ -598,7 +598,7 @@ export const gameJsPatchConfig = {
         },
         {
           position: "([^{]+?length[^}]+?;)\\s+return {\\s+?r:[^},]+?,\\s+?g:[^},]+?,\\s+?b:",
-          code: 'else ##COLORCODE## = typo.typoCodeToRgb(##COLORCODE##);/* TYPOEND */',
+          code: "else ##COLORCODE## = typo.typoCodeToRgb(##COLORCODE##);/* TYPOEND */",
         },
       ],
     },
@@ -615,7 +615,7 @@ export const gameJsPatchConfig = {
         {
           position:
             "(for[^{]+?{[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[[\\s\\S]+?[^}]+?}[^}]*)",
-          code: '/* TYPOMOD \n         log kept commands*/\n        document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));\n        /* TYPOEND*/',
+          code: "/* TYPOMOD \n         log kept commands*/\n        document.dispatchEvent(new CustomEvent(\"logRedo\", { detail: keepCommands }));\n        /* TYPOEND*/",
         },
         {
           position:
@@ -634,7 +634,7 @@ export const gameJsPatchConfig = {
       ],
       injections: [
         {
-          position: '( ): console.log\\("IGNORED COMMAND OUT OF CANVAS BOUNDS"\\)',
+          position: "( ): console.log\\(\"IGNORED COMMAND OUT OF CANVAS BOUNDS\"\\)",
           code: `
           /* TYPOMOD  log draw commands */
           & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: ##COMMAND## }))
@@ -648,13 +648,13 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position:
-            '(function [a-zA-Z0-9&_\\-$]+?\\(\\) {)[^}]+?"#FFF",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width',
-          code: '/* TYPOMOD\n         desc: store data before clear */\n        const data = document.querySelector("#game-canvas canvas").toDataURL();\n/* TYPOEND */',
+            "(function [a-zA-Z0-9&_\\-$]+?\\(\\) {)[^}]+?\"#FFF\",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width",
+          code: "/* TYPOMOD\n         desc: store data before clear */\n        const data = document.querySelector(\"#game-canvas canvas\").toDataURL();\n/* TYPOEND */",
         },
         {
           position:
-            '("#FFF",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width[^)]+?\\))',
-          code: '/* TYPOMOD\n         desc: dispatch clear event */\n        ;document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));\n/* TYPOEND */',
+            "(\"#FFF\",\\s+[a-zA-Z0-9&_\\-$]+?\\.fillRect\\(0, 0, [a-zA-Z0-9&_\\-$]+?\\.width[^)]+?\\))",
+          code: "/* TYPOMOD\n         desc: dispatch clear event */\n        ;document.dispatchEvent(new CustomEvent(\"logCanvasClear\", { detail: data }));\n/* TYPOEND */",
         },
       ],
     },
@@ -664,16 +664,16 @@ export const gameJsPatchConfig = {
         {
           source: "##JOIN##",
           target:
-            'function ([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?\\) {[^}]+?\\.querySelector\\("#home"\\)\\.style\\.display = "none"',
+            "function ([a-zA-Z0-9&_\\-$]+?)\\([a-zA-Z0-9&_\\-$]+?\\) {[^}]+?\\.querySelector\\(\"#home\"\\)\\.style\\.display = \"none\"",
         },
         {
           source: "##SOCKET##",
-          target: '\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\("connect"',
+          target: "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\"",
         },
       ],
       injections: [
         {
-          position: '(e.classList.add\\("show"\\)\\s+})',
+          position: "(e.classList.add\\(\"show\"\\)\\s+})",
           code: `
                 /* TYPOMOD desc: add event handlers for typo features */
                 document.addEventListener("joinPractice", () => {
@@ -735,12 +735,12 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##SOCKET##",
-          target: '\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\("connect"',
+          target: "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\"",
         },
       ],
       injections: [
         {
-          position: '(\\.on\\("connect", function\\s*\\(\\) \\{)',
+          position: "(\\.on\\(\"connect\", function\\s*\\(\\) \\{)",
           code: `
                 /* TYPOMOD
                      desc: disconnect socket & leave lobby */
@@ -780,12 +780,12 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##SOCKET##",
-          target: '\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\("connect"',
+          target: "\\(([a-zA-Z0-9&_\\-$]+?) = [^\\)]+?\\)\\)\\.on\\(\"connect\"",
         },
       ],
       injections: [
         {
-          position: '(\\.on\\("disconnect", function[^{]*{)',
+          position: "(\\.on\\(\"disconnect\", function[^{]*{)",
           code: "/* TYPOMOD\n                 DESC: no msg if disconnect intentionally */\n document.dispatchEvent(new CustomEvent(\"leftLobby\"));                if(!##SOCKET##.typoDisconnect)\n                /*TYPOEND*/",
         },
       ],
@@ -796,14 +796,14 @@ export const gameJsPatchConfig = {
         {
           source: "##DATA##",
           target:
-            'The word was \'\\$\'", ([a-zA-Z0-9&_\\-$]+?)\\.data\\.word\\), "", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\)',
+            "The word was '\\$'\", ([a-zA-Z0-9&_\\-$]+?)\\.data\\.word\\), \"\", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\)",
         },
       ],
       injections: [
         {
           position:
-            '(The word was \'\\$\'", [a-zA-Z0-9&_\\-$]+?\\.data\\.word\\), "", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\))',
-          code: '/* TYPOMOD\n             desc: log finished drawing */\n            ;document.dispatchEvent(new CustomEvent("drawingFinished", { detail: ##DATA##.data.word }));\n            /* TYPOEND */',
+            "(The word was '\\$'\", [a-zA-Z0-9&_\\-$]+?\\.data\\.word\\), \"\", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\))",
+          code: "/* TYPOMOD\n             desc: log finished drawing */\n            ;document.dispatchEvent(new CustomEvent(\"drawingFinished\", { detail: ##DATA##.data.word }));\n            /* TYPOEND */",
         },
       ],
     },
@@ -820,7 +820,7 @@ export const gameJsPatchConfig = {
         {
           position:
             "(switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)[^}]*joined the room!",
-          code: '/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: ##EVENT## }));\n                /* TYPOEND*/',
+          code: "/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent(\"lobbyConnected\", { detail: ##EVENT## }));\n                /* TYPOEND*/",
         },
       ],
     },
@@ -829,13 +829,13 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##PLAYER##",
-          target: '([a-zA-Z0-9&_\\-$]+?)\\.element, "click"',
+          target: "([a-zA-Z0-9&_\\-$]+?)\\.element, \"click\"",
         },
       ],
       injections: [
         {
-          position: '(\\("icon muted"\\);)',
-          code: '/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute("playerid", ##PLAYER##.id);\n        /* TYPOEND */',
+          position: "(\\(\"icon muted\"\\);)",
+          code: "/* TYPOMOD\n         desc: set ID to player to identify */\n        ##PLAYER##.element.setAttribute(\"playerid\", ##PLAYER##.id);\n        /* TYPOEND */",
         },
       ],
     },
@@ -845,8 +845,8 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position:
-            '("submit", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+[a-zA-Z0-9&_\\-$]+\\.preventDefault',
-          code: 'const input = this.querySelector("input"); let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; this.dispatchEvent(new Event("submit"));},180);',
+            "(\"submit\", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+[a-zA-Z0-9&_\\-$]+\\.preventDefault",
+          code: "const input = this.querySelector(\"input\"); let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; this.dispatchEvent(new Event(\"submit\"));},180);",
         },
       ],
     },
@@ -939,7 +939,7 @@ export const gameJsPatchConfig = {
       replacements: [],
       injections: [
         {
-          position: '("click",) function[^}]+\\.location\\.href',
+          position: "(\"click\",) function[^}]+\\.location\\.href",
           code: "typo.joinLobby = ",
         },
       ],
@@ -950,7 +950,7 @@ export const gameJsPatchConfig = {
       injections: [
         {
           position: "([a-zA-Z0-9&_\\-$]+\\.location\\.href,)",
-          code: `typo.lastConnect = Date.now(),`,
+          code: "typo.lastConnect = Date.now(),",
         },
       ],
     },
@@ -996,13 +996,13 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##PLAYER##",
-          target: '\\(([a-zA-Z0-9&_\\-$]+)\\.name, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\), !1\\)',
+          target: "\\(([a-zA-Z0-9&_\\-$]+)\\.name, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\), !1\\)",
         },
       ],
       injections: [
         {
-          position: '(\\([a-zA-Z0-9&_\\-$]+\\.name, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\), !1\\))',
-          code: `.setAttribute("playerid", ##PLAYER##.id)`,
+          position: "(\\([a-zA-Z0-9&_\\-$]+\\.name, [a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\), !1\\))",
+          code: ".setAttribute(\"playerid\", ##PLAYER##.id)",
         },
       ],
     },
@@ -1011,8 +1011,8 @@ export const gameJsPatchConfig = {
       replacements: [ ],
       injections: [
         {
-          position: '\\)(\\s+)}\\)\\(window, document,',
-          code: `;document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");`,
+          position: "\\)(\\s+)}\\)\\(window, document,",
+          code: ";document.dispatchEvent(new Event(\"skribblInitialized\")); document.body.setAttribute(\"typo-skribbl-loaded\", \"true\");",
         },
       ],
     },
@@ -1021,13 +1021,13 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##TOOLID##",
-          target: 'function [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+), [a-zA-Z0-9&_\\-$]+\\) {\\s+\\/\\*toolidtarget',
+          target: "function [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+), [a-zA-Z0-9&_\\-$]+\\) {\\s+\\/\\*toolidtarget",
         },
       ],
       injections: [
         {
-          position: 'function [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\) {(\\s+[a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.element\\))',
-          code: `/*toolidtarget*/ document.dispatchEvent(new CustomEvent("skribblToolChanged", {detail: ##TOOLID##}));`,
+          position: "function [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+, [a-zA-Z0-9&_\\-$]+\\) {(\\s+[a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\.element\\))",
+          code: "/*toolidtarget*/ document.dispatchEvent(new CustomEvent(\"skribblToolChanged\", {detail: ##TOOLID##}));",
         },
       ],
     },
@@ -1036,13 +1036,13 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##SIZE##",
-          target: '\\.querySelector\\("\\.size-preview \\.icon"\\)\\.style\\.backgroundSize = [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+)\\) \\+ "%"',
+          target: "\\.querySelector\\(\"\\.size-preview \\.icon\"\\)\\.style\\.backgroundSize = [a-zA-Z0-9&_\\-$]+\\(([a-zA-Z0-9&_\\-$]+)\\) \\+ \"%\"",
         },
       ],
       injections: [
         {
-          position: '([a-zA-Z0-9&_\\-$]+\\.querySelector\\("\\.size-preview \\.icon"\\)\\.style\\.backgroundSize = [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\) \\+ "%",)',
-          code: `document.dispatchEvent(new CustomEvent("skribblSizeChanged", { detail: ##SIZE## })),`,
+          position: "([a-zA-Z0-9&_\\-$]+\\.querySelector\\(\"\\.size-preview \\.icon\"\\)\\.style\\.backgroundSize = [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+\\) \\+ \"%\",)",
+          code: "document.dispatchEvent(new CustomEvent(\"skribblSizeChanged\", { detail: ##SIZE## })),",
         },
       ],
     },
@@ -1051,13 +1051,13 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##COLOR##",
-          target: '"#color-preview-primary"\\).style\\.fill = ([a-zA-Z0-9&_\\-$]+)',
+          target: "\"#color-preview-primary\"\\).style\\.fill = ([a-zA-Z0-9&_\\-$]+)",
         },
       ],
       injections: [
         {
-          position: '("#color-preview-primary"\\).style\\.fill = [a-zA-Z0-9&_\\-$]+)',
-          code: `, document.dispatchEvent(new CustomEvent("skribblColorChanged", {detail: ##COLOR##}))`,
+          position: "(\"#color-preview-primary\"\\).style\\.fill = [a-zA-Z0-9&_\\-$]+)",
+          code: ", document.dispatchEvent(new CustomEvent(\"skribblColorChanged\", {detail: ##COLOR##}))",
         },
       ],
     },
@@ -1066,29 +1066,29 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##ELEMENT1##",
-          target: '([a-zA-Z0-9&_\\-$]+)\\.classList\\.add\\("winner\\"\\),',
+          target: "([a-zA-Z0-9&_\\-$]+)\\.classList\\.add\\(\"winner\\\"\\),",
         },
         {
           source: "##RESULT1##",
-          target: '([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\)\\.player\\.avatar,',
+          target: "([a-zA-Z0-9&_\\-$]+) = [a-zA-Z0-9&_\\-$]+\\[[a-zA-Z0-9&_\\-$]+\\]\\)\\.player\\.avatar,",
         },
         {
           source: "##ELEMENT2##",
-          target: '\\/\\*elemanchor\\*\\/\\s*([a-zA-Z0-9&_\\-$]+)',
+          target: "\\/\\*elemanchor\\*\\/\\s*([a-zA-Z0-9&_\\-$]+)",
         },
         {
           source: "##RESULT2##",
-          target: '"rank-name", ([a-zA-Z0-9&_\\-$]+)\\.player\\.name\\)\\),',
+          target: "\"rank-name\", ([a-zA-Z0-9&_\\-$]+)\\.player\\.name\\)\\),",
         },
       ],
       injections: [
         {
-          position: '( )0 == [a-zA-Z0-9&_\\-$]+ && \\([a-zA-Z0-9&_\\-$]+\\.classList\\.add\\("winner\\"\\),',
-          code: `##ELEMENT1##.setAttribute("playerid", ##RESULT1##.player.id),`,
+          position: "( )0 == [a-zA-Z0-9&_\\-$]+ && \\([a-zA-Z0-9&_\\-$]+\\.classList\\.add\\(\"winner\\\"\\),",
+          code: "##ELEMENT1##.setAttribute(\"playerid\", ##RESULT1##.player.id),",
         },
         {
-          position: '("rank-name", [a-zA-Z0-9&_\\-$]+\\.player\\.name\\)\\),)',
-          code: `##ELEMENT2##.setAttribute("playerid", ##RESULT2##.player.id), /*elemanchor*/`,
+          position: "(\"rank-name\", [a-zA-Z0-9&_\\-$]+\\.player\\.name\\)\\),)",
+          code: "##ELEMENT2##.setAttribute(\"playerid\", ##RESULT2##.player.id), /*elemanchor*/",
         },
       ],
     },
@@ -1097,17 +1097,17 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##PLAYER##",
-          target: '[a-zA-Z0-9&_\\-$]+ = \\([a-zA-Z0-9&_\\-$]+\\.style.display = ([a-zA-Z0-9&_\\-$]+)\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\)',
+          target: "[a-zA-Z0-9&_\\-$]+ = \\([a-zA-Z0-9&_\\-$]+\\.style.display = ([a-zA-Z0-9&_\\-$]+)\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\)",
         },
         {
           source: "##ELEMENT##",
-          target: '([a-zA-Z0-9&_\\-$]+) = \\([a-zA-Z0-9&_\\-$]+\\.style.display = [a-zA-Z0-9&_\\-$]+\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\)',
+          target: "([a-zA-Z0-9&_\\-$]+) = \\([a-zA-Z0-9&_\\-$]+\\.style.display = [a-zA-Z0-9&_\\-$]+\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\)",
         },
       ],
       injections: [
         {
-          position: '([a-zA-Z0-9&_\\-$]+ = \\([a-zA-Z0-9&_\\-$]+\\.style.display = [a-zA-Z0-9&_\\-$]+\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\))',
-          code: `; /*id in popup*/ ##ELEMENT##.setAttribute("playerid", ##PLAYER##.id);`,
+          position: "([a-zA-Z0-9&_\\-$]+ = \\([a-zA-Z0-9&_\\-$]+\\.style.display = [a-zA-Z0-9&_\\-$]+\\.id[\\s\\S]*?button\\.report[\\s\\S]*?\\.avatar\\)\\))",
+          code: "; /*id in popup*/ ##ELEMENT##.setAttribute(\"playerid\", ##PLAYER##.id);",
         },
       ],
     },
@@ -1116,17 +1116,17 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##PLAYER##",
-          target: 'overlayanchor\\*\\/ \\? ([a-zA-Z0-9&_\\-$]+)',
+          target: "overlayanchor\\*\\/ \\? ([a-zA-Z0-9&_\\-$]+)",
         },
         {
           source: "##ELEMENT##",
-          target: '"", ([a-zA-Z0-9&_\\-$]+)\\.appendChild[\\s\\S]+is choosing a word![\\s\\S]+overlayanchor',
+          target: "\"\", ([a-zA-Z0-9&_\\-$]+)\\.appendChild[\\s\\S]+is choosing a word![\\s\\S]+overlayanchor",
         },
       ],
       injections: [
         {
-          position: '(, [a-zA-Z0-9&_\\-$]+\\.appendChild[\\s\\S]+is choosing a word!", [a-zA-Z0-9&_\\-$]+\\)\\)\\), [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+) ',
-          code: `&& (##ELEMENT##.setAttribute("playerid", ##PLAYER##.id) || true) /*overlayanchor*/ `,
+          position: "(, [a-zA-Z0-9&_\\-$]+\\.appendChild[\\s\\S]+is choosing a word!\", [a-zA-Z0-9&_\\-$]+\\)\\)\\), [a-zA-Z0-9&_\\-$]+\\([a-zA-Z0-9&_\\-$]+) ",
+          code: "&& (##ELEMENT##.setAttribute(\"playerid\", ##PLAYER##.id) || true) /*overlayanchor*/ ",
         },
       ],
     },
@@ -1136,8 +1136,8 @@ export const gameJsPatchConfig = {
       ],
       injections: [
         {
-          position: '(performance\\.now\\(\\);\\s*if\\s*\\()',
-          code: `document.body.dataset.bypassFps !== 'true' &&`,
+          position: "(performance\\.now\\(\\);\\s*if\\s*\\()",
+          code: "document.body.dataset.bypassFps !== 'true' &&",
         },
       ],
     },
@@ -1147,8 +1147,8 @@ export const gameJsPatchConfig = {
       ],
       injections: [
         {
-          position: '(\\)\\)\\s*\\},\\s*)\\d+\\)',
-          code: `document.body.dataset.bypassCommandRate === 'true' ? 0 :`,
+          position: "(\\)\\)\\s*\\},\\s*)\\d+\\)",
+          code: "document.body.dataset.bypassCommandRate === 'true' ? 0 :",
         },
       ],
     },
@@ -1158,8 +1158,8 @@ export const gameJsPatchConfig = {
       ],
       injections: [
         {
-          position: '(\s*)console\\.log\\(`Sent',
-          code: `false && `,
+          position: "(\s*)console\\.log\\(`Sent",
+          code: "false && ",
         },
       ],
     },
@@ -1169,7 +1169,7 @@ export const gameJsPatchConfig = {
       ],
       injections: [
         {
-          position: '(\\s*)[a-zA-Z0-9&_\\-$]+\\.playSound[^\\$]*\\$ is drawing now!\\", ',
+          position: "(\\s*)[a-zA-Z0-9&_\\-$]+\\.playSound[^\\$]*\\$ is drawing now!\\\", ",
           code: `
             typo.msi.reset(),
             typo.msiColorSwitch.currentCode = undefined,
@@ -1182,17 +1182,17 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "##CMDBATCH##",
-          target: 'case [a-zA-Z0-9&_\\-$]+:\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; [a-zA-Z0-9&_\\-$]+ < ([a-zA-Z0-9&_\\-$]+)\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+',
+          target: "case [a-zA-Z0-9&_\\-$]+:\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; [a-zA-Z0-9&_\\-$]+ < ([a-zA-Z0-9&_\\-$]+)\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+",
         },
         {
           source: "##CMDINDEX##",
-          target: 'case [a-zA-Z0-9&_\\-$]+:\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; ([a-zA-Z0-9&_\\-$]+) < [a-zA-Z0-9&_\\-$]+\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+',
+          target: "case [a-zA-Z0-9&_\\-$]+:\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; ([a-zA-Z0-9&_\\-$]+) < [a-zA-Z0-9&_\\-$]+\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+",
         },
       ],
       injections: [
         {
-          position: '(case [a-zA-Z0-9&_\\-$]+:\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; [a-zA-Z0-9&_\\-$]+ < [a-zA-Z0-9&_\\-$]+\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+\\))',
-          code: `##CMDBATCH##[##CMDINDEX##] = typo.msi.processIncomingCommand(##CMDBATCH##[##CMDINDEX##]), ##CMDBATCH##[##CMDINDEX##] !== undefined && `,
+          position: "(case [a-zA-Z0-9&_\\-$]+:\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; [a-zA-Z0-9&_\\-$]+ < [a-zA-Z0-9&_\\-$]+\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+\\))",
+          code: "##CMDBATCH##[##CMDINDEX##] = typo.msi.processIncomingCommand(##CMDBATCH##[##CMDINDEX##]), ##CMDBATCH##[##CMDINDEX##] !== undefined && ",
         },
       ],
     },
@@ -1201,7 +1201,7 @@ export const gameJsPatchConfig = {
       replacements: [
         {
           source: "originalEmit\\(\\.\\.\\.event\\);",
-          target: '(\\s)',
+          target: "(\\s)",
         },
         {
           source: "##CMDSENTINDEX##",
@@ -1210,16 +1210,16 @@ export const gameJsPatchConfig = {
         },
         {
           source: "##CMDEVENTID##",
-          target: 'case ([a-zA-Z0-9&_\\-$]+):\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; [a-zA-Z0-9&_\\-$]+ < [a-zA-Z0-9&_\\-$]+\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+\\)',
+          target: "case ([a-zA-Z0-9&_\\-$]+):\\s*for \\(var [a-zA-Z0-9&_\\-$]+ = 0; [a-zA-Z0-9&_\\-$]+ < [a-zA-Z0-9&_\\-$]+\\.length; [a-zA-Z0-9&_\\-$]+\\+\\+\\)",
         },
         {
           source: "##UNDOEVENTID##",
-          target: '"undo\\.gif"[^}]+"data", {\\s+id: ([a-zA-Z0-9&_\\-$]+)',
+          target: "\"undo\\.gif\"[^}]+\"data\", {\\s+id: ([a-zA-Z0-9&_\\-$]+)",
         },
       ],
       injections: [
         {
-          position: `postMessage\\([a-zA-Z0-9&_\\-$]+\\);\\s+(originalEmit\\(\\.\\.\\.event\\);)`,
+          position: "postMessage\\([a-zA-Z0-9&_\\-$]+\\);\\s+(originalEmit\\(\\.\\.\\.event\\);)",
           code: `  
             const {data, id} = event[1];
     
@@ -1258,12 +1258,12 @@ export const gameJsPatchConfig = {
       replacements: [],
       injections: [
         {
-          position: '}(\\s*)[a-zA-Z0-9&_\\-$]+\\({\\s*success: !1',
-          code: `document.dispatchEvent(new CustomEvent("joinLobbyFailed")) & `,
+          position: "}(\\s*)[a-zA-Z0-9&_\\-$]+\\({\\s*success: !1",
+          code: "document.dispatchEvent(new CustomEvent(\"joinLobbyFailed\")) & ",
         },
         {
-          position: '(\\s+)switch \\(([a-zA-Z0-9&_\\-$]+)\\)[^"]+"Room not found!',
-          code: `document.dispatchEvent(new CustomEvent("joinLobbyFailed")); `,
+          position: "(\\s+)switch \\(([a-zA-Z0-9&_\\-$]+)\\)[^\"]+\"Room not found!",
+          code: "document.dispatchEvent(new CustomEvent(\"joinLobbyFailed\")); ",
         },
       ],
     },
