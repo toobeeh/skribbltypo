@@ -16,8 +16,8 @@
     "fmt": "prettier --write '**/*.{svelte,ts,json,css,scss,md}'",
     "lint": "eslint . ",
     "test": "vitest --config vitest.config.ts",
-    "generate:patch": "npx tsx patch/executePatch.ts",
-    "generate:workers": "npx tsx patch/generateWorkers.ts",
+    "generate:patch": "npx tsx codegen/executePatch.ts",
+    "generate:workers": "npx tsx codegen/generateWorkers.ts",
     "generate:api": "openapi-generator-cli generate -i https://api.typo.rip/openapi.json -g typescript-fetch -o src/api/ -p=removeOperationIdPrefix=true",
     "generate:signalr": "dotnet tsrts --project C:/Users/tobeh/repos/Avallone/tobeh.Avallone.Server/tobeh.Avallone.Server.csproj --output src/signalr"
   },
@@ -28,6 +28,7 @@
     "@sveltejs/vite-plugin-svelte": "3.1.2",
     "@types/chrome": "^0.0.246",
     "@types/js-beautify": "^1.14.3",
+    "@types/node": "^22.13.13",
     "@types/omggif": "^1.0.5",
     "@typescript-eslint/eslint-plugin": "^8.6.0",
     "@typescript-eslint/parser": "^8.6.0",
