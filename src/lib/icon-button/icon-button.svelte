@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { tooltipAction } from "@/content/core/feature/feature";
-  import type { tooltipParams } from "@/content/core/tooltips/tooltips.service";
+  import type { tooltipAction } from "@/app/core/feature/feature";
+  import type { tooltipParams } from "@/app/core/tooltips/tooltips.service";
   import { Subject } from "rxjs";
 
   export let disabled: boolean = false;

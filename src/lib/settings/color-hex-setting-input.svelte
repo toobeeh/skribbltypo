@@ -1,6 +1,6 @@
 <script lang="ts">
 
-  import type { ExtensionSetting } from "@/content/core/settings/setting";
+  import type { ExtensionSetting } from "@/app/core/settings/setting";
   import ColorPickerButton from "@/lib/color-picker/color-picker-button.svelte";
   import { Color } from "@/util/color";
   import { onMount } from "svelte";

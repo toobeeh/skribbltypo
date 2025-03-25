@@ -1,4 +1,4 @@
-import type { lobbyInteractedEvent } from "@/content/events/lobby-interacted.event";
+import type { lobbyInteractedEvent } from "@/app/events/lobby-interacted.event";
 
 
 export const parseSkribblLobbyInteractedEvent = (data: any): lobbyInteractedEvent | undefined => { // eslint-disable-line @typescript-eslint/no-explicit-any

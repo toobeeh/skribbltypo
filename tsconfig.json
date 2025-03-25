@@ -25,12 +25,12 @@
       ],
       "runtime": [
         /* default to page runtime */
-        "./src/content/core/runtime/page/page-runtime.ts",
-        /*"./src/content/core/runtime/page/extension-runtime.ts",*/
+        "./src/runtime/page/page-runtime.ts",
+        /*"./src/runtime/page/extension-runtime.ts",*/
       ],
     }
   },
   "include": ["src", "package.json"],
-  "exclude": ["node_modules", "dist", "public", "src/manifest.ts"],
+  "exclude": ["node_modules", "dist", "assets", "src/manifest.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

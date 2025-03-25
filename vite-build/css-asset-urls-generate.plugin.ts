@@ -20,16 +20,16 @@ export const generateCssAssetUrlsArtifacts = (manifest: chrome.runtime.ManifestV
         if (typeof resource === "string") {
 
           // If it's a glob pattern, resolve it
-          const globPattern = path.resolve(__dirname, "../public", resource).replace(/\\/g, "/");
+          const globPattern = path.resolve(__dirname, "../assets", resource).replace(/\\/g, "/");
           const files = fg.sync(globPattern);
           resolvedFiles.push(...files.map(file => path.relative(path.resolve(__dirname, "public"), file)));
         } else if (Array.isArray(resource.resources)) {
 
           // Handle patterns within objects (e.g., resource arrays)
           for (const pattern of resource.resources) {
-            const globPattern = path.resolve(__dirname, "../public", pattern).replace(/\\/g, "/");
+            const globPattern = path.resolve(__dirname, "../assets", pattern).replace(/\\/g, "/");
             const files = fg.sync(globPattern);
-            resolvedFiles.push(...files.map(file => path.relative(path.resolve(__dirname, "../public"), file)));
+            resolvedFiles.push(...files.map(file => path.relative(path.resolve(__dirname, "../assets"), file)));
           }
         }
       }

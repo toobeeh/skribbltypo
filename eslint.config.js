@@ -12,7 +12,7 @@ export default tseslint.config(
       globals: globals.browser,/* parserOptions: { project: "./tsconfig.json" }*/
   }},
   {files: ["**!/!*.{ts,svelte}"]},
-  {ignores: ["dist/**/*", "node_modules/**/*", "eslint.config.js", "public", "src/api/**/*", "patch"]},
+  {ignores: ["dist/**/*", "node_modules/**/*", "eslint.config.js", "assets", "src/api/**/*", "patch"]},
   {rules: {
       "semi": "error",
       "grouped-accessor-pairs": "error",

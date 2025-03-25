@@ -1,4 +1,4 @@
-import type { serializable } from "@/content/core/settings/setting";
+import type { serializable } from "@/app/core/settings/setting";
 import type { Mutable } from "@/util/types/mutable";
 import { themeColors } from "@/util/typo/themes/colors";
 

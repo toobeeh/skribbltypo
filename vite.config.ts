@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => {
     },
     test: {
     },
-    publicDir: "public",
+    publicDir: "assets",
     build: {
       sourcemap: true,
       emptyOutDir: true,
@@ -61,7 +61,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),
-        "runtime": path.resolve(__dirname, `src/content/core/runtime/${target === "extension" ? "extension" : "page"}/${target === "extension" ? "extension" : "page"}-runtime.ts`),
+        "runtime": path.resolve(__dirname, `src/runtime/${target === "extension" ? "extension" : "page"}/${target === "extension" ? "extension" : "page"}-runtime.ts`),
       },
     },
   };

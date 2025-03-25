@@ -14,11 +14,11 @@ export default defineManifest({
     128: "icons/128MaxFit.png",
   },
   action: {
-    default_popup: "popup.html",
+    default_popup: "src/runtime/extension/popup/popup.html",
     default_icon: "icons/128MaxFit.png",
   },
   background: {
-    service_worker: "src/background/background.ts",
+    service_worker: "src/runtime/extension/background/background.ts",
     type: "module",
   },
   content_scripts: [
@@ -26,7 +26,7 @@ export default defineManifest({
       matches: ["https://skribbl.io/*"],
       js: [
         "src/loader/loader.ts",
-        "src/content/content.ts",
+        "src/app/app.ts",
       ],
       run_at: "document_start",
     }

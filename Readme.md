@@ -37,14 +37,13 @@ Although it resides in a separate folder, it should be taken care that vite and 
 The project is divided into folders for the type of extension script and utilities:  
 ```
 src
-├──content        -- content script sources
+├──app        -- application sources
 │   ├──core
 │   ├──services
 │   ├──setups
 │   ├──events
 │   └──features
-├──background     -- background script sources
-├──popup          -- popup page sources
+├──runtime        -- implementation for the current browser context runtime and specific features
 │ 
 ├──api            -- generated api client
 ├──worker         -- background worker implementations
