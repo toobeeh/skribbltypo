@@ -22,17 +22,17 @@ jobs:
       - name: Build chrome extension in dev mode
         env:
           TARGET: chrome
-        run: npm run build-dev && mkdir -p ../builds/chrome &&  cp -r dist ../builds/chrome
+        run: npm run build-dev && mkdir -p ../builds/chrome &&  cp -r dist/* ../builds/chrome
 
       - name: Build firefox extension in dev mode
         env:
           TARGET: firefox
-        run: npm run build-dev && mkdir -p ../builds/firefox && cp -r dist ../builds/firefox
+        run: npm run build-dev && mkdir -p ../builds/firefox && cp -r dist/* ../builds/firefox
 
       - name: Build userscript in dev mode
         env:
           TARGET: userscript
-        run: npm run build-dev && mkdir -p ../builds/userscript &&  cp -r dist ../builds/userscript
+        run: npm run build-dev && mkdir -p ../builds/userscript &&  cp -r dist/* ../builds/userscript
 
       - name: Push to nightly repo
         uses: s0/git-publish-subdir-action@develop
