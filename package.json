@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "vite build --watch --mode development",
     "dev-hmr": "vite",
-    "build-dev": "npm run generate:workers && npm run lint && cross-env TARGET=userscript vite build --mode development",
+    "build-dev": "npm run generate:workers && npm run lint && vite build --mode development",
     "build-prod": "npm run generate:workers && npm run lint && vite build --mode production",
     "build-prod-userscript": "npm run generate:workers && npm run lint && cross-env TARGET=userscript vite build --mode production",
     "build-prod-chrome": "cross-env TARGET=extension npm run generate:workers && cross-env TARGET=chrome npm run lint && vite build --mode production",
