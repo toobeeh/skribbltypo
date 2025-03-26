@@ -117,9 +117,7 @@
 
   .typo-onboarding-wrapper {
     display: flex;
-    width: 100%;
     align-items: center;
-    overflow: auto;
     flex-direction: column;
     margin: 1rem;
   }

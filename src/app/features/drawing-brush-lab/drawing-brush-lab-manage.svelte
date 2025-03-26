@@ -26,7 +26,7 @@
 
     display: grid;
     grid-template-columns: auto 1fr;
-    height: 100%;
+    flex-grow: 1;
     width: 100%;
     padding: 1rem 2rem;
     gap: 2rem;

@@ -16,17 +16,16 @@
 
 <style lang="scss">
 
-  .typo-scene-picker {
+  .typo-sprite-picker {
     display: flex;
     flex-direction: column;
-    height: 100%;
     width: 100%;
     align-items: center;
     gap: 2rem;
     margin-bottom: 2rem;
     overflow: auto;
 
-    .typo-scene-picker-list {
+    .typo-sprite-picker-list {
       flex-grow: 1;
       width: 100%;
       overflow: auto;
@@ -35,7 +34,7 @@
       gap: 1rem;
       padding: 0 2rem;
 
-      .typo-scene-picker-scene {
+      .typo-sprite-picker-scene {
         background-color: var(--COLOR_PANEL_BG);
         border-radius: 5px;
         display: flex;
@@ -50,7 +49,7 @@
           transform: scale(0.9);
         }
 
-        .typo-scene-picker-scene-thumb{
+        .typo-sprite-picker-scene-thumb{
           width: 5rem;
           aspect-ratio: 1;
           background-size: cover;
@@ -67,25 +66,25 @@
 
 </style>
 
-<div class="typo-scene-picker">
+<div class="typo-sprite-picker">
 
   <span>
     Choose a sprite from your inventory which will be used on the selected slot.<br>
     You can only choose sprites that are not already in use.
   </span>
 
-  <div class="typo-scene-picker-list color-scrollbar">
+  <div class="typo-sprite-picker-list color-scrollbar">
 
-    <div class="typo-scene-picker-scene" on:click={() => onPick(null)}>
-      <div class="typo-scene-picker-scene-thumb"></div>
+    <div class="typo-sprite-picker-scene" on:click={() => onPick(null)}>
+      <div class="typo-sprite-picker-scene-thumb"></div>
       <span>Empty</span>
     </div>
 
     {#each inventory as sprite}
       {#if sprite.slot === undefined}
 
-        <div class="typo-scene-picker-scene" on:click={() => onPick(spritesMap.get(sprite.spriteId))} style="order: {sprite.spriteId}">
-          <div class="typo-scene-picker-scene-thumb"
+        <div class="typo-sprite-picker-scene" on:click={() => onPick(spritesMap.get(sprite.spriteId))} style="order: {sprite.spriteId}">
+          <div class="typo-sprite-picker-scene-thumb"
                style="background-image: url({spritesMap.get(sprite.spriteId)?.url})"></div>
           <span>#{spritesMap.get(sprite.spriteId)?.id}</span>
           <span>{spritesMap.get(sprite.spriteId)?.name}</span>

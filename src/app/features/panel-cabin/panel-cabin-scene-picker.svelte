@@ -19,7 +19,6 @@
   .typo-scene-picker {
     display: flex;
     flex-direction: column;
-    height: 100%;
     width: 100%;
     align-items: center;
     gap: 2rem;
@@ -38,11 +37,11 @@
 
       .typo-scene-picker-scene {
         background-color: var(--COLOR_PANEL_BG);
-        border-radius: 5px;
+        border-radius: 3px;
         display: flex;
         flex-direction: column;
         gap: .1rem;
-        padding: .1rem;
+        padding: .4rem;
         align-items: center;
         cursor: pointer;
         transition: transform .1s;
@@ -51,17 +50,26 @@
           transform: scale(0.9);
         }
 
-        .typo-scene-picker-scene-thumb{
+        .typo-scene-picker-scene-thumb {
           width: 20rem;
           max-width: 90%;
           aspect-ratio: 3;
           background-size: cover;
+          border-radius: 3px;
         }
 
         span {
           font-size: .9rem;
           opacity: .9;
           text-align: center;
+
+          &.id {
+            opacity: .5;
+          }
+
+          &.name {
+            font-weight: bold;
+          }
         }
       }
     }
@@ -89,8 +97,8 @@
         <div class="typo-scene-picker-scene" on:click={() => onPick(scenesMap.get(scene.sceneId), scene.sceneShift)} style="order: {scene.sceneId}">
           <div class="typo-scene-picker-scene-thumb"
                style="background-image: url({feature.getItemThumbnailUrl(scenesMap.get(scene.sceneId), scene.sceneShift)})"></div>
-          <span>#{scenesMap.get(scene.sceneId)?.id} / {scene.sceneShift}</span>
-          <span>{scenesMap.get(scene.sceneId)?.themes.find(t => t.shift === scene.sceneShift)?.name}</span>
+          <span class="id">#{scenesMap.get(scene.sceneId)?.id} (color #{scene.sceneShift})</span>
+          <span class="name">{scenesMap.get(scene.sceneId)?.themes.find(t => t.shift === scene.sceneShift)?.name}</span>
         </div>
 
       <!-- regular scene -->
@@ -98,8 +106,8 @@
         <div class="typo-scene-picker-scene" on:click={() => onPick(scenesMap.get(scene.sceneId), undefined)} style="order: {scene.sceneId}">
           <div class="typo-scene-picker-scene-thumb"
                style="background-image: url({scenesMap.get(scene.sceneId)?.url})"></div>
-          <span>#{scenesMap.get(scene.sceneId)?.id}</span>
-          <span>{scenesMap.get(scene.sceneId)?.name}</span>
+          <span class="id">#{scenesMap.get(scene.sceneId)?.id}</span>
+          <span class="name">{scenesMap.get(scene.sceneId)?.name}</span>
         </div>
       {/if}
     {/each}

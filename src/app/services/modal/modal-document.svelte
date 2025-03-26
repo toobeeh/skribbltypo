@@ -15,6 +15,10 @@
 
 <style lang="scss">
 
+  :global(body):has(.typo-modal) {
+    overflow: hidden;
+  }
+
   @keyframes slideIn {
     from {
       transform: translateY(50vh);
@@ -95,6 +99,16 @@
         }
       }
     }
+
+    .content-wrapper {
+      overscroll-behavior: none;
+      display: flex;
+      flex-direction: column;
+      overflow-y: scroll;
+      width: 100%;
+      align-items: center;
+      flex-grow: 1;
+    }
   }
 
   div.content-top {
@@ -131,7 +145,7 @@
 <div class="backdrop" role="presentation" class:closing={closing} on:click={() => close()}></div>
 <div class="content-top" role="presentation" class:closing={closing} on:click={() => close()}></div>
 
-<div class="content" class:closing={closing}>
+<div class="content typo-modal" class:closing={closing}>
   
   <div class="content-title">
     <div></div>
@@ -139,5 +153,7 @@
     <div role="button" tabindex="0" class:closing={closing} on:keypress={(e) => e.key === "Alt" && close()} on:click={() => close()}>×</div>
   </div>
 
-  <svelte:component this={componentData.componentType} {...componentData.props} />
+  <div class="content-wrapper color-scrollbar">
+    <svelte:component this={componentData.componentType} {...componentData.props} />
+  </div>
 </div>

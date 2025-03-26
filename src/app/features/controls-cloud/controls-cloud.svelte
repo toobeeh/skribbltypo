@@ -53,7 +53,7 @@
     padding-left: 2rem;
     padding-right: 2rem;
     padding-top: 2rem;
-    height: 100%;
+    flex-grow: 1;
     overflow: hidden;
 
     h3 {
