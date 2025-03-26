@@ -49,7 +49,7 @@ export class ControlsSettingsFeature extends TypoFeature {
         hoverMove: false,
         size: "48px",
         icon: "file-img-wrench-gif",
-        name: "Typo Settings",
+        name: "Typo Features",
         order: 1,
         tooltipAction: this.createTooltip
       },
@@ -71,7 +71,7 @@ export class ControlsSettingsFeature extends TypoFeature {
     this._modalService.showModal(
       settingsComponent.componentType,
       settingsComponent.props,
-      "Typo Settings",
+      "Typo Features",
     );
   }
 

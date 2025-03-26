@@ -44,6 +44,8 @@ src
 │   ├──events
 │   └──features
 ├──runtime        -- implementation for the current browser context runtime and specific features
+│   ├──page       -- runtime and entrypoint for userscript environment
+│   └──extension  -- runtime, background page and popup for extension environment
 │ 
 ├──api            -- generated api client
 ├──worker         -- background worker implementations
@@ -52,11 +54,12 @@ src
 └──util           -- utility functions
 ```
 
-### Content Script
-The content script is the main part of the extension, which interacts with the skribbl.io page.  
-It has the most complex structure; divided into *core*, *setup*, *events* and *features*.  
+### Application
+The app.ts is the entry point of the application, which interacts with the skribbl.io page.  
+For clean development, the architecture is divided into *core*, *setup*, *services*, *events* and *features*.  
 - *core* contains services and abstractions that are used throughout the application
 - *setup* contains modules that are responsible for setting up dependencies for the application
+- *services* contains services that can establish shared state and functionality for features
 - *events* contains modules that process events on the page
 - *features* contains modules that implement specific features on the page
 

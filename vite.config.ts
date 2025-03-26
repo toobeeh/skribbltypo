@@ -66,6 +66,7 @@ export default defineConfig(({ mode }) => {
     },
     publicDir: "assets",
     build: {
+      minify: production,
       sourcemap: true,
       emptyOutDir: true,
       outDir: "dist",
