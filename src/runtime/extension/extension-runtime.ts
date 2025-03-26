@@ -1,4 +1,4 @@
-import type { TypoRuntime } from "@/runtime/typo-runtime.interface";
+import type { typoReleaseDetails, TypoRuntime } from "@/runtime/typo-runtime.interface";
 
 export default class ExtensionRuntime implements TypoRuntime {
   getSetting(key: string): Promise<string | null> {
@@ -17,7 +17,16 @@ export default class ExtensionRuntime implements TypoRuntime {
     await chrome.runtime.sendMessage({ type: "set token", token });
   }
 
-  getManifest(): chrome.runtime.Manifest {
-    return chrome.runtime.getManifest();
+  getReleaseDetails(): typoReleaseDetails {
+    const manifest = chrome.runtime.getManifest();
+    return {
+      version: manifest.version,
+      versionName: manifest.version_name ?? manifest.version,
+      runtime: "extension",
+    };
+  }
+
+  getPatchUrl(): string {
+    return chrome.runtime.getURL("gamePatch.js");
   }
 }

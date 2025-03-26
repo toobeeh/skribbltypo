@@ -1,7 +1,7 @@
 import { defineManifest } from "@crxjs/vite-plugin";
 
 /// @ts-expect-error errors in the IDE, but it's fine
-import packageData from "../package.json";
+import packageData from "../../../package.json";
 
 export default defineManifest({
   name: `${packageData.displayName || packageData.name}`,

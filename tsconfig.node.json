@@ -6,7 +6,8 @@
     "allowSyntheticDefaultImports": true
   },
   "include": ["vite.config.ts",
-    "vite-build/*.ts", "src/manifest.ts",
+    "vite-build",
+    "src/runtime/extension/manifest.ts",
     "codegen"
   ]
 }

@@ -31,6 +31,9 @@
     }
   },
   "include": ["src", "package.json"],
-  "exclude": ["node_modules", "dist", "assets", "src/manifest.ts"],
+  "exclude": ["node_modules", "dist", "assets",
+    "src/runtime/extension/manifest.ts",
+    "vite-build"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

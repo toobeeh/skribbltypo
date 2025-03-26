@@ -1,3 +1,6 @@
-import * as TypoRuntimeType from "@/runtime/page/page-runtime";
-
-export const typoRuntime = new TypoRuntimeType.default();
+import * as TypoRuntimeType from "runtime";
+import type { TypoRuntime } from "@/runtime/typo-runtime.interface";
+/**
+ * The runtime of the typo application, providing access to storage, version, etc
+ */
+export const typoRuntime: TypoRuntime = new TypoRuntimeType.default();

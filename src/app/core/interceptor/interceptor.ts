@@ -60,7 +60,7 @@ export class Interceptor {
     this.debug("Injecting game patch");
 
     const patch = document.createElement("script");
-    patch.src = chrome.runtime.getURL("gamePatch.js");
+    patch.src = typoRuntime.getPatchUrl();
     patch.onload = async () => {
 
       /* signalize patched game is ready */

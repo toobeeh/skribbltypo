@@ -1,5 +1,8 @@
-import type { TypoRuntime } from "@/runtime/typo-runtime.interface";
+import type { typoReleaseDetails, TypoRuntime } from "@/runtime/typo-runtime.interface";
 import { type IDBPDatabase, openDB } from "idb";
+import { pageReleaseDetails } from "virtual:page-release-details";
+
+import gamePatch from "@/../assets/gamePatch.js?raw";
 
 export default class PageRuntime implements TypoRuntime {
   private readonly _db: Promise<IDBPDatabase>;
@@ -29,7 +32,11 @@ export default class PageRuntime implements TypoRuntime {
     await (await this._db).put("token", token, "token");
   }
 
-  getManifest(): chrome.runtime.Manifest {
-    return "PAGE_RUNTIME_MANIFEST_PLACEHOLDER" as unknown as chrome.runtime.Manifest;
+  getReleaseDetails(): typoReleaseDetails {
+    return pageReleaseDetails;
+  }
+
+  getPatchUrl(): string {
+    return URL.createObjectURL(new Blob([gamePatch], { type: "application/javascript" }));
   }
 }

@@ -1,5 +1,8 @@
+import { typoRuntime } from "@/runtime/runtime";
+import { createElement } from "@/util/document/appendElement";
 import { requireElement } from "@/util/document/requiredQuerySelector";
 import "./loader.scss";
+import { assets } from "virtual:asset-urls";
 
 document.documentElement.dataset["typo_loading_screen_disabled"] = (
   window.location.pathname === "/terms" || window.location.pathname === "/credits"
@@ -57,6 +60,15 @@ loaded.then(async () => {
   signature();
 });
 
+/* append file css variables to head */
+const css = `
+:root {
+  ${Object.entries(assets).map(([key, value]) => `--file-${key}: url("${value()}");`).join("\n")}
+}
+`;
+const style = createElement(`<style>${css}</style>`);
+document.head.append(style);
+
 /* hello there :) */
 const signature = () => {
   console.clear();
@@ -68,14 +80,14 @@ const signature = () => {
  \\__ \\ |   <  | |    | | | |_) | | |_) | | | | |_  | |_| | | |_) | | (_) |
  |___/ |_|\\_\\ |_|    |_| |_.__/  |_.__/  |_|  \\__|  \\__, | | .__/   \\___/ 
                                                      __/ | | |            
-                                                    |___/  |_|     %cby tobeh#7437 %c
+                                                    |___/  |_|     %cby @tobeh %c
 
         ➜ Typo & all its backend is open source: https://github.com/toobeeh/skribbltypo
         ➜ Join the community: https://discord.com/invite/pAapmUmWAM
         ➜ Find more infos at: https://www.typo.rip/
         ➜ Support development: https://patreon.com/skribbltypo
         
-        [ ${chrome.runtime.getManifest().version_name} ]
+        [ ${typoRuntime.getReleaseDetails().versionName} @ ${typoRuntime.getReleaseDetails().runtime} ]
                                                                     
                                                     `,
     "color: lightblue",

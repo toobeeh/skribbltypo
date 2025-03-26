@@ -1,3 +1,9 @@
+export interface typoReleaseDetails {
+  version: string;
+  versionName: string;
+  runtime: string;
+}
+
 /**
  * Abstraction of the runtime of the typo application, to work eg in extension or userscript context
  */
@@ -28,7 +34,12 @@ export interface TypoRuntime {
   getToken(): Promise<string | null>;
 
   /**
-   * get the manifest of the runtime
+   * get the release details of typo
    */
-  getManifest(): chrome.runtime.Manifest;
+  getReleaseDetails(): typoReleaseDetails;
+
+  /**
+   * Get URL of the game patch of the runtime
+   */
+  getPatchUrl(): string;
 }

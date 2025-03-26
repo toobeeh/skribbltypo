@@ -1,6 +1,7 @@
 import { AnnouncementDtoTypeEnum } from "@/api";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { ApiDataSetup } from "@/app/setups/api-data/api-data.setup";
+import { typoRuntime } from "@/runtime/runtime";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import PanelNews from "./panel-news.svelte";
@@ -30,7 +31,7 @@ export class PanelNewsFeature extends TypoFeature {
     });
 
     const data = await this._apiDataSetup.complete();
-    const version = chrome.runtime.getManifest().version;
+    const version = typoRuntime.getReleaseDetails().versionName;
     const announcements = data.announcements
       .filter(announcement => announcement.type === AnnouncementDtoTypeEnum.Announcement &&
         (announcement.affectedTypoVersion === version || announcement.affectedTypoVersion === undefined)
