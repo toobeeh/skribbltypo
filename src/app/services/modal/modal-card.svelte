@@ -107,8 +107,8 @@
       flex-direction: column;
       overflow-y: scroll;
       width: 100%;
-      align-items: center;
       flex-grow: 1;
+      align-items: stretch;
     }
   }
 
