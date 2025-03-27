@@ -17,7 +17,7 @@
 
 <div>
   <p>
-    Starting with April 2025, typo is receiving the biggest update so far.<br>
+    Starting on April 2025, typo is receiving its biggest update so far.<br>
     Typo still has the same features, but makes them much more user-friendly, accessible and customizable.<br>
     So far, typo provided the tools, but now it's the whole workshop!
   </p>
@@ -37,7 +37,7 @@
   </ul>
 
   <p>
-    To get started, you can browse through the feature list and view their details.<br>
+    To get started, you can browse through the list of features and view their details.<br>
     Features are also categorized by tags so you can easily find what you are looking for.<br>
     While you might see many features that you already know of, you could discover some that were newly added or features that you didn't notice yet!<br>
     To change general typo settings, choose the "Typo Settings" feature in the Typo Features view.<br>
@@ -50,7 +50,7 @@
   <p>
     <b>➜ Typo Settings</b><br>
     Typo settings are now located directly on skribbl (read the quick-start-guide ;) instead of the extension popup menu.<br>
-    You can customize everything that you're used to from the popup menu, but now found in the respective feature dialog.<br>
+    You can customize everything that you're used to from the popup menu, now found in the respective feature dialog.<br>
   </p>
 
   <p>
@@ -84,7 +84,7 @@
 
   <p>
     <b>➜ Zoom Drawing</b><br>
-    Zooming still uses the Ctrl hotkey, but starts now immediately at the last cursor position without clicking on the canvas.<br>
+    Zooming still uses the Ctrl hotkey, but now starts immediately at the last cursor position without clicking on the canvas.<br>
     To exit zoom, click Ctrl again.<br>
   </p>
 
