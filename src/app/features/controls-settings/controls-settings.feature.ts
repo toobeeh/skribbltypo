@@ -31,7 +31,7 @@ export class ControlsSettingsFeature extends TypoFeature {
   private readonly _onboardingTask = this.useOnboardingTask({
     key: "feature_opened",
     name: "Open settings of a feature",
-    description: "Click the wrench icon and open the settings of a typo feature to adjust it to your likes.",
+    description: "Click the wrench icon and open the settings of a typo feature to adjust it to your liking.",
     start: () => this.openSettingsPopup(),
     priority: 2
   });

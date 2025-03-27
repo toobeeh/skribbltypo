@@ -15,39 +15,38 @@
 
 <h3>Introducing the new typo</h3>
 
-<p>
-  Starting with April 2025, typo is receiving the biggest update so far.<br>
-  Typo still has the same features, but makes them much more user-friendly, accessible and customizable.<br>
-  So far, typo provided the tools, but now it's the whole workshop!
-</p>
-
-<h4>A quick-start guide</h4>
 <div>
   <p>
+    Starting with April 2025, typo is receiving the biggest update so far.<br>
+    Typo still has the same features, but makes them much more user-friendly, accessible and customizable.<br>
+    So far, typo provided the tools, but now it's the whole workshop!
+  </p>
+
+  <h4>A quick-start guide</h4>
+  <p>
     All typo features can now be customized, so you don't have anything that messes with your optimal skribbl experience.<br>
-    To customize typo, click the wrench icon at the top left (unless customized to somewhere else ;).<br>
+    To set up typo to your preferences, click the wrench icon at the top left (unless customized to somewhere else ;).<br>
     There, you can:
   </p>
 
   <ul>
     <li>Enable or disable every feature</li>
     <li>Adjust feature settings to your likes</li>
-    <li>Customize hotkeys and chat commands of features</li>
+    <li>Change and toggle hotkeys and chat commands of features</li>
     <li>View some extra info & hints about features</li>
   </ul>
 
   <p>
     To get started, you can browse through the feature list and view their details.<br>
     Features are also categorized by tags so you can easily find what you are looking for.<br>
-    Most of the features did not change much, but you might discover some new ones or notice features that you didn't know of!<br>
-    To change general typo settings or reset typo, choose the "Typo Settings" feature in the settings.<br>
+    While you might see many features that you already know of, you could discover some that were newly added or features that you didn't notice yet!<br>
+    To change general typo settings, choose the "Typo Settings" feature in the Typo Features view.<br>
+    You can reset all data or switch between profiles in the "Typo Profiles" feature.<br>
     If you have any questions or feedback, join the community on <a href="https://discord.com/invite/pAapmUmWAM">Discord</a>!
   </p>
-</div>
+  <br>
 
-
-<h4>The most important changes</h4>
-<div>
+  <h4>The most important changes</h4>
   <p>
     <b>➜ Typo Settings</b><br>
     Typo settings are now located directly on skribbl (read the quick-start-guide ;) instead of the extension popup menu.<br>
@@ -77,9 +76,9 @@
 
   <p>
     <b>➜ QuickReact and Hotkeys</b><br>
-    Hotkeys are now individually customizable for every feature.<br>
-    As an example, QuickReact uses now exclusively the right Ctrl key.<br>
-    To change hotkeys for any feature, open its feature settings.<br>
+    Hotkeys are now individually customizable for every feature and have changed here and there.<br>
+    As an example, QuickReact now uses the right-hand side Ctrl key, exclusively.<br>
+    To change hotkeys for any feature or check the current configuration, open its feature settings.<br>
     Hotkeys can also consist of combinations.<br>
   </p>
 
