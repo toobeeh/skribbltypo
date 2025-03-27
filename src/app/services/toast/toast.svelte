@@ -132,7 +132,7 @@
         promptHandler(promptContent);
       }}>
         <input type="submit" hidden />
-        <input bind:value={promptContent} type="text" placeholder="{content}">
+        <input autofocus bind:value={promptContent} type="text" placeholder="{content}">
       </form>
     {/if}
 

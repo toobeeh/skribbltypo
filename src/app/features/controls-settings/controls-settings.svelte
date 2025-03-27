@@ -35,6 +35,7 @@
     position:relative;
     width: 100%;
     flex-grow: 1;
+    overflow-x: hidden;
   }
 
   .typo-features-info {

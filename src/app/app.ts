@@ -34,6 +34,7 @@ import { ChatRecallFeature } from "@/app/features/chat-recall/chat-recall.featur
 import { CloudService } from "@/app/features/controls-cloud/cloud.service";
 import { ControlsCloudFeature } from "@/app/features/controls-cloud/controls-cloud.feature";
 import { ControlsOnboardingFeature } from "@/app/features/controls-onboarding/controls-onboarding.feature";
+import { ControlsProfilesFeature } from "@/app/features/controls-profiles/controls-profiles.feature";
 import { ControlsSettingsFeature } from "@/app/features/controls-settings/controls-settings.feature";
 import { ControlsThemesFeature } from "@/app/features/controls-themes/controls-themes.feature";
 import {
@@ -238,7 +239,8 @@ new ExtensionContainer(interceptor)
     CustomizerPracticeJoinFeature,
     CustomizerOutfitToggleFeature,
     CanvasRateIconsFeature,
-    ControlsOnboardingFeature
+    ControlsOnboardingFeature,
+    ControlsProfilesFeature
   );
 
 /* indicate for interceptor that content script has loaded */

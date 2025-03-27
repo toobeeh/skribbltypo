@@ -42,4 +42,37 @@ export interface TypoRuntime {
    * Get URL of the game patch of the runtime
    */
   getPatchUrl(): string;
+
+  /**
+   * Get the list of data profiles
+   */
+  getProfiles(): Promise<string[]>;
+
+  /**
+   * Get the current data profile
+   */
+  currentProfile(): Promise<string>;
+
+  /**
+   * Switch to a different data profile
+   * @param profile
+   */
+  switchToProfile(profile: string): Promise<void>;
+
+  /**
+   * Create a new data profile
+   * @param profile
+   */
+  createAndSwitchToProfile(profile: string): Promise<void>;
+
+  /**
+   * Delete a data profile
+   * @param profile
+   */
+  deleteProfile(profile: string): Promise<void>;
+
+  /**
+   * Reset all saved data
+   */
+  resetTypo(): Promise<void>;
 }

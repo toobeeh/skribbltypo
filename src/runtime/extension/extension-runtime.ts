@@ -29,4 +29,28 @@ export default class ExtensionRuntime implements TypoRuntime {
   getPatchUrl(): string {
     return chrome.runtime.getURL("gamePatch.js");
   }
+
+  async createAndSwitchToProfile(profile: string): Promise<void> {
+    await chrome.runtime.sendMessage({ type: "create profile", profile });
+  }
+
+  async currentProfile(): Promise<string> {
+    return await chrome.runtime.sendMessage({ type: "get profile" });
+  }
+
+  async deleteProfile(profile: string): Promise<void> {
+    await chrome.runtime.sendMessage({ type: "delete profile", profile });
+  }
+
+  async getProfiles(): Promise<string[]> {
+    return await chrome.runtime.sendMessage({ type: "get profiles" });
+  }
+
+  async switchToProfile(profile: string): Promise<void> {
+    await chrome.runtime.sendMessage({ type: "switch profile", profile });
+  }
+
+  async resetTypo(): Promise<void> {
+    await chrome.runtime.sendMessage({ type: "reset" });
+  }
 }
