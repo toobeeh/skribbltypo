@@ -2,10 +2,11 @@ import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { BooleanExtensionSetting, NumericExtensionSetting } from "@/app/core/settings/setting";
 import { PressureMod } from "@/app/features/drawing-pressure/pressure-mod";
 import type { componentData } from "@/app/services/modal/modal.service";
+import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import { ToolsService } from "@/app/services/tools/tools.service";
 import { calculatePressurePoint } from "@/util/typo/pressure";
 import { inject } from "inversify";
-import { combineLatestWith, type Subscription } from "rxjs";
+import { combineLatestWith, map, type Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import DrawingPressureInfo from "./drawing-pressure-info.svelte";
 
@@ -47,14 +48,26 @@ export class DrawingPressureFeature extends TypoFeature {
       .withSlider(1/20)
   );
 
+  private readonly _disablePerformanceInBrushlabSetting = this.useSetting(
+    new BooleanExtensionSetting("pressure_disable_performance_brushlab", false, this)
+      .withName("Disable Performance in Lab")
+      .withDescription("Automatically disables the performance mode (if active) when using the Brush Lab. This might cause lags on less performant devices.")
+  );
+
   private _pressureMod?: PressureMod;
 
   protected override async onActivate() {
 
+    /* when override enabled and any tool or other mod than pressure is active */
+    const overridePerformance$ = this._disablePerformanceInBrushlabSetting.changes$.pipe(
+      combineLatestWith(this._toolsService.activeMods$, this._toolsService.activeTool$),
+      map(([disable, mods, tool]) => disable && (tool instanceof TypoDrawTool || mods.filter(m => !(m instanceof PressureMod)).length > 0))
+    );
+
     this._performanceEnabledSubscription = this._performanceEnabledSetting.changes$.pipe(
-      combineLatestWith(this._pressureParamSensitivitySetting.changes$, this._pressureParamBalanceSetting.changes$)
-    ).subscribe(async ([performanceMode, sensitivity, balance]) => {
-      if(performanceMode){
+      combineLatestWith(this._pressureParamSensitivitySetting.changes$, this._pressureParamBalanceSetting.changes$, overridePerformance$)
+    ).subscribe(async ([performanceMode, sensitivity, balance, overridePerformance]) => {
+      if(performanceMode && !overridePerformance){
         if(this._pressureMod) {
           this._toolsService.removeMod(this._pressureMod);
           this._pressureMod = undefined;
