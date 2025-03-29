@@ -17,7 +17,7 @@
 
 <div>
   <p>
-    Starting on April 2025, typo is receiving its biggest update so far.<br>
+    Starting in April 2025, typo is receiving its biggest update so far.<br>
     Typo still has the same features, but makes them much more user-friendly, accessible and customizable.<br>
     So far, typo provided the tools, but now it's the whole workshop!
   </p>
