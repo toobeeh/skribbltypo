@@ -1,6 +1,7 @@
 <script lang="ts">
   import { UserInfoFeature } from "./user-info.feature";
   import Bounceload from "../../../lib/bounceload/bounceload.svelte";
+  import SkribblAvatar from "@/lib/skribbl-avatar/skribbl-avatar.svelte";
 
   export let feature: UserInfoFeature;
   const member = feature.memberStore;

@@ -71,6 +71,10 @@ export class SkribblLobbyPlayer implements SkribblPlayerDisplay {
     throw new Error("No identification provided");
   }
 
+  public get player() {
+    return this._player;
+  }
+
   public get lobbyPlayerId() {
     return this._player.id;
   }
