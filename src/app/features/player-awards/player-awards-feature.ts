@@ -19,6 +19,7 @@ import {
 import { ToastService } from "@/app/services/toast/toast.service";
 import { ApiDataSetup } from "@/app/setups/api-data/api-data.setup";
 import { type OnlineItemDto, OnlineItemTypeDto } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
+import { createElement } from "@/util/document/appendElement";
 import { fromObservable } from "@/util/store/fromObservable";
 import { calculateLobbyKey } from "@/util/typo/lobbyKey";
 import { inject } from "inversify";
@@ -88,13 +89,27 @@ export class PlayerAwardsFeature extends TypoFeature {
     /* listen to received awards, print message and show animation */
     this._awardedSubscription = this._lobbyConnectionService.awardGifted$.pipe(
       withLatestFrom(this._lobbyService.lobby$)
-    ).subscribe(([award, lobby]) => {
+    ).subscribe(async ([award, lobby]) => {
       const awardDto = apiData.awards.find((a) => a.id === award.awardId);
+
+      if(awardDto === undefined){
+        this._logger.warn("Award dto not found", award);
+      }
 
       const awarder = lobby?.players.find(p => p.id === award.awarderLobbyPlayerId)?.name ?? "Unknown";
       const title = `${awarder} awarded this with a ${awardDto?.name ?? "Award"}!`;
       const message = `\n${awardDto?.description}`;
-      this._chatService.addChatMessage(message, title, "info");
+      const messageComponent = await this._chatService.addChatMessage(message, title, "info");
+      const chatMessage = await messageComponent.message;
+
+      const awardIcon = createElement(`<img 
+        src="${awardDto?.url}" 
+        alt="${awardDto?.name}"
+        style="height: 2rem; width: 2rem; margin: 0 .5rem"
+      >`);
+
+      chatMessage.wrapperElement.insertAdjacentElement("afterbegin", awardIcon);
+
       component.$set({ currentAwardPresentation: structuredClone(awardDto) });
       this._cloudService.addPendingAwardInventoryId(award.awardInventoryId);
     });
