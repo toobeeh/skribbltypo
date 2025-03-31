@@ -1571,17 +1571,17 @@
     typo.messagePort.postMessage({ id: 10, data });
     //document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
     aa(data);
-  });
 
-  S = new Proxy({},{
-    emit: (...data) => typo.emitPort.postMessage(data),
-    other: (...data) => void 0,
-    get (target, prop) {
-      if(prop === "emit"){
-        return this.emit;
+    S = new Proxy({},{
+      emit: (...data) => typo.emitPort.postMessage(data),
+      other: (...data) => void 0,
+      get (target, prop) {
+        if(prop === "emit"){
+          return this.emit;
+        }
+        else return this.other;
       }
-      else return this.other;
-    }
+    });
   });
   /* TYPOEND */
 
