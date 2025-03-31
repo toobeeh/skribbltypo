@@ -1839,13 +1839,15 @@
           let sent = 0; /* to calculate correct undo offset */
 
           for(const command of data){
-            const sequence = typo.msiColorSwitch.ensureColorSequence(command);
-            if(sequence === undefined) buffer.push(command);
+            /* DO NOT edit reference as it's used in local cmd history */
+            const commandCopy = structuredClone(command);
+            const sequence = typo.msiColorSwitch.ensureColorSequence(commandCopy);
+            if(sequence === undefined) buffer.push(commandCopy);
             else {
               if(buffer.length > 0) events.push({id: Ia, data: buffer});
               events.push({id: Ia, data: sequence});
               events.push({id: Ta, data: dt + sent});
-              buffer.push(command);
+              buffer.push(commandCopy);
             }
           }
 
