@@ -1,8 +1,8 @@
-name: Create a release of a stable version
+name: Create and build a release of a stable version
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   create-release:
