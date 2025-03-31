@@ -1,7 +1,7 @@
 {
   "name": "skribbltypo",
   "displayName": "skribbltypo",
-  "version": "27.0.0",
+  "version": "27.0.1",
   "author": "tobeh",
   "description": "The toolbox for everything you need on skribbl.io",
   "type": "module",
@@ -16,7 +16,6 @@
     "build-prod-userscript": "npm run generate:workers && npm run lint && cross-env TARGET=userscript vite build --mode production",
     "build-prod-chrome": "cross-env TARGET=extension npm run generate:workers && cross-env TARGET=chrome npm run lint && vite build --mode production",
     "build-prod-firefox": "cross-env TARGET=extension npm run generate:workers && cross-env TARGET=firefox npm run lint && vite build --mode production",
-    "fmt": "prettier --write '**/*.{svelte,ts,json,css,scss,md}'",
     "lint": "eslint . ",
     "test": "vitest --config vitest.config.ts",
     "generate:patch": "npx tsx codegen/executePatch.ts",
@@ -53,7 +52,8 @@
     "vite": "^5.4.8",
     "vite-plugin-monkey": "^5.0.8",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.5"
+    "vitest": "^3.0.5",
+    "vite-plugin-checker": "^0.8.0"
   },
   "dependencies": {
     "@abraham/reflection": "^0.12.0",
@@ -62,7 +62,6 @@
     "inversify": "^6.0.2",
     "omggif": "^1.0.10",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "vite-plugin-checker": "^0.8.0"
+    "rxjs": "^7.8.1"
   }
 }
