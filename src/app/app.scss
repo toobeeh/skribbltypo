@@ -34,7 +34,7 @@ img {
 }
 
 /* hide typo dummy tools */
-.tool[data-tooltip="Lab"], .tool[data-tooltip="None"], .tool[data-tooltip="Pipette"] {
+.tool[data-tooltip='No Tool']{
   display: none;
 }
 

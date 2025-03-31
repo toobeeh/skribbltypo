@@ -359,16 +359,6 @@
           collapsed[lastCollapsedIndex] = pt[pt.length - 1];
           pt = collapsed;
         });
-        document.addEventListener("addTypoTooltips", () => {
-          [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
-            elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
-            elem.removeAttribute("data-typo-tooltip");
-            elem.addEventListener("mouseenter", (e) => We(e.target));
-            // IDENTIFY: x(e.target):
-            elem.addEventListener("mouseleave", (e) => Oe());
-            // IDENTIFY: (e) => x():
-          });
-        });
       })(),
       rgbToXyz: (R, G, B) => {
         let r = R / 255;
@@ -1081,43 +1071,9 @@
       ,
       it(-1, {
         isAction: !1,
-        name: "None",
+        name: "No Tool",
         graphic: "",
         keydef: "",
-      })
-      /*TYPOEND*/
-      /*TYPOMOD DESC: add tool for pipette*/
-      ,
-      it(3, {
-        isAction: !1,
-        name: "Pipette",
-        graphic: "",
-        keydef: 'P',
-      })
-      /*TYPOEND*/
-      /* TYPOMOD DESC: add action for colorswitch */
-      /*
-      ,
-      it(2, {
-          isAction: !0,
-          name: "Switcher",
-          graphic: "",
-          action: () => {
-              document.dispatchEvent(new Event("toggleColor"));
-          }
-      })
-      */
-      /* TYPOEND */
-      /*TYPOMOD DESC: add action for brushlab*/
-      ,
-      it(3, {
-        isAction: !0,
-        name: "Lab",
-        graphic: "",
-        keydef: 'L',
-        action: () => {
-          document.dispatchEvent(new Event("openBrushLab"));
-        }
       })
       /*TYPOEND*/, c.querySelector("#game-canvas canvas")),
     ct = C.getContext("2d", {
@@ -1280,9 +1236,6 @@
 
   function Ut(e) {
     if (v = v.slice(0, e), !(x != M && ut < e)) {
-      /* TYPOMOD
-              desc: replace draw commands because of redo*/        const keepCommands = v;
-      /* TYPOEND*/
       r = _t();
       e = Math.floor(v.length / Ht);
       ht = ht.slice(0, e), Jt();
@@ -1292,11 +1245,7 @@
       }
       for (t = ht.length * Ht; t < v.length; t++) Gt(jt(v[t]), v[t]);
       dt = Math.min(v.length, dt), ut = Math.min(v.length, ut)
-
-      /* TYPOMOD
-               log kept commands*/
-      document.dispatchEvent(new CustomEvent("logRedo", { detail: keepCommands }));
-      /* TYPOEND*/}
+    }
   }
   let Ht = 50;
 
@@ -1329,10 +1278,7 @@
       y1: -(t + r),
       x2: C.width + t + r,
       y2: C.height + t + a
-    }).x1 < n && n < i.x2 && i.y1 < o && o < i.y2)) ? (v.push(e), x == M && Gt(jt(e)))
-      /* TYPOMOD  log draw commands */
-      & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: e }))
-      /* TYPOEND */: console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS")
+    }).x1 < n && n < i.x2 && i.y1 < o && o < i.y2)) ? (v.push(e), x == M && Gt(jt(e))) : console.log("IGNORED COMMAND OUT OF CANVAS BOUNDS")
   }
 
   function jt(e) {
@@ -2051,10 +1997,6 @@
           l = !1;
           break
         } l ? R.playSound(wn) : R.playSound(kn), y(E("The word was '$'", e.data.word), "", f($e), !0)
-      /* TYPOMOD
-                   desc: log finished drawing */
-      ;document.dispatchEvent(new CustomEvent("drawingFinished", { detail: e.data.word }));
-      /* TYPOEND */
     } else e.id != j && (N[0].textContent = E("WAITING"), N[0].classList.add("waiting"), N[1].style.display = "none", N[2].style.display = "none");
     if (e.id == j) {
       if (M = e.data.id,
@@ -2162,10 +2104,6 @@
       n = e.data;
     switch (t) {
       case Ca:
-        /* TYPOMOD
-                         desc: send lobbydata*/
-        document.dispatchEvent(new CustomEvent("lobbyConnected", { detail: n }));
-        /* TYPOEND*/
         aa(n);
         break;
       case qa:

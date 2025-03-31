@@ -64,16 +64,6 @@ export const gameJsPatchConfig = {
             "function ([a-zA-Z0-9&_\\-$]+)\\([a-zA-Z0-9&_\\-$]+\\) {[^}]+?\\[0, 0, [a-zA-Z0-9&_\\-$]+\\.width, [a-zA-Z0-9&_\\-$]+\\.height\\]",
         },
         {
-          source: "##SHWOTOOLTIP##",
-          target:
-            "function ([a-zA-Z0-9&_\\-$]+)\\(e\\) \\{[^}]+?[a-zA-Z0-9&_\\-$]+\\(\\)[^}]+?\\.dataset\\.tooltip",
-        },
-        {
-          source: "##HIDETOOLTIP##",
-          target:
-            "function [a-zA-Z0-9&_\\-$]+\\(e\\) \\{[^}]+?([a-zA-Z0-9&_\\-$]+)\\(\\)[^}]+?\\.dataset\\.tooltip",
-        },
-        {
           source: "##CLEARACTION##",
           target:
             "graphic: \"clear\\.gif\",\\s+action: ([a-zA-Z0-9&_\\-$]+)",
@@ -429,16 +419,6 @@ export const gameJsPatchConfig = {
                             collapsed[lastCollapsedIndex] = ##PUSHACTION##[##PUSHACTION##.length - 1];
                             ##PUSHACTION## = collapsed;
                         });
-                        document.addEventListener("addTypoTooltips", () => {
-                            [...document.querySelectorAll("[data-typo-tooltip]")].forEach(elem => {
-                                elem.setAttribute("data-tooltip", elem.getAttribute("data-typo-tooltip"));
-                                elem.removeAttribute("data-typo-tooltip");
-                                elem.addEventListener("mouseenter", (e) => ##SHWOTOOLTIP##(e.target)); 
-                                // IDENTIFY: x(e.target):
-                                elem.addEventListener("mouseleave", (e) => ##HIDETOOLTIP##()); 
-                                // IDENTIFY: (e) => x():
-                            });
-                        });
                     })(),
                     rgbToXyz: (R, G, B) => {
                       let r = R / 255;
@@ -603,46 +583,6 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Save Undo Draw Commands",
-      replacements: [
-        {
-          source: "##COMMANDS##",
-          target:
-            "if\\s\\([a-zA-Z0-9&_\\-$]+ = ([a-zA-Z0-9&_\\-$]+)\\.[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[",
-        },
-      ],
-      injections: [
-        {
-          position:
-            "(for[^{]+?{[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[[\\s\\S]+?[^}]+?}[^}]*)",
-          code: "/* TYPOMOD \n         log kept commands*/\n        document.dispatchEvent(new CustomEvent(\"logRedo\", { detail: keepCommands }));\n        /* TYPOEND*/",
-        },
-        {
-          position:
-            "(if[^{]+?{)[^}]+?putImageData\\([a-zA-Z0-9&_\\-$]+\\.data, [a-zA-Z0-9&_\\-$]+\\.bounds\\[",
-          code: "/* TYPOMOD\n        desc: replace draw commands because of redo*/        const keepCommands = ##COMMANDS##;\n        /* TYPOEND*/",
-        },
-      ],
-    },
-    {
-      name: "Log Draw Commands",
-      replacements: [
-        {
-          source: "##COMMAND##",
-          target: "(e)",
-        }
-      ],
-      injections: [
-        {
-          position: "( ): console.log\\(\"IGNORED COMMAND OUT OF CANVAS BOUNDS\"\\)",
-          code: `
-          /* TYPOMOD  log draw commands */
-          & document.dispatchEvent(new CustomEvent("logDrawCommand", { detail: ##COMMAND## }))
-          /* TYPOEND */`,
-        },
-      ],
-    },
-    {
       name: "Log Canvas Clear",
       replacements: [],
       injections: [
@@ -659,7 +599,7 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Add Practise Join",
+      name: "Add Practice Join",
       replacements: [
         {
           source: "##JOIN##",
@@ -699,7 +639,7 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Pipette Custom Color",
+      name: "Custom Color ?? what exactly is this",
       replacements: [
         {
           source: "##COL##",
@@ -791,40 +731,6 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Dispatch Draw Finish",
-      replacements: [
-        {
-          source: "##DATA##",
-          target:
-            "The word was '\\$'\", ([a-zA-Z0-9&_\\-$]+?)\\.data\\.word\\), \"\", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\)",
-        },
-      ],
-      injections: [
-        {
-          position:
-            "(The word was '\\$'\", [a-zA-Z0-9&_\\-$]+?\\.data\\.word\\), \"\", [a-zA-Z0-9&_\\-$]+?\\([a-zA-Z0-9&_\\-$]+?\\), !0\\))",
-          code: "/* TYPOMOD\n             desc: log finished drawing */\n            ;document.dispatchEvent(new CustomEvent(\"drawingFinished\", { detail: ##DATA##.data.word }));\n            /* TYPOEND */",
-        },
-      ],
-    },
-    {
-      name: "Dispatch Lobbydata",
-      replacements: [
-        {
-          source: "##EVENT##",
-          target:
-            "switch \\([a-zA-Z0-9&_\\-$]+?\\) {[\\s\\S]*?(?=break)break[^(]*\\(([^)]*)\\)[^}]*joined the room!",
-        },
-      ],
-      injections: [
-        {
-          position:
-            "(switch \\([a-zA-Z0-9&_\\-$]+?\\) {\\s+case [a-zA-Z0-9&_\\-$]+?:)[^}]*joined the room!",
-          code: "/* TYPOMOD\n                 desc: send lobbydata*/\n                document.dispatchEvent(new CustomEvent(\"lobbyConnected\", { detail: ##EVENT## }));\n                /* TYPOEND*/",
-        },
-      ],
-    },
-    {
       name: "Add Lobbyplayer ID",
       replacements: [
         {
@@ -862,60 +768,11 @@ export const gameJsPatchConfig = {
         {
           position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
           code: `
-                /*TYPOMOD DESC: add action for brushlab*/ 
-                ,
-                ##ADDACTION##(3, {
-                    isAction: !0,
-                    name: "Lab",
-                    graphic: "",
-                    keydef: 'L',
-                    action: () => {
-                        document.dispatchEvent(new Event("openBrushLab"));
-                    }
-                }) 
-                /*TYPOEND*/
-                `,
-        },
-        {
-          position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
-          code: `
-                /* TYPOMOD DESC: add action for colorswitch */ 
-                /* 
-                ,
-                ##ADDACTION##(2, {
-                    isAction: !0,
-                    name: "Switcher",
-                    graphic: "",
-                    action: () => {
-                        document.dispatchEvent(new Event("toggleColor"));
-                    }
-                })
-                */ 
-                /* TYPOEND */
-                `,
-        },
-        {
-          position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
-          code: `
-                /*TYPOMOD DESC: add tool for pipette*/ 
-                ,
-                ##ADDACTION##(3, {
-                    isAction: !1,
-                    name: "Pipette",
-                    graphic: "",
-                    keydef: 'P',
-                }) 
-                /*TYPOEND*/
-                `,
-        },
-        {
-          position: "(isAction: !0,[^}]+Clear[^}]+}\\))",
-          code: `
                 /*TYPOMOD DESC: add tool for deselect*/ 
                 ,
                 ##ADDACTION##(-1, {
                     isAction: !1,
-                    name: "None",
+                    name: "No Tool",
                     graphic: "",
                     keydef: "",
                 }) 
@@ -954,16 +811,6 @@ export const gameJsPatchConfig = {
         },
       ],
     },
-    /*{ TODO - what was this purpose? any bugs w/o it?
-      name: "Keyup to keydown",
-      replacements: [
-        {
-          source: "(keyup)",
-          target: "(keydown)",
-        },
-      ],
-      injections: [],
-    },*/
     {
       name: "Use Typo Pressure",
       replacements: [
