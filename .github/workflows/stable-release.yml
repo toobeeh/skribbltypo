@@ -53,9 +53,9 @@ jobs:
         uses: thedoctor0/zip-release@0.7.5
         with:
           type: "zip"
-          filename: "typo-chromium-release-${{ needs.create-release.outputs.version }}.zip"
-          path: "./dist"
-          exclusions: "/.vite /*node_modules/*"
+          directory: "./dist"
+          filename: "../typo-chromium-release-${{ needs.create-release.outputs.version }}.zip"
+          exclusions: "/*vite/* /*node_modules/*"
 
       - name: Append to release
         id: upload-release-asset
