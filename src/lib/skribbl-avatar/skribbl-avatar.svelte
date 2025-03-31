@@ -1,9 +1,18 @@
 <script lang="ts">
 
   import { calculateAtlasOffsets, wrapOffsetAsStyle } from "@/util/skribbl/avatar";
+  import { onMount } from "svelte";
 
   export let avatar: [number, number, number, number | undefined];
   export let size: string = "80px";
+
+  let resolve: (elem: HTMLDivElement) => void;
+  let container: HTMLDivElement;
+  export const element = new Promise<HTMLDivElement>((res) => resolve = res);
+
+  onMount(() => {
+    resolve(container);
+  });
 
 </script>
 
@@ -19,12 +28,11 @@
             position: absolute;
 
             &:is(.color, .mouth, .eyes, .special) {
-                background-position: center;
-                background-repeat: no-repeat
+                background-repeat: no-repeat;
             }
 
             &:is(.color, .mouth, .eyes) {
-                inset: calc(var(--typo-avatar-container-size) * (80 - 48)/80 / 2);
+                inset: 0;
             }
 
             &.color {
@@ -45,20 +53,20 @@
             &.special {
                 z-index: 3;
                 background-image: url("img/avatar/special_atlas.gif");
-                inset: 0;
+                inset: calc(-1 * var(--typo-avatar-container-size) * (80 - 48) / 48 / 2);
             }
         }
     }
 
 </style>
 
-<div class="typo-avatar-container" style="--typo-avatar-container-size: {size}">
+<div class="typo-avatar-container" style="--typo-avatar-container-size: {size}" bind:this={container}>
 
   <div class="typo-avatar-layer color" style="{wrapOffsetAsStyle('avatar', calculateAtlasOffsets('avatar', avatar[0]), 'var(--typo-avatar-container-size)')}"></div>
-  <div class="typo-avatar-layer mouth" style="{wrapOffsetAsStyle('avatar', calculateAtlasOffsets('avatar', avatar[1]), 'var(--typo-avatar-container-size)')}"></div>
-  <div class="typo-avatar-layer eyes" style="{wrapOffsetAsStyle('avatar', calculateAtlasOffsets('avatar', avatar[2]), 'var(--typo-avatar-container-size)')}"></div>
+  <div class="typo-avatar-layer mouth" style="{wrapOffsetAsStyle('avatar', calculateAtlasOffsets('avatar', avatar[2]), 'var(--typo-avatar-container-size)')}"></div>
+  <div class="typo-avatar-layer eyes" style="{wrapOffsetAsStyle('avatar', calculateAtlasOffsets('avatar', avatar[1]), 'var(--typo-avatar-container-size)')}"></div>
 
-  {#if avatar[3] !== undefined}
+  {#if avatar[3] !== undefined && avatar[3] >= 0}
     <div class="typo-avatar-layer special" style="{wrapOffsetAsStyle('container', calculateAtlasOffsets('container', avatar[3]), 'var(--typo-avatar-container-size)')}"></div>
   {/if}
 

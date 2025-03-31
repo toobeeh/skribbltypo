@@ -22,6 +22,7 @@ import { toolChangedEventRegistration } from "@/app/events/tool-changed.event";
 import { wordGuessedEventRegistration } from "@/app/events/word-guessed.event";
 import { CanvasRateIconsFeature } from "@/app/features/canvas-rate-icons/canvas-rate-icons.feature";
 import { CanvasZoomFeature } from "@/app/features/canvas-zoom/canvas-zoom.feature";
+import { ChatAvatarsFeature } from "@/app/features/chat-avatars/chat-avatars.feature";
 import { ChatClearFeature } from "@/app/features/chat-clear/chat-clear.feature";
 import { ChatCommandsFeature } from "@/app/features/chat-commands/chat-commands.feature";
 import { ChatCopyFormattedFeature } from "@/app/features/chat-copy-formatted/chat-copy-formatted.feature";
@@ -240,7 +241,8 @@ new ExtensionContainer(interceptor)
     CustomizerOutfitToggleFeature,
     CanvasRateIconsFeature,
     ControlsOnboardingFeature,
-    ControlsProfilesFeature
+    ControlsProfilesFeature,
+    ChatAvatarsFeature
   );
 
 /* indicate for interceptor that content script has loaded */

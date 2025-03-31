@@ -52,6 +52,7 @@ export class PlayersService {
   private readonly _scoreboardPlayers$ = new BehaviorSubject<SkribblPlayerDisplay[]>([]);
   private readonly _popupPlayer$ = new BehaviorSubject<SkribblPlayerDisplay | undefined>(undefined);
   private readonly _overlayPlayer$ = new BehaviorSubject<SkribblPlayerDisplay | undefined>(undefined);
+  private readonly _chatPlayers$ = new BehaviorSubject<SkribblPlayerDisplay[]>([]);
   private readonly _players$ = new BehaviorSubject<SkribblPlayerDisplay[]>([]);
 
   constructor(
@@ -77,14 +78,16 @@ export class PlayersService {
         this.landingPlayer$,
         this.scoreboardPlayers$,
         this.popupPlayer$,
-        this.overlayPlayer$
+        this.overlayPlayer$,
+        this._chatPlayers$
       ),
-      map(([players, landing, scoreboard, popup, overlay]) => [
+      map(([players, landing, scoreboard, popup, overlay, chat]) => [
         ...players,
         landing,
         ...scoreboard,
         popup,
-        overlay
+        overlay,
+        ...chat
       ]
         .filter(player => player !== undefined) as SkribblPlayerDisplay[])
     ).subscribe(this._players$);
@@ -282,6 +285,21 @@ export class PlayersService {
       this._popupPlayer$.next(playerDisplay);
       this._logger.info("Overlay player visible", playerDisplay);
     });
+  }
+
+  public addChatPlayer(player: SkribblPlayerDisplay){
+    const current = this._chatPlayers$.value;
+    current.push(player);
+    this._chatPlayers$.next(current);
+  }
+
+  public removeChatPlayer(player: SkribblPlayerDisplay){
+    const current = this._chatPlayers$.value.filter(p => p !== player);
+    this._chatPlayers$.next(current);
+  }
+
+  public clearChatPlayers(){
+    this._chatPlayers$.next([]);
   }
 
   public get lobbyPlayers$() {

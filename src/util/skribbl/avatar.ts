@@ -24,8 +24,14 @@ export const calculateAtlasOffsets = (atlas: "avatar" | "container", index: numb
 };
 
 export const wrapOffsetAsStyle = (atlas: "avatar" | "container", offset: { x: number, y: number }, containerSize: string) => {
+  const containerScale = (atlas === "avatar" ? AVATAR_SIZE : CONTAINER_SIZE) / AVATAR_SIZE;
+  const atlasSize = atlas === "avatar" ? AVATAR_ATLAS_SIZE : CONTAINER_ATLAS_SIZE;
+  const atlasCount = atlas === "avatar" ? AVATAR_COUNT : CONTAINER_COUNT;
+  const backgroundSize = `${containerScale} * ${containerSize} * ${atlasCount}`;
   return `
-    background-position: calc(-${offset.x} / 80 * ${containerSize}) calc(-${offset.y} / 80 * ${containerSize}); 
-    background-size: calc(${atlas === "avatar" ? AVATAR_COUNT : CONTAINER_COUNT} * calc(${atlas === "avatar" ? 48/80 : 1} * ${containerSize}));
+    background-position: 
+      calc(-${offset.x} / ${atlasSize} * ${backgroundSize}) 
+      calc(-${offset.y} / ${atlasSize} * ${backgroundSize}); 
+    background-size: calc(${backgroundSize});
   `;
 };
