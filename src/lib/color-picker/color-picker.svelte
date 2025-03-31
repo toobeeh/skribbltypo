@@ -18,8 +18,8 @@
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    saturation = (x / rect.width) * 100;
-    value = 100 - (y / rect.height) * 100;
+    saturation = Math.min(100, Math.max(0, (x / rect.width) * 100));
+    value = Math.min(100, Math.max(0, 100 - (y / rect.height) * 100));
     color = Color.fromHsv(hue, saturation, value, alpha);
     inputHex = color.hex;
   }
@@ -30,7 +30,7 @@
     listenHue = false;
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const x = event.clientX - rect.left;
-    hue = (x / rect.width) * 360;
+    hue = Math.min(359, Math.max(0, (x / rect.width) * 360));
     color = Color.fromHsv(hue, saturation, value, alpha);
     inputHex = color.hex;
   }
@@ -41,18 +41,25 @@
     listenAlpha = false;
     const rect = (event.target as HTMLElement).getBoundingClientRect();
     const x = event.clientX - rect.left;
-    alpha = (x / rect.width);
+    alpha = Math.min(100, Math.max(0,(x / rect.width)));
     color = Color.fromHsv(hue, saturation, value, alpha);
     inputHex = color.hex;
   }
 
 
   $: {
-    const hsv = color.hsv;
-    hue = hsv[0] ?? 0;
-    saturation = hsv[1] ?? 100;
-    value = hsv[2] ?? 50;
-    alpha = allowAlpha ? hsv[3] : undefined;
+    const newHex = color.hex;
+    const oldHex = Color.fromHsv(hue, saturation, value, alpha).hex;
+    console.log(newHex, oldHex);
+
+    /* update sliders only if colors differ in result */
+    if(newHex !== oldHex) {
+      const hsv = color.hsv;
+      hue = hsv[0] ?? 0;
+      saturation = hsv[1] ?? 100;
+      value = hsv[2] ?? 50;
+      alpha = allowAlpha ? hsv[3] : undefined;
+    }
   }
   
 </script>
