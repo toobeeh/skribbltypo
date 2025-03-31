@@ -19,18 +19,29 @@ jobs:
       - name: Install node dependencies
         run: npm install
 
-      - name: Build extension in dev mode with commit as env for nightly versioning
-        run: npm run build-dev
+      - name: Build chrome extension in dev mode
+        env:
+          TARGET: chrome
+        run: npm run build-dev && mkdir -p ../builds/chrome &&  cp -r dist/* ../builds/chrome
+
+      - name: Build firefox extension in dev mode
+        env:
+          TARGET: firefox
+        run: npm run build-dev && mkdir -p ../builds/firefox && cp -r dist/* ../builds/firefox
+
+      - name: Build userscript in dev mode
+        env:
+          TARGET: userscript
+        run: npm run build-dev && mkdir -p ../builds/userscript &&  cp -r dist/* ../builds/userscript
 
       - name: Push to nightly repo
         uses: s0/git-publish-subdir-action@develop
         env:
           REPO: git@github.com:toobeeh/skribbltypo-nightly.git
           BRANCH: main
-          FOLDER: dist
-          TARGET_DIR: chrome
+          FOLDER: ../builds
           SSH_PRIVATE_KEY: ${{ secrets.NIGHTLY_DEPLOY_PK }}
-          MESSAGE: "toobeeh/skribbltypo@{sha} {msg}"
+          MESSAGE: "{msg}\noriginal commit: toobeeh/skribbltypo@{sha}"
           COMMIT_NAME: "nightly build"
           COMMIT_EMAIL: "dev.tobeh@gmail.com"
           SKIP_EMPTY_COMMITS: true

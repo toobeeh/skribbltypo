@@ -37,26 +37,29 @@ Although it resides in a separate folder, it should be taken care that vite and 
 The project is divided into folders for the type of extension script and utilities:  
 ```
 src
-├──content        -- content script sources
+├──app        -- application sources
 │   ├──core
 │   ├──services
 │   ├──setups
 │   ├──events
 │   └──features
-├──background     -- background script sources
-├──popup          -- popup page sources
+├──runtime        -- implementation for the current browser context runtime and specific features
+│   ├──page       -- runtime and entrypoint for userscript environment
+│   └──extension  -- runtime, background page and popup for extension environment
 │ 
 ├──api            -- generated api client
+├──worker         -- background worker implementations
 ├──signalr        -- generated signalr client
 ├──lib            -- reusable svelte components
 └──util           -- utility functions
 ```
 
-### Content Script
-The content script is the main part of the extension, which interacts with the skribbl.io page.  
-It has the most complex structure; divided into *core*, *setup*, *events* and *features*.  
+### Application
+The app.ts is the entry point of the application, which interacts with the skribbl.io page.  
+For clean development, the architecture is divided into *core*, *setup*, *services*, *events* and *features*.  
 - *core* contains services and abstractions that are used throughout the application
 - *setup* contains modules that are responsible for setting up dependencies for the application
+- *services* contains services that can establish shared state and functionality for features
 - *events* contains modules that process events on the page
 - *features* contains modules that implement specific features on the page
 
@@ -291,3 +294,25 @@ Features that use components from the library can't directly access their svelte
 As a workaround, the template may take a reference to the feature's svelte action 
 and implement its own tooltip registration in the reusable template.  
 An example for this is the IconButton component.
+
+### Workers
+
+Workers are a way to execute heavy tasks in the background in separate threads.
+Typo implements a small framework to create a typed interface to access workers.  
+Also, due to their separate environment and the concern that typo needs to be compiled to userscript as well, it workers are built separately from the main bundle.
+
+#### Implementing a worker
+A worker consists of a worker and parent interface. 
+The worker defines the functions that can be called from the parent, and the parent defines notifications from the worker to the parent.  
+Workers have to reside in their own file which will be executed in a separate thread.  
+They need to create an instance of TypedWorker, which will automatically handle message communication with the parent.
+The parent can ultimately spawn a worker by creating an instance of type TypedWorkerExecutor.  
+From this point on, every data exchange happens through strongly typed interfaces.
+
+#### Building a worker
+Workers are built separately from the main bundle.  
+Workers have to reside in `src/worker` and need to end with `.worker.ts`.  
+To build all workers, run `npm run generate:workers`.  
+This will compile the worker's js and generate a worker definition file in `src/api/worker`.
+This file contains the base64 encoded worker js, which can be easily imported in the parent to spawn the worker.  
+The workers.ts file is ignored by git to avoid binary commits. However, a type definition file `workers.d.ts` is generated as well to be committed.

@@ -3,7 +3,7 @@
 /* tslint:disable */
 // @ts-nocheck
 import type { IStreamResult, Subject } from '@microsoft/signalr';
-import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, DropClaimDto, DropClaimResultDto, AwardGiftDto, TypoLobbySettingsDto, DropAnnouncementDto, AwardGiftedDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
+import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, DropClaimDto, DropClaimResultDto, AwardGiftDto, TypoLobbySettingsDto, DropAnnouncementDto, AwardGiftedDto, DropClearDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
 
 export type IGuildLobbiesHub = {
     /**
@@ -81,6 +81,11 @@ export type ILobbyReceiver = {
     * @returns Transpiled from System.Threading.Tasks.Task
     */
     dropClaimed(claimResult: DropClaimResultDto): Promise<void>;
+    /**
+    * @param drop Transpiled from tobeh.Avallone.Server.Classes.Dto.DropClearDto
+    * @returns Transpiled from System.Threading.Tasks.Task
+    */
+    dropCleared(drop: DropClearDto): Promise<void>;
 }
 
 export type IOnlineItemsReceiver = {

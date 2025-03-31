@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { componentData } from "@/content/services/modal/modal.service";
+  import type { componentData } from "@/app/services/modal/modal.service";
   import { Subject } from "rxjs";
   import { onDestroy, onMount, type SvelteComponent } from "svelte";
 

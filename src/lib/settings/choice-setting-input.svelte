@@ -1,6 +1,6 @@
 <script lang="ts" generics="TChoice extends string">
 
-  import type { ExtensionSetting } from "@/content/core/settings/setting";
+  import type { ExtensionSetting } from "@/app/core/settings/setting";
 
   export let setting: ExtensionSetting<TChoice>;
   export let choices: { choice: TChoice, name: string }[];

@@ -165,9 +165,10 @@ export class Color {
     return new Color(r, g, b, a);
   }
 
-  static fromTypoCode(code: number) {
+  static fromSkribblCode(code: number) {
     if (code < 10000) {
-      throw new Error("Invalid color code, cannot parse native skribbl index");
+      const rgb = Color.skribblColors[code];
+      return Color.fromRgb(rgb[0], rgb[1], rgb[2]);
     }
     const hex = (code - 10000).toString(16).padStart(6, "0");
     return Color.fromHex(hex);

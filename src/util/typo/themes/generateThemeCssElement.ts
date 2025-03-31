@@ -29,7 +29,7 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
             left: 0;
             width: 100%;
             height: 100%;
-            background: ${ !stringHasContent(theme.images.urlBackground) ? theme.images.backgroundTint ?? "" : "" };
+            background: ${ theme.images.backgroundTint ?? "" };
             z-index: -10;
             pointer-events: none;
             filter: brightness(${ !stringHasContent(theme.images.urlBackground) && (theme.images.backgroundTint ?? "transparent") !== "transparent" ? 4 : 1 });
@@ -98,7 +98,7 @@ export const generateStyleElementForTheme = (theme: typoTheme, selectorHooks: Re
 
         ${stringHasContent(theme.images.urlLogo) ? `
           div.logo-big a {display: flex; justify-content: center }
-          div.logo-big img {max-height:20vh; content: url(${theme.images.urlLogo}) }
+          div.logo-big img, div#game-logo img {max-height:20vh; content: url(${theme.images.urlLogo}) }
         ` : ""}
 
         ${

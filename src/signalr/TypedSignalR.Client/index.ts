@@ -4,7 +4,7 @@
 // @ts-nocheck
 import type { HubConnection, IStreamResult, Subject } from '@microsoft/signalr';
 import type { IGuildLobbiesHub, ILobbyHub, IOnlineItemsHub, IGuildLobbiesReceiver, ILobbyReceiver, IOnlineItemsReceiver } from './tobeh.Avallone.Server.Hubs.Interfaces';
-import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, DropClaimDto, DropClaimResultDto, AwardGiftDto, TypoLobbySettingsDto, DropAnnouncementDto, AwardGiftedDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
+import type { GuildLobbiesUpdatedDto, LobbyDiscoveredDto, TypoLobbyStateDto, SkribblLobbyStateDto, SkribblLobbyTypoSettingsUpdateDto, DropClaimDto, DropClaimResultDto, AwardGiftDto, TypoLobbySettingsDto, DropAnnouncementDto, AwardGiftedDto, DropClearDto, OnlineItemsUpdatedDto } from '../tobeh.Avallone.Server.Classes.Dto';
 
 
 // components
@@ -197,19 +197,22 @@ class ILobbyReceiver_Binder implements ReceiverRegister<ILobbyReceiver> {
         const __dropAnnounced = (...args: [DropAnnouncementDto]) => receiver.dropAnnounced(...args);
         const __awardGifted = (...args: [AwardGiftedDto]) => receiver.awardGifted(...args);
         const __dropClaimed = (...args: [DropClaimResultDto]) => receiver.dropClaimed(...args);
+        const __dropCleared = (...args: [DropClearDto]) => receiver.dropCleared(...args);
 
         connection.on("TypoLobbySettingsUpdated", __typoLobbySettingsUpdated);
         connection.on("LobbyOwnershipResigned", __lobbyOwnershipResigned);
         connection.on("DropAnnounced", __dropAnnounced);
         connection.on("AwardGifted", __awardGifted);
         connection.on("DropClaimed", __dropClaimed);
+        connection.on("DropCleared", __dropCleared);
 
         const methodList: ReceiverMethod[] = [
             { methodName: "TypoLobbySettingsUpdated", method: __typoLobbySettingsUpdated },
             { methodName: "LobbyOwnershipResigned", method: __lobbyOwnershipResigned },
             { methodName: "DropAnnounced", method: __dropAnnounced },
             { methodName: "AwardGifted", method: __awardGifted },
-            { methodName: "DropClaimed", method: __dropClaimed }
+            { methodName: "DropClaimed", method: __dropClaimed },
+            { methodName: "DropCleared", method: __dropCleared }
         ]
 
         return new ReceiverMethodSubscription(connection, methodList);

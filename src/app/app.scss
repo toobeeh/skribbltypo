@@ -1,0 +1,44 @@
+h2, h3 {
+  margin-top: 0;
+}
+
+:root {
+  /* missing skribbl variables */
+  --COLOR_BUTTON_DANGER_BG: hsl(44, 81%, 51%);
+  --COLOR_BUTTON_SUBMIT_BG: hsl(110, 75%, 55%);
+  --COLOR_BUTTON_NORMAL_BG: hsl(208, 80%, 54%);
+  --COLOR_BUTTON_DANGER_TEXT: hsl(0, 0%, 100%);
+  --COLOR_BUTTON_SUBMIT_TEXT: hsl(0, 0%, 100%);
+  --COLOR_BUTTON_NORMAL_TEXT: hsl(0, 0%, 100%);
+}
+
+.color-scrollbar::-webkit-scrollbar, .color-scrollbar ::-webkit-scrollbar {
+  width: 14px;
+  border-radius: 7px;
+  background-color: var(--COLOR_PANEL_LO)
+}
+
+.color-scrollbar::-webkit-scrollbar-thumb, .color-scrollbar ::-webkit-scrollbar-thumb {
+  border-radius: 7px;
+  background-color: var(--COLOR_PANEL_HI)
+}
+
+input.typo[type="text"]{
+  border-radius: .5rem;
+  font-weight: 600;
+  padding: .5rem;
+}
+
+img {
+  display: block;
+}
+
+/* hide typo dummy tools */
+.tool[data-tooltip='No Tool']{
+  display: none;
+}
+
+/* fix player list (and therefore player bubbles) being being below canvas */
+#game-players {
+    z-index: 1;
+}
