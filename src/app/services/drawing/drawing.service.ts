@@ -6,6 +6,7 @@ import { WordGuessedEvent, WordGuessedEventListener } from "@/app/events/word-gu
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
 import { SkribblMessageRelaySetup } from "@/app/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
+import { createCrossCustomEvent } from "@/util/document/crossCustomEvent";
 import { ImageData } from "@/util/imageData";
 import { inject, injectable } from "inversify";
 import {
@@ -122,7 +123,7 @@ export class DrawingService {
 
   private onDrawCommand(command: number[]) {
     this._logger.debug("Incoming draw command", command);
-    document.dispatchEvent(new CustomEvent("performDrawCommand", {detail: command}));
+    document.dispatchEvent(createCrossCustomEvent("performDrawCommand", {detail: command}));
   }
 
   /**
