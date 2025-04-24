@@ -37,22 +37,22 @@
 
             &.color {
                 z-index: 0;
-                background-image: url("img/avatar/color_atlas.gif");
+                background-image: url("https://skribbl.io/img/avatar/color_atlas.gif");
             }
 
             &.mouth {
                 z-index: 1;
-                background-image: url("img/avatar/mouth_atlas.gif");
+                background-image: url("https://skribbl.io/img/avatar/mouth_atlas.gif");
             }
 
             &.eyes {
                 z-index: 2;
-                background-image: url("img/avatar/eyes_atlas.gif");
+                background-image: url("https://skribbl.io/img/avatar/eyes_atlas.gif");
             }
 
             &.special {
                 z-index: 3;
-                background-image: url("img/avatar/special_atlas.gif");
+                background-image: url("https://skribbl.io/img/avatar/special_atlas.gif");
                 inset: calc(-1 * var(--typo-avatar-container-size) * (80 - 48) / 48 / 2);
             }
         }
