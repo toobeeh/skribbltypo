@@ -1,6 +1,13 @@
 import type { typoReleaseDetails, TypoRuntime } from "@/runtime/typo-runtime.interface";
 
 export default class ExtensionRuntime implements TypoRuntime {
+
+  customEvent(event: string, detail?: unknown): CustomEvent {
+    return new CustomEvent(event, {
+      detail
+    });
+  }
+
   getSetting(key: string): Promise<string | null> {
     return chrome.runtime.sendMessage({ type: "get setting", key });
   }

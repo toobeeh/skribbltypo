@@ -57,6 +57,8 @@ export default defineConfig(({ mode }) => {
       throw new Error(`Unknown target: ${target}`);
   }
 
+  console.log(`Building ${target} for ${version} (${commit})...`);
+
   return {
     esbuild: {
       minifyIdentifiers: production,
