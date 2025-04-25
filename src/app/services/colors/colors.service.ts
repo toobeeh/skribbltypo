@@ -1,5 +1,9 @@
+import type { featureBinding } from "@/app/core/feature/featureBinding";
+import { FeaturesService } from "@/app/core/feature/features.service";
 import { ExtensionSetting, type serializable } from "@/app/core/settings/setting";
 import { defaultPalettes } from "@/app/features/drawing-color-palettes/default-palettes";
+import { DrawingColorPalettesFeature } from "@/app/features/drawing-color-palettes/drawing-color-palettes.feature";
+import { ToastService } from "@/app/services/toast/toast.service";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, combineLatestWith, distinctUntilChanged, map, tap } from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
@@ -22,7 +26,10 @@ export interface pickerColors {
 }
 
 @injectable()
-export class ColorsService {
+export class ColorsService implements featureBinding {
+
+  @inject(ToastService) private readonly _toastService!: ToastService;
+  @inject(FeaturesService) private readonly _featuresService!: FeaturesService;
 
   private readonly _logger;
 
@@ -32,6 +39,8 @@ export class ColorsService {
   private _selectedPalette$ = new BehaviorSubject<palette | undefined>(undefined);
   private _pickerColors$ = new BehaviorSubject<pickerColors | undefined>(undefined);
   private _colorSelector$ = new BehaviorSubject<((palette: palette | undefined) => (pickerColors | undefined)) | undefined>(undefined);
+
+  private featureActive = false;
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -111,7 +120,14 @@ export class ColorsService {
     await this._savedPalettesSetting.setValue(palettes);
   }
 
-  public setColorSelector(selector: (palette: palette | undefined) => (pickerColors | undefined)){
+  public async setColorSelector(selector: (palette: palette | undefined) => (pickerColors | undefined)){
+    if(!this.featureActive) {
+      this._logger.error("Attempted to save palette while feature is not active");
+      const handle = await this._toastService.showConfirmToast("Attempted to modify color palette, feature disabled.", "Do you want to enable the palettes feature?", 5000, {confirm: "Enable", cancel: "Cancel"});
+      const result = await handle.result;
+      if(result) await this._featuresService.activateFeature(DrawingColorPalettesFeature);
+    }
+
     this._colorSelector$.next(selector);
   }
 
@@ -121,6 +137,14 @@ export class ColorsService {
 
   public get colorSelectorActive(){
     return this._colorSelector$.value === undefined;
+  }
+
+  async onFeatureActivate(): Promise<void> {
+    this.featureActive = true;
+  }
+
+  async onFeatureDestroy(): Promise<void> {
+    this.featureActive = false;
   }
 
 }

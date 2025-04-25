@@ -1,4 +1,5 @@
 import type { TypoFeature } from "@/app/core/feature/feature";
+import type { Type } from "@/util/types/type";
 import { inject, injectable } from "inversify";
 import { Subject } from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
@@ -29,4 +30,16 @@ export class FeaturesService {
   public get features() {
     return [...this._features];
   }
+
+  public async activateFeature(featureType: Type<TypoFeature>) {
+    const feature = this._features.find(f => f instanceof featureType);
+    if(!feature) {
+      this._logger.error("Attempted to activate a feature that is not registered", feature);
+      throw new Error("Feature not registered");
+    }
+
+    return feature.activate();
+  }
+
+
 }
