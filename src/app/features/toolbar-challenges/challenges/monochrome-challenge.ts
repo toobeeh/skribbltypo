@@ -37,9 +37,11 @@ export class MonochromeChallenge extends TypoChallenge<boolean> {
         palette = palette ?? defaultPalettes.skribblPalette;
         const random = Math.floor(Math.random() * palette.columns);
         return {
-          preferredColumnWidth: palette.columns,
+          preferredColumnWidth: Math.min(palette.columns, palette.colorHexCodes.length),
           columns: 1,
-          colorHexCodes: palette?.colorHexCodes.filter((_, index) => (index % palette.columns) === random) ?? []
+          colorHexCodes: (palette.columns === 1 || palette.colorHexCodes.length === 1) ?
+            palette.colorHexCodes :
+            palette?.colorHexCodes.filter((_, index) => (index % palette.columns) === random) ?? []
         };
       });
     }
