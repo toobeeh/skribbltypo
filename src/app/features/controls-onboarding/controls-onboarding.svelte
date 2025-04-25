@@ -293,7 +293,7 @@
       <h2>{firstLoad ? "Welcome to" : "Thanks for using"} typo ✨</h2>
       <b>Typo is the toolbox for everything you need on skribbl.io</b>
     </div>
-    <div class="beta-credits">XOXO to all beta testers &lt;3<br>Alpha, Foley, hunt3r.zip, Hex, ibot, Max, Oivoo, shawty, Tuc, ShortM, XVIdevilIVX</div>
+    <div class="beta-credits">XOXO to all beta testers &lt;3<br>Alpha, Foley, Hex, hunt3r, ibot, Max, Oivoo, shawty, Tuc, ShortM, XVIdevilIVX</div>
   </div>
 
   <div class="onboarding-tabs">
