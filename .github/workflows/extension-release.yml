@@ -94,7 +94,7 @@ jobs:
         id: web-ext-sign
         uses: kewisch/action-web-ext@v1
         with:
-          cmd: build
+          cmd: sign
           source: ${{ steps.web-ext-build.outputs.target }}
           channel: listed
           license: Apache-2.0
