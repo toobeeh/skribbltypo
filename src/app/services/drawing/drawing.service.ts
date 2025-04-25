@@ -7,6 +7,7 @@ import { ElementsSetup } from "@/app/setups/elements/elements.setup";
 import { SkribblMessageRelaySetup } from "@/app/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { arrayChunk } from "@/util/arrayChunk";
 import { createCrossCustomEvent } from "@/util/document/crossCustomEvent";
+import { crossImage } from "@/util/document/crossImage";
 import { ImageData } from "@/util/imageData";
 import { inject, injectable } from "inversify";
 import {
@@ -335,10 +336,7 @@ export class DrawingService {
   public async drawImage(imageBase64: string, x?: number, y?: number, dx?: number, dy?: number) {
     this._logger.debug("Drawing image", imageBase64, x, y, dx, dy);
 
-    const img = new Image();
-    img.src = imageBase64;
-    await new Promise(resolve => img.onload = resolve);
-
+    const img = await crossImage(imageBase64);
     const canvas = (await this.elementsSetup.complete()).canvas;
     const ctx = canvas.getContext("2d");
     ctx?.drawImage(img, x ?? 0, y ?? 0, dx ?? img.width, dy ?? img.height);
