@@ -96,6 +96,11 @@ jobs:
         with:
           cmd: build
           source: ${{ steps.web-ext-build.outputs.target }}
+          channel: listed
+          license: Apache-2.0
+          apiKey: ${{ secrets.MOZILLA_API_KEY }}
+          apiSecret: ${{ secrets.MOZILLA_API_SECRET }}
+          timeout: 900000
 
       - name: Archive signed XPI
         uses: actions/upload-artifact@v4
