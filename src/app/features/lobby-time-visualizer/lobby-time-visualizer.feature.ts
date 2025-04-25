@@ -4,6 +4,7 @@ import { LobbyJoinedEventListener } from "@/app/events/lobby-joined.event";
 import { LobbyLeftEventListener } from "@/app/events/lobby-left.event";
 import { LobbyStateChangedEventListener } from "@/app/events/lobby-state-changed.event";
 import type { componentData } from "@/app/services/modal/modal.service";
+import { createStylesheet, type stylesheetHandle } from "@/util/document/applyStylesheet";
 import {
   combineLatestWith,
   delay,
@@ -58,12 +59,11 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
     .withDescription("Show a visualizer of the remaining time to guess a word"));
 
   private visualizerEventSubscription?: Subscription;
-  private _visualizerStyle?: CSSStyleSheet;
+  private _visualizerStyle?: stylesheetHandle;
 
   protected override async onActivate() {
 
-    this._visualizerStyle = new CSSStyleSheet();
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, this._visualizerStyle];
+    this._visualizerStyle = createStylesheet();
 
     this._lobbyJoinedEventListener.events$.pipe(
       mergeWith(this._lobbyLeftEventListener.events$),
@@ -113,7 +113,8 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
   protected override async onDestroy() {
     this.visualizerEventSubscription?.unsubscribe();
     this.visualizerEventSubscription = undefined;
-    document.adoptedStyleSheets = document.adoptedStyleSheets.filter(sheet => sheet !== this._visualizerStyle);
+    this._visualizerStyle?.remove();
+    this._visualizerStyle = undefined;
   }
 
   private async visualizeEvent(data: {time: number, max: number} | undefined) {
@@ -125,7 +126,7 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
     }
 
     /* reset styles*/
-    await this._visualizerStyle.replace("");
+    this._visualizerStyle.clear();
     if(data === undefined) return;
     const {time, max} = data;
 
@@ -136,7 +137,7 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
     const endColor = await this._colorEndSetting.getValue();
 
     /* add current visualizer */
-    await this._visualizerStyle.replace(`  
+    this._visualizerStyle.replace(`  
       @keyframes countdown {
         0% { width: ${ Math.floor(time * 100 / max) }%; background-color: ${startColor}; }
         50% { width: ${ Math.floor(time * 50 / max) }%; background-color: ${startColor}; }
