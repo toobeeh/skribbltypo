@@ -10,6 +10,11 @@
     "32": "res/icon/32CircleFit.png",
     "16": "res/icon/16Fit.png"
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}"
+    }
+  },
   "action": {
     "default_title": "Skribbl Typo",
     "default_icon": "res/icon/128MaxFit.png",
