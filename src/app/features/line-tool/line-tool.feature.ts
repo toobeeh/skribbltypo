@@ -284,7 +284,7 @@ export class LineToolFeature extends TypoFeature {
    * @param event
    * @private
    */
-  private async onCanvasDown(event: PointerEvent) {
+  private onCanvasDown(event: PointerEvent) {
     this._logger.debug("Canvas clicked", event);
     if (this._lineListenToggle$.value) {
       const canvas = (event.target as HTMLCanvasElement); 
@@ -295,7 +295,7 @@ export class LineToolFeature extends TypoFeature {
       const realX = canvas.width * event.offsetX / boundingRect.width;
       const realY = canvas.height * event.offsetY / boundingRect.height;
       this._originCoordinates$.next([realX, realY]);
-      return false;
+      return false; /* cancel further events like brushlab  */
     }
   }
 
