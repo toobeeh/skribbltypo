@@ -10,6 +10,7 @@ import { type stickyToastHandle, ToastService } from "@/app/services/toast/toast
 import {
   PrioritizedCanvasEventsSetup
 } from "@/app/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
+import { createStylesheet, type stylesheetHandle } from "@/util/document/applyStylesheet";
 import { inject } from "inversify";
 import {
   BehaviorSubject,
@@ -82,7 +83,7 @@ export class CanvasZoomFeature extends TypoFeature {
   private _toastHandle?: stickyToastHandle;
   private _zoomStateSubscription?: Subscription;
   private _zoomResetSubscription?: Subscription;
-  private _zoomStyle?: CSSStyleSheet;
+  private _zoomStyle?: stylesheetHandle;
 
   private readonly _canvasPointermoveListener = this.onCanvasPointermove.bind(this);
   private readonly _canvasPointeroutListener = this.onCanvasPointerout.bind(this);
@@ -92,8 +93,7 @@ export class CanvasZoomFeature extends TypoFeature {
     add("postDraw")("pointermove", this._canvasPointermoveListener);
     add("postDraw")("pointerout", this._canvasPointeroutListener);
 
-    this._zoomStyle = new CSSStyleSheet();
-    document.adoptedStyleSheets = [...document.adoptedStyleSheets, this._zoomStyle];
+    this._zoomStyle = createStylesheet();
 
     /* reset zoom */
     this._zoomResetSubscription = this._imageResetEventListener.events$.pipe( /* on image clear */
@@ -123,7 +123,7 @@ export class CanvasZoomFeature extends TypoFeature {
     remove("pointermove", this._canvasPointermoveListener);
     remove("pointerout", this._canvasPointeroutListener);
 
-    document.adoptedStyleSheets = document.adoptedStyleSheets.filter(s => s !== this._zoomStyle);
+    this._zoomStyle?.remove();
     this._zoomStyle = undefined;
 
     this._toastHandle?.close();
@@ -146,11 +146,11 @@ export class CanvasZoomFeature extends TypoFeature {
     }
 
     if(level === undefined || position === undefined) {
-      await sheet.replace("");
+      sheet.clear();
       return;
     }
 
-    await sheet.replace(`
+    sheet.replace(`
       #game-canvas {
         width: 800px;
         aspect-ratio: 8/6;

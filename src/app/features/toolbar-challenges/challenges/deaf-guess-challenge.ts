@@ -2,6 +2,7 @@ import { TypoChallenge } from "@/app/features/toolbar-challenges/challenge";
 import { ChatService } from "@/app/services/chat/chat.service";
 import { DrawingService } from "@/app/services/drawing/drawing.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
+import { createStylesheet, type stylesheetHandle } from "@/util/document/applyStylesheet";
 import { inject } from "inversify";
 import { combineLatestWith, distinctUntilChanged, map, type Observable, type Subscription } from "rxjs";
 
@@ -12,7 +13,7 @@ export class DeafGuessChallenge extends TypoChallenge<boolean> {
   @inject(ChatService) private readonly _chatService!: ChatService;
 
   private _blurredMessages?: HTMLElement[];
-  private _style?: CSSStyleSheet;
+  private _style?: stylesheetHandle;
   private _messagesSubscription?: Subscription;
 
   readonly name = "Deaf Guess";
@@ -49,10 +50,9 @@ export class DeafGuessChallenge extends TypoChallenge<boolean> {
 
       /* set the style for the challenge effects */
       if(!this._style){
-        this._style = new CSSStyleSheet();
-        this._style.insertRule(".typo-challenge-deaf-guess-hidden span, .player-bubble .content .text { filter: blur(3px); }");
-        this._style.insertRule("#game form.chat-form .characters, #game-word .hints { opacity: 0 }");
-        document.adoptedStyleSheets = [...document.adoptedStyleSheets, this._style];
+        this._style = createStylesheet();
+        this._style.sheet.insertRule(".typo-challenge-deaf-guess-hidden span, .player-bubble .content .text { filter: blur(3px); }");
+        this._style.sheet.insertRule("#game form.chat-form .characters, #game-word .hints { opacity: 0 }");
       }
     }
 
@@ -63,7 +63,7 @@ export class DeafGuessChallenge extends TypoChallenge<boolean> {
       this._messagesSubscription = undefined;
       this._blurredMessages?.forEach(message => message.classList.remove("typo-challenge-deaf-guess-hidden"));
       this._blurredMessages = undefined;
-      document.adoptedStyleSheets = document.adoptedStyleSheets.filter(sheet => sheet !== this._style);
+      this._style?.remove();
       this._style = undefined;
     }
 
