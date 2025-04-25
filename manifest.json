@@ -2,19 +2,13 @@
   "manifest_version": 3,
   "name": "Skribbl Typo",
   "description": "The most complete toolbox for skribbl.io with namefinder & Discord integration",
-  "version": "26.3.14",
+  "version": "26.3.15",
   "author": "tobeh",
   "icons": {
     "256": "res/icon/256MaxFit.png",
     "128": "res/icon/128MaxFit.png",
     "32": "res/icon/32CircleFit.png",
     "16": "res/icon/16Fit.png"
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}",
-      "update_url": "https://toobeeh.github.io/skribbltypo/updates.json"
-    }
   },
   "action": {
     "default_title": "Skribbl Typo",
