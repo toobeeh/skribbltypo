@@ -119,6 +119,10 @@ export abstract class TypoFeature {
     return this.tags;
   }
 
+  public get activated() {
+    return this._isActivated;
+  }
+
   /**
    * A component to display feature customization settings
    */

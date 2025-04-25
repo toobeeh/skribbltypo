@@ -27,7 +27,6 @@ export class MonochromeChallenge extends TypoChallenge<boolean> {
   }
 
   apply(trigger: boolean): void {
-
     if(!trigger) {
       this._colorsService.resetColorSelector();
     }
