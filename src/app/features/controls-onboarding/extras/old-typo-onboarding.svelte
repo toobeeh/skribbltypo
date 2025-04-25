@@ -99,4 +99,11 @@
     Instead of clicking your avatar on the home screen, you can enter the offline free draw mode using the palette icon next to your avatar.<br>
   </p>
 
+  <p>
+    <b>➜ Drop Catch Reports</b><br>
+    When someone catches drops suspiciously fast, you could report the catch by revealing the drop ID in the drop message.<br>
+    To report drops in the new typo, open the "Drops" feature in the typo setting, where you will find a log of all drop catches.<br>
+    To report a drop, you can copy its ID and the catch time and send it on the typo discord server.<br>
+  </p>
+
 </div>

@@ -33,6 +33,7 @@
 
     <div class="typo-drop-claims-claim">
       <b>#{claim.dropId}</b>
+      <span>{new Date(claim.dropId).toLocaleTimeString()}</span>
       <span>{claim.username}</span>
       <span>{claim.catchTime}ms</span>
       <span>{Math.round(claim.leagueWeight * 100)}%</span>
