@@ -97,6 +97,7 @@ jobs:
           cmd: sign
           source: ${{ steps.web-ext-build.outputs.target }}
           channel: listed
+          license: MPL-2.0
           apiKey: ${{ secrets.MOZILLA_API_KEY }}
           apiSecret: ${{ secrets.MOZILLA_API_SECRET }}
           timeout: 900000
