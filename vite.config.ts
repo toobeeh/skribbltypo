@@ -12,7 +12,7 @@ import { buildUserscript } from "./vite-build/typo-build-userscript.plugin";
  * Build depending on environment
  * mode: production or development
  * commit: the commit hash of the build (from env)
- * target: extension or userscript (from env)
+ * target: chrome, firefox or userscript (from env)
  *
  * if production -> stable build
  * if commit and development -> beta build
