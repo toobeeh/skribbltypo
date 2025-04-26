@@ -21,7 +21,6 @@ export const buildUserscript: TypoBuildPlugin = (
 
   /* add version name to manifest */
   const version_name = `${packageData.version} ${version}-usc${buildCommit ? " " + buildCommit : ""}`;
-  console.log(version_name);
 
   return [
 

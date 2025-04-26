@@ -41,5 +41,5 @@ export default defineManifest({
       resources: ["**/*.js.map", "gamePatch.js"]
     },
   ],
-  permissions: ["activeTab"],
+  permissions: ["activeTab"]
 });
