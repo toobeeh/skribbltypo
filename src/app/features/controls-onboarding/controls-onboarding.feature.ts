@@ -1,6 +1,7 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { FeaturesService } from "@/app/core/feature/features.service";
 import { BooleanExtensionSetting } from "@/app/core/settings/setting";
+import { CanvasRateIconsFeature } from "@/app/features/canvas-rate-icons/canvas-rate-icons.feature";
 import { CanvasZoomFeature } from "@/app/features/canvas-zoom/canvas-zoom.feature";
 import { ChatClearFeature } from "@/app/features/chat-clear/chat-clear.feature";
 import { ChatCommandsFeature } from "@/app/features/chat-commands/chat-commands.feature";
@@ -12,6 +13,7 @@ import { ChatProfileLinkFeature } from "@/app/features/chat-profile-link/chat-pr
 import { ChatQuickReactFeature } from "@/app/features/chat-quick-react/chat-quick-react.feature";
 import { ChatRecallFeature } from "@/app/features/chat-recall/chat-recall.feature";
 import { ControlsCloudFeature } from "@/app/features/controls-cloud/controls-cloud.feature";
+import { ControlsThemesFeature } from "@/app/features/controls-themes/controls-themes.feature";
 import {
   CustomizerOutfitToggleFeature
 } from "@/app/features/customizer-outfit-toggle/customizer-outfit-toggle.feature";
@@ -19,6 +21,7 @@ import {
   CustomizerPracticeJoinFeature
 } from "@/app/features/customizer-practice-join/customizer-practice-join.feature";
 import { DrawingColorPalettesFeature } from "@/app/features/drawing-color-palettes/drawing-color-palettes.feature";
+import { DrawingColorToolsFeature } from "@/app/features/drawing-color-tools/drawing-color-tools.feature";
 import { DrawingPressureFeature } from "@/app/features/drawing-pressure/drawing-pressure.feature";
 import { DropsFeature } from "@/app/features/drops/drops.feature";
 import { GuessCheckFeature } from "@/app/features/guess-check/guess-check.feature";
@@ -27,13 +30,19 @@ import { ImageAgentFeature } from "@/app/features/image-agent/image-agent.featur
 import { LineToolFeature } from "@/app/features/line-tool/line-tool.feature";
 import { LobbyStatusFeature } from "@/app/features/lobby-status/lobby-status.feature";
 import { LobbyTimeVisualizerFeature } from "@/app/features/lobby-time-visualizer/lobby-time-visualizer.feature";
+import { PanelCabinFeature } from "@/app/features/panel-cabin/panel-cabin.feature";
+import { PanelChangelogFeature } from "@/app/features/panel-changelog/panel-changelog.feature";
+import { PanelLobbiesFeature } from "@/app/features/panel-lobbies/panel-lobbies.feature";
+import { PanelNewsFeature } from "@/app/features/panel-news/panel-news.feature";
 import { PlayerIdsFeature } from "@/app/features/player-ids/player-ids.feature";
 import { TooltipsFeature } from "@/app/features/tooltips/tooltips.feature";
+import { UserInfoFeature } from "@/app/features/user-info/user-info.feature";
 import { type componentData, type modalHandle, ModalService } from "@/app/services/modal/modal.service";
 import { ToastService } from "@/app/services/toast/toast.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
+import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
-import { firstValueFrom, Subscription } from "rxjs";
+import { firstValueFrom, Subject, Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
 import ControlsOnboarding from "./controls-onboarding.svelte";
@@ -68,7 +77,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
     name: "Read about the new typo",
     description: "Open the 'more info' tab to read an intro and changes of the new typo.",
     start: async () => {
-      await this._toastService.showToast("Scroll up and open the 'More Info' tab to complete the challenge!");
+      this._tabFocusRequests$.next("extras");
       return false;
     },
     priority: 1
@@ -122,7 +131,26 @@ export class ControlsOnboardingFeature extends TypoFeature {
     },
     mobile: {
       mode: "whitelist",
-      features: []
+      features: [
+        LobbyStatusFeature,
+        ChatEmojisFeature,
+        ChatProfileLinkFeature,
+        LobbyTimeVisualizerFeature,
+        DrawingPressureFeature,
+        ChatClearFeature,
+        CustomizerPracticeJoinFeature,
+        CustomizerOutfitToggleFeature,
+        ControlsOnboardingFeature,
+        TooltipsFeature,
+        ControlsThemesFeature,
+        UserInfoFeature,
+        PanelLobbiesFeature,
+        PanelCabinFeature,
+        PanelNewsFeature,
+        PanelChangelogFeature,
+        DrawingColorToolsFeature,
+        CanvasRateIconsFeature
+      ]
     }
   };
 
@@ -130,6 +158,7 @@ export class ControlsOnboardingFeature extends TypoFeature {
   private _iconClickSubscription?: Subscription;
   private _currentModal?: modalHandle;
   private _taskCompletedSubscription?: Subscription;
+  private _tabFocusRequests$ = new Subject<"presets" | "tasks" | "extras" | undefined>();
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
@@ -169,6 +198,10 @@ export class ControlsOnboardingFeature extends TypoFeature {
     this._iconClickSubscription = undefined;
     this._taskCompletedSubscription?.unsubscribe();
     this._taskCompletedSubscription = undefined;
+  }
+
+  public get tabFocusRequestsStore(){
+    return fromObservable(this._tabFocusRequests$, undefined);
   }
 
   private showOnboarding(firstLoad = false) {

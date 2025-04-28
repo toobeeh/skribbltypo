@@ -54,6 +54,7 @@
 
     .filters {
       display: flex;
+      flex-wrap: wrap;
       gap: 1rem;
     }
 
@@ -110,7 +111,8 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 2rem;
-      padding: 0 2em 2em 2em;
+      margin: 0 2rem;
+      padding-bottom: 2rem;
       overflow: auto;
     }
   }

@@ -65,6 +65,7 @@
     backdrop-filter: blur(4px);
 
     max-height: calc(100vh - 4rem);
+    max-width: calc(100vh - 4rem);
 
     display: flex;
     flex-direction: column;
@@ -109,6 +110,7 @@
       width: 100%;
       flex-grow: 1;
       align-items: stretch;
+      padding: 0 .5rem;
     }
   }
 

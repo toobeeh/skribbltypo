@@ -77,12 +77,21 @@
     }, 3000);
   }
 
+
   const activateFeaturePreset = (preset: "recommended" | "mobile" | "minimal" | "all" | "none") => {
     feature.activateFeaturePreset(preset);
     if(firstLoad) useTab("tasks");
+    else feature.closeOnboardingIfOpen();
   }
 
   let activeTab: "presets" | "tasks" | "extras" = firstLoad ? "presets" : "tasks";
+  const activeTabFocus = feature.tabFocusRequestsStore;
+  activeTabFocus.subscribe(v => {
+    if(v !== undefined) {
+      useTab(v);
+    }
+  });
+
   let hideHero = false;
   const useTab = (tab: "presets" | "tasks" | "extras") => {
     hideHero = true;
@@ -127,9 +136,12 @@
     place-content: center;
     position: relative;
     padding: 100px 300px;
-    margin: 40px;
-    margin-bottom: 2rem;
+    margin: 40px 40px 2rem;
     transition: padding .4s, margin-top .4s;
+    
+    @media (max-aspect-ratio: 1) {
+      padding: 4rem 0 0;
+    }
 
     &.hidden {
       margin-top: 0;
@@ -169,6 +181,7 @@
       padding: 1rem;
       opacity: .5;
       user-select: none;
+      text-align: center;
 
       &.active {
         opacity: 1;
@@ -192,8 +205,7 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      min-width: clamp(40em, 40em, 100%);
-      max-width: clamp(40em, 40em, 100%);
+      width: clamp(min(40em, 100%), min(40em, 100%), max(40em, 100%));
       transition: transform .2s;
 
       &:hover {
@@ -222,38 +234,45 @@
     }
   }
 
-  .typo-onboarding-checklist {
+  .typo-onboarding-checklist-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-    margin-top: 1rem;
+    align-items: stretch; /* for equal width */
 
-    .typo-onboarding-task {
-      cursor: pointer;
-      background-color: var(--COLOR_PANEL_HI);
-      border-radius: 3px;
-      padding: 1rem;
+    .typo-onboarding-checklist {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      min-width: clamp(40em, 40em, 100%);
-      max-width: clamp(40em, 40em, 100%);
+      align-items: center;
+      margin-top: 1rem;
 
-      &.done {
-        cursor: auto;
-
-        .description {
-          opacity: .5;
-        }
-      }
-
-      .details {
+      .typo-onboarding-task {
+        cursor: pointer;
+        background-color: var(--COLOR_PANEL_HI);
+        border-radius: 3px;
+        padding: 1rem;
         display: flex;
+        flex-direction: column;
         gap: 1rem;
+        width: clamp(min(40em, 100%), min(40em, 100%), max(40em, 100%));
+
+        &.done {
+          cursor: auto;
+
+          .description {
+            opacity: .5;
+          }
+        }
+
+        .details {
+          display: flex;
+          gap: 1rem;
+        }
       }
     }
   }
+
+
 
   .typo-onboarding-extras {
     display: flex;
@@ -261,6 +280,10 @@
     gap: 3rem;
     align-self: stretch;
     padding: 0 2rem 2rem 2rem;
+
+    @media (max-aspect-ratio: 1) {
+      flex-direction: column;
+    }
 
     .typo-onboarding-extras-sections {
       display: flex;
@@ -319,9 +342,9 @@
       </div>
 
       <div class="typo-onboarding-preset" on:click={() => activateFeaturePreset("mobile")}>
-        <h3>Tablet & Phone</h3>
+        <h3>Phone</h3>
         <div>
-          Activates only features that will - probably - work on mobile devices.
+          Activates only features that will - probably - work on mobile devices. Limited support!
         </div>
       </div>
 
@@ -357,48 +380,50 @@
         {#if checklist.every((task) => task.completed)}
           <span>Congrats, you have completed all tasks!</span>
         {:else}
-          <span>Complete all tasks to finalize your skribbl setup:</span>
+          <span>You can complete following tasks to familiarize yourself with typo:</span>
         {/if}
 
-        <div class="typo-onboarding-checklist">
-          {#each checklist.filter(task => !task.completed) as task}
-            <div class="typo-onboarding-task" style="order: {task.priority}"  on:click={async () => {
+        <div class="typo-onboarding-checklist-wrapper">
+          <div class="typo-onboarding-checklist">
+            {#each checklist.filter(task => !task.completed) as task}
+              <div class="typo-onboarding-task" style="order: {task.priority}"  on:click={async () => {
               const close = await task.start();
               if(close !== false) feature.closeOnboardingIfOpen();
             }}>
-              <h4>
-                {task.name}
-              </h4>
+                <h4>
+                  {task.name}
+                </h4>
 
-              <div class="details">
-                <img src="" style="content: var(--file-img-arrow-right-gif); height: 1.5rem;">
-                <div class="description">{task.description}</div>
-              </div>
-
-            </div>
-          {/each}
-        </div>
-
-
-        <div class="typo-onboarding-checklist">
-          {#each checklist.filter(task => task.completed) as task}
-            <div class="typo-onboarding-task done" style="order: {task.priority}">
-              <h4>
-                {task.name}
-              </h4>
-
-              <div class="details">
-                {#if task.completed}
-                  <img src="" style="content: var(--file-img-enabled-gif); height: 1.5rem;">
-                  <b>Done</b>
-                {:else}
+                <div class="details">
                   <img src="" style="content: var(--file-img-arrow-right-gif); height: 1.5rem;">
-                {/if}
-                <div class="description">{task.description}</div>
-              </div>
+                  <div class="description">{task.description}</div>
+                </div>
 
-            </div>
-          {/each}
+              </div>
+            {/each}
+          </div>
+
+
+          <div class="typo-onboarding-checklist">
+            {#each checklist.filter(task => task.completed) as task}
+              <div class="typo-onboarding-task done" style="order: {task.priority}">
+                <h4>
+                  {task.name}
+                </h4>
+
+                <div class="details">
+                  {#if task.completed}
+                    <img src="" style="content: var(--file-img-enabled-gif); height: 1.5rem;">
+                    <b>Done</b>
+                  {:else}
+                    <img src="" style="content: var(--file-img-arrow-right-gif); height: 1.5rem;">
+                  {/if}
+                  <div class="description">{task.description}</div>
+                </div>
+
+              </div>
+            {/each}
+          </div>
         </div>
       {/await}
 

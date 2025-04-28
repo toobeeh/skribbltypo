@@ -17,6 +17,7 @@
 
   const position = globalSettings.settings.controlsPosition.store;
   const direction = globalSettings.settings.controlsDirection.store;
+  let mobileExpanded = false;
 
 </script>
 
@@ -56,8 +57,37 @@
       flex-direction: row;
     }
 
+    @media (max-aspect-ratio: 1) {
+      &:not(.expanded) > :global(:not(.typo-controls-mobile-expand)) {
+        display: none;
+      }
+    }
+
+    .typo-controls-mobile-expand {
+      display: none;
+
+      @media (max-aspect-ratio: 1) {
+        display: grid;
+        place-content: center;
+        height: 2rem;
+        aspect-ratio: 1;
+        border-radius: 100%;
+        background-color: var(--COLOR_PANEL_HI);
+        background-size: 1.2rem;
+        background-position: center;
+        background-repeat: no-repeat;
+        cursor:pointer;
+        user-select: none;
+        opacity: .9;
+      }
+    }
+
   }
 </style>
 
-<div bind:this={elem} class='typo-controls {$position} {$direction}'></div>
+<div bind:this={elem} class:expanded={mobileExpanded} class='typo-controls {$position} {$direction}'>
+
+  <div class="typo-controls-mobile-expand" style="background-image: var(--file-img-typo-gif)" on:click={() => mobileExpanded = !mobileExpanded}></div>
+
+</div>
 
