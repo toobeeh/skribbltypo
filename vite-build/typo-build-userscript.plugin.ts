@@ -46,6 +46,7 @@ export const buildUserscript: TypoBuildPlugin = (
         match: "https://skribbl.io/*",
         "run-at": "document-start",
         version: version_name,
+        updateURL: "https://get.typo.rip/userscript/skribbltypo.user.js"
       }
     }),
   ];
