@@ -129,7 +129,7 @@ jobs:
           apiSecret: ${{ secrets.MOZILLA_API_SECRET }}
           timeout: 900000
 
-      - name: Append to release
+      - name: Append package to release
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
         env:
@@ -139,3 +139,29 @@ jobs:
           asset_path: ${{ steps.web-ext-sign.outputs.target }}
           asset_name: skribbltypo-firefox.xpi
           asset_content_type: application/x-xpinstall
+
+      - name: Create firefox updates json
+        run: |
+          echo '{
+            "addons": {
+              "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}": {
+                "updates": [
+                  {
+                    "version": "'${{ env.VERSION }}'",
+                    "update_link": "https://get.typo.rip/firefox/skribbltypo.xpi"
+                  }
+                ]
+              }
+            }
+          }' > ./updates.json
+
+      - name: Append updates.json to release
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./updates.json
+          asset_name: skribbltypo-firefox-updates.json
+          asset_content_type: application/json
