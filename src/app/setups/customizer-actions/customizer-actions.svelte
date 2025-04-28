@@ -20,6 +20,12 @@
     gap: 4px;
     top: 40px;
     right: 4px;
+    
+    @media (max-aspect-ratio: 1) {
+      gap: 1.25vh;
+      top: 7.5vh;
+      right: 1.25vh;
+    }
   }
 </style>
 

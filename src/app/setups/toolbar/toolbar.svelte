@@ -7,6 +7,10 @@
     align-items: center;
     justify-content: space-evenly;
 
+    @media (max-aspect-ratio: 1) {
+      display: none; /* all hidden always on mobile */
+    }
+
     &:empty {
       display: none;
     }

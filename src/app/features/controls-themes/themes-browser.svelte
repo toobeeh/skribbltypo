@@ -1,8 +1,8 @@
 <script lang="ts">
 
-  import type { ThemeListingDto } from "@/api";
-  import type { ControlsThemesFeature, savedTheme } from "@/app/features/controls-themes/controls-themes.feature";
+  import type { ControlsThemesFeature } from "@/app/features/controls-themes/controls-themes.feature";
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
+  import type { savedTheme } from "@/util/typo/themes/theme";
 
   export let feature: ControlsThemesFeature;
   const devmode = feature.devmodeStore;
@@ -39,8 +39,7 @@
     gap: 1rem;
     justify-content: start;
     align-items: center;
-    min-width: clamp(30em, 30em, 100%);
-    max-width: clamp(30em, 30em, 100%);
+    width: clamp(min(100%, 30em), min(100%, 30em), max(100%, 30em));
 
     display: grid;
     grid-template-columns: auto 1fr;

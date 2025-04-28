@@ -22,10 +22,20 @@
 
   :global(#home .panel.panel-right){
     margin-left: 20px; /* like skribbl info panels below */
+
+    @media (max-aspect-ratio: 1) {
+      margin-left: 0;
+      order: 2;
+    }
   }
 
   :global(#home .panel.panel-left){
     margin-right: 20px; /* like skribbl info panels below */
+
+    @media (max-aspect-ratio: 1) {
+      margin-right: 0;
+      order: 3;
+    }
   }
 
   :global(#home .panel.typo-panel) {

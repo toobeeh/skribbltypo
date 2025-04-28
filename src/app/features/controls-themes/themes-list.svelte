@@ -35,7 +35,7 @@
     align-items: start;
     display: flex;
     flex-direction: column;
-    min-width: clamp(20em, 20em, 100%);
+    width: clamp(min(100%, 20em), min(100%, 20em), max(100%, 20em));
 
     .active-marker {
       display: flex;
@@ -118,7 +118,9 @@
             on:click={() => feature.removeSavedTheme(theme.theme.meta.id)}
           />
         {/if}
+      </div>
 
+      <div>
         {#if theme.enableManage === true}
           <FlatButton
             content="{$loadedEditorTheme?.theme.meta.id === theme.theme.meta.id ? 'Editing' : 'Edit'}"

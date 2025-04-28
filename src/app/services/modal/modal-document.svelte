@@ -62,6 +62,7 @@
   div.content {
     position: fixed;
     inset: 10vh 0 0 0;
+    max-width: 100vw;
     background: var(--COLOR_PANEL_BG);
     z-index: 9999;
     animation: slideIn 0.15s ease-out;
@@ -108,6 +109,7 @@
       width: 100%;
       align-items: stretch;
       flex-grow: 1;
+      padding: 0 .5rem;
     }
   }
 
