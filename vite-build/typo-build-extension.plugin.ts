@@ -32,7 +32,6 @@ export const buildChromeExtension: (browser: "chrome" | "firefox") => TypoBuildP
 
   /* set update url for firefox */
   if(browser === "firefox") {
-    mv3.update_url = "https://get.typo.rip/extension/firefox/updates.json";
     (mv3 as unknown as firefoxMv3).browser_specific_settings = {
       gecko: {
         id: "{0b67dc2f-1517-451c-b5cb-8b28270b03e6}",
