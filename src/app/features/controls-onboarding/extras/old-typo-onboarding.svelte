@@ -13,19 +13,19 @@
   }
 </style>
 
-<h3>Introducing the new typo</h3>
+<h3>Introducing the new Typo</h3>
 
 <div>
   <p>
-    Starting in April 2025, typo is receiving its biggest update so far.<br>
+    Starting in April 2025, Typo is receiving its biggest update so far.<br>
     Typo still has the same features, but makes them much more user-friendly, accessible and customizable.<br>
-    So far, typo provided the tools, but now it's the whole workshop!
+    So far, Typo provided the tools, but now it's the whole workshop!
   </p>
 
   <h4>A quick-start guide</h4>
   <p>
-    All typo features can now be customized, so you don't have anything that messes with your optimal skribbl experience.<br>
-    To set up typo to your preferences, click the wrench icon at the top left (unless customized to somewhere else ;).<br>
+    All Typo features can now be customized, so you don't have anything that messes with your optimal skribbl experience.<br>
+    To set up Typo to your preferences, click the wrench icon at the top left (unless customized to somewhere else ;).<br>
     There, you can:
   </p>
 
@@ -40,7 +40,7 @@
     To get started, you can browse through the list of features and view their details.<br>
     Features are also categorized by tags so you can easily find what you are looking for.<br>
     While you might see many features that you already know of, you could discover some that were newly added or features that you didn't notice yet!<br>
-    To change general typo settings, choose the "Typo Settings" feature in the Typo Features view.<br>
+    To change general Typo settings, choose the "Typo Settings" feature in the Typo Features view.<br>
     You can reset all data or switch between profiles in the "Typo Profiles" feature.<br>
     If you have any questions or feedback, join the community on <a href="https://discord.com/invite/pAapmUmWAM">Discord</a>!
   </p>
@@ -54,10 +54,17 @@
   </p>
 
   <p>
+    <b>➜ Typo Pen Pressure</b><br>
+    Typo pressure has now an improved adjustment system which allows more precise control.<br>
+    You will notice that your previous setting has been reset.<br>
+    To adjust the sensitivity, go to the "Typo Settings", choose the "Pressure" feature, and adjust the sliders to your liking.<br>
+  </p>
+
+  <p>
     <b>➜ Lobby Privacy</b><br>
     Instead of the lock icon at the very left side, a connection icon is displayed at the top-right corner of the chat.<br>
     An icon with a checkmark means that the lobby has privacy settings active (not visible to everyone).<br>
-    If you're the lobby owner (first typo player to join), you can change lobby settings there.<br>
+    If you're the lobby owner (first Typo player to join), you can change lobby settings there.<br>
   </p>
 
   <p>
@@ -90,8 +97,8 @@
 
   <p>
     <b>➜ Custom Colors</b><br>
-    When you use custom colors in public lobbies, typo will now show the closest skribbl color for non-typo users.<br>
-    It is still recommended that you use custom colors only in lobbies with typo players, because fill behavior might appear differently for non-typo-users.<br>
+    When you use custom colors in public lobbies, Typo will now show the closest skribbl color for non-Typo users.<br>
+    It is still recommended that you use custom colors only in lobbies with Typo players, because fill behavior might appear differently for non-Typo-users.<br>
   </p>
 
   <p>
@@ -102,8 +109,8 @@
   <p>
     <b>➜ Drop Catch Reports</b><br>
     When someone catches drops suspiciously fast, you could report the catch by revealing the drop ID in the drop message.<br>
-    To report drops in the new typo, open the "Drops" feature in the typo setting, where you will find a log of all drop catches.<br>
-    To report a drop, you can copy its ID and the catch time and send it on the typo discord server.<br>
+    To report drops in the new Typo, open the "Drops" feature in the Typo setting, where you will find a log of all drop catches.<br>
+    To report a drop, you can copy its ID and the catch time and send it on the Typo discord server.<br>
   </p>
 
 </div>
