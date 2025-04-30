@@ -358,7 +358,7 @@
       <div class="typo-onboarding-preset" on:click={() => activateFeaturePreset("all")}>
         <h3>Everything</h3>
         <div>
-          The full package; all nifty tools that typo has to offer!
+          The full package; all nifty tools that Typo has to offer!
         </div>
       </div>
 
@@ -380,7 +380,7 @@
         {#if checklist.every((task) => task.completed)}
           <span>Congrats, you have completed all tasks!</span>
         {:else}
-          <span>You can complete following tasks to familiarize yourself with typo:</span>
+          <span>You can complete following tasks to familiarize yourself with Typo:</span>
         {/if}
 
         <div class="typo-onboarding-checklist-wrapper">
