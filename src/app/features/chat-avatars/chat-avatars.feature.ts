@@ -23,6 +23,7 @@ export class ChatAvatarsFeature extends TypoFeature {
   public readonly tags = [FeatureTag.INTERFACE];
   public readonly featureId = 50;
   private readonly _avatarContainers = new Set<{element: HTMLElement, player: SkribblPlayerDisplay }>();
+  protected override readonly featureEnabledDefault = false;
 
   private _chatSubscription?: Subscription;
   private _chatMutationObserver?: MutationObserver;
