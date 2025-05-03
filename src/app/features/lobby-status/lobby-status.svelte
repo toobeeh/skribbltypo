@@ -13,7 +13,7 @@
   const connection = feature.connectionStore;
   const devmode = feature.isDevmodeStore;
   connection.subscribe(conn => {
-    if(conn && conn !== "unauthorized"){
+    if(conn && conn !== "unauthorized" && conn !== "paused"){
       lobbyDescription = conn.typoLobbyState.lobbySettings.description;
       lobbyDisableWhitelistAllowedServers = !conn.typoLobbyState.lobbySettings.whitelistAllowedServers;
       lobbyAllowedServers = Object.fromEntries(
@@ -24,6 +24,13 @@
 </script>
 
 <style lang="scss">
+
+  .status-info {
+    display:flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
   .typo-lobby-status-settings {
     display:flex;
     flex-direction: column;
@@ -44,14 +51,23 @@
     {#if $connection === undefined}
       <Bounceload content="Connecting lobby..."></Bounceload>
     {:else if $connection === "unauthorized"}
-      <b>Log-in required:</b> You need to log in with typo to use the lobby status feature.<br>
+      <span><b>Log-in required:</b> You need to log in with typo to use the lobby status feature.<br></span>
+    {:else if $connection === "paused"}
+      <FlatButton content="Resume Connection" color="blue" on:click={() => feature.setPaused(false)} />
+      <span>
+        <b>Connection paused:</b>
+        Your lobby is currently not visible on Discord.<br>
+        You are incognito and no data is sent, but your sprites and scenes won't show up.<br>
+        Drops won't appear and you won't be able to give or receive awards.
+      </span>
     {:else}
-      <b>Lobby Connected:</b> Your lobby is connected to typo and will be visible on Discord.<br>
+      <FlatButton content="Pause Connection" color="blue" on:click={() => feature.setPaused(true)} />
+      <span><b>Lobby Connected:</b> Your lobby is connected to typo and will be visible on Discord.<br></span>
     {/if}
   </div>
 
   <!-- lobby settings if player is owner -->
-  {#if $connection !== undefined && $connection !== "unauthorized"
+  {#if $connection !== undefined && $connection !== "unauthorized" && $connection !== "paused"
     && $connection.typoLobbyState.playerIsOwner}
 
     <div class="status-settings">
@@ -78,7 +94,7 @@
   {/if}
 
   <!-- lobby overview if player is not owner -->
-  {#if $connection !== undefined && $connection !== "unauthorized"
+  {#if $connection !== undefined && $connection !== "unauthorized" && $connection !== "paused"
   && $connection.typoLobbyState.playerIsOwner === false}
 
     <div class="status-settings">
@@ -103,11 +119,13 @@
         <b>Lobby ID:</b> {
         $connection === undefined ? "/" :
           $connection === "unauthorized" ? "not logged in" :
+            $connection === "paused" ? "paused" :
             $connection?.typoLobbyState.lobbyId
         } <br>
         <b>Ownership Claim:</b> {
         $connection === undefined ? "/" :
           $connection === "unauthorized" ? "not logged in" :
+            $connection === "paused" ? "paused" :
             $connection?.typoLobbyState.ownershipClaim
       }
       </div>
