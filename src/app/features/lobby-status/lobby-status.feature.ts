@@ -117,8 +117,11 @@ export class LobbyStatusFeature extends TypoFeature {
         if ((type === "public" || type === "custom") && connection !== "unauthorized") {
           if(!this._controlIcon) await this.setupSettings();
 
-          const open = connection?.typoLobbyState.lobbySettings.whitelistAllowedServers === false;
-          const icon = connection === undefined ? "file-img-connection-loading-gif" : open ? "file-img-connection-gif" : "file-img-connection-secure-gif";
+          const open = connection !== "paused" && connection?.typoLobbyState.lobbySettings.whitelistAllowedServers === false;
+          const icon =
+            connection === undefined? "file-img-connection-loading-gif" :
+              connection === "paused" ? "file-img-connection-paused-gif" :
+              open ? "file-img-connection-gif" : "file-img-connection-secure-gif";
           const greyscale = connection !== undefined;
           this._controlIcon?.$set({
             icon,
@@ -156,6 +159,8 @@ export class LobbyStatusFeature extends TypoFeature {
           })()),
       );
     this._lobbySubscription.add(() => this._logger.info("Lobby status update sub stopped"));
+
+    await this._lobbyConnectionService.setPaused(false);
   }
 
   protected override async onDestroy() {
@@ -251,7 +256,7 @@ export class LobbyStatusFeature extends TypoFeature {
 
     /* if member is null and connection exists, disconnect */
     if (member === null || member === undefined) {
-      await this._lobbyConnectionService.destroyConnection(true);
+      await this._lobbyConnectionService.destroyConnection("unauthorized");
       return;
     }
 
@@ -409,5 +414,16 @@ export class LobbyStatusFeature extends TypoFeature {
   public async triggerManualRefresh() {
     this._triggerManualRefresh$.next(undefined);
     await this._toastService.showToast(undefined, "Manual refresh triggered");
+  }
+
+  public async setPaused(paused: boolean) {
+    await this._lobbyConnectionService.setPaused(paused);
+    if (paused) {
+      await this._toastService.showToast("You are now incognito!", "Lobby connection has been paused.\nYou will no longer be visible on discord.\nSprites, Scenes and Drops are paused as well.");
+    } else {
+      await this._toastService.showToast("Resumed Connection", "Your lobby will be visible on discord and sprites, scenes and drops will show up.");
+    }
+
+    this._triggerManualRefresh$.next(undefined);
   }
 }

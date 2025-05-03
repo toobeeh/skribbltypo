@@ -1,6 +1,7 @@
 import type { MemberDto } from "@/api";
 import type { featureBinding } from "@/app/core/feature/featureBinding";
 import { loggerFactory } from "@/app/core/logger/loggerFactory.interface";
+import { ExtensionSetting } from "@/app/core/settings/setting";
 import { SocketService } from "@/app/services/socket/socket.service";
 import type {
   AwardGiftedDto,
@@ -26,7 +27,7 @@ export class LobbyConnectionService implements featureBinding {
 
   private readonly _logger;
 
-  private _connection$ = new BehaviorSubject<undefined | lobbyConnectionState | "unauthorized">(undefined);
+  private _connection$ = new BehaviorSubject<undefined | lobbyConnectionState | "unauthorized" | "paused">(undefined);
   private _existingTypoLobbyStates = new Map<string, TypoLobbyStateDto>();
   private _abortConnecting?: () => void; /** abort the connection while it is still in setup phase and _connection is still undefined */
 
@@ -35,12 +36,16 @@ export class LobbyConnectionService implements featureBinding {
   private _dropCleared$ = new Subject<DropClearDto>();
   private _awardGifted$ = new Subject<AwardGiftedDto>();
 
+  private _pausedSetting = new ExtensionSetting<boolean>("pause_lobby_connection", false);
+
   constructor(@inject(loggerFactory) loggerFactory: loggerFactory) {
     this._logger = loggerFactory(this);
   }
 
-  onFeatureActivate(): Promise<void> {
-    return Promise.resolve(undefined);
+  async onFeatureActivate(): Promise<void> {
+    if(await this._pausedSetting.getValue()) {
+      this._connection$.next("paused");
+    }
   }
 
   async onFeatureDestroy(): Promise<void> {
@@ -60,7 +65,7 @@ export class LobbyConnectionService implements featureBinding {
    */
   public get connection(): lobbyConnectionState {
     const connection = this._connection$.value;
-    if(connection === undefined || connection === "unauthorized") {
+    if(connection === undefined || connection === "unauthorized" || connection === "paused") {
       this._logger.error("connection is not initialized");
       throw new Error("connection is not initialized");
     }
@@ -79,7 +84,7 @@ export class LobbyConnectionService implements featureBinding {
    * @private
    */
   public get isConnected() {
-    return this._connection$.value !== undefined && this._connection$.value !== "unauthorized";
+    return this._connection$.value !== undefined && this._connection$.value !== "unauthorized" && this._connection$.value !== "paused";
   }
 
   /**
@@ -87,6 +92,13 @@ export class LobbyConnectionService implements featureBinding {
    * @private
    */
   public async setupConnection(lobbyId: string, lobby: SkribblLobbyStateDto, playerId: number, member: MemberDto){
+
+    if(await this._pausedSetting.getValue()){
+      this._logger.warn("Tried to connect, but Connection is paused");
+      this._connection$.next("paused");
+      return "failed";
+    }
+
     const claim = this._existingTypoLobbyStates.get(lobbyId)?.ownershipClaimToken;
     const connection = this._socketService.createConnection("ILobbyHub");
     const hub = this._socketService.createHub("ILobbyHub").createHubProxy(connection);
@@ -133,15 +145,16 @@ export class LobbyConnectionService implements featureBinding {
    * and closes the flyout if opened
    * @private
    */
-  public async destroyConnection(setUnauthorizedStatus = false) {
-    if(this._connection$.value !== undefined && this._connection$.value !== "unauthorized") {
+  public async destroyConnection(reason?: "unauthorized" | "paused") {
+    if(this._connection$.value !== undefined && this._connection$.value !== "unauthorized" && this._connection$.value !== "paused") {
       await this._connection$.value.connection.stop();
     }
     if(this._abortConnecting) {
       this._abortConnecting();
     }
 
-    if(setUnauthorizedStatus) this._connection$.next("unauthorized");
+    if(reason === "unauthorized") this._connection$.next("unauthorized");
+    else if(reason === "paused") this._connection$.next("paused");
     else this._connection$.next(undefined);
   }
 
@@ -170,6 +183,16 @@ export class LobbyConnectionService implements featureBinding {
   private async lobbyOwnershipResigned() {
     this._logger.info("Lobby ownership resigned, claiming now");
     await this.connection.hub.claimLobbyOwnership();
+  }
+
+  public async setPaused(paused: boolean) {
+    await this._pausedSetting.setValue(paused);
+    if(this.isConnected) {
+      await this.destroyConnection("paused");
+    }
+    else if(!paused) {
+      this._connection$.next(undefined);
+    }
   }
 
 }
