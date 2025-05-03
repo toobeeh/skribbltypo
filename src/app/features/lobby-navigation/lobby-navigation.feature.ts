@@ -28,6 +28,12 @@ export class LobbyNavigationFeature extends TypoFeature {
       .withDescription("Exit the lobby instead reloading skribbl when clicking the logo"),
   );
 
+  private readonly _useFlatButtonsSetting = this.useSetting(
+    new BooleanExtensionSetting("useFlatButtons", false, this)
+      .withName("Text Buttons")
+      .withDescription("Use text buttons instead of icons"),
+  );
+
   private readonly _nextCommand = this.useCommand(
     new ExtensionCommand("skip", this, "Skip Lobby", "Leave the current lobby and join another"),
   ).run(async (command) => {
@@ -106,5 +112,9 @@ export class LobbyNavigationFeature extends TypoFeature {
       .subscribe(() => {
         this._lobbyService.leaveLobby();
       });
+  }
+
+  public get flatButtonsStore(){
+    return this._useFlatButtonsSetting.store;
   }
 }

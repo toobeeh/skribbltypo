@@ -1,9 +1,12 @@
 <script lang="ts">
   import type { LobbyNavigationFeature } from "./lobby-navigation.feature";
+  import FlatButton from "@/lib/flat-button/flat-button.svelte";
   export let feature: LobbyNavigationFeature;
+  const flat = feature.flatButtonsStore;
 </script>
 
 <style lang="scss">
+
   .lobby-navigation {
     gap: 1rem;
     display: flex;
@@ -17,7 +20,7 @@
     .lobby-exit, .lobby-next {
       content: var(--file-img-arrow-small-gif);
       cursor: pointer;
-      height:42px;
+      height: 42px;
       aspect-ratio: 1;
       transition: scale 0.1s ease-in-out;
 
@@ -38,9 +41,16 @@
 </style>
 
 <div class="lobby-navigation">
-  <!-- lobbyNavIcon exit for legacy theme compatibility -->
-  <img src="" alt="Exit Lobby" class="lobby-exit lobbyNavIcon exit" on:click={() => feature.exitLobby()} use:feature.createTooltip={{title: "Exit Lobby", lock: "Y"}} />
+{#if $flat}
+    <FlatButton content="Exit Lobby" color="orange" on:click={() => feature.exitLobby()} />
+    <FlatButton content="Next Lobby" color="blue" on:click={() => feature.nextLobby()} />
+{:else }
+    <!-- lobbyNavIcon exit for legacy theme compatibility -->
+    <img src="" alt="Exit Lobby" class="lobby-exit lobbyNavIcon exit" on:click={() => feature.exitLobby()} use:feature.createTooltip={{title: "Exit Lobby", lock: "Y"}} />
 
-  <!-- lobbyNavIcon next for legacy theme compatibility -->
-  <img src="" alt="Next Lobby" class="lobby-next lobbyNavIcon next" on:click={() => feature.nextLobby()} use:feature.createTooltip={{title: "Next Lobby", lock: "Y"}} />
+    <!-- lobbyNavIcon next for legacy theme compatibility -->
+    <img src="" alt="Next Lobby" class="lobby-next lobbyNavIcon next" on:click={() => feature.nextLobby()} use:feature.createTooltip={{title: "Next Lobby", lock: "Y"}} />
+{/if}
 </div>
+
+
