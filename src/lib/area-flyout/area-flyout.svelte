@@ -15,6 +15,7 @@
   export let componentData: componentData<SvelteComponent>;
   export let title: string | undefined = undefined;
   export let iconName: string | undefined = undefined;
+  export let contentPadding: boolean | undefined = undefined;
 
   const clickedOutside = new Subject<void>();
   export const closed$ = clickedOutside.asObservable();
@@ -49,6 +50,7 @@
    */
   onDestroy(() => {
     document.removeEventListener("click", clickListener);
+    clickedOutside.complete();
   });
 
   /**
@@ -164,7 +166,10 @@
     > .content {
       width: 100%;
       overflow-y: auto;
-      padding: 0 1em;
+
+      &.padding {
+        padding: 0 1em;
+      }
     }
   }
 
@@ -183,7 +188,7 @@
     </h3>
   {/if}
 
-  <div class="content">
+  <div class="content" class:padding={contentPadding !== false}>
     <svelte:component this={componentData.componentType} {...componentData.props} />
   </div>
 

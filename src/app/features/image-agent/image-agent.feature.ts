@@ -1,10 +1,12 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { ExtensionSetting } from "@/app/core/settings/setting";
+import AgentFlyout from "./image-agent-flyout.svelte";
 import { DrawingService } from "@/app/services/drawing/drawing.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
+import type { componentData } from "@/app/services/modal/modal.service";
+import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import { fromObservable } from "@/util/store/fromObservable";
-import { delay, map, tap, withLatestFrom } from "rxjs";
-import ImageAgent from "./image-agent.svelte";
+import { delay, map, type Subscription, tap, withLatestFrom } from "rxjs";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
@@ -16,10 +18,13 @@ export class ImageAgentFeature extends TypoFeature {
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
-  private _hiddenSetting = new ExtensionSetting<boolean>("hidden", false, this);
+  private _autoOpenOwnTurnSetting = new ExtensionSetting<boolean>("autoOpenOwnTurn", true, this);
 
-  private _element?: ImageAgent;
   private _iconElement?: IconButton;
+  private _flyoutComponent?: AreaFlyout;
+  private _iconClickSubscription?: Subscription;
+  private _flyoutSubscription?: Subscription;
+  private _activationSubscription?: Subscription;
 
   public readonly name = "Image Agent";
   public readonly description = "Displays a reference image of the word when it's your turn to draw";
@@ -31,13 +36,6 @@ export class ImageAgentFeature extends TypoFeature {
 
   protected override async onActivate() {
     const elements = await this._elementsSetup.complete();
-
-    this._element = new ImageAgent({
-      target: elements.gameWrapper,
-      props: {
-        feature: this
-      },
-    });
 
     this._iconElement = new IconButton({
       target: elements.chatControls,
@@ -53,14 +51,31 @@ export class ImageAgentFeature extends TypoFeature {
     });
 
     /* show agent when icon clicked */
-    this._iconElement.click$.subscribe(() => {
-      this.setHiddenState(false);
+    this._iconClickSubscription = this._iconElement.click$.pipe(
+      withLatestFrom(this._drawingService.drawingState$),
+    ).subscribe(([,state]) => {
+      this.setAgentVisibility(true);
+      if(state === "drawing") this._autoOpenOwnTurnSetting.setValue(true);
     });
+
+    this.listenForActivation();
   }
 
   protected override onDestroy() {
-    this._element?.$destroy();
+    this._flyoutComponent?.$destroy();
+    this._flyoutComponent = undefined;
     this._iconElement?.$destroy();
+    this._iconElement = undefined;
+    this._iconClickSubscription?.unsubscribe();
+    this._iconClickSubscription = undefined;
+    this._flyoutSubscription?.unsubscribe();
+    this._flyoutSubscription = undefined;
+    this._activationSubscription?.unsubscribe();
+    this._activationSubscription = undefined;
+  }
+
+  private get isOpen() {
+    return this._flyoutComponent !== undefined;
   }
 
   get wordStore() {
@@ -73,10 +88,7 @@ export class ImageAgentFeature extends TypoFeature {
 
         /* if drawing ended or any state faulty, hide always */
         if(state === "idle" || lobby === null || image === null) return null;
-        /* else get word if current drawer is player */
-        const drawer = lobby?.players.find(p => p.id === image.drawerId);
-        if(drawer?.id === lobby.meId) return image.word.solution;
-        else return null;
+        return image.word.solution ?? null;
       }),
       tap(word => this._logger.debug("Word change", word))
     );
@@ -88,11 +100,63 @@ export class ImageAgentFeature extends TypoFeature {
     return await (await fetch(`https://agent.typo.rip/${word}`)).json() as string[];
   }
 
-  get hiddenSettingStore(){
-    return fromObservable(this._hiddenSetting.changes$, false);
+  private listenForActivation(){
+    this._activationSubscription = this._drawingService.drawingState$.pipe(
+      tap(() => this._logger.debug("Hidden setting changed")),
+      withLatestFrom(this._lobbyService.lobby$, this._drawingService.imageState$, this._autoOpenOwnTurnSetting.changes$)
+    ).subscribe(async ([state, lobby, image, autoOpen]) => {
+      if(lobby === null || image === null || state === "idle") {
+        await this.setAgentVisibility(false);
+      }
+
+      if(!this.isOpen){
+        if(autoOpen && state === "drawing"){
+          await this.setAgentVisibility(true);
+        }
+      }
+    });
   }
 
-  setHiddenState(hidden: boolean){
-    this._hiddenSetting.setValue(hidden);
+  async setAgentVisibility(visible: boolean) {
+    if(!visible){
+      if(this._flyoutComponent){
+        this._flyoutComponent?.close();
+      }
+    }
+
+    else {
+      const elements = await  this._elementsSetup.complete();
+
+      /* create fly out content */
+      const flyoutContent: componentData<AgentFlyout> = {
+        componentType: AgentFlyout,
+        props: {
+          feature: this,
+        },
+      };
+
+      this._flyoutComponent = new AreaFlyout({
+        target: elements.gameWrapper,
+        props: {
+          componentData: flyoutContent,
+          areaName: "chat",
+          maxHeight: "600px",
+          maxWidth: "300px",
+          title: "Image Agent",
+          closeStrategy: "explicit",
+          iconName: "file-img-light-gif",
+          alignment: "top",
+          contentPadding: false
+        },
+      });
+
+      this._flyoutSubscription = this._flyoutComponent.closed$.subscribe(() => {
+        this._logger.info("Destroyed flyout");
+        this._flyoutComponent?.$destroy();
+        this._flyoutSubscription?.unsubscribe();
+        this._flyoutComponent = undefined;
+        this._autoOpenOwnTurnSetting.setValue(false);
+      });
+    }
   }
 }
