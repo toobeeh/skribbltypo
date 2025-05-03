@@ -62,7 +62,7 @@ export default defineConfig(({ mode }) => {
   return {
     esbuild: {
       minifyIdentifiers: production,
-      keepNames: !production,
+      keepNames: true,
     },
     test: {
     },
