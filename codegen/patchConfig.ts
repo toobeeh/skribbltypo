@@ -812,6 +812,16 @@ export const gameJsPatchConfig = {
       ],
     },
     {
+      name: "Keyup to keydown for faster hotkey processing",
+      replacements: [
+        {
+          source: "(keyup)",
+          target: "(keydown)",
+        },
+      ],
+      injections: [],
+    },
+    {
       name: "Use Typo Pressure",
       replacements: [
         {
