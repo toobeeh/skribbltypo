@@ -48,6 +48,7 @@ import { DrawingBrushLabFeature } from "@/app/features/drawing-brush-lab/drawing
 import { DrawingColorPalettesFeature } from "@/app/features/drawing-color-palettes/drawing-color-palettes.feature";
 import { DrawingColorToolsFeature } from "@/app/features/drawing-color-tools/drawing-color-tools.feature";
 import { DrawingPressureFeature } from "@/app/features/drawing-pressure/drawing-pressure.feature";
+import { DrawingSizeHotkeysFeature } from "@/app/features/drawing-size-hotkeys/drawing-size-hotkeys.feature";
 import { DropsFeature } from "@/app/features/drops/drops.feature";
 import { GuessCheckFeature } from "@/app/features/guess-check/guess-check.feature";
 import { HotkeysFeature } from "@/app/features/hotkeys/hotkeys.feature";
@@ -242,7 +243,8 @@ new ExtensionContainer(interceptor)
     CanvasRateIconsFeature,
     ControlsOnboardingFeature,
     ControlsProfilesFeature,
-    ChatAvatarsFeature
+    ChatAvatarsFeature,
+    DrawingSizeHotkeysFeature
   );
 
 /* indicate for interceptor that content script has loaded */

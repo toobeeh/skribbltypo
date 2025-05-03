@@ -53,7 +53,8 @@ export class ImageAgentFeature extends TypoFeature {
     /* show agent when icon clicked */
     this._iconClickSubscription = this._iconElement.click$.pipe(
       withLatestFrom(this._drawingService.drawingState$),
-    ).subscribe(([,state]) => {
+      // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+    ).subscribe(([,state]: [void, "drawing" | "idle"]) => {
       this.setAgentVisibility(true);
       if(state === "drawing") this._autoOpenOwnTurnSetting.setValue(true);
     });
