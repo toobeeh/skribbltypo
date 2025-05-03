@@ -1439,7 +1439,7 @@
     tt.querySelector(".colors").classList.toggle("open")
   }), D(n, "click", function(e) {
     ot.classList.toggle("open")
-  }), D(c, "keyup", function(e) {
+  }), D(c, "keydown", function(e) {
     if ("Enter" == e.code) return _n[0].focus(), 0;
     if ("input" == c.activeElement.tagName.toLowerCase() || "textarea" == c.activeElement.tagName.toLowerCase() || -1 != qt) return 0;
     for (var t = e.key.toLowerCase().replace("key", ""), n = 0; n < u.length; n++)
