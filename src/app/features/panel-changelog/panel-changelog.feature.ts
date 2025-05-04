@@ -1,6 +1,6 @@
 import { type AnnouncementDto, AnnouncementDtoTypeEnum } from "@/api";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
-import { ExtensionSetting } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting, ExtensionSetting } from "@/app/core/settings/setting";
 import { GlobalSettingsService } from "@/app/services/global-settings/global-settings.service";
 import { type componentData, ModalService } from "@/app/services/modal/modal.service";
 import { ApiDataSetup } from "@/app/setups/api-data/api-data.setup";
@@ -18,7 +18,8 @@ export class PanelChangelogFeature extends TypoFeature {
   @inject(GlobalSettingsService) private readonly _globalSettingsService!: GlobalSettingsService;
   @inject(ModalService) private readonly _modalService!: ModalService;
 
-  private _lastReadVersion = new ExtensionSetting<string>("last_read_version", "0.0.0", this);
+  private readonly _firstLoadSetting = new BooleanExtensionSetting("first_load", true, this);
+  private _lastReadVersionSetting = new ExtensionSetting<string>("last_read_version", "0.0.0", this);
 
   private _component?: PanelChangelog;
 
@@ -47,11 +48,16 @@ export class PanelChangelogFeature extends TypoFeature {
 
     const lastChange = changes[0];
     const currentVersion = typoRuntime.getReleaseDetails().version;
-    if(lastChange?.affectedTypoVersion === currentVersion){
-      const lastReadVersion = await this._lastReadVersion.getValue();
-      if(lastReadVersion != currentVersion){
+    const isFirstLoad = await this._firstLoadSetting.getValue();
+
+    /* don't open on first load */
+    if(isFirstLoad){
+      await this._firstLoadSetting.setValue(false);
+    }
+    else if(lastChange?.affectedTypoVersion === currentVersion){
+      const lastReadVersion = await this._lastReadVersionSetting.getValue();if(lastReadVersion != currentVersion){
         this.showDetailsModal(lastChange);
-        await this._lastReadVersion.setValue(currentVersion);
+        await this._lastReadVersionSetting.setValue(currentVersion);
       }
     }
   }
