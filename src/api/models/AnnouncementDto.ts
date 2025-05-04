@@ -32,7 +32,7 @@ export interface AnnouncementDto {
      */
     content: string;
     /**
-     * Announcement type
+     * Version of typo which this targets
      * @type {string}
      * @memberof AnnouncementDto
      */
@@ -49,6 +49,12 @@ export interface AnnouncementDto {
      * @memberof AnnouncementDto
      */
     type: AnnouncementDtoTypeEnum;
+    /**
+     * Details of the announcement in markdown
+     * @type {string}
+     * @memberof AnnouncementDto
+     */
+    details?: string;
 }
 
 
@@ -88,13 +94,19 @@ export function AnnouncementDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
         'affectedTypoVersion': json['affectedTypoVersion'] == null ? undefined : json['affectedTypoVersion'],
         'date': json['date'],
         'type': json['type'],
+        'details': json['details'] == null ? undefined : json['details'],
     };
 }
 
-export function AnnouncementDtoToJSON(value?: AnnouncementDto | null): any {
+export function AnnouncementDtoToJSON(json: any): AnnouncementDto {
+    return AnnouncementDtoToJSONTyped(json, false);
+}
+
+export function AnnouncementDtoToJSONTyped(value?: AnnouncementDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'title': value['title'],
@@ -102,6 +114,7 @@ export function AnnouncementDtoToJSON(value?: AnnouncementDto | null): any {
         'affectedTypoVersion': value['affectedTypoVersion'],
         'date': value['date'],
         'type': value['type'],
+        'details': value['details'],
     };
 }
 

@@ -65,10 +65,15 @@ export function EmojiCandidateDtoFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function EmojiCandidateDtoToJSON(value?: EmojiCandidateDto | null): any {
+export function EmojiCandidateDtoToJSON(json: any): EmojiCandidateDto {
+    return EmojiCandidateDtoToJSONTyped(json, false);
+}
+
+export function EmojiCandidateDtoToJSONTyped(value?: EmojiCandidateDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

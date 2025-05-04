@@ -56,10 +56,15 @@ export function SceneInventoryItemDtoFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function SceneInventoryItemDtoToJSON(value?: SceneInventoryItemDto | null): any {
+export function SceneInventoryItemDtoToJSON(json: any): SceneInventoryItemDto {
+    return SceneInventoryItemDtoToJSONTyped(json, false);
+}
+
+export function SceneInventoryItemDtoToJSONTyped(value?: SceneInventoryItemDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'sceneId': value['sceneId'],

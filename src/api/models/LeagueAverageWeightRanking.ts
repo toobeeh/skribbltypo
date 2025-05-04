@@ -57,10 +57,15 @@ export function LeagueAverageWeightRankingFromJSONTyped(json: any, ignoreDiscrim
     };
 }
 
-export function LeagueAverageWeightRankingToJSON(value?: LeagueAverageWeightRanking | null): any {
+export function LeagueAverageWeightRankingToJSON(json: any): LeagueAverageWeightRanking {
+    return LeagueAverageWeightRankingToJSONTyped(json, false);
+}
+
+export function LeagueAverageWeightRankingToJSONTyped(value?: LeagueAverageWeightRanking | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

@@ -18,6 +18,7 @@ import {
     SpriteSlotDtoFromJSON,
     SpriteSlotDtoFromJSONTyped,
     SpriteSlotDtoToJSON,
+    SpriteSlotDtoToJSONTyped,
 } from './SpriteSlotDto';
 
 /**
@@ -56,10 +57,15 @@ export function SpriteComboDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function SpriteComboDtoToJSON(value?: SpriteComboDto | null): any {
+export function SpriteComboDtoToJSON(json: any): SpriteComboDto {
+    return SpriteComboDtoToJSONTyped(json, false);
+}
+
+export function SpriteComboDtoToJSONTyped(value?: SpriteComboDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'slots': ((value['slots'] as Array<any>).map(SpriteSlotDtoToJSON)),

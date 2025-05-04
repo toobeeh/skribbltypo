@@ -97,10 +97,15 @@ export function CloudImageDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
     };
 }
 
-export function CloudImageDtoToJSON(value?: CloudImageDto | null): any {
+export function CloudImageDtoToJSON(json: any): CloudImageDto {
+    return CloudImageDtoToJSONTyped(json, false);
+}
+
+export function CloudImageDtoToJSONTyped(value?: CloudImageDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

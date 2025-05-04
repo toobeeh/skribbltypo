@@ -10,7 +10,7 @@ import { ToolsService } from "@/app/services/tools/tools.service";
 import { Color } from "@/util/color";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
-import { filter, map, startWith, Subject, type Subscription, tap, withLatestFrom } from "rxjs";
+import { filter, map, startWith, Subject, type Subscription, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import ColorToolsInfo from "./drawing-color-tools-info.svelte";

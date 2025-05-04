@@ -73,10 +73,15 @@ export function GuildInviteDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function GuildInviteDtoToJSON(value?: GuildInviteDto | null): any {
+export function GuildInviteDtoToJSON(json: any): GuildInviteDto {
+    return GuildInviteDtoToJSONTyped(json, false);
+}
+
+export function GuildInviteDtoToJSONTyped(value?: GuildInviteDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

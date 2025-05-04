@@ -105,10 +105,15 @@ export function LeagueSeasonMemberEvaluationDtoFromJSONTyped(json: any, ignoreDi
     };
 }
 
-export function LeagueSeasonMemberEvaluationDtoToJSON(value?: LeagueSeasonMemberEvaluationDto | null): any {
+export function LeagueSeasonMemberEvaluationDtoToJSON(json: any): LeagueSeasonMemberEvaluationDto {
+    return LeagueSeasonMemberEvaluationDtoToJSONTyped(json, false);
+}
+
+export function LeagueSeasonMemberEvaluationDtoToJSONTyped(value?: LeagueSeasonMemberEvaluationDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'year': value['year'],

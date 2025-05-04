@@ -57,10 +57,15 @@ export function RegistrationRequestFromJSONTyped(json: any, ignoreDiscriminator:
     };
 }
 
-export function RegistrationRequestToJSON(value?: RegistrationRequest | null): any {
+export function RegistrationRequestToJSON(json: any): RegistrationRequest {
+    return RegistrationRequestToJSONTyped(json, false);
+}
+
+export function RegistrationRequestToJSONTyped(value?: RegistrationRequest | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'code': value['code'],

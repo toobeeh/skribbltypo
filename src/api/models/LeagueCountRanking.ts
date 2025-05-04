@@ -57,10 +57,15 @@ export function LeagueCountRankingFromJSONTyped(json: any, ignoreDiscriminator: 
     };
 }
 
-export function LeagueCountRankingToJSON(value?: LeagueCountRanking | null): any {
+export function LeagueCountRankingToJSON(json: any): LeagueCountRanking {
+    return LeagueCountRankingToJSONTyped(json, false);
+}
+
+export function LeagueCountRankingToJSONTyped(value?: LeagueCountRanking | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

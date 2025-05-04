@@ -18,6 +18,7 @@ import {
     EventDtoFromJSON,
     EventDtoFromJSONTyped,
     EventDtoToJSON,
+    EventDtoToJSONTyped,
 } from './EventDto';
 
 /**
@@ -80,10 +81,15 @@ export function EventDropDtoFromJSONTyped(json: any, ignoreDiscriminator: boolea
     };
 }
 
-export function EventDropDtoToJSON(value?: EventDropDto | null): any {
+export function EventDropDtoToJSON(json: any): EventDropDto {
+    return EventDropDtoToJSONTyped(json, false);
+}
+
+export function EventDropDtoToJSONTyped(value?: EventDropDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'id': value['id'],

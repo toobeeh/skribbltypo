@@ -57,10 +57,15 @@ export function LeagueAverageTimeRankingFromJSONTyped(json: any, ignoreDiscrimin
     };
 }
 
-export function LeagueAverageTimeRankingToJSON(value?: LeagueAverageTimeRanking | null): any {
+export function LeagueAverageTimeRankingToJSON(json: any): LeagueAverageTimeRanking {
+    return LeagueAverageTimeRankingToJSONTyped(json, false);
+}
+
+export function LeagueAverageTimeRankingToJSONTyped(value?: LeagueAverageTimeRanking | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

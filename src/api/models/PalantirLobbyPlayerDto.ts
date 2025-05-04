@@ -65,10 +65,15 @@ export function PalantirLobbyPlayerDtoFromJSONTyped(json: any, ignoreDiscriminat
     };
 }
 
-export function PalantirLobbyPlayerDtoToJSON(value?: PalantirLobbyPlayerDto | null): any {
+export function PalantirLobbyPlayerDtoToJSON(json: any): PalantirLobbyPlayerDto {
+    return PalantirLobbyPlayerDtoToJSONTyped(json, false);
+}
+
+export function PalantirLobbyPlayerDtoToJSONTyped(value?: PalantirLobbyPlayerDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

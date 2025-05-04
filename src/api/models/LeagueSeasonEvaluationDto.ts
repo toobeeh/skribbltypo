@@ -18,30 +18,35 @@ import {
     LeagueScoreRankingFromJSON,
     LeagueScoreRankingFromJSONTyped,
     LeagueScoreRankingToJSON,
+    LeagueScoreRankingToJSONTyped,
 } from './LeagueScoreRanking';
 import type { LeagueAverageWeightRanking } from './LeagueAverageWeightRanking';
 import {
     LeagueAverageWeightRankingFromJSON,
     LeagueAverageWeightRankingFromJSONTyped,
     LeagueAverageWeightRankingToJSON,
+    LeagueAverageWeightRankingToJSONTyped,
 } from './LeagueAverageWeightRanking';
 import type { LeagueCountRanking } from './LeagueCountRanking';
 import {
     LeagueCountRankingFromJSON,
     LeagueCountRankingFromJSONTyped,
     LeagueCountRankingToJSON,
+    LeagueCountRankingToJSONTyped,
 } from './LeagueCountRanking';
 import type { LeagueAverageTimeRanking } from './LeagueAverageTimeRanking';
 import {
     LeagueAverageTimeRankingFromJSON,
     LeagueAverageTimeRankingFromJSONTyped,
     LeagueAverageTimeRankingToJSON,
+    LeagueAverageTimeRankingToJSONTyped,
 } from './LeagueAverageTimeRanking';
 import type { LeagueStreakRanking } from './LeagueStreakRanking';
 import {
     LeagueStreakRankingFromJSON,
     LeagueStreakRankingFromJSONTyped,
     LeagueStreakRankingToJSON,
+    LeagueStreakRankingToJSONTyped,
 } from './LeagueStreakRanking';
 
 /**
@@ -128,10 +133,15 @@ export function LeagueSeasonEvaluationDtoFromJSONTyped(json: any, ignoreDiscrimi
     };
 }
 
-export function LeagueSeasonEvaluationDtoToJSON(value?: LeagueSeasonEvaluationDto | null): any {
+export function LeagueSeasonEvaluationDtoToJSON(json: any): LeagueSeasonEvaluationDto {
+    return LeagueSeasonEvaluationDtoToJSONTyped(json, false);
+}
+
+export function LeagueSeasonEvaluationDtoToJSONTyped(value?: LeagueSeasonEvaluationDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'year': value['year'],

@@ -18,6 +18,7 @@ import {
     AwardDtoFromJSON,
     AwardDtoFromJSONTyped,
     AwardDtoToJSON,
+    AwardDtoToJSONTyped,
 } from './AwardDto';
 
 /**
@@ -64,10 +65,15 @@ export function AwardInventoryDtoFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function AwardInventoryDtoToJSON(value?: AwardInventoryDto | null): any {
+export function AwardInventoryDtoToJSON(json: any): AwardInventoryDto {
+    return AwardInventoryDtoToJSONTyped(json, false);
+}
+
+export function AwardInventoryDtoToJSONTyped(value?: AwardInventoryDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'award': AwardDtoToJSON(value['award']),

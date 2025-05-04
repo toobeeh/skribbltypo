@@ -49,10 +49,15 @@ export function SpriteSlotCountDtoFromJSONTyped(json: any, ignoreDiscriminator: 
     };
 }
 
-export function SpriteSlotCountDtoToJSON(value?: SpriteSlotCountDto | null): any {
+export function SpriteSlotCountDtoToJSON(json: any): SpriteSlotCountDto {
+    return SpriteSlotCountDtoToJSONTyped(json, false);
+}
+
+export function SpriteSlotCountDtoToJSONTyped(value?: SpriteSlotCountDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'unlockedSlots': value['unlockedSlots'],

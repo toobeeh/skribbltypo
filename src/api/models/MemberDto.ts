@@ -18,6 +18,7 @@ import {
     GuildDtoFromJSON,
     GuildDtoFromJSONTyped,
     GuildDtoToJSON,
+    GuildDtoToJSONTyped,
 } from './GuildDto';
 
 /**
@@ -165,10 +166,15 @@ export function MemberDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     };
 }
 
-export function MemberDtoToJSON(value?: MemberDto | null): any {
+export function MemberDtoToJSON(json: any): MemberDto {
+    return MemberDtoToJSONTyped(json, false);
+}
+
+export function MemberDtoToJSONTyped(value?: MemberDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'bubbles': value['bubbles'],

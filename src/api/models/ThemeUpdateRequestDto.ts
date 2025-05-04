@@ -49,10 +49,15 @@ export function ThemeUpdateRequestDtoFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function ThemeUpdateRequestDtoToJSON(value?: ThemeUpdateRequestDto | null): any {
+export function ThemeUpdateRequestDtoToJSON(json: any): ThemeUpdateRequestDto {
+    return ThemeUpdateRequestDtoToJSONTyped(json, false);
+}
+
+export function ThemeUpdateRequestDtoToJSONTyped(value?: ThemeUpdateRequestDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'newId': value['newId'],

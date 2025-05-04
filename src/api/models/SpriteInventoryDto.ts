@@ -63,10 +63,15 @@ export function SpriteInventoryDtoFromJSONTyped(json: any, ignoreDiscriminator: 
     };
 }
 
-export function SpriteInventoryDtoToJSON(value?: SpriteInventoryDto | null): any {
+export function SpriteInventoryDtoToJSON(json: any): SpriteInventoryDto {
+    return SpriteInventoryDtoToJSONTyped(json, false);
+}
+
+export function SpriteInventoryDtoToJSONTyped(value?: SpriteInventoryDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'slot': value['slot'],

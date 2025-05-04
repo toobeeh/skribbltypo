@@ -97,10 +97,15 @@ export function CloudUploadDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function CloudUploadDtoToJSON(value?: CloudUploadDto | null): any {
+export function CloudUploadDtoToJSON(json: any): CloudUploadDto {
+    return CloudUploadDtoToJSONTyped(json, false);
+}
+
+export function CloudUploadDtoToJSONTyped(value?: CloudUploadDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

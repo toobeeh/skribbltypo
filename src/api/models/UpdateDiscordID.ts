@@ -49,10 +49,15 @@ export function UpdateDiscordIDFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function UpdateDiscordIDToJSON(value?: UpdateDiscordID | null): any {
+export function UpdateDiscordIDToJSON(json: any): UpdateDiscordID {
+    return UpdateDiscordIDToJSONTyped(json, false);
+}
+
+export function UpdateDiscordIDToJSONTyped(value?: UpdateDiscordID | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'id': value['id'],

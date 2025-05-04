@@ -18,6 +18,7 @@ import {
     EventDropDtoFromJSON,
     EventDropDtoFromJSONTyped,
     EventDropDtoToJSON,
+    EventDropDtoToJSONTyped,
 } from './EventDropDto';
 
 /**
@@ -118,10 +119,15 @@ export function SpriteDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     };
 }
 
-export function SpriteDtoToJSON(value?: SpriteDto | null): any {
+export function SpriteDtoToJSON(json: any): SpriteDto {
+    return SpriteDtoToJSONTyped(json, false);
+}
+
+export function SpriteDtoToJSONTyped(value?: SpriteDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

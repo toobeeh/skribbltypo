@@ -81,10 +81,15 @@ export function ThemeListingDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function ThemeListingDtoToJSON(value?: ThemeListingDto | null): any {
+export function ThemeListingDtoToJSON(json: any): ThemeListingDto {
+    return ThemeListingDtoToJSONTyped(json, false);
+}
+
+export function ThemeListingDtoToJSONTyped(value?: ThemeListingDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'id': value['id'],

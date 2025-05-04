@@ -73,10 +73,15 @@ export function EmojiDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     };
 }
 
-export function EmojiDtoToJSON(value?: EmojiDto | null): any {
+export function EmojiDtoToJSON(json: any): EmojiDto {
+    return EmojiDtoToJSONTyped(json, false);
+}
+
+export function EmojiDtoToJSONTyped(value?: EmojiDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

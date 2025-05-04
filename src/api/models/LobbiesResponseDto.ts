@@ -18,18 +18,21 @@ import {
     PalantirLobbyPlayerDtoFromJSON,
     PalantirLobbyPlayerDtoFromJSONTyped,
     PalantirLobbyPlayerDtoToJSON,
+    PalantirLobbyPlayerDtoToJSONTyped,
 } from './PalantirLobbyPlayerDto';
 import type { LobbyDetailsDto } from './LobbyDetailsDto';
 import {
     LobbyDetailsDtoFromJSON,
     LobbyDetailsDtoFromJSONTyped,
     LobbyDetailsDtoToJSON,
+    LobbyDetailsDtoToJSONTyped,
 } from './LobbyDetailsDto';
 import type { PalantirLobbyDto } from './PalantirLobbyDto';
 import {
     PalantirLobbyDtoFromJSON,
     PalantirLobbyDtoFromJSONTyped,
     PalantirLobbyDtoToJSON,
+    PalantirLobbyDtoToJSONTyped,
 } from './PalantirLobbyDto';
 
 /**
@@ -84,10 +87,15 @@ export function LobbiesResponseDtoFromJSONTyped(json: any, ignoreDiscriminator: 
     };
 }
 
-export function LobbiesResponseDtoToJSON(value?: LobbiesResponseDto | null): any {
+export function LobbiesResponseDtoToJSON(json: any): LobbiesResponseDto {
+    return LobbiesResponseDtoToJSONTyped(json, false);
+}
+
+export function LobbiesResponseDtoToJSONTyped(value?: LobbiesResponseDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'lobby': PalantirLobbyDtoToJSON(value['lobby']),

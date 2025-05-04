@@ -56,10 +56,15 @@ export function SpriteSlotDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
     };
 }
 
-export function SpriteSlotDtoToJSON(value?: SpriteSlotDto | null): any {
+export function SpriteSlotDtoToJSON(json: any): SpriteSlotDto {
+    return SpriteSlotDtoToJSONTyped(json, false);
+}
+
+export function SpriteSlotDtoToJSONTyped(value?: SpriteSlotDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'slotId': value['slotId'],

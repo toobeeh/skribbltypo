@@ -49,10 +49,15 @@ export function LobbyLinkDtoFromJSONTyped(json: any, ignoreDiscriminator: boolea
     };
 }
 
-export function LobbyLinkDtoToJSON(value?: LobbyLinkDto | null): any {
+export function LobbyLinkDtoToJSON(json: any): LobbyLinkDto {
+    return LobbyLinkDtoToJSONTyped(json, false);
+}
+
+export function LobbyLinkDtoToJSONTyped(value?: LobbyLinkDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'link': value['link'],

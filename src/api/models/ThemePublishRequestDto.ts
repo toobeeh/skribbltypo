@@ -49,10 +49,15 @@ export function ThemePublishRequestDtoFromJSONTyped(json: any, ignoreDiscriminat
     };
 }
 
-export function ThemePublishRequestDtoToJSON(value?: ThemePublishRequestDto | null): any {
+export function ThemePublishRequestDtoToJSON(json: any): ThemePublishRequestDto {
+    return ThemePublishRequestDtoToJSONTyped(json, false);
+}
+
+export function ThemePublishRequestDtoToJSONTyped(value?: ThemePublishRequestDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'owner': value['owner'],
