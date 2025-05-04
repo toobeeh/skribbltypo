@@ -10,7 +10,7 @@ import { ToolsService } from "@/app/services/tools/tools.service";
 import { Color } from "@/util/color";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
-import {  filter, map, Subject, type Subscription, withLatestFrom } from "rxjs";
+import { filter, map, startWith, Subject, type Subscription, tap, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import ColorToolsInfo from "./drawing-color-tools-info.svelte";
@@ -52,7 +52,7 @@ export class DrawingColorToolsFeature extends TypoFeature {
     this._pipetteTool = this._toolsService.resolveModOrTool(PipetteTool);
 
     this._colorChangedListener.events$.pipe(
-      withLatestFrom(this._currentColor$),
+      withLatestFrom(this._currentColor$.pipe(startWith(new Color(0, 0, 0)))),
       filter(([event, currentColor]) => event.data.hex !== currentColor.hex),
       map(([event]) => event),
     ).subscribe((event) => {
