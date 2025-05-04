@@ -1,5 +1,6 @@
 import { type AnnouncementDto, AnnouncementDtoTypeEnum } from "@/api";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
+import { ExtensionSetting } from "@/app/core/settings/setting";
 import { GlobalSettingsService } from "@/app/services/global-settings/global-settings.service";
 import { type componentData, ModalService } from "@/app/services/modal/modal.service";
 import { ApiDataSetup } from "@/app/setups/api-data/api-data.setup";
@@ -16,6 +17,8 @@ export class PanelChangelogFeature extends TypoFeature {
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
   @inject(GlobalSettingsService) private readonly _globalSettingsService!: GlobalSettingsService;
   @inject(ModalService) private readonly _modalService!: ModalService;
+
+  private _lastReadVersion = new ExtensionSetting<string>("last_read_version", "0.0.0", this);
 
   private _component?: PanelChangelog;
 
@@ -41,6 +44,16 @@ export class PanelChangelogFeature extends TypoFeature {
       .filter(announcement => announcement.type === AnnouncementDtoTypeEnum.Changelog)
       .sort((a, b) => Number(b.date) - Number(a.date));
     this._component.$set({ changes });
+
+    const lastChange = changes[0];
+    const currentVersion = typoRuntime.getReleaseDetails().version;
+    if(lastChange?.affectedTypoVersion === currentVersion){
+      const lastReadVersion = await this._lastReadVersion.getValue();
+      if(lastReadVersion != currentVersion){
+        this.showDetailsModal(lastChange);
+        await this._lastReadVersion.setValue(currentVersion);
+      }
+    }
   }
 
   protected override onDestroy(): void {
@@ -49,6 +62,18 @@ export class PanelChangelogFeature extends TypoFeature {
 
   public get devmodeStore() {
     return this._globalSettingsService.settings.devMode.store;
+  }
+
+  public versionIsBiggerThan(version: string){
+    const v1 = version.split(".").map(Number);
+    const v2 = typoRuntime.getReleaseDetails().version.split(".").map(Number);
+
+    for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
+      const a = v1[i] || 0;
+      const b = v2[i] || 0;
+      if (a > b) return true;
+      if (a < b) return false;
+    }
   }
 
   public getVersion(){
