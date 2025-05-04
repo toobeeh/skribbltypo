@@ -57,10 +57,15 @@ export function SceneThemeDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
     };
 }
 
-export function SceneThemeDtoToJSON(value?: SceneThemeDto | null): any {
+export function SceneThemeDtoToJSON(json: any): SceneThemeDto {
+    return SceneThemeDtoToJSONTyped(json, false);
+}
+
+export function SceneThemeDtoToJSONTyped(value?: SceneThemeDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

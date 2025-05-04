@@ -73,10 +73,15 @@ export function LobbyPlayerDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function LobbyPlayerDtoToJSON(value?: LobbyPlayerDto | null): any {
+export function LobbyPlayerDtoToJSON(json: any): LobbyPlayerDto {
+    return LobbyPlayerDtoToJSONTyped(json, false);
+}
+
+export function LobbyPlayerDtoToJSONTyped(value?: LobbyPlayerDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'Name': value['name'],

@@ -49,10 +49,15 @@ export function CloudUploadedDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function CloudUploadedDtoToJSON(value?: CloudUploadedDto | null): any {
+export function CloudUploadedDtoToJSON(json: any): CloudUploadedDto {
+    return CloudUploadedDtoToJSONTyped(json, false);
+}
+
+export function CloudUploadedDtoToJSONTyped(value?: CloudUploadedDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'id': value['id'],

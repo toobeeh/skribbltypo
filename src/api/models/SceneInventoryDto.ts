@@ -18,6 +18,7 @@ import {
     SceneInventoryItemDtoFromJSON,
     SceneInventoryItemDtoFromJSONTyped,
     SceneInventoryItemDtoToJSON,
+    SceneInventoryItemDtoToJSONTyped,
 } from './SceneInventoryItemDto';
 
 /**
@@ -70,10 +71,15 @@ export function SceneInventoryDtoFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function SceneInventoryDtoToJSON(value?: SceneInventoryDto | null): any {
+export function SceneInventoryDtoToJSON(json: any): SceneInventoryDto {
+    return SceneInventoryDtoToJSONTyped(json, false);
+}
+
+export function SceneInventoryDtoToJSONTyped(value?: SceneInventoryDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'activeId': value['activeId'],

@@ -81,10 +81,15 @@ export function EventDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     };
 }
 
-export function EventDtoToJSON(value?: EventDto | null): any {
+export function EventDtoToJSON(json: any): EventDto {
+    return EventDtoToJSONTyped(json, false);
+}
+
+export function EventDtoToJSONTyped(value?: EventDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

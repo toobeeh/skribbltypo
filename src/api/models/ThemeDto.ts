@@ -18,6 +18,7 @@ import {
     ThemeMetaDtoFromJSON,
     ThemeMetaDtoFromJSONTyped,
     ThemeMetaDtoToJSON,
+    ThemeMetaDtoToJSONTyped,
 } from './ThemeMetaDto';
 
 /**
@@ -88,10 +89,15 @@ export function ThemeDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     };
 }
 
-export function ThemeDtoToJSON(value?: ThemeDto | null): any {
+export function ThemeDtoToJSON(json: any): ThemeDto {
+    return ThemeDtoToJSONTyped(json, false);
+}
+
+export function ThemeDtoToJSONTyped(value?: ThemeDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'colors': value['colors'],

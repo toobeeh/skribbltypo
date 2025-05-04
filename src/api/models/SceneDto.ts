@@ -18,12 +18,14 @@ import {
     EventDtoFromJSON,
     EventDtoFromJSONTyped,
     EventDtoToJSON,
+    EventDtoToJSONTyped,
 } from './EventDto';
 import type { SceneThemeDto } from './SceneThemeDto';
 import {
     SceneThemeDtoFromJSON,
     SceneThemeDtoFromJSONTyped,
     SceneThemeDtoToJSON,
+    SceneThemeDtoToJSONTyped,
 } from './SceneThemeDto';
 
 /**
@@ -122,10 +124,15 @@ export function SceneDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     };
 }
 
-export function SceneDtoToJSON(value?: SceneDto | null): any {
+export function SceneDtoToJSON(json: any): SceneDto {
+    return SceneDtoToJSONTyped(json, false);
+}
+
+export function SceneDtoToJSONTyped(value?: SceneDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

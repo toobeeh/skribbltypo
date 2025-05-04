@@ -49,10 +49,15 @@ export function CloudDeleteDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function CloudDeleteDtoToJSON(value?: CloudDeleteDto | null): any {
+export function CloudDeleteDtoToJSON(json: any): CloudDeleteDto {
+    return CloudDeleteDtoToJSONTyped(json, false);
+}
+
+export function CloudDeleteDtoToJSONTyped(value?: CloudDeleteDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'ids': value['ids'],

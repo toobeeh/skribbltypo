@@ -18,6 +18,7 @@ import {
     LobbyPlayerDtoFromJSON,
     LobbyPlayerDtoFromJSONTyped,
     LobbyPlayerDtoToJSON,
+    LobbyPlayerDtoToJSONTyped,
 } from './LobbyPlayerDto';
 
 /**
@@ -88,10 +89,15 @@ export function LobbyDetailsDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function LobbyDetailsDtoToJSON(value?: LobbyDetailsDto | null): any {
+export function LobbyDetailsDtoToJSON(json: any): LobbyDetailsDto {
+    return LobbyDetailsDtoToJSONTyped(json, false);
+}
+
+export function LobbyDetailsDtoToJSONTyped(value?: LobbyDetailsDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'Language': value['language'],

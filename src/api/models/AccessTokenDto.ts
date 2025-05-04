@@ -49,10 +49,15 @@ export function AccessTokenDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function AccessTokenDtoToJSON(value?: AccessTokenDto | null): any {
+export function AccessTokenDtoToJSON(json: any): AccessTokenDto {
+    return AccessTokenDtoToJSONTyped(json, false);
+}
+
+export function AccessTokenDtoToJSONTyped(value?: AccessTokenDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'Token': value['token'],

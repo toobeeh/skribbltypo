@@ -106,10 +106,15 @@ export function CloudSearchDtoFromJSONTyped(json: any, ignoreDiscriminator: bool
     };
 }
 
-export function CloudSearchDtoToJSON(value?: CloudSearchDto | null): any {
+export function CloudSearchDtoToJSON(json: any): CloudSearchDto {
+    return CloudSearchDtoToJSONTyped(json, false);
+}
+
+export function CloudSearchDtoToJSONTyped(value?: CloudSearchDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'pageSize': value['pageSize'],

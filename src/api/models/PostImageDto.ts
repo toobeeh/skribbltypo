@@ -81,10 +81,15 @@ export function PostImageDtoFromJSONTyped(json: any, ignoreDiscriminator: boolea
     };
 }
 
-export function PostImageDtoToJSON(value?: PostImageDto | null): any {
+export function PostImageDtoToJSON(json: any): PostImageDto {
+    return PostImageDtoToJSONTyped(json, false);
+}
+
+export function PostImageDtoToJSONTyped(value?: PostImageDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'title': value['title'],

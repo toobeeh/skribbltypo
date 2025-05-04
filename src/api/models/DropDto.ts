@@ -89,10 +89,15 @@ export function DropDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): D
     };
 }
 
-export function DropDtoToJSON(value?: DropDto | null): any {
+export function DropDtoToJSON(json: any): DropDto {
+    return DropDtoToJSONTyped(json, false);
+}
+
+export function DropDtoToJSONTyped(value?: DropDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'DropID': value['dropID'],

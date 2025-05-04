@@ -81,10 +81,15 @@ export function AwardDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     };
 }
 
-export function AwardDtoToJSON(value?: AwardDto | null): any {
+export function AwardDtoToJSON(json: any): AwardDto {
+    return AwardDtoToJSONTyped(json, false);
+}
+
+export function AwardDtoToJSONTyped(value?: AwardDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'name': value['name'],

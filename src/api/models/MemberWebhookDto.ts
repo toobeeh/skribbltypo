@@ -18,6 +18,7 @@ import {
     GuildDtoFromJSON,
     GuildDtoFromJSONTyped,
     GuildDtoToJSON,
+    GuildDtoToJSONTyped,
 } from './GuildDto';
 
 /**
@@ -64,10 +65,15 @@ export function MemberWebhookDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function MemberWebhookDtoToJSON(value?: MemberWebhookDto | null): any {
+export function MemberWebhookDtoToJSON(json: any): MemberWebhookDto {
+    return MemberWebhookDtoToJSONTyped(json, false);
+}
+
+export function MemberWebhookDtoToJSONTyped(value?: MemberWebhookDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'Name': value['name'],

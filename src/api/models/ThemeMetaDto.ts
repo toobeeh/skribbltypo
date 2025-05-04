@@ -81,10 +81,15 @@ export function ThemeMetaDtoFromJSONTyped(json: any, ignoreDiscriminator: boolea
     };
 }
 
-export function ThemeMetaDtoToJSON(value?: ThemeMetaDto | null): any {
+export function ThemeMetaDtoToJSON(json: any): ThemeMetaDto {
+    return ThemeMetaDtoToJSONTyped(json, false);
+}
+
+export function ThemeMetaDtoToJSONTyped(value?: ThemeMetaDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'author': value['author'],

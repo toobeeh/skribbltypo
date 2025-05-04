@@ -49,10 +49,15 @@ export function ThemeShareDtoFromJSONTyped(json: any, ignoreDiscriminator: boole
     };
 }
 
-export function ThemeShareDtoToJSON(value?: ThemeShareDto | null): any {
+export function ThemeShareDtoToJSON(json: any): ThemeShareDto {
+    return ThemeShareDtoToJSONTyped(json, false);
+}
+
+export function ThemeShareDtoToJSONTyped(value?: ThemeShareDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'id': value['id'],

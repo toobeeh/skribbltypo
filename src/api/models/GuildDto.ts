@@ -65,10 +65,15 @@ export function GuildDtoFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     };
 }
 
-export function GuildDtoToJSON(value?: GuildDto | null): any {
+export function GuildDtoToJSON(json: any): GuildDto {
+    return GuildDtoToJSONTyped(json, false);
+}
+
+export function GuildDtoToJSONTyped(value?: GuildDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'GuildID': value['guildID'],

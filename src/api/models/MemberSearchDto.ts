@@ -65,10 +65,15 @@ export function MemberSearchDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function MemberSearchDtoToJSON(value?: MemberSearchDto | null): any {
+export function MemberSearchDtoToJSON(json: any): MemberSearchDto {
+    return MemberSearchDtoToJSONTyped(json, false);
+}
+
+export function MemberSearchDtoToJSONTyped(value?: MemberSearchDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'userName': value['userName'],

@@ -73,10 +73,15 @@ export function PalantirLobbyDtoFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function PalantirLobbyDtoToJSON(value?: PalantirLobbyDto | null): any {
+export function PalantirLobbyDtoToJSON(json: any): PalantirLobbyDto {
+    return PalantirLobbyDtoToJSONTyped(json, false);
+}
+
+export function PalantirLobbyDtoToJSONTyped(value?: PalantirLobbyDto | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
+
     return {
         
         'Description': value['description'],
