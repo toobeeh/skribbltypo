@@ -5,6 +5,7 @@ import { InterpretableError } from "@/app/core/commands/results/interpretable-er
 import { InterpretableSilentSuccess } from "@/app/core/commands/results/interpretable-silent-success";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { HotkeyAction } from "@/app/core/hotkeys/hotkey";
+import { BooleanExtensionSetting } from "@/app/core/settings/setting";
 import {
   type lobbyAvailableInteractions,
   LobbyInteractionsService,
@@ -149,6 +150,12 @@ export class ChatQuickReactFeature extends TypoFeature {
     ),
   );
 
+  private readonly _muteActionToastsSetting = this.useSetting(
+    new BooleanExtensionSetting("mute_action_toasts", false, this)
+      .withName("Mute Info Toasts")
+      .withDescription("Mute the info toasts when liking/disliking/votekicking a player")
+  );
+
   private _subscription?: Subscription;
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
@@ -235,7 +242,8 @@ export class ChatQuickReactFeature extends TypoFeature {
   }
 
   public async likeCurrentPlayer() {
-    const toast = await this._toastService.showLoadingToast("Liking current player");
+    const muteToasts = await this._muteActionToastsSetting.getValue();
+    const toast = muteToasts ? undefined : await this._toastService.showLoadingToast("Liking current player");
     let player: skribblPlayer;
 
     try {
@@ -244,17 +252,18 @@ export class ChatQuickReactFeature extends TypoFeature {
       player = availablePlayer;
     }
     catch(e) {
-      toast.reject((e as Error).message);
+      toast?.reject((e as Error).message);
       return;
     }
 
     await this._lobbyInteractionsService.likePlayer();
     await this.hideGameRate();
-    toast.resolve(`Liked the drawing of ${player.name}`);
+    toast?.resolve(`Liked the drawing of ${player.name}`);
   }
 
   public async dislikeCurrentPlayer() {
-    const toast = await this._toastService.showLoadingToast("Disliking current player");
+    const muteToasts = await this._muteActionToastsSetting.getValue();
+    const toast = muteToasts ? undefined : await this._toastService.showLoadingToast("Disliking current player");
     let player: skribblPlayer;
 
     try {
@@ -263,18 +272,18 @@ export class ChatQuickReactFeature extends TypoFeature {
       player = availablePlayer;
     }
     catch(e) {
-      toast.reject((e as Error).message);
+      toast?.reject((e as Error).message);
       return;
     }
 
     await this._lobbyInteractionsService.dislikePlayer();
     await this.hideGameRate();
-    toast.resolve(`Disliked the drawing of ${player.name}`);
+    toast?.resolve(`Disliked the drawing of ${player.name}`);
   }
 
   public async votekickPlayer(player: skribblPlayer | undefined) {
-
-    const toast = await this._toastService.showLoadingToast(`Voting to kick ${player === undefined ? "current player" : player.name}`);
+    const muteToasts = await this._muteActionToastsSetting.getValue();
+    const toast = muteToasts ? undefined : await this._toastService.showLoadingToast(`Voting to kick ${player === undefined ? "current player" : player.name}`);
 
     try {
       const targetPlayer = await this.getCurrentInteractionPlayer(interactions => interactions.votekickAvailable);
@@ -284,11 +293,11 @@ export class ChatQuickReactFeature extends TypoFeature {
       }
     }
     catch(e) {
-      toast.reject((e as Error).message);
+      toast?.reject((e as Error).message);
       return;
     }
 
     await this._lobbyInteractionsService.votekickPlayer(player.id);
-    toast.resolve(`Voted to kick ${player.name}`);
+    toast?.resolve(`Voted to kick ${player.name}`);
   }
 }
