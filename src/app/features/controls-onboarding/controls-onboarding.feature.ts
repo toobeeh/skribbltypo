@@ -71,7 +71,6 @@ export class ControlsOnboardingFeature extends TypoFeature {
     priority: Number.MAX_SAFE_INTEGER
   });
 
-
   private readonly _viewInfoTask = this.useOnboardingTask({
     key: "info_opened",
     name: "Read about the new typo",
