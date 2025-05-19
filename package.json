@@ -17,6 +17,7 @@
     "build-prod-chrome": "npm run generate:workers && npm run lint && cross-env TARGET=chrome vite build --mode production",
     "build-prod-firefox": "npm run generate:workers && npm run lint && cross-env TARGET=firefox vite build --mode production",
     "lint": "eslint . ",
+    "lint-fix": "eslint . --fix",
     "test": "vitest --config vitest.config.ts",
     "generate:patch": "npx tsx codegen/executePatch.ts",
     "generate:workers": "npx tsx codegen/generateWorkers.ts",
