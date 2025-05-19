@@ -119,8 +119,8 @@ export class ChatEmojisFeature extends TypoFeature {
       ? emojis
         .filter(e => e.name.toLowerCase().includes(emojiHead.toLowerCase()))
         .sort((a, b) => {
-          const scoreA = this._emojiScores[a.name] ?? 0;
-          const scoreB = this._emojiScores[b.name] ?? 0;
+          const scoreA = this._emojiScores[this.getEmojiId(a)] ?? 0;
+          const scoreB = this._emojiScores[this.getEmojiId(b)] ?? 0;
           return scoreB - scoreA; // descending
         })
       : [];
@@ -195,7 +195,7 @@ export class ChatEmojisFeature extends TypoFeature {
             this.createTooltip(emojiElement, { title: emoji, lock: "Y" });
 
             if (isMyMessage) {
-              this.updateScores(emojiDto.name);
+              this.updateScores(this.getEmojiId(emojiDto));
             }
           }
           else {
