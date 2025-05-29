@@ -49,6 +49,10 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
   private _enableChooseVisualizer = this.useSetting(new BooleanExtensionSetting("choose_visualizer", true, this)
     .withName("Choose Visualizer")
     .withDescription("Show a visualizer of the remaining time to choose words"));
+  
+  private _enableChooseVisualizerOnlyForYourself = this.useSetting(new BooleanExtensionSetting("choose_visualizer_self_only", false, this))
+    .withName("Choose Visualizer Only For Yourself")
+    .withDescription("If the choose visualizer is enabled, this makes it so it only shows up when you're choosing your own word");
 
   private _enableDrawVisualizer = this.useSetting(new BooleanExtensionSetting("draw_visualizer", true, this)
     .withName("Draw Visualizer")
@@ -73,13 +77,14 @@ export class LobbyTimeVisualizerFeature extends TypoFeature {
       withLatestFrom(
         this._enableDrawVisualizer.changes$,
         this._enableGuessVisualizer.changes$,
-        this._enableChooseVisualizer.changes$
+        this._enableChooseVisualizer.changes$,
+        this._enableChooseVisualizerOnlyForYourself.changes$
       ),
 
-      map(([[lobby, event], draw, guess, choose]) => event.data.timerSet?.time !== 0 && lobby !== null &&
+      map(([[lobby, event], draw, guess, choose, chooseYourselfOnly]) => event.data.timerSet?.time !== 0 && lobby !== null &&
         (draw && event.data.drawingStarted?.drawerId === lobby.meId ||
           (guess && event.data.drawingStarted !== undefined && event.data.drawingStarted.drawerId !== lobby.meId) ||
-          (choose && event.data.drawerChoosingWord !== undefined)
+          (choose && event.data.drawerChoosingWord !== undefined && (chooseYourselfOnly ? (event.data.drawerChoosingWord.drawerId === lobby.meId) : true))
         ) ? { event, lobby } : (event.data.timerSet ? {override: event.data.timerSet.time} : undefined)
       ),
 
