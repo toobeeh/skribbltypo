@@ -12,6 +12,7 @@ import ChatEmojis from "./chat-emojis.svelte";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import EmojiPicker from "./emoji-picker.svelte";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
+import { ExtensionSetting } from "@/app/core/settings/setting";
 
 type EmojiScoreMap = Record<string, number>;
 
@@ -29,12 +30,12 @@ export class ChatEmojisFeature extends TypoFeature {
   ];
   public readonly featureId = 22;
 
-  private readonly storageKey = "emojiScores";
   private readonly decayRate = 0.99;
   private readonly boostAmount = 1.0;
 
   private _inputListener = this.handleInputEvent.bind(this);
 
+  private _emojiScoresSetting = new ExtensionSetting<EmojiScoreMap>("emojiScores", {}, this);
   private _subscription?: Subscription;
   private _component?: ChatEmojis;
   private _flyoutComponent?: AreaFlyout;
@@ -61,7 +62,7 @@ export class ChatEmojisFeature extends TypoFeature {
     this._component = new ChatEmojis({ target: elements.chatArea });
 
     /* track most frequently used emojis */
-    this._emojiScores = this.loadScores();
+    this._emojiScores = await this._emojiScoresSetting.getValue();
   }
 
   protected override async onDestroy() {
@@ -79,19 +80,6 @@ export class ChatEmojisFeature extends TypoFeature {
     this._flyoutSubscription = undefined;
   }
 
-  private loadScores(): EmojiScoreMap {
-    try {
-      const raw = localStorage.getItem(this.storageKey);
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
-  }
-
-  private saveScores() {
-    localStorage.setItem(this.storageKey, JSON.stringify(this._emojiScores));
-  }
-
   private updateScores(usedEmoji: string) {
     // decay all scores
     for (const key in this._emojiScores) {
@@ -105,7 +93,8 @@ export class ChatEmojisFeature extends TypoFeature {
     }
     this._emojiScores[usedEmoji] += this.boostAmount;
 
-    this.saveScores();
+    // persist
+    this._emojiScoresSetting.setValue(this._emojiScores);
   }
 
   async handleInputEvent() {
