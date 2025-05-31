@@ -7,16 +7,21 @@ import { fromObservable } from "@/util/store/fromObservable";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
-import { BehaviorSubject, type Subscription } from "rxjs";
+import { BehaviorSubject, withLatestFrom, type Subscription } from "rxjs";
 import ChatEmojis from "./chat-emojis.svelte";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import EmojiPicker from "./emoji-picker.svelte";
+import { LobbyService } from "@/app/services/lobby/lobby.service";
+import { ExtensionSetting } from "@/app/core/settings/setting";
+
+type EmojiScoreMap = Record<string, number>;
 
 export class ChatEmojisFeature extends TypoFeature {
 
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(ApiDataSetup) private readonly _apiDataSetup!: ApiDataSetup;
   @inject(ChatService) private readonly _chatService!: ChatService;
+  @inject(LobbyService) private readonly _lobbyService!: LobbyService;
 
   public readonly name = "Chat Emojis";
   public readonly description = "Adds support for emojis using ':emoji-name:' format in the chat.";
@@ -25,13 +30,18 @@ export class ChatEmojisFeature extends TypoFeature {
   ];
   public readonly featureId = 22;
 
+  private readonly decayRate = 0.99;
+  private readonly boostAmount = 1.0;
+
   private _inputListener = this.handleInputEvent.bind(this);
 
+  private _emojiScoresSetting = new ExtensionSetting<EmojiScoreMap>("emojiScores", {}, this);
   private _subscription?: Subscription;
   private _component?: ChatEmojis;
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
   private _emojiCandidates$ = new BehaviorSubject<EmojiDto[]>([]);
+  private _emojiScores: EmojiScoreMap = {};
 
   protected override async onActivate() {
 
@@ -41,12 +51,18 @@ export class ChatEmojisFeature extends TypoFeature {
 
     /* process received messages */
     const emojis = (await this._apiDataSetup.complete()).emojis;
-    this._subscription = this._chatService.playerMessageReceived$.subscribe(({ contentElement }) => {
-      this.processAddedMessage(contentElement, emojis);
+    this._subscription = this._chatService.playerMessageReceived$.pipe(
+      withLatestFrom(this._lobbyService.lobby$),
+    ).subscribe(([{ contentElement, player }, lobby]) => {
+      const isMyMessage = player.lobbyPlayerId === lobby?.meId;
+      this.processAddedMessage(contentElement, emojis, isMyMessage);
     });
 
     /* add styles */
     this._component = new ChatEmojis({ target: elements.chatArea });
+
+    /* track most frequently used emojis */
+    this._emojiScores = await this._emojiScoresSetting.getValue();
   }
 
   protected override async onDestroy() {
@@ -64,6 +80,23 @@ export class ChatEmojisFeature extends TypoFeature {
     this._flyoutSubscription = undefined;
   }
 
+  private updateScores(usedEmoji: string) {
+    // decay all scores
+    for (const key in this._emojiScores) {
+      this._emojiScores[key] *= this.decayRate;
+      this._emojiScores[key] = parseFloat(this._emojiScores[key].toFixed(4));  // round to 4 decimals for storage
+    }
+
+    // boost used emoji
+    if (!this._emojiScores[usedEmoji]) {
+      this._emojiScores[usedEmoji] = 0;
+    }
+    this._emojiScores[usedEmoji] += this.boostAmount;
+
+    // persist
+    this._emojiScoresSetting.setValue(this._emojiScores);
+  }
+
   async handleInputEvent() {
     const emojis = (await this._apiDataSetup.complete()).emojis;
     const elements = await this._elements.complete();
@@ -71,7 +104,15 @@ export class ChatEmojisFeature extends TypoFeature {
     /* get emoji candidates and emit event */
     this._logger.debug("Finding emoji candidates for: ", elements.chatInput.value);
     const emojiHead = this.parseUnfinishedEmoji(elements.chatInput.value);
-    const emojiCandidates = emojiHead !== undefined ? emojis.filter(e => e.name.toLowerCase().includes(emojiHead.toLowerCase())) : [];
+    const emojiCandidates = emojiHead !== undefined 
+      ? emojis
+        .filter(e => e.name.toLowerCase().includes(emojiHead.toLowerCase()))
+        .sort((a, b) => {
+          const scoreA = this._emojiScores[this.getEmojiId(a)] ?? 0;
+          const scoreB = this._emojiScores[this.getEmojiId(b)] ?? 0;
+          return scoreB - scoreA; // descending
+        })
+      : [];
     this._emojiCandidates$.next(emojiCandidates);
 
     /* show popout if head exists, else close if open */
@@ -117,7 +158,7 @@ export class ChatEmojisFeature extends TypoFeature {
     }
   }
 
-  processAddedMessage(message: HTMLElement, emojis: EmojiDto[]) {
+  processAddedMessage(message: HTMLElement, emojis: EmojiDto[], isMyMessage: boolean) {
     const textNodes = Array.from(message.childNodes).filter(node => node.nodeType === Node.TEXT_NODE) as Text[];
     textNodes.forEach(node => {
       const parsedEmojis = this.parseTextWithEmojis(node.textContent ?? "");
@@ -141,6 +182,10 @@ export class ChatEmojisFeature extends TypoFeature {
             emojiElement.classList.add("typo-emoji");
             newTextNode.appendChild(emojiElement);
             this.createTooltip(emojiElement, { title: emoji, lock: "Y" });
+
+            if (isMyMessage) {
+              this.updateScores(this.getEmojiId(emojiDto));
+            }
           }
           else {
             newTextNode.appendChild(document.createTextNode(emoji));
