@@ -6,7 +6,7 @@ import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import { ToolsService } from "@/app/services/tools/tools.service";
 import { calculatePressurePoint } from "@/util/typo/pressure";
 import { inject } from "inversify";
-import { combineLatestWith, map, type Subscription } from "rxjs";
+import { combineLatestWith, distinctUntilChanged, map, type Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import DrawingPressureInfo from "./drawing-pressure-info.svelte";
 
@@ -65,7 +65,8 @@ export class DrawingPressureFeature extends TypoFeature {
     );
 
     this._performanceEnabledSubscription = this._performanceEnabledSetting.changes$.pipe(
-      combineLatestWith(this._pressureParamSensitivitySetting.changes$, this._pressureParamBalanceSetting.changes$, overridePerformance$)
+      combineLatestWith(this._pressureParamSensitivitySetting.changes$, this._pressureParamBalanceSetting.changes$, overridePerformance$),
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
     ).subscribe(async ([performanceMode, sensitivity, balance, overridePerformance]) => {
       if(performanceMode && !overridePerformance){
         if(this._pressureMod) {
