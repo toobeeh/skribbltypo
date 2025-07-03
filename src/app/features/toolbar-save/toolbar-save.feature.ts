@@ -18,7 +18,7 @@ import type {
   IGifRendererWorker,
 } from "@/worker/gif-renderer/gif-renderer.worker";
 import { TypedWorkerExecutor } from "@/worker/typed-worker";
-import { gifRendererWorkerBase64 } from "@/worker/workers";
+import { gifRendererWorkerJs } from "@/worker/workers";
 import { inject } from "inversify";
 import { catchError, combineLatest, map, of, Subscription, switchMap, take, withLatestFrom } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
@@ -230,7 +230,7 @@ export class ToolbarSaveFeature extends TypoFeature {
       commands: this._drawingService.commands$,
       lobby: this._lobbyService.lobby$.pipe(take(1)),
       state: this._drawingService.imageState$,
-      duration: fromPromise(this._toastService.showPromptToast("Generate GIF", "Enter the preferred duration in seconds")).pipe(
+      duration: fromPromise(this._toastService.showPromptToast("Enter GIF duration", "Enter the preferred duration in seconds")).pipe(
         switchMap(v => v.result)
       )
     }).pipe(
@@ -267,7 +267,7 @@ export class ToolbarSaveFeature extends TypoFeature {
       const drawer = lobby.players.find(player => player.id === state.drawerId)?.name ?? "unknown";
       const name = this._customName ?? `skribbl-${state.word.hints}-by-${drawer}`;
 
-      const workerBlob = new Blob([atob(gifRendererWorkerBase64)], { type: "application/javascript" });
+      const workerBlob = new Blob([gifRendererWorkerJs], { type: "application/javascript" });
       const worker = new TypedWorkerExecutor<IGifRendererWorker, IGifRendererParent>(
         URL.createObjectURL(workerBlob),
         {
