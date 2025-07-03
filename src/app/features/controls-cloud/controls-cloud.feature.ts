@@ -16,7 +16,7 @@ import { getCloudCommands } from "@/util/typo/getCloudCommands";
 import { getCloudMeta } from "@/util/typo/getCloudMeta";
 import type { IGifRendererParent, IGifRendererWorker } from "@/worker/gif-renderer/gif-renderer.worker";
 import { TypedWorkerExecutor } from "@/worker/typed-worker";
-import { gifRendererWorkerBase64 } from "@/worker/workers";
+import { gifRendererWorkerJs } from "@/worker/workers";
 import { inject } from "inversify";
 import { Subscription, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
@@ -161,7 +161,7 @@ export class ControlsCloudFeature extends TypoFeature {
   }
 
   public async saveAsGif(image: CloudImageDto){
-    const durationPrompt = await this._toastService.showPromptToast("Generate GIF", "Enter the preferred duration in seconds");
+    const durationPrompt = await this._toastService.showPromptToast("Enter GIF duration", "Enter the preferred duration in seconds");
     const durationMs = await durationPrompt.result;
     if(durationMs === null) return;
 
@@ -178,7 +178,7 @@ export class ControlsCloudFeature extends TypoFeature {
         return `${doneChar.repeat(done)}${leftChar.repeat(left)}`;
       };
 
-      const workerBlob = new Blob([atob(gifRendererWorkerBase64)], { type: "application/javascript" });
+      const workerBlob = new Blob([gifRendererWorkerJs], { type: "application/javascript" });
       const worker = new TypedWorkerExecutor<IGifRendererWorker, IGifRendererParent>(
         URL.createObjectURL(workerBlob),
         {

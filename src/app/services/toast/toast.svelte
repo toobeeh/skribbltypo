@@ -132,7 +132,7 @@
         promptHandler(promptContent);
       }}>
         <input type="submit" hidden />
-        <input autofocus bind:value={promptContent} type="text" placeholder="{content}">
+        <input name="typo-toast-input" autofocus bind:value={promptContent} type="text" placeholder="{content}" on:keydown={e => e.stopPropagation()}>
       </form>
     {/if}
 

@@ -1,1 +1,1 @@
-export const gifRendererWorkerBase64 = "";
+export const gifRendererWorkerJs = "";

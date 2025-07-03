@@ -71,7 +71,7 @@ export class ChatEmojisFeature extends TypoFeature {
     /* get emoji candidates and emit event */
     this._logger.debug("Finding emoji candidates for: ", elements.chatInput.value);
     const emojiHead = this.parseUnfinishedEmoji(elements.chatInput.value);
-    const emojiCandidates = emojiHead !== undefined ? emojis.filter(e => e.name.includes(emojiHead)) : [];
+    const emojiCandidates = emojiHead !== undefined ? emojis.filter(e => e.name.toLowerCase().includes(emojiHead.toLowerCase())) : [];
     this._emojiCandidates$.next(emojiCandidates);
 
     /* show popout if head exists, else close if open */

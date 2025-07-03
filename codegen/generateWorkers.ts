@@ -22,16 +22,17 @@ for (const file of workerFiles) {
     bundle: true,
     format: "iife",
     platform: "browser",
+    minify: true
   });
 
   // Read and encode as Base64
   const jsCode = fs.readFileSync(outFile, "utf8");
-  const base64Code = Buffer.from(jsCode).toString("base64");
+  const escaped = JSON.stringify(jsCode);
   const exportName = filename
-    .replace(".worker.ts", "WorkerBase64")
+    .replace(".worker.ts", "WorkerJs")
     .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase());
 
-  base64Exports.push(`export const ${exportName} = "${base64Code}";`);
+  base64Exports.push(`export const ${exportName} = ${escaped};`);
 
   // Create type definition for each worker
   exports.push(`export const ${exportName} = "";`);
