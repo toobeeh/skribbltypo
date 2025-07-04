@@ -39,7 +39,8 @@ export default class PageRuntime implements TypoRuntime {
   }
 
   async getToken(): Promise<string | null> {
-    return (await this._db).get("token", "token");
+    const tokenPromise = (await this._db).get("token", "token");
+    return (await tokenPromise) ?? null;
   }
 
   async setToken(token: string | null): Promise<void> {
