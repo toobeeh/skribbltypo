@@ -268,7 +268,11 @@ export class ToolsService {
 
   public removeMod(mod: TypoDrawMod) {
     this._logger.debug("Removing mod", mod);
-    this._activeMods$.next(this._activeMods$.value.filter(m => m !== mod));
+    const lengthBefore = this._activeMods$.value.length;
+    const mods = this._activeMods$.value.filter(m => m !== mod);
+    if(lengthBefore !=  mods.length) {
+      this._activeMods$.next(mods);
+    }
   }
 
   public get activeTool$() {

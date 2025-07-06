@@ -26,8 +26,6 @@ export default class PageRuntime implements TypoRuntime {
       "settings",
       "token",
     );
-
-    window.addEventListener("click", () => console.log(this));
   }
 
   async getSetting(key: string): Promise<string | null> {
