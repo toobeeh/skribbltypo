@@ -31,7 +31,7 @@ export default class PageRuntime implements TypoRuntime {
   }
 
   async getSetting(key: string): Promise<string | null> {
-    return (await this._db).get("settings", key);
+    return await (await this._db).get("settings", key) ?? null;
   }
 
   async writeSetting(key: string, value: string | null): Promise<void> {
@@ -39,8 +39,7 @@ export default class PageRuntime implements TypoRuntime {
   }
 
   async getToken(): Promise<string | null> {
-    const tokenPromise = (await this._db).get("token", "token");
-    return (await tokenPromise) ?? null;
+    return await (await this._db).get("token", "token") ?? null;
   }
 
   async setToken(token: string | null): Promise<void> {
