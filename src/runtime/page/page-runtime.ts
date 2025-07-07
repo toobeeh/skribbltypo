@@ -26,12 +26,11 @@ export default class PageRuntime implements TypoRuntime {
       "settings",
       "token",
     );
-
-    window.addEventListener("click", () => console.log(this));
   }
 
   async getSetting(key: string): Promise<string | null> {
-    return (await this._db).get("settings", key);
+    const value = await (await this._db).get("settings", key);
+    return value === undefined ? null : value;
   }
 
   async writeSetting(key: string, value: string | null): Promise<void> {
@@ -39,7 +38,8 @@ export default class PageRuntime implements TypoRuntime {
   }
 
   async getToken(): Promise<string | null> {
-    return (await this._db).get("token", "token");
+    const value = await (await this._db).get("token", "token");
+    return value === undefined ? null : value;
   }
 
   async setToken(token: string | null): Promise<void> {
