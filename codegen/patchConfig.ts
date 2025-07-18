@@ -752,7 +752,7 @@ export const gameJsPatchConfig = {
         {
           position:
             "(\"submit\", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+[a-zA-Z0-9&_\\-$]+\\.preventDefault",
-          code: "const input = this.querySelector(\"input\"); let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; this.dispatchEvent(new Event(\"submit\"));},180);",
+          code: "const input = this.querySelector(\"input\"); let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; this.requestSubmit();},180);",
         },
       ],
     },
