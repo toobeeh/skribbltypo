@@ -13,10 +13,11 @@
       background-image: var(--typo-emoji-url);
       color: transparent;
       overflow: hidden;
-      width: 1.5em;
+      width: min(100%, 2.5em);  // allow wide aspect ratio without exceeding 2.5em
       height: 1.5em;
       background-size: contain;
       background-repeat: no-repeat;
+      background-position: center;
       display: inline-block;
       image-rendering: auto;
 
