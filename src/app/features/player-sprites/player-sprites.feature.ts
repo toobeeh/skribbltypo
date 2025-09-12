@@ -168,7 +168,7 @@ export class PlayerSpritesFeature extends TypoFeature {
         lobbyKey: "practice",
       } : undefined;
 
-      const shift = sprite.colorShift && sprite.slot ? {
+      const shift = sprite.colorShift !== undefined && sprite.slot ? {
         itemId: sprite.colorShift,
         type: OnlineItemTypeDto.SpriteShift,
         lobbyPlayerId: 0,
