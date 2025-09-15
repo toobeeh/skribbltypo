@@ -62,6 +62,7 @@ import { PanelCabinFeature } from "@/app/features/panel-cabin/panel-cabin.featur
 import { PanelChangelogFeature } from "@/app/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/app/features/panel-filters/panel-filters.feature";
 import { PanelLobbiesFeature } from "@/app/features/panel-lobbies/panel-lobbies.feature";
+import { PingAndRepliesFeature } from "./features/ping-and-replies/ping-and-replies.feature";
 import { PlayerAwardsFeature } from "@/app/features/player-awards/player-awards-feature";
 import { PlayerIdsFeature } from "@/app/features/player-ids/player-ids.feature";
 import { PlayerScenesFeature } from "@/app/features/player-scenes/player-scenes.feature";
@@ -244,7 +245,8 @@ new ExtensionContainer(interceptor)
     ControlsOnboardingFeature,
     ControlsProfilesFeature,
     ChatAvatarsFeature,
-    DrawingSizeHotkeysFeature
+    DrawingSizeHotkeysFeature,
+    PingAndRepliesFeature
   );
 
 /* indicate for interceptor that content script has loaded */
