@@ -154,7 +154,6 @@
     <h2>Feature Hotkeys</h2>
     <p>
       Hotkeys are key combinations to quickly access feature functions. You can disable hotkeys that you don't need.<br>
-      Hotkeys with
       To change a hotkey, click in the input field and press the desired key combination. To remove a key from the combination, press it again.<br>
       Empty combinations will be disabled automatically.
     </p>
