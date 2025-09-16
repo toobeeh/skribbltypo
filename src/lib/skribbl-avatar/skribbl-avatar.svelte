@@ -23,6 +23,7 @@
         width: var(--typo-avatar-container-size);
         aspect-ratio: 1;
         position: relative;
+        z-index: 0;
 
         .typo-avatar-layer {
             position: absolute;
