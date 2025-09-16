@@ -138,6 +138,7 @@ export class DropsFeature extends TypoFeature {
         if (prev !== undefined && current === undefined) {
 
           const getEmoji = (claim: DropClaimResultDto) => {
+            if(claim.clearedDrop && claim.firstClaim) return "💎🛡️";
             if (claim.clearedDrop) return "🛡️";
             if (claim.firstClaim) return "💎";
             if (claim.leagueMode) return "🧿";
