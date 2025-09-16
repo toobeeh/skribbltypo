@@ -1,4 +1,5 @@
 import { OnboardingService } from "@/app/services/onboarding/onboarding.service";
+import { OidcLogin } from "@/util/oidcLogin";
 import { inject, injectable } from "inversify";
 import { BehaviorSubject, filter, firstValueFrom, forkJoin, of, switchMap, take } from "rxjs";
 import { fromPromise } from "rxjs/internal/observable/innerFrom";
@@ -132,7 +133,7 @@ export class MemberService {
    * Redirects the user to the login page.
    */
   public login() {
-    window.location.href = "https://www.typo.rip/auth?redirect=" + encodeURI(window.location.href);
+    new OidcLogin().loginRedirect();
   }
 
   /**

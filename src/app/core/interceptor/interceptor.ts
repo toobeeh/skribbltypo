@@ -14,7 +14,6 @@ export class Interceptor {
   private readonly _typoBodyLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _canvasFound$ = new BehaviorSubject<boolean>(false);
   private readonly _contentScriptLoaded$ = new BehaviorSubject<boolean>(false);
-  private readonly _tokenProcessed$ = new BehaviorSubject<boolean>(false);
   private readonly _patchLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _canvasPrioritizedEventsReady$ = new BehaviorSubject<prioritizedCanvasEvents | undefined>(undefined);
 
@@ -34,8 +33,8 @@ export class Interceptor {
       tap(() => this.listenForCanvas()),
 
       /* wait for all prerequisites */
-      combineLatestWith(this._canvasFound$, this._contentScriptLoaded$, this._tokenProcessed$),
-      filter(([, canvas, content, token]) => canvas && content && token)
+      combineLatestWith(this._canvasFound$, this._contentScriptLoaded$),
+      filter(([, canvas, content]) => canvas && content)
     ).subscribe(() => {
       this.debug("All prerequisites executed, injecting patch and listening to canvas events");
       this.listenPrioritizedCanvasElements();
@@ -44,7 +43,6 @@ export class Interceptor {
 
     this.debug("Interceptor initialized, starting listeners for token and game.js");
     this.waitForTypoLoadedBody();
-    this.processToken();
 
     this.patchLoaded$.subscribe(() => {
       document.body.dataset["typo_loaded"] = "true";
@@ -69,31 +67,6 @@ export class Interceptor {
       this._patchLoaded$.complete();
     };
     document.body.appendChild(patch);
-  }
-
-  private async processToken(){
-    this.debug("Processing token");
-    const url = new URL(window.location.href);
-    let tokenParam = url.searchParams.get("accessToken");
-
-    /* for compatibility of old typo, can be removed in later versions */
-    if(tokenParam === null){
-      const fallbackOldToken = localStorage.getItem("accessToken");
-      if(fallbackOldToken !== null) {
-        tokenParam = fallbackOldToken;
-        localStorage.removeItem("accessToken");
-      }
-    }
-
-    if(tokenParam !== null) {
-      await typoRuntime.setToken(tokenParam);
-      url.searchParams.delete("accessToken");
-      window.history.replaceState({}, "", url.toString());
-    }
-
-    this.debug("Token processed");
-    this._tokenProcessed$.next(true);
-    this._tokenProcessed$.complete();
   }
 
   private waitForTypoLoadedBody(){
