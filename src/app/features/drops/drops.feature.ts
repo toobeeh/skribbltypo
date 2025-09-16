@@ -144,8 +144,11 @@ export class DropsFeature extends TypoFeature {
             return "💧";
           };
 
-          const currentClaims = claims.filter((c) => c.dropId === prev?.drop.dropId);
-          const title = "Drop Summary";
+          const previousDrop = prev;
+          const currentClaims = claims.filter((c) => c.dropId === previousDrop.drop.dropId);
+          const dropName = previousDrop.drop.eventDropId !== undefined ? apiData.drops.find((d) => d.id === previousDrop.drop.eventDropId)?.name : undefined;
+          const title = "Drop Summary" + (dropName !== undefined ? `: (${dropName})` : "");
+
           const content =
             "\n" +
             (currentClaims.length === 0
