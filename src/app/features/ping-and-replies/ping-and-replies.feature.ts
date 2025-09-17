@@ -27,12 +27,15 @@ export class PingAndRepliesFeature extends TypoFeature {
 
   // TODO: currently set on chat message, find api for that
   private currentLobby = ["loading"];
-  private _playerCandidates$ = new BehaviorSubject<string[]>([]);
   private _flyoutComponent?: AreaFlyout = undefined;
   private _flyoutSubscription?: Subscription;
 
+  private _playerCandidates$ = new BehaviorSubject<string[]>([]);
+  private playerCandidates: string[] = [];
+  private _kbSelectedPlayerIndex$ = new BehaviorSubject<number>(0);
+  private kbSelectedPlayerIndex = 0;
+
   protected override async onActivate() {
-    this._playerCandidates$.next([]);
     const elements = await this._elements.complete();
     this.input = elements.chatInput;
     this.chatSubscription = this._chatSvc.playerMessageReceived$
@@ -45,6 +48,7 @@ export class PingAndRepliesFeature extends TypoFeature {
         this.onMessage(msg.contentElement, msg.content, myName.name);
       });
     this.input.addEventListener("keyup", () => this.onChatInput());
+    this.input.addEventListener("keydown", (e) => this.specialKeyboardHandling(e));
   }
 
   protected override async onDestroy() {
@@ -60,6 +64,40 @@ export class PingAndRepliesFeature extends TypoFeature {
     element.parentElement?.classList.add("guessed");
   }
 
+  private specialKeyboardHandling(evt: KeyboardEvent) {
+    switch (evt.key) {
+      case "ArrowUp": {
+        let newValue = this.kbSelectedPlayerIndex - 1;
+        if (newValue == -1) newValue = this.playerCandidates.length - 1;
+        this.kbSelectedPlayerIndex = newValue;
+        this._kbSelectedPlayerIndex$.next(newValue);
+        evt.preventDefault();
+        break;
+      }
+      case "ArrowDown": {
+        let newValue = this.kbSelectedPlayerIndex + 1;
+        if (newValue >= this.playerCandidates.length) newValue = 0;
+        this.kbSelectedPlayerIndex = newValue;
+        this._kbSelectedPlayerIndex$.next(newValue);
+        evt.preventDefault();
+        break;
+      }
+      case "Enter":
+      case "Tab":
+        if (this._flyoutComponent !== undefined) {
+          this.autocompleteSelected(
+            this.playerCandidates[this._kbSelectedPlayerIndex$.getValue() || 0],
+          );
+          evt.preventDefault();
+        }
+        break;
+
+      case "Escape":
+        this._flyoutComponent?.close();
+        break;
+    }
+  }
+
   private onChatInput() {
     const v = this.input?.value;
     if (v === undefined) return;
@@ -72,7 +110,9 @@ export class PingAndRepliesFeature extends TypoFeature {
       return;
     }
 
-    const matches = this.currentLobby.filter((person) => person.startsWith(toComplete));
+    const matches = this.currentLobby.filter(
+      (person) => person.startsWith(toComplete) && person != toComplete,
+    );
     if (matches.length == 0) {
       this._flyoutComponent?.close();
       this._flyoutComponent = undefined;
@@ -80,6 +120,7 @@ export class PingAndRepliesFeature extends TypoFeature {
     }
 
     console.log(matches);
+    this.playerCandidates = matches;
     this._playerCandidates$.next(matches);
     this.showAutocomplete();
   }
@@ -113,7 +154,6 @@ export class PingAndRepliesFeature extends TypoFeature {
     });
 
     this._flyoutSubscription = this._flyoutComponent.closed$.subscribe(() => {
-      this._logger.info("Destroyed flyout");
       this._flyoutComponent?.$destroy();
       this._flyoutSubscription?.unsubscribe();
       this._flyoutComponent = undefined;
@@ -131,9 +171,14 @@ export class PingAndRepliesFeature extends TypoFeature {
 
     this._flyoutComponent?.close();
     this.input.focus();
+    this._kbSelectedPlayerIndex$.next(0);
   }
 
   public get playerCandidatesStore() {
     return fromObservable(this._playerCandidates$, this._playerCandidates$.value);
+  }
+
+  public get kbSelectedPlayerIndexStore() {
+    return fromObservable(this._kbSelectedPlayerIndex$, this._kbSelectedPlayerIndex$.value);
   }
 }
