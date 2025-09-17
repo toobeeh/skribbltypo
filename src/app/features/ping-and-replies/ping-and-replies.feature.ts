@@ -1,4 +1,5 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
+import { BooleanExtensionSetting } from "@/app/core/settings/setting";
 import { ChatService } from "@/app/services/chat/chat.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import type { componentData } from "@/app/services/modal/modal.service";
@@ -20,6 +21,12 @@ export class PingAndRepliesFeature extends TypoFeature {
     "Lets you reply to messages, ping others, and highlights when you're pinged.";
   public readonly tags = [FeatureTag.INTERFACE, FeatureTag.SOCIAL];
   public readonly featureId = 52;
+
+  private _enablePopover = this.useSetting(
+    new BooleanExtensionSetting("ping_suggestions", true, this)
+      .withName("Ping Autocomplete")
+      .withDescription("Shows an keyboard-navigable autocomplete window for pings."),
+  );
 
   private input: HTMLInputElement | undefined;
 
@@ -47,6 +54,7 @@ export class PingAndRepliesFeature extends TypoFeature {
         if (!myName) return;
         this.onMessage(msg.contentElement, msg.content, myName.name);
       });
+
     this.input.addEventListener("keyup", () => this.onChatInput());
     this.input.addEventListener("keydown", (e) => this.specialKeyboardHandling(e));
   }
@@ -65,6 +73,8 @@ export class PingAndRepliesFeature extends TypoFeature {
   }
 
   private specialKeyboardHandling(evt: KeyboardEvent) {
+    if (this._flyoutComponent === undefined) return;
+
     switch (evt.key) {
       case "ArrowUp": {
         let newValue = this.kbSelectedPlayerIndex - 1;
@@ -84,12 +94,10 @@ export class PingAndRepliesFeature extends TypoFeature {
       }
       case "Enter":
       case "Tab":
-        if (this._flyoutComponent !== undefined) {
-          this.autocompleteSelected(
-            this.playerCandidates[this._kbSelectedPlayerIndex$.getValue() || 0],
-          );
-          evt.preventDefault();
-        }
+        this.autocompleteSelected(
+          this.playerCandidates[this._kbSelectedPlayerIndex$.getValue() || 0],
+        );
+        evt.preventDefault();
         break;
 
       case "Escape":
@@ -126,6 +134,7 @@ export class PingAndRepliesFeature extends TypoFeature {
   }
 
   private async showAutocomplete() {
+    if (!(await this._enablePopover.getValue())) return;
     if (this._flyoutComponent !== undefined) return;
 
     const elements = await this._elements.complete();
