@@ -66,6 +66,37 @@ export class PingAndRepliesFeature extends TypoFeature {
   }
 
   private onMessage(element: HTMLElement, content: string, myName: string) {
+    const newElement = document.createElement("span");
+    const textSplit = content.split("@");
+    for (const [index, text] of textSplit.entries()) {
+      const ele = document.createElement("span");
+      if (index == 0) {
+        ele.innerText = text;
+        newElement.append(ele);
+        continue;
+      }
+
+      let foundPlayer: string | null = null;
+      for (const player of this.currentLobby) {
+        if (!text.startsWith(player)) continue;
+        if (player.length > (foundPlayer?.length || -1)) foundPlayer = player;
+      }
+
+      if (!foundPlayer) {
+        ele.innerText = `@${text}`;
+        newElement.append(ele);
+        continue;
+      }
+
+      const bolden = document.createElement("b");
+      bolden.innerText = `@${foundPlayer}`;
+      ele.append(bolden);
+      ele.append(document.createTextNode(text.slice(foundPlayer.length)));
+      newElement.append(ele);
+    }
+    element.parentElement?.append(newElement);
+    element.remove();
+
     const lookFor = `@${myName} `;
     // adding a space for pings at end of message
     if (!(content + " ").includes(lookFor)) return;
