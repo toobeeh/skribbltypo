@@ -49,6 +49,8 @@ export class PingAndRepliesFeature extends TypoFeature {
 
   protected override async onDestroy() {
     this.chatSubscription?.unsubscribe();
+    this._flyoutComponent?.$destroy();
+    this._flyoutSubscription?.unsubscribe();
   }
 
   private onMessage(element: HTMLElement, content: string, myName: string) {
