@@ -93,11 +93,7 @@ export class PingAndRepliesFeature extends TypoFeature {
       componentType: SuggestionPopover,
       props: {
         feature: this,
-        onSelected: (name: string) => {
-          console.log("selected", name);
-          this._flyoutComponent?.close();
-          console.log("do focus");
-        },
+        onSelected: (n: string) => this.autocompleteSelected(n),
       },
     };
 
@@ -121,6 +117,17 @@ export class PingAndRepliesFeature extends TypoFeature {
       this._flyoutSubscription?.unsubscribe();
       this._flyoutComponent = undefined;
     });
+  }
+
+  private autocompleteSelected(name: string) {
+    if (this.input === undefined) return;
+    const val = this.input.value;
+    const strip = val.slice(0, val.lastIndexOf("@"));
+    const newval = `${strip}@${name}`;
+    this.input.value = newval;
+
+    this._flyoutComponent?.close();
+    this.input.focus();
   }
 
   public get playerCandidatesStore() {

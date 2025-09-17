@@ -12,10 +12,8 @@
     No people
   {:else}
     {#each $people as person}
-      <button type="button">{person}</button>
+      <button type="button" on:click={() => onSelected(person)}>{person}</button>
     {/each}
-
-    <button type="button" on:click={() => onSelected("Hy")}>send random stuff</button>
   {/if}
 </div>
 
