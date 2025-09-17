@@ -64,6 +64,7 @@ export class PingAndRepliesFeature extends TypoFeature {
     const v = this.input?.value;
     if (v === undefined) return;
 
+    if (v.indexOf("@") == -1) return;
     const toComplete = v.split("@").at(-1);
     if (!toComplete) {
       this._flyoutComponent?.close();
@@ -122,7 +123,9 @@ export class PingAndRepliesFeature extends TypoFeature {
   private autocompleteSelected(name: string) {
     if (this.input === undefined) return;
     const val = this.input.value;
-    const strip = val.slice(0, val.lastIndexOf("@"));
+    const atIndex = val.lastIndexOf("@");
+    if (atIndex === -1) return;
+    const strip = val.slice(0, atIndex);
     const newval = `${strip}@${name}`;
     this.input.value = newval;
 
