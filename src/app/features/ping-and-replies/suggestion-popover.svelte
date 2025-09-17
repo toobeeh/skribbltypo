@@ -18,3 +18,15 @@
     <button type="button" on:click={() => onSelected("Hy")}>send random stuff</button>
   {/if}
 </div>
+
+<style lang="scss">
+  .typo-ping-suggestion-popover {
+    display: flex;
+    flex-direction: column;
+
+    button {
+      background-color: transparent;
+      border-radius: 3px;
+    }
+  }
+</style>
