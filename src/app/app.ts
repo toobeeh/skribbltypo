@@ -29,6 +29,7 @@ import { ChatCopyFormattedFeature } from "@/app/features/chat-copy-formatted/cha
 import { ChatEmojisFeature } from "@/app/features/chat-emojis/chat-emojis.feature";
 import { ChatFocusFeature } from "@/app/features/chat-focus/chat-focus.feature";
 import { ChatMessageSplitsFeature } from "@/app/features/chat-message-splits/chat-message-splits.feature";
+import { ChatPingFeature } from "@/app/features/chat-ping/chat-ping.feature";
 import { ChatProfileLinkFeature } from "@/app/features/chat-profile-link/chat-profile-link.feature";
 import { ChatQuickReactFeature } from "@/app/features/chat-quick-react/chat-quick-react.feature";
 import { ChatRecallFeature } from "@/app/features/chat-recall/chat-recall.feature";
@@ -244,7 +245,8 @@ new ExtensionContainer(interceptor)
     ControlsOnboardingFeature,
     ControlsProfilesFeature,
     ChatAvatarsFeature,
-    DrawingSizeHotkeysFeature
+    DrawingSizeHotkeysFeature,
+    ChatPingFeature
   );
 
 /* indicate for interceptor that content script has loaded */
