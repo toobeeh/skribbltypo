@@ -3,6 +3,7 @@ import { BooleanExtensionSetting } from "@/app/core/settings/setting";
 import { LobbyLeftEventListener } from "@/app/events/lobby-left.event";
 import { LobbyConnectionService } from "@/app/features/lobby-status/lobby-connection.service";
 import { ChatService } from "@/app/services/chat/chat.service";
+import { LobbyService } from "@/app/services/lobby/lobby.service";
 import { ToastService } from "@/app/services/toast/toast.service";
 import { ApiDataSetup } from "@/app/setups/api-data/api-data.setup";
 import type { DropAnnouncementDto, DropClaimResultDto } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
@@ -32,6 +33,7 @@ export class DropsFeature extends TypoFeature {
   @inject(ChatService) private readonly _chatService!: ChatService;
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(LobbyLeftEventListener) private readonly _lobbyLeftEventListener!: LobbyLeftEventListener;
+  @inject(LobbyService) private readonly _lobbyService!: LobbyService;
 
   public readonly name = "Drops";
   public readonly description = "Show drops to collect extra bubbles when you're playing";
@@ -47,7 +49,7 @@ export class DropsFeature extends TypoFeature {
 
   private _component?: DropsComponent;
   private _recordedClaims$ = new BehaviorSubject<(DropClaimResultDto & {own: boolean})[]>([]);
-  private _currentDrop$ = new Subject<{ drop: DropAnnouncementDto, timestamp: number, ownClaimed: boolean } | undefined>();
+  private _currentDrop$ = new Subject<{ drop: DropAnnouncementDto, timestamp: number, ownClaimed: boolean, leagueMode: boolean } | undefined>();
   private _dropSummarySubscription?: Subscription;
   private _dropAnnouncedSubscription?: Subscription;
 
@@ -108,11 +110,17 @@ export class DropsFeature extends TypoFeature {
           ),
         ),
         tap((drop) => this._logger.info("Setting drop", drop)),
+        withLatestFrom(this._lobbyService.lobby$)
       )
-      .subscribe((drop) =>
+      .subscribe(([drop, lobby]) =>
         this._currentDrop$.next(
-          drop === undefined ? undefined : { drop, timestamp: Date.now(), ownClaimed: false },
-        ),
+          drop === undefined ? undefined : {
+            drop,
+            timestamp: Date.now(),
+            ownClaimed: false,
+            leagueMode: (lobby?.players.length === 1 || lobby?.players.every(player => player.score === 0)) ?? false
+          },
+        )
       );
 
     /* subscribe to changes in the current drop and build a summary of claims when it's cleared */
@@ -130,14 +138,18 @@ export class DropsFeature extends TypoFeature {
         if (prev !== undefined && current === undefined) {
 
           const getEmoji = (claim: DropClaimResultDto) => {
+            if(claim.clearedDrop && claim.firstClaim) return "💎🛡️";
             if (claim.clearedDrop) return "🛡️";
             if (claim.firstClaim) return "💎";
             if (claim.leagueMode) return "🧿";
             return "💧";
           };
 
-          const currentClaims = claims.filter((c) => c.dropId === prev?.drop.dropId);
-          const title = "Drop Summary";
+          const previousDrop = prev;
+          const currentClaims = claims.filter((c) => c.dropId === previousDrop.drop.dropId);
+          const dropName = previousDrop.drop.eventDropId !== undefined ? apiData.drops.find((d) => d.id === previousDrop.drop.eventDropId)?.name : undefined;
+          const title = "Drop Summary" + (dropName !== undefined ? `: (${dropName})` : "");
+
           const content =
             "\n" +
             (currentClaims.length === 0
@@ -179,7 +191,7 @@ export class DropsFeature extends TypoFeature {
   public async claimDrop(drop: DropAnnouncementDto, timestamp: number) {
     this._logger.info("Claiming drop after delay", Date.now() - timestamp);
 
-    this._currentDrop$.next({drop, ownClaimed: true, timestamp}); /* claiming phase not finished, but player cannot claim anymore */
+    this._currentDrop$.next({drop, ownClaimed: true, timestamp, leagueMode: false}); /* claiming phase not finished, but player cannot claim anymore */
 
     try {
       const result = await this._lobbyConnectionService.connection.hub.claimDrop({

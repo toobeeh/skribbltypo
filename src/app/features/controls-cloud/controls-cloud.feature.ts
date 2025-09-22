@@ -161,11 +161,20 @@ export class ControlsCloudFeature extends TypoFeature {
   }
 
   public async saveAsGif(image: CloudImageDto){
-    const durationPrompt = await this._toastService.showPromptToast("Enter GIF duration", "Enter the preferred duration in seconds");
-    const durationMs = await durationPrompt.result;
-    if(durationMs === null) return;
+    const toast = await this._toastService.showStickyToast("Saving as GIF");
 
-    const toast = await this._toastService.showStickyToast("Rendering image GIF");
+    const durationPrompt = await this._toastService.showPromptToast("Enter GIF duration", "Enter the preferred duration in seconds");
+    const duration = await durationPrompt.result;
+    const durationMs = parseFloat(duration ?? "") * 1000;
+    if(duration === null) {
+      toast.close();
+      return;
+    }
+    if(Number.isNaN(durationMs)){
+      toast.resolve("Invalid duration entered");
+      return;
+    }
+
     try {
       const commands = await getCloudCommands(image.commandsUrl);
 
@@ -187,10 +196,12 @@ export class ControlsCloudFeature extends TypoFeature {
           }
         }
       );
-      const gif = await worker.run("renderGif", commands, parseFloat(durationMs ?? "") * 1000);
-      downloadBlob(gif, `${image.name}-by-${image.author}.gif`.replaceAll(" ", "_"));
 
-      toast.resolve("GIF rendering complete");
+      const name = `${image.name}-by-${image.author}`;
+      const gif = await worker.run("renderGif", commands, durationMs);
+      downloadBlob(gif, `${name}.gif`.replaceAll(" ", "_"));
+
+      toast.resolve(`${name} saved as GIF`);
     }
     catch(e){
       this._logger.error("Failed to download image", e);

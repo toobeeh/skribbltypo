@@ -28,6 +28,7 @@ export class SkribblChatPlayer implements SkribblPlayerDisplay {
     this._elementId = "typo-chat-player-" + SkribblChatPlayer.idCounter++;
     this._playerStyle = document.createElement("style");
     this._container.appendChild(this._playerStyle);
+    this.container.classList.add(this._elementId);
   }
 
   destroy() {

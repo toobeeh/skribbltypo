@@ -49,18 +49,25 @@ export class ChatClearFeature extends TypoFeature {
             scan((acc, [message, limit]) => {
 
               /* no limit set or limit not reached, accumulate */
-              if (limit <= 0 || acc.length < limit) return [...acc, message.element];
+              if (limit <= 0 || acc.length < limit) {
+                acc.push(message.element);
+              }
 
               /* else limit reached, delete last and add new */
-              acc[0].remove();
-              return [...acc.slice(1), message.element];
+              else {
+                acc[0].remove();
+                acc.splice(1);
+                acc.push(message.element);
+              }
+
+              return acc;
             }, [] as HTMLElement[]),
 
-            /* lsiten for clear and modify reduced array in-place */
+            /* listen for clear and modify reduced array in-place */
             switchMap(elements => this._chatCleared$.pipe(
               tap(() => {
                 elements.forEach(element => element.remove());
-                elements.slice(0, elements.length);
+                elements.splice(0, elements.length);
               })
             ))
           ),

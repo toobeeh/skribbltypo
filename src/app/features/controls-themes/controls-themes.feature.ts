@@ -165,9 +165,37 @@ export class ControlsThemesFeature extends TypoFeature {
     this._themesService.updateLoadedEditorTheme(theme);
   }
 
-  public async unloadThemeFromEditor(){
+  public async discardLoadedEditorTheme(removeThemeId?: number){
+    if(removeThemeId !== undefined)  {
+      if(! await(await this._toastService.showConfirmToast("Do you want to discard & remove the theme?", undefined, 10000, {confirm: "Remove theme", cancel: "Keep editing"})).result){
+        this._logger.info("User canceled theme removal");
+        return;
+      }
+    }
+
+    else {
+      if(! await(await this._toastService.showConfirmToast("Do you want to discard the changes?", undefined, 10000, {confirm: "Discard changes", cancel: "Keep editing"})).result){
+        this._logger.info("User canceled theme discarding");
+        return;
+      }
+    }
+
     await this._themesService.unloadThemeFromEditor();
-    await this._toastService.showToast("Theme unloaded from editor");
+
+    if(removeThemeId !== undefined)  {
+      const toast = await this._toastService.showLoadingToast("Removing theme");
+      try {
+        const theme = await this._themesService.removeSavedTheme(removeThemeId);
+        toast.resolve(`Theme ${theme.theme.meta.name} removed`);
+      }
+      catch {
+        toast.reject("Failed to remove theme");
+      }
+    }
+
+    else {
+      await this._toastService.showToast("Theme unloaded from editor");
+    }
   }
 
   public async createLocalTheme(){
