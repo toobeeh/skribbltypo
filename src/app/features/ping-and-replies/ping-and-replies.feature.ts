@@ -41,6 +41,8 @@ export class PingAndRepliesFeature extends TypoFeature {
   private playerCandidates: string[] = [];
   private _kbSelectedPlayerIndex$ = new BehaviorSubject<number>(0);
   private kbSelectedPlayerIndex = 0;
+  private replyButton?: HTMLButtonElement;
+  private currentHoveringMessage?: HTMLElement;
 
   protected override async onActivate() {
     const elements = await this._elements.complete();
@@ -57,12 +59,47 @@ export class PingAndRepliesFeature extends TypoFeature {
 
     this.input.addEventListener("keyup", () => this.onChatInput());
     this.input.addEventListener("keydown", (e) => this.specialKeyboardHandling(e));
+    this.createReplyButton();
+    for (const e of elements.chatContent.children)
+      this.addMouseoverListenerToMessage(e as HTMLElement);
   }
 
   protected override async onDestroy() {
     this.chatSubscription?.unsubscribe();
     this._flyoutComponent?.$destroy();
     this._flyoutSubscription?.unsubscribe();
+  }
+
+  private createReplyButton() {
+    const button = document.createElement("button");
+    // eslint-disable-next-line quotes
+    button.innerHTML = '<img src="/img/undo.gif" width="25" height="25" />';
+    button.setAttribute("style", "position:absolute;right:0;bottom:0;");
+    this.replyButton = button;
+    this.replyButton.onclick = () => {
+      const senderEle = this.currentHoveringMessage?.children[0] as HTMLElement;
+      if (!senderEle) return;
+      console.log(
+        "replying to person",
+        senderEle.innerText.slice(0, -2),
+      );
+    };
+  }
+
+  private addMouseoverListenerToMessage(element: HTMLElement) {
+    element.addEventListener("mouseover", () => {
+      this.currentHoveringMessage = element;
+      if (!this.replyButton) return this._logger.error("reply button is not set?");
+      this.currentHoveringMessage.appendChild(this.replyButton);
+      this.currentHoveringMessage.style.position = "relative";
+    });
+    element.addEventListener("mouseleave", () => {
+      if (this.currentHoveringMessage == element) {
+        this.currentHoveringMessage.style.position = "block";
+        this.currentHoveringMessage = undefined;
+      }
+      this.replyButton?.remove();
+    });
   }
 
   private onMessage(element: HTMLElement, content: string, myName: string) {
@@ -96,6 +133,8 @@ export class PingAndRepliesFeature extends TypoFeature {
     }
     element.parentElement?.append(newElement);
     element.remove();
+    if (newElement.parentElement !== null)
+      this.addMouseoverListenerToMessage(newElement.parentElement);
 
     const lookFor = `@${myName} `;
     // adding a space for pings at end of message
