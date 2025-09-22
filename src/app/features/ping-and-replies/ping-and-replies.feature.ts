@@ -79,10 +79,12 @@ export class PingAndRepliesFeature extends TypoFeature {
     this.replyButton.onclick = () => {
       const senderEle = this.currentHoveringMessage?.children[0] as HTMLElement;
       if (!senderEle) return;
-      console.log(
-        "replying to person",
-        senderEle.innerText.slice(0, -2),
-      );
+      const prepend = `@${senderEle.innerText.slice(0, -2)} `;
+      if (this.input === undefined) return;
+      let iv = this.input.value;
+      if (iv === undefined) return this._logger.error("input value is undefined somehow");
+      if (!iv.startsWith(prepend)) iv = prepend + iv;
+      this.input.value = iv;
     };
   }
 
