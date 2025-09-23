@@ -9,7 +9,15 @@ import { createElement } from "@/util/document/appendElement";
 import { DomEventSubscription } from "@/util/rxjs/domEventSubscription";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
-import { BehaviorSubject, combineLatestWith, filter, map, startWith, Subscription, withLatestFrom } from "rxjs";
+import {
+  BehaviorSubject,
+  combineLatestWith,
+  filter,
+  map,
+  startWith,
+  Subscription,
+  withLatestFrom,
+} from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import SuggestionPopover from "./suggestion-popover.svelte";
 
@@ -36,14 +44,17 @@ export class ChatMentionFeature extends TypoFeature {
   private _flyoutSubscription?: Subscription;
 
   private _playerCandidates$ = new BehaviorSubject<string[]>([]);
-  private playerCandidates: string[] = [];
   private _kbSelectedPlayerIndex$ = new BehaviorSubject<number>(0);
-  private kbSelectedPlayerIndex = 0;
-  private replyButton?: HTMLButtonElement;
-  private currentHoveringMessage?: HTMLElement;
+  private _kbSelectedPlayerIndex = 0;
+  private _replyButton?: HTMLButtonElement;
 
   private _keyupEvents?: DomEventSubscription<"keyup">;
   private _keydownEvents?: DomEventSubscription<"keydown">;
+
+  private _messagePointeroverEvents?: DomEventSubscription<"pointerover">;
+  private _messagePointerleaveEvents?: DomEventSubscription<"pointerleave">;
+  private _registeredMessageElements$ = new BehaviorSubject<Set<HTMLElement>>(new Set<HTMLElement>());
+  private _currentHoveringMessage$ = new BehaviorSubject<HTMLElement | undefined>(undefined);
 
   protected override async onActivate() {
     const elements = await this._elements.complete();
@@ -78,7 +89,42 @@ export class ChatMentionFeature extends TypoFeature {
     this._keyupEvents.events$.pipe(
       withLatestFrom(mentionData$.pipe(filter(data => data !== undefined)))
     ).subscribe(([, data]) => this.onChatInput(data.players));
-    this._keydownEvents.events$.subscribe((e) => this.specialKeyboardHandling(e));
+    this._keydownEvents.events$.pipe(
+      combineLatestWith(this._playerCandidates$)
+    ).subscribe(([event, candidates]) => this.specialKeyboardHandling(event, candidates));
+
+    this._messagePointeroverEvents = new DomEventSubscription(elements.chatContent, "pointerover");
+    this._messagePointerleaveEvents = new DomEventSubscription(elements.chatContent, "pointerleave");
+
+    this._messagePointeroverEvents.events$.pipe(
+      combineLatestWith(this._registeredMessageElements$)
+    ).subscribe(([event, registeredElements]) => {
+      const hovered = event.target;
+      //if(hovered === null) this._currentHoveringMessage$.next(undefined);
+
+      for(const element of registeredElements) {
+        if(element.contains(hovered as Node)) {
+          this._currentHoveringMessage$.next(element);
+          if (!this._replyButton) return this._logger.error("reply button is not set?");
+          element.appendChild(this._replyButton);
+          element.style.position = "relative";
+          return;
+        }
+      }
+
+      this._currentHoveringMessage$.next(undefined);
+    });
+
+    this._messagePointerleaveEvents.events$.pipe(
+      combineLatestWith(this._currentHoveringMessage$)
+    ).subscribe(([event, currentHovering]) => {
+      if (currentHovering == event.target) {
+        currentHovering.style.position = "block";
+        this._currentHoveringMessage$.next(undefined);
+      }
+      this._replyButton?.remove();
+    });
+
 
     this.createReplyButton();
     for (const e of elements.chatContent.children)
@@ -94,6 +140,12 @@ export class ChatMentionFeature extends TypoFeature {
     this._keydownEvents?.unsubscribe();
     this._keyupEvents = undefined;
     this._keydownEvents = undefined;
+
+    this._messagePointerleaveEvents?.unsubscribe();
+    this._messagePointeroverEvents?.unsubscribe();
+    this._messagePointerleaveEvents = undefined;
+    this._messagePointeroverEvents = undefined;
+    this._registeredMessageElements$.getValue().clear();
   }
 
   private async createReplyButton() {
@@ -105,33 +157,22 @@ export class ChatMentionFeature extends TypoFeature {
       </button>
     `) as HTMLButtonElement;
 
-    this.replyButton = button;
-    this.replyButton.onclick = () => {
-      const senderEle = this.currentHoveringMessage?.children[0] as HTMLElement;
+    this._replyButton = button;
+    this._replyButton.onclick = () => {
+      const senderEle = this._currentHoveringMessage$.value;
       if (!senderEle) return;
-      const prepend = `@${senderEle.innerText.slice(0, -2)} `;
+      const prepend = `@${senderEle.textContent?.trim().split(":")[0]} `;
       if (input === undefined) return;
       let iv = input.value;
       if (iv === undefined) return this._logger.error("input value is undefined somehow");
       if (!iv.startsWith(prepend)) iv = prepend + iv;
-      input.value = iv;
+
+      this._chatSvc.replaceChatboxContent(iv);
     };
   }
 
   private addMouseoverListenerToMessage(element: HTMLElement) {
-    element.addEventListener("pointerover", () => {
-      this.currentHoveringMessage = element;
-      if (!this.replyButton) return this._logger.error("reply button is not set?");
-      this.currentHoveringMessage.appendChild(this.replyButton);
-      this.currentHoveringMessage.style.position = "relative";
-    });
-    element.addEventListener("pointerleave", () => {
-      if (this.currentHoveringMessage == element) {
-        this.currentHoveringMessage.style.position = "block";
-        this.currentHoveringMessage = undefined;
-      }
-      this.replyButton?.remove();
-    });
+   this._registeredMessageElements$.next(this._registeredMessageElements$.value.add(element));
   }
 
   private onMessage(element: HTMLElement, content: string, myName: string, players: string[]) {
@@ -174,28 +215,28 @@ export class ChatMentionFeature extends TypoFeature {
     element.parentElement?.classList.add("guessed");
   }
 
-  private specialKeyboardHandling(evt: KeyboardEvent) {
+  private specialKeyboardHandling(evt: KeyboardEvent, candidates: string[]) {
     if (this._flyoutComponent === undefined) return;
 
     switch (evt.key) {
       case "ArrowUp": {
-        let newValue = this.kbSelectedPlayerIndex - 1;
-        if (newValue == -1) newValue = this.playerCandidates.length - 1;
-        this.kbSelectedPlayerIndex = newValue;
+        let newValue = this._kbSelectedPlayerIndex - 1;
+        if (newValue == -1) newValue = candidates.length - 1;
+        this._kbSelectedPlayerIndex = newValue;
         this._kbSelectedPlayerIndex$.next(newValue);
         break;
       }
       case "ArrowDown": {
-        let newValue = this.kbSelectedPlayerIndex + 1;
-        if (newValue >= this.playerCandidates.length) newValue = 0;
-        this.kbSelectedPlayerIndex = newValue;
+        let newValue = this._kbSelectedPlayerIndex + 1;
+        if (newValue >= candidates.length) newValue = 0;
+        this._kbSelectedPlayerIndex = newValue;
         this._kbSelectedPlayerIndex$.next(newValue);
         break;
       }
       case "Enter":
       case "Tab":
         this.autocompleteSelected(
-          this.playerCandidates[this._kbSelectedPlayerIndex$.getValue() || 0],
+          candidates[this._kbSelectedPlayerIndex$.getValue() || 0],
         );
         break;
 
@@ -228,7 +269,6 @@ export class ChatMentionFeature extends TypoFeature {
 
     this._logger.debug("matches:", matches);
 
-    this.playerCandidates = matches;
     this._playerCandidates$.next(matches);
     await this.showAutocomplete();
   }
@@ -281,7 +321,7 @@ export class ChatMentionFeature extends TypoFeature {
     const atIndex = val.lastIndexOf("@");
     if (atIndex === -1) return;
     const strip = val.slice(0, atIndex);
-    const newval = `${strip}@${name}`;
+    const newval = `${strip}@${name} `; // adding a space for pings at end of message
     this._chatSvc.replaceChatboxContent(newval, this);
 
     this._flyoutComponent?.close();
