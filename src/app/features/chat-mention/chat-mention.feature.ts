@@ -9,7 +9,7 @@ import { createElement } from "@/util/document/appendElement";
 import { DomEventSubscription } from "@/util/rxjs/domEventSubscription";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
-import { BehaviorSubject, filter, map, Subscription, withLatestFrom } from "rxjs";
+import { BehaviorSubject, combineLatestWith, filter, map, startWith, Subscription, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import SuggestionPopover from "./suggestion-popover.svelte";
 
@@ -20,7 +20,7 @@ export class ChatMentionFeature extends TypoFeature {
 
   public readonly name = "Pings and Replies";
   public readonly description =
-    "Lets you reply to messages, ping others, and highlights when you're pinged.";
+    "Lets you reply to messages, ping others, and highlights when you're pinged";
   public readonly tags = [FeatureTag.INTERFACE, FeatureTag.SOCIAL];
   public readonly featureId = 53;
 
@@ -50,7 +50,8 @@ export class ChatMentionFeature extends TypoFeature {
 
     // reusable observable pipe for mentions
     const mentionData$ = this._chatSvc.playerMessageReceived$.pipe(
-      withLatestFrom(this._lobbySvc.lobby$),
+      startWith(undefined),
+      combineLatestWith(this._lobbySvc.lobby$),
       map(([msg, lobby]) => {
         if(!lobby) return undefined;
 
@@ -64,8 +65,9 @@ export class ChatMentionFeature extends TypoFeature {
     );
 
     this.chatSubscription = mentionData$.pipe(
-      filter(data => data !== undefined)
+      filter(data => data !== undefined),
     ).subscribe(data => {
+      if(!data.msg) return; // skip initial value
       this.onMessage(data.msg.contentElement, data.msg.content, data.self.name, data.players);
     });
 
@@ -181,7 +183,6 @@ export class ChatMentionFeature extends TypoFeature {
         if (newValue == -1) newValue = this.playerCandidates.length - 1;
         this.kbSelectedPlayerIndex = newValue;
         this._kbSelectedPlayerIndex$.next(newValue);
-        evt.preventDefault();
         break;
       }
       case "ArrowDown": {
@@ -189,7 +190,6 @@ export class ChatMentionFeature extends TypoFeature {
         if (newValue >= this.playerCandidates.length) newValue = 0;
         this.kbSelectedPlayerIndex = newValue;
         this._kbSelectedPlayerIndex$.next(newValue);
-        evt.preventDefault();
         break;
       }
       case "Enter":
@@ -197,7 +197,6 @@ export class ChatMentionFeature extends TypoFeature {
         this.autocompleteSelected(
           this.playerCandidates[this._kbSelectedPlayerIndex$.getValue() || 0],
         );
-        evt.preventDefault();
         break;
 
       case "Escape":
@@ -208,8 +207,7 @@ export class ChatMentionFeature extends TypoFeature {
 
   private async onChatInput(players: string[]) {
     const input = (await this._elements.complete()).chatInput;
-    const value = input.value;
-    if (value.trim().length === 0) return;
+    const value = input.value.toLowerCase();
 
     if (value.indexOf("@") == -1) return;
     const toComplete = value.split("@").at(-1);
@@ -220,7 +218,7 @@ export class ChatMentionFeature extends TypoFeature {
     }
 
     const matches = players.filter(
-      (person) => person.startsWith(toComplete) && person != toComplete,
+      (person) => person.toLowerCase().startsWith(toComplete) && person != toComplete,
     );
     if (matches.length == 0) {
       this._flyoutComponent?.close();
@@ -249,6 +247,11 @@ export class ChatMentionFeature extends TypoFeature {
       },
     };
 
+    if(!this._chatSvc.requestChatboxLock(this)){
+      this._logger.error("Could not get chatbox lock, not opening mention flyout");
+      return;
+    }
+
     /* open flyout and destroy when clicked out */
     this._flyoutComponent = new AreaFlyout({
       target: elements.gameWrapper,
@@ -267,6 +270,7 @@ export class ChatMentionFeature extends TypoFeature {
       this._flyoutComponent?.$destroy();
       this._flyoutSubscription?.unsubscribe();
       this._flyoutComponent = undefined;
+      this._chatSvc.releaseChatboxLock(this);
     });
   }
 
@@ -278,7 +282,7 @@ export class ChatMentionFeature extends TypoFeature {
     if (atIndex === -1) return;
     const strip = val.slice(0, atIndex);
     const newval = `${strip}@${name}`;
-    input.value = newval;
+    this._chatSvc.replaceChatboxContent(newval, this);
 
     this._flyoutComponent?.close();
     input.focus();

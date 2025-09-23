@@ -1,3 +1,4 @@
+import type { TypoFeature } from "@/app/core/feature/feature";
 import { loggerFactory } from "@/app/core/logger/loggerFactory.interface";
 import { MessageReceivedEventListener } from "@/app/events/message-received.event";
 import { PlayersService } from "@/app/services/players/players.service";
@@ -34,6 +35,8 @@ export class ChatService {
   private _elementDiscovered$ = new Subject<pendingElement>();
   private _messageDiscovered$ = new Subject<pendingMessage>();
   private _playerMessageReceived$ = new Subject<pendingMessage & pendingElement>();
+
+  private _lockedChatboxFeature: TypoFeature | null = null;
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory
@@ -172,5 +175,32 @@ export class ChatService {
 
     this._elementDiscovered$.next(chatMessage);
     return message;
+  }
+
+  public replaceChatboxContent(content: string, requestingFeature?: TypoFeature): boolean {
+    if(this._lockedChatboxFeature && this._lockedChatboxFeature !== requestingFeature){
+      this._logger.warn("Chatbox content replacement denied - chatbox locked by other feature", this._lockedChatboxFeature.name);
+      return false;
+    }
+
+    this._elementsSetup.complete().then(elements => elements.chatInput.value = content);
+    return true;
+  }
+
+  public requestChatboxLock(feature: TypoFeature){
+    if(this._lockedChatboxFeature && this._lockedChatboxFeature !== feature){
+      this._logger.warn("Chatbox lock request denied for feature - already locked by other feature", feature.name);
+      return false;
+    }
+    this._lockedChatboxFeature = feature;
+    return true;
+  }
+
+  public releaseChatboxLock(feature: TypoFeature){
+    if(this._lockedChatboxFeature !== feature){
+      this._logger.error("Chatbox lock release denied for feature - feature does not have lock", feature.name);
+      return;
+    }
+    this._lockedChatboxFeature = null;
   }
 }
