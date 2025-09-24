@@ -212,7 +212,7 @@ export class ChatMentionFeature extends TypoFeature {
     const lookFor = `@${myName} `;
     // adding a space for pings at end of message
     if (!(content + " ").includes(lookFor)) return;
-    element.parentElement?.classList.add("guessed");
+    newElement.parentElement?.classList.add("guessed");
   }
 
   private specialKeyboardHandling(evt: KeyboardEvent, candidates: string[]) {
