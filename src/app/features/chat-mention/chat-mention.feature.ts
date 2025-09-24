@@ -252,7 +252,7 @@ export class ChatMentionFeature extends TypoFeature {
 
     if (value.indexOf("@") == -1) return;
     const toComplete = value.split("@").at(-1);
-    if (!toComplete) {
+    if (toComplete === undefined) {
       this._flyoutComponent?.close();
       this._flyoutComponent = undefined;
       return;
