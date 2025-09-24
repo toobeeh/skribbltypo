@@ -1,7 +1,6 @@
 <script lang="ts">
-  import type { ChatMentionFeature } from "@/app/features/chat-mention/chat-mention.feature";
-
-  export let feature: ChatMentionFeature;
+  import type { ChatMessageHighlightingFeature } from "@/app/features/chat-message-highlighting/chat-message-highlighting.feature";
+  export let feature: ChatMessageHighlightingFeature;
 
   const people = feature.playerCandidatesStore;
   const selIndex = feature.kbSelectedPlayerIndexStore;

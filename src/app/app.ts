@@ -63,7 +63,7 @@ import { PanelCabinFeature } from "@/app/features/panel-cabin/panel-cabin.featur
 import { PanelChangelogFeature } from "@/app/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/app/features/panel-filters/panel-filters.feature";
 import { PanelLobbiesFeature } from "@/app/features/panel-lobbies/panel-lobbies.feature";
-import { ChatMentionFeature } from "@/app/features/chat-mention/chat-mention.feature";
+import { ChatMessageHighlightingFeature } from "@/app/features/chat-message-highlighting/chat-message-highlighting.feature";
 import { PlayerAwardsFeature } from "@/app/features/player-awards/player-awards-feature";
 import { PlayerIdsFeature } from "@/app/features/player-ids/player-ids.feature";
 import { PlayerScenesFeature } from "@/app/features/player-scenes/player-scenes.feature";
@@ -252,7 +252,7 @@ new ExtensionContainer(interceptor)
     ChatAvatarsFeature,
     DrawingSizeHotkeysFeature,
     ChatPingFeature,
-    ChatMentionFeature,
+    ChatMessageHighlightingFeature,
   );
 
 /* indicate for interceptor that content script has loaded */

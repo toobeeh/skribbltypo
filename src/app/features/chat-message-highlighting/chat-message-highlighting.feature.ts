@@ -21,14 +21,14 @@ import {
 import { TypoFeature } from "../../core/feature/feature";
 import SuggestionPopover from "./suggestion-popover.svelte";
 
-export class ChatMentionFeature extends TypoFeature {
+export class ChatMessageHighlightingFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(LobbyService) private readonly _lobbySvc!: LobbyService;
   @inject(ChatService) private readonly _chatSvc!: ChatService;
 
-  public readonly name = "Pings and Replies";
+  public readonly name = "Chat Highlighting";
   public readonly description =
-    "Lets you reply to messages, ping others, and highlights when you're pinged";
+    "Mentions like in Discord and highlighting your and friends' messages.";
   public readonly tags = [FeatureTag.INTERFACE, FeatureTag.SOCIAL];
   public readonly featureId = 53;
 
@@ -161,7 +161,7 @@ export class ChatMentionFeature extends TypoFeature {
     this._replyButton.onclick = () => {
       const senderEle = this._currentHoveringMessage$.value;
       if (!senderEle) return;
-      const prepend = `@${senderEle.textContent?.trim().split(":")[0]} `;
+      const prepend = `@${senderEle.querySelector("b")?.innerText.slice(0, -2)} `;
       if (input === undefined) return;
       let iv = input.value;
       if (iv === undefined) return this._logger.error("input value is undefined somehow");
