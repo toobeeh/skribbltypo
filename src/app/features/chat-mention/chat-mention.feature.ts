@@ -1,6 +1,6 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { BooleanExtensionSetting } from "@/app/core/settings/setting";
-import { ChatService } from "@/app/services/chat/chat.service";
+import { ChatService, type chatboxEventFilter } from "@/app/services/chat/chat.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import type { componentData } from "@/app/services/modal/modal.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
@@ -273,6 +273,10 @@ export class ChatMentionFeature extends TypoFeature {
     await this.showAutocomplete();
   }
 
+  private filterChatboxEvents(event: KeyboardEvent): chatboxEventFilter {
+    if(event.key === "Tab" || event.key === "Enter" || event.key === "ArrowUp" || event.key === "ArrowDown") return "preventDefault";
+  }
+
   private async showAutocomplete() {
     if (!(await this._enablePopover.getValue())) return;
     if (this._flyoutComponent !== undefined) return;
@@ -287,7 +291,7 @@ export class ChatMentionFeature extends TypoFeature {
       },
     };
 
-    if(!this._chatSvc.requestChatboxLock(this)){
+    if(!this._chatSvc.requestChatboxLock(this, this.filterChatboxEvents)){
       this._logger.error("Could not get chatbox lock, not opening mention flyout");
       return;
     }

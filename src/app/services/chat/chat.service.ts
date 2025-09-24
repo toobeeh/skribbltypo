@@ -4,6 +4,9 @@ import { MessageReceivedEventListener } from "@/app/events/message-received.even
 import { PlayersService } from "@/app/services/players/players.service";
 import type { SkribblLobbyPlayer } from "@/app/services/players/skribblLobbyPlayer";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
+import {
+  PrioritizedChatboxEventsSetup
+} from "@/app/setups/prioritized-chatbox-events/prioritized-chatbox-events.setup";
 import { SkribblMessageRelaySetup } from "@/app/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { inject, injectable, postConstruct } from "inversify";
 import { filter, map, mergeWith, Subject, withLatestFrom } from "rxjs";
@@ -22,10 +25,13 @@ export interface pendingElement {
   contentElement: HTMLElement;
 }
 
+export type chatboxEventFilter = "preventDefault" | "stopPropagation" | "both" | undefined;
+
 @injectable()
 export class ChatService {
 
   @inject(ElementsSetup) private _elementsSetup!: ElementsSetup;
+  @inject(PrioritizedChatboxEventsSetup) private _chatboxEventsSetup!: PrioritizedChatboxEventsSetup;
   @inject(PlayersService) private _lobbyPlayersService!: PlayersService;
   @inject(MessageReceivedEventListener) private _messageReceivedEventListener!: MessageReceivedEventListener;
   @inject(SkribblMessageRelaySetup) private _messageRelaySetup!: SkribblMessageRelaySetup;
@@ -37,6 +43,7 @@ export class ChatService {
   private _playerMessageReceived$ = new Subject<pendingMessage & pendingElement>();
 
   private _lockedChatboxFeature: TypoFeature | null = null;
+  private _cancelChatboxEventsFilter: ((e: KeyboardEvent) => chatboxEventFilter) | null = null;
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory
@@ -48,6 +55,22 @@ export class ChatService {
   private postConstruct() {
     this._logger.debug("Initializing chat service");
     this.setupMessageObserver();
+    this.setupChatboxCancelEventFilter();
+  }
+
+  private async setupChatboxCancelEventFilter() {
+    const events = await this._chatboxEventsSetup.complete();
+
+    const filter = (e: KeyboardEvent) => {
+      if(this._cancelChatboxEventsFilter === null) return;
+      const filter = this._cancelChatboxEventsFilter(e);
+      if(filter === "preventDefault" || filter === "both") e.preventDefault();
+      if(filter === "stopPropagation" || filter === "both") e.stopImmediatePropagation();
+    };
+
+    events.add("keyup", filter);
+    events.add("keydown", filter);
+    events.add("click", () => console.log("click event on chatbox"));
   }
 
   /**
@@ -187,12 +210,13 @@ export class ChatService {
     return true;
   }
 
-  public requestChatboxLock(feature: TypoFeature){
+  public requestChatboxLock(feature: TypoFeature, cancelEventFilter: null | ((e: KeyboardEvent) => chatboxEventFilter) = null): boolean {
     if(this._lockedChatboxFeature && this._lockedChatboxFeature !== feature){
       this._logger.warn("Chatbox lock request denied for feature - already locked by other feature", feature.name);
       return false;
     }
     this._lockedChatboxFeature = feature;
+    this._cancelChatboxEventsFilter = cancelEventFilter;
     return true;
   }
 
@@ -202,5 +226,6 @@ export class ChatService {
       return;
     }
     this._lockedChatboxFeature = null;
+    this._cancelChatboxEventsFilter = null;
   }
 }

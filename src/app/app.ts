@@ -99,6 +99,9 @@ import { LandingPlayerSetup } from "@/app/setups/landing-player/landing-player.s
 import {
   PrioritizedCanvasEventsSetup
 } from "@/app/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
+import {
+  PrioritizedChatboxEventsSetup
+} from "@/app/setups/prioritized-chatbox-events/prioritized-chatbox-events.setup";
 import { SkribblEmitRelaySetup } from "@/app/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { SkribblInitializedSetup } from "@/app/setups/skribbl-initialized/skribbl-initialized.setup";
 import { ToastSetup } from "@/app/setups/toast/toast.setup";
@@ -172,7 +175,8 @@ new ExtensionContainer(interceptor)
     PrioritizedCanvasEventsSetup,
     CssColorVarSelectorsSetup,
     LandingPlayerSetup,
-    CustomizerActionsSetup
+    CustomizerActionsSetup,
+    PrioritizedChatboxEventsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
