@@ -303,10 +303,11 @@ export class DrawingService {
   /**
    *
    * @param color the skribbl color code
+   * @param secondary whether the color should be set as secondary color (right click)
    */
-  public setColor(color: number) {
+  public setColor(color: number, secondary = false) {
     this._logger.debug("Setting color", color);
-    document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color}}));
+    document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color, secondary}}));
   }
 
   /**

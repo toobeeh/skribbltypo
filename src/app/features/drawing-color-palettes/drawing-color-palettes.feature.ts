@@ -287,11 +287,12 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   /**
    * Set the color of the skribbl tool
    * @param colorHex
+   * @param secondary
    */
-  public setColor(colorHex: string) {
+  public setColor(colorHex: string, secondary = false) {
     this._logger.info(`Setting color to ${colorHex}`);
     const color = Color.fromHex(colorHex);
-    this._drawingService.setColor(color.skribblCode);
+    this._drawingService.setColor(color.skribblCode, secondary);
   }
 
   public get savedPalettesStore() {
