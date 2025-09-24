@@ -27,7 +27,6 @@ import {
   switchMap,
   withLatestFrom,
 } from "rxjs";
-import { merge } from "rxjs/internal/operators/merge";
 
 export type drawCoordinateEvent = [number, number, number?];
 export interface brushStyle {
