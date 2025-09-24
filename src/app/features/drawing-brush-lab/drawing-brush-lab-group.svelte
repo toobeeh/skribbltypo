@@ -54,6 +54,10 @@
                feature.removeMod(mod.item);
              }
            }}
+           on:contextmenu={(e) => {
+             e.preventDefault();
+              feature.openBrushLabSettings(mod.item);
+           }}
       >
         <div class="icon" style="background-image: {mod.item.icon}"></div>
       </div>
@@ -74,6 +78,10 @@
              else {
                feature.activateTool(skribblTool.brush);
              }
+           }}
+           on:contextmenu={(e) => {
+             e.preventDefault();
+              feature.openBrushLabSettings(tool.item);
            }}
       >
         <div class="icon" style="background-image: {tool.item.icon}"></div>

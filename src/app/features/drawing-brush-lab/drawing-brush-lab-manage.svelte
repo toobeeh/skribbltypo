@@ -7,12 +7,13 @@
   import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 
   export let feature: DrawingBrushLabFeature;
+  export let initTool: (BrushLabItem & TypoDrawMod) | undefined = undefined;
 
   const items = feature.toolbarItemsStore;
-  let selectedItem: (TypoDrawMod & BrushLabItem) | undefined;
+  let selectedItem: (TypoDrawMod & BrushLabItem) | undefined = initTool;
 
   $: {
-    selectedItem = ($items.tools.find(tool => tool.active)
+    selectedItem = initTool ?? ($items.tools.find(tool => tool.active)
       ?? $items.mods.find(mod => mod.active)
       ?? $items.tools[0]
     )?.item;

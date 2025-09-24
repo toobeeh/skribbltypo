@@ -144,10 +144,10 @@ export class DrawingBrushLabFeature extends TypoFeature {
     this._toolsService.removeMod(mod);
   }
 
-  public openBrushLabSettings(){
+  public openBrushLabSettings(initTool?: (BrushLabItem & TypoDrawMod) | undefined){
     const componentData: componentData<BrushLabManage> = {
       componentType: BrushLabManage,
-      props: { feature: this }
+      props: { feature: this, initTool }
     };
     this._modalService.showModal(componentData.componentType, componentData.props, "Brush Laboratory");
   }
