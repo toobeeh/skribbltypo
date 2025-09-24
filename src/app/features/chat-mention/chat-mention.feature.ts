@@ -90,7 +90,7 @@ export class ChatMentionFeature extends TypoFeature {
       withLatestFrom(mentionData$.pipe(filter(data => data !== undefined)))
     ).subscribe(([, data]) => this.onChatInput(data.players));
     this._keydownEvents.events$.pipe(
-      combineLatestWith(this._playerCandidates$)
+      withLatestFrom(this._playerCandidates$)
     ).subscribe(([event, candidates]) => this.specialKeyboardHandling(event, candidates));
 
     this._messagePointeroverEvents = new DomEventSubscription(elements.chatContent, "pointerover");
