@@ -38,6 +38,12 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
       .withDescription("Shows an keyboard-navigable autocomplete window for pings."),
   );
 
+  private _enableSelfHighlighting = this.useSetting(
+    new BooleanExtensionSetting("highlight_my_messages", false, this)
+      .withName("Highlight My Messages")
+      .withDescription("Highlights your own messages.")
+  );
+
   private chatSubscription?: Subscription;
 
   private _flyoutComponent?: AreaFlyout = undefined;
@@ -75,12 +81,12 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
       })
     );
 
-    this.chatSubscription = mentionData$.pipe(
-      filter(data => data !== undefined),
-    ).subscribe(data => {
-      if(!data.msg) return; // skip initial value
-      this.onMessage(data.msg.contentElement, data.msg.content, data.self.name, data.players);
-    });
+    this.chatSubscription = mentionData$
+      .pipe(filter((data) => data !== undefined))
+      .subscribe(({ msg, self, players }) => {
+        if (!msg) return; // skip initial value
+        this.onMessage(msg.contentElement, msg.player.name, msg.content, self.name, players);
+      });
 
     this._keyupEvents = new DomEventSubscription(elements.chatInput, "keyup");
     this._keydownEvents = new DomEventSubscription(elements.chatInput, "keydown");
@@ -175,7 +181,13 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
    this._registeredMessageElements$.next(this._registeredMessageElements$.value.add(element));
   }
 
-  private onMessage(element: HTMLElement, content: string, myName: string, players: string[]) {
+  private onMessage(
+    element: HTMLElement, 
+    senderName: string, 
+    content: string, 
+    myName: string, 
+    players: string[],
+  ) {
     const newElement = document.createElement("span");
     const textSplit = content.split("@");
     for (const [index, text] of textSplit.entries()) {
@@ -209,10 +221,12 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     if (newElement.parentElement !== null)
       this.addMouseoverListenerToMessage(newElement.parentElement);
 
-    const lookFor = `@${myName} `;
-    // adding a space for pings at end of message
-    if (!(content + " ").includes(lookFor)) return;
-    newElement.parentElement?.classList.add("guessed");
+    this._enableSelfHighlighting.getValue().then((selfHl) => {
+      const lookFor = `@${myName} `;
+      // adding a space for pings at end of message
+      if (!(content + " ").includes(lookFor) && !(selfHl && myName === senderName)) return;
+      newElement.parentElement?.classList.add("guessed");
+    });
   }
 
   private specialKeyboardHandling(evt: KeyboardEvent, candidates: string[]) {
