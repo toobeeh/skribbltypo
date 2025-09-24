@@ -46,6 +46,7 @@ import {
   CustomizerPracticeJoinFeature
 } from "@/app/features/customizer-practice-join/customizer-practice-join.feature";
 import { DrawingBrushLabFeature } from "@/app/features/drawing-brush-lab/drawing-brush-lab.feature";
+import { DrawingClearLockFeature } from "@/app/features/drawing-clear-lock/drawing-clear-lock.feature";
 import { DrawingColorPalettesFeature } from "@/app/features/drawing-color-palettes/drawing-color-palettes.feature";
 import { DrawingColorToolsFeature } from "@/app/features/drawing-color-tools/drawing-color-tools.feature";
 import { DrawingPressureFeature } from "@/app/features/drawing-pressure/drawing-pressure.feature";
@@ -252,6 +253,7 @@ new ExtensionContainer(interceptor)
     ChatAvatarsFeature,
     DrawingSizeHotkeysFeature,
     ChatPingFeature,
+    DrawingClearLockFeature,
     ChatMessageHighlightingFeature,
   );
 

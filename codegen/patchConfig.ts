@@ -357,9 +357,11 @@ export const gameJsPatchConfig = {
                     },
                     disconnect: undefined,
                     skipCursorUpdate: false,
+                    lockManualClear: false,
                     lastConnect: 0,
                     initListeners: (() => {
                         let abort = false; 
+                        document.addEventListener("lockManualClear", (event) => typo.lockManualClear = event.detail === true);
                         document.addEventListener("selectSkribblTool", (event) => ##SELECTTOOL##(event.detail));
                         document.addEventListener("selectSkribblSize", (event) => ##SELECTSIZE##(event.detail));
                         document.addEventListener("clearDrawing", () => ##CLEARACTION##());
@@ -1124,6 +1126,16 @@ export const gameJsPatchConfig = {
           position: "(\\s+)switch \\(([a-zA-Z0-9&_\\-$]+)\\)[^\"]+\"Room not found!",
           code: "document.dispatchEvent(new CustomEvent(\"joinLobbyFailed\")); ",
         },
+      ],
+    },
+    {
+      name: "Add manual clear locking",
+      replacements: [],
+      injections: [
+        {
+          position: "(clear\\.gif\",\\s+action:)",
+          code: "() => typo.lockManualClear !== true && new /* this wicked way of function invoking lets me skip pathing in parentheses after the reference */",
+        }
       ],
     },
   ],

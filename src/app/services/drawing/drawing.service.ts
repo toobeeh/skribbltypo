@@ -44,6 +44,7 @@ export class DrawingService {
   private _currentImageState$ = new BehaviorSubject<imageStateUpdate | null>(null);
   private _currentCommands$ = new BehaviorSubject<number[][]>([]);
   private _drawingState$ = new BehaviorSubject<"drawing" | "idle">("idle");
+  private _lockManualClear = new Subject<boolean>();
 
   private _pasteInProgress$ = new BehaviorSubject<boolean>(false);
   private _abortCommands$ = new BehaviorSubject<number>(Number.MAX_VALUE);
@@ -64,6 +65,11 @@ export class DrawingService {
 
     this.listenDrawCommands();
     this.listenCurrentImageState();
+
+    this._lockManualClear.subscribe((state) => {
+      this._logger.info("Lock manual clear set to", state);
+      document.dispatchEvent(new CustomEvent("lockManualClear", {detail: state}));
+    });
 
     this.imageState$.subscribe(data => {
       this._logger.debug("Image state updated", data);
@@ -406,5 +412,9 @@ export class DrawingService {
     target = [Math.floor(target[0]), Math.floor(target[1])];
 
     return [origin, target];
+  }
+
+  public lockManualClear(state: boolean) {
+    this._lockManualClear.next(state);
   }
 }

@@ -29,6 +29,7 @@ function getElements(panels: Awaited<ReturnType<PanelSetup["complete"]>>, toolba
     filterTab: requireElement(".panel-tab-filter"),
     playButton: requireElement(".panel:not(.typo-panel) .button-play"),
     gameBar: requireElement("#game-bar"),
+    clearButton: requireElement(".tool[data-tooltip=\"Clear\"]"),
     gameSettings: requireElement("#game-settings"),
     home: requireElement("#home"),
     game: requireElement("#game"),

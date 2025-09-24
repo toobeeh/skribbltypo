@@ -33,394 +33,396 @@
       COMBINATION: 2
     }
 // TYPOMOD 
-                // desc: create re-useable functions
-                , typo = {
-                    /* mod sequence injection for custom draw commands */
-                    msi: {
-              
-                      reset: () => {
-                        typo.msi.mod.selected = undefined;
-                        typo.msi.mod.buffer = undefined;
-                        typo.msi.mod.apply = undefined
-                      },
-              
-                      /* incoming draw commands are part of an injected mod */
-                      mod: {
-                        selected: undefined, /* index of selected mod */
-                        buffer: undefined, /* buffer to construct mod */
-                        apply: undefined /* function to apply constructed mod */
-                      },
-              
-                      modes: [
-              
-                        /* custom color mode */
-                        (buffer) => {
-                          return (command) => {
-              
-                            /* skip if buffer empty */
-                            if(buffer.length === 0) return command;
-              
-                            /* if brush or fill */
-                            if(command[0] <= 1) {
-                              command[1] = buffer[0];
-                            }
-              
-                            return command;
-                          }
-                        }
-                      ],
-              
-                      fromSenaryDoubleDecimalBase: (senary, decimal1, decimal0) => {
-                        return decimal0 + decimal1 * 10 + Number.parseInt(senary.toString(), 6) * 100;
-                      },
-              
-                      fromOctalDoubleDecimalBase: (octal, decimal1, decimal0) => {
-                        return decimal0 + decimal1 * 10 + Number.parseInt(octal.toString(), 8) * 100;
-                      },
-              
-                      /* bases of data: width x height x width x height -> odd sdd odd sdd */
-                      parseInjectedSequence: (odd1, sdd1, odd0, sdd0) => {
-                        const parseDigits = (num) => {
-                          const str = num.toString().padStart(3, '0');
-                          return [str[0], str[1], str[2]].map(Number);
-                        };
-              
-                        const [sdd0_s, sdd0_d1, sdd0_d0] = parseDigits(sdd0);
-                        const [odd0_o, odd0_d1, odd0_d0] = parseDigits(odd0);
-                        const [sdd1_s, sdd1_d1, sdd1_d0] = parseDigits(sdd1);
-                        const [odd1_o, odd1_d1, odd1_d0] = parseDigits(odd1);
-              
-                        return typo.msi.fromSenaryDoubleDecimalBase(sdd0_s, sdd0_d1, sdd0_d0)
-                          + 600 * typo.msi.fromOctalDoubleDecimalBase(odd0_o, odd0_d1, odd0_d0)
-                          + 600 * 800 * typo.msi.fromSenaryDoubleDecimalBase(sdd1_s, sdd1_d1, sdd1_d0)
-                          + 600 * 800 * 600 * typo.msi.fromOctalDoubleDecimalBase(odd1_o, odd1_d1, odd1_d0);
-                      },
-              
-                      toSenaryDoubleDecimalBase: (number) => {
-                        const senary = Math.floor(number / 100);
-                        const decimal1 = Math.floor((number % 100) / 10);
-                        const decimal0 = number % 10;
-                        return [senary, decimal1, decimal0];
-                      },
-              
-                      toOctalDoubleDecimalBase: (number) => {
-                        const octal = Math.floor(number / 100);
-                        const decimal1 = Math.floor((number % 100) / 10);
-                        const decimal0 = number % 10;
-                        return [octal, decimal1, decimal0];
-                      },
-              
-                      toInjectedSequence: (number) => {
-                        const odd1 = Math.floor(number / (600 * 800 * 600));
-                        const sdd1 = Math.floor((number % (600 * 800 * 600)) / (600 * 800));
-                        const odd0 = Math.floor((number % (600 * 800)) / 600);
-                        const sdd0 = number % 600;
-              
-                        const sdd0Array = typo.msi.toSenaryDoubleDecimalBase(sdd0);
-                        const odd0Array = typo.msi.toOctalDoubleDecimalBase(odd0);
-                        const sdd1Array = typo.msi.toSenaryDoubleDecimalBase(sdd1);
-                        const odd1Array = typo.msi.toOctalDoubleDecimalBase(odd1);
-              
-                        return [
-                          odd1Array[0] * 100 + odd1Array[1] * 10 + odd1Array[2],
-                          sdd1Array[0] * 100 + sdd1Array[1] * 10 + sdd1Array[2],
-                          odd0Array[0] * 100 + odd0Array[1] * 10 + odd0Array[2],
-                          sdd0Array[0] * 100 + sdd0Array[1] * 10 + sdd0Array[2]
-                        ];
-                      },
-              
-                      /* if tool = 0 (brush), color 0, size 4, and all coords 0 -> MSI init/finish signal */
-                      isMSIInitSignal: (command) => {
-                        return (command[0] === 0 && command[1] === 0 && command[2] === 5 && command[3] === 0 && command[4] === 0 && command[5] === 0 && command[6] === 0);
-                      },
-              
-                      /* if tool = 0 (brush), color 0, size 40 and all coords 0 -> MSI reset signal */
-                      isResetSignal: (command) => {
-                        return (command[0] === 0 && command[1] === 0 && command[2] === 39 && command[3] === 0 && command[4] === 0 && command[5] === 0 && command[6] === 0);
-                      },
-              
-                      processIncomingCommand: (command) => {
-                        const msiInitSignal = typo.msi.isMSIInitSignal(command);
-                        const resetSignal = typo.msi.isResetSignal(command);
-                        const processingMode = typo.msi.mod.selected === undefined && Array.isArray(typo.msi.mod.buffer);
-                        const processingBuffer = typo.msi.mod.selected !== undefined && typo.msi.mod.apply === undefined && Array.isArray(typo.msi.mod.buffer);
-                        const mod = typo.msi.mod.apply;
-              
-                        if(resetSignal){
-                          /*console.log("MSI reset signal received.");*/
-                          typo.msi.mod.selected = undefined;
-                          typo.msi.mod.buffer = undefined;
-                          typo.msi.mod.apply = undefined;
-                          return undefined;
-                        }
-              
-                        if(msiInitSignal && !processingBuffer) {
-                          /*console.log("MSI init signal received.");*/
-                          typo.msi.mod.selected = undefined;
-                          typo.msi.mod.buffer = [];
-                          typo.msi.mod.apply = undefined;
-                          return undefined;
-                        }
-              
-                        if(msiInitSignal && processingBuffer) {
-                          /*console.log("MSI finish signal received.");*/
-                          typo.msi.mod.apply = typo.msi.mod.selected(typo.msi.mod.buffer);
-                          return undefined;
-                        }
-              
-                        if(processingMode){
-                          const mode = typo.msi.parseInjectedSequence(command[3], command[4], command[5], command[6]);
-                          /*console.log("MSI mode selection received.", mode);*/
-                          typo.msi.mod.selected = (typo.msi.modes[mode - 1] ?? (() => c => c));
-                          return undefined;
-                        }
-              
-                        if(processingBuffer){
-                          const packet = typo.msi.parseInjectedSequence(command[3], command[4], command[5], command[6]);
-                          /*console.log("MSI buffer processing.", packet);*/
-                          typo.msi.mod.buffer.push(packet);
-                          return undefined;
-                        }
-              
-                        if(mod){
-                          /*console.log("MSI mod applying.");*/
-                          return typo.msi.mod.apply(command);
-                        }
-              
-                        return command;
-                      }
-                    },
-              
-                    msiColorSwitch: {
-                      currentCode: undefined,
-                      closeColors: {},
-                      getClosestSkribblColor: code => {
-                        const existing = typo.msiColorSwitch.closeColors[code];
-                        if(existing !== undefined) return existing;
+    // desc: create re-useable functions
+    , typo = {
+      /* mod sequence injection for custom draw commands */
+      msi: {
 
-                        const rgb = typo.typoCodeToRgb(code);
-                        const lab = typo.rgbToLab(rgb);
-                        const distance = (c1, c2) =>
-                          Math.sqrt(
-                            Math.pow(c1[0] - c2[0], 2) +
-                            Math.pow(c1[1] - c2[1], 2) +
-                            Math.pow(c1[2] - c2[2], 2)
-                          );
+        reset: () => {
+          typo.msi.mod.selected = undefined;
+          typo.msi.mod.buffer = undefined;
+          typo.msi.mod.apply = undefined
+        },
 
-                        const colors = kt.map(c => typo.rgbToLab(c));
-                        const color = colors.reduce((closestIndex, color, index) =>
-                            distance(lab, color) < distance(lab, colors[closestIndex]) ? index : closestIndex
-                          , 0);
-                        typo.msiColorSwitch.closeColors[code] = color;
-                        return color;
-                      },
-                      ensureColorSequence: command => {
-                        const color = command[1];
-              
-                        /* sanitize color to black for non-typo users */
-                        if(color > 10000){
-                          command[1] = typo.msiColorSwitch.getClosestSkribblColor(color);
-                        }
-              
-                        /* if color is typo color and not already initiated */
-                        if(color > 10000 && color !== typo.msiColorSwitch.currentCode){
-                          typo.msiColorSwitch.currentCode = color;
-                          const codeData = typo.msi.toInjectedSequence(color);
-                          const sequence = [
-                            [0, 0, 5, 0,0,0,0],
-                            [0, 0, 5, 0,0,0,1],
-                            [0, 0, 5, ...codeData],
-                            [0, 0, 5, 0,0,0,0]
-                          ];
-                          return sequence;
-                        }
-              
-                        /* if color is original but typo color initiated */
-                        if(color < 10000 && typo.msiColorSwitch.currentCode !== undefined){
-                          typo.msiColorSwitch.currentCode = undefined;
-                          return [[0, 0, 39, 0,0,0,0]];
-                        }
-              
-                        return undefined;
-                      },
-                      insertColorSwitches: (commands) => {
-                        inserted = [];
-                        for (let i = 0; i < commands.length; i++) {
-                          const command = commands[i];
-                          const t = typo.msiColorSwitch.ensureColorSequence(command);
-                          if(t !== undefined) inserted.push(...t);
-                          inserted.push(command);
-                        }
-                  
-                        commands.splice(0, commands.length, ...inserted);
-                      }
-                    },
-                    messagePort: (()=>{
-                      const channel = new MessageChannel();
-                      window.postMessage("skribblMessagePort", "*", [channel.port2]);
-                      return channel.port1;
-                    })(),
-                    emitPort: (()=>{
-                      const channel = new MessageChannel();
-                      window.postMessage("skribblEmitPort", "*", [channel.port2]);
-                      return channel.port1;
-                    })(),
-                    joinLobby: undefined,
-                    createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
-                        // IDENTIFY x.value.split: #home .container-name-lang input -> Kn
-                        // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> l
-                        return { 
-                            id: id, 
-                            name: name.length != 0 ? name : (Kn.value.split("#")[0] != "" ? Kn.value.split("#")[0] : "Player"), 
-                            avatar: avatar.length == 0 ? l.avatar : avatar, 
-                            score: score, 
-                            guessed: guessed 
-                        };
-                    },
-                    createFakeLobbyData: (
-                        settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
-                        id = null,
-                        me = 0,
-                        owner = 0,
-                        users = [],
-                        state = { id: 4, type: 0, time: 0, data: { id: 0, word: "Anything" } }) => {
-                        if (users.length == 0) users = [typo.createFakeUser()];
-                        return { 
-                            settings: settings, 
-                            id: id, 
-                            me: me, 
-                            owner: owner, 
-                            round: 0, 
-                            users: users, 
-                            state: state 
-                        };
-                    },
-                    disconnect: undefined,
-                    skipCursorUpdate: false,
-                    lastConnect: 0,
-                    initListeners: (() => {
-                        let abort = false; 
-                        document.addEventListener("selectSkribblTool", (event) => Tt(event.detail));
-                        document.addEventListener("selectSkribblSize", (event) => At(event.detail));
-                        document.addEventListener("clearDrawing", () => Ft());
-                        document.addEventListener("abortJoin", () => abort = true); 
-                        document.addEventListener("disableCursorUpdates", e => {
-                            typo.skipCursorUpdate = e.detail === true;
-                            if(e.detail === false) yt(); // update cursor when updates reenabled
-                        });
-                        document.addEventListener("joinLobby", (e) => {
-                            abort = false;
-                            let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
-                            // Xn(true);
-                            setTimeout(() => {
-                                if (abort) return; 
-                                typo.lastConnect = Date.now();
-                                // Vn.dispatchEvent(new Event("click")); 
-                                // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
-                                // ##PRIVATELBBY## = !1 
-                                // IDENTIFY: x:  = !1   
-                                window.history.pushState({path: window.location.origin + '?' + (e.detail ?? "")}, '', window.location.origin + '?' + (e.detail ?? ""));
-                                // ##JOINLOBBY##(e.detail?.join ? e.detail.join : "");
-                                // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
-                                typo.joinLobby(); 
-                                window.history.pushState({path: window.location.origin}, '', window.location.origin);
-                                // Jn(false); 
-                                // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
-                                document.dispatchEvent(new Event("joinedLobby"));
-                            }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
-                        });
-                        document.addEventListener("leaveLobby", () => {
-                            if (typo.disconnect) typo.disconnect();
-                            else ua() | document.dispatchEvent(new Event("leftLobby"));
-                            // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
-                        });
-                        document.addEventListener("setColor", (e) => {
-                            let rgb = e.detail.code < 10000 ? kt[e.detail.code] : typo.typoCodeToRgb(e.detail.code);
-                            let match = kt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
-                            // IDENTIFY [0, 59, 120], -> COLORS
-                            let code = match >= 0 ? match : e.detail.code;
-                            if (e.detail.secondary) Wt(code); 
-                            // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
-                            else Nt(code);
-                            // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
-                        });
-                        document.addEventListener("performDrawCommand", (e) => {
-                            v.push(e.detail); 
-                            pt.push(v.length); 
-                            // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
-                            Gt(jt(e.detail)); 
-                            // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
-                        });
-                        document.addEventListener("collapseUndoActions", (e) => {
-                            const shrinkCount = e.detail;
-                            const firstCollapsedIndex = pt.length - shrinkCount + 1;
-                            const collapsed = pt.slice(0, firstCollapsedIndex);
-                            const lastCollapsedIndex = collapsed.length === 0 ? 0 : collapsed.length - 1
-                            collapsed[lastCollapsedIndex] = pt[pt.length - 1];
-                            pt = collapsed;
-                        });
-                    })(),
-                    rgbToXyz: (R, G, B) => {
-                      let r = R / 255;
-                      let g = G / 255;
-                      let b = B / 255;
+        /* incoming draw commands are part of an injected mod */
+        mod: {
+          selected: undefined, /* index of selected mod */
+          buffer: undefined, /* buffer to construct mod */
+          apply: undefined /* function to apply constructed mod */
+        },
 
-                      r = (r > 0.04045) ? Math.pow((r + 0.055) / 1.055, 2.4) : (r / 12.92);
-                      g = (g > 0.04045) ? Math.pow((g + 0.055) / 1.055, 2.4) : (g / 12.92);
-                      b = (b > 0.04045) ? Math.pow((b + 0.055) / 1.055, 2.4) : (b / 12.92);
+        modes: [
 
-                      let x = r * 0.4124 + g * 0.3576 + b * 0.1805;
-                      let y = r * 0.2126 + g * 0.7152 + b * 0.0722;
-                      let z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+          /* custom color mode */
+          (buffer) => {
+            return (command) => {
 
-                      return [x, y, z];
-                    },
-                    xyzToLab: (x, y, z) => {
-                      const REF_X = 0.95047;
-                      const REF_Y = 1.00000;
-                      const REF_Z = 1.08883;
-                    
-                      let fx = f(x / REF_X);
-                      let fy = f(y / REF_Y);
-                      let fz = f(z / REF_Z);
-                    
-                      let L = 116 * fy - 16;
-                      let a = 500 * (fx - fy);
-                      let b = 200 * (fy - fz);
-                    
-                      return [L, a, b];
-                    
-                      function f(value) {
-                        return (value > 0.008856)
-                          ? Math.pow(value, 1 / 3)
-                          : (7.787 * value) + (16 / 116);
-                      }
-                    },
-                    rgbToLab: ([R, G, B]) => {
-                      const [x, y, z] = typo.rgbToXyz(R, G, B);
-                      return typo.xyzToLab(x, y, z);
-                    },
-                    hexToRgb: (hex) => {
-                        let arrBuff = new ArrayBuffer(4);
-                        let vw = new DataView(arrBuff);
-                        vw.setUint32(0, parseInt(hex, 16), false);
-                        let arrByte = new Uint8Array(arrBuff);
-                        return [arrByte[1], arrByte[2], arrByte[3]];
-                    },
-                    rgbToHex: (r, g, b) => {
-                        return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
-                    },
-                    typoCodeToRgb: (code) => {
-                      const decimal = code - 10000;
-                      return [
-                          (decimal >> 16) & 255, // Red
-                          (decimal >> 8) & 255,  // Green
-                          decimal & 255          // Blue
-                      ];
-                    }
-                }
-                // TYPOEND,
-    ae = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+              /* skip if buffer empty */
+              if(buffer.length === 0) return command;
+
+              /* if brush or fill */
+              if(command[0] <= 1) {
+                command[1] = buffer[0];
+              }
+
+              return command;
+            }
+          }
+        ],
+
+        fromSenaryDoubleDecimalBase: (senary, decimal1, decimal0) => {
+          return decimal0 + decimal1 * 10 + Number.parseInt(senary.toString(), 6) * 100;
+        },
+
+        fromOctalDoubleDecimalBase: (octal, decimal1, decimal0) => {
+          return decimal0 + decimal1 * 10 + Number.parseInt(octal.toString(), 8) * 100;
+        },
+
+        /* bases of data: width x height x width x height -> odd sdd odd sdd */
+        parseInjectedSequence: (odd1, sdd1, odd0, sdd0) => {
+          const parseDigits = (num) => {
+            const str = num.toString().padStart(3, '0');
+            return [str[0], str[1], str[2]].map(Number);
+          };
+
+          const [sdd0_s, sdd0_d1, sdd0_d0] = parseDigits(sdd0);
+          const [odd0_o, odd0_d1, odd0_d0] = parseDigits(odd0);
+          const [sdd1_s, sdd1_d1, sdd1_d0] = parseDigits(sdd1);
+          const [odd1_o, odd1_d1, odd1_d0] = parseDigits(odd1);
+
+          return typo.msi.fromSenaryDoubleDecimalBase(sdd0_s, sdd0_d1, sdd0_d0)
+            + 600 * typo.msi.fromOctalDoubleDecimalBase(odd0_o, odd0_d1, odd0_d0)
+            + 600 * 800 * typo.msi.fromSenaryDoubleDecimalBase(sdd1_s, sdd1_d1, sdd1_d0)
+            + 600 * 800 * 600 * typo.msi.fromOctalDoubleDecimalBase(odd1_o, odd1_d1, odd1_d0);
+        },
+
+        toSenaryDoubleDecimalBase: (number) => {
+          const senary = Math.floor(number / 100);
+          const decimal1 = Math.floor((number % 100) / 10);
+          const decimal0 = number % 10;
+          return [senary, decimal1, decimal0];
+        },
+
+        toOctalDoubleDecimalBase: (number) => {
+          const octal = Math.floor(number / 100);
+          const decimal1 = Math.floor((number % 100) / 10);
+          const decimal0 = number % 10;
+          return [octal, decimal1, decimal0];
+        },
+
+        toInjectedSequence: (number) => {
+          const odd1 = Math.floor(number / (600 * 800 * 600));
+          const sdd1 = Math.floor((number % (600 * 800 * 600)) / (600 * 800));
+          const odd0 = Math.floor((number % (600 * 800)) / 600);
+          const sdd0 = number % 600;
+
+          const sdd0Array = typo.msi.toSenaryDoubleDecimalBase(sdd0);
+          const odd0Array = typo.msi.toOctalDoubleDecimalBase(odd0);
+          const sdd1Array = typo.msi.toSenaryDoubleDecimalBase(sdd1);
+          const odd1Array = typo.msi.toOctalDoubleDecimalBase(odd1);
+
+          return [
+            odd1Array[0] * 100 + odd1Array[1] * 10 + odd1Array[2],
+            sdd1Array[0] * 100 + sdd1Array[1] * 10 + sdd1Array[2],
+            odd0Array[0] * 100 + odd0Array[1] * 10 + odd0Array[2],
+            sdd0Array[0] * 100 + sdd0Array[1] * 10 + sdd0Array[2]
+          ];
+        },
+
+        /* if tool = 0 (brush), color 0, size 4, and all coords 0 -> MSI init/finish signal */
+        isMSIInitSignal: (command) => {
+          return (command[0] === 0 && command[1] === 0 && command[2] === 5 && command[3] === 0 && command[4] === 0 && command[5] === 0 && command[6] === 0);
+        },
+
+        /* if tool = 0 (brush), color 0, size 40 and all coords 0 -> MSI reset signal */
+        isResetSignal: (command) => {
+          return (command[0] === 0 && command[1] === 0 && command[2] === 39 && command[3] === 0 && command[4] === 0 && command[5] === 0 && command[6] === 0);
+        },
+
+        processIncomingCommand: (command) => {
+          const msiInitSignal = typo.msi.isMSIInitSignal(command);
+          const resetSignal = typo.msi.isResetSignal(command);
+          const processingMode = typo.msi.mod.selected === undefined && Array.isArray(typo.msi.mod.buffer);
+          const processingBuffer = typo.msi.mod.selected !== undefined && typo.msi.mod.apply === undefined && Array.isArray(typo.msi.mod.buffer);
+          const mod = typo.msi.mod.apply;
+
+          if(resetSignal){
+            /*console.log("MSI reset signal received.");*/
+            typo.msi.mod.selected = undefined;
+            typo.msi.mod.buffer = undefined;
+            typo.msi.mod.apply = undefined;
+            return undefined;
+          }
+
+          if(msiInitSignal && !processingBuffer) {
+            /*console.log("MSI init signal received.");*/
+            typo.msi.mod.selected = undefined;
+            typo.msi.mod.buffer = [];
+            typo.msi.mod.apply = undefined;
+            return undefined;
+          }
+
+          if(msiInitSignal && processingBuffer) {
+            /*console.log("MSI finish signal received.");*/
+            typo.msi.mod.apply = typo.msi.mod.selected(typo.msi.mod.buffer);
+            return undefined;
+          }
+
+          if(processingMode){
+            const mode = typo.msi.parseInjectedSequence(command[3], command[4], command[5], command[6]);
+            /*console.log("MSI mode selection received.", mode);*/
+            typo.msi.mod.selected = (typo.msi.modes[mode - 1] ?? (() => c => c));
+            return undefined;
+          }
+
+          if(processingBuffer){
+            const packet = typo.msi.parseInjectedSequence(command[3], command[4], command[5], command[6]);
+            /*console.log("MSI buffer processing.", packet);*/
+            typo.msi.mod.buffer.push(packet);
+            return undefined;
+          }
+
+          if(mod){
+            /*console.log("MSI mod applying.");*/
+            return typo.msi.mod.apply(command);
+          }
+
+          return command;
+        }
+      },
+
+      msiColorSwitch: {
+        currentCode: undefined,
+        closeColors: {},
+        getClosestSkribblColor: code => {
+          const existing = typo.msiColorSwitch.closeColors[code];
+          if(existing !== undefined) return existing;
+
+          const rgb = typo.typoCodeToRgb(code);
+          const lab = typo.rgbToLab(rgb);
+          const distance = (c1, c2) =>
+            Math.sqrt(
+              Math.pow(c1[0] - c2[0], 2) +
+              Math.pow(c1[1] - c2[1], 2) +
+              Math.pow(c1[2] - c2[2], 2)
+            );
+
+          const colors = kt.map(c => typo.rgbToLab(c));
+          const color = colors.reduce((closestIndex, color, index) =>
+              distance(lab, color) < distance(lab, colors[closestIndex]) ? index : closestIndex
+            , 0);
+          typo.msiColorSwitch.closeColors[code] = color;
+          return color;
+        },
+        ensureColorSequence: command => {
+          const color = command[1];
+
+          /* sanitize color to black for non-typo users */
+          if(color > 10000){
+            command[1] = typo.msiColorSwitch.getClosestSkribblColor(color);
+          }
+
+          /* if color is typo color and not already initiated */
+          if(color > 10000 && color !== typo.msiColorSwitch.currentCode){
+            typo.msiColorSwitch.currentCode = color;
+            const codeData = typo.msi.toInjectedSequence(color);
+            const sequence = [
+              [0, 0, 5, 0,0,0,0],
+              [0, 0, 5, 0,0,0,1],
+              [0, 0, 5, ...codeData],
+              [0, 0, 5, 0,0,0,0]
+            ];
+            return sequence;
+          }
+
+          /* if color is original but typo color initiated */
+          if(color < 10000 && typo.msiColorSwitch.currentCode !== undefined){
+            typo.msiColorSwitch.currentCode = undefined;
+            return [[0, 0, 39, 0,0,0,0]];
+          }
+
+          return undefined;
+        },
+        insertColorSwitches: (commands) => {
+          inserted = [];
+          for (let i = 0; i < commands.length; i++) {
+            const command = commands[i];
+            const t = typo.msiColorSwitch.ensureColorSequence(command);
+            if(t !== undefined) inserted.push(...t);
+            inserted.push(command);
+          }
+
+          commands.splice(0, commands.length, ...inserted);
+        }
+      },
+      messagePort: (()=>{
+        const channel = new MessageChannel();
+        window.postMessage("skribblMessagePort", "*", [channel.port2]);
+        return channel.port1;
+      })(),
+      emitPort: (()=>{
+        const channel = new MessageChannel();
+        window.postMessage("skribblEmitPort", "*", [channel.port2]);
+        return channel.port1;
+      })(),
+      joinLobby: undefined,
+      createFakeUser: (id = 0, name = "", avatar = [], score = 0, guessed = false) => {
+        // IDENTIFY x.value.split: #home .container-name-lang input -> Kn
+        // IDENTIFY x.avatar: [Math.round(100 * Math.random()) % -> l
+        return {
+          id: id,
+          name: name.length != 0 ? name : (Kn.value.split("#")[0] != "" ? Kn.value.split("#")[0] : "Player"),
+          avatar: avatar.length == 0 ? l.avatar : avatar,
+          score: score,
+          guessed: guessed
+        };
+      },
+      createFakeLobbyData: (
+        settings = ["PRACTISE", "en", 1, 1, 80, 3, 3, 2, 0, false],
+        id = null,
+        me = 0,
+        owner = 0,
+        users = [],
+        state = { id: 4, type: 0, time: 0, data: { id: 0, word: "Anything" } }) => {
+        if (users.length == 0) users = [typo.createFakeUser()];
+        return {
+          settings: settings,
+          id: id,
+          me: me,
+          owner: owner,
+          round: 0,
+          users: users,
+          state: state
+        };
+      },
+      disconnect: undefined,
+      skipCursorUpdate: false,
+      lockManualClear: false,
+      lastConnect: 0,
+      initListeners: (() => {
+        let abort = false;
+        document.addEventListener("lockManualClear", (event) => typo.lockManualClear = event.detail === true);
+        document.addEventListener("selectSkribblTool", (event) => Tt(event.detail));
+        document.addEventListener("selectSkribblSize", (event) => At(event.detail));
+        document.addEventListener("clearDrawing", () => Ft());
+        document.addEventListener("abortJoin", () => abort = true);
+        document.addEventListener("disableCursorUpdates", e => {
+          typo.skipCursorUpdate = e.detail === true;
+          if(e.detail === false) yt(); // update cursor when updates reenabled
+        });
+        document.addEventListener("joinLobby", (e) => {
+          abort = false;
+          let timeoutdiff = Date.now() - (typo.lastConnect == 0 ? Date.now() : typo.lastConnect);
+          // Xn(true);
+          setTimeout(() => {
+            if (abort) return;
+            typo.lastConnect = Date.now();
+            // Vn.dispatchEvent(new Event("click"));
+            // IDENTIFY x.dispatchEvent: querySelector("#home .panel .button-play") -> BTNPLAY
+            // ##PRIVATELBBY## = !1
+            // IDENTIFY: x:  = !1
+            window.history.pushState({path: window.location.origin + '?' + (e.detail ?? "")}, '', window.location.origin + '?' + (e.detail ?? ""));
+            // ##JOINLOBBY##(e.detail?.join ? e.detail.join : "");
+            // IDENTIFY x(e.det..): ? "id=" + -> JOINLOBBY
+            typo.joinLobby();
+            window.history.pushState({path: window.location.origin}, '', window.location.origin);
+            // Jn(false);
+            // IDENTIFY x(false): querySelector("#load").style.display -> LOADING
+            document.dispatchEvent(new Event("joinedLobby"));
+          }, timeoutdiff < 2000 ? 2000 - timeoutdiff : 0);
+        });
+        document.addEventListener("leaveLobby", () => {
+          if (typo.disconnect) typo.disconnect();
+          else ua() | document.dispatchEvent(new Event("leftLobby"));
+          // IDENTIFY x(): querySelector("#home").style.display = "" -> GOHOME
+        });
+        document.addEventListener("setColor", (e) => {
+          let rgb = e.detail.code < 10000 ? kt[e.detail.code] : typo.typoCodeToRgb(e.detail.code);
+          let match = kt.findIndex(color => color[0] == rgb[0] && color[1] == rgb[1] && color[2] == rgb[2]);
+          // IDENTIFY [0, 59, 120], -> COLORS
+          let code = match >= 0 ? match : e.detail.code;
+          if (e.detail.secondary) Wt(code);
+          // IDENTIFY x(e.detail.code): querySelector("#color-preview-secondary").style.fill -> SECFILL
+          else Nt(code);
+          // IDENTIFY x(e.detail.code): querySelector("#color-preview-primary").style.fill -> PRIMFILL
+        });
+        document.addEventListener("performDrawCommand", (e) => {
+          v.push(e.detail);
+          pt.push(v.length);
+          // IDENTIFY x.push(e.detail): .getContext("2d"), x = [] -> PUSHCMD
+          Gt(jt(e.detail));
+          // IDENTIFY: x(y(e.detail)): bounds: AND Math.floor(Math.ceil -> PERFOUTER, PERFINNER
+        });
+        document.addEventListener("collapseUndoActions", (e) => {
+          const shrinkCount = e.detail;
+          const firstCollapsedIndex = pt.length - shrinkCount + 1;
+          const collapsed = pt.slice(0, firstCollapsedIndex);
+          const lastCollapsedIndex = collapsed.length === 0 ? 0 : collapsed.length - 1
+          collapsed[lastCollapsedIndex] = pt[pt.length - 1];
+          pt = collapsed;
+        });
+      })(),
+      rgbToXyz: (R, G, B) => {
+        let r = R / 255;
+        let g = G / 255;
+        let b = B / 255;
+
+        r = (r > 0.04045) ? Math.pow((r + 0.055) / 1.055, 2.4) : (r / 12.92);
+        g = (g > 0.04045) ? Math.pow((g + 0.055) / 1.055, 2.4) : (g / 12.92);
+        b = (b > 0.04045) ? Math.pow((b + 0.055) / 1.055, 2.4) : (b / 12.92);
+
+        let x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+        let y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+        let z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+        return [x, y, z];
+      },
+      xyzToLab: (x, y, z) => {
+        const REF_X = 0.95047;
+        const REF_Y = 1.00000;
+        const REF_Z = 1.08883;
+
+        let fx = f(x / REF_X);
+        let fy = f(y / REF_Y);
+        let fz = f(z / REF_Z);
+
+        let L = 116 * fy - 16;
+        let a = 500 * (fx - fy);
+        let b = 200 * (fy - fz);
+
+        return [L, a, b];
+
+        function f(value) {
+          return (value > 0.008856)
+            ? Math.pow(value, 1 / 3)
+            : (7.787 * value) + (16 / 116);
+        }
+      },
+      rgbToLab: ([R, G, B]) => {
+        const [x, y, z] = typo.rgbToXyz(R, G, B);
+        return typo.xyzToLab(x, y, z);
+      },
+      hexToRgb: (hex) => {
+        let arrBuff = new ArrayBuffer(4);
+        let vw = new DataView(arrBuff);
+        vw.setUint32(0, parseInt(hex, 16), false);
+        let arrByte = new Uint8Array(arrBuff);
+        return [arrByte[1], arrByte[2], arrByte[3]];
+      },
+      rgbToHex: (r, g, b) => {
+        return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+      },
+      typoCodeToRgb: (code) => {
+        const decimal = code - 10000;
+        return [
+          (decimal >> 16) & 255, // Red
+          (decimal >> 8) & 255,  // Green
+          decimal & 255          // Blue
+        ];
+      }
+    }
+  // TYPOEND,
+  ae = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   if (h.localStorageAvailable = !1, void 0 !== d) try {
     d.setItem("feature_test", "yes"), "yes" === d.getItem("feature_test") && (d.removeItem("feature_test"), h.localStorageAvailable = !0)
   } catch (e) {}
@@ -597,7 +599,7 @@
           i = a.querySelector(".buttons"),
           r = (i.style.display = t.id == x || r ? "none" : "flex", i.querySelector(".button-pair").style.display = x == En || o ? "flex" : "none", i.querySelector("button.report").style.display = t.reported ? "none" : "", Ce(t.muted), a.querySelector(".report-menu").style.display = "none", a.querySelector(".invite").style.display = x == t.id ? "flex" : "none", we.querySelector(".player")),
           o = (r.style.display = "", ce(r), de(t.avatar))
-; /*id in popup*/ r.setAttribute("playerid", t.id);;
+        ; /*id in popup*/ r.setAttribute("playerid", t.id);;
         he(o, En == t.id), pe(o, Ya(t)), r.appendChild(o);
         break;
       case Se:
@@ -855,13 +857,13 @@
         var a = e.children[n].dataset.translate;
         Ve(e.children[n], null == a ? "text" : a)
       } else {
-        var o = "";
-        "text" == t && (o = e.textContent), 0 < (o = "placeholder" == t ? e.placeholder : o).length ? Ke.push({
-          key: o,
-          element: e,
-          type: t
-        }) : (console.log("Empty key passed to translate with!"), console.log(e))
-      }
+      var o = "";
+      "text" == t && (o = e.textContent), 0 < (o = "placeholder" == t ? e.placeholder : o).length ? Ke.push({
+        key: o,
+        element: e,
+        type: t
+      }) : (console.log("Empty key passed to translate with!"), console.log(e))
+    }
   }
   Ge.en = {}, Ge.de = {
     "You have been kicked!": "Du wurdest gekickt!",
@@ -1065,17 +1067,18 @@
       name: "Clear",
       keydef: "C",
       graphic: "clear.gif",
-      action: Ft
+      action:
+        () => typo.lockManualClear !== true && new /* this wicked way of function invoking lets me skip pathing in parentheses after the reference */ Ft
     })
-/*TYPOMOD DESC: add tool for deselect*/ 
-                ,
-                it(-1, {
-                    isAction: !1,
-                    name: "No Tool",
-                    graphic: "",
-                    keydef: "",
-                }) 
-                /*TYPOEND*/, c.querySelector("#game-canvas canvas")),
+      /*TYPOMOD DESC: add tool for deselect*/
+      ,
+      it(-1, {
+        isAction: !1,
+        name: "No Tool",
+        graphic: "",
+        keydef: "",
+      })
+      /*TYPOEND*/, c.querySelector("#game-canvas canvas")),
     ct = C.getContext("2d", {
       willReadFrequently: !0
     }),
@@ -1092,10 +1095,10 @@
     o = (ft.width = Qe + 2, ft.height = Qe + 2, ft.getContext("2d"));
 
   function yt() {
-    
+
 // TYPOMOD
 // desc: dont update cursor when typo updates if very frequently to avoid performance drop
-if(typo.skipCursorUpdate === true) return;var e = lt[vt].cursor;
+    if(typo.skipCursorUpdate === true) return;var e = lt[vt].cursor;
     if (L.id == j && M == x) {
       if (vt == Xe) {
         var t = ft.width,
@@ -1104,10 +1107,10 @@ if(typo.skipCursorUpdate === true) return;var e = lt[vt].cursor;
         o.clearRect(0, 0, t, t);
 // TYPOMOD
 // desc: cursor with custom color
-var a = bt < 10000 ? kt[bt] : typo.typoCodeToRgb(bt);
-// TYPOEND 
- 
-          a = [(a = 1 == l.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
+        var a = bt < 10000 ? kt[bt] : typo.typoCodeToRgb(bt);
+// TYPOEND
+
+        a = [(a = 1 == l.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
         o.fillStyle = "rgba(" + a[0] + "," + a[1] + "," + a[2] + "," + a[3] + ")", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.fill(), o.strokeStyle = "#FFF", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.stroke(), o.strokeStyle = "#000", o.beginPath(), o.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), o.stroke();
         a = t / 2, e = "url(" + ft.toDataURL() + ")" + a + " " + a + ", default"
       }
@@ -1175,7 +1178,7 @@ var a = bt < 10000 ? kt[bt] : typo.typoCodeToRgb(bt);
       r <= n && (n = r, t = o, 0), o.element.classList.remove("selected")
     }
     t.element.classList.add("selected"), tt.querySelector(".size-preview .icon").style.backgroundSize = Mt(Ct) + "%",
-document.dispatchEvent(new CustomEvent("skribblSizeChanged", { detail: Ct })), yt()
+      document.dispatchEvent(new CustomEvent("skribblSizeChanged", { detail: Ct })), yt()
   }
 
   function It(e) {
@@ -1187,20 +1190,20 @@ document.dispatchEvent(new CustomEvent("skribblSizeChanged", { detail: Ct })), y
   }
 
   function Tt(e, t) {
-  
-/*toolidtarget*/ document.dispatchEvent(new CustomEvent("skribblToolChanged", {detail: e}));  It(lt[e].element), e == vt && !t || (lt[vt].element.classList.remove("selected"), lt[e].element.classList.add("selected"), vt = e, yt())
+
+    /*toolidtarget*/ document.dispatchEvent(new CustomEvent("skribblToolChanged", {detail: e}));  It(lt[e].element), e == vt && !t || (lt[vt].element.classList.remove("selected"), lt[e].element.classList.add("selected"), vt = e, yt())
   }
 
   function Nt(e) {
     var t =
-e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
+      e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
     bt = e, c.querySelector("#color-preview-primary").style.fill = t
-, document.dispatchEvent(new CustomEvent("skribblColorChanged", {detail: t})), c.querySelector("#game-toolbar .color-preview-mobile").style.backgroundColor = t, yt()
+      , document.dispatchEvent(new CustomEvent("skribblColorChanged", {detail: t})), c.querySelector("#game-toolbar .color-preview-mobile").style.backgroundColor = t, yt()
   }
 
   function Wt(e) {
     var t =
-e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
+      e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
     St = e, c.querySelector("#color-preview-secondary").style.fill = t, yt()
   }
 
@@ -1223,10 +1226,10 @@ e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
   }
 
   function Bt(e) {
-/*TYPOMOD   
-desc: if color code > 1000 -> customcolor*/if(e < 1000)
-    e = q(e, 0, kt.length), e = kt[e];
-else e = typo.typoCodeToRgb(e);/* TYPOEND */
+    /*TYPOMOD
+    desc: if color code > 1000 -> customcolor*/if(e < 1000)
+      e = q(e, 0, kt.length), e = kt[e];
+    else e = typo.typoCodeToRgb(e);/* TYPOEND */
     return {
       r: e[0],
       g: e[1],
@@ -1310,11 +1313,11 @@ else e = typo.typoCodeToRgb(e);/* TYPOEND */
           p = ((e, t, n) => 0 <= (n = 4 * (n * e.width + t)) && n < e.data.length ? [e.data[n], e.data[1 + n], e.data[2 + n]] : [0, 0, 0])(u, i, a);
         if (s != p[0] || c != p[1] || d != p[2]) {
           for (var m, g, f, y, v, b, S = function(e) {
-              var t = u.data[e],
-                n = u.data[e + 1],
-                e = u.data[e + 2];
-              return (t != s || n != c || e != d) && (t = Math.abs(t - p[0]), n = Math.abs(n - p[1]), e = Math.abs(e - p[2]), t < 3) && n < 3 && e < 3
-            }, k = u.height, w = u.width; h.length;) {
+            var t = u.data[e],
+              n = u.data[e + 1],
+              e = u.data[e + 2];
+            return (t != s || n != c || e != d) && (t = Math.abs(t - p[0]), n = Math.abs(n - p[1]), e = Math.abs(e - p[2]), t < 3) && n < 3 && e < 3
+          }, k = u.height, w = u.width; h.length;) {
             for (m = h.pop(), g = m[0], y = 4 * ((f = m[1]) * w + g); 0 <= f-- && S(y);) y -= 4 * w;
             for (y += 4 * w, ++f, b = v = !1; f++ < k - 1 && S(y);) Zt(u, y, s, c, d), 0 < g && (S(y - 4) ? v || (h.push([g - 1, f]), v = !0) : v = v && !1), g < w - 1 && (S(y + 4) ? b || (h.push([g + 1, f]), b = !0) : b = b && !1), y += 4 * w
           }
@@ -1360,15 +1363,15 @@ else e = typo.typoCodeToRgb(e);/* TYPOEND */
   }
 
   function Jt() {
-/* TYPOMOD
-         desc: store data before clear */
-        const data = document.querySelector("#game-canvas canvas").toDataURL();
-/* TYPOEND */
+    /* TYPOMOD
+             desc: store data before clear */
+    const data = document.querySelector("#game-canvas canvas").toDataURL();
+    /* TYPOEND */
     ct.fillStyle = "#FFF", ct.fillRect(0, 0, C.width, C.height)
-/* TYPOMOD
-         desc: dispatch clear event */
-        ;document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));
-/* TYPOEND */
+    /* TYPOMOD
+             desc: dispatch clear event */
+    ;document.dispatchEvent(new CustomEvent("logCanvasClear", { detail: data }));
+    /* TYPOEND */
   }
 
   function Qt(e) {
@@ -1381,10 +1384,10 @@ else e = typo.typoCodeToRgb(e);/* TYPOEND */
             var i = kt[r];
             if (0 == i[0] - n && 0 == i[1] - a && 0 == i[2] - o) return r
           }
-/* TYPOMOD
-                     desc: if color is not in array, convert to custom color */
-                    return r = parseInt(typo.rgbToHex(n, a, o), 16) + 10000;
-                    /* TYPOEND */
+          /* TYPOMOD
+                               desc: if color is not in array, convert to custom color */
+          return r = parseInt(typo.rgbToHex(n, a, o), 16) + 10000;
+          /* TYPOEND */
           return r
         })(b[0], b[1]);
         if (1 == vt) {
@@ -1392,14 +1395,14 @@ else e = typo.typoCodeToRgb(e);/* TYPOEND */
           e = t, l = b[0], s = b[1], n = [Ze, e, l, s]
         }
       }
-      vt == Xe && (e = Ct, 0 <= gt && (e = (e - Je) * q(gt, 0, 1) + Je), 
-/* TYPOMOD use typo pressure */
-              (() => {
-                  if (0 <= gt && document.documentElement.dataset["typo_pressure_performance"]) {
-                      const pressure = eval(document.documentElement.dataset["typo_pressure_performance"])(gt);
-                      e = Math.max(4, Math.round(40 * pressure));
-                  }
-              })(),l = Math.ceil(.5 * e), s = q(Math.floor(mt[0]), -l, C.width + l), o = q(Math.floor(mt[1]), -l, C.height + l), r = q(Math.floor(b[0]), -l, C.width + l), i = q(Math.floor(b[1]), -l, C.height + l), t = t, e = e, a = s, o = o, r = r, i = i, n = [je, t, e, a, o, r, i]), null != n && Vt(n)
+      vt == Xe && (e = Ct, 0 <= gt && (e = (e - Je) * q(gt, 0, 1) + Je),
+        /* TYPOMOD use typo pressure */
+        (() => {
+          if (0 <= gt && document.documentElement.dataset["typo_pressure_performance"]) {
+            const pressure = eval(document.documentElement.dataset["typo_pressure_performance"])(gt);
+            e = Math.max(4, Math.round(40 * pressure));
+          }
+        })(),l = Math.ceil(.5 * e), s = q(Math.floor(mt[0]), -l, C.width + l), o = q(Math.floor(mt[1]), -l, C.height + l), r = q(Math.floor(b[0]), -l, C.width + l), i = q(Math.floor(b[1]), -l, C.height + l), t = t, e = e, a = s, o = o, r = r, i = i, n = [je, t, e, a, o, r, i]), null != n && Vt(n)
     }
     var a, o, r, i, l, s
   }
@@ -1459,7 +1462,7 @@ else e = typo.typoCodeToRgb(e);/* TYPOEND */
     on !== e.pointerId || (() => {
       var e = performance.now();
       if (
-document.body.dataset.bypassFps !== 'true' &&e - ln < 1e3 / rn) return 1;
+        document.body.dataset.bypassFps !== 'true' &&e - ln < 1e3 / rn) return 1;
       ln = e
     })() || (t = 1 == l.pressureSensitivity && "pen" == e.pointerType, n = -1, en(e.clientX, e.clientY, n = t ? (ae && e.pressure, e.pressure) : n, !1), Qt(!1))
   }), D(C, "pointerup pointercancel", function(e) {
@@ -1475,14 +1478,14 @@ document.body.dataset.bypassFps !== 'true' &&e - ln < 1e3 / rn) return 1;
   var S, ln = 0,
     sn = 0,
     cn = (setInterval(function() {
-      var e, t, n;
-      S && L.id == j && M == x && 0 < (e = v.length - dt) && (t = dt + 8, n = v.slice(dt, t), S.emit("data", {
-        id: Ia,
-        data: n
-      }), dt = Math.min(t, v.length), 
-false &&console.log(`Sent ${n.length} commands. ${e} remaining.`))
-    }, 
-document.body.dataset.bypassCommandRate === 'true' ? 0 :50), setInterval(function() {
+        var e, t, n;
+        S && L.id == j && M == x && 0 < (e = v.length - dt) && (t = dt + 8, n = v.slice(dt, t), S.emit("data", {
+          id: Ia,
+          data: n
+        }), dt = Math.min(t, v.length),
+        false &&console.log(`Sent ${n.length} commands. ${e} remaining.`))
+      },
+      document.body.dataset.bypassCommandRate === 'true' ? 0 :50), setInterval(function() {
       S && L.id == j && M != x && ut < v.length && (Gt(jt(v[ut]), v[ut]), ut++)
     }, 1), c.querySelector("#game-canvas .overlay")),
     dn = c.querySelector("#game-canvas .overlay-content"),
@@ -1511,25 +1514,25 @@ document.body.dataset.bypassCommandRate === 'true' ? 0 :50), setInterval(functio
   function vn(e) {
     e.classList.add("show")
   }
-/* TYPOMOD desc: add event handlers for typo features */
-                document.addEventListener("joinPractice", () => {
-                  const data = typo.createFakeLobbyData();
-                  typo.messagePort.postMessage({ id: 10, data });
-                  //document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
-                  aa(data);
-                
-                  S = new Proxy({},{
-                    emit: (...data) => typo.emitPort.postMessage(data),
-                    other: (...data) => void 0,
-                    get (target, prop) {
-                      if(prop === "emit"){
-                        return this.emit;
-                      }
-                      else return this.other;
-                    }
-                  });
-                });
-                /* TYPOEND */
+  /* TYPOMOD desc: add event handlers for typo features */
+  document.addEventListener("joinPractice", () => {
+    const data = typo.createFakeLobbyData();
+    typo.messagePort.postMessage({ id: 10, data });
+    //document.dispatchEvent(new CustomEvent("practiceJoined", {detail: data}));
+    aa(data);
+
+    S = new Proxy({},{
+      emit: (...data) => typo.emitPort.postMessage(data),
+      other: (...data) => void 0,
+      get (target, prop) {
+        if(prop === "emit"){
+          return this.emit;
+        }
+        else return this.other;
+      }
+    });
+  });
+  /* TYPOEND */
 
   function bn(e) {
     for (var t = 0; t < dn.children.length; t++) dn.children[t].classList.remove("show");
@@ -1584,11 +1587,11 @@ document.body.dataset.bypassCommandRate === 'true' ? 0 :50), setInterval(functio
         for (var d = [I.querySelector(".podest-1"), I.querySelector(".podest-2"), I.querySelector(".podest-3"), I.querySelector(".ranks")], o = 0; o < 4; o++) ce(d[o]);
         if (0 < e.data.length) {
           for (var u = [
-              [],
-              [],
-              [],
-              []
-            ], o = 0; o < e.data.length; o++)(s = {
+            [],
+            [],
+            [],
+            []
+          ], o = 0; o < e.data.length; o++)(s = {
             player: W(r = e.data[o][0]),
             rank: e.data[o][1],
             title: e.data[o][2]
@@ -1604,15 +1607,15 @@ document.body.dataset.bypassCommandRate === 'true' ? 0 :50), setInterval(functio
                 l = $("avatar-container"),
                 y = (f.appendChild(l), $("border"));
               y.appendChild($("rank-place", "#" + (h + 1))), y.appendChild($("rank-name", m)), y.appendChild($("rank-score", E("$ points", g))), f.appendChild(y), 0 == h && l.appendChild($("trophy"));
-              for (o = 0; o < p.length; o++) pe(b = de((s = p[o]).player.avatar, 0 == h), Ya(s.player)), b.style.left = 15 * -(p.length - 1) + 30 * o + "%", 
-b.setAttribute("playerid", s.player.id),0 == h && (b.classList.add("winner"), b.style.animationDelay = -2.35 * o + "s"), l.appendChild(b)
+              for (o = 0; o < p.length; o++) pe(b = de((s = p[o]).player.avatar, 0 == h), Ya(s.player)), b.style.left = 15 * -(p.length - 1) + 30 * o + "%",
+                b.setAttribute("playerid", s.player.id),0 == h && (b.classList.add("winner"), b.style.animationDelay = -2.35 * o + "s"), l.appendChild(b)
             }
           }
           for (var v = Math.min(5, u[3].length), o = 0; o < v; o++) {
             var b, s = u[3][o],
               f = $("rank");
             pe(b = de(s.player.avatar, !1), Ya(s.player)), f.appendChild(b), f.appendChild($("rank-place", "#" + (s.rank + 1))), f.appendChild($("rank-name", s.player.name)),
-f.setAttribute("playerid", s.player.id), /*elemanchor*/ f.appendChild($("rank-score", E("$ points", s.player.score))), d[3].appendChild(f)
+              f.setAttribute("playerid", s.player.id), /*elemanchor*/ f.appendChild($("rank-score", E("$ points", s.player.score))), d[3].appendChild(f)
           }
           0 < u[0].length ? (L = u[0].map(function(e) {
             return e.player.name
@@ -1647,7 +1650,7 @@ f.setAttribute("playerid", s.player.id), /*elemanchor*/ f.appendChild($("rank-sc
           vn(A);
           var L = (s = W(e.data.id)) ? s.name : E("User"),
             L = (A.textContent = "", A.appendChild(se("span", void 0, E("$ is choosing a word!", L))), de(s
-&& (A.setAttribute("playerid", s.id) || true) /*overlayanchor*/ ? s.avatar : [0, 0, 0, 0], e.data.id == En));
+            && (A.setAttribute("playerid", s.id) || true) /*overlayanchor*/ ? s.avatar : [0, 0, 0, 0], e.data.id == En));
           s && pe(L, Ya(s)), L.style.width = "2em", L.style.height = "2em", A.appendChild(L)
         }
     }
@@ -1752,8 +1755,8 @@ f.setAttribute("playerid", s.player.id), /*elemanchor*/ f.appendChild($("rank-sc
         default:
           a && qe(ye, E("An unknown error occurred ('$')", e) + "\n\r" + E("Please try again later!"))
       }
-     
-document.dispatchEvent(new CustomEvent("joinLobbyFailed")) & n({
+
+      document.dispatchEvent(new CustomEvent("joinLobbyFailed")) & n({
         success: !1,
         error: e
       })
@@ -1804,69 +1807,69 @@ document.dispatchEvent(new CustomEvent("joinLobbyFailed")) & n({
         closeOnBeforeunload: !1
       };
     "URL" in h && "127.0.0.1" != (a = new URL(e)).hostname && "localhost" != a.hostname && (r.path = "/" + a.port + "/", e = a.protocol + "//" + a.hostname), (S = O(e, r)).on("connect", function() {
-/* TYPOMOD
-                     desc: disconnect socket & leave lobby */
-                document.addEventListener('socketEmit', event => 
-                    S.emit('data', { id: event.detail.id, data: event.detail.data })
-                );
-                
-                typo.disconnect = () => {
-                    if (S) {
-                        S.typoDisconnect = true;
-                        S.on("disconnect", () => {
-                            typo.disconnect = undefined;
-                            document.dispatchEvent(new Event("leftLobby"));
-                        });
-                        S.off("data");
-                        S.reconnect = false;
-                        S.disconnect();
-                    } else {
-                        document.dispatchEvent(new Event("leftLobby"));
-                    }
-                }
-                S.on("data", data => typo.messagePort.postMessage(data));
-                typo.messagePort.onmessage = data => S.emit("data", data.data);
-                
-                const originalEmit = S.emit.bind(S);
-                S.emit = function(...event) {
-                  typo.emitPort.postMessage(event);
-   
-const {data, id} = event[1];
-    
-            if(id === Ia){
-              const events = [];
-              const buffer = [];
-              let sent = 0; /* to calculate correct undo offset */
-              
-              for(const command of data){
-                /* DO NOT edit reference as it's used in local cmd history */
-                const commandCopy = structuredClone(command);
-                const sequence = typo.msiColorSwitch.ensureColorSequence(commandCopy); 
-                if(sequence === undefined) buffer.push(commandCopy);
-                else {
-                  if(buffer.length > 0) events.push({id: Ia, data: buffer});
-                  events.push({id: Ia, data: sequence});
-                  events.push({id: Ta, data: dt + sent});
-                  buffer.push(commandCopy);
-                }
-              }
-    
-              if(buffer.length > 0) events.push({id: Ia, data: buffer});
-    
-              for(event of events){
-                originalEmit("data", event);
-              }
-            }
-    
+      /* TYPOMOD
+                           desc: disconnect socket & leave lobby */
+      document.addEventListener('socketEmit', event =>
+        S.emit('data', { id: event.detail.id, data: event.detail.data })
+      );
+
+      typo.disconnect = () => {
+        if (S) {
+          S.typoDisconnect = true;
+          S.on("disconnect", () => {
+            typo.disconnect = undefined;
+            document.dispatchEvent(new Event("leftLobby"));
+          });
+          S.off("data");
+          S.reconnect = false;
+          S.disconnect();
+        } else {
+          document.dispatchEvent(new Event("leftLobby"));
+        }
+      }
+      S.on("data", data => typo.messagePort.postMessage(data));
+      typo.messagePort.onmessage = data => S.emit("data", data.data);
+
+      const originalEmit = S.emit.bind(S);
+      S.emit = function(...event) {
+        typo.emitPort.postMessage(event);
+
+        const {data, id} = event[1];
+
+        if(id === Ia){
+          const events = [];
+          const buffer = [];
+          let sent = 0; /* to calculate correct undo offset */
+
+          for(const command of data){
+            /* DO NOT edit reference as it's used in local cmd history */
+            const commandCopy = structuredClone(command);
+            const sequence = typo.msiColorSwitch.ensureColorSequence(commandCopy);
+            if(sequence === undefined) buffer.push(commandCopy);
             else {
-              originalEmit(...event) /* replace recursion prevention */;
-            }                
-                };
-                /* TYPOEND */
+              if(buffer.length > 0) events.push({id: Ia, data: buffer});
+              events.push({id: Ia, data: sequence});
+              events.push({id: Ta, data: dt + sent});
+              buffer.push(commandCopy);
+            }
+          }
+
+          if(buffer.length > 0) events.push({id: Ia, data: buffer});
+
+          for(event of events){
+            originalEmit("data", event);
+          }
+        }
+
+        else {
+          originalEmit(...event) /* replace recursion prevention */;
+        }
+      };
+      /* TYPOEND */
       Jn(!1), S.on("joinerr", function(e) {
         ua(), qe(ye, (e => {
-          
-document.dispatchEvent(new CustomEvent("joinLobbyFailed"));switch (e) {
+
+          document.dispatchEvent(new CustomEvent("joinLobbyFailed"));switch (e) {
             case 1:
               return E("Room not found!");
             case 2:
@@ -1901,20 +1904,20 @@ document.dispatchEvent(new CustomEvent("joinLobbyFailed"));switch (e) {
     }), S.on("reason", function(e) {
       o = e
     }), S.on("disconnect", function(e) {
-/* TYPOMOD
-                 DESC: no msg if disconnect intentionally */
- document.dispatchEvent(new CustomEvent("leftLobby"));                if(!S.typoDisconnect)
-                /*TYPOEND*/
-      switch (console.log("socket disconnect: " + e), o) {
-        case Q:
-          qe(ve, E("You have been kicked!"));
-          break;
-        case ee:
-          qe(ve, E("You have been banned!"));
-          break;
-        default:
-          qe(ve, E("Connection lost!") + "\n" + e)
-      }
+      /* TYPOMOD
+                       DESC: no msg if disconnect intentionally */
+      document.dispatchEvent(new CustomEvent("leftLobby"));                if(!S.typoDisconnect)
+        /*TYPOEND*/
+        switch (console.log("socket disconnect: " + e), o) {
+          case Q:
+            qe(ve, E("You have been kicked!"));
+            break;
+          case ee:
+            qe(ve, E("You have been banned!"));
+            break;
+          default:
+            qe(ve, E("Connection lost!") + "\n" + e)
+        }
       ua()
     }), S.on("connect_error", function(e) {
       ua(), Jn(!1), qe(ye, e.message)
@@ -1966,26 +1969,26 @@ document.dispatchEvent(new CustomEvent("joinLobbyFailed"));switch (e) {
   function sa(e, t) {
     var n, a;
     if (n = L = e, null != fn && (h.cancelAnimationFrame(fn), fn = void 0), n.id == j ? yn({
-        top: -100,
-        opacity: 0
-      }, 600, function() {
-        cn.classList.remove("show")
-      }) : cn.classList.contains("show") ? yn({
-        top: -100,
-        opacity: 1
-      }, 600, function() {
-        bn(n), yn({
-          top: 0,
-          opacity: 1
-        }, 600)
-      }) : (cn.classList.add("show"), bn(n), yn({
+      top: -100,
+      opacity: 0
+    }, 600, function() {
+      cn.classList.remove("show")
+    }) : cn.classList.contains("show") ? yn({
+      top: -100,
+      opacity: 1
+    }, 600, function() {
+      bn(n), yn({
         top: 0,
         opacity: 1
-      }, 600)), a = e.time, oo(), ro(a), no = setInterval(function() {
-        ro(Math.max(0, ao - 1));
-        var e = -1;
-        L.id == j && (e = Qa), L.id == V && (e = eo), to.style.animationName = ao < e ? ao % 2 == 0 ? "rot_left" : "rot_right" : "none", ao < e && R.playSound(Mn), ao <= 0 && oo()
-      }, 1e3), Pn.classList.add("toolbar-hidden"), yt(), da(!1), e.id == J ? (la(), Pn.classList.add("room")) : Pn.classList.remove("room"), e.id == F && (ia(e.data), 0 == e.data) && la(), e.id == Z) {
+      }, 600)
+    }) : (cn.classList.add("show"), bn(n), yn({
+      top: 0,
+      opacity: 1
+    }, 600)), a = e.time, oo(), ro(a), no = setInterval(function() {
+      ro(Math.max(0, ao - 1));
+      var e = -1;
+      L.id == j && (e = Qa), L.id == V && (e = eo), to.style.animationName = ao < e ? ao % 2 == 0 ? "rot_left" : "rot_right" : "none", ao < e && R.playSound(Mn), ao <= 0 && oo()
+    }, 1e3), Pn.classList.add("toolbar-hidden"), yt(), da(!1), e.id == J ? (la(), Pn.classList.add("room")) : Pn.classList.remove("room"), e.id == F && (ia(e.data), 0 == e.data) && la(), e.id == Z) {
       x != M && ga(e.data.word);
       for (var o = 0; o < e.data.scores.length; o += 3) {
         var r = e.data.scores[o + 0],
@@ -2001,9 +2004,9 @@ document.dispatchEvent(new CustomEvent("joinLobbyFailed"));switch (e) {
         } l ? R.playSound(wn) : R.playSound(kn), y(E("The word was '$'", e.data.word), "", f($e), !0)
     } else e.id != j && (N[0].textContent = E("WAITING"), N[0].classList.add("waiting"), N[1].style.display = "none", N[2].style.display = "none");
     if (e.id == j) {
-      if (M = e.data.id, 
-typo.msi.reset(),
-            typo.msiColorSwitch.currentCode = undefined,R.playSound(Sn), Kt(!0), e.data.drawCommands && (v = e.data.drawCommands), y(E("$ is drawing now!", W(M).name), "", f(De), !0), !t)
+      if (M = e.data.id,
+        typo.msi.reset(),
+        typo.msiColorSwitch.currentCode = undefined,R.playSound(Sn), Kt(!0), e.data.drawCommands && (v = e.data.drawCommands), y(E("$ is drawing now!", W(M).name), "", f(De), !0), !t)
         for (o = 0; o < w.length; o++) Fa(w[o], !1);
       N[0].classList.remove("waiting"), M == x ? (a = e.data.word, N[0].textContent = E("DRAW THIS"), N[1].style.display = "", N[2].style.display = "none", N[1].textContent = a, Pn.classList.remove("toolbar-hidden"), yt()) : (da(!0), pa(e.data.word, !1), ma(e.data.hints))
     } else {
@@ -2185,7 +2188,7 @@ typo.msi.reset(),
         break;
       case Ia:
         for (var s = 0; s < n.length; s++)
-n[s] = typo.msi.processIncomingCommand(n[s]), n[s] !== undefined && Vt(n[s]);
+          n[s] = typo.msi.processIncomingCommand(n[s]), n[s] !== undefined && Vt(n[s]);
         break;
       case Ra:
         Kt(!0);
@@ -2242,17 +2245,17 @@ n[s] = typo.msi.processIncomingCommand(n[s]), n[s] !== undefined && Vt(n[s]);
       }), $("player-icons")),
       l = $("icon owner"),
       a = $("icon muted");
-/* TYPOMOD
-         desc: set ID to player to identify */
-        n.element.setAttribute("playerid", n.id);
-        /* TYPOEND */
+    /* TYPOMOD
+             desc: set ID to player to identify */
+    n.element.setAttribute("playerid", n.id);
+    /* TYPOEND */
     return e.appendChild(l), e.appendChild(a), n.element.appendChild(e), n.element.icons = [l, a], Fa(n, n.guessed), t && Ga(), n
   }
 
   function Ba(e, t) {
     var n, a, o;
     !e.muted && (o = ((a = W(x)).flags & k) == k, n = e.id == M || e.guessed, x == M || a.guessed || !n || o) && (a = (e.flags & k) == k, o = Me, n && (o = Ie), a && (o = Ee), Ua(e, $("text", t)), y(e.name, t, f(o), !1)
-.setAttribute("playerid", e.id))
+      .setAttribute("playerid", e.id))
   }
 
   function Ua(e, t) {
@@ -2365,15 +2368,15 @@ n[s] = typo.msi.processIncomingCommand(n[s]), n[s] !== undefined && Vt(n[s]);
     if (e.target == m) return xe(), e.preventDefault(), !1;
     Be.elements.main.contains(e.target) ? e.preventDefault() : ("1" == Ye.value && _n[1].blur(), c.querySelector("#game-toolbar .sizes").contains(e.target) || Pt(), e.target != c.querySelector("#game-toolbar .color-preview-mobile") && rt.classList.remove("open"))
   }), D([Kn, Fn], "change", le), D(Vn, "click",
-typo.joinLobby = function() {
-    var t, e, n, a, o;
-    n = h.location.href,
-typo.lastConnect = Date.now(), o = "", n = n.split("?"), t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o, Nn || (e = "" != t ? "id=" + t : "lang=" + Fn.value, xe(), Jn(!0), ta(function() {
-      Qn($n, e, function(e) {
-        Jn(!1), e.success && na(e.data, t)
-      }, !0)
-    }))
-  }), D(jn, "click", function() {
+    typo.joinLobby = function() {
+      var t, e, n, a, o;
+      n = h.location.href,
+        typo.lastConnect = Date.now(), o = "", n = n.split("?"), t = o = 1 < n.length ? (o = "" + n[1]).substring(0, a) : o, Nn || (e = "" != t ? "id=" + t : "lang=" + Fn.value, xe(), Jn(!0), ta(function() {
+        Qn($n, e, function(e) {
+          Jn(!1), e.success && na(e.data, t)
+        }, !0)
+      }))
+    }), D(jn, "click", function() {
     Nn || (xe(), Jn(!0), ta(function() {
       Qn($n, "lang=" + Fn.value, function(e) {
         e.success ? na(e.data, 0, 1) : Jn(!1)
@@ -2474,9 +2477,9 @@ typo.lastConnect = Date.now(), o = "", n = n.split("?"), t = o = 1 < n.length ? 
   }), D(_n, "input", function(e) {
     mo(this.parentNode, this.value.length)
   }), D(Hn, "submit", function(e) {
-const input = this.querySelector("input"); let rest = input.value.substring(100);
-        input.value = input.value.substring(0,100);
-        if(rest.length > 0) setTimeout(()=>{input.value = rest; this.requestSubmit();},180);
+    const input = this.querySelector("input"); let rest = input.value.substring(100);
+    input.value = input.value.substring(0,100);
+    if(rest.length > 0) setTimeout(()=>{input.value = rest; this.requestSubmit();},180);
     e.preventDefault();
     var e = this.querySelector("input");
     return e.value && (e = e.value, S && S.connected ? S.emit("data", {
@@ -2523,5 +2526,5 @@ const input = this.querySelector("input"); let rest = input.value.substring(100)
     })
   }
   Xn && (c.documentElement.dataset.halloween = "")
-;document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");
+  ;document.dispatchEvent(new Event("skribblInitialized")); document.body.setAttribute("typo-skribbl-loaded", "true");
 })(window, document, localStorage, io);
