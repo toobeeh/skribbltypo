@@ -27,7 +27,7 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
     .withSlider(1)
     .withBounds(1,100);
 
-  private lastSwitch?: { eventId: number, position: [number, number], index: number };
+  private lastSwitch?: { eventId: number, position: [number, number], index: number, strokeId: number };
 
   readonly settings = [
     this._rainbowModeSetting,
@@ -38,14 +38,15 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
     line: drawModLine,
     pressure: number | undefined,
     style: brushStyle,
-    eventId: number
+    eventId: number,
+    strokeId: number,
   ): Promise<constantDrawModEffect> {
 
     const mode = await firstValueFrom(this._rainbowModeSetting.changes$);
     const distance = await firstValueFrom(this._colorSwitchSetting.changes$);
     const colors = Color.skribblColors.filter((color, index) => index % 2 === 0 ? (mode === "light") : (mode === "dark"));
 
-    if(this.lastSwitch === undefined || this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
+    if(this.lastSwitch === undefined || this.lastSwitch.strokeId !== strokeId || this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
 
       /* cycle through */
       let index = ((this.lastSwitch?.index ?? -1) + 1) % (colors.length - 1);
@@ -59,7 +60,8 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
       this.lastSwitch = {
         eventId: eventId,
         position: line.from,
-        index: index
+        index: index,
+        strokeId: strokeId
       };
     }
 

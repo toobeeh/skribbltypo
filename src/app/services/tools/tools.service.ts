@@ -105,8 +105,7 @@ export class ToolsService {
       combineLatestWith(this._activeMods$, this._activeBrushStyle$),
       map(([tool, mods, style]) => {
         const typoMods = tool instanceof TypoDrawTool ? [tool, ...mods] : mods;
-        const typoTool = tool instanceof TypoDrawTool ? tool : undefined;
-        return [style, typoTool, typoMods] as const;
+        return [style, tool, typoMods] as const;
       })
     );
 
@@ -136,13 +135,15 @@ export class ToolsService {
     this._lobbyService.lobby$.pipe(
       map(lobby => lobby?.meId === lobby?.drawerId),
       combineLatestWith(this._activeTool$, this._activeMods$),
-      map(([isDrawer, tool, mods]) => isDrawer && (tool instanceof TypoDrawTool || tool === skribblTool.brush && mods.length > 0)),
+      map(([isDrawer, tool, mods]) =>
+        isDrawer &&
+        (tool instanceof TypoDrawTool || (tool === skribblTool.brush || tool == skribblTool.fill) && mods.length > 0)),
     ).subscribe((enabled) => {
       coordinateListener.enabled = enabled;
     });
   }
 
-  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, cause: strokeCause, tool: TypoDrawTool | undefined, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
+  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, cause: strokeCause, tool: TypoDrawTool | skribblTool, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
     this._logger.debug("Activating tool and applying mods", start, end);
 
     /* generate a shared id for every line created from the origin line */
@@ -182,7 +183,7 @@ export class ToolsService {
 
     /* create draw commands from tool based on processed lines and style */
     const commands: number[][] = [];
-    if(tool !== undefined) {
+    if(tool instanceof TypoDrawTool) {
       for(let line of lines) {
 
         /* make sure line is safe - decimal places should not be submitted to skribbl */
@@ -200,7 +201,7 @@ export class ToolsService {
     }
 
     /* create default draw commands as lines */
-    else {
+    else if(tool === skribblTool.brush) {
       for(const line of lines) {
         const lineCommand = this._drawingService.createLineCommand(
           [...line.from, ...line.to],
@@ -209,6 +210,21 @@ export class ToolsService {
           false
         );
         if(lineCommand !== undefined) commands.push(lineCommand);
+      }
+    }
+
+    /* create draw commands as point from cursor-up */
+    else if(tool === skribblTool.fill) {
+
+      /* only reacts once per stroke */
+      if(cause === "down") {
+        for(const line of lines) {
+          const pointCommand = this._drawingService.createFillCommand(
+            [...line.from],
+            line.styleOverride?.color ?? modStyle.color
+          );
+          commands.push(pointCommand);
+        }
       }
     }
 

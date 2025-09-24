@@ -26,7 +26,7 @@ export class RandomColorMod extends ConstantDrawMod implements BrushLabItem {
     .withSlider(1)
     .withBounds(1,100);
 
-  private lastSwitch?: { eventId: number, position: [number, number]};
+  private lastSwitch?: { eventId: number, position: [number, number], strokeId: number };
 
   readonly settings = [
     this._colorSwitchSetting
@@ -36,13 +36,14 @@ export class RandomColorMod extends ConstantDrawMod implements BrushLabItem {
     line: drawModLine,
     pressure: number | undefined,
     style: brushStyle,
-    eventId: number
+    eventId: number,
+    strokeId: number,
   ): Promise<constantDrawModEffect> {
 
     const distance = await firstValueFrom(this._colorSwitchSetting.changes$);
     const colors = await firstValueFrom(this._colorsService.pickerColors$) ?? defaultPalettes.skribblPalette;
 
-    if(this.lastSwitch === undefined || this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
+    if(this.lastSwitch === undefined || this.lastSwitch.strokeId !== strokeId || this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
 
       /* random index */
       const index = Math.floor(Math.random() * colors.colorHexCodes.length);
@@ -52,6 +53,7 @@ export class RandomColorMod extends ConstantDrawMod implements BrushLabItem {
       this.lastSwitch = {
         eventId: eventId,
         position: line.from,
+        strokeId: strokeId
       };
     }
 

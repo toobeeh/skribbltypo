@@ -351,6 +351,10 @@ export class DrawingService {
     return [0, colorCode ?? 1, size ?? 4, ...clipped];
   }
 
+  createFillCommand(coordinates: [number, number], colorCode: number | undefined = undefined){
+    return [1, colorCode ?? 1, ...coordinates];
+  }
+
   public async drawLine(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
     this._logger.debug("Drawing line", coordinates, colorCode, size);
 

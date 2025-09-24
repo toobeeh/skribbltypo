@@ -65,7 +65,7 @@ export class CoordinateListener {
     this._currentStroke = {
       canvasRect: rect,
       lastSampleDate: Date.now(),
-      pointerDownId: event.pointerId,
+      pointerDownId: performance.now(),
       lastCoordinates: coords
     };
 
