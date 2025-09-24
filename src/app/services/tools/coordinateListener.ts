@@ -9,7 +9,7 @@ interface stroke {
   lastCoordinates: drawCoordinateEvent;
 }
 
-interface strokeCoordinates {
+export interface strokeCoordinates {
   from: drawCoordinateEvent,
   to: drawCoordinateEvent,
   stroke: number;

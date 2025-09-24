@@ -7,7 +7,7 @@ import { skribblTool, ToolChangedEventListener } from "@/app/events/tool-changed
 import { DrawingService } from "@/app/services/drawing/drawing.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import { ConstantDrawMod } from "@/app/services/tools/constant-draw-mod";
-import { CoordinateListener } from "@/app/services/tools/coordinateListener";
+import { CoordinateListener, type strokeCoordinates } from "@/app/services/tools/coordinateListener";
 import { TypoDrawMod, type drawModLine, type strokeCause } from "@/app/services/tools/draw-mod";
 import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
@@ -18,10 +18,16 @@ import { Color } from "@/util/color";
 import type { Type } from "@/util/types/type";
 import { inject, injectable, postConstruct } from "inversify";
 import {
-  BehaviorSubject, combineLatestWith, filter,
-  map, mergeWith, switchMap,
+  BehaviorSubject,
+  combineLatestWith,
+  filter,
+  map,
+  mergeWith,
+  Subject,
+  switchMap,
   withLatestFrom,
 } from "rxjs";
+import { merge } from "rxjs/internal/operators/merge";
 
 export type drawCoordinateEvent = [number, number, number?];
 export interface brushStyle {
@@ -51,6 +57,7 @@ export class ToolsService {
   private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000").skribblCode, size: 1 });
   private readonly _lastPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
   private readonly _canvasCursorStyle = document.createElement("style");
+  private readonly _insertedStrokes$ = new Subject<strokeCoordinates>();
 
   constructor(@inject(loggerFactory) loggerFactory: loggerFactory) {
     this._logger = loggerFactory(this);
@@ -123,6 +130,7 @@ export class ToolsService {
 
     /* listen for strokes and create typo tool commands */
     coordinateListener.strokes$.pipe(
+      mergeWith(this._insertedStrokes$),
       withLatestFrom(drawingMeta$)
     ).subscribe(([stroke, [style, tool, mods]]) => {
       this.processDrawCoordinates(stroke.from, stroke.to, stroke.cause, tool, mods, style, stroke.stroke);
@@ -309,5 +317,9 @@ export class ToolsService {
 
   public resolveModOrTool<TMod>(tool: Type<TMod>){
     return this._extensionContainer.resolveService(tool);
+  }
+
+  public insertStroke(stroke: strokeCoordinates) {
+    this._insertedStrokes$.next(stroke);
   }
 }

@@ -158,9 +158,8 @@ export class LineToolFeature extends TypoFeature {
       ).pipe(
         pairwise(),
         tap(data => this._logger.debug("Line accepted", data)),
-        withLatestFrom(this._toolsService.activeBrushStyle$)
       )
-      .subscribe(async ([[[, prevOrigin, prevTarget], [listening, origin, target]], style]) => {
+      .subscribe(async ([[, prevOrigin, prevTarget], [listening, origin, target]]) => {
 
         if (!origin || listening === "disabled") {
           return;
@@ -175,11 +174,11 @@ export class LineToolFeature extends TypoFeature {
           );
           if (prevTarget) { // if last was drag
             this._logger.info("Connecting with last drag end", prevTarget);
-            await this.drawLine(prevTarget, origin, style);
+            await this.drawLine(prevTarget, origin);
           }
           else if (prevOrigin) { // if last was also one-click
             this._logger.info("Connecting with last click", prevOrigin);
-            await this.drawLine(prevOrigin, origin, style);
+            await this.drawLine(prevOrigin, origin);
           }
           else {
             this._logger.info("No previous line to connect to; waiting for next");
@@ -190,7 +189,7 @@ export class LineToolFeature extends TypoFeature {
         } else {
 
           // regular drag action
-          await this.drawLine(origin, target, style);
+          await this.drawLine(origin, target);
         }
       });
   }
@@ -410,17 +409,18 @@ export class LineToolFeature extends TypoFeature {
    * Draw a line and reset current selected coordinates
    * @param origin
    * @param target
-   * @param style
    * @private
    */
   private async drawLine(
     origin: [number, number],
-    target: [number, number],
-    style: brushStyle
+    target: [number, number]
   ) {
     if (!origin || !target) return;
 
-    await this._drawingService.drawLine([...origin, ...target], style.color, style.size);
+    const strokeId = Date.now();
+    this._toolsService.insertStroke({from: origin, to: origin, stroke: strokeId, cause: "down"});
+    this._toolsService.insertStroke({from: origin, to: target, stroke: strokeId, cause: "move"});
+    this._toolsService.insertStroke({from: target, to: target, stroke: strokeId, cause: "up"});
 
     this._originCoordinates$.next(undefined);
     this._targetCoordinates$.next(undefined);
