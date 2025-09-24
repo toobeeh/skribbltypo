@@ -63,4 +63,9 @@ export class TokenService {
     await typoRuntime.setToken(null);
     this._token.next(null);
   }
+
+  public async setToken(token: string){
+    await typoRuntime.setToken(token);
+    this._token.next(token);
+  }
 }
