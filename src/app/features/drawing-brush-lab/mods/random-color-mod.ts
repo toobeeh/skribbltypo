@@ -1,4 +1,5 @@
 import {
+  BooleanExtensionSetting,
   NumericExtensionSetting,
   type serializable,
   SettingWithInput,
@@ -20,16 +21,21 @@ export class RandomColorMod extends ConstantDrawMod implements BrushLabItem {
   readonly icon = "var(--file-img-line-random-color-gif)";
   readonly name = "Random Colors";
 
-  private _colorSwitchSetting = new NumericExtensionSetting("brushlab.rainbow.distance", 20)
+  private _colorSwitchSetting = new NumericExtensionSetting("brushlab.randomcolor.distance", 20)
     .withName("Color Switch Distance")
     .withDescription("The distance between the color switches")
     .withSlider(1)
     .withBounds(1,100);
 
+  private readonly _strokeModeSetting = new BooleanExtensionSetting("brushlab.randomcolor.strokeMode", false)
+    .withName("Change Per Stroke")
+    .withDescription("If enabled, the color will change per stroke instead of continuously.");
+
   private lastSwitch?: { eventId: number, position: [number, number], strokeId: number };
 
   readonly settings = [
-    this._colorSwitchSetting
+    this._colorSwitchSetting,
+    this._strokeModeSetting
   ] as SettingWithInput<serializable>[];
 
   public async applyConstantEffect(
@@ -41,9 +47,10 @@ export class RandomColorMod extends ConstantDrawMod implements BrushLabItem {
   ): Promise<constantDrawModEffect> {
 
     const distance = await firstValueFrom(this._colorSwitchSetting.changes$);
+    const strokeMode = await firstValueFrom(this._strokeModeSetting.changes$);
     const colors = await firstValueFrom(this._colorsService.pickerColors$) ?? defaultPalettes.skribblPalette;
 
-    if(this.lastSwitch === undefined || this.lastSwitch.strokeId !== strokeId || this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
+    if(this.lastSwitch === undefined || this.lastSwitch.strokeId !== strokeId || strokeMode === false && this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
 
       /* random index */
       const index = Math.floor(Math.random() * colors.colorHexCodes.length);

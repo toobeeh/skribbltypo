@@ -1,4 +1,5 @@
 import {
+  BooleanExtensionSetting,
   ChoiceExtensionSetting, NumericExtensionSetting,
   type serializable,
   SettingWithInput,
@@ -21,6 +22,10 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
     .withDescription("Choose between the rainbow color shades")
     .withChoices([{choice: "light", name: "Light Colors"}, {choice: "dark", name: "Dark Colors"}]);
 
+  private readonly _strokeModeSetting = new BooleanExtensionSetting("brushlab.rainbow.strokeMode", false)
+    .withName("Change Per Stroke")
+    .withDescription("If enabled, the color will change per stroke instead of continuously.");
+
   private _colorSwitchSetting = new NumericExtensionSetting("brushlab.rainbow.distance", 20)
     .withName("Color Switch Distance")
     .withDescription("The distance between the color switches")
@@ -31,7 +36,8 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
 
   readonly settings = [
     this._rainbowModeSetting,
-    this._colorSwitchSetting
+    this._colorSwitchSetting,
+    this._strokeModeSetting
   ] as SettingWithInput<serializable>[];
 
   public async applyConstantEffect(
@@ -43,10 +49,11 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
   ): Promise<constantDrawModEffect> {
 
     const mode = await firstValueFrom(this._rainbowModeSetting.changes$);
+    const strokeMode = await firstValueFrom(this._strokeModeSetting.changes$);
     const distance = await firstValueFrom(this._colorSwitchSetting.changes$);
     const colors = Color.skribblColors.filter((color, index) => index % 2 === 0 ? (mode === "light") : (mode === "dark"));
 
-    if(this.lastSwitch === undefined || this.lastSwitch.strokeId !== strokeId || this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
+    if(this.lastSwitch === undefined || this.lastSwitch.strokeId !== strokeId || strokeMode == false && this.lastSwitch.eventId !== eventId && this.getDistance(this.lastSwitch.position, line.from) > (style.size / 10 * distance)){
 
       /* cycle through */
       let index = ((this.lastSwitch?.index ?? -1) + 1) % (colors.length - 1);
