@@ -5,6 +5,7 @@ import { map, startWith, Subject } from "rxjs";
 
 export interface tooltipParams {
   title: string;
+  htmlTitle?: string;
   lock?: "X" | "Y";
 }
 

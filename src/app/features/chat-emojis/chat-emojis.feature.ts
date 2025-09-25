@@ -97,7 +97,7 @@ export class ChatEmojisFeature extends TypoFeature {
     this._emojiScoresSetting.setValue(this._emojiScores);
   }
 
-  async handleInputEvent() {
+  async handleInputEvent(event: KeyboardEvent) {
     const emojis = (await this._apiDataSetup.complete()).emojis;
     const elements = await this._elements.complete();
 
@@ -114,6 +114,11 @@ export class ChatEmojisFeature extends TypoFeature {
         })
       : [];
     this._emojiCandidates$.next(emojiCandidates);
+      
+    /* autocomplete emoji */
+    if (emojiHead !== undefined && emojiCandidates.length > 0 && event.key === "Tab") {
+      this.insertEmoji(emojiCandidates[0], elements.chatInput);
+    }
 
     /* show popout if head exists, else close if open */
     if(emojiHead !== undefined && this._flyoutComponent === undefined){
@@ -123,11 +128,8 @@ export class ChatEmojisFeature extends TypoFeature {
         componentType: EmojiPicker,
         props: {
           feature: this,
-          onSelected: (emoji: EmojiDto) => {
-            const text = elements.chatInput.value;
-            elements.chatInput.value = text.slice(0, text.lastIndexOf(":")) + `:${this.getEmojiId(emoji)}:`;
-            this._flyoutComponent?.close();
-            elements.chatInput.focus();
+          onSelected: (emoji: EmojiDto, keepOpen: boolean) => {
+            this.insertEmoji(emoji, elements.chatInput, keepOpen);
           }
         },
       };
@@ -158,6 +160,17 @@ export class ChatEmojisFeature extends TypoFeature {
     }
   }
 
+  private insertEmoji(emoji: EmojiDto, chatInput: HTMLInputElement, keepOpen = false) {
+    const text = chatInput.value;
+    chatInput.value = text.slice(0, text.lastIndexOf(":")) + `:${this.getEmojiId(emoji)}:`;
+    if (keepOpen) {
+      chatInput.value = chatInput.value + ":";
+    } else {
+      this._flyoutComponent?.close();
+    }
+    chatInput.focus();
+  }
+
   processAddedMessage(message: HTMLElement, emojis: EmojiDto[], isMyMessage: boolean) {
     const textNodes = Array.from(message.childNodes).filter(node => node.nodeType === Node.TEXT_NODE) as Text[];
     textNodes.forEach(node => {
@@ -181,7 +194,18 @@ export class ChatEmojisFeature extends TypoFeature {
             emojiElement.style.setProperty("--typo-emoji-name", emojiDto.name);
             emojiElement.classList.add("typo-emoji");
             newTextNode.appendChild(emojiElement);
-            this.createTooltip(emojiElement, { title: emoji, lock: "Y" });
+
+            /* build tooltip */
+            const tooltipWrap = document.createElement("div");
+            const tooltipImg = document.createElement("img");
+            tooltipImg.src = emojiDto.url;
+            tooltipImg.alt = emojiDto.name;
+            tooltipImg.className = "typo-emoji-tooltip-img";
+            const tooltipNewline = document.createElement("br");
+            const tooltipName = document.createElement("span");
+            tooltipName.textContent = `:${emojiDto.name}:`;
+            tooltipWrap.append(tooltipImg, tooltipNewline, tooltipName);
+            this.createTooltip(emojiElement, {title: "",  htmlTitle: tooltipWrap.innerHTML, lock: "Y"});
 
             if (isMyMessage) {
               this.updateScores(this.getEmojiId(emojiDto));

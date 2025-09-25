@@ -3,7 +3,7 @@
   import type { ChatEmojisFeature } from "@/app/features/chat-emojis/chat-emojis.feature";
 
   export let feature: ChatEmojisFeature;
-  export let onSelected: ((emoji: EmojiDto) => void) | undefined = undefined;
+  export let onSelected: ((emoji: EmojiDto, keepOpen: boolean) => void) | undefined = undefined;
 
   let hoverEmoji: EmojiDto | undefined;
   const emojiCandidates = feature.emojiCandidatesStore;
@@ -57,7 +57,7 @@
   {#each $emojiCandidates as emoji}
     <img class="emoji-picker-candidate" src={emoji.url} alt={emoji.name}
       on:mouseenter={() => hoverEmoji = emoji}
-      on:click={() => onSelected?.(emoji)}
+      on:click={(e) => onSelected?.(emoji, e.shiftKey)}
     >
   {/each}
 </div>

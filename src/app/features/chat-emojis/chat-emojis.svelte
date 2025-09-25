@@ -35,6 +35,15 @@
     left: 0;
     right: 0;
   }
+
+  :global(.typo-emoji-tooltip-img) {
+    display: inline-block;
+    width: auto;
+    max-width: 5em;
+    height: auto;
+    max-width: 5em;
+    image-rendering: auto;
+  }
 </style>
 
 <div class="typo-emojis-enabled"></div>
