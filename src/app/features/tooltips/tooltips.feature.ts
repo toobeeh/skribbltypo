@@ -137,6 +137,7 @@ export class TooltipsFeature extends TypoFeature {
       target: document.body,
       props: {
         title: tooltip.title,
+        htmlTitle: tooltip.htmlTitle,
         anchorX,
         anchorY,
         direction
