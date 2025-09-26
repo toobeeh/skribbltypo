@@ -1,5 +1,5 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
-import { BooleanExtensionSetting } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting, SettingWithInput } from "@/app/core/settings/setting";
 import { ChatService, type chatboxEventFilter } from "@/app/services/chat/chat.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import type { componentData } from "@/app/services/modal/modal.service";
@@ -20,6 +20,22 @@ import {
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import SuggestionPopover from "./suggestion-popover.svelte";
+import VipPlayerListSettingInput from "./vip-player-list-setting-input.svelte";
+
+export interface VIPPlayer {
+  name: string;
+  color: string;
+  [key: string]: string;
+};
+
+class VIPPlayerListSetting extends SettingWithInput<VIPPlayer[]> {
+  public override get componentData()  {
+    return {
+      componentType: VipPlayerListSettingInput,
+      props: { setting: this }
+    };
+  }
+}
 
 export class ChatMessageHighlightingFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
@@ -42,6 +58,12 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     new BooleanExtensionSetting("highlight_my_messages", false, this)
       .withName("Highlight My Messages")
       .withDescription("Highlights your own messages.")
+  );
+
+  private _vipPlayerList = this.useSetting(
+    new VIPPlayerListSetting("vip_player_list", [], this)
+      .withName("VIP players")
+      .withDescription("Highlight your friend's messages in chat with a unique color for each!"),
   );
 
   private chatSubscription?: Subscription;
@@ -181,7 +203,7 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
    this._registeredMessageElements$.next(this._registeredMessageElements$.value.add(element));
   }
 
-  private onMessage(
+  private async onMessage(
     element: HTMLElement, 
     senderName: string, 
     content: string, 
@@ -221,12 +243,22 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     if (newElement.parentElement !== null)
       this.addMouseoverListenerToMessage(newElement.parentElement);
 
-    this._enableSelfHighlighting.getValue().then((selfHl) => {
-      const lookFor = `@${myName} `;
-      // adding a space for pings at end of message
-      if (!(content + " ").includes(lookFor) && !(selfHl && myName === senderName)) return;
-      newElement.parentElement?.classList.add("guessed");
-    });
+    const vipPlayers = await this._vipPlayerList.getValue();
+    for (const player of vipPlayers) {
+      if (player.name !== senderName) continue;
+      const parent = newElement.parentElement;
+      if (!parent) return this._logger.warn("could not get parent element");
+      newElement.parentElement.style.backgroundColor = player.color + "88";
+      return;
+    }
+
+    const selfHl = await this._enableSelfHighlighting.getValue();
+    const lookFor = `@${myName} `;
+
+    const isPingingMe = (content + " ").includes(lookFor);
+    const shouldHighlightSelf = selfHl && myName === senderName;
+    this._logger.debug(vipPlayers);
+    if (isPingingMe || shouldHighlightSelf) newElement.parentElement?.classList.add("guessed");
   }
 
   private specialKeyboardHandling(evt: KeyboardEvent, candidates: string[]) {
