@@ -1,5 +1,5 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
-import { BooleanExtensionSetting, SettingWithInput } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting, ExtensionSetting } from "@/app/core/settings/setting";
 import { ChatService, type chatboxEventFilter } from "@/app/services/chat/chat.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import type { componentData } from "@/app/services/modal/modal.service";
@@ -20,22 +20,13 @@ import {
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import SuggestionPopover from "./suggestion-popover.svelte";
-import VipPlayerListSettingInput from "./vip-player-list-setting-input.svelte";
+import VipPlayersManage from "./vip-players-manage.svelte";
 
 export interface VIPPlayer {
   name: string;
   color: string;
   [key: string]: string;
 };
-
-class VIPPlayerListSetting extends SettingWithInput<VIPPlayer[]> {
-  public override get componentData()  {
-    return {
-      componentType: VipPlayerListSettingInput,
-      props: { setting: this }
-    };
-  }
-}
 
 export class ChatMessageHighlightingFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
@@ -60,12 +51,6 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
       .withDescription("Highlights your own messages.")
   );
 
-  private _vipPlayerList = this.useSetting(
-    new VIPPlayerListSetting("vip_player_list", [], this)
-      .withName("VIP players")
-      .withDescription("Highlight your friend's messages in chat with a unique color for each!"),
-  );
-
   private chatSubscription?: Subscription;
 
   private _flyoutComponent?: AreaFlyout = undefined;
@@ -76,6 +61,8 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
   private _kbSelectedPlayerIndex = 0;
   private _replyButton?: HTMLButtonElement;
 
+  private _vipPlayersSetting = new ExtensionSetting<VIPPlayer[]>("vip_players", []);
+
   private _keyupEvents?: DomEventSubscription<"keyup">;
   private _keydownEvents?: DomEventSubscription<"keydown">;
 
@@ -83,6 +70,10 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
   private _messagePointerleaveEvents?: DomEventSubscription<"pointerleave">;
   private _registeredMessageElements$ = new BehaviorSubject<Set<HTMLElement>>(new Set<HTMLElement>());
   private _currentHoveringMessage$ = new BehaviorSubject<HTMLElement | undefined>(undefined);
+
+  public override get featureManagementComponent(): componentData<VipPlayersManage> {
+    return { componentType: VipPlayersManage, props: { feature: this } };
+  }
 
   protected override async onActivate() {
     const elements = await this._elements.complete();
@@ -243,7 +234,7 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     if (newElement.parentElement !== null)
       this.addMouseoverListenerToMessage(newElement.parentElement);
 
-    const vipPlayers = await this._vipPlayerList.getValue();
+    const vipPlayers = await this._vipPlayersSetting.getValue();
     for (const player of vipPlayers) {
       if (player.name !== senderName) continue;
       const parent = newElement.parentElement;
@@ -385,5 +376,9 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
 
   public get kbSelectedPlayerIndexStore() {
     return fromObservable(this._kbSelectedPlayerIndex$, this._kbSelectedPlayerIndex$.value);
+  }
+
+  public get vipPlayersStore() {
+    return this._vipPlayersSetting.store;
   }
 }
