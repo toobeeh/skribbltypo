@@ -85,6 +85,7 @@ import { ImageFinishedService } from "@/app/services/image-finished/image-finish
 import { ImagePostService } from "@/app/features/toolbar-imagepost/image-post.service";
 import { LobbyInteractionsService } from "@/app/services/lobby-interactions/lobby-interactions.service";
 import { LobbyItemsService } from "@/app/services/lobby-items/lobby-items.service";
+import { LobbyStatsService } from "@/app/services/lobby-stats/lobby-stats.service";
 import { OnboardingService } from "@/app/services/onboarding/onboarding.service";
 import { PlayersService } from "@/app/services/players/players.service";
 import { SocketService } from "@/app/services/socket/socket.service";
@@ -158,7 +159,8 @@ new ExtensionContainer(interceptor)
     {type: ThemesService, scope: "singleton"},
     {type: LobbyConnectionService, scope: "singleton"},
     {type: ColorsService, scope: "singleton"},
-    {type: OnboardingService, scope: "singleton"}
+    {type: OnboardingService, scope: "singleton"},
+    {type: LobbyStatsService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
