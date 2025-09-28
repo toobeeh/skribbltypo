@@ -1,5 +1,5 @@
 import { LobbyInteractedEventListener } from "@/app/events/lobby-interacted.event";
-import { LobbyStateChangedEventListener } from "@/app/events/lobby-state-changed.event";
+import { LobbyStateChangedEvent, LobbyStateChangedEventListener } from "@/app/events/lobby-state-changed.event";
 import { WordGuessedEventListener } from "@/app/events/word-guessed.event";
 import type {
   drawGuessedPlayersStatEvent, drawLikesStatEvent, drawScoreStatEvent, drawTimeStatEvent,
@@ -8,12 +8,12 @@ import type {
   guessMessageGapStatEvent, guessRankStatEvent,
   guessScoreStatEvent,
   guessStreakStatEvent,
-  guessTimeStatEvent, lobbyStatEvent,
+  guessTimeStatEvent, lobbyStatEvent, standingScoreStatEvent,
 } from "@/app/services/lobby-stats/lobby-stats-events.interface";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import type { skribblLobby } from "@/util/skribbl/lobby";
 import { inject, injectable, postConstruct } from "inversify";
-import { count, filter, firstValueFrom, map, Subject, switchMap, take, takeUntil, tap, withLatestFrom } from "rxjs";
+import { count, filter, map, Subject, switchMap, take, takeUntil, withLatestFrom } from "rxjs";
 import { loggerFactory } from "../../core/logger/loggerFactory.interface";
 
 @injectable()
@@ -37,6 +37,7 @@ export class LobbyStatsService {
   private _drawGuessedPlayersStats$ = new Subject<drawGuessedPlayersStatEvent>();
   private _drawScoreStats$ = new Subject<drawScoreStatEvent>();
   private _drawLikesStats$ = new Subject<drawLikesStatEvent>();
+  private _turnStandingScoreStats$ = new Subject<standingScoreStatEvent>();
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
@@ -49,6 +50,13 @@ export class LobbyStatsService {
     this.processEvents();
   }
 
+  /**
+   * Create the common part of a lobby stat event
+   * @param lobby
+   * @param turnPlayerId
+   * @param targetPlayerId
+   * @private
+   */
   private createEventSignature(lobby: skribblLobby, turnPlayerId: number, targetPlayerId: number): lobbyStatEvent {
     if(lobby.id === null) throw new Error("lobbyId must be provided");
 
@@ -61,6 +69,13 @@ export class LobbyStatsService {
     };
   }
 
+  /**
+   * Process events from various sources to produce lobby stats events
+   * this processes events nevertheless if features subscribe or not
+   * this could be changed by exposing the observables directly
+   * would have the downside that multiple subscribers would cause multiple processing
+   * @private
+   */
   private processEvents() {
 
     /* reusable current lobby data for event signature building */
@@ -76,12 +91,16 @@ export class LobbyStatsService {
     const lobby$ = new Subject<{lobby: skribblLobby, turnPlayerId: number} | null>();
     lobbySource$.subscribe(lobby$);
 
-    /* drawing likes stats */
-    this._lobbyStateChangedEventListener.events$.pipe(
-
-      /* reset every time a turn starts */
+    /* reusable round started event */
+    const roundStartedSource$ = this._lobbyStateChangedEventListener.events$.pipe(
       map(event => event.data.drawingStarted),
-      filter(event => event !== undefined),
+      filter(event => event !== undefined)
+    );
+    const roundStarted$ = new Subject<NonNullable<LobbyStateChangedEvent["data"]["drawingStarted"]>>();
+    roundStartedSource$.subscribe(roundStarted$);
+
+    /* drawing likes stats */
+    roundStarted$.pipe(
 
       /* count likes */
       switchMap(() => this._lobbyInteractedEventListener.events$.pipe(
@@ -107,12 +126,8 @@ export class LobbyStatsService {
       ))
     ).subscribe(event => this._drawLikesStats$.next(event));
 
-    /* drawing guessed stats */
-    this._lobbyStateChangedEventListener.events$.pipe(
-
-      /* reset every time a turn starts */
-      map(event => event.data.drawingStarted),
-      filter(event => event !== undefined),
+    /* drawing likes stats */
+    roundStarted$.pipe(
 
       /* count guessed players */
       switchMap(() => this._wordGuessedEventListener.events$.pipe(
@@ -137,12 +152,10 @@ export class LobbyStatsService {
       ))
     ).subscribe(event => this._drawGuessedPlayersStats$.next(event));
 
-    /* drawing time stats */
-    this._lobbyStateChangedEventListener.events$.pipe(
+    /* drawing likes stats */
+    roundStarted$.pipe(
 
-      /* reset every time a turn starts */
-      map(event => event.data.drawingStarted),
-      filter(event => event !== undefined),
+      /* record draw start time */
       map(() => Date.now()),
 
       /* measure time until drawing revealed */
@@ -165,7 +178,112 @@ export class LobbyStatsService {
       }),
     ).subscribe(event => this._drawTimeStats$.next(event));
 
-    this._drawGuessedPlayersStats$.subscribe(event => console.log(event));
+    /* standing, drawing and guess score stats */
+    roundStarted$.pipe(
+
+      /* get score of next reveal */
+      switchMap(() => this._lobbyStateChangedEventListener.events$.pipe(
+        map(event => event.data.drawingRevealed),
+        filter(event => event !== undefined),
+        take(1),
+
+        /* map in lobby details */
+        withLatestFrom(lobby$),
+        filter(([, lobbyData]) => lobbyData !== null)
+      ))
+    ).subscribe(([reveal, lobby]) => {
+      if(lobby === null) throw new Error("lobby must be provided");
+
+      /* create events for each score result and emit to corresponding subject */
+      for(const score of reveal.scores) {
+        const event: guessScoreStatEvent | drawScoreStatEvent = {
+          ...this.createEventSignature(lobby.lobby, lobby.turnPlayerId, score.playerId),
+          score: score.rewarded
+        };
+
+        if(score.playerId === lobby.turnPlayerId) {
+          this._drawScoreStats$.next(event);
+        }
+        else {
+          this._guessScoreStats$.next(event);
+        }
+
+        /* emit event for total score */
+        const standingEvent: standingScoreStatEvent = {
+          ...this.createEventSignature(lobby.lobby, lobby.turnPlayerId, score.playerId),
+          score: score.score
+        };
+        this._turnStandingScoreStats$.next(standingEvent);
+      }
+    });
+
+    /* guess time stats */
+    roundStarted$.pipe(
+
+      /* record start time */
+      map(() => Date.now()),
+
+      switchMap(startTimestamp => this._wordGuessedEventListener.events$.pipe(
+
+        /* measure time until each guess */
+        map(event => ({
+          playerId: event.data.playerId,
+          guessTimeMs: Date.now() - startTimestamp
+        })),
+
+        /* until drawing ended */
+        takeUntil(this._lobbyStateChangedEventListener.events$.pipe(
+          filter(event => event.data.drawingRevealed !== undefined)
+        )),
+
+        /* create event data */
+        withLatestFrom(lobby$),
+        filter(([, lobbyData]) => lobbyData !== null),
+        map(([guessData, lobbyData]) => {
+          if(lobbyData === null) throw new Error("lobbyData must be provided");
+          const event: guessTimeStatEvent = {
+            ...this.createEventSignature(lobbyData.lobby, lobbyData.turnPlayerId, guessData.playerId),
+            guessTimeMs: guessData.guessTimeMs
+          };
+          return event;
+        }),
+      ))
+    ).subscribe(event => this._guessTimeStats$.next(event));
+
+    /* guess rank stats */
+    this._lobbyStateChangedEventListener.events$.pipe(
+      map(event => event.data.drawingRevealed),
+      filter(event => event !== undefined),
+      take(1),
+
+      /* map in lobby details */
+      withLatestFrom(lobby$),
+      filter(([, lobbyData]) => lobbyData !== null)
+    ).subscribe(([reveal, lobby]) => {
+      if(lobby === null) throw new Error("lobby must be provided");
+
+      const players = reveal.scores
+        .filter(score => score.playerId !== lobby.turnPlayerId)
+        .sort((a, b) => b.rewarded - a.rewarded)
+        .map(score => score.playerId);
+
+      for(const score of reveal.scores) {
+        const index = players.indexOf(score.playerId);
+        if(index === -1) continue;
+
+        const eventSignature = this.createEventSignature(lobby.lobby, lobby.turnPlayerId, score.playerId);
+        const event: guessRankStatEvent = {
+          ...eventSignature,
+          rank: index + 1
+        };
+        this._guessRankStats$.next(event);
+      }
+    });
+
+    /* guess count stats */
+    
+
+    this._guessRankStats$.subscribe(event => console.log(event));
   }
 
 }

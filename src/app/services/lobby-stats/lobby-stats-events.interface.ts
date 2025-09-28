@@ -7,7 +7,6 @@ export interface lobbyStatEvent {
 }
 
 export interface guessTimeStatEvent extends lobbyStatEvent {
-  word: string;
   guessTimeMs: number;
 }
 
@@ -52,5 +51,9 @@ export interface drawScoreStatEvent extends lobbyStatEvent {
 
 export interface drawLikesStatEvent extends lobbyStatEvent {
   likes: number;
+}
+
+export interface standingScoreStatEvent extends lobbyStatEvent {
+  score: number;
 }
 
