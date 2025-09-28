@@ -16,7 +16,7 @@ import { InterpretableSilentSuccess } from "@/app/core/commands/results/interpre
 import { InterpretableSuccess } from "@/app/core/commands/results/interpretable-success";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { HotkeyAction } from "@/app/core/hotkeys/hotkey";
-import { TextExtensionSetting } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting, TextExtensionSetting } from "@/app/core/settings/setting";
 import type { componentData } from "@/app/services/modal/modal.service";
 import { ToastService } from "@/app/services/toast/toast.service";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
@@ -75,6 +75,12 @@ export class ChatCommandsFeature extends TypoFeature {
       .withDescription("Set a custom prefix for chat commands that will trigger the command prompt, additionally to ' / '")
   );
 
+  private readonly _muteResultsSetting = this.useSetting(
+    new BooleanExtensionSetting("mute_results", false, this)
+      .withName("Mute Command Results")
+      .withDescription("Don't show a toast message with the command result when a command has been executed")
+  );
+
   private readonly _echoCommand = this.useCommand(
     new ExtensionCommand("echo", this, "Echo", "Echo a text :)"),
   ).withParameters(params => params
@@ -131,10 +137,10 @@ export class ChatCommandsFeature extends TypoFeature {
      */
     this._submitSubscription = this._hotkeySubmitted$
       .pipe(
-        withLatestFrom(this._commandResults$, this._commandArgs$),
+        withLatestFrom(this._commandResults$, this._commandArgs$, this._muteResultsSetting.changes$),
         filter(([, , args]) => args.startsWith("/")),
       )
-      .subscribe(async ([, results]) => this.commandSubmitted(results));
+      .subscribe(async ([, results,,silent]) => this.commandSubmitted(results, silent));
   }
 
   protected override async onDestroy() {
@@ -193,7 +199,7 @@ export class ChatCommandsFeature extends TypoFeature {
    * Check interpretation results and run valid command
    * @param interpretationResults
    */
-  public async commandSubmitted(interpretationResults: CommandExecutionResult[]) {
+  public async commandSubmitted(interpretationResults: CommandExecutionResult[], silent: boolean) {
     this._logger.info("Commands submitted", interpretationResults);
 
     this._commandInput?.$destroy();
@@ -203,18 +209,18 @@ export class ChatCommandsFeature extends TypoFeature {
 
       /* match returned an action to be executed later */
       if(match.result instanceof InterpretableDeferResult){
-        const toast = await this._toastService.showLoadingToast(`Command: ${match.context.command.name}`);
+        const toast = silent ? undefined : await this._toastService.showLoadingToast(`Command: ${match.context.command.name}`);
         const result = await match.result.run();
 
-        if(!(result instanceof InterpretableSilentSuccess)) toast.resolve(result.message);
-        else toast.close();
+        if(!(result instanceof InterpretableSilentSuccess)) toast?.resolve(result.message);
+        else toast?.close();
       }
 
       /* match executed during interpretation resolution.
         should actually not be used for commands; would execute on every type event */
       else {
-        if(match.result.message) await this._toastService.showToast(`${match.result.message}`);
-        else if(!(match.result instanceof InterpretableSilentSuccess)) await this._toastService.showToast(`${match.context.command.name}`);
+        if(match.result.message && !silent) await this._toastService.showToast(`${match.result.message}`);
+        else if(!(match.result instanceof InterpretableSilentSuccess) && !silent) await this._toastService.showToast(`${match.context.command.name}`);
       }
     }
     else {

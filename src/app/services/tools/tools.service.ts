@@ -7,7 +7,7 @@ import { skribblTool, ToolChangedEventListener } from "@/app/events/tool-changed
 import { DrawingService } from "@/app/services/drawing/drawing.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import { ConstantDrawMod } from "@/app/services/tools/constant-draw-mod";
-import { CoordinateListener } from "@/app/services/tools/coordinateListener";
+import { CoordinateListener, type strokeCoordinates } from "@/app/services/tools/coordinateListener";
 import { TypoDrawMod, type drawModLine, type strokeCause } from "@/app/services/tools/draw-mod";
 import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
@@ -18,8 +18,13 @@ import { Color } from "@/util/color";
 import type { Type } from "@/util/types/type";
 import { inject, injectable, postConstruct } from "inversify";
 import {
-  BehaviorSubject, combineLatestWith, filter,
-  map, mergeWith, switchMap,
+  BehaviorSubject,
+  combineLatestWith,
+  filter,
+  map,
+  mergeWith,
+  Subject,
+  switchMap,
   withLatestFrom,
 } from "rxjs";
 
@@ -51,6 +56,7 @@ export class ToolsService {
   private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000").skribblCode, size: 1 });
   private readonly _lastPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
   private readonly _canvasCursorStyle = document.createElement("style");
+  private readonly _insertedStrokes$ = new Subject<strokeCoordinates>();
 
   constructor(@inject(loggerFactory) loggerFactory: loggerFactory) {
     this._logger = loggerFactory(this);
@@ -105,8 +111,7 @@ export class ToolsService {
       combineLatestWith(this._activeMods$, this._activeBrushStyle$),
       map(([tool, mods, style]) => {
         const typoMods = tool instanceof TypoDrawTool ? [tool, ...mods] : mods;
-        const typoTool = tool instanceof TypoDrawTool ? tool : undefined;
-        return [style, typoTool, typoMods] as const;
+        return [style, tool, typoMods] as const;
       })
     );
 
@@ -124,6 +129,7 @@ export class ToolsService {
 
     /* listen for strokes and create typo tool commands */
     coordinateListener.strokes$.pipe(
+      mergeWith(this._insertedStrokes$),
       withLatestFrom(drawingMeta$)
     ).subscribe(([stroke, [style, tool, mods]]) => {
       this.processDrawCoordinates(stroke.from, stroke.to, stroke.cause, tool, mods, style, stroke.stroke);
@@ -136,13 +142,15 @@ export class ToolsService {
     this._lobbyService.lobby$.pipe(
       map(lobby => lobby?.meId === lobby?.drawerId),
       combineLatestWith(this._activeTool$, this._activeMods$),
-      map(([isDrawer, tool, mods]) => isDrawer && (tool instanceof TypoDrawTool || tool === skribblTool.brush && mods.length > 0)),
+      map(([isDrawer, tool, mods]) =>
+        isDrawer &&
+        (tool instanceof TypoDrawTool || (tool === skribblTool.brush || tool == skribblTool.fill) && mods.length > 0)),
     ).subscribe((enabled) => {
       coordinateListener.enabled = enabled;
     });
   }
 
-  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, cause: strokeCause, tool: TypoDrawTool | undefined, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
+  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, cause: strokeCause, tool: TypoDrawTool | skribblTool, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
     this._logger.debug("Activating tool and applying mods", start, end);
 
     /* generate a shared id for every line created from the origin line */
@@ -182,7 +190,7 @@ export class ToolsService {
 
     /* create draw commands from tool based on processed lines and style */
     const commands: number[][] = [];
-    if(tool !== undefined) {
+    if(tool instanceof TypoDrawTool) {
       for(let line of lines) {
 
         /* make sure line is safe - decimal places should not be submitted to skribbl */
@@ -200,7 +208,7 @@ export class ToolsService {
     }
 
     /* create default draw commands as lines */
-    else {
+    else if(tool === skribblTool.brush) {
       for(const line of lines) {
         const lineCommand = this._drawingService.createLineCommand(
           [...line.from, ...line.to],
@@ -209,6 +217,21 @@ export class ToolsService {
           false
         );
         if(lineCommand !== undefined) commands.push(lineCommand);
+      }
+    }
+
+    /* create draw commands as point from cursor-up */
+    else if(tool === skribblTool.fill) {
+
+      /* only reacts once per stroke */
+      if(cause === "down") {
+        for(const line of lines) {
+          const pointCommand = this._drawingService.createFillCommand(
+            [...line.from],
+            line.styleOverride?.color ?? modStyle.color
+          );
+          commands.push(pointCommand);
+        }
       }
     }
 
@@ -293,5 +316,9 @@ export class ToolsService {
 
   public resolveModOrTool<TMod>(tool: Type<TMod>){
     return this._extensionContainer.resolveService(tool);
+  }
+
+  public insertStroke(stroke: strokeCoordinates) {
+    this._insertedStrokes$.next(stroke);
   }
 }

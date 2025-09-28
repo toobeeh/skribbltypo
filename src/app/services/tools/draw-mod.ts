@@ -23,11 +23,12 @@ export abstract class TypoDrawMod {
   /**
    * Indicator if this mod requires the skribbl sampling throttle to be disabled
    * Needs to be set true if the mod produces many draw commands in a short time
+   * TODO remove? seems unused
    */
   public readonly disableSkribblSamplingRate = false;
 
   /**
-   * Process a draw input line with style;
+   * Process a draw input line with style, coming from tools like brush;
    * output the same, modified or new lines along with processed style
    * @param line
    * @param pressure
@@ -45,7 +46,7 @@ export abstract class TypoDrawMod {
     strokeCause: strokeCause
   ): drawModEffect | Promise<drawModEffect>;
 
-  protected noEffect(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle): drawModEffect {
+  protected noLineEffect(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle): drawModEffect {
     return {lines: [line], style: brushStyle};
   }
 }
