@@ -1,4 +1,6 @@
 <script lang="ts">
+  import ColorPickerButton from "@/lib/color-picker/color-picker-button.svelte";
+  import { Color } from "@/util/color";
   import type {
     ChatMessageHighlightingFeature,
     VIPPlayer,
@@ -8,19 +10,26 @@
   export let feature: ChatMessageHighlightingFeature;
 
   const vipListStore = feature.vipPlayersStore;
+  const colors: {[vip: string]: Color} = {};
+
+  $: {
+    $vipListStore.forEach(vip => {
+      colors[vip.name] = Color.fromHex(vip.color);
+    });
+  }
 
   let addInputTxt: string;
-  let addInputCol: string;
+  let addInputCol: Color = Color.fromHex("#26ab0f");
 
   const addPlayer = () =>
-    ($vipListStore = [...$vipListStore, { name: addInputTxt, color: addInputCol }]);
+    ($vipListStore = [...$vipListStore, { name: addInputTxt, color: addInputCol.hex }]);
 
   const removePlayer = (index: number) =>
     ($vipListStore = $vipListStore.filter((_, i) => i !== index));
 
-  const updateColor = (index: number, event: Event) => {
+  const updateColor = (index: number, color: Color) => {
     $vipListStore = $vipListStore.map((v, i) =>
-      i !== index ? v : { ...v, color: (event.target as HTMLInputElement).value },
+      i !== index ? v : { ...v, color: color.hex },
     );
   };
 </script>
@@ -36,7 +45,8 @@
         <div class="viplist-person">
           <div>{vip.name}</div>
           <div>
-            <input type="color" value={vip.color} on:change={(e) => updateColor(index, e)} />
+            <!--<input type="color" value={vip.color} on:change={(e) => updateColor(index, e)} />-->
+            <ColorPickerButton bind:color={colors[vip.name]} colorChanged={color => updateColor(index, color)} />
           </div>
           <div>
             <FlatButton on:click={() => removePlayer(index)} content="Remove" color="orange" />
@@ -48,7 +58,8 @@
   <div class="viplist-add">
     <div>
       <input type="text" placeholder="Name..." bind:value={addInputTxt} />
-      <input type="color" bind:value={addInputCol} />
+      <!--<input type="color" bind:value={addInputCol} />-->
+      <ColorPickerButton bind:color={addInputCol} />
     </div>
     <FlatButton content="Add" on:click={() => addPlayer()} color="blue" />
   </div>
