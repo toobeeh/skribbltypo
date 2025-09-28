@@ -63,6 +63,7 @@ import { PanelCabinFeature } from "@/app/features/panel-cabin/panel-cabin.featur
 import { PanelChangelogFeature } from "@/app/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/app/features/panel-filters/panel-filters.feature";
 import { PanelLobbiesFeature } from "@/app/features/panel-lobbies/panel-lobbies.feature";
+import { ChatMessageHighlightingFeature } from "@/app/features/chat-message-highlighting/chat-message-highlighting.feature";
 import { PlayerAwardsFeature } from "@/app/features/player-awards/player-awards-feature";
 import { PlayerIdsFeature } from "@/app/features/player-ids/player-ids.feature";
 import { PlayerScenesFeature } from "@/app/features/player-scenes/player-scenes.feature";
@@ -98,6 +99,9 @@ import { LandingPlayerSetup } from "@/app/setups/landing-player/landing-player.s
 import {
   PrioritizedCanvasEventsSetup
 } from "@/app/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
+import {
+  PrioritizedChatboxEventsSetup
+} from "@/app/setups/prioritized-chatbox-events/prioritized-chatbox-events.setup";
 import { SkribblEmitRelaySetup } from "@/app/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { SkribblInitializedSetup } from "@/app/setups/skribbl-initialized/skribbl-initialized.setup";
 import { ToastSetup } from "@/app/setups/toast/toast.setup";
@@ -171,7 +175,8 @@ new ExtensionContainer(interceptor)
     PrioritizedCanvasEventsSetup,
     CssColorVarSelectorsSetup,
     LandingPlayerSetup,
-    CustomizerActionsSetup
+    CustomizerActionsSetup,
+    PrioritizedChatboxEventsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
@@ -246,7 +251,8 @@ new ExtensionContainer(interceptor)
     ControlsProfilesFeature,
     ChatAvatarsFeature,
     DrawingSizeHotkeysFeature,
-    ChatPingFeature
+    ChatPingFeature,
+    ChatMessageHighlightingFeature,
   );
 
 /* indicate for interceptor that content script has loaded */

@@ -1,8 +1,12 @@
+import type { TypoFeature } from "@/app/core/feature/feature";
 import { loggerFactory } from "@/app/core/logger/loggerFactory.interface";
 import { MessageReceivedEventListener } from "@/app/events/message-received.event";
 import { PlayersService } from "@/app/services/players/players.service";
 import type { SkribblLobbyPlayer } from "@/app/services/players/skribblLobbyPlayer";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
+import {
+  PrioritizedChatboxEventsSetup
+} from "@/app/setups/prioritized-chatbox-events/prioritized-chatbox-events.setup";
 import { SkribblMessageRelaySetup } from "@/app/setups/skribbl-message-relay/skribbl-message-relay.setup";
 import { inject, injectable, postConstruct } from "inversify";
 import { filter, map, mergeWith, Subject, withLatestFrom } from "rxjs";
@@ -21,10 +25,13 @@ export interface pendingElement {
   contentElement: HTMLElement;
 }
 
+export type chatboxEventFilter = "preventDefault" | "stopPropagation" | "both" | undefined;
+
 @injectable()
 export class ChatService {
 
   @inject(ElementsSetup) private _elementsSetup!: ElementsSetup;
+  @inject(PrioritizedChatboxEventsSetup) private _chatboxEventsSetup!: PrioritizedChatboxEventsSetup;
   @inject(PlayersService) private _lobbyPlayersService!: PlayersService;
   @inject(MessageReceivedEventListener) private _messageReceivedEventListener!: MessageReceivedEventListener;
   @inject(SkribblMessageRelaySetup) private _messageRelaySetup!: SkribblMessageRelaySetup;
@@ -34,6 +41,9 @@ export class ChatService {
   private _elementDiscovered$ = new Subject<pendingElement>();
   private _messageDiscovered$ = new Subject<pendingMessage>();
   private _playerMessageReceived$ = new Subject<pendingMessage & pendingElement>();
+
+  private _lockedChatboxFeature: TypoFeature | null = null;
+  private _cancelChatboxEventsFilter: ((e: KeyboardEvent) => chatboxEventFilter) | null = null;
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory
@@ -45,6 +55,22 @@ export class ChatService {
   private postConstruct() {
     this._logger.debug("Initializing chat service");
     this.setupMessageObserver();
+    this.setupChatboxCancelEventFilter();
+  }
+
+  private async setupChatboxCancelEventFilter() {
+    const events = await this._chatboxEventsSetup.complete();
+
+    const filter = (e: KeyboardEvent) => {
+      if(this._cancelChatboxEventsFilter === null) return;
+      const filter = this._cancelChatboxEventsFilter(e);
+      if(filter === "preventDefault" || filter === "both") e.preventDefault();
+      if(filter === "stopPropagation" || filter === "both") e.stopImmediatePropagation();
+    };
+
+    events.add("keyup", filter);
+    events.add("keydown", filter);
+    events.add("click", () => console.log("click event on chatbox"));
   }
 
   /**
@@ -172,5 +198,34 @@ export class ChatService {
 
     this._elementDiscovered$.next(chatMessage);
     return message;
+  }
+
+  public replaceChatboxContent(content: string, requestingFeature?: TypoFeature): boolean {
+    if(this._lockedChatboxFeature && this._lockedChatboxFeature !== requestingFeature){
+      this._logger.warn("Chatbox content replacement denied - chatbox locked by other feature", this._lockedChatboxFeature.name);
+      return false;
+    }
+
+    this._elementsSetup.complete().then(elements => elements.chatInput.value = content);
+    return true;
+  }
+
+  public requestChatboxLock(feature: TypoFeature, cancelEventFilter: null | ((e: KeyboardEvent) => chatboxEventFilter) = null): boolean {
+    if(this._lockedChatboxFeature && this._lockedChatboxFeature !== feature){
+      this._logger.warn("Chatbox lock request denied for feature - already locked by other feature", feature.name);
+      return false;
+    }
+    this._lockedChatboxFeature = feature;
+    this._cancelChatboxEventsFilter = cancelEventFilter;
+    return true;
+  }
+
+  public releaseChatboxLock(feature: TypoFeature){
+    if(this._lockedChatboxFeature !== feature){
+      this._logger.error("Chatbox lock release denied for feature - feature does not have lock", feature.name);
+      return;
+    }
+    this._lockedChatboxFeature = null;
+    this._cancelChatboxEventsFilter = null;
   }
 }

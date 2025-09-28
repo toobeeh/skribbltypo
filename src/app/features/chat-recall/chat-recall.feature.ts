@@ -1,5 +1,6 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { MessageSentEventListener } from "@/app/events/message-sent.event";
+import { ChatService } from "@/app/services/chat/chat.service";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
@@ -8,6 +9,7 @@ export class ChatRecallFeature extends TypoFeature {
 
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(MessageSentEventListener) private readonly _messageSent!: MessageSentEventListener;
+  @inject(ChatService) private readonly _chatService!: ChatService;
 
   public readonly name = "Chat Recall";
   public readonly description = "Remembers your last messages so you can quickly recall them with arrow up/down in the chat box";
@@ -27,16 +29,18 @@ export class ChatRecallFeature extends TypoFeature {
       /* if not in browse mode, start at last element if arrow down, else ignore*/
       if(this._historyIndex === undefined) {
         if(event.key === "ArrowUp"){
-          this._historyIndex = this._history.length - 1;
-          element.value = this._history[this._historyIndex] ?? "";
+          if(this._chatService.replaceChatboxContent(this._history[this._history.length - 1] ?? "")){
+            this._historyIndex = this._history.length - 1;
+          }
         }
       }
 
       /* browse earlier */
       else if(event.key === "ArrowDown"){
         if(this._historyIndex < this._history.length - 1){
-          this._historyIndex++;
-          element.value = this._history[this._historyIndex];
+          if(this._chatService.replaceChatboxContent(this._history[this._historyIndex + 1])){
+            this._historyIndex++;
+          }
         }
 
         /* reset if after earliest */
@@ -49,8 +53,9 @@ export class ChatRecallFeature extends TypoFeature {
       /* browse later */
       else if(event.key === "ArrowUp"){
         if(this._historyIndex > 0){
-          this._historyIndex--;
-          element.value = this._history[this._historyIndex];
+          if(this._chatService.replaceChatboxContent(this._history[this._historyIndex - 1])){
+            this._historyIndex--;
+          }
         }
       }
     }

@@ -166,6 +166,16 @@ To use events, the event listener of the desired event can be simply injected to
 @inject(LobbyLeftEventListener) private readonly lobbyLeft: LobbyLeftEventListener;
 ````
 
+#### Canvas & Chatbox events
+The canvas anc chatbox are the two main interaction interfaces with the game. To provide more fine-grained tuning of listeners and avoiding interferences between features, following API is implemented:
+- prioritized canvas events: 
+A setup that lets features add high-prioritized event handlers with execution order of pre/post and during draw processing
+- prioritized chatbox events: 
+A setup that lets features add high-prioritized event handlers
+- chat box locking: 
+A mechanism in the chat service. If multiple features modify the chatbox content, a feature may acquire a lock to prevent other features from replacing the content.  
+Features can also provide a filter lambda, which cancels default/propagation of the event at all - this should be handled with care so that not unlocking events are canceled.
+
 ### Commands
 Commands provide a way of execution actions of features from the chat input.  
 Typo implements its own command parsing mechanism.  
