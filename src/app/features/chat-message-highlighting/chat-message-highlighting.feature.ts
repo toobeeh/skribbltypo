@@ -37,7 +37,7 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
   public readonly description =
     "Mentions like in Discord and highlighting your and friends' messages.";
   public readonly tags = [FeatureTag.INTERFACE, FeatureTag.SOCIAL];
-  public readonly featureId = 53;
+  public readonly featureId = 54;
 
   private _enablePopover = this.useSetting(
     new BooleanExtensionSetting("ping_suggestions", true, this)
