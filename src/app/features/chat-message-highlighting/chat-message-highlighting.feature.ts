@@ -201,6 +201,9 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     myName: string, 
     players: string[],
   ) {
+    const eleParent = element.parentElement;
+    if (eleParent === null) return this._logger.warn("why doesn't the parent exist");
+
     const newElement = document.createElement("span");
     const textSplit = content.split("@");
     for (const [index, text] of textSplit.entries()) {
@@ -229,17 +232,14 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
       ele.append(document.createTextNode(text.slice(foundPlayer.length)));
       newElement.append(ele);
     }
-    element.parentElement?.append(newElement);
+    eleParent.append(newElement);
     element.remove();
-    if (newElement.parentElement !== null)
-      this.addMouseoverListenerToMessage(newElement.parentElement);
+    this.addMouseoverListenerToMessage(eleParent);
 
     const vipPlayers = await this._vipPlayersSetting.getValue();
     for (const player of vipPlayers) {
       if (player.name !== senderName) continue;
-      const parent = newElement.parentElement;
-      if (!parent) return this._logger.warn("could not get parent element");
-      newElement.parentElement.style.backgroundColor = player.color + "88";
+      eleParent.style.backgroundColor = player.color + "88";
       return;
     }
 
@@ -249,7 +249,7 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const isPingingMe = (content + " ").includes(lookFor);
     const shouldHighlightSelf = selfHl && myName === senderName;
     this._logger.debug(vipPlayers);
-    if (isPingingMe || shouldHighlightSelf) newElement.parentElement?.classList.add("guessed");
+    if (isPingingMe || shouldHighlightSelf) eleParent.classList.add("guessed");
   }
 
   private specialKeyboardHandling(evt: KeyboardEvent, candidates: string[]) {
