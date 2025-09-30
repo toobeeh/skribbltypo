@@ -16,7 +16,12 @@ export interface guessCountStatEvent extends lobbyStatEvent {
 
 export interface guessMessageGapStatEvent extends lobbyStatEvent {
   gapTimeMs: number;
-  message: string;
+
+  /**
+   * undefined if message guessed the word
+   */
+  message?: string;
+  hints: string;
 }
 
 export interface guessScoreStatEvent extends lobbyStatEvent {
@@ -25,8 +30,12 @@ export interface guessScoreStatEvent extends lobbyStatEvent {
 
 export interface guessAccuracyStatEvent extends lobbyStatEvent {
   accuracy: number;
-  message: string;
-  hint: string;
+
+  /**
+   * undefined if message guessed the word
+   */
+  message?: string;
+  hints: string;
 }
 
 export interface guessStreakStatEvent extends lobbyStatEvent {
@@ -51,6 +60,10 @@ export interface drawScoreStatEvent extends lobbyStatEvent {
 
 export interface drawLikesStatEvent extends lobbyStatEvent {
   likes: number;
+}
+
+export interface drawDislikesStatEvent extends lobbyStatEvent {
+  dislikes: number;
 }
 
 export interface standingScoreStatEvent extends lobbyStatEvent {

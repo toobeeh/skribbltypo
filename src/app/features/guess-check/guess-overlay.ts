@@ -83,3 +83,32 @@ export function guessMatchesHint(character: string, index: number, hints: string
 export function guessCorrectHint(character: string, index: number, hints: string): boolean {
     return hints[index] === character && hints[index] !== BLANK;
 }
+
+export function getGuessAccuracy(guess: string, hints: string, matchOnlyLength = false): number {
+
+  let correct = 0;
+  guess = guess.replaceAll(" ", "").replaceAll("-", "");
+  hints = hints.replaceAll(" ", "").replaceAll("-", "");
+
+  for(let i = 0; i < Math.max(guess.length, hints.length); i++) {
+    const guessChar = guess.charAt(i);
+    const hintChar = hints.charAt(i);
+
+    /* guess or hint is longer */
+    if(guessChar.length !== hintChar.length) continue;
+
+    if(matchOnlyLength) {
+      correct++;
+      continue;
+    }
+
+    const sanitizedGuessChar = DIACRITICS[guessChar.toLowerCase()] ?? guessChar.toLowerCase();
+    const sanitizedHintChar = DIACRITICS[hintChar.toLowerCase()] ?? hintChar.toLowerCase();
+
+    if(sanitizedGuessChar === sanitizedHintChar || hintChar === BLANK) {
+      correct++;
+    }
+  }
+
+  return correct / Math.max(guess.length, hints.length);
+}

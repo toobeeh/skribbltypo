@@ -1,19 +1,19 @@
 import type { TypoFeature } from "@/app/core/feature/feature";
 import { loggerFactory } from "@/app/core/logger/loggerFactory.interface";
 import { MessageReceivedEventListener } from "@/app/events/message-received.event";
-import { PlayersService } from "@/app/services/players/players.service";
-import type { SkribblLobbyPlayer } from "@/app/services/players/skribblLobbyPlayer";
+import { LobbyService } from "@/app/services/lobby/lobby.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
 import {
   PrioritizedChatboxEventsSetup
 } from "@/app/setups/prioritized-chatbox-events/prioritized-chatbox-events.setup";
 import { SkribblMessageRelaySetup } from "@/app/setups/skribbl-message-relay/skribbl-message-relay.setup";
+import type { skribblPlayer } from "@/util/skribbl/lobby";
 import { inject, injectable, postConstruct } from "inversify";
 import { filter, map, mergeWith, Subject, withLatestFrom } from "rxjs";
 import MessageComponent from "./message.svelte";
 
 export interface pendingMessage {
-  player: SkribblLobbyPlayer;
+  player: skribblPlayer;
   content: string;
 }
 
@@ -32,9 +32,9 @@ export class ChatService {
 
   @inject(ElementsSetup) private _elementsSetup!: ElementsSetup;
   @inject(PrioritizedChatboxEventsSetup) private _chatboxEventsSetup!: PrioritizedChatboxEventsSetup;
-  @inject(PlayersService) private _lobbyPlayersService!: PlayersService;
   @inject(MessageReceivedEventListener) private _messageReceivedEventListener!: MessageReceivedEventListener;
   @inject(SkribblMessageRelaySetup) private _messageRelaySetup!: SkribblMessageRelaySetup;
+  @inject(LobbyService) private lobbyService!: LobbyService;
 
   private readonly _logger;
 
@@ -103,9 +103,14 @@ export class ChatService {
 
     /* listen for new received messages and match with lobby player */
     this._messageReceivedEventListener.events$.pipe(
-      withLatestFrom(this._lobbyPlayersService.lobbyPlayers$),
-      map(([event, players]) => {
-        const player = players.find(p => p.lobbyPlayerId === event.data.senderId);
+      withLatestFrom(this.lobbyService.lobby$),
+      map(([event, lobby]) => {
+        if(lobby === null) {
+          this._logger.warn("Message received but no lobby present", event.data);
+          return;
+        }
+
+        const player = lobby.players.find(p => p.id === event.data.senderId);
 
         if (!player) {
           this._logger.warn("Player not found for message", event.data);
