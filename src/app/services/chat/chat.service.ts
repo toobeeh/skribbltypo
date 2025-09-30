@@ -70,7 +70,6 @@ export class ChatService {
 
     events.add("keyup", filter);
     events.add("keydown", filter);
-    events.add("click", () => console.log("click event on chatbox"));
   }
 
   /**
