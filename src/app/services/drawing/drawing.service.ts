@@ -44,7 +44,7 @@ export class DrawingService {
   private _currentImageState$ = new BehaviorSubject<imageStateUpdate | null>(null);
   private _currentCommands$ = new BehaviorSubject<number[][]>([]);
   private _drawingState$ = new BehaviorSubject<"drawing" | "idle">("idle");
-  private _lockManualClear = new Subject<boolean>();
+  private _lockManualClear = new BehaviorSubject<boolean>(false);
 
   private _pasteInProgress$ = new BehaviorSubject<boolean>(false);
   private _abortCommands$ = new BehaviorSubject<number>(Number.MAX_VALUE);
@@ -416,5 +416,9 @@ export class DrawingService {
 
   public lockManualClear(state: boolean) {
     this._lockManualClear.next(state);
+  }
+
+  public get manualClearLocked$() {
+    return this._lockManualClear.asObservable();
   }
 }
