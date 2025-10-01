@@ -301,12 +301,15 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const input = (await this._elements.complete()).chatInput;
     const value = input.value.toLowerCase();
 
-    if (value.indexOf("@") == -1) return this.hideAutocomplete();
-    const split = value.split("@");
-    if (split.length === 1) this.hideAutocomplete();
+    if (input.selectionStart !== input.selectionEnd) return this.hideAutocomplete();
 
-    const toComplete = split.at(-1);
-    if (toComplete === undefined) return this.hideAutocomplete();
+    const userSelection = input.selectionStart;
+    if (!userSelection) return this.hideAutocomplete();
+
+    const startIndex = value.lastIndexOf("@", userSelection) + 1;
+    if (startIndex > userSelection) return this.hideAutocomplete();
+
+    const toComplete = value.slice(startIndex, userSelection);
 
     const matches = players.filter(
       (person) => person.toLowerCase().startsWith(toComplete) && person != toComplete,
