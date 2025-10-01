@@ -301,22 +301,17 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const input = (await this._elements.complete()).chatInput;
     const value = input.value.toLowerCase();
 
-    if (value.indexOf("@") == -1) return;
-    const toComplete = value.split("@").at(-1);
-    if (toComplete === undefined) {
-      this._flyoutComponent?.close();
-      this._flyoutComponent = undefined;
-      return;
-    }
+    if (value.indexOf("@") == -1) return this.hideAutocomplete();
+    const split = value.split("@");
+    if (split.length === 1) this.hideAutocomplete();
+
+    const toComplete = split.at(-1);
+    if (toComplete === undefined) return this.hideAutocomplete();
 
     const matches = players.filter(
       (person) => person.toLowerCase().startsWith(toComplete) && person != toComplete,
     );
-    if (matches.length == 0) {
-      this._flyoutComponent?.close();
-      this._flyoutComponent = undefined;
-      return;
-    }
+    if (matches.length == 0) return this.hideAutocomplete();
 
     this._logger.debug("matches:", matches);
 
@@ -326,6 +321,11 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
 
   private filterChatboxEvents(event: KeyboardEvent): chatboxEventFilter {
     if(event.key === "Tab" || event.key === "Enter" || event.key === "ArrowUp" || event.key === "ArrowDown") return "preventDefault";
+  }
+
+  private hideAutocomplete() {
+    this._flyoutComponent?.close();
+    this._flyoutComponent = undefined;
   }
 
   private async showAutocomplete() {
