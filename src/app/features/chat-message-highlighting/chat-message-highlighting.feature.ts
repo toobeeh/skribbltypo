@@ -51,6 +51,12 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
       .withDescription("Highlights your own messages.")
   );
 
+  private _enableReplyButton = this.useSetting(
+    new BooleanExtensionSetting("enable_reply_button", true, this)
+      .withName("Reply Button")
+      .withDescription("Add a reply button to ping people from their messages.")
+  );
+
   private chatSubscription?: Subscription;
 
   private _flyoutComponent?: AreaFlyout = undefined;
@@ -117,7 +123,9 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
 
     this._messagePointeroverEvents.events$.pipe(
       combineLatestWith(this._registeredMessageElements$)
-    ).subscribe(([event, registeredElements]) => {
+    ).subscribe(async ([event, registeredElements]) => {
+      if (!(await this._enableReplyButton.getValue())) return;
+
       const hovered = event.target;
       //if(hovered === null) this._currentHoveringMessage$.next(undefined);
 
