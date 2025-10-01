@@ -171,10 +171,15 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const input = (await this._elements.complete()).chatInput;
 
     const button = createElement(`
-      <button style="position:absolute; right:0; bottom:0;">
+      <button type="button">
         <img src="/img/undo.gif" width="25" height="25" />
       </button>
     `) as HTMLButtonElement;
+
+    button.style.position = "absolute";
+    button.style.right = "0";
+    button.style.bottom = "0";
+    button.style.backgroundColor = "transparent";
 
     this._replyButton = button;
     this._replyButton.onclick = () => {
