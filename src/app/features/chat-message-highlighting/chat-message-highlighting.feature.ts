@@ -28,6 +28,19 @@ export interface VIPPlayer {
   [key: string]: string;
 };
 
+const replaceMultiple = (element: Node, children: Node[]) => {
+  const parent = element.parentNode;
+  if (parent === null) throw new Error("trying to replace element with no parent.");
+  const lastChild = children.pop();
+  if (lastChild === undefined) throw new Error("provide at least one child");
+  parent.replaceChild(lastChild, element);
+  let prev = lastChild;
+  for (const newChild of children.toReversed()) {
+    parent.insertBefore(newChild, prev);
+    prev = newChild;
+  }
+};
+
 export class ChatMessageHighlightingFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(LobbyService) private readonly _lobbySvc!: LobbyService;
@@ -204,36 +217,39 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const eleParent = element.parentElement;
     if (eleParent === null) return this._logger.warn("why doesn't the parent exist");
 
-    const newElement = document.createElement("span");
-    const textSplit = content.split("@");
-    for (const [index, text] of textSplit.entries()) {
-      const ele = document.createElement("span");
-      if (index == 0) {
-        ele.innerText = text;
-        newElement.append(ele);
-        continue;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    let currentNode;
+    while ((currentNode = walker.nextNode())) {
+      if (currentNode.parentElement?.classList.contains("typo-emoji")) continue;
+      const textSplit = currentNode.textContent?.split("@") || [];
+      if (textSplit.length <= 1) continue;
+      const elements: (Text | HTMLSpanElement)[] = [];
+      for (const [index, text] of textSplit.entries()) {
+        if (index === 0) {
+          elements.push(document.createTextNode(text));
+          continue;
+        }
+
+        let foundPlayer: string | null = null;
+        for (const player of players) {
+          if (!text.startsWith(player)) continue;
+          if (player.length > (foundPlayer?.length || -1)) foundPlayer = player;
+        }
+
+        if (!foundPlayer) {
+          elements.push(document.createTextNode(`@${text}`));
+          continue;
+        }
+
+        const bolden = document.createElement("b");
+        bolden.innerText = `@${foundPlayer}`;
+        elements.push(bolden);
+        elements.push(document.createTextNode(text.slice(foundPlayer.length)));
       }
 
-      let foundPlayer: string | null = null;
-      for (const player of players) {
-        if (!text.startsWith(player)) continue;
-        if (player.length > (foundPlayer?.length || -1)) foundPlayer = player;
-      }
-
-      if (!foundPlayer) {
-        ele.innerText = `@${text}`;
-        newElement.append(ele);
-        continue;
-      }
-
-      const bolden = document.createElement("b");
-      bolden.innerText = `@${foundPlayer}`;
-      ele.append(bolden);
-      ele.append(document.createTextNode(text.slice(foundPlayer.length)));
-      newElement.append(ele);
+      replaceMultiple(currentNode, elements);
     }
-    eleParent.append(newElement);
-    element.remove();
+
     this.addMouseoverListenerToMessage(eleParent);
 
     const vipPlayers = await this._vipPlayersSetting.getValue();
