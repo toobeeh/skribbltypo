@@ -28,6 +28,12 @@ export interface VIPPlayer {
   [key: string]: string;
 };
 
+const beginIntersect = (s1: string, s2: string) => {
+  const loopFor = Math.min(s1.length, s2.length);
+  for (let index = 0; index < loopFor; index++) if (s1[index] !== s2[index]) return index;
+  return loopFor;
+};
+
 export class ChatMessageHighlightingFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(LobbyService) private readonly _lobbySvc!: LobbyService;
@@ -362,11 +368,16 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const input = (await this._elements.complete()).chatInput;
 
     const val = input.value;
-    const atIndex = val.lastIndexOf("@");
+    const atIndex = val.lastIndexOf("@", input.selectionStart ?? 0);
     if (atIndex === -1) return;
-    const strip = val.slice(0, atIndex);
-    const newval = `${strip}@${name} `; // adding a space for pings at end of message
-    this._chatSvc.replaceChatboxContent(newval, this);
+    const insert = `@${name} `;
+    const start = val.slice(0, atIndex);
+    const ogEnd = val.slice(atIndex + 1);
+    const deleteFromEnd = beginIntersect(ogEnd, name);
+    const end = ogEnd.slice(deleteFromEnd);
+
+    this._chatSvc.replaceChatboxContent(start + insert + end, this);
+    this._chatSvc.moveChatboxCursor(atIndex + insert.length, this);
 
     this._flyoutComponent?.close();
     input.focus();
