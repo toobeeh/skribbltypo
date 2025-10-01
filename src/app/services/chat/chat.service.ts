@@ -214,6 +214,16 @@ export class ChatService {
     return true;
   }
 
+  public moveChatboxCursor(pos: number, requestingFeature?: TypoFeature): boolean {
+    if(this._lockedChatboxFeature && this._lockedChatboxFeature !== requestingFeature){
+      this._logger.warn("Chatbox cursor movement denied - chatbox locked by other feature", this._lockedChatboxFeature.name);
+      return false;
+    }
+
+    this._elementsSetup.complete().then(elements => elements.chatInput.setSelectionRange(pos, pos));
+    return true;
+  }
+
   public requestChatboxLock(feature: TypoFeature, cancelEventFilter: null | ((e: KeyboardEvent) => chatboxEventFilter) = null): boolean {
     if(this._lockedChatboxFeature && this._lockedChatboxFeature !== feature){
       this._logger.warn("Chatbox lock request denied for feature - already locked by other feature", feature.name);
