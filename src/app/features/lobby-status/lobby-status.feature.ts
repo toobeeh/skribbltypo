@@ -281,6 +281,11 @@ export class LobbyStatusFeature extends TypoFeature {
         return;
       }
 
+      if(result === "paused") {
+        this._logger.debug("Connection is paused, not connecting");
+        return;
+      }
+
       const { typoLobbyState, hub } = this._lobbyConnectionService.connection;
 
       // set default settings if owner and not a reconnect (existing claim undefined)

@@ -41,6 +41,12 @@ const replaceMultiple = (element: Node, children: Node[]) => {
   }
 };
 
+const beginIntersect = (s1: string, s2: string) => {
+  const loopFor = Math.min(s1.length, s2.length);
+  for (let index = 0; index < loopFor; index++) if (s1[index] !== s2[index]) return index;
+  return loopFor;
+};
+
 export class ChatMessageHighlightingFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(LobbyService) private readonly _lobbySvc!: LobbyService;
@@ -62,6 +68,12 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     new BooleanExtensionSetting("highlight_my_messages", false, this)
       .withName("Highlight My Messages")
       .withDescription("Highlights your own messages.")
+  );
+
+  private _enableReplyButton = this.useSetting(
+    new BooleanExtensionSetting("enable_reply_button", true, this)
+      .withName("Reply Button")
+      .withDescription("Add a reply button to ping people from their messages.")
   );
 
   private chatSubscription?: Subscription;
@@ -129,8 +141,11 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     this._messagePointerleaveEvents = new DomEventSubscription(elements.chatContent, "pointerleave");
 
     this._messagePointeroverEvents.events$.pipe(
-      combineLatestWith(this._registeredMessageElements$)
-    ).subscribe(([event, registeredElements]) => {
+      combineLatestWith(this._registeredMessageElements$),
+      withLatestFrom(this._enableReplyButton.changes$)
+    ).subscribe(([[event, registeredElements], replyBtnEnabled]) => {
+      if (!replyBtnEnabled) return;
+
       const hovered = event.target;
       //if(hovered === null) this._currentHoveringMessage$.next(undefined);
 
@@ -184,10 +199,15 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const input = (await this._elements.complete()).chatInput;
 
     const button = createElement(`
-      <button style="position:absolute; right:0; bottom:0;">
+      <button type="button">
         <img src="/img/undo.gif" width="25" height="25" />
       </button>
     `) as HTMLButtonElement;
+
+    button.style.position = "absolute";
+    button.style.right = "0";
+    button.style.bottom = "0";
+    button.style.backgroundColor = "transparent";
 
     this._replyButton = button;
     this._replyButton.onclick = () => {
@@ -303,22 +323,20 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const input = (await this._elements.complete()).chatInput;
     const value = input.value.toLowerCase();
 
-    if (value.indexOf("@") == -1) return;
-    const toComplete = value.split("@").at(-1);
-    if (toComplete === undefined) {
-      this._flyoutComponent?.close();
-      this._flyoutComponent = undefined;
-      return;
-    }
+    if (input.selectionStart !== input.selectionEnd) return this.hideAutocomplete();
+
+    const userSelection = input.selectionStart;
+    if (!userSelection) return this.hideAutocomplete();
+
+    const startIndex = value.lastIndexOf("@", userSelection) + 1;
+    if (startIndex > userSelection) return this.hideAutocomplete();
+
+    const toComplete = value.slice(startIndex, userSelection);
 
     const matches = players.filter(
       (person) => person.toLowerCase().startsWith(toComplete) && person != toComplete,
     );
-    if (matches.length == 0) {
-      this._flyoutComponent?.close();
-      this._flyoutComponent = undefined;
-      return;
-    }
+    if (matches.length == 0) return this.hideAutocomplete();
 
     this._logger.debug("matches:", matches);
 
@@ -328,6 +346,11 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
 
   private filterChatboxEvents(event: KeyboardEvent): chatboxEventFilter {
     if(event.key === "Tab" || event.key === "Enter" || event.key === "ArrowUp" || event.key === "ArrowDown") return "preventDefault";
+  }
+
+  private hideAutocomplete() {
+    this._flyoutComponent?.close();
+    this._flyoutComponent = undefined;
   }
 
   private async showAutocomplete() {
@@ -375,11 +398,16 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const input = (await this._elements.complete()).chatInput;
 
     const val = input.value;
-    const atIndex = val.lastIndexOf("@");
+    const atIndex = val.lastIndexOf("@", input.selectionStart ?? 0);
     if (atIndex === -1) return;
-    const strip = val.slice(0, atIndex);
-    const newval = `${strip}@${name} `; // adding a space for pings at end of message
-    this._chatSvc.replaceChatboxContent(newval, this);
+    const insert = `@${name} `;
+    const start = val.slice(0, atIndex);
+    const ogEnd = val.slice(atIndex + 1);
+    const deleteFromEnd = beginIntersect(ogEnd, name);
+    const end = ogEnd.slice(deleteFromEnd);
+
+    this._chatSvc.replaceChatboxContent(start + insert + end, this);
+    this._chatSvc.moveChatboxCursor(atIndex + insert.length, this);
 
     this._flyoutComponent?.close();
     input.focus();

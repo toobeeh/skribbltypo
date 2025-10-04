@@ -54,7 +54,7 @@ export class ChatEmojisFeature extends TypoFeature {
     this._subscription = this._chatService.playerMessageReceived$.pipe(
       withLatestFrom(this._lobbyService.lobby$),
     ).subscribe(([{ contentElement, player }, lobby]) => {
-      const isMyMessage = player.lobbyPlayerId === lobby?.meId;
+      const isMyMessage = player.id === lobby?.meId;
       this.processAddedMessage(contentElement, emojis, isMyMessage);
     });
 
