@@ -122,9 +122,10 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     this._messagePointerleaveEvents = new DomEventSubscription(elements.chatContent, "pointerleave");
 
     this._messagePointeroverEvents.events$.pipe(
-      combineLatestWith(this._registeredMessageElements$)
-    ).subscribe(async ([event, registeredElements]) => {
-      if (!(await this._enableReplyButton.getValue())) return;
+      combineLatestWith(this._registeredMessageElements$),
+      withLatestFrom(this._enableReplyButton.changes$)
+    ).subscribe(([[event, registeredElements], replyBtnEnabled]) => {
+      if (!replyBtnEnabled) return;
 
       const hovered = event.target;
       //if(hovered === null) this._currentHoveringMessage$.next(undefined);
