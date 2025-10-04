@@ -28,6 +28,19 @@ export interface VIPPlayer {
   [key: string]: string;
 };
 
+const replaceMultiple = (element: Node, children: Node[]) => {
+  const parent = element.parentNode;
+  if (parent === null) throw new Error("trying to replace element with no parent.");
+  const lastChild = children.pop();
+  if (lastChild === undefined) throw new Error("provide at least one child");
+  parent.replaceChild(lastChild, element);
+  let prev = lastChild;
+  for (const newChild of children.toReversed()) {
+    parent.insertBefore(newChild, prev);
+    prev = newChild;
+  }
+};
+
 const beginIntersect = (s1: string, s2: string) => {
   const loopFor = Math.min(s1.length, s2.length);
   for (let index = 0; index < loopFor; index++) if (s1[index] !== s2[index]) return index;
@@ -221,45 +234,48 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     myName: string, 
     players: string[],
   ) {
-    const newElement = document.createElement("span");
-    const textSplit = content.split("@");
-    for (const [index, text] of textSplit.entries()) {
-      const ele = document.createElement("span");
-      if (index == 0) {
-        ele.innerText = text;
-        newElement.append(ele);
-        continue;
+    const eleParent = element.parentElement;
+    if (eleParent === null) return this._logger.warn("why doesn't the parent exist");
+
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    let currentNode;
+    while ((currentNode = walker.nextNode())) {
+      if (currentNode.parentElement?.classList.contains("typo-emoji")) continue;
+      const textSplit = currentNode.textContent?.split("@") || [];
+      if (textSplit.length <= 1) continue;
+      const elements: (Text | HTMLSpanElement)[] = [];
+      for (const [index, text] of textSplit.entries()) {
+        if (index === 0) {
+          elements.push(document.createTextNode(text));
+          continue;
+        }
+
+        let foundPlayer: string | null = null;
+        for (const player of players) {
+          if (!text.startsWith(player)) continue;
+          if (player.length > (foundPlayer?.length || -1)) foundPlayer = player;
+        }
+
+        if (!foundPlayer) {
+          elements.push(document.createTextNode(`@${text}`));
+          continue;
+        }
+
+        const bolden = document.createElement("b");
+        bolden.innerText = `@${foundPlayer}`;
+        elements.push(bolden);
+        elements.push(document.createTextNode(text.slice(foundPlayer.length)));
       }
 
-      let foundPlayer: string | null = null;
-      for (const player of players) {
-        if (!text.startsWith(player)) continue;
-        if (player.length > (foundPlayer?.length || -1)) foundPlayer = player;
-      }
-
-      if (!foundPlayer) {
-        ele.innerText = `@${text}`;
-        newElement.append(ele);
-        continue;
-      }
-
-      const bolden = document.createElement("b");
-      bolden.innerText = `@${foundPlayer}`;
-      ele.append(bolden);
-      ele.append(document.createTextNode(text.slice(foundPlayer.length)));
-      newElement.append(ele);
+      replaceMultiple(currentNode, elements);
     }
-    element.parentElement?.append(newElement);
-    element.remove();
-    if (newElement.parentElement !== null)
-      this.addMouseoverListenerToMessage(newElement.parentElement);
+
+    this.addMouseoverListenerToMessage(eleParent);
 
     const vipPlayers = await this._vipPlayersSetting.getValue();
     for (const player of vipPlayers) {
       if (player.name !== senderName) continue;
-      const parent = newElement.parentElement;
-      if (!parent) return this._logger.warn("could not get parent element");
-      newElement.parentElement.style.backgroundColor = player.color + "88";
+      eleParent.style.backgroundColor = player.color + "88";
       return;
     }
 
@@ -269,7 +285,7 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
     const isPingingMe = (content + " ").includes(lookFor);
     const shouldHighlightSelf = selfHl && myName === senderName;
     this._logger.debug(vipPlayers);
-    if (isPingingMe || shouldHighlightSelf) newElement.parentElement?.classList.add("guessed");
+    if (isPingingMe || shouldHighlightSelf) eleParent.classList.add("guessed");
   }
 
   private specialKeyboardHandling(evt: KeyboardEvent, candidates: string[]) {
