@@ -14,7 +14,7 @@ import {
   BehaviorSubject,
   combineLatestWith,
   filter,
-  map, merge, mergeWith,
+  map, mergeWith,
   startWith,
   Subscription,
   withLatestFrom,
