@@ -1,5 +1,6 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { BooleanExtensionSetting, ExtensionSetting } from "@/app/core/settings/setting";
+import { LobbyJoinedEventListener } from "@/app/events/lobby-joined.event";
 import { ChatService, type chatboxEventFilter } from "@/app/services/chat/chat.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import type { componentData } from "@/app/services/modal/modal.service";
@@ -13,7 +14,7 @@ import {
   BehaviorSubject,
   combineLatestWith,
   filter,
-  map,
+  map, merge, mergeWith,
   startWith,
   Subscription,
   withLatestFrom,
@@ -51,6 +52,7 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(LobbyService) private readonly _lobbySvc!: LobbyService;
   @inject(ChatService) private readonly _chatSvc!: ChatService;
+  @inject(LobbyJoinedEventListener) private readonly _lobbyJoinedListener!: LobbyJoinedEventListener;
 
   public readonly name = "Chat Highlighting";
   public readonly description =
@@ -131,8 +133,9 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
 
     /* DomEventSubscription observable are completed in onDestroy, no unsubscription needed */
     this._keyupEvents.events$.pipe(
-      withLatestFrom(mentionData$.pipe(filter(data => data !== undefined)))
-    ).subscribe(([, data]) => this.onChatInput(data.players));
+      mergeWith(this._lobbyJoinedListener.events$),
+      withLatestFrom(mentionData$.pipe(map(data => data === undefined ? [] : data.players)))
+    ).subscribe(([, data]) => this.onChatInput(data));
     this._keydownEvents.events$.pipe(
       withLatestFrom(this._playerCandidates$)
     ).subscribe(([event, candidates]) => this.specialKeyboardHandling(event, candidates));
