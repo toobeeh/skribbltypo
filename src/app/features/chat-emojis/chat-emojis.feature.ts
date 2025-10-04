@@ -164,7 +164,7 @@ export class ChatEmojisFeature extends TypoFeature {
     const text = chatInput.value;
     chatInput.value = text.slice(0, text.lastIndexOf(":")) + `:${this.getEmojiId(emoji)}:`;
     if (keepOpen) {
-      chatInput.value = chatInput.value + ":";
+      chatInput.value = chatInput.value + text.slice(text.lastIndexOf(":")); /* keep current search query in picker */
     } else {
       this._flyoutComponent?.close();
     }
