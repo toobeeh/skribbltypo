@@ -54,7 +54,7 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
   @inject(ChatService) private readonly _chatSvc!: ChatService;
   @inject(LobbyJoinedEventListener) private readonly _lobbyJoinedListener!: LobbyJoinedEventListener;
 
-  public readonly name = "Chat Highlighting";
+  public readonly name = "Mentions & Highlighting";
   public readonly description =
     "Mentions like in Discord and highlighting your and friends' messages.";
   public readonly tags = [FeatureTag.INTERFACE, FeatureTag.SOCIAL];
@@ -330,6 +330,8 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
 
     const userSelection = input.selectionStart;
     if (!userSelection) return this.hideAutocomplete();
+
+    if(!value.includes("@")) return this.hideAutocomplete();
 
     const startIndex = value.lastIndexOf("@", userSelection) + 1;
     if (startIndex > userSelection) return this.hideAutocomplete();
