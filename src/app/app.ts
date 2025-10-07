@@ -56,6 +56,7 @@ import { GuessCheckFeature } from "@/app/features/guess-check/guess-check.featur
 import { HotkeysFeature } from "@/app/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/app/features/image-agent/image-agent.feature";
 import { LineToolFeature } from "@/app/features/line-tool/line-tool.feature";
+import { LobbyStatisticsFeature } from "@/app/features/lobby-statistics/lobby-statistics.feature";
 import { LobbyStatusFeature } from "@/app/features/lobby-status/lobby-status.feature";
 import { LobbyConnectionService } from "@/app/features/lobby-status/lobby-connection.service";
 import { LobbyTimeVisualizerFeature } from "@/app/features/lobby-time-visualizer/lobby-time-visualizer.feature";
@@ -257,6 +258,7 @@ new ExtensionContainer(interceptor)
     ChatPingFeature,
     DrawingClearLockFeature,
     ChatMessageHighlightingFeature,
+    LobbyStatisticsFeature,
   );
 
 /* indicate for interceptor that content script has loaded */

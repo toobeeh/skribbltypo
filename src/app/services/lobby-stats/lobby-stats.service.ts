@@ -58,6 +58,20 @@ export class LobbyStatsService {
   private _drawDislikesStats$ = new Subject<drawDislikesStatEvent>();
   private _turnStandingScoreStats$ = new Subject<standingScoreStatEvent>();
 
+  public get guessTimeStats$() { return this._guessTimeStats$.asObservable(); }
+  public get guessCountStats$() { return this._guessCountStats$.asObservable(); }
+  public get guessMessageGapStats$() { return this._guessMessageGapStats$.asObservable(); }
+  public get guessScoreStats$() { return this._guessScoreStats$.asObservable(); }
+  public get guessAccuracyStats$() { return this._guessAccuracyStats$.asObservable(); }
+  public get guessStreakStats$() { return this._guessStreakStats$.asObservable(); }
+  public get guessRankStats$() { return this._guessRankStats$.asObservable(); }
+  public get drawTimeStats$() { return this._drawTimeStats$.asObservable(); }
+  public get drawGuessedPlayersStats$() { return this._drawGuessedPlayersStats$.asObservable(); }
+  public get drawScoreStats$() { return this._drawScoreStats$.asObservable(); }
+  public get drawLikesStats$() { return this._drawLikesStats$.asObservable(); }
+  public get drawDislikesStats$() { return this._drawDislikesStats$.asObservable(); }
+  public get turnStandingScoreStats$() { return this._turnStandingScoreStats$.asObservable(); }
+
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory,
   ) {
