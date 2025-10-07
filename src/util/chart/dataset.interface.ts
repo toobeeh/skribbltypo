@@ -1,7 +1,13 @@
+export interface chartPoint {
+  x: number;
+  y: number;
+  label?: string;
+}
+
 export interface chartDataset {
   label: string;
   color: string;
-  data: {x: number, y: number, label?: string}[]
+  data: chartPoint[]
 }
 
 export interface chartDataProperties {
@@ -29,7 +35,7 @@ export interface chartLayout {
     y: number;
     width: number;
     height: number;
-  }
+  };
   barPadding: number;
   barMaxWidth: number;
   yGridGap: number;
