@@ -192,10 +192,11 @@ export class Chart {
       this._context.textBaseline = "middle";
       this._context.textAlign = "right";
 
-      for(let i = 0; i <= yLines; i++){
+      const decimals = (properties.maxY / yLines) < 10 ? 1 : 0;
+      for(let i = 0; i <= yLines; i++) {
         const yValue = i * yStep;
         const y = this._chartArea.y + this._chartArea.height - i * this._chartLayout.yGridGap;
-        this._context.fillText(yValue.toFixed(0) + (config.yUnit ?? ""), this._chartArea.x - 10, y);
+        this._context.fillText(yValue.toFixed(decimals) + (config.yUnit ?? ""), this._chartArea.x - 10, y);
       }
     }
 
@@ -248,7 +249,8 @@ export class Chart {
           this._context.textBaseline = "bottom";
           this._context.textAlign = "center";
           this._context.fillText(`${dataset.label}`, x + barWidth / 2, y - 30);
-          this._context.fillText(`${point.y}${config.yUnit ?? ""}`, x + barWidth / 2, y - 5);
+          const decimals = point.y < 10 ? 2 : point.y < 100 ? 1 : 0;
+          this._context.fillText(`${point.y.toFixed(decimals)}${config.yUnit ?? ""}`, x + barWidth / 2, y - 5);
         }
       });
     });
@@ -289,7 +291,8 @@ export class Chart {
           this._context.fillStyle = "#000";
           this._context.textBaseline = "bottom";
           this._context.textAlign = index === 0 ? "left" : "center";
-          this._context.fillText(`${dataset.label} (${point.y}${config.yUnit})`, x + 5, y - 5);
+          const decimals = point.y < 10 ? 2 : point.y < 100 ? 1 : 0;
+          this._context.fillText(`${dataset.label} (${point.y.toFixed(decimals)}${config.yUnit})`, x + 5, y - 5);
         }
       });
 

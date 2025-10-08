@@ -69,7 +69,7 @@ export const createMetricViews = () => Object.freeze({
   averageGuessAccuracy: new MetricView<guessAccuracyStatEvent>(
     "Average Guess Accuracy",
     "The average letter count accuracy of player guesses",
-    event => event.accuracy)
+    event => event.accuracy * 100)
     .withAggregation("average")
     .withOrdering("maxValue"),
 
