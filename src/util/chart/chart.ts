@@ -22,7 +22,7 @@ export class Chart {
     this._context = context;
 
     this._canvas.style.imageRendering = "auto";
-    this._canvas.style.width = "50%";
+    this._canvas.style.width = "100%";
 
     this.clear();
   }
@@ -72,7 +72,7 @@ export class Chart {
    * Clears the canvas.
    * @private
    */
-  private clear() {
+  public clear() {
     this._context.clearRect(0, 0, this._chartLayout.width, this._chartLayout.height);
     this._context.fillStyle = "#FFF";
     this._context.fillRect(0, 0, this._chartLayout.width, this._chartLayout.height);

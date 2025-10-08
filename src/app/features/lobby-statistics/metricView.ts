@@ -4,12 +4,13 @@ import type { chartDataset, chartPoint } from "@/util/chart/dataset.interface";
 import { avatarColors } from "@/util/skribbl/avatarColors";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 
-export type eventAggregation = "single" | "cumulative" | "average";
+export type eventAggregation = "single" | "cumulative" | "average" | "ranking";
 export type eventOrdering = "time" | "minValue" | "maxValue";
 
 export class MetricView<TEvent extends lobbyStatEvent> {
 
   private _events: TEvent[] = [];
+  private _archive = new Map<string, TEvent[]>();
   private _aggregation: eventAggregation = "single";
   private _ordering: eventOrdering = "time";
   private _metricUnit: string | undefined = undefined;
@@ -45,12 +46,18 @@ export class MetricView<TEvent extends lobbyStatEvent> {
     this._events.push(event);
   }
 
+  public archiveEvents(key: string) {
+    this._archive.set(key, this._events);
+    this._events = [];
+  }
+
   public clearEvents() {
     this._events = [];
   }
 
-  public drawChart(players: skribblPlayer[], chart: Chart) {
-    const datasets = this.getDatasetForPlayers(players);
+  public drawChart(players: skribblPlayer[], chart: Chart, archiveKey?: string) {
+    const events = archiveKey ? (this._archive.get(archiveKey) ?? []) : this._events;
+    const datasets = this.getDatasetForPlayers(players, events);
     if(datasets.length === 0) {
       throw new Error("No dataset found for players");
     }
@@ -63,15 +70,39 @@ export class MetricView<TEvent extends lobbyStatEvent> {
     });
   }
 
-  private getDatasetForPlayers(players: skribblPlayer[]): chartDataset[] {
-    const temporalLookup = this.buildTemporalLookup();
+  /**
+   * TODO actually improve usability of exported data
+   * @param players
+   * @param archiveKey
+   */
+  public generateCsv(players: skribblPlayer[], archiveKey?: string): string {
+    const events = archiveKey ? (this._archive.get(archiveKey) ?? []) : this._events;
+    const datasets = this.getDatasetForPlayers(players, events);
+    if(datasets.length === 0) {
+      throw new Error("No dataset found for players");
+    }
+
+    const header = ["Player", this._aggregation === "single" ? "Time" : this._aggregation === "cumulative" ? "Total" : "Average"];
+    const rows = datasets.map(dataset => {
+      return dataset.data.map(point => [
+        dataset.label,
+        point.y.toString()
+      ].join(",")).join("\n");
+    }).join("\n");
+
+    return [header.join(","), rows].join("\n");
+  }
+
+  private getDatasetForPlayers(players: skribblPlayer[], events: TEvent[]): chartDataset[] {
+    const temporalLookup = this.buildTemporalLookup(events);
 
     const datasets = players.map(player => {
-      const playerEvents = this._events.filter(e => e.playerId === player.id);
+      const playerEvents = events.filter(e => e.playerId === player.id);
       if(playerEvents.length === 0) return undefined;
 
       let dataPoints: chartPoint[] = [];
 
+      /* select the whole time series of a player dataset */
       if(this._aggregation === "single"){
         dataPoints = playerEvents.map(e => ({
           x: temporalLookup.get(this.buildTemporalKey(e.lobbyRound, e.turnPlayerId)) ?? 0,
@@ -79,6 +110,7 @@ export class MetricView<TEvent extends lobbyStatEvent> {
         }));
       }
 
+      /* calculate the sum of a players dataset */
       else if(this._aggregation === "cumulative"){
         const sum = playerEvents.map(e => this._valueSelector(e)).reduce((a, b) => a + b, 0);
         dataPoints = [{
@@ -87,12 +119,31 @@ export class MetricView<TEvent extends lobbyStatEvent> {
         }];
       }
 
+      /* calculate the average of a players dataset */
       else if(this._aggregation === "average"){
         const average = playerEvents.map(e => this._valueSelector(e)).reduce((a, b) => a + b, 0) / playerEvents.length;
         dataPoints = [{
           y: average,
           x: 0
         }];
+      }
+
+      /* select only the min/max values of a player's dataset */
+      else if(this._aggregation === "ranking"){
+        if(this._ordering === "minValue"){
+          const minEvent = playerEvents.reduce((prev, curr) => this._valueSelector(prev) < this._valueSelector(curr) ? prev : curr);
+          dataPoints = [{
+            y: this._valueSelector(minEvent),
+            x: 0
+          }];
+        }
+        else if(this._ordering === "maxValue"){
+          const maxEvent = playerEvents.reduce((prev, curr) => this._valueSelector(prev) > this._valueSelector(curr) ? prev : curr);
+          dataPoints = [{
+            y: this._valueSelector(maxEvent),
+            x: 0
+          }];
+        }
       }
 
       return {
@@ -104,30 +155,34 @@ export class MetricView<TEvent extends lobbyStatEvent> {
 
     const successfulDatasets = datasets.filter((d): d is chartDataset => d !== undefined && d.data.length > 0);
 
-    if(this._aggregation !== "single") {
-      if(this._ordering === "minValue"){
-        return successfulDatasets.sort((a, b) => {
-          const aMin = Math.min(...a.data.map(d => d.y));
-          const bMin = Math.min(...b.data.map(d => d.y));
-          return aMin - bMin;
-        });
-      }
+    /* if events are a time series but ordering is selected, only choose the min/max value */
+    if(this._aggregation === "single") {
+      return successfulDatasets;
+    }
 
-      else if(this._ordering === "maxValue"){
-        return successfulDatasets.sort((a, b) => {
-          const aMax = Math.max(...a.data.map(d => d.y));
-          const bMax = Math.max(...b.data.map(d => d.y));
-          return bMax - aMax;
-        });
-      }
+    /* sort datasets by ranking*/
+    if(this._ordering === "minValue"){
+      return successfulDatasets.sort((a, b) => {
+        const aMin = Math.min(...a.data.map(d => d.y));
+        const bMin = Math.min(...b.data.map(d => d.y));
+        return aMin - bMin;
+      });
+    }
+
+    else if(this._ordering === "maxValue"){
+      return successfulDatasets.sort((a, b) => {
+        const aMax = Math.max(...a.data.map(d => d.y));
+        const bMax = Math.max(...b.data.map(d => d.y));
+        return bMax - aMax;
+      });
     }
 
     return successfulDatasets;
   }
 
-  private buildTemporalLookup() {
+  private buildTemporalLookup(events: TEvent[]) {
     const allTurns = new Set<string>();
-    this._events.forEach(e => allTurns.add(this.buildTemporalKey(e.lobbyRound, e.turnPlayerId)));
+    events.forEach(e => allTurns.add(this.buildTemporalKey(e.lobbyRound, e.turnPlayerId)));
     const distinctTurns = Array
       .from(allTurns)
       .map(key => key.split("_"))
