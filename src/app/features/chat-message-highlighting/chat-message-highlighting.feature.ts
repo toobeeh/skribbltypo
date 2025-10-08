@@ -44,7 +44,11 @@ const replaceMultiple = (element: Node, children: Node[]) => {
 
 const beginIntersect = (s1: string, s2: string) => {
   const loopFor = Math.min(s1.length, s2.length);
-  for (let index = 0; index < loopFor; index++) if (s1[index] !== s2[index]) return index;
+  // this can lowercase because we've confirmed that it's autocompletable by
+  // the time the function is called
+  const lower1 = s1.toLowerCase();
+  const lower2 = s2.toLowerCase();
+  for (let index = 0; index < loopFor; index++) if (lower1[index] !== lower2[index]) return index;
   return loopFor;
 };
 
