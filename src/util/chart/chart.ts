@@ -40,20 +40,13 @@ export class Chart {
     this.drawTitle(config.title);
     this.drawDescription(config.description);
     this.drawGridlines(properties, config);
-    this.drawGraph(data, properties);
+
+    if(config.mode === "bar") this.drawBars(data, properties, config);
+    else if (config.mode === "line") this.drawLines(data, properties, config);
+
     this.drawAxis();
     this.drawAxisLabels(properties, config);
     this.drawLegend(data);
-  }
-
-  /**
-   * Determines the chart mode based on the dataset.
-   * If all datasets have only one data point, it's a bar chart, otherwise a line chart.
-   * @param dataset
-   * @private
-   */
-  private getChartMode(dataset: chartDataset[]) {
-    return dataset.every(d => d.data.length === 1) ? "bar" : "line";
   }
 
   private getChartDataProperties(data: chartDataset[]): chartDataProperties {
@@ -210,30 +203,17 @@ export class Chart {
   }
 
   /**
-   * Draws the graph based on the determined chart mode (bar or line).
-   * @param data
-   * @param properties
-   * @private
-   */
-  private drawGraph(data: chartDataset[], properties: chartDataProperties) {
-    const mode = this.getChartMode(data);
-    if(mode === "bar") this.drawBars(data, properties);
-    else if(mode === "line") this.drawLines(data, properties);
-
-    return;
-  }
-
-  /**
    * Draws bars for each dataset, ignoring x values and aligning bars evenly within the chart area.
    * Bars have a max width of 50 px and are spaced evenly within the chart area
    * @param data
    * @param properties
+   * @param config
    * @private
    */
-  private drawBars(data: chartDataset[], properties: chartDataProperties) {
+  private drawBars(data: chartDataset[], properties: chartDataProperties, config: chartConfig) {
 
     /* calculate bar width - spacing at sides and between bars, 50 px max width*/
-    const padding = 20;
+    const padding = this._chartLayout.barPadding;
     const totalBarSpace = this._chartArea.width - padding * 2;
     const barWidth = Math.min(50, totalBarSpace / data.length + (data.length - 1) * padding);
 
@@ -243,7 +223,9 @@ export class Chart {
       this._context.strokeStyle = dataset.color;
       this._context.lineWidth = 2;
 
-      dataset.data.forEach(point => {
+      // only consider first dataset entry for bar mode
+      if(dataset.data.length === 0) throw new Error("Dataset has no data points");
+      dataset.data.slice(0,1).forEach(point => {
         const x = this._chartArea.x + padding + datasetIndex * (barWidth + padding);
         const y = this.chartToCanvasY(point.y, properties);
         const height = this._chartArea.y + this._chartArea.height - y;
@@ -258,6 +240,16 @@ export class Chart {
           this._context.textAlign = "center";
           this._context.fillText(point.label, x + barWidth / 2, y - 5);
         }
+
+        // write dataset label and value above bar
+        else {
+          this._context.font = "15px Nunito, monospace";
+          this._context.fillStyle = "#000";
+          this._context.textBaseline = "bottom";
+          this._context.textAlign = "center";
+          this._context.fillText(`${dataset.label}`, x + barWidth / 2, y - 30);
+          this._context.fillText(`${point.y}${config.yUnit ?? ""}`, x + barWidth / 2, y - 5);
+        }
       });
     });
 
@@ -267,14 +259,16 @@ export class Chart {
    * Draws lines for each dataset, connecting points based on their x and y values.
    * @param data
    * @param properties
+   * @param config
    * @private
    */
-  private drawLines(data: chartDataset[], properties: chartDataProperties) {
+  private drawLines(data: chartDataset[], properties: chartDataProperties, config: chartConfig) {
     data.forEach(dataset => {
       this._context.strokeStyle = dataset.color;
       this._context.lineWidth = 3;
       this._context.beginPath();
 
+      // draw lines connecting all points in dataset
       dataset.data.forEach((point, index) => {
         const x = this.chartToCanvasX(point.x, properties);
         const y = this.chartToCanvasY(point.y, properties);
@@ -285,12 +279,33 @@ export class Chart {
           this._context.font = "15px Nunito, monospace";
           this._context.fillStyle = "#000";
           this._context.textBaseline = "bottom";
-          this._context.textAlign = "left";
+          this._context.textAlign = (index === 0 || index != dataset.data.length - 1) ? "left" : "center";
           this._context.fillText(point.label, x, y - 5);
+        }
+
+        /* write ending value label, if above 0 (avoid drawing over each other) */
+        else if(index === dataset.data.length - 1 && point.y > 0) {
+          this._context.font = "15px Nunito, monospace";
+          this._context.fillStyle = "#000";
+          this._context.textBaseline = "bottom";
+          this._context.textAlign = index === 0 ? "left" : "center";
+          this._context.fillText(`${dataset.label} (${point.y}${config.yUnit})`, x + 5, y - 5);
         }
       });
 
       this._context.stroke();
+
+      // draw points where each data point is
+      dataset.data.forEach(point => {
+        if(point.y === 0) return; // skip zero points
+
+        const x = this.chartToCanvasX(point.x, properties);
+        const y = this.chartToCanvasY(point.y, properties);
+        this._context.fillStyle = dataset.color;
+        this._context.beginPath();
+        this._context.arc(x, y, 4, 0, Math.PI * 2);
+        this._context.fill();
+      });
     });
   }
 
@@ -301,9 +316,9 @@ export class Chart {
    */
   private drawLegend(data: chartDataset[]) {
     /* draw circles with color and dataset name at bottom of canvas, in a row left to right */
-    for(let i = 0; i < data.length; i++){
-      const dataset = data[i];
-      const x = this._chartArea.x + i * 150;
+    let nextX = this._chartArea.x;
+    for(const dataset of data){
+      const x = nextX;
       const y = this._chartLayout.height - 50;
 
       this._context.fillStyle = dataset.color;
@@ -316,6 +331,9 @@ export class Chart {
       this._context.textBaseline = "middle";
       this._context.textAlign = "left";
       this._context.fillText(dataset.label, x + 20, y);
+
+      const textWidth = this._context.measureText(dataset.label).width;
+      nextX += 60 + textWidth;
     }
   }
 
@@ -326,6 +344,10 @@ export class Chart {
    * @private
    */
   private chartToCanvasX(x: number, properties: chartDataProperties) {
+
+    // if all x are 0, return point at axis
+    if(properties.maxX === 0) return this._chartArea.x;
+
     return this._chartArea.x + (x / properties.maxX) * this._chartArea.width;
   }
 

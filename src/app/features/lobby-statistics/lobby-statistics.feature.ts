@@ -101,9 +101,9 @@ export class LobbyStatisticsFeature extends TypoFeature {
         x: 200,
         y: 200,
         width: 1600,
-        height: 600
+        height: 700
       },
-      barPadding: 50,
+      barPadding: 30,
       barMaxWidth: 100,
       yGridGap: 50
     });

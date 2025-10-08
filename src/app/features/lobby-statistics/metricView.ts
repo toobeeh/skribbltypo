@@ -16,6 +16,10 @@ export class MetricView<TEvent extends lobbyStatEvent> {
   private _metricUnit: string | undefined = undefined;
   private _metricTemporalUnit: string | undefined = undefined;
 
+  private get datasetMode() {
+    return this._aggregation === "single" ? "line" : "bar";
+  }
+
   constructor(
     public readonly name: string,
     public readonly description: string,
@@ -66,7 +70,8 @@ export class MetricView<TEvent extends lobbyStatEvent> {
       title: this.name,
       description: this.description,
       xUnit: this._metricTemporalUnit,
-      yUnit: this._metricUnit
+      yUnit: this._metricUnit,
+      mode: this.datasetMode
     });
   }
 

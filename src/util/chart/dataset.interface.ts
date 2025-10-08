@@ -25,6 +25,7 @@ export interface chartConfig {
   xLabels?: {x: number, label: string}[];
   title: string;
   description: string;
+  mode: "bar" | "line";
 }
 
 export interface chartLayout {
