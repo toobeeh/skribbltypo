@@ -11,9 +11,10 @@ export class Chart {
   }
 
   constructor(
-    private readonly _chartLayout: chartLayout
+    private readonly _chartLayout: chartLayout,
+    _canvas?: HTMLCanvasElement
   ) {
-    this._canvas = document.createElement("canvas");
+    this._canvas = _canvas ?? document.createElement("canvas");
     this._canvas.width = this._chartLayout.width;
     this._canvas.height = this._chartLayout.height;
     this._chartArea = this._chartLayout.chartArea;

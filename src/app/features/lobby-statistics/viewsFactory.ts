@@ -1,6 +1,6 @@
 import { MetricView } from "@/app/features/lobby-statistics/metricView";
 import type {
-  drawDislikesStatEvent,
+  drawDislikesStatEvent, drawGuessedPlayersStatEvent,
   drawLikesStatEvent,
   drawScoreStatEvent,
   drawTimeStatEvent,
@@ -94,6 +94,13 @@ export const createMetricViews = () => Object.freeze({
     .withMetricUnit("s")
     .withAggregation("average")
     .withOrdering("minValue"),
+
+  averageGuessedPlayers: new MetricView<drawGuessedPlayersStatEvent>(
+    "Average Guessed Players",
+    "The average amount of players that guessed a player's drawing",
+    event => event.guessedPlayers)
+    .withAggregation("average")
+    .withOrdering("maxValue"),
 
   fastestDrawTime: new MetricView<drawTimeStatEvent>(
     "Fastest Draw Time",

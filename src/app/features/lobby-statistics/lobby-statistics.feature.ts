@@ -1,6 +1,7 @@
 import { ExtensionCommand } from "@/app/core/commands/command";
 import { StringOptionalCommandParameter } from "@/app/core/commands/params/string-optional-command-parameter";
 import { InterpretableError } from "@/app/core/commands/results/interpretable-error";
+import { InterpretableSilentSuccess } from "@/app/core/commands/results/interpretable-silent-success";
 import { InterpretableSuccess } from "@/app/core/commands/results/interpretable-success";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { ExtensionSetting } from "@/app/core/settings/setting";
@@ -14,9 +15,11 @@ import type {
 } from "@/app/services/lobby-stats/lobby-stats-events.interface";
 import { LobbyStatsService } from "@/app/services/lobby-stats/lobby-stats.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
+import { type componentData, ModalService } from "@/app/services/modal/modal.service";
 import { ToastService } from "@/app/services/toast/toast.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
 import { Chart } from "@/util/chart/chart";
+import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
 import {
   BehaviorSubject, combineLatestWith, debounceTime,
@@ -27,6 +30,7 @@ import {
   withLatestFrom,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
+import ChartsComponent from "./charts.svelte";
 
 export class LobbyStatisticsFeature extends TypoFeature {
 
@@ -37,6 +41,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
   @inject(RoundStartedEventListener) private readonly _roundStartedEventListener!: RoundStartedEventListener;
   @inject(LobbyStateChangedEventListener) private readonly _lobbyStateChangedEventListener!: LobbyStateChangedEventListener;
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
+  @inject(ModalService) private readonly _modalService!: ModalService;
 
   public readonly name = "Game Stats";
   public readonly description = "Collects and visualizes competitive game statistics of lobbies.";
@@ -73,6 +78,20 @@ export class LobbyStatisticsFeature extends TypoFeature {
     return new InterpretableSuccess(command, categories);
   });
 
+  private readonly _statViewCommand = this.useCommand(
+    new ExtensionCommand("statvw", this, "View stats in popup", "Opens a popup with detailed statistics"),
+  ).run(async command => {
+    const popupComponent: componentData<ChartsComponent> = {
+      componentType: ChartsComponent,
+      props: {
+        feature: this
+      }
+    };
+
+    this._modalService.showModal(popupComponent.componentType, popupComponent.props, "Lobby Statistics", "card");
+    return new InterpretableSilentSuccess(command);
+  });
+
   private readonly _statViewSetting = new ExtensionSetting<string | undefined>("stat_view", undefined, this);
 
   protected override async onActivate() {
@@ -90,6 +109,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
     this.subscribeMetric(this._lobbyStatsService.drawTimeStats$, this._metricViews.averageDrawTime);
     this.subscribeMetric(this._lobbyStatsService.drawTimeStats$, this._metricViews.fastestDrawTime);
     this.subscribeMetric(this._lobbyStatsService.drawScoreStats$, this._metricViews.averageDrawScore);
+    this.subscribeMetric(this._lobbyStatsService.drawGuessedPlayersStats$, this._metricViews.averageGuessedPlayers);
     this.subscribeMetric(this._lobbyStatsService.drawLikesStats$, this._metricViews.averageDrawLikes);
     this.subscribeMetric(this._lobbyStatsService.drawDislikesStats$, this._metricViews.mostDrawDislikes);
 
@@ -178,5 +198,34 @@ export class LobbyStatisticsFeature extends TypoFeature {
 
   private resetMetrics() {
     Object.values(this._metricViews).forEach((metricView) => metricView.clearEvents());
+  }
+
+  public createChart(canvas: HTMLCanvasElement){
+    const chart = new Chart({
+      width: 2000,
+      height: 1000,
+      chartArea: {
+        x: 200,
+        y: 200,
+        width: 1600,
+        height: 700
+      },
+      barPadding: 30,
+      barMaxWidth: 100,
+      yGridGap: 50
+    }, canvas);
+    return chart;
+  }
+
+  public getViews() {
+    return Object.values(this._metricViews);
+  }
+
+  public get lobbyStore() {
+    return fromObservable(this._lobbyService.lobby$, null);
+  }
+
+  public get archiveStore() {
+    return fromObservable(this._statArchive.asObservable(), new Map());
   }
 }

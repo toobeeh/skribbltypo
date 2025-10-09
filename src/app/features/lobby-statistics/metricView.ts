@@ -20,9 +20,17 @@ export class MetricView<TEvent extends lobbyStatEvent> {
     return this._aggregation === "single" ? "line" : "bar";
   }
 
+  public get name(){
+    return this._name;
+  }
+
+  public get description(){
+    return this._description;
+  }
+
   constructor(
-    public readonly name: string,
-    public readonly description: string,
+    public readonly _name: string,
+    public readonly _description: string,
     private readonly _valueSelector: (event: TEvent) => number
   ) {}
 
@@ -67,8 +75,8 @@ export class MetricView<TEvent extends lobbyStatEvent> {
     }
 
     chart.setDataset(datasets, {
-      title: this.name,
-      description: this.description,
+      title: this._name,
+      description: this._description,
       xUnit: this._metricTemporalUnit,
       yUnit: this._metricUnit,
       mode: this.datasetMode
