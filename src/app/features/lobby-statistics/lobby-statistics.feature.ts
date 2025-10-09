@@ -19,11 +19,12 @@ import { type componentData, ModalService } from "@/app/services/modal/modal.ser
 import { ToastService } from "@/app/services/toast/toast.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
 import { Chart } from "@/util/chart/chart";
+import type { skribblPlayer } from "@/util/skribbl/lobby";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
 import {
-  BehaviorSubject, combineLatestWith, debounceTime,
-  filter,
+  BehaviorSubject, combineLatestWith, debounceTime, distinctUntilChanged,
+  filter, map,
   mergeWith,
   type Observable,
   type Subscription,
@@ -31,6 +32,14 @@ import {
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import ChartsComponent from "./charts.svelte";
+
+interface archiveEntry {
+  key: string;
+  lobbyId: string;
+  date: string;
+  name: string;
+  players: skribblPlayer[];
+}
 
 export class LobbyStatisticsFeature extends TypoFeature {
 
@@ -52,11 +61,12 @@ export class LobbyStatisticsFeature extends TypoFeature {
   public readonly featureId = 55;
 
   private readonly _metricViews = createMetricViews();
+  private _statArchive$ = new BehaviorSubject<Map<string, archiveEntry>>(new Map());
+  private _seenLobbyPlayers$ = new BehaviorSubject<Map<string, Map<number, skribblPlayer>>>(new Map());
   private _statsSubscriptions: Subscription[] = [];
-  private _statArchive = new BehaviorSubject<Map<string, string>>(new Map());
 
   private readonly _switchStatCommand = this.useCommand(
-    new ExtensionCommand("stats", this, "Show game stats", "Show a stat screen above the lobby chat"),
+    new ExtensionCommand("stat chat", this, "Show game stats", "Show a stat screen above the lobby chat"),
   ).withParameters(params => params
     .addParam(new StringOptionalCommandParameter("Category Name", "The name of the category to show", category => ({ category })))
     .run(async (args, command) => {
@@ -71,7 +81,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
   );
 
   private readonly _statListCommand = this.useCommand(
-    new ExtensionCommand("statls", this, "List game stat categories", "Show a list of available categories for the stats command"),
+    new ExtensionCommand("stat ls", this, "List game stat categories", "Show a list of available categories for the stats command"),
   ).run(async command => {
     const categories = Object.entries(this._metricViews).map(([key, view]) => `- [${key}] ${view.name}: ${view.description}`).join("\n");
     if(categories.length === 0) return new InterpretableError(command, "No stat categories available.");
@@ -79,7 +89,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
   });
 
   private readonly _statViewCommand = this.useCommand(
-    new ExtensionCommand("statvw", this, "View stats in popup", "Opens a popup with detailed statistics"),
+    new ExtensionCommand("stat vw", this, "View stats in popup", "Opens a popup with detailed statistics"),
   ).run(async command => {
     const popupComponent: componentData<ChartsComponent> = {
       componentType: ChartsComponent,
@@ -170,25 +180,58 @@ export class LobbyStatisticsFeature extends TypoFeature {
     /* archive lobby metrics when round ended */
     const metricArchiveSub = this._lobbyStateChangedEventListener.events$.pipe(
       filter(event => event.data.gameEnded !== undefined),
-      withLatestFrom(this._lobbyService.lobby$, this._statArchive),
-    ).subscribe(([,lobby, archive]) => {
-      if(lobby === null) return;
+      withLatestFrom(this._lobbyService.lobby$, this._statArchive$, this._seenLobbyPlayers$),
+    ).subscribe(([,lobby, archive, seenPlayers]) => {
+      if(lobby === null || lobby.id === null) return;
 
-      const date = new Date().toISOString();
+      const date = new Date().toLocaleTimeString();
       const key = `${lobby.id}-${Date.now()}`;
       Object.values(this._metricViews).forEach((metricView) => metricView.archiveEvents(key));
-      archive.set(key, date);
-      this._statArchive.next(archive);
+
+      const winner = lobby.players.sort((a,b) => b.score - a.score)[0];
+      const entry: archiveEntry = {
+        key,
+        lobbyId: lobby.id,
+        date,
+        name: `${lobby.id}, ${date} - ${winner.name} ${winner.score}pts`,
+        players: Array.from(seenPlayers.get(lobby.id)?.entries().map(([,value]) => value) ?? [] as skribblPlayer[])
+      };
+      archive.set(key, entry);
+      this._statArchive$.next(archive);
     });
 
-    this._statsSubscriptions.push(metricResetSub, metricArchiveSub, chartUpdateSub);
+    const playersSub = this._lobbyService.lobby$.pipe(
+      filter(lobby => lobby !== null),
+      map(event => ({ players: event?.players ?? [], lobbyId: event.id ?? ""})),
+      distinctUntilChanged((curr, prev) =>
+        curr.players.map(p => p.id).join(",") === prev.players.map(p => p.id).join(",")
+      ),
+      withLatestFrom(this._seenLobbyPlayers$)
+    ).subscribe(([{ players, lobbyId }, seenPlayers]) => {
+      const lobbySeen = seenPlayers.get(lobbyId) ?? new Map();
+      let changed = false;
+
+      players.forEach(player => {
+        if(!lobbySeen.has(player.id)){
+          lobbySeen.set(player.id, player);
+          changed = true;
+        }
+      });
+
+      if(changed){
+        seenPlayers.set(lobbyId, lobbySeen);
+        this._seenLobbyPlayers$.next(seenPlayers);
+      }
+    });
+
+    this._statsSubscriptions.push(metricResetSub, metricArchiveSub, chartUpdateSub, playersSub);
   }
 
   protected override async onDestroy() {
     this._statsSubscriptions.forEach((subscriber) => subscriber.unsubscribe());
     this._statsSubscriptions = [];
 
-    this.resetMetrics();
+    this.resetMetrics(true);
   }
 
   private subscribeMetric<TEvent extends lobbyStatEvent>(source: Observable<TEvent>, metricView: MetricView<TEvent>){
@@ -196,8 +239,8 @@ export class LobbyStatisticsFeature extends TypoFeature {
     this._statsSubscriptions.push(sub);
   }
 
-  private resetMetrics() {
-    Object.values(this._metricViews).forEach((metricView) => metricView.clearEvents());
+  private resetMetrics(clearArchive = false) {
+    Object.values(this._metricViews).forEach((metricView) => metricView.clearEvents(clearArchive));
   }
 
   public createChart(canvas: HTMLCanvasElement){
@@ -226,6 +269,10 @@ export class LobbyStatisticsFeature extends TypoFeature {
   }
 
   public get archiveStore() {
-    return fromObservable(this._statArchive.asObservable(), new Map());
+    return fromObservable(this._statArchive$.asObservable(), this._statArchive$.value);
+  }
+
+  public get seenPlayersStore() {
+    return fromObservable(this._seenLobbyPlayers$.asObservable(), this._seenLobbyPlayers$.value);
   }
 }

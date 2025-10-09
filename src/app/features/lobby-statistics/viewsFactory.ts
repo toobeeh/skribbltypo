@@ -13,13 +13,6 @@ import type {
 const millisAsSeconds = (ms: number) => Math.round(ms / 100) / 10;
 
 export const createMetricViews = () => Object.freeze({
-  averageGuessTime: new MetricView<guessTimeStatEvent>(
-    "Average Guess Time",
-    "The average time a player needed to guess a word",
-    event => millisAsSeconds(event.guessTimeMs))
-    .withMetricUnit("s")
-    .withAggregation("average")
-    .withOrdering("minValue"),
 
   totalScore: new MetricView<standingScoreStatEvent>(
     "Score Ranking",
@@ -35,27 +28,12 @@ export const createMetricViews = () => Object.freeze({
     .withAggregation("ranking")
     .withOrdering("maxValue"),
 
-
-  averageNeededGuesses: new MetricView<guessCountStatEvent>(
-    "Average Guesses Needed",
-    "The average number of guesses a player needed to guess a word",
-    event => event.guessCount)
-    .withAggregation("average")
-    .withOrdering("minValue"),
-
-  averageGuessSpeed: new MetricView<guessMessageGapStatEvent>(
-    "Average Guess Speed",
-    "The average time between guesses a player sent",
-    event => millisAsSeconds(event.gapTimeMs))
-    .withMetricUnit("s")
-    .withAggregation("average"),
-
-  fastestGuess: new MetricView<guessTimeStatEvent>(
-    "Fastest Guess",
-    "The fastest correct guess for a word",
+  averageGuessTime: new MetricView<guessTimeStatEvent>(
+    "Average Guess Time",
+    "The average time a player needed to guess a word",
     event => millisAsSeconds(event.guessTimeMs))
     .withMetricUnit("s")
-    .withAggregation("ranking")
+    .withAggregation("average")
     .withOrdering("minValue"),
 
   averageGuessScore: new MetricView<guessScoreStatEvent>(
@@ -66,18 +44,40 @@ export const createMetricViews = () => Object.freeze({
     .withAggregation("average")
     .withOrdering("maxValue"),
 
-  averageGuessAccuracy: new MetricView<guessAccuracyStatEvent>(
-    "Average Guess Accuracy",
-    "The average letter count accuracy of player guesses",
-    event => event.accuracy * 100)
+  averageGuessSpeed: new MetricView<guessMessageGapStatEvent>(
+    "Average Guess Speed",
+    "The average time between guesses a player sent",
+    event => millisAsSeconds(event.gapTimeMs))
+    .withMetricUnit("s")
+    .withAggregation("average"),
+
+  averageNeededGuesses: new MetricView<guessCountStatEvent>(
+    "Average Guesses Needed",
+    "The average number of guesses a player needed to guess a word",
+    event => event.guessCount)
     .withAggregation("average")
-    .withOrdering("maxValue"),
+    .withOrdering("minValue"),
+
+  fastestGuess: new MetricView<guessTimeStatEvent>(
+    "Fastest Guess",
+    "The fastest correct guess for a word",
+    event => millisAsSeconds(event.guessTimeMs))
+    .withMetricUnit("s")
+    .withAggregation("ranking")
+    .withOrdering("minValue"),
 
   longestGuessStreak: new MetricView<guessStreakStatEvent>(
     "Longest Guess Streak",
     "The longest streak of correct guesses in a row",
     event => event.streak)
     .withAggregation("ranking")
+    .withOrdering("maxValue"),
+
+  averageGuessAccuracy: new MetricView<guessAccuracyStatEvent>(
+    "Average Guess Accuracy",
+    "The average letter count accuracy of player guesses",
+    event => event.accuracy * 100)
+    .withAggregation("average")
     .withOrdering("maxValue"),
 
   averageGuessRank: new MetricView<guessRankStatEvent>(
@@ -95,13 +95,6 @@ export const createMetricViews = () => Object.freeze({
     .withAggregation("average")
     .withOrdering("minValue"),
 
-  averageGuessedPlayers: new MetricView<drawGuessedPlayersStatEvent>(
-    "Average Guessed Players",
-    "The average amount of players that guessed a player's drawing",
-    event => event.guessedPlayers)
-    .withAggregation("average")
-    .withOrdering("maxValue"),
-
   fastestDrawTime: new MetricView<drawTimeStatEvent>(
     "Fastest Draw Time",
     "The fastest draw time of a player",
@@ -109,6 +102,13 @@ export const createMetricViews = () => Object.freeze({
     .withMetricUnit("s")
     .withAggregation("ranking")
     .withOrdering("minValue"),
+
+  averageGuessedPlayers: new MetricView<drawGuessedPlayersStatEvent>(
+    "Average Guessed Players",
+    "The average amount of players that guessed a player's drawing",
+    event => event.guessedPlayers)
+    .withAggregation("average")
+    .withOrdering("maxValue"),
 
   averageDrawScore: new MetricView<drawScoreStatEvent>(
     "Average Draw Score",

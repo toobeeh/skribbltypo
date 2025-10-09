@@ -63,8 +63,11 @@ export class MetricView<TEvent extends lobbyStatEvent> {
     this._events = [];
   }
 
-  public clearEvents() {
+  public clearEvents(clearArchive = false) {
     this._events = [];
+    if(clearArchive) {
+      this._archive.clear();
+    }
   }
 
   public drawChart(players: skribblPlayer[], chart: Chart, archiveKey?: string) {
