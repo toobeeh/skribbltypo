@@ -106,6 +106,7 @@ export class DrawingColorPalettesFeature extends TypoFeature {
 
     this._quickAccessSettingSubscription?.unsubscribe();
     this._quickAccessSettingSubscription = undefined;
+    this.removeQuickSelectIcon();
   }
 
   private async addQuickSelectIcon() {

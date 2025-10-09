@@ -1,7 +1,10 @@
+import type { lobbyStatEvent } from "@/app/services/lobby-stats/lobby-stats-events.interface";
+
 export interface chartPoint {
   x: number;
   y: number;
   label?: string;
+  originalEvent?: lobbyStatEvent
 }
 
 export interface chartDataset {
@@ -21,8 +24,8 @@ export interface chartDataProperties {
 export interface chartConfig {
   xUnit?: string;
   yUnit?: string;
-  yLabels?: {y: number, label: string}[];
-  xLabels?: {x: number, label: string}[];
+  yLabels?: (props: chartDataProperties) => ({y: number, label: string}[]);
+  xLabels?: (props: chartDataProperties) => ({x: number, label: string}[]);
   title: string;
   description: string;
   mode: "bar" | "line";

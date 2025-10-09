@@ -139,7 +139,7 @@ export class Chart {
     this._context.beginPath();
 
     if(config.yLabels){
-      config.yLabels.forEach(label => {
+      config.yLabels(properties).forEach(label => {
         const y = this.chartToCanvasY(label.y, properties);
         this._context.moveTo(this._chartArea.x, y);
         this._context.lineTo(this._chartArea.x + this._chartArea.width, y);
@@ -154,7 +154,7 @@ export class Chart {
     }
 
     if(config.xLabels) {
-      config.xLabels.forEach(label => {
+      config.xLabels(properties).forEach(label => {
         const x = this.chartToCanvasX(label.x, properties);
         this._context.moveTo(x, this._chartArea.y);
         this._context.lineTo(x, this._chartArea.y + this._chartArea.height);
@@ -180,9 +180,9 @@ export class Chart {
       this._context.textBaseline = "middle";
       this._context.textAlign = "right";
 
-      config.yLabels.forEach(label => {
+      config.yLabels(properties).forEach(label => {
         const y = this.chartToCanvasY(label.y, properties);
-        this._context.fillText(label.label + (config.yUnit ?? ""), this._chartArea.x - 10, y);
+        this._context.fillText(label.label, this._chartArea.x - 10, y);
       });
     }
     else {
@@ -199,6 +199,18 @@ export class Chart {
         const y = this._chartArea.y + this._chartArea.height - i * this._chartLayout.yGridGap;
         this._context.fillText(yValue.toFixed(decimals) + (config.yUnit ?? ""), this._chartArea.x - 10, y);
       }
+    }
+
+    if(config.xLabels){
+      this._context.font = "20px Nunito, monospace";
+      this._context.fillStyle = "#000";
+      this._context.textBaseline = "top";
+      this._context.textAlign = "center";
+
+      config.xLabels(properties).forEach(label => {
+        const x = this.chartToCanvasX(label.x, properties);
+        this._context.fillText(label.label, x, this._chartArea.y + this._chartArea.height + 10);
+      });
     }
 
     return;

@@ -4,11 +4,11 @@ import { InterpretableError } from "@/app/core/commands/results/interpretable-er
 import { InterpretableSilentSuccess } from "@/app/core/commands/results/interpretable-silent-success";
 import { InterpretableSuccess } from "@/app/core/commands/results/interpretable-success";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
-import { ExtensionSetting } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting, ExtensionSetting } from "@/app/core/settings/setting";
 import { LobbyLeftEventListener } from "@/app/events/lobby-left.event";
 import { LobbyStateChangedEventListener } from "@/app/events/lobby-state-changed.event";
 import { RoundStartedEventListener } from "@/app/events/round-started.event";
-import { MetricView } from "@/app/features/lobby-statistics/metricView";
+import { MetricView } from "@/util/chart/metricView";
 import { createMetricViews } from "@/app/features/lobby-statistics/viewsFactory";
 import type {
   lobbyStatEvent,
@@ -16,9 +16,11 @@ import type {
 import { LobbyStatsService } from "@/app/services/lobby-stats/lobby-stats.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import { type componentData, ModalService } from "@/app/services/modal/modal.service";
-import { ToastService } from "@/app/services/toast/toast.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
+import IconButton from "@/lib/icon-button/icon-button.svelte";
 import { Chart } from "@/util/chart/chart";
+import { downloadBlob, downloadText } from "@/util/download";
+import { ImageData } from "@/util/imageData";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
@@ -43,7 +45,6 @@ interface archiveEntry {
 
 export class LobbyStatisticsFeature extends TypoFeature {
 
-  @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(LobbyStatsService) private readonly _lobbyStatsService!: LobbyStatsService;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
   @inject(LobbyLeftEventListener) private readonly _lobbyLeftEventListener!: LobbyLeftEventListener;
@@ -64,6 +65,10 @@ export class LobbyStatisticsFeature extends TypoFeature {
   private _statArchive$ = new BehaviorSubject<Map<string, archiveEntry>>(new Map());
   private _seenLobbyPlayers$ = new BehaviorSubject<Map<string, Map<number, skribblPlayer>>>(new Map());
   private _statsSubscriptions: Subscription[] = [];
+
+  private _iconComponent?: IconButton;
+  private _iconClickSubscription?: Subscription;
+  private _quickAccessSettingSubscription?: Subscription;
 
   private readonly _switchStatCommand = this.useCommand(
     new ExtensionCommand("stat chat", this, "Show game stats", "Show a stat screen above the lobby chat"),
@@ -103,6 +108,11 @@ export class LobbyStatisticsFeature extends TypoFeature {
   });
 
   private readonly _statViewSetting = new ExtensionSetting<string | undefined>("stat_view", undefined, this);
+  private readonly _showQuickAccessSetting = this.useSetting(
+    new BooleanExtensionSetting("quick_access", true, this)
+      .withName("Stats View Access")
+      .withDescription("Show an icon in the controls tray to quickly access the stats view.")
+  );
 
   protected override async onActivate() {
 
@@ -225,6 +235,11 @@ export class LobbyStatisticsFeature extends TypoFeature {
     });
 
     this._statsSubscriptions.push(metricResetSub, metricArchiveSub, chartUpdateSub, playersSub);
+
+    this._quickAccessSettingSubscription = this._showQuickAccessSetting.changes$.subscribe(value => {
+      if(value) this.addQuickAccessIcon();
+      else this.removeQuickAccessIcon();
+    });
   }
 
   protected override async onDestroy() {
@@ -232,6 +247,49 @@ export class LobbyStatisticsFeature extends TypoFeature {
     this._statsSubscriptions = [];
 
     this.resetMetrics(true);
+
+
+    this._quickAccessSettingSubscription?.unsubscribe();
+    this._quickAccessSettingSubscription = undefined;
+    this.removeQuickAccessIcon();
+  }
+
+  private async addQuickAccessIcon() {
+    if(this._iconComponent !== undefined) return;
+
+    const elements = await this._elementsSetup.complete();
+
+    /* create icon and attach to controls */
+    this._iconComponent = new IconButton({
+      target: elements.controls,
+      props: {
+        hoverMove: false,
+        size: "48px",
+        icon: "file-img-chart-gif",
+        name: "Lobby Statistics",
+        order: 6,
+        tooltipAction: this.createTooltip
+      },
+    });
+
+    /* listen for click on icon */
+    this._iconClickSubscription = this._iconComponent.click$.subscribe(async () => {
+      const popupComponent: componentData<ChartsComponent> = {
+        componentType: ChartsComponent,
+        props: {
+          feature: this
+        }
+      };
+
+      this._modalService.showModal(popupComponent.componentType, popupComponent.props, "Lobby Statistics", "card");
+    });
+  }
+
+  private removeQuickAccessIcon() {
+    this._iconClickSubscription?.unsubscribe();
+    this._iconClickSubscription = undefined;
+    this._iconComponent?.$destroy();
+    this._iconComponent = undefined;
   }
 
   private subscribeMetric<TEvent extends lobbyStatEvent>(source: Observable<TEvent>, metricView: MetricView<TEvent>){
@@ -258,6 +316,18 @@ export class LobbyStatisticsFeature extends TypoFeature {
       yGridGap: 50
     }, canvas);
     return chart;
+  }
+
+  public downloadCsv(data: string[][], viewName: string, roundName: string){
+    const csv = data.map(row => row.join(",")).join("\n");
+    const filename = `typo-stats-${viewName}-${roundName}.csv`.replaceAll(" ", "_");
+    downloadText(csv, filename);
+  }
+
+  public async downloadChart(canvas: HTMLCanvasElement, viewName: string, roundName: string){
+    const filename = `typo-stats-${viewName}-${roundName}.png`.replaceAll(" ", "_");
+    const imageData = await ImageData.fromImageUrl(canvas.toDataURL("image/png"));
+    downloadBlob(imageData.blob, filename);
   }
 
   public getViews() {

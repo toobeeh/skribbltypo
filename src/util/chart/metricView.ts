@@ -1,6 +1,6 @@
 import type { lobbyStatEvent } from "@/app/services/lobby-stats/lobby-stats-events.interface";
 import type { Chart } from "@/util/chart/chart";
-import type { chartDataset, chartPoint } from "@/util/chart/dataset.interface";
+import type { chartConfig, chartDataset, chartPoint } from "@/util/chart/dataset.interface";
 import { avatarColors } from "@/util/skribbl/avatarColors";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 
@@ -15,6 +15,8 @@ export class MetricView<TEvent extends lobbyStatEvent> {
   private _ordering: eventOrdering = "time";
   private _metricUnit: string | undefined = undefined;
   private _metricTemporalUnit: string | undefined = undefined;
+  private _yLabels: chartConfig["yLabels"];
+  private _xLabels: chartConfig["xLabels"];
 
   private get datasetMode() {
     return this._aggregation === "single" ? "line" : "bar";
@@ -54,6 +56,16 @@ export class MetricView<TEvent extends lobbyStatEvent> {
     return this;
   }
 
+  public withYLabels(labels: chartConfig["yLabels"]) {
+    this._yLabels = labels;
+    return this;
+  }
+
+  public withXLabels(labels: chartConfig["xLabels"]) {
+    this._xLabels = labels;
+    return this;
+  }
+
   public addEvent(event: TEvent){
     this._events.push(event);
   }
@@ -82,31 +94,45 @@ export class MetricView<TEvent extends lobbyStatEvent> {
       description: this._description,
       xUnit: this._metricTemporalUnit,
       yUnit: this._metricUnit,
+      yLabels: this._yLabels,
+      xLabels: this._xLabels,
       mode: this.datasetMode
     });
   }
 
+  public filterPlayersWithData(players: skribblPlayer[], archiveKey?: string): skribblPlayer[] {
+    const events = archiveKey ? (this._archive.get(archiveKey) ?? []) : this._events;
+    return players.filter(player => events.some(e => e.playerId === player.id));
+  }
+
   /**
-   * TODO actually improve usability of exported data
+   * Generate a table representation of the metric data for the given players.
    * @param players
    * @param archiveKey
    */
-  public generateCsv(players: skribblPlayer[], archiveKey?: string): string {
+  public generateTable(players: skribblPlayer[], archiveKey?: string): string[][] {
     const events = archiveKey ? (this._archive.get(archiveKey) ?? []) : this._events;
     const datasets = this.getDatasetForPlayers(players, events);
     if(datasets.length === 0) {
       throw new Error("No dataset found for players");
     }
 
-    const header = ["Player", this._aggregation === "single" ? "Time" : this._aggregation === "cumulative" ? "Total" : "Average"];
-    const rows = datasets.map(dataset => {
-      return dataset.data.map(point => [
-        dataset.label,
-        point.y.toString()
-      ].join(",")).join("\n");
-    }).join("\n");
+    const header = ["Name", "Id", "Time", "Round", "Turn", this.name];
+    const rows: string[][] = [header];
+    datasets.forEach(dataset => {
+      dataset.data.forEach(point => {
+        rows.push([
+          dataset.label,
+          point.originalEvent ? point.originalEvent.playerId.toString() : "-",
+          point.originalEvent ? new Date(point.originalEvent.timestamp).toISOString() : "-",
+          point.originalEvent ? `${point.originalEvent.lobbyRound}` : "-",
+          point.originalEvent ? `${point.originalEvent.turnPlayerId}` : "-",
+          point.y.toString()
+        ]);
+      });
+    });
 
-    return [header.join(","), rows].join("\n");
+    return rows;
   }
 
   private getDatasetForPlayers(players: skribblPlayer[], events: TEvent[]): chartDataset[] {
@@ -122,7 +148,8 @@ export class MetricView<TEvent extends lobbyStatEvent> {
       if(this._aggregation === "single"){
         dataPoints = playerEvents.map(e => ({
           x: temporalLookup.get(this.buildTemporalKey(e.lobbyRound, e.turnPlayerId)) ?? 0,
-          y: this._valueSelector(e)
+          y: this._valueSelector(e),
+          originalEvent: e
         }));
       }
 
