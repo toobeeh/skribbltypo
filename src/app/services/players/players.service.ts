@@ -227,8 +227,8 @@ export class PlayersService {
   private setupPopupPlayer() {
     this._popupVisibleEvent.events$.pipe(
       withLatestFrom(this._memberService.member$, this._lobbyService.lobby$, this._elementsSetup.complete()),
-    ).subscribe(([visible, member, lobby, elements]) => {
-      if(!visible || lobby === null){
+    ).subscribe(([visibleEvent, member, lobby, elements]) => {
+      if(!visibleEvent.data || lobby === null){
         this._logger.info("Popup player hidden");
         this._popupPlayer$.next(undefined);
         return;
@@ -269,20 +269,20 @@ export class PlayersService {
       const playerId = elements.textOverlay.getAttribute("playerid") ?? undefined;
       if(element(".avatar", elements.textOverlay) === undefined || playerId === undefined) {
         this._logger.info("No player or playerid in overlay, probably not a choosing info");
-        this._popupPlayer$.next(undefined);
+        this._overlayPlayer$.next(undefined);
         return;
       }
 
       const player = lobby.players.find(p => p.id === Number(playerId));
       if(player === undefined){
         this._logger.error("Player not found in lobby", playerId);
-        this._popupPlayer$.next(undefined);
+        this._overlayPlayer$.next(undefined);
         return;
       }
 
       const lobbyKey = calculateLobbyKey(lobby.id);
       const playerDisplay = new SkribblOverlayPlayer(player, lobbyKey,elements.textOverlay);
-      this._popupPlayer$.next(playerDisplay);
+      this._overlayPlayer$.next(playerDisplay);
       this._logger.info("Overlay player visible", playerDisplay);
     });
   }

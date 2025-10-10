@@ -32,6 +32,7 @@ export class PlayerPopupVisibilityChangedEventProcessor extends EventProcessor<b
     });
 
     observer.observe(elements.playerPopup, { attributes: true });
+    observer.observe(elements.skribblModal, { attributes: true });
 
     return events.pipe(
       distinctUntilChanged(),
