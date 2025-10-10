@@ -1204,7 +1204,8 @@
   function Wt(e) {
     var t =
       e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
-    St = e, c.querySelector("#color-preview-secondary").style.fill = t, yt()
+    St = e, c.querySelector("#color-preview-secondary").style.fill = t
+      , document.dispatchEvent(new CustomEvent("skribblSecondaryColorChanged", {detail: t})), yt()
   }
 
   function Ot() {

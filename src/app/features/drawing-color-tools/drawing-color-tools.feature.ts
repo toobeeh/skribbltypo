@@ -10,11 +10,16 @@ import { ToolsService } from "@/app/services/tools/tools.service";
 import { Color } from "@/util/color";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
-import { filter, map, startWith, Subject, type Subscription, withLatestFrom } from "rxjs";
+import { BehaviorSubject, filter, type Subscription, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import ColorToolsInfo from "./drawing-color-tools-info.svelte";
 import DrawingColorTools from "./drawing-color-tools.svelte";
+
+interface activeColor {
+  primary: Color;
+  secondary: Color;
+}
 
 export class DrawingColorToolsFeature extends TypoFeature {
   @inject(ElementsSetup) private readonly elementsSetup!: ElementsSetup;
@@ -41,7 +46,7 @@ export class DrawingColorToolsFeature extends TypoFeature {
   private _component?: DrawingColorTools;
   private _pipetteTool?: TypoDrawTool;
   private _colorChangeSubscription?: Subscription;
-  private readonly _currentColor$ = new Subject<Color>();
+  private readonly _currentColor$ = new BehaviorSubject<activeColor>({primary: Color.fromHex("#000000"), secondary: Color.fromHex("#ffffff")});
 
   public override get featureInfoComponent(): componentData<ColorToolsInfo> {
     return { componentType: ColorToolsInfo, props: {} };
@@ -52,11 +57,16 @@ export class DrawingColorToolsFeature extends TypoFeature {
     this._pipetteTool = this._toolsService.resolveModOrTool(PipetteTool);
 
     this._colorChangedListener.events$.pipe(
-      withLatestFrom(this._currentColor$.pipe(startWith(new Color(0, 0, 0)))),
-      filter(([event, currentColor]) => event.data.hex !== currentColor.hex),
-      map(([event]) => event),
-    ).subscribe((event) => {
-      this._currentColor$.next(event.data);
+      withLatestFrom(this._currentColor$),
+      filter(([event, currentColor]) =>
+        event.data.target === "primary" ?( event.data.color.hex !== currentColor.primary.hex) : (event.data.color.hex !== currentColor.secondary.hex)
+      ),
+    ).subscribe(([event, active]) => {
+      const color = {...active};
+      if(event.data.target === "primary") color.primary = event.data.color;
+      else color.secondary = event.data.color;
+
+      this._currentColor$.next(color);
     });
 
     this._component = new DrawingColorTools({
@@ -91,7 +101,7 @@ export class DrawingColorToolsFeature extends TypoFeature {
   }
 
   public get colorStore() {
-    return fromObservable(this._currentColor$, new Color(0, 0, 0));
+    return fromObservable(this._currentColor$, this._currentColor$.value);
   }
 
   public updatePickedColor(color: Color){

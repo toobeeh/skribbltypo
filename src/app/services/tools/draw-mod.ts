@@ -36,6 +36,7 @@ export abstract class TypoDrawMod {
    * @param eventId id of the event. if a mod previously created multiple lines for a single event, they have the same id
    * @param strokeId id of the stroke. each event during a pointer-down to pointer-up cycle shares the same stroke id
    * @param strokeCause event that caused the stroke
+   * @param secondaryActive whether the stroke was made in secondary mode (eg color)
    */
   public abstract applyEffect(
     line: lineCoordinates,
@@ -43,10 +44,22 @@ export abstract class TypoDrawMod {
     brushStyle: brushStyle,
     eventId: number,
     strokeId: number,
-    strokeCause: strokeCause
+    strokeCause: strokeCause,
+    secondaryActive: boolean
   ): drawModEffect | Promise<drawModEffect>;
 
   protected noLineEffect(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle): drawModEffect {
     return {lines: [line], style: brushStyle};
+  }
+
+  /**
+   * Get the selected color, considering whether secondary mode is active and any style override
+   * @param styleOverride
+   * @param brushStyle
+   * @param secondaryActive
+   * @private
+   */
+  protected getSelectedColor(styleOverride: brushStyle | undefined, brushStyle: brushStyle, secondaryActive: boolean): number {
+    return secondaryActive ? (styleOverride?.secondaryColor ?? brushStyle.secondaryColor) : (styleOverride?.color ?? brushStyle.color);
   }
 }

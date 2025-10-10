@@ -418,9 +418,9 @@ export class LineToolFeature extends TypoFeature {
     if (!origin || !target) return;
 
     const strokeId = Date.now();
-    this._toolsService.insertStroke({from: origin, to: origin, stroke: strokeId, cause: "down"});
-    this._toolsService.insertStroke({from: origin, to: target, stroke: strokeId, cause: "move"});
-    this._toolsService.insertStroke({from: target, to: target, stroke: strokeId, cause: "up"});
+    this._toolsService.insertStroke({from: origin, to: origin, stroke: strokeId, cause: "down", secondaryActive: false});
+    this._toolsService.insertStroke({from: origin, to: target, stroke: strokeId, cause: "move", secondaryActive: false});
+    this._toolsService.insertStroke({from: target, to: target, stroke: strokeId, cause: "up", secondaryActive: false});
 
     this._originCoordinates$.next(undefined);
     this._targetCoordinates$.next(undefined);

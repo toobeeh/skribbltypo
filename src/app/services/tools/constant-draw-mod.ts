@@ -22,6 +22,7 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
    * @param eventId
    * @param strokeId
    * @param strokeCause
+   * @param secondaryActive
    */
   public async applyEffect(
     line: lineCoordinates,
@@ -29,9 +30,10 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
     brushStyle: brushStyle,
     eventId: number,
     strokeId: number,
-    strokeCause: strokeCause
+    strokeCause: strokeCause,
+    secondaryActive: boolean
   ): Promise<drawModEffect>{
-    const effect = this.applyConstantEffect(line, pressure, brushStyle, eventId, strokeId, strokeCause);
+    const effect = this.applyConstantEffect(line, pressure, brushStyle, eventId, strokeId, strokeCause, secondaryActive);
     const awaited = effect instanceof Promise ? await effect : effect;
     return {
       lines: [awaited.line],
@@ -47,6 +49,7 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
    * @param eventId
    * @param strokeId
    * @param strokeCause
+   * @param secondaryActive
    * @protected
    */
   protected abstract applyConstantEffect(
@@ -55,7 +58,8 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
     brushStyle: brushStyle,
     eventId: number,
     strokeId: number,
-    strokeCause: strokeCause
+    strokeCause: strokeCause,
+    secondaryActive: boolean
   ): constantDrawModEffect | Promise<constantDrawModEffect>;
 
   protected noConstantEffect(

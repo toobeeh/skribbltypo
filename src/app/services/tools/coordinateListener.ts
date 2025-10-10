@@ -7,6 +7,7 @@ interface stroke {
   pointerDownId: number;
   canvasRect: DOMRect;
   lastCoordinates: drawCoordinateEvent;
+  secondaryActive: boolean;
 }
 
 export interface strokeCoordinates {
@@ -14,6 +15,11 @@ export interface strokeCoordinates {
   to: drawCoordinateEvent,
   stroke: number;
   cause: strokeCause;
+
+  /**
+   * indicates whether the draw modifier was used - right click draw for secondary color
+   */
+  secondaryActive: boolean;
 }
 
 export class CoordinateListener {
@@ -66,10 +72,11 @@ export class CoordinateListener {
       canvasRect: rect,
       lastSampleDate: Date.now(),
       pointerDownId: performance.now(),
-      lastCoordinates: coords
+      lastCoordinates: coords,
+      secondaryActive: ((event.buttons & 2) === 2)
     };
 
-    this._strokes$.next({from: coords, to: coords, cause: "down", stroke: this._currentStroke.pointerDownId});
+    this._strokes$.next({from: coords, to: coords, cause: "down", stroke: this._currentStroke.pointerDownId, secondaryActive: this._currentStroke.secondaryActive});
     this._pointerDown$.next(event);
 
     /*document.body.dataset["bypassCommandRate"] = "true";*/
@@ -90,7 +97,7 @@ export class CoordinateListener {
       this._currentStroke.canvasRect,
     );
 
-    this._strokes$.next({from: this._currentStroke.lastCoordinates, to: coords, cause: "move", stroke: this._currentStroke.pointerDownId});
+    this._strokes$.next({from: this._currentStroke.lastCoordinates, to: coords, cause: "move", stroke: this._currentStroke.pointerDownId, secondaryActive: this._currentStroke.secondaryActive});
     this._currentStroke.lastCoordinates = coords;
   }
 
@@ -102,7 +109,7 @@ export class CoordinateListener {
       this._canvas,
       this._currentStroke.canvasRect,
     );
-    this._strokes$.next({from: this._currentStroke.lastCoordinates, to: coords, cause: "up", stroke: this._currentStroke.pointerDownId});
+    this._strokes$.next({from: this._currentStroke.lastCoordinates, to: coords, cause: "up", stroke: this._currentStroke.pointerDownId, secondaryActive: this._currentStroke.secondaryActive});
     this._pointerUp$.next(event);
     this._currentStroke = undefined;
 

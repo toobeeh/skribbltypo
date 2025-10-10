@@ -35,6 +35,13 @@ export interface brushStyle {
    * the original skribbl color code, or typo encoded hex
    */
   color: number;
+
+  /**
+   * secondary (left-click) color:
+   * the original skribbl color code, or typo encoded hex
+   */
+  secondaryColor: number;
+
   size: number;
 }
 
@@ -53,7 +60,7 @@ export class ToolsService {
   private readonly _logger: LoggerService;
   private readonly _activeTool$ = new BehaviorSubject<TypoDrawTool | skribblTool>(skribblTool.brush);
   private readonly _activeMods$ = new BehaviorSubject<TypoDrawMod[]>([]);
-  private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000").skribblCode, size: 1 });
+  private readonly _activeBrushStyle$ = new BehaviorSubject<brushStyle>({ color: Color.fromHex("#000000").skribblCode, secondaryColor: Color.fromHex("#FFFFFF").skribblCode, size: 1 });
   private readonly _lastPointerDownPosition$ = new BehaviorSubject<PointerEvent | null>(null);
   private readonly _canvasCursorStyle = document.createElement("style");
   private readonly _insertedStrokes$ = new Subject<strokeCoordinates>();
@@ -97,7 +104,14 @@ export class ToolsService {
     /* set up brush style subscription */
     this._sizeChangedListener.events$.pipe(
       combineLatestWith(this._colorChangedListener.events$),
-      map(([size, color]) => ({ size: size.data, color: color.data.skribblCode }))
+      withLatestFrom(this._activeBrushStyle$),
+      map(([[size, color], current]) => {
+        const newStyle = { ...current };
+        newStyle.size = size.data;
+        if(color.data.target === "primary") newStyle.color = color.data.color.skribblCode;
+        else newStyle.secondaryColor = color.data.color.skribblCode;
+        return newStyle;
+      })
     ).subscribe(style => this._activeBrushStyle$.next(style));
 
     /* set up events for custom stroke listener */
@@ -132,7 +146,7 @@ export class ToolsService {
       mergeWith(this._insertedStrokes$),
       withLatestFrom(drawingMeta$)
     ).subscribe(([stroke, [style, tool, mods]]) => {
-      this.processDrawCoordinates(stroke.from, stroke.to, stroke.cause, tool, mods, style, stroke.stroke);
+      this.processDrawCoordinates(stroke.from, stroke.to, stroke.cause, tool, mods, style, stroke.stroke, stroke.secondaryActive);
     });
 
     /* update last pointer down */
@@ -150,7 +164,16 @@ export class ToolsService {
     });
   }
 
-  private async processDrawCoordinates(start: drawCoordinateEvent, end: drawCoordinateEvent, cause: strokeCause, tool: TypoDrawTool | skribblTool, mods: TypoDrawMod[], style: brushStyle, strokeId: number) {
+  private async processDrawCoordinates(
+    start: drawCoordinateEvent,
+    end: drawCoordinateEvent,
+    cause: strokeCause,
+    tool: TypoDrawTool | skribblTool,
+    mods: TypoDrawMod[],
+    style: brushStyle,
+    strokeId: number,
+    secondaryActive: boolean
+  ) {
     this._logger.debug("Activating tool and applying mods", start, end);
 
     /* generate a shared id for every line created from the origin line */
@@ -167,7 +190,7 @@ export class ToolsService {
       /* for each line - mods may append or skip lines */
       const modLines: drawModLine[] = [];
       for(const line of lines) {
-        const effect = await mod.applyEffect(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId, cause);
+        const effect = await mod.applyEffect(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId, cause, secondaryActive);
         modLines.push(...effect.lines);
         modStyle = effect.style;
         this._logger.debug("Mod applied", mod);
@@ -187,6 +210,10 @@ export class ToolsService {
       this._logger.debug("Brush color changed by mods", modStyle.color);
       this._drawingService.setColor(modStyle.color);
     }
+    if(modStyle.secondaryColor !== style.secondaryColor) {
+      this._logger.debug("Brush secondary color changed by mods", modStyle.secondaryColor);
+      this._drawingService.setColor(modStyle.secondaryColor, true);
+    }
 
     /* create draw commands from tool based on processed lines and style */
     const commands: number[][] = [];
@@ -196,7 +223,7 @@ export class ToolsService {
         /* make sure line is safe - decimal places should not be submitted to skribbl */
         line = {from: [Math.floor(line.from[0]), Math.floor(line.from[1])], to: [Math.floor(line.to[0]), Math.floor(line.to[1])]};
 
-        const lineCommands = await tool.createCommands(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId, cause);
+        const lineCommands = await tool.createCommands(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId, cause, secondaryActive);
         if(lineCommands.length > 0) {
           commands.push(...lineCommands);
           this._logger.debug("Adding commands created by tool", tool, commands);
@@ -210,9 +237,10 @@ export class ToolsService {
     /* create default draw commands as lines */
     else if(tool === skribblTool.brush) {
       for(const line of lines) {
+        const color = secondaryActive ? (line.styleOverride?.secondaryColor ?? modStyle.secondaryColor) : (line.styleOverride?.color ?? modStyle.color);
         const lineCommand = this._drawingService.createLineCommand(
           [...line.from, ...line.to],
-          line.styleOverride?.color ?? modStyle.color,
+          color,
           line.styleOverride?.size ?? modStyle.size,
           false
         );
@@ -273,8 +301,8 @@ export class ToolsService {
     this._activeTool$.next(tool);
 
     /* dry-run tool to trigger early settings load */
-    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0, "down");
-    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0, "down");
+    if(tool instanceof TypoDrawMod) tool.applyEffect({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, secondaryColor: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0, "down", false);
+    if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, secondaryColor: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0, "down", false);
   }
 
   public activateMod(mod: TypoDrawMod) {

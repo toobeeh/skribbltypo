@@ -2,7 +2,7 @@ import {
   NumericExtensionSetting, type serializable, type SettingWithInput,
 } from "@/app/core/settings/setting";
 import type { BrushLabItem } from "@/app/features/drawing-brush-lab/brush-lab-item.interface";
-import type { drawModLine } from "@/app/services/tools/draw-mod";
+import type { drawModLine, strokeCause } from "@/app/services/tools/draw-mod";
 import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import type { brushStyle } from "@/app/services/tools/tools.service";
 import { firstValueFrom } from "rxjs";
@@ -43,7 +43,10 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
     line: drawModLine,
     pressure: number | undefined,
     style: brushStyle,
-    eventId: number
+    eventId: number,
+    strokeId: number,
+    strokeCause: strokeCause,
+    secondaryActive: boolean
   ): Promise<number[][]> {
 
     const interval = await firstValueFrom(this._intervalSetting.changes$);
@@ -72,8 +75,10 @@ export class DashTool extends TypoDrawTool implements BrushLabItem {
       this.lineStart = {eventId, time: now};
     }
 
+    const color = this.getSelectedColor(line.styleOverride, style, secondaryActive);
+
     /* line drawing */
-    return [[0, style.color, style.size, ...line.from, ...line.to]];
+    return [[0, color, style.size, ...line.from, ...line.to]];
   }
 
   private getDistance(from: [number, number], to: [number, number]): number {

@@ -906,7 +906,7 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Add event when skribbl color changed",
+      name: "Add event when skribbl primary color changed",
       replacements: [
         {
           source: "##COLOR##",
@@ -917,6 +917,21 @@ export const gameJsPatchConfig = {
         {
           position: "(\"#color-preview-primary\"\\).style\\.fill = [a-zA-Z0-9&_\\-$]+)",
           code: ", document.dispatchEvent(new CustomEvent(\"skribblColorChanged\", {detail: ##COLOR##}))",
+        },
+      ],
+    },
+    {
+      name: "Add event when skribbl secondary color changed",
+      replacements: [
+        {
+          source: "##COLOR##",
+          target: "\"#color-preview-secondary\"\\).style\\.fill = ([a-zA-Z0-9&_\\-$]+)",
+        },
+      ],
+      injections: [
+        {
+          position: "(\"#color-preview-secondary\"\\).style\\.fill = [a-zA-Z0-9&_\\-$]+)",
+          code: ", document.dispatchEvent(new CustomEvent(\"skribblSecondaryColorChanged\", {detail: ##COLOR##}))",
         },
       ],
     },

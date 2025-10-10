@@ -55,7 +55,7 @@
   ></div>
   <div class="picker" use:feature.createTooltip={{title: "Picker", lock: "Y"}}>
     <ColorPickerButton
-      color="{$color}"
+      color="{$color.primary}"
       allowAlpha="{false}"
       useBackground="{false}"
       height="auto"

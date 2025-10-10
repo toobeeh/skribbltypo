@@ -18,6 +18,7 @@ export abstract class TypoDrawTool extends ConstantDrawMod {
    * @param eventId
    * @param strokeId
    * @param strokeCause
+   * @param secondaryActive
    */
   public abstract createCommands(
     line: lineCoordinates,
@@ -25,7 +26,8 @@ export abstract class TypoDrawTool extends ConstantDrawMod {
     brushStyle: brushStyle,
     eventId: number,
     strokeId: number,
-    strokeCause: strokeCause
+    strokeCause: strokeCause,
+    secondaryActive: boolean
   ): number[][] | Promise<number[][]>;
 
   protected noCommands(): number[][] {
