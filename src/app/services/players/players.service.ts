@@ -265,8 +265,8 @@ export class PlayersService {
 
     this._textOverlayVisibleEvent.events$.pipe(
       withLatestFrom(this._lobbyService.lobby$, this._elementsSetup.complete()),
-    ).subscribe(([visible, lobby, elements]) => {
-      if(!visible || lobby === null || lobby.id === null){
+    ).subscribe(([visibleEvent, lobby, elements]) => {
+      if(!visibleEvent.data || lobby === null || lobby.id === null){
         this._logger.info("Overlay player hidden");
         this._overlayPlayer$.next(undefined);
         return;
