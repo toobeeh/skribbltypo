@@ -24,7 +24,7 @@ import { inject, injectable, postConstruct } from "inversify";
 import {
   BehaviorSubject,
   combineLatestWith,
-  distinctUntilChanged, filter, from,
+  distinctUntilChanged, from,
   map,
   mergeWith, of, pairwise,
   startWith, switchMap,
@@ -273,7 +273,7 @@ export class PlayersService {
       }
 
       const playerId = elements.textOverlay.getAttribute("playerid") ?? undefined;
-      if(element(".avatar", elements.textOverlay) === undefined || playerId === undefined) {
+      if(element(".avatar", elements.textOverlay) === null || playerId === undefined) {
         this._logger.info("No player or playerid in overlay, probably not a choosing info");
         this._overlayPlayer$.next(undefined);
         return;
