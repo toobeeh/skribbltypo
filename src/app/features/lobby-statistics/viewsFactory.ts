@@ -59,8 +59,16 @@ export const createMetricViews = () => Object.freeze({
     event => millisAsSeconds(event.completionTimeMs))
     .withYLabels(yLabelIncrements(10, "s"))
     .withMetricUnit("s")
-    .withAggregation("ranking")
+    .withAggregation("average")
     .withOrdering("minValue"),
+
+  completionTime: new MetricView<completionTimeStatEvent>(
+    "Completion Time",
+    "The time a player needed to guess the word, or until everyone guessed the drawing, progressing over time",
+    event => millisAsSeconds(event.completionTimeMs))
+    .withYLabels(yLabelIncrements(10, "s"))
+    .withMetricUnit("s")
+    .withAggregation("single"),
 
   averageGuessTime: new MetricView<guessTimeStatEvent>(
     "Average Guess Time",

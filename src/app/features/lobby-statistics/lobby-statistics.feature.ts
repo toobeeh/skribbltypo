@@ -107,6 +107,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
     this.subscribeMetric(this._lobbyStatsService.drawLikesStats$, this._metricViews.averageDrawLikes);
     this.subscribeMetric(this._lobbyStatsService.drawDislikesStats$, this._metricViews.mostDrawDislikes);
     this.subscribeMetric(this._lobbyStatsService.completionTimeStats$, this._metricViews.averageCompletionTime);
+    this.subscribeMetric(this._lobbyStatsService.completionTimeStats$, this._metricViews.completionTime);
 
     /* clear recorded metrics on lobby leave and round start */
     const metricResetSub = this._lobbyLeftEventListener.events$.pipe(

@@ -20,9 +20,9 @@ import { LobbyService } from "@/app/services/lobby/lobby.service";
 import type { skribblLobby } from "@/util/skribbl/lobby";
 import { inject, injectable, postConstruct } from "inversify";
 import {
-  count,
+  count, delay,
   filter, from,
-  map, mergeWith,
+  map, mergeWith, reduce,
   Subject,
   switchMap,
   take,
@@ -495,12 +495,35 @@ export class LobbyStatsService {
       this._guessStreakStats$.next(streakEvent);
     });
     
-    /* combine guess time and draw time events to completion time stats */
-    this._guessTimeStats$.pipe(
-      map(event => ({...event, completionTimeMs: event.guessTimeMs} as completionTimeStatEvent)),
-      mergeWith(this._drawTimeStats$.pipe(
-        map(event => ({...event, completionTimeMs: event.drawTimeMs} as completionTimeStatEvent))
+    /* combine average guess time and draw time events to completion time stats */
+    turnStarted$.pipe(
+
+      /* average guess time for drawer */
+      switchMap(() => this._guessTimeStats$.pipe(
+        takeUntil(this._lobbyStateChangedEventListener.events$.pipe(
+            filter(event => event.data.drawingRevealed !== undefined),
+            delay(50) /* delay to let non-guess-time events come in (timed also by lobbystatechange event) */
+        )),
+        map(event => event.guessTimeMs),
+        reduce((acc, value) => ({ sum: acc.sum + value, count: acc.count + 1 }), { sum: 0, count: 0 }),
+        map(acc => acc.count === 0 ? 0 : acc.sum / acc.count),
+        withLatestFrom(lobby$),
+        map(([avg, lobby]) => {
+          if(lobby === null) throw new Error("lobby must be provided");
+          const event: completionTimeStatEvent = {
+            ...this.createEventSignature(lobby.lobby, lobby.turnPlayerId, lobby.turnPlayerId),
+            completionTimeMs: avg
+          };
+          return event;
+        })
       )),
+
+      /* guess times for guessers */
+      mergeWith(this._guessTimeStats$.pipe(
+        map(event => ({...event, completionTimeMs: event.guessTimeMs} as completionTimeStatEvent))
+      )),
+
+      tap(e => console.log("completion time", e.playerId, e.completionTimeMs))
     ).subscribe(event => this._completionTimeStats$.next(event));
   }
 
