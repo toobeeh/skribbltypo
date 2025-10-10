@@ -6,6 +6,7 @@ import { getGuessAccuracy } from "@/app/features/guess-check/guess-overlay";
 import { ChatService } from "@/app/services/chat/chat.service";
 import { DrawingService } from "@/app/services/drawing/drawing.service";
 import type {
+  completionTimeStatEvent,
   drawDislikesStatEvent,
   drawGuessedPlayersStatEvent, drawLikesStatEvent, drawScoreStatEvent, drawTimeStatEvent,
   guessAccuracyStatEvent,
@@ -45,6 +46,7 @@ export class LobbyStatsService {
   private readonly _logger;
 
   private _guessTimeStats$ = new Subject<guessTimeStatEvent>();
+  private _completionTimeStats$ = new Subject<completionTimeStatEvent>();
   private _guessCountStats$ = new Subject<guessCountStatEvent>();
   private _guessMessageGapStats$ = new Subject<guessMessageGapStatEvent>();
   private _guessScoreStats$ = new Subject<guessScoreStatEvent>();
@@ -59,6 +61,7 @@ export class LobbyStatsService {
   private _turnStandingScoreStats$ = new Subject<standingScoreStatEvent>();
 
   public get guessTimeStats$() { return this._guessTimeStats$.asObservable(); }
+  public get completionTimeStats$() { return this._completionTimeStats$.asObservable(); }
   public get guessCountStats$() { return this._guessCountStats$.asObservable(); }
   public get guessMessageGapStats$() { return this._guessMessageGapStats$.asObservable(); }
   public get guessScoreStats$() { return this._guessScoreStats$.asObservable(); }
@@ -491,6 +494,14 @@ export class LobbyStatsService {
       };
       this._guessStreakStats$.next(streakEvent);
     });
+    
+    /* combine guess time and draw time events to completion time stats */
+    this._guessTimeStats$.pipe(
+      map(event => ({...event, completionTimeMs: event.guessTimeMs} as completionTimeStatEvent)),
+      mergeWith(this._drawTimeStats$.pipe(
+        map(event => ({...event, completionTimeMs: event.drawTimeMs} as completionTimeStatEvent))
+      )),
+    ).subscribe(event => this._completionTimeStats$.next(event));
   }
 
 }

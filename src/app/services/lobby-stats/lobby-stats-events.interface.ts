@@ -10,6 +10,10 @@ export interface guessTimeStatEvent extends lobbyStatEvent {
   guessTimeMs: number;
 }
 
+export interface completionTimeStatEvent extends lobbyStatEvent {
+  completionTimeMs: number;
+}
+
 export interface guessCountStatEvent extends lobbyStatEvent {
   guessCount: number;
 }

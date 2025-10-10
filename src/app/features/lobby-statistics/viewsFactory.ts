@@ -1,6 +1,7 @@
 import type { chartDataProperties } from "@/util/chart/dataset.interface";
 import { MetricView } from "@/util/chart/metricView";
 import type {
+  completionTimeStatEvent,
   drawDislikesStatEvent, drawGuessedPlayersStatEvent,
   drawLikesStatEvent,
   drawScoreStatEvent,
@@ -51,6 +52,15 @@ export const createMetricViews = () => Object.freeze({
     .withMetricUnit("pts")
     .withAggregation("ranking")
     .withOrdering("maxValue"),
+
+  averageCompletionTime: new MetricView<completionTimeStatEvent>(
+    "Average Completion Time",
+    "The average time a player needed to guess the word, or until everyone guessed the drawing",
+    event => millisAsSeconds(event.completionTimeMs))
+    .withYLabels(yLabelIncrements(10, "s"))
+    .withMetricUnit("s")
+    .withAggregation("ranking")
+    .withOrdering("minValue"),
 
   averageGuessTime: new MetricView<guessTimeStatEvent>(
     "Average Guess Time",
