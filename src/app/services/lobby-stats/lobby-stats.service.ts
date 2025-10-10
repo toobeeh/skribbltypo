@@ -298,6 +298,7 @@ export class LobbyStatsService {
 
         mergeWith(this._lobbyStateChangedEventListener.events$.pipe(
           filter(event => event.data.drawingRevealed !== undefined),
+          take(1),
           switchMap(event => {
             const guessTimeMs = Date.now() - startTimestamp;
             const notGuessedPlayers = event.data.drawingRevealed?.scores
