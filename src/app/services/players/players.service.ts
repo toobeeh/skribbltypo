@@ -196,16 +196,22 @@ export class PlayersService {
   }
 
   private setupScoreboardPlayers() {
-    this._lobbyStateChangedEvent.events$.pipe(
-      combineLatestWith(this._lobbyService.lobby$, this._scoreboardVisibleEvent.events$),
-      filter(data => data[2].data === true),  /* wait until scoreboard visible */
-      map((data) => data[1] === null || data[0].data.gameEnded === undefined ? undefined : data),
+    this._scoreboardVisibleEvent.events$.pipe(
+      combineLatestWith(this._lobbyStateChangedEvent.events$),
+      withLatestFrom(this._lobbyService.lobby$),
+      map(([[scoreboardVisibleEvent, lobbyStateChangeEvent], lobby]) =>
+        lobby === null || lobbyStateChangeEvent.data.gameEnded === undefined ? undefined : {
+          visible: scoreboardVisibleEvent.data,
+          lobby: lobby,
+          stateChange: lobbyStateChangeEvent.data.gameEnded,
+        }),
       distinctUntilChanged(),
     ).subscribe(data => {
-      const event = data?.[0].data?.gameEnded;
-      const lobby = data?.[1] ?? undefined;
+      const event = data?.stateChange;
+      const lobby = data?.lobby;
       const lobbyId = lobby?.id ?? null;
-      if(event === undefined || lobby === undefined || lobbyId === null) {
+      const visible = data?.visible ?? false;
+      if(event === undefined || lobby === undefined || lobbyId === null || !visible) {
         this._logger.info("Lobby changed, no scoreboard data");
         this._scoreboardPlayers$.next([]);
         return;
