@@ -296,6 +296,18 @@ export class LobbyStatsService {
           filter(event => event.data.drawingRevealed !== undefined)
         )),
 
+        mergeWith(this._lobbyStateChangedEventListener.events$.pipe(
+          filter(event => event.data.drawingRevealed !== undefined),
+          switchMap(event => {
+            const guessTimeMs = Date.now() - startTimestamp;
+            const notGuessedPlayers = event.data.drawingRevealed?.scores
+              .filter(score => score.rewarded === 0)
+              .map(score => ({ playerId: score.playerId, guessTimeMs }))
+            ?? [];
+            return from(notGuessedPlayers);
+          })
+        )),
+
         /* create event data */
         withLatestFrom(lobby$),
         filter(([, lobbyData]) => lobbyData !== null),

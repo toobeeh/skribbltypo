@@ -1,10 +1,7 @@
 import { ExtensionCommand } from "@/app/core/commands/command";
-import { StringOptionalCommandParameter } from "@/app/core/commands/params/string-optional-command-parameter";
-import { InterpretableError } from "@/app/core/commands/results/interpretable-error";
 import { InterpretableSilentSuccess } from "@/app/core/commands/results/interpretable-silent-success";
-import { InterpretableSuccess } from "@/app/core/commands/results/interpretable-success";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
-import { BooleanExtensionSetting, ExtensionSetting } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting } from "@/app/core/settings/setting";
 import { LobbyLeftEventListener } from "@/app/events/lobby-left.event";
 import { LobbyStateChangedEventListener } from "@/app/events/lobby-state-changed.event";
 import { RoundStartedEventListener } from "@/app/events/round-started.event";
@@ -25,7 +22,7 @@ import type { skribblPlayer } from "@/util/skribbl/lobby";
 import { fromObservable } from "@/util/store/fromObservable";
 import { inject } from "inversify";
 import {
-  BehaviorSubject, combineLatestWith, debounceTime, distinctUntilChanged,
+  BehaviorSubject, distinctUntilChanged,
   filter, map,
   mergeWith,
   type Observable,
@@ -70,31 +67,8 @@ export class LobbyStatisticsFeature extends TypoFeature {
   private _iconClickSubscription?: Subscription;
   private _quickAccessSettingSubscription?: Subscription;
 
-  private readonly _switchStatCommand = this.useCommand(
-    new ExtensionCommand("stat chat", this, "Show game stats", "Show a stat screen above the lobby chat"),
-  ).withParameters(params => params
-    .addParam(new StringOptionalCommandParameter("Category Name", "The name of the category to show", category => ({ category })))
-    .run(async (args, command) => {
-      const categories = Object.keys(this._metricViews);
-      if(args.category !== undefined && !categories.includes(args.category)){
-        return new InterpretableError(command, `Unknown category '${args.category}'. Use the stat list command to list available categories.`);
-      }
-
-      await this._statViewSetting.setValue(args.category);
-      return new InterpretableSuccess(command, `Showing stats for category ${args.category ?? "none (hides stats)"}.`);
-    })
-  );
-
-  private readonly _statListCommand = this.useCommand(
-    new ExtensionCommand("stat ls", this, "List game stat categories", "Show a list of available categories for the stats command"),
-  ).run(async command => {
-    const categories = Object.entries(this._metricViews).map(([key, view]) => `- [${key}] ${view.name}: ${view.description}`).join("\n");
-    if(categories.length === 0) return new InterpretableError(command, "No stat categories available.");
-    return new InterpretableSuccess(command, categories);
-  });
-
   private readonly _statViewCommand = this.useCommand(
-    new ExtensionCommand("stat vw", this, "View stats in popup", "Opens a popup with detailed statistics"),
+    new ExtensionCommand("stat", this, "View stats in popup", "Opens a popup with detailed lobby statistics"),
   ).run(async command => {
     const popupComponent: componentData<ChartsComponent> = {
       componentType: ChartsComponent,
@@ -107,7 +81,6 @@ export class LobbyStatisticsFeature extends TypoFeature {
     return new InterpretableSilentSuccess(command);
   });
 
-  private readonly _statViewSetting = new ExtensionSetting<string | undefined>("stat_view", undefined, this);
   private readonly _showQuickAccessSetting = this.useSetting(
     new BooleanExtensionSetting("quick_access", true, this)
       .withName("Stats View Access")
@@ -119,6 +92,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
     /* subscribe metrics and pipe them to views */
     this.subscribeMetric(this._lobbyStatsService.guessTimeStats$, this._metricViews.averageGuessTime);
     this.subscribeMetric(this._lobbyStatsService.turnStandingScoreStats$, this._metricViews.totalScore);
+    this.subscribeMetric(this._lobbyStatsService.turnStandingScoreStats$, this._metricViews.finalStandings);
     this.subscribeMetric(this._lobbyStatsService.guessCountStats$, this._metricViews.averageNeededGuesses);
     this.subscribeMetric(this._lobbyStatsService.guessMessageGapStats$, this._metricViews.averageGuessSpeed);
     this.subscribeMetric(this._lobbyStatsService.guessTimeStats$, this._metricViews.fastestGuess);
@@ -132,53 +106,6 @@ export class LobbyStatisticsFeature extends TypoFeature {
     this.subscribeMetric(this._lobbyStatsService.drawGuessedPlayersStats$, this._metricViews.averageGuessedPlayers);
     this.subscribeMetric(this._lobbyStatsService.drawLikesStats$, this._metricViews.averageDrawLikes);
     this.subscribeMetric(this._lobbyStatsService.drawDislikesStats$, this._metricViews.mostDrawDislikes);
-
-    /* create a chart */
-    const chart = new Chart({
-      width: 2000,
-      height: 1000,
-      chartArea: {
-        x: 200,
-        y: 200,
-        width: 1600,
-        height: 700
-      },
-      barPadding: 30,
-      barMaxWidth: 100,
-      yGridGap: 50
-    });
-    const elements = await this._elementsSetup.complete();
-
-    /* update demo chart */
-    const chartUpdateSub = this._lobbyService.lobby$.pipe(
-      debounceTime(1000),
-      combineLatestWith(this._statViewSetting.changes$)
-    ).subscribe(([lobby, stat]) => {
-      if(lobby === null) return;
-      const players = lobby.players;
-
-      let chartVisible = false;
-      const matchingStat = stat ? Object.entries(this._metricViews)
-        .find(([key]) => key === stat) : undefined;
-      if(matchingStat === undefined) chart.clear();
-      else {
-        try {
-          matchingStat[1].drawChart(players, chart);
-          chartVisible = true;
-        }
-        catch(e) {
-          this._logger.warn("could not plot chart", e);
-          chart.clear();
-        }
-      }
-
-      if(chartVisible && chart.canvas.parentElement === null){
-        elements.chatArea.insertAdjacentElement("afterbegin", chart.canvas);
-      }
-      if(!chartVisible && chart.canvas.parentElement !== null){
-        chart.canvas.remove();
-      }
-    });
 
     /* clear recorded metrics on lobby leave and round start */
     const metricResetSub = this._lobbyLeftEventListener.events$.pipe(
@@ -234,7 +161,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
       }
     });
 
-    this._statsSubscriptions.push(metricResetSub, metricArchiveSub, chartUpdateSub, playersSub);
+    this._statsSubscriptions.push(metricResetSub, metricArchiveSub, playersSub);
 
     this._quickAccessSettingSubscription = this._showQuickAccessSetting.changes$.subscribe(value => {
       if(value) this.addQuickAccessIcon();
