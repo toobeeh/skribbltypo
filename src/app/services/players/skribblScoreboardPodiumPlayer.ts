@@ -18,7 +18,7 @@ export class SkribblScoreboardPodiumPlayer implements SkribblPlayerDisplay {
     this._playerContainer = requireElement(
       `.overlay-content .result.show .podests > div:has(.avatar[playerid='${this._player.id}'])`,
     );
-    this._avatarContainer = requireElement(".avatar", this._playerContainer);
+    this._avatarContainer = requireElement(`.avatar[playerid='${this._player.id}']`, this._playerContainer);
     this._placeholderBackgroundContainer = createElement("<div style=\"display: none;\"></div>");
     this._playerContainer.appendChild(this._placeholderBackgroundContainer);
   }
