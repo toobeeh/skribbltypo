@@ -57,7 +57,7 @@ export class ChatCommandsFeature extends TypoFeature {
       this,
       async () => {
         /* only process when interpreting */
-        if(!this._flyoutComponent) return;
+        if(!this._commandInput) return;
         const elements = await this._elements.complete();
         elements.chatInput.value = "";
         this._hotkeySubmitted$.next(undefined);
@@ -79,6 +79,12 @@ export class ChatCommandsFeature extends TypoFeature {
     new BooleanExtensionSetting("mute_results", false, this)
       .withName("Mute Command Results")
       .withDescription("Don't show a toast message with the command result when a command has been executed")
+  );
+
+  private readonly _hideFlyoutSetting = this.useSetting(
+    new BooleanExtensionSetting("hide_flyout", false, this)
+      .withName("Hide Command Preview")
+      .withDescription("Hide the command preview flyout that shows possible commands and their parameters")
   );
 
   private readonly _echoCommand = this.useCommand(
@@ -117,10 +123,11 @@ export class ChatCommandsFeature extends TypoFeature {
             return [];
           }
         }),
+        withLatestFrom(this._hideFlyoutSetting.changes$)
       )
-      .subscribe((results) => {
+      .subscribe(([results, hideFlyout]) => {
         this._logger.debug("Command results changed", results);
-        this.setFlyoutState(results.length > 0, elements);
+        this.setFlyoutState(!hideFlyout && results.length > 0, elements);
         const sorted = [...results]
           .sort((a, b) => {
             const aIsSuccess = a.result instanceof InterpretableSuccess;
@@ -198,6 +205,7 @@ export class ChatCommandsFeature extends TypoFeature {
    * Callback when the command submit hotkey has been pressed
    * Check interpretation results and run valid command
    * @param interpretationResults
+   * @param silent
    */
   public async commandSubmitted(interpretationResults: CommandExecutionResult[], silent: boolean) {
     this._logger.info("Commands submitted", interpretationResults);
@@ -257,8 +265,7 @@ export class ChatCommandsFeature extends TypoFeature {
           maxWidth: "300px",
           marginY: "2.5rem",
           title: "Command Preview",
-          closeStrategy: "implicit",
-
+          closeStrategy: "implicit"
         },
       });
 
