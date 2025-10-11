@@ -57,6 +57,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
     FeatureTag.SOCIAL
   ];
   public readonly featureId = 55;
+  public override readonly featureEnabledDefault = false;
 
   private readonly _metricViews = createMetricViews();
   private _statArchive$ = new BehaviorSubject<Map<string, archiveEntry>>(new Map());

@@ -22,6 +22,7 @@ export class DrawingClearLockFeature extends TypoFeature {
     FeatureTag.DRAWING
   ];
   public readonly featureId = 53;
+  public override readonly featureEnabledDefault = false;
 
   private _onlyPracticeLobbies = this.useSetting(
     new BooleanExtensionSetting("ping_suggestions", true, this)

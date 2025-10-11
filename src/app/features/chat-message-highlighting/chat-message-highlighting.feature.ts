@@ -77,7 +77,7 @@ export class ChatMessageHighlightingFeature extends TypoFeature {
   );
 
   private _enableReplyButton = this.useSetting(
-    new BooleanExtensionSetting("enable_reply_button", true, this)
+    new BooleanExtensionSetting("enable_reply_button", false, this)
       .withName("Reply Button")
       .withDescription("Add a reply button to ping people from their messages.")
   );

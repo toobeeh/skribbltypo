@@ -521,9 +521,7 @@ export class LobbyStatsService {
       /* guess times for guessers */
       mergeWith(this._guessTimeStats$.pipe(
         map(event => ({...event, completionTimeMs: event.guessTimeMs} as completionTimeStatEvent))
-      )),
-
-      tap(e => console.log("completion time", e.playerId, e.completionTimeMs))
+      ))
     ).subscribe(event => this._completionTimeStats$.next(event));
   }
 
