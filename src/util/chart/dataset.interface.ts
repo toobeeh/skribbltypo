@@ -44,3 +44,5 @@ export interface chartLayout {
   barMaxWidth: number;
   yGridGap: number;
 }
+
+export interface datasetSummaryEntry {result: number, unit: string, player: string}

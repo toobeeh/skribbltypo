@@ -5,6 +5,7 @@ import { BooleanExtensionSetting } from "@/app/core/settings/setting";
 import { LobbyLeftEventListener } from "@/app/events/lobby-left.event";
 import { LobbyStateChangedEventListener } from "@/app/events/lobby-state-changed.event";
 import { RoundStartedEventListener } from "@/app/events/round-started.event";
+import type { datasetSummaryEntry } from "@/util/chart/dataset.interface";
 import { MetricView } from "@/util/chart/metricView";
 import { createMetricViews } from "@/app/features/lobby-statistics/viewsFactory";
 import type {
@@ -30,7 +31,11 @@ import {
   withLatestFrom,
 } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
+import { ExtensionSetting } from "../../core/settings/setting";
+import { ChatService } from "../../services/chat/chat.service";
 import ChartsComponent from "./charts.svelte";
+import LobbyStatsManage from "./lobby-stats-manage.svelte";
+import ChatSummaryStats from "./chat-summary-stats.svelte";
 
 interface archiveEntry {
   key: string;
@@ -49,6 +54,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
   @inject(LobbyStateChangedEventListener) private readonly _lobbyStateChangedEventListener!: LobbyStateChangedEventListener;
   @inject(ElementsSetup) private readonly _elementsSetup!: ElementsSetup;
   @inject(ModalService) private readonly _modalService!: ModalService;
+  @inject(ChatService) private readonly _chatService!: ChatService;
 
   public readonly name = "Game Stats";
   public readonly description = "Collects and visualizes competitive game statistics of lobbies.";
@@ -57,7 +63,10 @@ export class LobbyStatisticsFeature extends TypoFeature {
     FeatureTag.SOCIAL
   ];
   public readonly featureId = 55;
-  public override readonly featureEnabledDefault = false;
+
+  public override get featureManagementComponent(): componentData<LobbyStatsManage> {
+    return { componentType: LobbyStatsManage, props: { feature: this } };
+  }
 
   private readonly _metricViews = createMetricViews();
   private _statArchive$ = new BehaviorSubject<Map<string, archiveEntry>>(new Map());
@@ -86,6 +95,20 @@ export class LobbyStatisticsFeature extends TypoFeature {
     new BooleanExtensionSetting("quick_access", true, this)
       .withName("Stats View Access")
       .withDescription("Show an icon in the controls tray to quickly access the stats view.")
+  );
+
+  private readonly _chatStatSummarySetting = this.useSetting(
+    new BooleanExtensionSetting("chat_summary", true, this)
+      .withName("Chat Summary")
+      .withDescription("Show a brief summary of stats in the chat after a round has ended.")
+  );
+
+  private readonly _chatSummarizeMetricCategories = new ExtensionSetting<string[]>(
+    "summary_categories", ["averageCompletionSpeed", "averageDrawLikes", "averageGuessedPlayers", "fastestGuess"], this
+  );
+
+  private readonly _chatSummarizeTopMetrics = new ExtensionSetting<number>(
+    "summary_top", 8, this
   );
 
   protected override async onActivate() {
@@ -120,8 +143,8 @@ export class LobbyStatisticsFeature extends TypoFeature {
     /* archive lobby metrics when round ended */
     const metricArchiveSub = this._lobbyStateChangedEventListener.events$.pipe(
       filter(event => event.data.gameEnded !== undefined),
-      withLatestFrom(this._lobbyService.lobby$, this._statArchive$, this._seenLobbyPlayers$),
-    ).subscribe(([,lobby, archive, seenPlayers]) => {
+      withLatestFrom(this._lobbyService.lobby$, this._statArchive$, this._seenLobbyPlayers$, this._chatStatSummarySetting.changes$),
+    ).subscribe(([,lobby, archive, seenPlayers, summaryEnabled]) => {
       if(lobby === null || lobby.id === null) return;
 
       const date = new Date().toLocaleTimeString();
@@ -138,6 +161,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
       };
       archive.set(key, entry);
       this._statArchive$.next(archive);
+      if(summaryEnabled) this.summarizeGameInChat(entry);
     });
 
     const playersSub = this._lobbyService.lobby$.pipe(
@@ -178,10 +202,46 @@ export class LobbyStatisticsFeature extends TypoFeature {
 
     this.resetMetrics(true);
 
-
     this._quickAccessSettingSubscription?.unsubscribe();
     this._quickAccessSettingSubscription = undefined;
     this.removeQuickAccessIcon();
+  }
+
+  private async summarizeGameInChat(archiveEntry: archiveEntry) {
+    this._logger.debug("summarizeGameInChat", archiveEntry);
+
+    const categories = await this._chatSummarizeMetricCategories.getValue();
+    const topRanks = await this._chatSummarizeTopMetrics.getValue();
+
+    const selectedViews = Object.entries(this._metricViews)
+      .filter(([key]) => categories.includes(key))
+      .map(([, view]) => {
+        let summary: datasetSummaryEntry[] = [];
+        try {
+          summary = view.generateSummary(archiveEntry.players, archiveEntry.key).slice(0, topRanks);
+        }
+        catch {}
+
+        return {
+          name: view.name,
+          summary,
+        };
+      });
+
+    if(selectedViews.length === 0 || selectedViews.every(view => view.summary.length === 0)) return;
+
+    const messageComponent = await this._chatService.addChatMessage("", "", );
+    const messageElements = await messageComponent.message;
+
+    const isScrolledDown = await this._chatService.isScrolledDown();
+    new ChatSummaryStats({
+      target: messageElements.wrapperElement,
+      props: {
+        feature: this,
+        summaries: selectedViews
+      }
+    });
+    if(isScrolledDown) await this._chatService.scrollToBottom();
   }
 
   private async addQuickAccessIcon() {
@@ -264,6 +324,10 @@ export class LobbyStatisticsFeature extends TypoFeature {
     return Object.values(this._metricViews);
   }
 
+  public getViewsWithKeys() {
+    return Object.entries(this._metricViews).map(([key, view]) => ({ key, view }));
+  }
+
   public get lobbyStore() {
     return fromObservable(this._lobbyService.lobby$, null);
   }
@@ -274,5 +338,13 @@ export class LobbyStatisticsFeature extends TypoFeature {
 
   public get seenPlayersStore() {
     return fromObservable(this._seenLobbyPlayers$.asObservable(), this._seenLobbyPlayers$.value);
+  }
+
+  public get chatSummarizeCategoriesStore() {
+    return fromObservable(this._chatSummarizeMetricCategories.changes$, [], val => this._chatSummarizeMetricCategories.setValue(val));
+  }
+
+  public get chatSummarizeTopStore() {
+    return fromObservable(this._chatSummarizeTopMetrics.changes$, 3, val => this._chatSummarizeTopMetrics.setValue(val));
   }
 }

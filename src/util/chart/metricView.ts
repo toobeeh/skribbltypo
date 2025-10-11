@@ -1,6 +1,6 @@
 import type { lobbyStatEvent } from "@/app/services/lobby-stats/lobby-stats-events.interface";
 import type { Chart } from "@/util/chart/chart";
-import type { chartConfig, chartDataset, chartPoint } from "@/util/chart/dataset.interface";
+import type { chartConfig, chartDataset, chartPoint, datasetSummaryEntry } from "@/util/chart/dataset.interface";
 import { avatarColors } from "@/util/skribbl/avatarColors";
 import type { skribblPlayer } from "@/util/skribbl/lobby";
 
@@ -133,6 +133,40 @@ export class MetricView<TEvent extends lobbyStatEvent> {
     });
 
     return rows;
+  }
+
+  /**
+   * Generate a summary of the metric data for the given players.
+   * For one-point datasets (cumulative, average, ranking), this returns the single value.
+   * For time series datasets (single), this returns the latest value.
+   * Results are ordered by configured ordering, best ranked first.
+   * @param players
+   * @param archiveKey
+   */
+  public generateSummary(players: skribblPlayer[], archiveKey?: string): datasetSummaryEntry[] {
+    const events = archiveKey ? (this._archive.get(archiveKey) ?? []) : this._events;
+    const datasets = this.getDatasetForPlayers(players, events);
+    if(datasets.length === 0) {
+      throw new Error("No dataset found for players");
+    }
+
+    const summary: datasetSummaryEntry[] = datasets.map(dataset => {
+      const result = dataset.data[dataset.data.length - 1].y;
+      const player = dataset.label;
+      return {
+        result,
+        unit: this._metricUnit ?? "",
+        player
+      };
+    });
+
+    if(this._ordering === "minValue"){
+      return summary.sort((a, b) => a.result - b.result);
+    }
+    else if(this._ordering === "maxValue"){
+      return summary.sort((a, b) => b.result - a.result);
+    }
+    return summary;
   }
 
   private getDatasetForPlayers(players: skribblPlayer[], events: TEvent[]): chartDataset[] {

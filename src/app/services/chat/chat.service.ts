@@ -186,11 +186,11 @@ export class ChatService {
    * @param title
    * @param style
    */
-  public async addChatMessage(content?: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"){
+  public async addChatMessage(content?: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"): Promise<MessageComponent>{
     const elements = await this._elementsSetup.complete();
-
     const container = elements.chatContent;
-    const isScrolledDown = container.scrollHeight - container.scrollTop - container.clientHeight < 50; // allow small margin to scroll down
+
+    const isScrolledDown = await this.isScrolledDown();
 
     const message = new MessageComponent({
       target: container,
@@ -198,10 +198,23 @@ export class ChatService {
     });
 
     const chatMessage = await message.message;
-    if(isScrolledDown) container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
+    if(isScrolledDown) await this.scrollToBottom();
 
     this._elementDiscovered$.next(chatMessage);
     return message;
+  }
+
+  public async isScrolledDown(): Promise<boolean> {
+    const elements = await this._elementsSetup.complete();
+    const container = elements.chatContent;
+    const isScrolledDown = container.scrollHeight - container.scrollTop - container.clientHeight < 50; // allow small margin to scroll down
+    return isScrolledDown;
+  }
+
+  public async scrollToBottom(): Promise<void> {
+    const elements = await this._elementsSetup.complete();
+    const container = elements.chatContent;
+    container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
   }
 
   public replaceChatboxContent(content: string, requestingFeature?: TypoFeature): boolean {
