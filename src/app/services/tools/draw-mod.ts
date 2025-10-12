@@ -9,12 +9,29 @@ export interface lineCoordinates {
 }
 
 export interface drawModLine extends lineCoordinates {
+
+  /**
+   * override for the whole mod/tool pipeline
+   * @deprecated review implementation before usage
+   */
   styleOverride?: brushStyle;
 }
 
 export interface drawModEffect {
   lines: drawModLine[],
-  style: brushStyle
+  style: brushStyle,
+
+  /**
+   * when true, won't propagate the color change out of the current cycle
+   * (won't change the actual brush style & preview)
+   */
+  disableColorUpdate?: boolean,
+
+  /**
+   * when true, won't propagate the size change out of the current cycle
+   * (won't change the actual brush style & preview)
+   */
+  disableSizeUpdate?: boolean,
 }
 
 @injectable()
@@ -24,6 +41,7 @@ export abstract class TypoDrawMod {
    * Indicator if this mod requires the skribbl sampling throttle to be disabled
    * Needs to be set true if the mod produces many draw commands in a short time
    * TODO remove? seems unused
+   * @deprecated
    */
   public readonly disableSkribblSamplingRate = false;
 

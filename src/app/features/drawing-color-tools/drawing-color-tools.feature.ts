@@ -86,14 +86,14 @@ export class DrawingColorToolsFeature extends TypoFeature {
     this._pipetteTool = undefined;
   }
 
-  public selectPipetteTool() {
+  public async selectPipetteTool() {
     if (!this._pipetteTool) {
       this._logger.error("Pipette tool not initialized");
       throw new Error("Pipette tool not initialized yet");
     }
 
     this._logger.info("Pipette tool selected");
-    this._toolsService.activateTool(this._pipetteTool);
+    await this._toolsService.activateTool(this._pipetteTool);
   }
 
   public get selectedToolStore() {

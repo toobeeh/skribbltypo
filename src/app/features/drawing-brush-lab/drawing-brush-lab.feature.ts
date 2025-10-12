@@ -5,6 +5,7 @@ import type { BrushLabItem } from "@/app/features/drawing-brush-lab/brush-lab-it
 import { MandalaMod } from "@/app/features/drawing-brush-lab/mods/mandala-mod";
 import { NoiseMod } from "@/app/features/drawing-brush-lab/mods/noise-mod";
 import { ParallelLineMod } from "@/app/features/drawing-brush-lab/mods/parallel-line-mod";
+import { PressureInkMod } from "@/app/features/drawing-brush-lab/mods/pressure-ink-mod";
 import { RainbowMod } from "@/app/features/drawing-brush-lab/mods/rainbow-mod";
 import { RandomColorMod } from "@/app/features/drawing-brush-lab/mods/random-color-mod";
 import { SculptMod } from "@/app/features/drawing-brush-lab/mods/sculpt-mod";
@@ -53,6 +54,7 @@ export class DrawingBrushLabFeature extends TypoFeature {
     DotTool,
     DashTool,
     RainbowMod,
+    PressureInkMod,
     RandomColorMod,
     GridTool,
     NoiseMod,
@@ -108,7 +110,7 @@ export class DrawingBrushLabFeature extends TypoFeature {
 
     const items = await firstValueFrom(this._toolbarItems$);
     items.mods.forEach(({ item }) => this._toolsService.removeMod(item));
-    this._toolsService.activateTool(skribblTool.brush);
+    await this._toolsService.activateTool(skribblTool.brush);
   }
 
   public get toolbarItemsStore(){
@@ -132,16 +134,16 @@ export class DrawingBrushLabFeature extends TypoFeature {
     this._toolbarItems$.next({ tools, mods });
   }
 
-  public activateTool(tool: TypoDrawTool | skribblTool){
-    this._toolsService.activateTool(tool);
+  public async activateTool(tool: TypoDrawTool | skribblTool){
+    await this._toolsService.activateTool(tool);
   }
 
-  public activateMod(mod: TypoDrawMod){
-    this._toolsService.activateMod(mod);
+  public async activateMod(mod: TypoDrawMod){
+    await this._toolsService.activateMod(mod);
   }
 
-  public removeMod(mod: TypoDrawMod){
-    this._toolsService.removeMod(mod);
+  public async removeMod(mod: TypoDrawMod){
+    await this._toolsService.removeMod(mod);
   }
 
   public openBrushLabSettings(initTool?: (BrushLabItem & TypoDrawMod) | undefined){

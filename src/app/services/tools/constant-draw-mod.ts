@@ -7,7 +7,19 @@ import type { brushStyle } from "@/app/services/tools/tools.service";
 
 export interface constantDrawModEffect {
   line: lineCoordinates,
-  style: brushStyle
+  style: brushStyle,
+
+  /**
+   * when true, won't propagate the color change out of the current cycle
+   * (won't change the actual brush style & preview)
+   */
+  disableColorUpdate?: boolean,
+
+  /**
+   * when true, won't propagate the size change out of the current cycle
+   * (won't change the actual brush style & preview)
+   */
+  disableSizeUpdate?: boolean,
 }
 
 /**
@@ -37,7 +49,9 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
     const awaited = effect instanceof Promise ? await effect : effect;
     return {
       lines: [awaited.line],
-      style: awaited.style
+      style: awaited.style,
+      disableSizeUpdate: awaited.disableSizeUpdate,
+      disableColorUpdate: awaited.disableSizeUpdate
     };
   }
 

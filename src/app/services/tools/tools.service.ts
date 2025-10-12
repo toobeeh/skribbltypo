@@ -20,11 +20,11 @@ import { inject, injectable, postConstruct } from "inversify";
 import {
   BehaviorSubject,
   combineLatestWith,
-  filter,
+  filter, firstValueFrom,
   map,
   mergeWith,
   Subject,
-  switchMap,
+  switchMap, tap,
   withLatestFrom,
 } from "rxjs";
 
@@ -126,7 +126,8 @@ export class ToolsService {
       map(([tool, mods, style]) => {
         const typoMods = tool instanceof TypoDrawTool ? [tool, ...mods] : mods;
         return [style, tool, typoMods] as const;
-      })
+      }),
+      tap(meta => this._logger.info("Drawing meta updated", meta))
     );
 
     /* disable cursor updates while drawing with mods */
@@ -174,7 +175,7 @@ export class ToolsService {
     strokeId: number,
     secondaryActive: boolean
   ) {
-    this._logger.debug("Activating tool and applying mods", start, end);
+    this._logger.debug("Activating tool and applying mods", start, end, mods, tool);
 
     /* generate a shared id for every line created from the origin line */
     const eventId = Date.now();
@@ -184,33 +185,38 @@ export class ToolsService {
     let modStyle = structuredClone(style);
     const pressure = end[2];
 
+    /* indicators whether the color/size should be updated. depends on mod/tool order, last one has priority! */
+    let disableColorUpdate = false;
+    let disableSizeUpdate = false;
+
     /* apply mods and wait for result */
     for (const mod of mods) {
 
       /* for each line - mods may append or skip lines */
       const modLines: drawModLine[] = [];
       for(const line of lines) {
-        const effect = await mod.applyEffect(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId, cause, secondaryActive);
+        const effect = await mod.applyEffect(line, pressure, modStyle, eventId, strokeId, cause, secondaryActive);
         modLines.push(...effect.lines);
         modStyle = effect.style;
+        if(effect.disableColorUpdate !== undefined) disableColorUpdate = effect.disableColorUpdate === true;
+        if(effect.disableSizeUpdate !== undefined) disableSizeUpdate = effect.disableSizeUpdate === true;
         this._logger.debug("Mod applied", mod);
       }
       lines = modLines;
     }
 
     /* update brush size in skribbl if changed by mods */
-    /* disabled for now because of efficiency reasons - size only affects current event */
-    /*if(modStyle.size !== style.size) {
+    if(!disableSizeUpdate && modStyle.size !== style.size) {
       this._logger.debug("Brush size changed by mods", modStyle.size);
       this._drawingService.setSize(modStyle.size);
-    }*/
+    }
 
     /* update brush color if changed by mods */
-    if(modStyle.color !== style.color) {
+    if(!disableColorUpdate && modStyle.color !== style.color) {
       this._logger.debug("Brush color changed by mods", modStyle.color);
       this._drawingService.setColor(modStyle.color);
     }
-    if(modStyle.secondaryColor !== style.secondaryColor) {
+    if(!disableColorUpdate && modStyle.secondaryColor !== style.secondaryColor) {
       this._logger.debug("Brush secondary color changed by mods", modStyle.secondaryColor);
       this._drawingService.setColor(modStyle.secondaryColor, true);
     }
@@ -279,10 +285,12 @@ export class ToolsService {
     document.dispatchEvent(new CustomEvent("selectSkribblTool", { detail: tool }));
   }
 
-  public activateTool(tool: TypoDrawTool | skribblTool) {
+  public async activateTool(tool: TypoDrawTool | skribblTool) {
     this._logger.debug("Activating tool", tool);
 
-    if(tool === this._activeTool$.value) {
+    const activeTool = await firstValueFrom(this._activeTool$);
+
+    if(tool === activeTool) {
       this._logger.debug("Tool already active", tool);
       return;
     }
@@ -305,23 +313,31 @@ export class ToolsService {
     if(tool instanceof TypoDrawTool) tool.createCommands({from: [0,0], to: [0,0]}, undefined, {color: Color.fromHex("#000000").skribblCode, secondaryColor: Color.fromHex("#000000").skribblCode, size: 1}, 0, 0, "down", false);
   }
 
-  public activateMod(mod: TypoDrawMod) {
+  // async because of rxjs issue when .next called in subscriber that itself emitted a next value
+  public async activateMod(mod: TypoDrawMod) {
     this._logger.debug("Activating mod", mod);
 
     /* if mod is not constant, deactivate all other non-constant mods */
-    let mods = this._activeMods$.value;
+    let mods = await firstValueFrom(this._activeMods$);
+    this._logger.debug("Current mods", mods);
     if(!(mod instanceof ConstantDrawMod)) {
       mods = mods.filter(m => m instanceof ConstantDrawMod);
     }
 
-    this._activeMods$.next([...mods, mod]);
+    mods = [...mods, mod];
+    this._logger.info("Activated mod", mods);
+    this._activeMods$.next(mods);
   }
 
-  public removeMod(mod: TypoDrawMod) {
+  public async removeMod(mod: TypoDrawMod) {
     this._logger.debug("Removing mod", mod);
-    const lengthBefore = this._activeMods$.value.length;
-    const mods = this._activeMods$.value.filter(m => m !== mod);
-    if(lengthBefore !=  mods.length) {
+
+    let mods = await firstValueFrom(this._activeMods$);
+
+    const lengthBefore = mods.length;
+    mods = mods.filter(m => m !== mod);
+    if(lengthBefore != mods.length) {
+      this._logger.info("Disabled mod", mods);
       this._activeMods$.next(mods);
     }
   }

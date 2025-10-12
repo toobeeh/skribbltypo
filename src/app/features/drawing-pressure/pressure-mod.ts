@@ -23,7 +23,7 @@ export class PressureMod extends ConstantDrawMod {
    * @param eventId
    * @param strokeId
    */
-  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<constantDrawModEffect> {
+  public applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): constantDrawModEffect {
 
     if(pressure === undefined) {
       return {
@@ -38,7 +38,8 @@ export class PressureMod extends ConstantDrawMod {
 
     return {
       style,
-      line
+      line,
+      disableSizeUpdate: true
     };
   }
 

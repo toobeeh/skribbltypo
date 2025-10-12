@@ -79,7 +79,7 @@ export class DrawingPressureFeature extends TypoFeature {
     ).subscribe(async ([performanceMode, sensitivity, balance, overridePerformance]) => {
       if(performanceMode && !overridePerformance){
         if(this._pressureMod) {
-          this._toolsService.removeMod(this._pressureMod);
+          await this._toolsService.removeMod(this._pressureMod);
           this._pressureMod = undefined;
         }
 
@@ -88,7 +88,7 @@ export class DrawingPressureFeature extends TypoFeature {
       else {
         if(!this._pressureMod){
           this._pressureMod = this._toolsService.resolveModOrTool(PressureMod);
-          this._toolsService.activateMod(this._pressureMod);
+          await this._toolsService.activateMod(this._pressureMod);
         }
         this._pressureMod.setParams(sensitivity, balance);
 
