@@ -5,6 +5,7 @@
 
   export let feature: LobbyStatisticsFeature;
   export let summaries: {name: string, summary: datasetSummaryEntry[]}[];
+  export let summaryArchiveKey: string;
   let summaryIndex = 0;
 </script>
 
@@ -19,7 +20,7 @@
     > b {
       justify-self: flex-end;
       color: var(--COLOR_CHAT_TEXT_DRAWING);
-      text-align: center;
+      /*text-align: center;*/
     }
 
     .chat-summary-stats-category {
@@ -37,9 +38,17 @@
       justify-self: stretch;
       display: flex;
       align-items: center;
-      gap: 1em;
-      justify-content: center;
+      gap: .2rem;
+      justify-content: start;
       user-select: none;
+
+      .chat-summary-stats-nav-arrow {
+        transform: rotate(90deg);
+      }
+
+      > div:last-child {
+        margin-left: auto;
+      }
     }
   }
 </style>
@@ -65,13 +74,24 @@
 
     {#if summaries.length > 1}
       <div class="chat-summary-stats-nav">
-        <IconButton icon="file-img-arrow-left-gif" name="Next" size="1.5rem" hoverMove="{false}"
-                    disabled="{summaryIndex <= 0}"
-                    on:click={() => summaryIndex--} />
+        <div class="chat-summary-stats-nav-arrow">
+          <IconButton icon="file-img-arrow-left-gif" name="Next" size="1.5rem" hoverMove="{false}"
+                      disabled="{summaryIndex <= 0}"
+                      on:click={() => summaryIndex--} />
+        </div>
+
+        <div class="chat-summary-stats-nav-arrow">
+          <IconButton icon="file-img-arrow-right-gif" name="Next" size="1.5rem" hoverMove="{false}"
+                      disabled="{summaryIndex >= summaries.length - 1}"
+                      on:click={() => summaryIndex++} />
+        </div>
+
         <span> {summaryIndex + 1} / {summaries.length} </span>
-        <IconButton icon="file-img-arrow-right-gif" name="Next" size="1.5rem" hoverMove="{false}"
-                    disabled="{summaryIndex >= summaries.length - 1}"
-                    on:click={() => summaryIndex++} />
+
+        <div>
+          <IconButton icon="file-img-chart-gif" name="View All Stats" size="1.5rem" hoverMove="{false}"
+                      on:click={() => feature.openStatsPopup(summaryArchiveKey)} />
+        </div>
       </div>
     {/if}
 

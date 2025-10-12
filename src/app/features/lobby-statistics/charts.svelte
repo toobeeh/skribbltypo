@@ -7,6 +7,7 @@
   import { onMount } from "svelte";
 
   export let feature: LobbyStatisticsFeature;
+  export let defaultArchiveKey: string = "";
 
   let canvas: HTMLCanvasElement | undefined;
   let chart: Chart | undefined;
@@ -15,7 +16,7 @@
   const archive = feature.archiveStore;
   const seenPlayers = feature.seenPlayersStore;
   let selectedViewIndex = 0;
-  let selectedArchiveKey = "";
+  let selectedArchiveKey = defaultArchiveKey;
 
   let availablePlayers: skribblPlayer[] = [];
   let selectedPlayers: {[key: number]: boolean} = {};

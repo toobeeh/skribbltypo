@@ -207,6 +207,18 @@ export class LobbyStatisticsFeature extends TypoFeature {
     this.removeQuickAccessIcon();
   }
 
+  public openStatsPopup(defaultArchiveKey?: string | undefined) {
+    const popupComponent: componentData<ChartsComponent> = {
+      componentType: ChartsComponent,
+      props: {
+        feature: this,
+        defaultArchiveKey
+      }
+    };
+
+    this._modalService.showModal(popupComponent.componentType, popupComponent.props, "Lobby Statistics", "card");
+  }
+
   private async summarizeGameInChat(archiveEntry: archiveEntry) {
     this._logger.debug("summarizeGameInChat", archiveEntry);
 
@@ -238,7 +250,8 @@ export class LobbyStatisticsFeature extends TypoFeature {
       target: messageElements.wrapperElement,
       props: {
         feature: this,
-        summaries: selectedViews
+        summaries: selectedViews,
+        summaryArchiveKey: archiveEntry.key
       }
     });
     if(isScrolledDown) await this._chatService.scrollToBottom();
@@ -263,16 +276,7 @@ export class LobbyStatisticsFeature extends TypoFeature {
     });
 
     /* listen for click on icon */
-    this._iconClickSubscription = this._iconComponent.click$.subscribe(async () => {
-      const popupComponent: componentData<ChartsComponent> = {
-        componentType: ChartsComponent,
-        props: {
-          feature: this
-        }
-      };
-
-      this._modalService.showModal(popupComponent.componentType, popupComponent.props, "Lobby Statistics", "card");
-    });
+    this._iconClickSubscription = this._iconComponent.click$.subscribe(() => this.openStatsPopup());
   }
 
   private removeQuickAccessIcon() {

@@ -42,7 +42,8 @@ export const createMetricViews = () => Object.freeze({
     "The total ranking, progressing over time",
     event => event.score)
     .withYLabels(yLabelIncrements(500, "pts"))
-    .withMetricUnit("pts"),
+    .withMetricUnit("pts")
+    .withOrdering("maxValue"),
 
   finalStandings: new MetricView<standingScoreStatEvent>(
     "Final Score Ranking",
@@ -68,6 +69,7 @@ export const createMetricViews = () => Object.freeze({
     event => millisAsSeconds(event.completionTimeMs))
     .withYLabels(yLabelIncrements(10, "s"))
     .withMetricUnit("s")
+    .withOrdering("minValue")
     .withAggregation("single"),
 
   averageGuessTime: new MetricView<guessTimeStatEvent>(
@@ -94,7 +96,8 @@ export const createMetricViews = () => Object.freeze({
     event => millisAsSeconds(event.gapTimeMs))
     .withYLabels(yLabelIncrements(5, "s"))
     .withMetricUnit("s")
-    .withAggregation("average"),
+    .withAggregation("average")
+    .withOrdering("minValue"),
 
   averageNeededGuesses: new MetricView<guessCountStatEvent>(
     "Average Guesses Needed",
