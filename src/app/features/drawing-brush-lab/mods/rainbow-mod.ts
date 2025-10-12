@@ -72,9 +72,14 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
       };
     }
 
+    else {
+      style.color = this.lastSwitch.index * 2 + (mode === "light" ? 0 : 1);
+    }
+
     return {
       style,
-      line: line
+      line: line,
+      disableColorUpdate: false
     };
   }
 

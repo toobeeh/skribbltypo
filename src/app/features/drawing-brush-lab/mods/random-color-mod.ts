@@ -31,7 +31,7 @@ export class RandomColorMod extends ConstantDrawMod implements BrushLabItem {
     .withName("Change Per Stroke")
     .withDescription("If enabled, the color will change per stroke instead of continuously.");
 
-  private lastSwitch?: { eventId: number, position: [number, number], strokeId: number };
+  private lastSwitch?: { eventId: number, position: [number, number], strokeId: number, color: number };
 
   readonly settings = [
     this._colorSwitchSetting,
@@ -60,13 +60,19 @@ export class RandomColorMod extends ConstantDrawMod implements BrushLabItem {
       this.lastSwitch = {
         eventId: eventId,
         position: line.from,
-        strokeId: strokeId
+        strokeId: strokeId,
+        color: style.color
       };
+    }
+
+    else {
+      style.color = this.lastSwitch.color;
     }
 
     return {
       style,
-      line: line
+      line: line,
+      disableColorUpdate: false
     };
   }
 
