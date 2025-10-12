@@ -6,9 +6,9 @@ import { SizeChangedEventListener } from "@/app/events/size-changed.event";
 import { skribblTool, ToolChangedEventListener } from "@/app/events/tool-changed.event";
 import { DrawingService } from "@/app/services/drawing/drawing.service";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
-import { ConstantDrawMod } from "@/app/services/tools/constant-draw-mod";
+import { ConstantDrawMod, type constantDrawModEffect } from "@/app/services/tools/constant-draw-mod";
 import { CoordinateListener, type strokeCoordinates } from "@/app/services/tools/coordinateListener";
-import { TypoDrawMod, type drawModLine, type strokeCause } from "@/app/services/tools/draw-mod";
+import { TypoDrawMod, type strokeCause, type lineCoordinates } from "@/app/services/tools/draw-mod";
 import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
 import {
@@ -177,59 +177,73 @@ export class ToolsService {
   ) {
     this._logger.debug("Activating tool and applying mods", start, end, mods, tool);
 
-    /* generate a shared id for every line created from the origin line */
+    /* generate a shared id for every line created from the origin line, create origin effect */
     const eventId = Date.now();
-    let lines: drawModLine[] = [{from: [start[0], start[1]], to: [end[0], end[1]]}];
-
-    /* copy to avoid reference issues */
-    let modStyle = structuredClone(style);
+    let lines: { effect: constantDrawModEffect, strokeId: number}[] = [{
+      effect: {
+        line: {
+          from: [start[0], start[1]],
+          to:[end[0], end[1]]
+        },
+        style: structuredClone(style)
+      }, strokeId
+    }];
     const pressure = end[2];
 
-    /* indicators whether the color/size should be updated. depends on mod/tool order, last one has priority! */
-    let disableColorUpdate = false;
-    let disableSizeUpdate = false;
+    let currentStrokeId = strokeId;
 
     /* apply mods and wait for result */
     for (const mod of mods) {
 
       /* for each line - mods may append or skip lines */
-      const modLines: drawModLine[] = [];
+      const modLines: { effect: constantDrawModEffect, strokeId: number}[] = [];
       for(const line of lines) {
-        const effect = await mod.applyEffect(line, pressure, modStyle, eventId, strokeId, cause, secondaryActive);
-        modLines.push(...effect.lines);
-        modStyle = effect.style;
-        if(effect.disableColorUpdate !== undefined) disableColorUpdate = effect.disableColorUpdate === true;
-        if(effect.disableSizeUpdate !== undefined) disableSizeUpdate = effect.disableSizeUpdate === true;
+        const effect = await mod.applyEffect(line.effect.line, pressure, line.effect.style, eventId, line.strokeId, cause, secondaryActive);
+        const constantEffects = effect.lines.map(l => ({
+          line: structuredClone(l),
+          style: structuredClone(effect.style),
+          disableColorUpdate: effect.disableColorUpdate,
+          disableSizeUpdate: effect.disableSizeUpdate
+        })).map((effect, i) => ({
+          effect,
+          strokeId: i === 0 ? line.strokeId : ++currentStrokeId
+        }));
+
+        modLines.push(...constantEffects);
         this._logger.debug("Mod applied", mod);
       }
       lines = modLines;
     }
 
+    const lastEffect = lines[lines.length - 1].effect;
+    const disableSizeUpdate = lastEffect.disableSizeUpdate ?? false;
+    const disableColorUpdate = lastEffect.disableColorUpdate ?? false;
+
     /* update brush size in skribbl if changed by mods */
-    if(!disableSizeUpdate && modStyle.size !== style.size) {
-      this._logger.debug("Brush size changed by mods", modStyle.size);
-      this._drawingService.setSize(modStyle.size);
+    if(!disableSizeUpdate && lastEffect.style.size !== style.size) {
+      this._logger.debug("Brush size changed by mods", lastEffect.style.size);
+      this._drawingService.setSize(lastEffect.style.size);
     }
 
     /* update brush color if changed by mods */
-    if(!disableColorUpdate && modStyle.color !== style.color) {
-      this._logger.debug("Brush color changed by mods", modStyle.color);
-      this._drawingService.setColor(modStyle.color);
+    if(!disableColorUpdate && lastEffect.style.color !== style.color) {
+      this._logger.debug("Brush color changed by mods", lastEffect.style.color);
+      this._drawingService.setColor(lastEffect.style.color);
     }
-    if(!disableColorUpdate && modStyle.secondaryColor !== style.secondaryColor) {
-      this._logger.debug("Brush secondary color changed by mods", modStyle.secondaryColor);
-      this._drawingService.setColor(modStyle.secondaryColor, true);
+    if(!disableColorUpdate && lastEffect.style.secondaryColor !== style.secondaryColor) {
+      this._logger.debug("Brush secondary color changed by mods", lastEffect.style.secondaryColor);
+      this._drawingService.setColor(lastEffect.style.secondaryColor, true);
     }
 
     /* create draw commands from tool based on processed lines and style */
     const commands: number[][] = [];
     if(tool instanceof TypoDrawTool) {
-      for(let line of lines) {
+      for(const line of lines) {
 
         /* make sure line is safe - decimal places should not be submitted to skribbl */
-        line = {from: [Math.floor(line.from[0]), Math.floor(line.from[1])], to: [Math.floor(line.to[0]), Math.floor(line.to[1])]};
+        const lineCoords: lineCoordinates = {from: [Math.floor(line.effect.line.from[0]), Math.floor(line.effect.line.from[1])], to: [Math.floor(line.effect.line.to[0]), Math.floor(line.effect.line.to[1])]};
 
-        const lineCommands = await tool.createCommands(line, pressure, line.styleOverride ?? modStyle, eventId, strokeId, cause, secondaryActive);
+        const lineCommands = await tool.createCommands(lineCoords, pressure, line.effect.style, eventId, line.strokeId, cause, secondaryActive);
         if(lineCommands.length > 0) {
           commands.push(...lineCommands);
           this._logger.debug("Adding commands created by tool", tool, commands);
@@ -243,11 +257,11 @@ export class ToolsService {
     /* create default draw commands as lines */
     else if(tool === skribblTool.brush) {
       for(const line of lines) {
-        const color = secondaryActive ? (line.styleOverride?.secondaryColor ?? modStyle.secondaryColor) : (line.styleOverride?.color ?? modStyle.color);
+        const color = secondaryActive ? (line.effect.style.secondaryColor) : (line.effect.style.color);
         const lineCommand = this._drawingService.createLineCommand(
-          [...line.from, ...line.to],
+          [...line.effect.line.from, ...line.effect.line.to],
           color,
-          line.styleOverride?.size ?? modStyle.size,
+          line.effect.style.size,
           false
         );
         if(lineCommand !== undefined) commands.push(lineCommand);
@@ -261,8 +275,8 @@ export class ToolsService {
       if(cause === "down") {
         for(const line of lines) {
           const pointCommand = this._drawingService.createFillCommand(
-            [...line.from],
-            line.styleOverride?.color ?? modStyle.color
+            [...line.effect.line.from],
+            line.effect.style.color
           );
           commands.push(pointCommand);
         }

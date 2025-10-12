@@ -4,7 +4,7 @@ import {
   SettingWithInput,
 } from "@/app/core/settings/setting";
 import type { BrushLabItem } from "@/app/features/drawing-brush-lab/brush-lab-item.interface";
-import { type drawModEffect, type drawModLine, TypoDrawMod } from "@/app/services/tools/draw-mod";
+import { type drawModEffect, type lineCoordinates, TypoDrawMod } from "@/app/services/tools/draw-mod";
 import { type brushStyle, ToolsService } from "@/app/services/tools/tools.service";
 import { inject } from "inversify";
 import { firstValueFrom } from "rxjs";
@@ -31,7 +31,7 @@ export class SculptMod extends TypoDrawMod implements BrushLabItem {
   ] as SettingWithInput<serializable>[];
 
   public async applyEffect(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     style: brushStyle
   ): Promise<drawModEffect> {

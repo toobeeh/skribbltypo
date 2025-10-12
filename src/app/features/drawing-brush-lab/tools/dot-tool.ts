@@ -2,7 +2,7 @@ import {
   NumericExtensionSetting, type serializable, type SettingWithInput,
 } from "@/app/core/settings/setting";
 import type { BrushLabItem } from "@/app/features/drawing-brush-lab/brush-lab-item.interface";
-import type { drawModLine, strokeCause } from "@/app/services/tools/draw-mod";
+import type { lineCoordinates, strokeCause } from "@/app/services/tools/draw-mod";
 import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import type { brushStyle } from "@/app/services/tools/tools.service";
 import { firstValueFrom } from "rxjs";
@@ -29,7 +29,7 @@ export class DotTool extends TypoDrawTool implements BrushLabItem {
   public applyConstantEffect = this.noConstantEffect;
 
   public override async createCommands(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     style: brushStyle,
     eventId: number,
@@ -41,7 +41,7 @@ export class DotTool extends TypoDrawTool implements BrushLabItem {
     const interval = await firstValueFrom(this._intervalSetting.changes$);
     const now = Date.now();
 
-    const color = this.getSelectedColor(line.styleOverride, style, secondaryActive);
+    const color = this.getSelectedColor(style, secondaryActive);
 
     if(this.lastDown.eventId === eventId){
       return [[0, color, style.size, ...line.to, ...line.to]];

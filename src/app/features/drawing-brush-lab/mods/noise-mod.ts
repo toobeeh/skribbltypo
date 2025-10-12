@@ -5,7 +5,7 @@ import {
 } from "@/app/core/settings/setting";
 import type { BrushLabItem } from "@/app/features/drawing-brush-lab/brush-lab-item.interface";
 import { ConstantDrawMod, type constantDrawModEffect } from "@/app/services/tools/constant-draw-mod";
-import { type drawModLine } from "@/app/services/tools/draw-mod";
+import { type lineCoordinates } from "@/app/services/tools/draw-mod";
 import { type brushStyle } from "@/app/services/tools/tools.service";
 import { firstValueFrom } from "rxjs";
 
@@ -26,7 +26,7 @@ export class NoiseMod extends ConstantDrawMod implements BrushLabItem {
   ] as SettingWithInput<serializable>[];
 
   public async applyConstantEffect(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     style: brushStyle
   ): Promise<constantDrawModEffect> {

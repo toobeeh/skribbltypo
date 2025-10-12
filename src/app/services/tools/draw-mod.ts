@@ -8,17 +8,8 @@ export interface lineCoordinates {
   to: [number, number];
 }
 
-export interface drawModLine extends lineCoordinates {
-
-  /**
-   * override for the whole mod/tool pipeline
-   * @deprecated review implementation before usage
-   */
-  styleOverride?: brushStyle;
-}
-
 export interface drawModEffect {
-  lines: drawModLine[],
+  lines: lineCoordinates[],
   style: brushStyle,
 
   /**
@@ -66,18 +57,17 @@ export abstract class TypoDrawMod {
     secondaryActive: boolean
   ): drawModEffect | Promise<drawModEffect>;
 
-  protected noLineEffect(line: drawModLine, pressure: number | undefined, brushStyle: brushStyle): drawModEffect {
+  protected noLineEffect(line: lineCoordinates, pressure: number | undefined, brushStyle: brushStyle): drawModEffect {
     return {lines: [line], style: brushStyle};
   }
 
   /**
-   * Get the selected color, considering whether secondary mode is active and any style override
-   * @param styleOverride
+   * Get the selected color, considering whether secondary mode is active
    * @param brushStyle
    * @param secondaryActive
    * @private
    */
-  protected getSelectedColor(styleOverride: brushStyle | undefined, brushStyle: brushStyle, secondaryActive: boolean): number {
-    return secondaryActive ? (styleOverride?.secondaryColor ?? brushStyle.secondaryColor) : (styleOverride?.color ?? brushStyle.color);
+  protected getSelectedColor(brushStyle: brushStyle, secondaryActive: boolean): number {
+    return secondaryActive ? (brushStyle.secondaryColor) : (brushStyle.color);
   }
 }

@@ -5,7 +5,7 @@ import {
 } from "@/app/core/settings/setting";
 import type { BrushLabItem } from "@/app/features/drawing-brush-lab/brush-lab-item.interface";
 import { ConstantDrawMod, type constantDrawModEffect } from "@/app/services/tools/constant-draw-mod";
-import { type drawModLine, type strokeCause } from "@/app/services/tools/draw-mod";
+import { type lineCoordinates, type strokeCause } from "@/app/services/tools/draw-mod";
 import { type brushStyle } from "@/app/services/tools/tools.service";
 import { Color } from "@/util/color";
 import { firstValueFrom } from "rxjs";
@@ -75,7 +75,7 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
   private _lastColorCode: number | undefined;
 
   public async applyConstantEffect(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     style: brushStyle,
     eventId: number,
@@ -106,7 +106,7 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
       };
     }
 
-    const colorCode = this.getSelectedColor(line.styleOverride, style, secondaryActive);
+    const colorCode = this.getSelectedColor(style, secondaryActive);
     const colorBase = Color.fromSkribblCode(colorCode).hsl;
 
     if(brightnessEnabled) {
