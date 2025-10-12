@@ -20,13 +20,23 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
     .withName("Brightness")
     .withDescription("Changes the luminance of the selected color depending on pressure.");
 
-  private readonly _brightnessAbsoluteSetting = new BooleanExtensionSetting("brushlab.pressureink.brightnessAbsolute", false)
+  private readonly _brightnessAbsoluteSetting = new BooleanExtensionSetting("brushlab.pressureink.brightnessAbsolute", true)
     .withName("Absolute Brightness")
     .withDescription("When enabled, acts on the full brightness range, regardless of current color brightness.");
+
+  private readonly _brightnessInvertSetting = new BooleanExtensionSetting("brushlab.pressureink.brightnessInvert", false)
+    .withName("Invert Brightness Modification")
+    .withDescription("When enabled, the color will get darker the more pressure is applied.");
 
   private _brightnessSensitivitySetting = new NumericExtensionSetting("brushlab.pressureink.brightnessSensitivity", 50)
     .withName("Brightness Sensitivity")
     .withDescription("Select how much the brightness changes with pressure.")
+    .withSlider(1)
+    .withBounds(0, 100);
+
+  private _brightnessRangeSetting = new NumericExtensionSetting("brushlab.pressureink.brightnessRange", 80)
+    .withName("Brightness Pressure range")
+    .withDescription("A lower range will cut off low and high pressure, making it easier to use the full brightness range.")
     .withSlider(1)
     .withBounds(0, 100);
 
@@ -40,12 +50,26 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
     .withSlider(1)
     .withBounds(0, 100);
 
+  private readonly _degreeInvertSetting = new BooleanExtensionSetting("brushlab.pressureink.degreeInvert", false)
+    .withName("Invert Color Modification")
+    .withDescription("When enabled, the color will shift in the opposite direction when pressure is enabled.");
+
+  private _degreeRangeSetting = new NumericExtensionSetting("brushlab.pressureink.degreeRange", 80)
+    .withName("Color Pressure range")
+    .withDescription("A lower range will cut off low and high pressure, making it easier to use the full color range.")
+    .withSlider(1)
+    .withBounds(0, 100);
+
   readonly settings = [
     this._brightnessEnabledSetting,
-    this._brightnessSensitivitySetting,
-    this._brightnessAbsoluteSetting,
     this._degreeEnabledSetting,
+    this._brightnessAbsoluteSetting,
+    this._brightnessSensitivitySetting,
     this._degreeSensitivitySetting,
+    this._brightnessRangeSetting,
+    this._degreeRangeSetting,
+    this._brightnessInvertSetting,
+    this._degreeInvertSetting
   ] as SettingWithInput<serializable>[];
 
   public async applyConstantEffect(
@@ -74,14 +98,19 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
     if(brightnessEnabled) {
       const brightnessSensitivity = await firstValueFrom(this._brightnessSensitivitySetting.changes$);
       const absoluteBrightness = await firstValueFrom(this._brightnessAbsoluteSetting.changes$);
-      const factor = (50 + brightnessSensitivity) / 100;
-      colorBase[2] = Math.round(absoluteBrightness ? Math.min(100, 100 * pressure * factor) : Math.min(colorBase[2] + 100 * pressure * factor, 100));
+      const brightnessInvert = await firstValueFrom(this._brightnessInvertSetting.changes$);
+      const brightnessRange = await firstValueFrom(this._brightnessRangeSetting.changes$);
+
+      const startValue = absoluteBrightness ? (brightnessInvert ? 100 : 0) : colorBase[2];
+      const value = this.calculateAdjustedOffset(pressure, (50 + brightnessSensitivity) / 100, brightnessRange, brightnessInvert, 100, startValue);
+      colorBase[2] = Math.round(Math.max(0, Math.min(100, value)));
     }
 
     if(degreeEnabled) {
       const degreeSensitivity = await firstValueFrom(this._degreeSensitivitySetting.changes$);
-      const factor = (50 + degreeSensitivity) / 100;
-      colorBase[0] = Math.round((colorBase[0] + (pressure * 360 * factor)) % 360);
+      const degreeInvert = await firstValueFrom(this._degreeInvertSetting.changes$);
+      const degreeRange = await firstValueFrom(this._degreeRangeSetting.changes$);
+      colorBase[0] = Math.round(this.calculateAdjustedOffset(pressure, (50 + degreeSensitivity) / 100, degreeRange, degreeInvert, 360, colorBase[0]) % 360);
     }
 
     const color = Color.fromHsl(colorBase[0], colorBase[1], colorBase[2], colorBase[3]);
@@ -98,5 +127,13 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
       line,
       disableColorUpdate: true
     };
+  }
+
+  private calculateAdjustedOffset(pressure: number, sensitivity: number, rangePercent: number, invert: boolean, base: number, startValue: number) {
+    const adjustedPressure = (pressure - ((1-rangePercent/100)/2)) / (rangePercent / 100); // rescale pressure range around a area in the middle
+    const pressureClamped = Math.max(0, Math.min(1, adjustedPressure));
+    const offset = pressureClamped * sensitivity * base;
+    const value = startValue + (invert ? -offset : offset);
+    return value;
   }
 }
