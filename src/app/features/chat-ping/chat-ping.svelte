@@ -14,6 +14,7 @@
     opacity: .5;
     font-weight: bold;
     font-size: .8em;
+    color: var(--COLOR_CHAT_TEXT_BASE);
   }
 </style>
 
