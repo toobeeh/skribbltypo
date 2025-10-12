@@ -72,6 +72,8 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
     this._degreeInvertSetting
   ] as SettingWithInput<serializable>[];
 
+  private _lastColorCode: number | undefined;
+
   public async applyConstantEffect(
     line: drawModLine,
     pressure: number | undefined,
@@ -84,6 +86,18 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
 
     const brightnessEnabled = await firstValueFrom(this._brightnessEnabledSetting.changes$);
     const degreeEnabled = await firstValueFrom(this._degreeEnabledSetting.changes$);
+
+    // prevent pressure jumps on pen lift (last part of a stroke)
+    if(strokeCause === "up" && this._lastColorCode !== undefined) {
+      if(!secondaryActive) style.color = this._lastColorCode;
+      else style.secondaryColor = this._lastColorCode;
+      this._lastColorCode = undefined;
+      return {
+        style,
+        line,
+        disableColorUpdate: true
+      };
+    }
 
     if(pressure === undefined || (!brightnessEnabled && !degreeEnabled)) {
       return {
@@ -114,6 +128,7 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
     }
 
     const color = Color.fromHsl(colorBase[0], colorBase[1], colorBase[2], colorBase[3]);
+    this._lastColorCode = color.skribblCode;
 
     /* use previous override if set and set new override with colors */
     style = {
