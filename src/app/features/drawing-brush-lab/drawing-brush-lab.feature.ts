@@ -54,8 +54,8 @@ export class DrawingBrushLabFeature extends TypoFeature {
     DotTool,
     DashTool,
     RainbowMod,
-    PressureInkMod,
     RandomColorMod,
+    PressureInkMod,
     GridTool,
     NoiseMod,
     TiltMod
