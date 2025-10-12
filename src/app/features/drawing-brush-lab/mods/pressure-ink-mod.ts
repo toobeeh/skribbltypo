@@ -30,7 +30,7 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
     .withSlider(1)
     .withBounds(0, 100);
 
-  private readonly _degreeEnabledSetting = new BooleanExtensionSetting("brushlab.pressureink.degree", true)
+  private readonly _degreeEnabledSetting = new BooleanExtensionSetting("brushlab.pressureink.degree", false)
     .withName("Color")
     .withDescription("Changes the HUE of the selected color depending on pressure.");
 
@@ -75,13 +75,13 @@ export class PressureInkMod extends ConstantDrawMod implements BrushLabItem {
       const brightnessSensitivity = await firstValueFrom(this._brightnessSensitivitySetting.changes$);
       const absoluteBrightness = await firstValueFrom(this._brightnessAbsoluteSetting.changes$);
       const factor = (50 + brightnessSensitivity) / 100;
-      colorBase[2] = absoluteBrightness ? Math.min(100, 100 * pressure * factor) : Math.min(colorBase[2] + colorBase[2] * pressure * factor, 100);
+      colorBase[2] = Math.round(absoluteBrightness ? Math.min(100, 100 * pressure * factor) : Math.min(colorBase[2] + 100 * pressure * factor, 100));
     }
 
     if(degreeEnabled) {
       const degreeSensitivity = await firstValueFrom(this._degreeSensitivitySetting.changes$);
       const factor = (50 + degreeSensitivity) / 100;
-      colorBase[0] = (colorBase[0] + (pressure * 360 * factor)) % 360;
+      colorBase[0] = Math.round((colorBase[0] + (pressure * 360 * factor)) % 360);
     }
 
     const color = Color.fromHsl(colorBase[0], colorBase[1], colorBase[2], colorBase[3]);

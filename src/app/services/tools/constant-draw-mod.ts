@@ -51,7 +51,7 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
       lines: [awaited.line],
       style: awaited.style,
       disableSizeUpdate: awaited.disableSizeUpdate,
-      disableColorUpdate: awaited.disableSizeUpdate
+      disableColorUpdate: awaited.disableColorUpdate
     };
   }
 
