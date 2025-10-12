@@ -15,11 +15,16 @@
     }
   }
 
-  const updateCategories = () => {
+  const updateCategories = (key: string) => {
     const enabledCategories: string[] = [];
-    for (const view of views) {
-      const enabled = enabledViews[view.key] === true;
-      if(enabled) enabledCategories.push(view.key);
+
+    // ensure order, uniqueness and consistency when keys are changed (no old keys dangling)
+    for(const category of [...$categoriesStore, key]) {
+      if(
+        enabledViews[category] === true &&
+        views.some(view => view.key === category) &&
+        !enabledCategories.includes(category)
+      ) enabledCategories.push(category);
     }
     $categoriesStore = enabledCategories;
   };
@@ -50,6 +55,6 @@
   <Checkbox
     bind:checked={enabledViews[key]}
     description="{view.name} {$categoriesStore.indexOf(key) !== -1 ? `(page ${$categoriesStore.indexOf(key) + 1})` : ''}"
-    on:change={() => updateCategories()}
+    on:change={() => updateCategories(key)}
   />
 {/each}
