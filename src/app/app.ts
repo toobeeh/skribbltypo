@@ -29,6 +29,7 @@ import { ChatCopyFormattedFeature } from "@/app/features/chat-copy-formatted/cha
 import { ChatEmojisFeature } from "@/app/features/chat-emojis/chat-emojis.feature";
 import { ChatFocusFeature } from "@/app/features/chat-focus/chat-focus.feature";
 import { ChatMessageSplitsFeature } from "@/app/features/chat-message-splits/chat-message-splits.feature";
+import { ChatPingFeature } from "@/app/features/chat-ping/chat-ping.feature";
 import { ChatProfileLinkFeature } from "@/app/features/chat-profile-link/chat-profile-link.feature";
 import { ChatQuickReactFeature } from "@/app/features/chat-quick-react/chat-quick-react.feature";
 import { ChatRecallFeature } from "@/app/features/chat-recall/chat-recall.feature";
@@ -45,6 +46,7 @@ import {
   CustomizerPracticeJoinFeature
 } from "@/app/features/customizer-practice-join/customizer-practice-join.feature";
 import { DrawingBrushLabFeature } from "@/app/features/drawing-brush-lab/drawing-brush-lab.feature";
+import { DrawingClearLockFeature } from "@/app/features/drawing-clear-lock/drawing-clear-lock.feature";
 import { DrawingColorPalettesFeature } from "@/app/features/drawing-color-palettes/drawing-color-palettes.feature";
 import { DrawingColorToolsFeature } from "@/app/features/drawing-color-tools/drawing-color-tools.feature";
 import { DrawingPressureFeature } from "@/app/features/drawing-pressure/drawing-pressure.feature";
@@ -54,6 +56,7 @@ import { GuessCheckFeature } from "@/app/features/guess-check/guess-check.featur
 import { HotkeysFeature } from "@/app/features/hotkeys/hotkeys.feature";
 import { ImageAgentFeature } from "@/app/features/image-agent/image-agent.feature";
 import { LineToolFeature } from "@/app/features/line-tool/line-tool.feature";
+import { LobbyStatisticsFeature } from "@/app/features/lobby-statistics/lobby-statistics.feature";
 import { LobbyStatusFeature } from "@/app/features/lobby-status/lobby-status.feature";
 import { LobbyConnectionService } from "@/app/features/lobby-status/lobby-connection.service";
 import { LobbyTimeVisualizerFeature } from "@/app/features/lobby-time-visualizer/lobby-time-visualizer.feature";
@@ -62,6 +65,7 @@ import { PanelCabinFeature } from "@/app/features/panel-cabin/panel-cabin.featur
 import { PanelChangelogFeature } from "@/app/features/panel-changelog/panel-changelog.feature";
 import { PanelFiltersFeature } from "@/app/features/panel-filters/panel-filters.feature";
 import { PanelLobbiesFeature } from "@/app/features/panel-lobbies/panel-lobbies.feature";
+import { ChatMessageHighlightingFeature } from "@/app/features/chat-message-highlighting/chat-message-highlighting.feature";
 import { PlayerAwardsFeature } from "@/app/features/player-awards/player-awards-feature";
 import { PlayerIdsFeature } from "@/app/features/player-ids/player-ids.feature";
 import { PlayerScenesFeature } from "@/app/features/player-scenes/player-scenes.feature";
@@ -82,6 +86,7 @@ import { ImageFinishedService } from "@/app/services/image-finished/image-finish
 import { ImagePostService } from "@/app/features/toolbar-imagepost/image-post.service";
 import { LobbyInteractionsService } from "@/app/services/lobby-interactions/lobby-interactions.service";
 import { LobbyItemsService } from "@/app/services/lobby-items/lobby-items.service";
+import { LobbyStatsService } from "@/app/services/lobby-stats/lobby-stats.service";
 import { OnboardingService } from "@/app/services/onboarding/onboarding.service";
 import { PlayersService } from "@/app/services/players/players.service";
 import { SocketService } from "@/app/services/socket/socket.service";
@@ -97,6 +102,9 @@ import { LandingPlayerSetup } from "@/app/setups/landing-player/landing-player.s
 import {
   PrioritizedCanvasEventsSetup
 } from "@/app/setups/prioritized-canvas-events/prioritized-canvas-events.setup";
+import {
+  PrioritizedChatboxEventsSetup
+} from "@/app/setups/prioritized-chatbox-events/prioritized-chatbox-events.setup";
 import { SkribblEmitRelaySetup } from "@/app/setups/skribbl-emit-relay/skribbl-emit-relay.setup";
 import { SkribblInitializedSetup } from "@/app/setups/skribbl-initialized/skribbl-initialized.setup";
 import { ToastSetup } from "@/app/setups/toast/toast.setup";
@@ -152,7 +160,8 @@ new ExtensionContainer(interceptor)
     {type: ThemesService, scope: "singleton"},
     {type: LobbyConnectionService, scope: "singleton"},
     {type: ColorsService, scope: "singleton"},
-    {type: OnboardingService, scope: "singleton"}
+    {type: OnboardingService, scope: "singleton"},
+    {type: LobbyStatsService, scope: "singleton"}
   )
   .registerSetups( /* register setup dependencies to the application */
     PanelSetup,
@@ -170,7 +179,8 @@ new ExtensionContainer(interceptor)
     PrioritizedCanvasEventsSetup,
     CssColorVarSelectorsSetup,
     LandingPlayerSetup,
-    CustomizerActionsSetup
+    CustomizerActionsSetup,
+    PrioritizedChatboxEventsSetup
   )
   .registerEventProcessors( /* register event processors and their listeners */
     lobbyJoinedEventRegistration,
@@ -244,7 +254,11 @@ new ExtensionContainer(interceptor)
     ControlsOnboardingFeature,
     ControlsProfilesFeature,
     ChatAvatarsFeature,
-    DrawingSizeHotkeysFeature
+    DrawingSizeHotkeysFeature,
+    ChatPingFeature,
+    DrawingClearLockFeature,
+    ChatMessageHighlightingFeature,
+    LobbyStatisticsFeature,
   );
 
 /* indicate for interceptor that content script has loaded */

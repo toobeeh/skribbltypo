@@ -64,7 +64,7 @@ export class ChatAvatarsFeature extends TypoFeature {
     }
 
     /* create a wrapper to display next to chat name */
-    const skribblPlayer = message.player.player;
+    const skribblPlayer = message.player;
     const container = createElement(`<div
         style="display: inline-flex; align-items: center; height: 0; vertical-align: middle; margin-right: .5rem"
       ></div>`);

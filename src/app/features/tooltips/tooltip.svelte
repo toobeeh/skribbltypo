@@ -1,5 +1,6 @@
 <script lang="ts">
   export let title: string;
+  export let htmlTitle: string | undefined;
   export let direction: "N" | "S" | "E" | "W";
   export let anchorX: number;
   export let anchorY: number;
@@ -27,7 +28,7 @@
     pointer-events: none;
     transform-origin: 0 0;
 
-    span {
+    .typo-tooltip-title {
       background-color: var(--COLOR_TOOL_TIP_BG);
       color: var(--COLOR_PANEL_TEXT);
       border-radius: var(--BORDER_RADIUS);
@@ -93,5 +94,11 @@
 
 <div class="typo-tooltip {direction}" style="top: {anchorY}px; left: {anchorX}px">
   <div class="typo-tooltip-arrow"></div>
-  <span>{title}</span>
+  <div class="typo-tooltip-title">
+    {#if htmlTitle}
+      {@html htmlTitle}
+    {:else}
+      {title}
+    {/if}
+  </div>
 </div>

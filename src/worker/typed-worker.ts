@@ -16,12 +16,15 @@ export class TypedWorkerExecutor<TWorker extends TypedWorkerDefinition, TParentD
     });
   }
 
-  public async run<T extends keyof TWorker>(methodName: T, ...args: Parameters<TWorker[T]>): Promise<ReturnType<TWorker[T]>>{
+  public async run<T extends keyof TWorker>(methodName: T, ...args: Parameters<TWorker[T]>): Promise<ReturnType<TWorker[T]> | Error>{
     return new Promise((resolve) => {
       const messageId = Math.random().toString(36).slice(10);
       this._worker.addEventListener("message", (event) => {
         if(event.data.messageId === messageId && event.data.type === "result"){
           resolve(event.data.result);
+        }
+        else if(event.data.messageId === messageId && event.data.type === "error"){
+          resolve(new Error(event.data.error));
         }
       });
       this._worker.postMessage({ methodName, args, messageId });
@@ -33,8 +36,13 @@ export class TypedWorker<TWorkerDefinition extends TypedWorkerDefinition, TParen
   constructor(private worker: TWorkerDefinition){
     addEventListener("message", async (event) => {
       const { methodName, args, messageId } = event.data;
-      const result = await this.worker[methodName](...args);
-      postMessage({ type: "result", messageId, result });
+      try {
+        const result = await this.worker[methodName](...args);
+        postMessage({ type: "result", messageId, result });
+      }
+      catch (error) {
+        postMessage({ type: "error", messageId, error: error instanceof Error ? error.message : String(error) });
+      }
     });
   }
 

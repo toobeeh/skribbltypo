@@ -25,13 +25,14 @@ export class TextOverlayVisibilityChangedEventProcessor extends EventProcessor<b
     const elements = await this._elementsSetup.complete();
 
     const observer = new MutationObserver(() => {
-      if(elements.canvasOverlay.style.top !== "100%" && elements.textOverlay.classList.contains("show")) {
+      if(elements.canvasOverlay.style.top.trim() !== "-100%" && elements.textOverlay.classList.contains("show")) {
         events.next(new TextOverlayVisibilityChangedEvent(true));
       }
       else events.next(new TextOverlayVisibilityChangedEvent(false));
     });
 
     observer.observe(elements.textOverlay, { attributes: true });
+    observer.observe(elements.canvasOverlay, { attributes: true });
 
     return events.pipe(
       distinctUntilChanged(),

@@ -357,9 +357,11 @@ export const gameJsPatchConfig = {
                     },
                     disconnect: undefined,
                     skipCursorUpdate: false,
+                    lockManualClear: false,
                     lastConnect: 0,
                     initListeners: (() => {
                         let abort = false; 
+                        document.addEventListener("lockManualClear", (event) => typo.lockManualClear = event.detail === true);
                         document.addEventListener("selectSkribblTool", (event) => ##SELECTTOOL##(event.detail));
                         document.addEventListener("selectSkribblSize", (event) => ##SELECTSIZE##(event.detail));
                         document.addEventListener("clearDrawing", () => ##CLEARACTION##());
@@ -752,7 +754,7 @@ export const gameJsPatchConfig = {
         {
           position:
             "(\"submit\", function\\s*\\([a-zA-Z0-9&_\\-$]+\\) {)\\s+[a-zA-Z0-9&_\\-$]+\\.preventDefault",
-          code: "const input = this.querySelector(\"input\"); let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; this.dispatchEvent(new Event(\"submit\"));},180);",
+          code: "const input = this.querySelector(\"input\"); let rest = input.value.substring(100);\n        input.value = input.value.substring(0,100);\n        if(rest.length > 0) setTimeout(()=>{input.value = rest; this.requestSubmit();},180);",
         },
       ],
     },
@@ -904,7 +906,7 @@ export const gameJsPatchConfig = {
       ],
     },
     {
-      name: "Add event when skribbl color changed",
+      name: "Add event when skribbl primary color changed",
       replacements: [
         {
           source: "##COLOR##",
@@ -915,6 +917,21 @@ export const gameJsPatchConfig = {
         {
           position: "(\"#color-preview-primary\"\\).style\\.fill = [a-zA-Z0-9&_\\-$]+)",
           code: ", document.dispatchEvent(new CustomEvent(\"skribblColorChanged\", {detail: ##COLOR##}))",
+        },
+      ],
+    },
+    {
+      name: "Add event when skribbl secondary color changed",
+      replacements: [
+        {
+          source: "##COLOR##",
+          target: "\"#color-preview-secondary\"\\).style\\.fill = ([a-zA-Z0-9&_\\-$]+)",
+        },
+      ],
+      injections: [
+        {
+          position: "(\"#color-preview-secondary\"\\).style\\.fill = [a-zA-Z0-9&_\\-$]+)",
+          code: ", document.dispatchEvent(new CustomEvent(\"skribblSecondaryColorChanged\", {detail: ##COLOR##}))",
         },
       ],
     },
@@ -1124,6 +1141,16 @@ export const gameJsPatchConfig = {
           position: "(\\s+)switch \\(([a-zA-Z0-9&_\\-$]+)\\)[^\"]+\"Room not found!",
           code: "document.dispatchEvent(new CustomEvent(\"joinLobbyFailed\")); ",
         },
+      ],
+    },
+    {
+      name: "Add manual clear locking",
+      replacements: [],
+      injections: [
+        {
+          position: "(clear\\.gif\",\\s+action:)",
+          code: "() => typo.lockManualClear !== true && new /* this wicked way of function invoking lets me skip pathing in parentheses after the reference */",
+        }
       ],
     },
   ],

@@ -7,12 +7,13 @@
   import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 
   export let feature: DrawingBrushLabFeature;
+  export let initTool: (BrushLabItem & TypoDrawMod) | undefined = undefined;
 
   const items = feature.toolbarItemsStore;
-  let selectedItem: (TypoDrawMod & BrushLabItem) | undefined;
+  let selectedItem: (TypoDrawMod & BrushLabItem) | undefined = initTool;
 
   $: {
-    selectedItem = ($items.tools.find(tool => tool.active)
+    selectedItem = initTool ?? ($items.tools.find(tool => tool.active)
       ?? $items.mods.find(mod => mod.active)
       ?? $items.tools[0]
     )?.item;
@@ -93,12 +94,16 @@
     }
   }
 
+  .description{
+    text-align: center;
+  }
+
 </style>
 
-<p>
+<p class="description">
   The Brush Laboratory has many mods and tools to create unique masterpices.<br>
   Below, you can find all available tools and mods and their settings.<br>
-  Additionally to a tool, you can select one mod and multiple combo mods.
+  Additionally to a tool, you can select one mod and multiple combo mods. Activation order matters!
 </p>
 
 

@@ -32,7 +32,7 @@
       HIDDEN: 1,
       COMBINATION: 2
     }
-// TYPOMOD
+// TYPOMOD 
     // desc: create re-useable functions
     , typo = {
       /* mod sequence injection for custom draw commands */
@@ -297,9 +297,11 @@
       },
       disconnect: undefined,
       skipCursorUpdate: false,
+      lockManualClear: false,
       lastConnect: 0,
       initListeners: (() => {
         let abort = false;
+        document.addEventListener("lockManualClear", (event) => typo.lockManualClear = event.detail === true);
         document.addEventListener("selectSkribblTool", (event) => Tt(event.detail));
         document.addEventListener("selectSkribblSize", (event) => At(event.detail));
         document.addEventListener("clearDrawing", () => Ft());
@@ -1065,7 +1067,8 @@
       name: "Clear",
       keydef: "C",
       graphic: "clear.gif",
-      action: Ft
+      action:
+        () => typo.lockManualClear !== true && new /* this wicked way of function invoking lets me skip pathing in parentheses after the reference */ Ft
     })
       /*TYPOMOD DESC: add tool for deselect*/
       ,
@@ -1201,7 +1204,8 @@
   function Wt(e) {
     var t =
       e > 10000 ? zt(typo.typoCodeToRgb(e)) : zt(kt[e]);
-    St = e, c.querySelector("#color-preview-secondary").style.fill = t, yt()
+    St = e, c.querySelector("#color-preview-secondary").style.fill = t
+      , document.dispatchEvent(new CustomEvent("skribblSecondaryColorChanged", {detail: t})), yt()
   }
 
   function Ot() {
@@ -2476,7 +2480,7 @@
   }), D(Hn, "submit", function(e) {
     const input = this.querySelector("input"); let rest = input.value.substring(100);
     input.value = input.value.substring(0,100);
-    if(rest.length > 0) setTimeout(()=>{input.value = rest; this.dispatchEvent(new Event("submit"));},180);
+    if(rest.length > 0) setTimeout(()=>{input.value = rest; this.requestSubmit();},180);
     e.preventDefault();
     var e = this.querySelector("input");
     return e.value && (e = e.value, S && S.connected ? S.emit("data", {

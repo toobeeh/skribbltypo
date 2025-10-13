@@ -94,9 +94,9 @@ export class LobbyConnectionService implements featureBinding {
   public async setupConnection(lobbyId: string, lobby: SkribblLobbyStateDto, playerId: number, member: MemberDto){
 
     if(await this._pausedSetting.getValue()){
-      this._logger.warn("Tried to connect, but Connection is paused");
+      this._logger.debug("Tried to connect, but connection is paused");
       this._connection$.next("paused");
-      return "failed";
+      return "paused";
     }
 
     const claim = this._existingTypoLobbyStates.get(lobbyId)?.ownershipClaimToken;

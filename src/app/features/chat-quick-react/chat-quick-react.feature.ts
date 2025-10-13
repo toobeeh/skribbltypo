@@ -6,6 +6,7 @@ import { InterpretableSilentSuccess } from "@/app/core/commands/results/interpre
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { HotkeyAction } from "@/app/core/hotkeys/hotkey";
 import { BooleanExtensionSetting } from "@/app/core/settings/setting";
+import { WordGuessedEventListener } from "@/app/events/word-guessed.event";
 import {
   type lobbyAvailableInteractions,
   LobbyInteractionsService,
@@ -19,7 +20,7 @@ import { fromObservable } from "@/util/store/fromObservable";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
-import { firstValueFrom, map, type Subscription } from "rxjs";
+import { filter, firstValueFrom, map, type Subscription, withLatestFrom } from "rxjs";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import QuickReact from "./quick-react.svelte";
 
@@ -28,6 +29,7 @@ export class ChatQuickReactFeature extends TypoFeature {
   @inject(LobbyInteractionsService) private readonly _lobbyInteractionsService!: LobbyInteractionsService;
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(LobbyService) private readonly _lobbyService!: LobbyService;
+  @inject(WordGuessedEventListener) private readonly _wordGuessedListener!: WordGuessedEventListener;
 
   public readonly name = "Quick React";
   public readonly description =
@@ -156,11 +158,18 @@ export class ChatQuickReactFeature extends TypoFeature {
       .withDescription("Mute the info toasts when liking/disliking/votekicking a player")
   );
 
+  private readonly _likeAfterGuessSetting = this.useSetting(
+    new BooleanExtensionSetting("like_after_guess", false, this)
+      .withName("Like Drawing After Guess")
+      .withDescription("Automatically likes the drawing after you have guessed the word")
+  );
+
   private _subscription?: Subscription;
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
   private _rateInteractionsStyle = createElement("<style>.typo-hide-rate-interactions { display: none !important }</style>");
   private _interactionUpdateSubscription?: Subscription;
+  private _guessedSubscription?: Subscription;
 
   protected override async onActivate() {
     document.body.appendChild(this._rateInteractionsStyle);
@@ -168,6 +177,16 @@ export class ChatQuickReactFeature extends TypoFeature {
     const elements = await this._elements.complete();
     this._interactionUpdateSubscription = this._lobbyInteractionsService.availableInteractions$.subscribe(interactions => {
       elements.gameRate.classList.toggle("typo-hide-rate-interactions", interactions?.rateAvailable !== true);
+    });
+
+    this._wordGuessedListener.events$.pipe(
+      filter(event => event.data.word !== undefined), /* word is only set if own guess */
+      withLatestFrom(this._likeAfterGuessSetting.changes$),
+      filter(([, likeAfterGuess]) => likeAfterGuess === true),
+      withLatestFrom(this._lobbyInteractionsService.availableInteractions$),
+      filter(([[,], interactions]) => interactions?.rateAvailable === true),
+    ).subscribe(() => {
+      this._lobbyInteractionsService.likePlayer();
     });
   }
 
@@ -183,6 +202,9 @@ export class ChatQuickReactFeature extends TypoFeature {
     this._interactionUpdateSubscription?.unsubscribe();
     this._interactionUpdateSubscription = undefined;
     this._rateInteractionsStyle.remove();
+
+    this._guessedSubscription?.unsubscribe();
+    this._guessedSubscription = undefined;
   }
 
   private async hideGameRate(){

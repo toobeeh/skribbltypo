@@ -224,7 +224,7 @@ export class ToolbarSaveFeature extends TypoFeature {
 
   async saveAsGif() {
     this._logger.debug("Saving as gif");
-    const toast = await this._toastService.showStickyToast("Generating GIF");
+    const toast = await this._toastService.showStickyToast("Saving as GIF");
 
     combineLatest({
       commands: this._drawingService.commands$,
@@ -238,6 +238,10 @@ export class ToolbarSaveFeature extends TypoFeature {
     ).subscribe(async ({commands, lobby, state, duration}) => {
 
       const durationMs = parseFloat(duration ?? "") * 1000;
+      if(duration === null) {
+        toast.close();
+        return;
+      }
       if(Number.isNaN(durationMs)){
         toast.resolve("Invalid duration entered");
         return;
@@ -279,7 +283,13 @@ export class ToolbarSaveFeature extends TypoFeature {
       const gif = await worker.run("renderGif", commands, durationMs);
       /*const gif = gifRendererWorker.renderGif(commands, 5000);*/
 
-      toast.resolve(`${name} rendered`, 3000);
+      if(gif instanceof Error) {
+        this._logger.error("Failed to render gif", gif);
+        toast.resolve("Failed to render GIF: " + gif.message);
+        return;
+      }
+
+      toast.resolve(`${name} saved as GIF`, 3000);
       downloadBlob(gif, `${name}.gif`);
     });
   }

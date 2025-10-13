@@ -1,17 +1,19 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { BooleanExtensionSetting, NumericExtensionSetting } from "@/app/core/settings/setting";
 import { PressureMod } from "@/app/features/drawing-pressure/pressure-mod";
+import { DrawingService } from "@/app/services/drawing/drawing.service";
 import type { componentData } from "@/app/services/modal/modal.service";
 import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import { ToolsService } from "@/app/services/tools/tools.service";
 import { calculatePressurePoint } from "@/util/typo/pressure";
 import { inject } from "inversify";
-import { combineLatestWith, map, type Subscription } from "rxjs";
+import { combineLatestWith, distinctUntilChanged, map, Subject, type Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import DrawingPressureInfo from "./drawing-pressure-info.svelte";
 
 export class DrawingPressureFeature extends TypoFeature {
   @inject(ToolsService) private readonly _toolsService!: ToolsService;
+  @inject(DrawingService) private readonly _drawingService!: DrawingService;
 
   public readonly name = "Modified Pen Pressure";
   public readonly description = "Use the full size range and custom sensitivity for pen pressure";
@@ -20,7 +22,15 @@ export class DrawingPressureFeature extends TypoFeature {
   ];
   public readonly featureId = 37;
 
+  private _currentPointerType = new Subject<string>();
+
   private _performanceEnabledSubscription?: Subscription;
+  private _currentPointerTypeSubscription?: Subscription;
+  private readonly _pointerOverListener = this.handlePointerOver.bind(this);
+
+  private handlePointerOver(e: PointerEvent) {
+    this._currentPointerType.next(e.pointerType);
+  }
 
   public override get featureInfoComponent(): componentData<DrawingPressureInfo>{
     return { componentType: DrawingPressureInfo, props: { feature: this }};
@@ -69,7 +79,7 @@ export class DrawingPressureFeature extends TypoFeature {
     ).subscribe(async ([performanceMode, sensitivity, balance, overridePerformance]) => {
       if(performanceMode && !overridePerformance){
         if(this._pressureMod) {
-          this._toolsService.removeMod(this._pressureMod);
+          await this._toolsService.removeMod(this._pressureMod);
           this._pressureMod = undefined;
         }
 
@@ -78,17 +88,27 @@ export class DrawingPressureFeature extends TypoFeature {
       else {
         if(!this._pressureMod){
           this._pressureMod = this._toolsService.resolveModOrTool(PressureMod);
-          this._toolsService.activateMod(this._pressureMod);
+          await this._toolsService.activateMod(this._pressureMod);
         }
         this._pressureMod.setParams(sensitivity, balance);
 
         document.documentElement.dataset["typo_pressure_performance"] = "";
       }
     });
+
+    document.addEventListener("pointerover", this._pointerOverListener);
+    this._currentPointerTypeSubscription = this._currentPointerType.pipe(
+      distinctUntilChanged()
+    ).subscribe(type => {
+      if(type === "pen"){
+        this._logger.info("Pen detected, resetting size to 4");
+        this._drawingService.setSize(4);
+      }
+    });
   }
 
   /**
-   * An eval function which is used by tha game patch to calculate the typo pressure
+   * An eval function which is used by the game patch to calculate the typo pressure
    * Probably not the most performant option (ironic), but good enough & prevents duplicating the function.
    * @param s
    * @param b
@@ -108,6 +128,9 @@ export class DrawingPressureFeature extends TypoFeature {
 
     this._performanceEnabledSubscription?.unsubscribe();
     this._performanceEnabledSubscription = undefined;
+
+    document.removeEventListener("pointerover", this._pointerOverListener);
+    this._currentPointerTypeSubscription?.unsubscribe();
   }
 
   public get balanceSettingStore(){

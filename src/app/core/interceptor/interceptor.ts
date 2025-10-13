@@ -7,20 +7,30 @@ export interface prioritizedCanvasEvents {
   remove: HTMLCanvasElement["removeEventListener"]
 }
 
+export interface prioritizedChatboxEvents {
+  add: HTMLInputElement["addEventListener"],
+  remove: HTMLInputElement["removeEventListener"]
+}
+
 export type listenerPriority = "preDraw" | "draw" | "postDraw";
 
 export class Interceptor {
 
   private readonly _typoBodyLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _canvasFound$ = new BehaviorSubject<boolean>(false);
+  private readonly _chatboxFound$ = new BehaviorSubject<boolean>(false);
   private readonly _contentScriptLoaded$ = new BehaviorSubject<boolean>(false);
-  private readonly _tokenProcessed$ = new BehaviorSubject<boolean>(false);
   private readonly _patchLoaded$ = new BehaviorSubject<boolean>(false);
   private readonly _canvasPrioritizedEventsReady$ = new BehaviorSubject<prioritizedCanvasEvents | undefined>(undefined);
+  private readonly _chatboxPrioritizedEventsReady$ = new BehaviorSubject<prioritizedChatboxEvents | undefined>(undefined);
 
   private readonly _canvasEventListener = new Map<string, Map<listenerPriority, Set<{priority: listenerPriority, handler: (e: Event) => (undefined | boolean)}>>>();
+  private readonly _chatboxEventListener = new Map<string, Set<(e: Event) => (undefined | boolean)>>();
 
   private readonly _canvasPrioritizedEventsReady = firstValueFrom(this._canvasPrioritizedEventsReady$.pipe(
+    filter(v => v !== undefined)
+  ));
+  private readonly _chatboxPrioritizedEventsReady = firstValueFrom(this._chatboxPrioritizedEventsReady$.pipe(
     filter(v => v !== undefined)
   ));
 
@@ -32,19 +42,20 @@ export class Interceptor {
 
       /* trigger listeners that have to run on typo loaded body */
       tap(() => this.listenForCanvas()),
+      tap(() => this.listenForChatbox()),
 
       /* wait for all prerequisites */
-      combineLatestWith(this._canvasFound$, this._contentScriptLoaded$, this._tokenProcessed$),
-      filter(([, canvas, content, token]) => canvas && content && token)
+      combineLatestWith(this._canvasFound$, this._chatboxFound$, this._contentScriptLoaded$),
+      filter(([, canvas, content]) => canvas && content)
     ).subscribe(() => {
-      this.debug("All prerequisites executed, injecting patch and listening to canvas events");
-      this.listenPrioritizedCanvasElements();
+      this.debug("All prerequisites executed, injecting patch and listening to events");
+      this.listenPrioritizedCanvasEvents();
+      this.listenPrioritizedChatboxEvents();
       this.injectPatch();
     });
 
     this.debug("Interceptor initialized, starting listeners for token and game.js");
     this.waitForTypoLoadedBody();
-    this.processToken();
 
     this.patchLoaded$.subscribe(() => {
       document.body.dataset["typo_loaded"] = "true";
@@ -69,31 +80,6 @@ export class Interceptor {
       this._patchLoaded$.complete();
     };
     document.body.appendChild(patch);
-  }
-
-  private async processToken(){
-    this.debug("Processing token");
-    const url = new URL(window.location.href);
-    let tokenParam = url.searchParams.get("accessToken");
-
-    /* for compatibility of old typo, can be removed in later versions */
-    if(tokenParam === null){
-      const fallbackOldToken = localStorage.getItem("accessToken");
-      if(fallbackOldToken !== null) {
-        tokenParam = fallbackOldToken;
-        localStorage.removeItem("accessToken");
-      }
-    }
-
-    if(tokenParam !== null) {
-      await typoRuntime.setToken(tokenParam);
-      url.searchParams.delete("accessToken");
-      window.history.replaceState({}, "", url.toString());
-    }
-
-    this.debug("Token processed");
-    this._tokenProcessed$.next(true);
-    this._tokenProcessed$.complete();
   }
 
   private waitForTypoLoadedBody(){
@@ -122,6 +108,87 @@ export class Interceptor {
     bodyObserver.observe(document, {
       childList: true,
       subtree: true
+    });
+  }
+
+  private listenForChatbox(){
+    this.debug("Listening for chatbox");
+
+    /* check if chatbox is already added */
+    if(element("#game-chat .chat-form > input")) {
+      this.debug("Chatbox already present");
+      this._chatboxFound$.next(true);
+      this._chatboxFound$.complete();
+      return;
+    }
+
+    /* observe changes in child list */
+    const chatboxObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if(mutation.type === "childList") {
+
+          /* if chatbox element is found */
+          const target = [...mutation.addedNodes].find(n => n.nodeName === "INPUT"
+            && (n as HTMLInputElement).parentElement?.classList.contains("chat-form")
+            && (n as HTMLInputElement).parentElement?.parentElement?.id === "game-chat"
+          );
+          if(target){
+            this.debug("Chatbox found");
+            this._chatboxFound$.next(true);
+            this._chatboxFound$.complete();
+          }
+        }
+      });
+    });
+
+    chatboxObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  private listenPrioritizedChatboxEvents() {
+    const chatbox = requireElement("#game-chat .chat-form > input") as HTMLInputElement;
+
+    const addListener = (type: string, listener: (e: Event) => (undefined | boolean)) => {
+      const listeners = this._chatboxEventListener.get(type);
+      if(listeners === undefined) {
+        this._chatboxEventListener.set(type, new Set([listener]));
+      }
+      else {
+        listeners.add(listener);
+      }
+    };
+
+    const removeListener = (type: string, listener: (e: Event) => (undefined | boolean)) => {
+      const listeners = this._chatboxEventListener.get(type);
+      if(listeners === undefined) return;
+      listeners.delete(listener);
+    };
+
+    /* listen all events, execute prioritized listeners first */
+    for (const key in chatbox) {
+      if(/^on/.test(key)) {
+        const eventType = key.slice(2);
+        chatbox.addEventListener(eventType, event => {
+          const eventListeners = this._chatboxEventListener.get(eventType);
+          if(eventListeners === undefined) return;
+
+          for(const listener of eventListeners){
+
+            /* if listener returns false, cancel event and do not process any other listeners */
+            if(listener(event) === false) {
+              event.stopImmediatePropagation();
+              return;
+            }
+          }
+        });
+      }
+    }
+
+    this._chatboxPrioritizedEventsReady$.next({
+      add: addListener,
+      remove: removeListener
     });
   }
 
@@ -164,7 +231,7 @@ export class Interceptor {
    * Makes it possible to override skribbl event bindings on the canvas
    * @private
    */
-  private listenPrioritizedCanvasElements() {
+  private listenPrioritizedCanvasEvents() {
     const addListener = (priority: listenerPriority) => {
       return (type: string, listener: (e: Event) => (undefined | boolean)) => {
         const listeners = this._canvasEventListener.get(type);
@@ -249,5 +316,9 @@ export class Interceptor {
 
   public get canvasPrioritizedEventsReady() {
     return this._canvasPrioritizedEventsReady;
+  }
+
+  public get chatboxPrioritizedEventsReady() {
+    return this._chatboxPrioritizedEventsReady;
   }
 }

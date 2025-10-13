@@ -1,5 +1,5 @@
 import type { constantDrawModEffect } from "@/app/services/tools/constant-draw-mod";
-import type { drawModLine } from "@/app/services/tools/draw-mod";
+import type { lineCoordinates, strokeCause } from "@/app/services/tools/draw-mod";
 import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import type { brushStyle } from "@/app/services/tools/tools.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
@@ -24,9 +24,21 @@ export class PipetteTool extends TypoDrawTool {
    * Get the pixel color of the canvas at a certain position
    * @param line
    * @param pressure
-   * @param style
+   * @param brushStyle
+   * @param eventId
+   * @param strokeId
+   * @param strokeCause
+   * @param secondaryActive
    */
-  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<constantDrawModEffect> {
+  public async applyConstantEffect(
+    line: lineCoordinates,
+    pressure: number | undefined,
+    brushStyle: brushStyle,
+    eventId: number,
+    strokeId: number,
+    strokeCause: strokeCause,
+    secondaryActive: boolean
+  ): Promise<constantDrawModEffect> {
     const elements = await this._elementsSetup.complete();
     const canvas = elements.canvas;
 
@@ -34,9 +46,10 @@ export class PipetteTool extends TypoDrawTool {
     if (ctx !== null){
       const imageData = ctx.getImageData(line.to[0], line.to[1], 1, 1);
       const rgb = imageData.data.slice(0, 3);
-      style.color = Color.fromRgb(rgb[0], rgb[1], rgb[2]).skribblCode;
+      if(!secondaryActive) brushStyle.color = Color.fromRgb(rgb[0], rgb[1], rgb[2]).skribblCode;
+      else brushStyle.secondaryColor = Color.fromRgb(rgb[0], rgb[1], rgb[2]).skribblCode;
     }
 
-    return this.noConstantEffect(line, pressure, style);
+    return this.noConstantEffect(line, pressure, brushStyle);
   }
 }

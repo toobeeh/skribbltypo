@@ -45,6 +45,7 @@ import { inject } from "inversify";
 import { firstValueFrom, Subject, Subscription } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import IconButton from "@/lib/icon-button/icon-button.svelte";
+import { ChatPingFeature } from "../chat-ping/chat-ping.feature";
 import ControlsOnboarding from "./controls-onboarding.svelte";
 
 export class ControlsOnboardingFeature extends TypoFeature {
@@ -88,7 +89,8 @@ export class ControlsOnboardingFeature extends TypoFeature {
       features: [
         PlayerIdsFeature,
         DrawingColorPalettesFeature,
-        ImageAgentFeature
+        ImageAgentFeature,
+        ChatPingFeature
       ]
     },
     minimal: {

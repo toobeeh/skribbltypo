@@ -5,7 +5,7 @@ import {
   SettingWithInput,
 } from "@/app/core/settings/setting";
 import type { BrushLabItem } from "@/app/features/drawing-brush-lab/brush-lab-item.interface";
-import { type drawModEffect, type drawModLine, TypoDrawMod } from "@/app/services/tools/draw-mod";
+import { type drawModEffect, type lineCoordinates, TypoDrawMod } from "@/app/services/tools/draw-mod";
 import { type brushStyle } from "@/app/services/tools/tools.service";
 import { firstValueFrom } from "rxjs";
 export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
@@ -50,7 +50,7 @@ export class ParallelLineMod extends TypoDrawMod implements BrushLabItem {
    * @param style
    */
   public async applyEffect(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     style: brushStyle
   ): Promise<drawModEffect> {

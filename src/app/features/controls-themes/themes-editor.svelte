@@ -15,7 +15,6 @@
   let schemeEnableBackgroundTint = true;
   let schemeIngame = false;
   let shareId = "";
-  let importJson = "";
 
   export let feature: ControlsThemesFeature;
   export let variableHooks: Record<string, string[]>;
@@ -159,10 +158,9 @@
 
       <FlatButton content="Discard & Delete" color="orange" on:click={async () => {
         const id = $loadedTheme.theme.meta.id;
-        await feature.unloadThemeFromEditor();
-        await feature.removeSavedTheme(id);
+        await feature.discardLoadedEditorTheme(id);
       }} />
-      <FlatButton content="Discard Changes" color="blue" on:click={() => feature.unloadThemeFromEditor()} />
+      <FlatButton content="Discard Changes" color="blue" on:click={() => feature.discardLoadedEditorTheme()} />
       <FlatButton content="Save Theme" color="green" on:click={() =>{
         feature.saveLoadedEditorTheme();
         feature.activeThemeTabStore.set("list");

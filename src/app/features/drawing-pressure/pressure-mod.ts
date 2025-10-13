@@ -1,5 +1,5 @@
 import { ConstantDrawMod, type constantDrawModEffect } from "@/app/services/tools/constant-draw-mod";
-import { type drawModLine } from "@/app/services/tools/draw-mod";
+import type { lineCoordinates } from "@/app/services/tools/draw-mod";
 import type { brushStyle } from "@/app/services/tools/tools.service";
 import { calculatePressurePoint } from "@/util/typo/pressure";
 
@@ -23,7 +23,7 @@ export class PressureMod extends ConstantDrawMod {
    * @param eventId
    * @param strokeId
    */
-  public async applyConstantEffect(line: drawModLine, pressure: number | undefined, style: brushStyle): Promise<constantDrawModEffect> {
+  public applyConstantEffect(line: lineCoordinates, pressure: number | undefined, style: brushStyle): constantDrawModEffect {
 
     if(pressure === undefined) {
       return {
@@ -38,7 +38,8 @@ export class PressureMod extends ConstantDrawMod {
 
     return {
       style,
-      line
+      line,
+      disableSizeUpdate: true
     };
   }
 

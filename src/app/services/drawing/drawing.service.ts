@@ -44,6 +44,7 @@ export class DrawingService {
   private _currentImageState$ = new BehaviorSubject<imageStateUpdate | null>(null);
   private _currentCommands$ = new BehaviorSubject<number[][]>([]);
   private _drawingState$ = new BehaviorSubject<"drawing" | "idle">("idle");
+  private _lockManualClear = new BehaviorSubject<boolean>(false);
 
   private _pasteInProgress$ = new BehaviorSubject<boolean>(false);
   private _abortCommands$ = new BehaviorSubject<number>(Number.MAX_VALUE);
@@ -64,6 +65,11 @@ export class DrawingService {
 
     this.listenDrawCommands();
     this.listenCurrentImageState();
+
+    this._lockManualClear.subscribe((state) => {
+      this._logger.info("Lock manual clear set to", state);
+      document.dispatchEvent(new CustomEvent("lockManualClear", {detail: state}));
+    });
 
     this.imageState$.subscribe(data => {
       this._logger.debug("Image state updated", data);
@@ -303,10 +309,11 @@ export class DrawingService {
   /**
    *
    * @param color the skribbl color code
+   * @param secondary whether the color should be set as secondary color (right click)
    */
-  public setColor(color: number) {
+  public setColor(color: number, secondary = false) {
     this._logger.debug("Setting color", color);
-    document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color}}));
+    document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color, secondary}}));
   }
 
   /**
@@ -349,6 +356,10 @@ export class DrawingService {
     if(clipped === undefined) return;
 
     return [0, colorCode ?? 1, size ?? 4, ...clipped];
+  }
+
+  createFillCommand(coordinates: [number, number], colorCode: number | undefined = undefined){
+    return [1, colorCode ?? 1, ...coordinates];
   }
 
   public async drawLine(coordinates: [number, number, number, number], colorCode: number | undefined = undefined, size: number | undefined = undefined){
@@ -401,5 +412,13 @@ export class DrawingService {
     target = [Math.floor(target[0]), Math.floor(target[1])];
 
     return [origin, target];
+  }
+
+  public lockManualClear(state: boolean) {
+    this._lockManualClear.next(state);
+  }
+
+  public get manualClearLocked$() {
+    return this._lockManualClear.asObservable();
   }
 }

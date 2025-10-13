@@ -16,7 +16,7 @@ import { InterpretableSilentSuccess } from "@/app/core/commands/results/interpre
 import { InterpretableSuccess } from "@/app/core/commands/results/interpretable-success";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import { HotkeyAction } from "@/app/core/hotkeys/hotkey";
-import { TextExtensionSetting } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting, TextExtensionSetting } from "@/app/core/settings/setting";
 import type { componentData } from "@/app/services/modal/modal.service";
 import { ToastService } from "@/app/services/toast/toast.service";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
@@ -57,7 +57,7 @@ export class ChatCommandsFeature extends TypoFeature {
       this,
       async () => {
         /* only process when interpreting */
-        if(!this._flyoutComponent) return;
+        if(!this._commandInput) return;
         const elements = await this._elements.complete();
         elements.chatInput.value = "";
         this._hotkeySubmitted$.next(undefined);
@@ -73,6 +73,18 @@ export class ChatCommandsFeature extends TypoFeature {
     new TextExtensionSetting("custom_prefix", "", this)
       .withName("Custom Command Prefix")
       .withDescription("Set a custom prefix for chat commands that will trigger the command prompt, additionally to ' / '")
+  );
+
+  private readonly _muteResultsSetting = this.useSetting(
+    new BooleanExtensionSetting("mute_results", false, this)
+      .withName("Mute Command Results")
+      .withDescription("Don't show a toast message with the command result when a command has been executed")
+  );
+
+  private readonly _hideFlyoutSetting = this.useSetting(
+    new BooleanExtensionSetting("hide_flyout", false, this)
+      .withName("Hide Command Preview")
+      .withDescription("Hide the command preview flyout that shows possible commands and their parameters")
   );
 
   private readonly _echoCommand = this.useCommand(
@@ -111,10 +123,11 @@ export class ChatCommandsFeature extends TypoFeature {
             return [];
           }
         }),
+        withLatestFrom(this._hideFlyoutSetting.changes$)
       )
-      .subscribe((results) => {
+      .subscribe(([results, hideFlyout]) => {
         this._logger.debug("Command results changed", results);
-        this.setFlyoutState(results.length > 0, elements);
+        this.setFlyoutState(!hideFlyout && results.length > 0, elements);
         const sorted = [...results]
           .sort((a, b) => {
             const aIsSuccess = a.result instanceof InterpretableSuccess;
@@ -131,10 +144,10 @@ export class ChatCommandsFeature extends TypoFeature {
      */
     this._submitSubscription = this._hotkeySubmitted$
       .pipe(
-        withLatestFrom(this._commandResults$, this._commandArgs$),
+        withLatestFrom(this._commandResults$, this._commandArgs$, this._muteResultsSetting.changes$),
         filter(([, , args]) => args.startsWith("/")),
       )
-      .subscribe(async ([, results]) => this.commandSubmitted(results));
+      .subscribe(async ([, results,,silent]) => this.commandSubmitted(results, silent));
   }
 
   protected override async onDestroy() {
@@ -192,8 +205,9 @@ export class ChatCommandsFeature extends TypoFeature {
    * Callback when the command submit hotkey has been pressed
    * Check interpretation results and run valid command
    * @param interpretationResults
+   * @param silent
    */
-  public async commandSubmitted(interpretationResults: CommandExecutionResult[]) {
+  public async commandSubmitted(interpretationResults: CommandExecutionResult[], silent: boolean) {
     this._logger.info("Commands submitted", interpretationResults);
 
     this._commandInput?.$destroy();
@@ -203,18 +217,18 @@ export class ChatCommandsFeature extends TypoFeature {
 
       /* match returned an action to be executed later */
       if(match.result instanceof InterpretableDeferResult){
-        const toast = await this._toastService.showLoadingToast(`Command: ${match.context.command.name}`);
+        const toast = silent ? undefined : await this._toastService.showLoadingToast(`Command: ${match.context.command.name}`);
         const result = await match.result.run();
 
-        if(!(result instanceof InterpretableSilentSuccess)) toast.resolve(result.message);
-        else toast.close();
+        if(!(result instanceof InterpretableSilentSuccess)) toast?.resolve(result.message);
+        else toast?.close();
       }
 
       /* match executed during interpretation resolution.
         should actually not be used for commands; would execute on every type event */
       else {
-        if(match.result.message) await this._toastService.showToast(`${match.result.message}`);
-        else if(!(match.result instanceof InterpretableSilentSuccess)) await this._toastService.showToast(`${match.context.command.name}`);
+        if(match.result.message && !silent) await this._toastService.showToast(`${match.result.message}`);
+        else if(!(match.result instanceof InterpretableSilentSuccess) && !silent) await this._toastService.showToast(`${match.context.command.name}`);
       }
     }
     else {
@@ -251,8 +265,7 @@ export class ChatCommandsFeature extends TypoFeature {
           maxWidth: "300px",
           marginY: "2.5rem",
           title: "Command Preview",
-          closeStrategy: "implicit",
-
+          closeStrategy: "implicit"
         },
       });
 

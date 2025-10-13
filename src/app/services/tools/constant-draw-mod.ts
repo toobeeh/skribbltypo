@@ -7,7 +7,19 @@ import type { brushStyle } from "@/app/services/tools/tools.service";
 
 export interface constantDrawModEffect {
   line: lineCoordinates,
-  style: brushStyle
+  style: brushStyle,
+
+  /**
+   * when true, won't propagate the color change out of the current cycle
+   * (won't change the actual brush style & preview)
+   */
+  disableColorUpdate?: boolean,
+
+  /**
+   * when true, won't propagate the size change out of the current cycle
+   * (won't change the actual brush style & preview)
+   */
+  disableSizeUpdate?: boolean,
 }
 
 /**
@@ -22,6 +34,7 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
    * @param eventId
    * @param strokeId
    * @param strokeCause
+   * @param secondaryActive
    */
   public async applyEffect(
     line: lineCoordinates,
@@ -29,13 +42,16 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
     brushStyle: brushStyle,
     eventId: number,
     strokeId: number,
-    strokeCause: strokeCause
+    strokeCause: strokeCause,
+    secondaryActive: boolean
   ): Promise<drawModEffect>{
-    const effect = this.applyConstantEffect(line, pressure, brushStyle, eventId, strokeId, strokeCause);
+    const effect = this.applyConstantEffect(line, pressure, brushStyle, eventId, strokeId, strokeCause, secondaryActive);
     const awaited = effect instanceof Promise ? await effect : effect;
     return {
       lines: [awaited.line],
-      style: awaited.style
+      style: awaited.style,
+      disableSizeUpdate: awaited.disableSizeUpdate,
+      disableColorUpdate: awaited.disableColorUpdate
     };
   }
 
@@ -47,6 +63,7 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
    * @param eventId
    * @param strokeId
    * @param strokeCause
+   * @param secondaryActive
    * @protected
    */
   protected abstract applyConstantEffect(
@@ -55,7 +72,8 @@ export abstract class ConstantDrawMod extends TypoDrawMod {
     brushStyle: brushStyle,
     eventId: number,
     strokeId: number,
-    strokeCause: strokeCause
+    strokeCause: strokeCause,
+    secondaryActive: boolean
   ): constantDrawModEffect | Promise<constantDrawModEffect>;
 
   protected noConstantEffect(

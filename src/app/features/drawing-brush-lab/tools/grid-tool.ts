@@ -2,7 +2,7 @@ import {
   NumericExtensionSetting, type serializable, type SettingWithInput,
 } from "@/app/core/settings/setting";
 import type { BrushLabItem } from "@/app/features/drawing-brush-lab/brush-lab-item.interface";
-import type { drawModLine } from "@/app/services/tools/draw-mod";
+import type { lineCoordinates } from "@/app/services/tools/draw-mod";
 import { TypoDrawTool } from "@/app/services/tools/draw-tool";
 import { type brushStyle, ToolsService } from "@/app/services/tools/tools.service";
 import { inject } from "inversify";
@@ -40,7 +40,7 @@ export class GridTool extends TypoDrawTool implements BrushLabItem {
   public applyConstantEffect = this.noConstantEffect;
 
   public override async createCommands(
-    line: drawModLine,
+    line: lineCoordinates,
     pressure: number | undefined,
     style: brushStyle
   ): Promise<number[][]> {

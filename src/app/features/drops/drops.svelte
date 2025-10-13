@@ -5,9 +5,9 @@
   export let drops: EventDropDto[];
   const currentDrop = feature.currentDropStore;
 
-  function getDropUrl(id?: number){
+  function getDropUrl(id?: number, leagueMode?: boolean){
     const drop = drops.find(drop => drop.id === id);
-    return drop ? `url(${drop.url})` : "var(--file-img-drop-gif)";
+    return leagueMode ? "var(--file-img-drop-pink-gif)" : drop ? `url(${drop.url})` : "var(--file-img-drop-gif)";
   }
 </script>
 
@@ -45,6 +45,6 @@
            if(claim !== undefined) feature.processClaim(claim, true);
          }
        }}
-       style="left: calc((100% - 48px) * ({$currentDrop.drop.position} / 100)); background-image: {getDropUrl($currentDrop.drop.eventDropId)}"
+       style="left: calc((100% - 48px) * ({$currentDrop.drop.position} / 100)); background-image: {getDropUrl($currentDrop.drop.eventDropId, $currentDrop.leagueMode)}"
   ></div>
 {/if}

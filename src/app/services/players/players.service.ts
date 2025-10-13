@@ -24,7 +24,7 @@ import { inject, injectable, postConstruct } from "inversify";
 import {
   BehaviorSubject,
   combineLatestWith,
-  distinctUntilChanged, filter, from,
+  distinctUntilChanged, from,
   map,
   mergeWith, of, pairwise,
   startWith, switchMap,
@@ -196,16 +196,22 @@ export class PlayersService {
   }
 
   private setupScoreboardPlayers() {
-    this._lobbyStateChangedEvent.events$.pipe(
-      combineLatestWith(this._lobbyService.lobby$, this._scoreboardVisibleEvent.events$),
-      filter(data => data[2].data === true),  /* wait until scoreboard visible */
-      map((data) => data[1] === null || data[0].data.gameEnded === undefined ? undefined : data),
+    this._scoreboardVisibleEvent.events$.pipe(
+      combineLatestWith(this._lobbyStateChangedEvent.events$),
+      withLatestFrom(this._lobbyService.lobby$),
+      map(([[scoreboardVisibleEvent, lobbyStateChangeEvent], lobby]) =>
+        lobby === null || lobbyStateChangeEvent.data.gameEnded === undefined ? undefined : {
+          visible: scoreboardVisibleEvent.data,
+          lobby: lobby,
+          stateChange: lobbyStateChangeEvent.data.gameEnded,
+        }),
       distinctUntilChanged(),
     ).subscribe(data => {
-      const event = data?.[0].data?.gameEnded;
-      const lobby = data?.[1] ?? undefined;
+      const event = data?.stateChange;
+      const lobby = data?.lobby;
       const lobbyId = lobby?.id ?? null;
-      if(event === undefined || lobby === undefined || lobbyId === null) {
+      const visible = data?.visible ?? false;
+      if(event === undefined || lobby === undefined || lobbyId === null || !visible) {
         this._logger.info("Lobby changed, no scoreboard data");
         this._scoreboardPlayers$.next([]);
         return;
@@ -227,8 +233,8 @@ export class PlayersService {
   private setupPopupPlayer() {
     this._popupVisibleEvent.events$.pipe(
       withLatestFrom(this._memberService.member$, this._lobbyService.lobby$, this._elementsSetup.complete()),
-    ).subscribe(([visible, member, lobby, elements]) => {
-      if(!visible || lobby === null){
+    ).subscribe(([visibleEvent, member, lobby, elements]) => {
+      if(!visibleEvent.data || lobby === null){
         this._logger.info("Popup player hidden");
         this._popupPlayer$.next(undefined);
         return;
@@ -259,30 +265,30 @@ export class PlayersService {
 
     this._textOverlayVisibleEvent.events$.pipe(
       withLatestFrom(this._lobbyService.lobby$, this._elementsSetup.complete()),
-    ).subscribe(([visible, lobby, elements]) => {
-      if(!visible || lobby === null || lobby.id === null){
+    ).subscribe(([visibleEvent, lobby, elements]) => {
+      if(!visibleEvent.data || lobby === null || lobby.id === null){
         this._logger.info("Overlay player hidden");
         this._overlayPlayer$.next(undefined);
         return;
       }
 
       const playerId = elements.textOverlay.getAttribute("playerid") ?? undefined;
-      if(element(".avatar", elements.textOverlay) === undefined || playerId === undefined) {
+      if(element(".avatar", elements.textOverlay) === null || playerId === undefined) {
         this._logger.info("No player or playerid in overlay, probably not a choosing info");
-        this._popupPlayer$.next(undefined);
+        this._overlayPlayer$.next(undefined);
         return;
       }
 
       const player = lobby.players.find(p => p.id === Number(playerId));
       if(player === undefined){
         this._logger.error("Player not found in lobby", playerId);
-        this._popupPlayer$.next(undefined);
+        this._overlayPlayer$.next(undefined);
         return;
       }
 
       const lobbyKey = calculateLobbyKey(lobby.id);
       const playerDisplay = new SkribblOverlayPlayer(player, lobbyKey,elements.textOverlay);
-      this._popupPlayer$.next(playerDisplay);
+      this._overlayPlayer$.next(playerDisplay);
       this._logger.info("Overlay player visible", playerDisplay);
     });
   }

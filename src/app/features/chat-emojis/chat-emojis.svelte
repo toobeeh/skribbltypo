@@ -17,6 +17,7 @@
       height: 1.5em;
       background-size: contain;
       background-repeat: no-repeat;
+      background-position: center;
       display: inline-block;
       image-rendering: auto;
 
@@ -33,6 +34,15 @@
     height: 1em;
     left: 0;
     right: 0;
+  }
+
+  :global(.typo-emoji-tooltip-img) {
+    display: inline-block;
+    width: auto;
+    max-width: 5em;
+    height: auto;
+    max-width: 5em;
+    image-rendering: auto;
   }
 </style>
 

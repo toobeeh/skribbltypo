@@ -1,15 +1,19 @@
+import type { TypoFeature } from "@/app/core/feature/feature";
 import { loggerFactory } from "@/app/core/logger/loggerFactory.interface";
 import { MessageReceivedEventListener } from "@/app/events/message-received.event";
-import { PlayersService } from "@/app/services/players/players.service";
-import type { SkribblLobbyPlayer } from "@/app/services/players/skribblLobbyPlayer";
+import { LobbyService } from "@/app/services/lobby/lobby.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
+import {
+  PrioritizedChatboxEventsSetup
+} from "@/app/setups/prioritized-chatbox-events/prioritized-chatbox-events.setup";
 import { SkribblMessageRelaySetup } from "@/app/setups/skribbl-message-relay/skribbl-message-relay.setup";
+import type { skribblPlayer } from "@/util/skribbl/lobby";
 import { inject, injectable, postConstruct } from "inversify";
 import { filter, map, mergeWith, Subject, withLatestFrom } from "rxjs";
 import MessageComponent from "./message.svelte";
 
 export interface pendingMessage {
-  player: SkribblLobbyPlayer;
+  player: skribblPlayer;
   content: string;
 }
 
@@ -21,19 +25,25 @@ export interface pendingElement {
   contentElement: HTMLElement;
 }
 
+export type chatboxEventFilter = "preventDefault" | "stopPropagation" | "both" | undefined;
+
 @injectable()
 export class ChatService {
 
   @inject(ElementsSetup) private _elementsSetup!: ElementsSetup;
-  @inject(PlayersService) private _lobbyPlayersService!: PlayersService;
+  @inject(PrioritizedChatboxEventsSetup) private _chatboxEventsSetup!: PrioritizedChatboxEventsSetup;
   @inject(MessageReceivedEventListener) private _messageReceivedEventListener!: MessageReceivedEventListener;
   @inject(SkribblMessageRelaySetup) private _messageRelaySetup!: SkribblMessageRelaySetup;
+  @inject(LobbyService) private lobbyService!: LobbyService;
 
   private readonly _logger;
 
   private _elementDiscovered$ = new Subject<pendingElement>();
   private _messageDiscovered$ = new Subject<pendingMessage>();
   private _playerMessageReceived$ = new Subject<pendingMessage & pendingElement>();
+
+  private _lockedChatboxFeature: TypoFeature | null = null;
+  private _cancelChatboxEventsFilter: ((e: KeyboardEvent) => chatboxEventFilter) | null = null;
 
   constructor(
     @inject(loggerFactory) loggerFactory: loggerFactory
@@ -45,6 +55,21 @@ export class ChatService {
   private postConstruct() {
     this._logger.debug("Initializing chat service");
     this.setupMessageObserver();
+    this.setupChatboxCancelEventFilter();
+  }
+
+  private async setupChatboxCancelEventFilter() {
+    const events = await this._chatboxEventsSetup.complete();
+
+    const filter = (e: KeyboardEvent) => {
+      if(this._cancelChatboxEventsFilter === null) return;
+      const filter = this._cancelChatboxEventsFilter(e);
+      if(filter === "preventDefault" || filter === "both") e.preventDefault();
+      if(filter === "stopPropagation" || filter === "both") e.stopImmediatePropagation();
+    };
+
+    events.add("keyup", filter);
+    events.add("keydown", filter);
   }
 
   /**
@@ -78,9 +103,14 @@ export class ChatService {
 
     /* listen for new received messages and match with lobby player */
     this._messageReceivedEventListener.events$.pipe(
-      withLatestFrom(this._lobbyPlayersService.lobbyPlayers$),
-      map(([event, players]) => {
-        const player = players.find(p => p.lobbyPlayerId === event.data.senderId);
+      withLatestFrom(this.lobbyService.lobby$),
+      map(([event, lobby]) => {
+        if(lobby === null) {
+          this._logger.warn("Message received but no lobby present", event.data);
+          return;
+        }
+
+        const player = lobby.players.find(p => p.id === event.data.senderId);
 
         if (!player) {
           this._logger.warn("Player not found for message", event.data);
@@ -156,11 +186,11 @@ export class ChatService {
    * @param title
    * @param style
    */
-  public async addChatMessage(content?: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"){
+  public async addChatMessage(content?: string, title?: string, style: "normal" |"info" | "success" | "warn" = "normal"): Promise<MessageComponent>{
     const elements = await this._elementsSetup.complete();
-
     const container = elements.chatContent;
-    const isScrolledDown = container.scrollHeight - container.scrollTop - container.clientHeight < 50; // allow small margin to scroll down
+
+    const isScrolledDown = await this.isScrolledDown();
 
     const message = new MessageComponent({
       target: container,
@@ -168,9 +198,61 @@ export class ChatService {
     });
 
     const chatMessage = await message.message;
-    if(isScrolledDown) container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
+    if(isScrolledDown) await this.scrollToBottom();
 
     this._elementDiscovered$.next(chatMessage);
     return message;
+  }
+
+  public async isScrolledDown(): Promise<boolean> {
+    const elements = await this._elementsSetup.complete();
+    const container = elements.chatContent;
+    const isScrolledDown = container.scrollHeight - container.scrollTop - container.clientHeight < 50; // allow small margin to scroll down
+    return isScrolledDown;
+  }
+
+  public async scrollToBottom(): Promise<void> {
+    const elements = await this._elementsSetup.complete();
+    const container = elements.chatContent;
+    container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
+  }
+
+  public replaceChatboxContent(content: string, requestingFeature?: TypoFeature): boolean {
+    if(this._lockedChatboxFeature && this._lockedChatboxFeature !== requestingFeature){
+      this._logger.warn("Chatbox content replacement denied - chatbox locked by other feature", this._lockedChatboxFeature.name);
+      return false;
+    }
+
+    this._elementsSetup.complete().then(elements => elements.chatInput.value = content);
+    return true;
+  }
+
+  public moveChatboxCursor(pos: number, requestingFeature?: TypoFeature): boolean {
+    if(this._lockedChatboxFeature && this._lockedChatboxFeature !== requestingFeature){
+      this._logger.warn("Chatbox cursor movement denied - chatbox locked by other feature", this._lockedChatboxFeature.name);
+      return false;
+    }
+
+    this._elementsSetup.complete().then(elements => elements.chatInput.setSelectionRange(pos, pos));
+    return true;
+  }
+
+  public requestChatboxLock(feature: TypoFeature, cancelEventFilter: null | ((e: KeyboardEvent) => chatboxEventFilter) = null): boolean {
+    if(this._lockedChatboxFeature && this._lockedChatboxFeature !== feature){
+      this._logger.warn("Chatbox lock request denied for feature - already locked by other feature", feature.name);
+      return false;
+    }
+    this._lockedChatboxFeature = feature;
+    this._cancelChatboxEventsFilter = cancelEventFilter;
+    return true;
+  }
+
+  public releaseChatboxLock(feature: TypoFeature){
+    if(this._lockedChatboxFeature !== feature){
+      this._logger.error("Chatbox lock release denied for feature - feature does not have lock", feature.name);
+      return;
+    }
+    this._lockedChatboxFeature = null;
+    this._cancelChatboxEventsFilter = null;
   }
 }

@@ -1,11 +1,12 @@
 import { FeatureTag } from "@/app/core/feature/feature-tags";
 import type { featureBinding } from "@/app/core/feature/featureBinding";
-import { ExtensionSetting, type serializable } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting, ExtensionSetting, type serializable } from "@/app/core/settings/setting";
 import { ColorsService, type pickerColors } from "@/app/services/colors/colors.service";
 import { DrawingService } from "@/app/services/drawing/drawing.service";
-import type { componentData } from "@/app/services/modal/modal.service";
+import { type componentData, type componentDataFactory, ModalService } from "@/app/services/modal/modal.service";
 import { ToastService } from "@/app/services/toast/toast.service";
 import { ElementsSetup } from "@/app/setups/elements/elements.setup";
+import IconButton from "@/lib/icon-button/icon-button.svelte";
 import { Color } from "@/util/color";
 import { createElement } from "@/util/document/appendElement";
 import {type Subscription, } from "rxjs";
@@ -15,6 +16,7 @@ import ColorPalettesInfo from "./drawing-color-palettes-info.svelte";
 import ColorPalettesManage from "./drawing-color-palettes-manage.svelte";
 import ColorPalettePicker from "./color-palette-picker.svelte";
 import  {defaultPalettes} from "@/app/features/drawing-color-palettes/default-palettes";
+import ColorPaletteQuickSelect from "./color-palette-quick-select.svelte";
 
 export interface palette {
   name: string;
@@ -28,6 +30,11 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   @inject(ToastService) private readonly _toastService!: ToastService;
   @inject(DrawingService) private readonly _drawingService!: DrawingService;
   @inject(ColorsService) private readonly _colorsService!: ColorsService;
+  @inject(ModalService) private readonly _modalService!: ModalService;
+
+  private _iconComponent?: IconButton;
+  private _iconClickSubscription?: Subscription;
+  private _quickAccessSettingSubscription?: Subscription;
 
   public readonly name = "Color Palettes";
   public readonly description = "Use custom color palettes instead of the default skribbl colors";
@@ -57,6 +64,12 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     this,
   );
 
+  private readonly _showQuickAccessSetting = this.useSetting(
+    new BooleanExtensionSetting("quick_access", false, this)
+      .withName("Palette Switcher Icon")
+      .withDescription("Show an icon in the controls tray to quickly switch between palettes")
+  );
+
   private _activePaletteSubscription?: Subscription;
   private _colorPalettePicker?: ColorPalettePicker;
 
@@ -78,6 +91,11 @@ export class DrawingColorPalettesFeature extends TypoFeature {
         await this._importedPalettes.setValue(true);
       } catch {}
     }
+
+    this._quickAccessSettingSubscription = this._showQuickAccessSetting.changes$.subscribe(value => {
+      if(value) this.addQuickSelectIcon();
+      else this.removeQuickSelectIcon();
+    });
   }
 
   protected override async onDestroy() {
@@ -85,6 +103,61 @@ export class DrawingColorPalettesFeature extends TypoFeature {
     this._activePaletteSubscription?.unsubscribe();
     this._activePaletteSubscription = undefined;
     this._colorPalettePicker?.$destroy();
+
+    this._quickAccessSettingSubscription?.unsubscribe();
+    this._quickAccessSettingSubscription = undefined;
+    this.removeQuickSelectIcon();
+  }
+
+  private async addQuickSelectIcon() {
+    if(this._iconComponent !== undefined) return;
+
+    const elements = await this._elementsSetup.complete();
+
+    /* create icon and attach to controls */
+    this._iconComponent = new IconButton({
+      target: elements.controls,
+      props: {
+        hoverMove: false,
+        size: "48px",
+        icon: "file-img-palette-gif",
+        name: "Palette Switcher",
+        order: 5,
+        tooltipAction: this.createTooltip
+      },
+    });
+
+    /* listen for click on icon */
+    this._iconClickSubscription = this._iconComponent.click$.subscribe(async () => {
+      const palettes = [
+        ...Object.values(defaultPalettes),
+        ...await this._colorsService.savedPalettesSetting.getValue()
+      ].map(p => p.name);
+
+      const pickerComponent: componentDataFactory<ColorPaletteQuickSelect, string> = {
+        componentType: ColorPaletteQuickSelect,
+        propsFactory: submit => ({
+          palettes: palettes,
+          onSubmit: submit.bind(this)
+        }),
+      };
+
+      const palette = await this._modalService.showPrompt(
+        pickerComponent.componentType,
+        pickerComponent.propsFactory,
+        "Switch Color Palette",
+        "card"
+      );
+
+      if(palette !== undefined) await this._colorsService.activePaletteSetting.setValue(palette);
+    });
+  }
+
+  private removeQuickSelectIcon() {
+    this._iconClickSubscription?.unsubscribe();
+    this._iconClickSubscription = undefined;
+    this._iconComponent?.$destroy();
+    this._iconComponent = undefined;
   }
 
   /**
@@ -287,11 +360,12 @@ export class DrawingColorPalettesFeature extends TypoFeature {
   /**
    * Set the color of the skribbl tool
    * @param colorHex
+   * @param secondary
    */
-  public setColor(colorHex: string) {
+  public setColor(colorHex: string, secondary = false) {
     this._logger.info(`Setting color to ${colorHex}`);
     const color = Color.fromHex(colorHex);
-    this._drawingService.setColor(color.skribblCode);
+    this._drawingService.setColor(color.skribblCode, secondary);
   }
 
   public get savedPalettesStore() {
