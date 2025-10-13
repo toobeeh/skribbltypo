@@ -283,6 +283,12 @@ export class ToolbarSaveFeature extends TypoFeature {
       const gif = await worker.run("renderGif", commands, durationMs);
       /*const gif = gifRendererWorker.renderGif(commands, 5000);*/
 
+      if(gif instanceof Error) {
+        this._logger.error("Failed to render gif", gif);
+        toast.resolve("Failed to render GIF: " + gif.message);
+        return;
+      }
+
       toast.resolve(`${name} saved as GIF`, 3000);
       downloadBlob(gif, `${name}.gif`);
     });

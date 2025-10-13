@@ -199,6 +199,12 @@ export class ControlsCloudFeature extends TypoFeature {
 
       const name = `${image.name}-by-${image.author}`;
       const gif = await worker.run("renderGif", commands, durationMs);
+      if(gif instanceof Error) {
+        this._logger.error("Failed to render gif", gif);
+        toast.resolve("Failed to render GIF: " + gif.message);
+        return;
+      }
+
       downloadBlob(gif, `${name}.gif`.replaceAll(" ", "_"));
 
       toast.resolve(`${name} saved as GIF`);
