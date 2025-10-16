@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { LobbyStatisticsFeature } from "@/app/features/lobby-statistics/lobby-statistics.feature";
+  import type { LobbyStatisticsFeature, archiveEntry } from "@/app/features/lobby-statistics/lobby-statistics.feature";
   import Checkbox from "@/lib/checkbox/checkbox.svelte";
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
   import { Chart } from "@/util/chart/chart";
@@ -60,7 +60,7 @@
       canvasPanOffsetX += calculateTranslationForScaleChange(oldZoomScale, canvasZoomScale, canvas.width);
       canvasPanOffsetY += calculateTranslationForScaleChange(oldZoomScale, canvasZoomScale, canvas.height);
 
-      updateChart();
+      updateChart(false);
     });
 
     canvas.addEventListener("pointerdown", (evt) => {
@@ -77,7 +77,7 @@
       canvasPanOffsetY += dy * panSpeed;
       canvDragPrevX = evt.screenX;
       canvDragPrevY = evt.screenY;
-      updateChart();
+      updateChart(false);
     });
 
     document.addEventListener("pointerup", () => (mouseDraggingCanvas = false));
@@ -115,24 +115,50 @@
     }
   }
 
-  function updateChart(){
+  let chartCacheArchiveEntry: archiveEntry | undefined;
+  let chartCachePlayers: skribblPlayer[];
+  function updateChart(changed = true) {
     const view = views[selectedViewIndex];
-    if(chart === undefined) {
+    if (chart === undefined) {
       console.log("Chart is undefined");
       selectedTableData = [];
       return;
     }
 
-    const archiveEntry = selectedArchiveKey.length > 0 ? $archive.get(selectedArchiveKey) : undefined;
-    const players = availablePlayers.filter(p => selectedPlayers[p.id]);
-    try {
-      view.drawChart(players, chart, canvasPanOffsetX, canvasPanOffsetY, canvasZoomScale, archiveEntry?.key);
-      selectedTableData = view.generateTable(players, archiveEntry?.key);
-    }
-    catch (e) {
-      console.error("Error drawing chart:", e);
-      chart.clear();
-      selectedTableData = [];
+    if (changed) {
+      chartCacheArchiveEntry =
+        selectedArchiveKey.length > 0
+          ? $archive.get(selectedArchiveKey)
+          : undefined;
+      chartCachePlayers = availablePlayers.filter((p) => selectedPlayers[p.id]);
+      try {
+        view.drawChart(
+          chartCachePlayers,
+          chart,
+          canvasPanOffsetX,
+          canvasPanOffsetY,
+          canvasZoomScale,
+          chartCacheArchiveEntry?.key
+        );
+        selectedTableData = view.generateTable(
+          chartCachePlayers,
+          chartCacheArchiveEntry?.key
+        );
+      } catch (e) {
+        console.error("Error drawing chart:", e);
+        chart.clear();
+        selectedTableData = [];
+      }
+    } else {
+      if (chartCachePlayers === undefined) return;
+      view.drawChart(
+        chartCachePlayers,
+        chart,
+        canvasPanOffsetX,
+        canvasPanOffsetY,
+        canvasZoomScale,
+        chartCacheArchiveEntry?.key
+      );
     }
   }
 </script>
