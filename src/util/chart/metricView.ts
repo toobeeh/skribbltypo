@@ -82,22 +82,37 @@ export class MetricView<TEvent extends lobbyStatEvent> {
     }
   }
 
-  public drawChart(players: skribblPlayer[], chart: Chart, archiveKey?: string) {
+  public drawChart(
+    players: skribblPlayer[],
+    chart: Chart,
+    panX: number,
+    panY: number,
+    zoomSc: number,
+    archiveKey?: string,
+  ) {
     const events = archiveKey ? (this._archive.get(archiveKey) ?? []) : this._events;
     const datasets = this.getDatasetForPlayers(players, events);
     if(datasets.length === 0) {
       throw new Error("No dataset found for players");
     }
 
-    chart.setDataset(datasets, {
-      title: this._name,
-      description: this._description,
-      xUnit: this._metricTemporalUnit,
-      yUnit: this._metricUnit,
-      yLabels: this._yLabels,
-      xLabels: this._xLabels,
-      mode: this.datasetMode
-    });
+    chart.setDataset(
+      datasets,
+      {
+        title: this._name,
+        description: this._description,
+        xUnit: this._metricTemporalUnit,
+        yUnit: this._metricUnit,
+        yLabels: this._yLabels,
+        xLabels: this._xLabels,
+        mode: this.datasetMode,
+      },
+      {
+        scale: zoomSc,
+        panX,
+        panY,
+      },
+    );
   }
 
   public filterPlayersWithData(players: skribblPlayer[], archiveKey?: string): skribblPlayer[] {
