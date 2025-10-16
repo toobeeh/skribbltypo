@@ -89,9 +89,12 @@ export class Chart {
    * @private
    */
   public clear() {
+    this._context.save();
+    this._context.reset();
     this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
     this._context.fillStyle = "#FFF";
     this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+    this._context.restore();
   }
 
   /**
