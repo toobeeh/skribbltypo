@@ -278,12 +278,12 @@ export const gameJsPatchConfig = {
                         const color = command[1];
               
                         /* sanitize color to black for non-typo users */
-                        if(color > 10000){
+                        if(color >= 10000){
                           command[1] = typo.msiColorSwitch.getClosestSkribblColor(color);
                         }
               
                         /* if color is typo color and not already initiated */
-                        if(color > 10000 && color !== typo.msiColorSwitch.currentCode){
+                        if(color >= 10000 && color !== typo.msiColorSwitch.currentCode){
                           typo.msiColorSwitch.currentCode = color;
                           const codeData = typo.msi.toInjectedSequence(color);
                           const sequence = [
@@ -473,7 +473,16 @@ export const gameJsPatchConfig = {
                         return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
                     },
                     typoCodeToRgb: (code) => {
-                      const decimal = code - 10000;
+                      let sanitizedCode = Number(code);
+
+                      if (!Number.isFinite(sanitizedCode)) {
+                          sanitizedCode = 10000;
+                      }
+
+                      sanitizedCode = Math.trunc(sanitizedCode);
+
+                      const decimal = sanitizedCode - 10000;
+
                       return [
                           (decimal >> 16) & 255, // Red
                           (decimal >> 8) & 255,  // Green
