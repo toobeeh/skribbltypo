@@ -218,12 +218,12 @@
           const color = command[1];
 
           /* sanitize color to black for non-typo users */
-          if(color > 10000){
+          if(color >= 10000){
             command[1] = typo.msiColorSwitch.getClosestSkribblColor(color);
           }
 
           /* if color is typo color and not already initiated */
-          if(color > 10000 && color !== typo.msiColorSwitch.currentCode){
+          if(color >= 10000 && color !== typo.msiColorSwitch.currentCode){
             typo.msiColorSwitch.currentCode = color;
             const codeData = typo.msi.toInjectedSequence(color);
             const sequence = [
@@ -413,7 +413,16 @@
         return ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
       },
       typoCodeToRgb: (code) => {
-        const decimal = code - 10000;
+        let sanitizedCode = Number(code);
+
+        if (!Number.isFinite(sanitizedCode)) {
+          sanitizedCode = 10000;
+        }
+
+        sanitizedCode = Math.trunc(sanitizedCode);
+
+        const decimal = sanitizedCode - 10000;
+
         return [
           (decimal >> 16) & 255, // Red
           (decimal >> 8) & 255,  // Green
@@ -1108,7 +1117,7 @@
 // TYPOMOD
 // desc: cursor with custom color
         var a = bt < 10000 ? kt[bt] : typo.typoCodeToRgb(bt);
-// TYPOEND
+// TYPOEND 
 
         a = [(a = 1 == l.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
         o.fillStyle = "rgba(" + a[0] + "," + a[1] + "," + a[2] + "," + a[3] + ")", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.fill(), o.strokeStyle = "#FFF", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.stroke(), o.strokeStyle = "#000", o.beginPath(), o.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), o.stroke();

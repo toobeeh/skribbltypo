@@ -61,7 +61,7 @@ export class RainbowMod extends ConstantDrawMod implements BrushLabItem {
     if(lastStrokeSwitch === undefined || strokeMode == false && (distance <= 0 || this.getDistance(lastStrokeSwitch.position, line.from) > (style.size / 10 * distance))){
 
       /* cycle through */
-      const index = ((lastStrokeSwitch?.index ?? (this.initIndex++ % (colors.length - 2)) + 1) % (colors.length - 2));
+      const index = (((lastStrokeSwitch?.index ?? (this.initIndex++ % (colors.length - 4))) + 1) % (colors.length - 4));
 
       /* skip first two indexes (monochromes)*/
       const actualIndex = index + 2;

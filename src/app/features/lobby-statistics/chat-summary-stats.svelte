@@ -75,13 +75,13 @@
     {#if summaries.length > 1}
       <div class="chat-summary-stats-nav">
         <div class="chat-summary-stats-nav-arrow">
-          <IconButton icon="file-img-arrow-left-gif" name="Next" size="1.5rem" hoverMove="{false}"
+          <IconButton tabIndex="{-1}" icon="file-img-arrow-left-gif" name="Next" size="1.5rem" hoverMove="{false}"
                       disabled="{summaryIndex <= 0}"
                       on:click={() => summaryIndex--} />
         </div>
 
         <div class="chat-summary-stats-nav-arrow">
-          <IconButton icon="file-img-arrow-right-gif" name="Next" size="1.5rem" hoverMove="{false}"
+          <IconButton tabIndex="{-1}" icon="file-img-arrow-right-gif" name="Next" size="1.5rem" hoverMove="{false}"
                       disabled="{summaryIndex >= summaries.length - 1}"
                       on:click={() => summaryIndex++} />
         </div>
@@ -89,7 +89,7 @@
         <span> {summaryIndex + 1} / {summaries.length} </span>
 
         <div>
-          <IconButton icon="file-img-chart-gif" name="View All Stats" size="1.5rem" hoverMove="{false}"
+          <IconButton tabIndex="{-1}" icon="file-img-chart-gif" name="View All Stats" size="1.5rem" hoverMove="{false}"
                       on:click={() => feature.openStatsPopup(summaryArchiveKey)} />
         </div>
       </div>

@@ -33,7 +33,24 @@ export class Color {
   get g() { return this._g; }
   get b() { return this._b; }
 
-  constructor(private _r: number, private _g: number, private _b: number, private _a?: number) { }
+  constructor(private _r: number, private _g: number, private _b: number, private _a?: number) {
+    this._r = Color.sanitizeRgbComponent(_r);
+    this._g = Color.sanitizeRgbComponent(_g);
+    this._b = Color.sanitizeRgbComponent(_b);
+
+    if (_a !== undefined) {
+      this._a = Color.sanitizeRgbComponent(_a);
+    }
+  }
+
+  // ensure component value is an integer 0-255
+  private static sanitizeRgbComponent(value: number) {
+    if (!Number.isFinite(value)) {
+      return 0;
+    }
+
+    return Math.min(255, Math.max(0, Math.round(value)));
+  }
 
   // get the rgb string of the color
   get rgbString() {
