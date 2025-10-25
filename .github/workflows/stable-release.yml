@@ -68,6 +68,16 @@ jobs:
           asset_name: skribbltypo-chromium.zip
           asset_content_type: application/zip
 
+      - name: Upload to Chrome Web Store
+        uses: mobilefirstllc/cws-publish@latest
+        with:
+          action: "publish"
+          client_id: ${{ secrets.CWS_CLIENT }}
+          client_secret: ${{ secrets.CWS_SECRET }}
+          refresh_token: ${{ secrets.CWS_TOKEN }}
+          extension_id: ${{ secrets.CWS_EXTENSION_ID }}
+          zip_file: "skribbltypo-chromium.zip"
+
   build-userscript:
     name: Build extension as userscript as stable release
     runs-on: ubuntu-latest
