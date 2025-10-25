@@ -38,7 +38,7 @@ export class Color {
     this._g = Color.sanitizeRgbComponent(_g);
     this._b = Color.sanitizeRgbComponent(_b);
 
-    if (_a !== (void 0)) {
+    if (_a !== undefined) {
       this._a = Color.sanitizeRgbComponent(_a);
     }
   }
