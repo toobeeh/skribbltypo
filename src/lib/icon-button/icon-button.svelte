@@ -12,6 +12,7 @@
   export let order: undefined | number = undefined;
   export let tooltipAction: tooltipAction = () => {};
   export let lockTooltip: tooltipParams["lock"] = undefined;
+  export let tabIndex: number = 0;
   const click = new Subject<void>();
   export const click$ = click.asObservable();
 </script>
@@ -50,7 +51,7 @@
   }
 </style>
 
-<div class="typo-icon-button" style="order: {order ?? 'auto'}" role="button" data-name="{name}" tabindex="0" use:tooltipAction={{title: name, lock: lockTooltip}}
+<div class="typo-icon-button" style="order: {order ?? 'auto'}" role="button" data-name="{name}" tabindex="{tabIndex}" use:tooltipAction={{title: name, lock: lockTooltip}}
      class:greyscale={greyscaleInactive} class:disabled={disabled}
      on:click
      on:click={() => click.next(void 0)}
