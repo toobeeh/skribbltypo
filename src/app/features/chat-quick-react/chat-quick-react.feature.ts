@@ -169,6 +169,7 @@ export class ChatQuickReactFeature extends TypoFeature {
   private _flyoutSubscription?: Subscription;
   private _rateInteractionsStyle = createElement("<style>.typo-hide-rate-interactions { display: none !important }</style>");
   private _interactionUpdateSubscription?: Subscription;
+  private _autoLikeSubscription?: Subscription;
   private _guessedSubscription?: Subscription;
 
   protected override async onActivate() {
@@ -179,7 +180,7 @@ export class ChatQuickReactFeature extends TypoFeature {
       elements.gameRate.classList.toggle("typo-hide-rate-interactions", interactions?.rateAvailable !== true);
     });
 
-    this._wordGuessedListener.events$.pipe(
+    this._autoLikeSubscription = this._wordGuessedListener.events$.pipe(
       filter(event => event.data.word !== undefined), /* word is only set if own guess */
       withLatestFrom(this._likeAfterGuessSetting.changes$),
       filter(([, likeAfterGuess]) => likeAfterGuess === true),
@@ -187,6 +188,7 @@ export class ChatQuickReactFeature extends TypoFeature {
       filter(([[,], interactions]) => interactions?.rateAvailable === true),
     ).subscribe(() => {
       this._lobbyInteractionsService.likePlayer();
+      this.hideGameRate();
     });
   }
 
@@ -205,6 +207,9 @@ export class ChatQuickReactFeature extends TypoFeature {
 
     this._guessedSubscription?.unsubscribe();
     this._guessedSubscription = undefined;
+
+    this._autoLikeSubscription?.unsubscribe();
+    this._autoLikeSubscription = undefined;
   }
 
   private async hideGameRate(){
