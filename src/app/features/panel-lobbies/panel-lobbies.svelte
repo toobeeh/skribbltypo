@@ -1,11 +1,14 @@
 <script lang="ts">
   import { PanelLobbiesFeature } from "./panel-lobbies.feature";
   import Bounceload from "@/lib/bounceload/bounceload.svelte";
+  import Checkbox from "@/lib/checkbox/checkbox.svelte";
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
   import IconButton from "@/lib/icon-button/icon-button.svelte";
   export let feature: PanelLobbiesFeature;
 
   const lobbies = feature.lobbiesStore;
+  const groupByLobby = feature.groupByLobbyStore;
+  const firstLanguage = feature.firstLanguageStore;
   const showDiscovered = feature.showDiscoveredLobbiesStore;
   const discoveredLobbies = feature.discoveredLobbiesStore;
 </script>
@@ -19,10 +22,47 @@
     padding-bottom: 1rem;
     padding-right: .5rem;
 
+    .typo-lobbies-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     .typo-lobbies-discord-buttons {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: .5rem;
+      margin-bottom: 0.6em;
+    }
+
+    .typo-lobbies-lobby-title {
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+
+    .typo-lobbies-language-title {
+      margin-bottom: 0.5em;
+      display: flex;
+      align-items: center;
+      gap: 0 0.5em;
+    }
+
+    .typo-lobbies-language-title-text {
+      font-size: 1.2em;
+      font-weight: bold;
+      opacity: 0.7;
+    }
+
+    .typo-lobbies-language-group {
+      display: flex;
+      align-items: start;
+      gap: 0.5em;
+      margin-bottom: 0.5em;
+
+      .stat-icon {
+        height: 42px;
+      }
     }
   }
 
@@ -71,22 +111,51 @@
 <div>
 
   <div class="typo-lobbies-discord">
-    <b>Online Friends</b>
+    <div class="typo-lobbies-header">
+      <div><b>Online Friends</b></div>
+      <div><Checkbox bind:checked={$groupByLobby} description="Group by lobby" /></div>
+    </div>
 
     {#if $lobbies === null}
       <span>You need to log in to see lobbies of your discord friends.<br></span>
     {:else if $lobbies === undefined}
       <Bounceload content="Loading connected servers.."/>
     {:else}
-      <div class="typo-lobbies-discord-buttons">
-        {#each $lobbies as lobby}
-          <div use:feature.createTooltip={{title: feature.buildButtonTooltip(lobby), lock: "Y"}}>
-            <FlatButton content="{lobby.userName}" color="{lobby.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(lobby.lobbyId, lobby.userName)}  />
-          </div>
-        {/each}
-
-        {#if $lobbies.length === 0}
-          <span>None of your friends are online.</span>
+      <div>
+        {#if $groupByLobby }
+          {#each $lobbies.byLobby as bucket}
+            <div>
+              <div class="typo-lobbies-lobby-title">
+                👥 {bucket.lobby.currentPlayers} players {#if $firstLanguage !== bucket.lobby.language}· {bucket.lobby.language}{/if}
+              </div>
+              <div class="typo-lobbies-discord-buttons">
+                {#each bucket.players as player}
+                  <div use:feature.createTooltip={{title: feature.buildButtonTooltip(player), lock: "Y"}}>
+                    <FlatButton content="{player.userName}" color="{player.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(player.lobbyId, player.userName)}  />
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/each}
+          {#if $lobbies.byLanguage.length === 0}
+            <span>None of your friends are online.</span>
+          {/if}
+        {:else}
+          {#each $lobbies.byLanguage as bucket}
+            <div class="typo-lobbies-language-group">
+              <div class="stat-icon" style="content: var({bucket.languageIcon})"></div>
+              <div class="typo-lobbies-discord-buttons">
+                {#each bucket.players as player}
+                  <div use:feature.createTooltip={{title: feature.buildButtonTooltip(player), lock: "Y"}}>
+                    <FlatButton content="{player.userName}" color="{player.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(player.lobbyId, player.userName)}  />
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/each}
+          {#if $lobbies.byLanguage.length === 0}
+            <span>None of your friends are online.</span>
+          {/if}
         {/if}
       </div>
     {/if}

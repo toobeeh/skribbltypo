@@ -1,6 +1,6 @@
 import type { MemberDto } from "@/api";
 import { FeatureTag } from "@/app/core/feature/feature-tags";
-import { BooleanExtensionSetting } from "@/app/core/settings/setting";
+import { BooleanExtensionSetting, ChoiceExtensionSetting } from "@/app/core/settings/setting";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
 import { MemberService } from "@/app/services/member/member.service";
 import { SocketService } from "@/app/services/socket/socket.service";
@@ -10,13 +10,15 @@ import type { IGuildLobbiesHub } from "@/signalr/TypedSignalR.Client/tobeh.Avall
 import { fromObservable } from "@/util/store/fromObservable";
 import type { HubConnection } from "@microsoft/signalr";
 import { inject } from "inversify";
-import { BehaviorSubject, map, type Subscription, tap } from "rxjs";
+import { BehaviorSubject, scan, type Subscription, tap, withLatestFrom } from "rxjs";
 import { TypoFeature } from "../../core/feature/feature";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
 import PanelLobbies from "./panel-lobbies.svelte";
+import { LANGUAGE_CHOICES, type Language } from "@/util/language";
+import { buildLobbiesViewModel, emptyLobbiesViewModel } from "./lobbies-view-model";
 
 export class PanelLobbiesFeature extends TypoFeature {
-  
+
   @inject(ElementsSetup) private readonly _elements!: ElementsSetup;
   @inject(SocketService) private readonly _socketService!: SocketService;
   @inject(MemberService) private readonly _memberService!: MemberService;
@@ -28,7 +30,18 @@ export class PanelLobbiesFeature extends TypoFeature {
       .withName("Show discovered lobbies")
       .withDescription("Shows a list of lobbies that you were in before")
   );
-  
+  private _groupByLobbySetting = this.useSetting(
+    new BooleanExtensionSetting("group_by_lobby", false, this)
+      .withName("Group by lobby")
+      .withDescription("Group online players by lobby")
+  );
+  private _firstLanguageSetting = this.useSetting(
+    new ChoiceExtensionSetting<Language>("first_language", "English", this)
+      .withName("First language")
+      .withDescription("Lobbies in this language will be listed first. Reload page to see effect.")
+      .withChoices(LANGUAGE_CHOICES)
+  );
+
   private _lobbies$ = new BehaviorSubject<Map<string, GuildLobbyDto[]> | null | undefined>(undefined);
   private _component?: PanelLobbies;
   private _connection?: HubConnection;
@@ -62,19 +75,35 @@ export class PanelLobbiesFeature extends TypoFeature {
     this._memberSubscription = undefined;
   }
 
-  public get lobbiesStore(){
-    return fromObservable(this._lobbies$.pipe(
-      map(lobbies => lobbies === null || lobbies === undefined ? lobbies : this.mapLobbiesToPlayerList(lobbies)),
-      tap(lobbies => this._logger.info("Lobbies updated", lobbies))
-    ), []);
+  public get lobbiesStore() {
+    return fromObservable(
+      this._lobbies$.pipe(
+        withLatestFrom(this._firstLanguageSetting.changes$),
+        scan(
+          (previousViewModel, [lobbies, firstLang]) =>
+            lobbies == null ? emptyLobbiesViewModel() : buildLobbiesViewModel(lobbies, firstLang, previousViewModel),
+          emptyLobbiesViewModel()
+        ),
+        tap(vm => this._logger.info("Lobbies updated", vm))
+      ),
+      emptyLobbiesViewModel()
+    );
   }
 
-  public get discoveredLobbiesStore(){
+  public get discoveredLobbiesStore() {
     return fromObservable(this._lobbyService.discoveredLobbies$, []);
   }
 
-  public get showDiscoveredLobbiesStore(){
+  public get showDiscoveredLobbiesStore() {
     return this._showDiscoveredLobbiesSetting.store;
+  }
+
+  public get groupByLobbyStore() {
+    return this._groupByLobbySetting.store;
+  }
+
+  public get firstLanguageStore() {
+    return this._firstLanguageSetting.store;
   }
 
   /**
@@ -82,14 +111,14 @@ export class PanelLobbiesFeature extends TypoFeature {
    * @param member
    * @private
    */
-  private async processMemberChange(member: MemberDto | null | undefined){
+  private async processMemberChange(member: MemberDto | null | undefined) {
     this._logger.debug("Member changed", member);
 
     /*stop existing connection*/
     this._connection?.stop();
 
     /* if no member logged in, exit setup */
-    if(member === null || member === undefined){
+    if (member === null || member === undefined) {
       this._lobbies$.next(member);
       return;
     }
@@ -100,7 +129,7 @@ export class PanelLobbiesFeature extends TypoFeature {
     const initConnection = async () => {
 
       /* connect to server */
-      const {connection, hubProxy} = await this.setupConnection();
+      const { connection, hubProxy } = await this.setupConnection();
       this._connection = connection;
 
       /* subscribe to all guilds of the member */
@@ -116,7 +145,7 @@ export class PanelLobbiesFeature extends TypoFeature {
    * Connect to the guild lobby hub to receive updates
    * @private
    */
-  private async setupConnection(){
+  private async setupConnection() {
     const connection = this._socketService.createConnection("IGuildLobbiesHub");
     const hubProxy = this._socketService.createHub("IGuildLobbiesHub").createHubProxy(connection);
     this._socketService.createReceiver("IGuildLobbiesReceiver").register(connection, {
@@ -126,7 +155,7 @@ export class PanelLobbiesFeature extends TypoFeature {
     return { connection, hubProxy };
   }
 
-  public async subscribeToLobbies(member: MemberDto, hub: IGuildLobbiesHub){
+  public async subscribeToLobbies(member: MemberDto, hub: IGuildLobbiesHub) {
 
     /* subscribe to all guilds of the member */
     const promises = member.guilds.map(async guild => {
@@ -137,12 +166,12 @@ export class PanelLobbiesFeature extends TypoFeature {
     });
     await Promise.all(promises);
   }
-  
-  private async onGuildLobbiesUpdated(lobbies: GuildLobbiesUpdatedDto){
+
+  private async onGuildLobbiesUpdated(lobbies: GuildLobbiesUpdatedDto) {
     this._logger.info("Received guild lobbies for guild", lobbies.guildId);
 
     const lastValue = this._lobbies$.value;
-    if(lastValue === null || lastValue === undefined){
+    if (lastValue === null || lastValue === undefined) {
       this._logger.warn("Received guild lobbies but lobbies are not initialized yet", lobbies);
       return;
     }
@@ -152,26 +181,13 @@ export class PanelLobbiesFeature extends TypoFeature {
     this._lobbies$.next(lastValue);
   }
 
-  private mapLobbiesToPlayerList(lobbies: Map<string, GuildLobbyDto[]>){
-    const distinct: GuildLobbyDto[] = [];
-    const list = Array.from(lobbies.values()).flat();
-
-    list.forEach(lobby => {
-      if(!distinct.some(l => l.lobbyId === lobby.lobbyId && l.userName === lobby.userName)){
-        distinct.push(lobby);
-      }
-    });
-
-    return distinct;
-  }
-
-  public buildButtonTooltip(lobby: GuildLobbyDto){
+  public buildButtonTooltip(lobby: GuildLobbyDto) {
     return `🔑  ${lobby.private ? "Custom" : "Public"}\n👥 ${lobby.currentPlayers} Players\n🏳️ ${lobby.language}`;
   }
 
-  public async joinLobby(id: string, targetName?: string){
+  public async joinLobby(id: string, targetName?: string) {
     const result = await this._lobbyService.joinLobby(id);
-    if(result) await this._toastService.showToast(targetName ? `Joined the lobby of ${targetName}` : "Joined discovered lobby");
+    if (result) await this._toastService.showToast(targetName ? `Joined the lobby of ${targetName}` : "Joined discovered lobby");
     else await this._toastService.showToast(targetName ? `Failed to join the lobby of ${targetName}` : "Failed to join discovered lobby");
   }
 }
