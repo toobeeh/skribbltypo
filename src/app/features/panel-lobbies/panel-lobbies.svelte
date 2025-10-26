@@ -41,20 +41,7 @@
       font-weight: bold;
     }
 
-    .typo-lobbies-language-title {
-      margin-bottom: 0.5em;
-      display: flex;
-      align-items: center;
-      gap: 0 0.5em;
-    }
-
-    .typo-lobbies-language-title-text {
-      font-size: 1.2em;
-      font-weight: bold;
-      opacity: 0.7;
-    }
-
-    .typo-lobbies-language-group {
+    .typo-lobbies-language-bucket {
       display: flex;
       align-items: start;
       gap: 0.5em;
@@ -63,6 +50,16 @@
       .stat-icon {
         height: 42px;
       }
+    }
+
+    .typo-lobbies-lobby-buckets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 0.5em;
+
+      .dimmed {
+        opacity: 0.7;
+      };
     }
   }
 
@@ -122,40 +119,39 @@
       <Bounceload content="Loading connected servers.."/>
     {:else}
       <div>
-        {#if $groupByLobby }
-          {#each $lobbies.byLobby as bucket}
-            <div>
-              <div class="typo-lobbies-lobby-title">
-                👥 {bucket.lobby.currentPlayers} players {#if $firstLanguage !== bucket.lobby.language}· {bucket.lobby.language}{/if}
+        {#each $lobbies.languageBuckets as languageBucket}
+          <div class="typo-lobbies-language-bucket">
+            <div class="stat-icon" style="content: var({languageBucket.languageIcon})"></div>
+            {#if $groupByLobby }
+              <div class="typo-lobbies-lobby-buckets">
+                {#each languageBucket.lobbyBuckets as lobbyBucket}
+                  <div class:dimmed={lobbyBucket.dimmed}>
+                    <div class="typo-lobbies-lobby-title">
+                      👥 <span class:dimmed={lobbyBucket.dimmed}>{lobbyBucket.currentPlayers} {#if lobbyBucket.currentPlayers === 1}player{:else}players{/if}</span>
+                    </div>
+                    <div class="typo-lobbies-discord-buttons">
+                      {#each lobbyBucket.players as player}
+                        <div use:feature.createTooltip={{title: feature.buildButtonTooltip(player), lock: "Y"}}>
+                          <FlatButton content="{player.userName}" color="{player.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(player.lobbyId, player.userName)}  />
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                {/each}
               </div>
+            {:else}
               <div class="typo-lobbies-discord-buttons">
-                {#each bucket.players as player}
+                {#each languageBucket.players as player}
                   <div use:feature.createTooltip={{title: feature.buildButtonTooltip(player), lock: "Y"}}>
                     <FlatButton content="{player.userName}" color="{player.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(player.lobbyId, player.userName)}  />
                   </div>
                 {/each}
               </div>
-            </div>
-          {/each}
-          {#if $lobbies.byLanguage.length === 0}
-            <span>None of your friends are online.</span>
-          {/if}
-        {:else}
-          {#each $lobbies.byLanguage as bucket}
-            <div class="typo-lobbies-language-group">
-              <div class="stat-icon" style="content: var({bucket.languageIcon})"></div>
-              <div class="typo-lobbies-discord-buttons">
-                {#each bucket.players as player}
-                  <div use:feature.createTooltip={{title: feature.buildButtonTooltip(player), lock: "Y"}}>
-                    <FlatButton content="{player.userName}" color="{player.private ? 'green' : 'blue'}" on:click={() => feature.joinLobby(player.lobbyId, player.userName)}  />
-                  </div>
-                {/each}
-              </div>
-            </div>
-          {/each}
-          {#if $lobbies.byLanguage.length === 0}
-            <span>None of your friends are online.</span>
-          {/if}
+            {/if}
+          </div>
+        {/each}
+        {#if $lobbies.languageBuckets.length === 0}
+          <span>None of your friends are online.</span>
         {/if}
       </div>
     {/if}

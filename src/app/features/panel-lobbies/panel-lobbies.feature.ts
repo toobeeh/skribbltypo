@@ -38,7 +38,7 @@ export class PanelLobbiesFeature extends TypoFeature {
   private _firstLanguageSetting = this.useSetting(
     new ChoiceExtensionSetting<Language>("first_language", "English", this)
       .withName("First language")
-      .withDescription("Lobbies in this language will be listed first. Reload page to see effect.")
+      .withDescription("Lobbies in this language will be listed first.")
       .withChoices(LANGUAGE_CHOICES)
   );
 

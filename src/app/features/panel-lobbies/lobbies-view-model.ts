@@ -1,29 +1,23 @@
 import type { GuildLobbyDto } from "@/signalr/tobeh.Avallone.Server.Classes.Dto";
 import { languageIndex, LANGUAGES, type Language } from "@/util/language";
 
-interface LobbyViewModel {
-  lobbyId: string;
-  currentPlayers: number,
-  language: Language,
-  private: boolean;
-}
-
 export interface LobbiesViewModel {
-  byLanguage: {
-    language: Language,
-    languageIcon: string,
-    players: GuildLobbyDto[],
-  }[]
-  byLobby: {
-    lobby: LobbyViewModel,
-    players: GuildLobbyDto[]
-  }[]
+  languageBuckets: {
+    language: Language;
+    languageIcon: string;
+    players: GuildLobbyDto[];
+    lobbyBuckets: {
+      lobbyId: string;
+      currentPlayers: number;
+      dimmed: boolean;
+      players: GuildLobbyDto[];
+    }[];
+  }[];
 }
 
 export function emptyLobbiesViewModel(): LobbiesViewModel {
   return {
-    byLanguage: [],
-    byLobby: [],
+    languageBuckets: [],
   };
 }
 
@@ -43,47 +37,48 @@ export function buildLobbiesViewModel(
 
   sortViewModelItems(result, firstLanguage, previousViewModel);
 
+  // collect players from lobby buckets to the language bucket
+  result.languageBuckets.forEach(
+    languageBucket => {
+      languageBucket.players = languageBucket.lobbyBuckets.flatMap(lobbyBucket => lobbyBucket.players);
+    }
+  );
+
   return result;
 }
 
 function updateViewModel(viewModel: LobbiesViewModel, guildLobby: GuildLobbyDto): void {
+  // language buckets
   if (!LANGUAGES.includes(guildLobby.language as Language)) {
     return;
   }
   const lang = guildLobby.language as Language;
 
-  // byLanguage
-  let langBucket = viewModel.byLanguage.find(b => b.language === lang);
+  let langBucket = viewModel.languageBuckets.find(b => b.language === lang);
 
   if (!langBucket) {
     langBucket = {
       language: lang,
       languageIcon: `--file-img-flag-${lang.toLowerCase()}-gif`,
       players: [],
+      lobbyBuckets: [],
     };
-    viewModel.byLanguage.push(langBucket);
+    viewModel.languageBuckets.push(langBucket);
   }
 
-  if (!langBucket.players.some(p => p.lobbyId === guildLobby.lobbyId && p.userName === guildLobby.userName)) {
-    langBucket.players.push(guildLobby);
-  }
-
-  // byLobby
-  let lobbyBucket = viewModel.byLobby.find(b => b.lobby.lobbyId === guildLobby.lobbyId && b.lobby.language === guildLobby.language);
+  // lobby buckets
+  let lobbyBucket = langBucket.lobbyBuckets.find(b => b.lobbyId === guildLobby.lobbyId);
 
   if (!lobbyBucket) {
     lobbyBucket = {
-      lobby: {
-        lobbyId: guildLobby.lobbyId,
-        currentPlayers: guildLobby.currentPlayers,
-        language: lang,
-        private: guildLobby.private,
-      },
+      lobbyId: guildLobby.lobbyId,
+      currentPlayers: guildLobby.currentPlayers,
+      dimmed: !guildLobby.private && guildLobby.currentPlayers === 8,
       players: [],
     };
-    viewModel.byLobby.push(lobbyBucket);
+    langBucket.lobbyBuckets.push(lobbyBucket);
   } else {
-    lobbyBucket.lobby.currentPlayers = Math.min(lobbyBucket.lobby.currentPlayers, guildLobby.currentPlayers);
+    lobbyBucket.currentPlayers = Math.min(lobbyBucket.currentPlayers, guildLobby.currentPlayers);
   }
 
   if (!lobbyBucket.players.some(p => p.lobbyId === guildLobby.lobbyId && p.userName === guildLobby.userName)) {
@@ -96,47 +91,35 @@ function sortViewModelItems(
   firstLanguage: Language,
   previousViewModel: LobbiesViewModel
 ): void {
-  viewModel.byLanguage.sort(
+  viewModel.languageBuckets.sort(
     (a, b) => languageIndex(a.language, firstLanguage) - languageIndex(b.language, firstLanguage)
   );
 
-  const prevOrder = new Map(
-    previousViewModel.byLobby.map((bucket, i) => [bucket.lobby.lobbyId, i])
-  );
+  for (const langBucket of viewModel.languageBuckets) {
+    const previousLangBucket = previousViewModel.languageBuckets.find(b => b.language === langBucket.language);
+    const prevLobbyBucketsOrder = new Map(
+      previousLangBucket?.lobbyBuckets.map((bucket, i) => [bucket.lobbyId, i])
+    );
 
-  viewModel.byLobby.sort(
-    (a, b) => {
-      const aId = a.lobby.lobbyId;
-      const bId = b.lobby.lobbyId;
+    langBucket.lobbyBuckets.sort(
+      (a, b) => {
+        const aWasPresent = prevLobbyBucketsOrder.has(a.lobbyId);
+        const bWasPresent = prevLobbyBucketsOrder.has(b.lobbyId);
 
-      const aWasPresent = prevOrder.has(aId);
-      const bWasPresent = prevOrder.has(bId);
+        if (aWasPresent && !bWasPresent) {
+          return -1;
+        }
 
-      if (aWasPresent && !bWasPresent) {
-        return -1;
+        if (!aWasPresent && bWasPresent) {
+          return 1;
+        }
+
+        if (aWasPresent && bWasPresent) {
+          return (prevLobbyBucketsOrder.get(a.lobbyId) ?? 0) - (prevLobbyBucketsOrder.get(b.lobbyId) ?? 0);
+        }
+
+        return b.players.length - a.players.length;
       }
-
-      if (!aWasPresent && bWasPresent) {
-        return 1;
-      }
-
-      if (aWasPresent && bWasPresent) {
-        return (prevOrder.get(aId) ?? 0) - (prevOrder.get(bId) ?? 0);
-      }
-
-      const langKey = languageIndex(a.lobby.language, firstLanguage) - languageIndex(b.lobby.language, firstLanguage);
-
-      if (langKey !== 0) {
-        return langKey;
-      }
-
-      const playerCountKey = b.players.length - a.players.length;
-
-      if (playerCountKey !== 0) {
-        return playerCountKey;
-      }
-
-      return 0;
-    }
-  );
+    );
+  }
 }
