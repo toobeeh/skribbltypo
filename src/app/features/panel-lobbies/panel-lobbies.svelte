@@ -127,7 +127,7 @@
           <div class="typo-lobbies-language-bucket">
             <div class="stat-icon" style="content: var({languageBucket.languageIcon})"></div>
             {#if $groupByLobby }
-              <div class="typo-lobbies-lobby-buckets" class:no-flex={$groupByLobbyWrap}>
+              <div class="typo-lobbies-lobby-buckets" class:no-flex={!$groupByLobbyWrap}>
                 {#each languageBucket.lobbyBuckets as lobbyBucket}
                   <div class:dimmed={lobbyBucket.dimmed}>
                     <div class="typo-lobbies-lobby-title">
