@@ -1,5 +1,11 @@
 import type { chartConfig, chartDataProperties, chartDataset, chartLayout } from "@/util/chart/dataset.interface";
 
+interface canvasTransforms {
+  scale: number;
+  panX: number;
+  panY: number;
+};
+
 export class Chart {
 
   private readonly _canvas: HTMLCanvasElement;
@@ -33,8 +39,9 @@ export class Chart {
    * @param data
    * @param config
    */
-  public setDataset(data: chartDataset[], config: chartConfig) {
+  public setDataset(data: chartDataset[], config: chartConfig, transform: canvasTransforms) {
     this.clear();
+    this.setCanvasTransform(transform);
 
     const properties = this.getChartDataProperties(data);
 
@@ -62,14 +69,32 @@ export class Chart {
     };
   }
 
+  /** sets transform properties of the canvas (zoom, pan) */
+  private setCanvasTransform(tf: canvasTransforms) {
+    // From MDN
+    // - e and f control the horizontal and vertical translation of the context.
+    // - When b and c are 0, a and d control the horizontal and vertical scaling of the context.
+    this._context.setTransform({
+      a: tf.scale,
+      b: 0,
+      c: 0,
+      d: tf.scale,
+      e: tf.panX,
+      f: tf.panY
+    });
+  }
+
   /**
    * Clears the canvas.
    * @private
    */
   public clear() {
-    this._context.clearRect(0, 0, this._chartLayout.width, this._chartLayout.height);
+    this._context.save();
+    this._context.reset();
+    this._context.clearRect(0, 0, this._canvas.width, this._canvas.height);
     this._context.fillStyle = "#FFF";
-    this._context.fillRect(0, 0, this._chartLayout.width, this._chartLayout.height);
+    this._context.fillRect(0, 0, this._canvas.width, this._canvas.height);
+    this._context.restore();
   }
 
   /**

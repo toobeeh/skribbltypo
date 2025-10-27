@@ -37,7 +37,7 @@ import ChartsComponent from "./charts.svelte";
 import LobbyStatsManage from "./lobby-stats-manage.svelte";
 import ChatSummaryStats from "./chat-summary-stats.svelte";
 
-interface archiveEntry {
+export interface archiveEntry {
   key: string;
   lobbyId: string;
   date: string;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { LobbyStatisticsFeature } from "@/app/features/lobby-statistics/lobby-statistics.feature";
+  import type { LobbyStatisticsFeature, archiveEntry } from "@/app/features/lobby-statistics/lobby-statistics.feature";
   import Checkbox from "@/lib/checkbox/checkbox.svelte";
   import FlatButton from "@/lib/flat-button/flat-button.svelte";
   import { Chart } from "@/util/chart/chart";
@@ -22,12 +22,66 @@
   let selectedPlayers: {[key: number]: boolean} = {};
   let selectedTableData: string[][] = [];
 
+  const zoomSpeed = 0.1;
+  let canvasZoomScale = 1;
+  let canvasPanOffsetX = 0;
+  let canvasPanOffsetY = 0;
+
+  let mouseDraggingCanvas = false;
+  const panSpeed = 2;
+  let canvDragPrevX = 0;
+  let canvDragPrevY = 0;
+
   onMount(() => {
     if(canvas === undefined) throw new Error("canvas is undefined");
     chart = feature.createChart(canvas);
     updatePlayerSelection();
+    addZoomPanListeners();
     updateChart();
   });
+
+  const calculateTranslationForScaleChange = (oldScale: number, newScale: number, mag: number) => {
+    const oldm = oldScale * mag;
+    const newm = newScale * mag;
+    return (oldm - newm) / 2;
+  }
+
+  function addZoomPanListeners() {
+    if (canvas === undefined) throw new Error("canvas is undefined");
+    canvas.addEventListener("wheel", (evt) => {
+      if (canvas === undefined) return;
+
+      evt.preventDefault();
+      const zoomDt = evt.deltaY < 1 ? -zoomSpeed : zoomSpeed;
+
+      const oldZoomScale = canvasZoomScale;
+      canvasZoomScale += zoomDt;
+
+      canvasPanOffsetX += calculateTranslationForScaleChange(oldZoomScale, canvasZoomScale, canvas.width);
+      canvasPanOffsetY += calculateTranslationForScaleChange(oldZoomScale, canvasZoomScale, canvas.height);
+
+      updateChart(false);
+    });
+
+    canvas.addEventListener("pointerdown", (evt) => {
+      mouseDraggingCanvas = true;
+      canvDragPrevX = evt.screenX;
+      canvDragPrevY = evt.screenY;
+    });
+
+    document.addEventListener("pointermove", (evt) => {
+      if (!mouseDraggingCanvas) return;
+      const dx = evt.screenX - canvDragPrevX;
+      const dy = evt.screenY - canvDragPrevY;
+      canvasPanOffsetX += dx * panSpeed;
+      canvasPanOffsetY += dy * panSpeed;
+      canvDragPrevX = evt.screenX;
+      canvDragPrevY = evt.screenY;
+      updateChart(false);
+    });
+
+    document.addEventListener("pointerup", () => (mouseDraggingCanvas = false));
+  }
 
   function updatePlayerSelection() {
     let players: skribblPlayer[] = [];
@@ -61,24 +115,50 @@
     }
   }
 
-  function updateChart(){
+  let chartCacheArchiveEntry: archiveEntry | undefined;
+  let chartCachePlayers: skribblPlayer[];
+  function updateChart(changed = true) {
     const view = views[selectedViewIndex];
-    if(chart === undefined) {
+    if (chart === undefined) {
       console.log("Chart is undefined");
       selectedTableData = [];
       return;
     }
 
-    const archiveEntry = selectedArchiveKey.length > 0 ? $archive.get(selectedArchiveKey) : undefined;
-    const players = availablePlayers.filter(p => selectedPlayers[p.id]);
-    try {
-      view.drawChart(players, chart, archiveEntry?.key);
-      selectedTableData = view.generateTable(players, archiveEntry?.key);
-    }
-    catch (e) {
-      console.error("Error drawing chart:", e);
-      chart.clear();
-      selectedTableData = [];
+    if (changed) {
+      chartCacheArchiveEntry =
+        selectedArchiveKey.length > 0
+          ? $archive.get(selectedArchiveKey)
+          : undefined;
+      chartCachePlayers = availablePlayers.filter((p) => selectedPlayers[p.id]);
+      try {
+        view.drawChart(
+          chartCachePlayers,
+          chart,
+          canvasPanOffsetX,
+          canvasPanOffsetY,
+          canvasZoomScale,
+          chartCacheArchiveEntry?.key
+        );
+        selectedTableData = view.generateTable(
+          chartCachePlayers,
+          chartCacheArchiveEntry?.key
+        );
+      } catch (e) {
+        console.error("Error drawing chart:", e);
+        chart.clear();
+        selectedTableData = [];
+      }
+    } else {
+      if (chartCachePlayers === undefined) return;
+      view.drawChart(
+        chartCachePlayers,
+        chart,
+        canvasPanOffsetX,
+        canvasPanOffsetY,
+        canvasZoomScale,
+        chartCacheArchiveEntry?.key
+      );
     }
   }
 </script>
@@ -89,6 +169,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    cursor: grab;
 
     .typo-stats-chart-caption {
       text-align: center;
