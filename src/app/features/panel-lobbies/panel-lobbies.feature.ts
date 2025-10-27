@@ -35,6 +35,11 @@ export class PanelLobbiesFeature extends TypoFeature {
       .withName("Group by lobby")
       .withDescription("Group online players by lobby")
   );
+  private _groupByLobbyWrapSetting = this.useSetting(
+    new BooleanExtensionSetting("group_by_lobby_wrap", false, this)
+      .withName("Wrap when grouped by lobby")
+      .withDescription("When grouped by lobby, show multiple lobbies on the same line if they fit")
+  );
   private _firstLanguageSetting = this.useSetting(
     new ChoiceExtensionSetting<Language>("first_language", "English", this)
       .withName("First language")
@@ -102,8 +107,8 @@ export class PanelLobbiesFeature extends TypoFeature {
     return this._groupByLobbySetting.store;
   }
 
-  public get firstLanguageStore() {
-    return this._firstLanguageSetting.store;
+  public get groupByLobbyWrapStore() {
+    return this._groupByLobbyWrapSetting.store;
   }
 
   /**

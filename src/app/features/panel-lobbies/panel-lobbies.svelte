@@ -8,7 +8,7 @@
 
   const lobbies = feature.lobbiesStore;
   const groupByLobby = feature.groupByLobbyStore;
-  const firstLanguage = feature.firstLanguageStore;
+  const groupByLobbyWrap = feature.groupByLobbyWrapStore;
   const showDiscovered = feature.showDiscoveredLobbiesStore;
   const discoveredLobbies = feature.discoveredLobbiesStore;
 </script>
@@ -60,6 +60,10 @@
       .dimmed {
         opacity: 0.7;
       };
+    }
+
+    .no-flex {
+      display: block;
     }
   }
 
@@ -123,7 +127,7 @@
           <div class="typo-lobbies-language-bucket">
             <div class="stat-icon" style="content: var({languageBucket.languageIcon})"></div>
             {#if $groupByLobby }
-              <div class="typo-lobbies-lobby-buckets">
+              <div class="typo-lobbies-lobby-buckets" class:no-flex={$groupByLobbyWrap}>
                 {#each languageBucket.lobbyBuckets as lobbyBucket}
                   <div class:dimmed={lobbyBucket.dimmed}>
                     <div class="typo-lobbies-lobby-title">
