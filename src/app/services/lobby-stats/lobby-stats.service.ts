@@ -134,6 +134,27 @@ export class LobbyStatsService {
     );
     const turnStarted$ = new Subject<NonNullable<LobbyStateChangedEvent["data"]["drawingStarted"]>>();
     roundStartedSource$.subscribe(turnStarted$);
+    
+    // insert scores 0 on game start
+    lobby$
+      .pipe(withLatestFrom(this._lobbyStateChangedEventListener.events$))
+      .subscribe(([lobby, latestEvent]) => {
+        if (lobby === null || lobby.lobby.round !== 1) return;
+        if (!latestEvent.data.drawingStarted) return;
+
+        const players = lobby.lobby.players;
+        const firstToDrawPlayer = players.at(-1)?.id;
+        if (firstToDrawPlayer !== lobby.turnPlayerId) return;
+
+        for (const player of players) {
+          const event: standingScoreStatEvent = {
+            ...this.createEventSignature(lobby.lobby, lobby.turnPlayerId, player.id),
+            score: 0,
+            lobbyRound: 0
+          };
+          this._turnStandingScoreStats$.next(event);
+        }
+      });
 
     /* drawing likes stats */
     turnStarted$.pipe(

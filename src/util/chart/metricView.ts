@@ -180,10 +180,10 @@ export class MetricView<TEvent extends lobbyStatEvent> {
 
       /* select the whole time series of a player dataset */
       if(this._aggregation === "single"){
-        dataPoints = playerEvents.map(e => ({
+        dataPoints = playerEvents.map((e) => ({
           x: temporalLookup.get(this.buildTemporalKey(e.lobbyRound, e.turnPlayerId)) ?? 0,
           y: this._valueSelector(e),
-          originalEvent: e
+          originalEvent: e,
         }));
       }
 
