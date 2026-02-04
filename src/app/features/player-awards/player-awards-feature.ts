@@ -270,6 +270,7 @@ export class PlayerAwardsFeature extends TypoFeature {
       componentType: AwardPicker,
       propsFactory: submit => ({
         awards: awardInventory,
+        feature: this,
         onPick: submit.bind(this),
       }),
     };

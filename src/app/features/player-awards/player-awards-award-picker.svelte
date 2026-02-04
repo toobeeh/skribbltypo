@@ -4,8 +4,11 @@
   import type { PanelCabinFeature } from "@/app/features/panel-cabin/panel-cabin.feature";
   import type { PlayerAwardsFeature } from "@/app/features/player-awards/player-awards-feature";
 
+  export let feature: PlayerAwardsFeature;
   export let onPick: (sprite: AwardInventoryDto) => void;
   export let awards: AwardInventoryDto[];
+
+  let tooltipAction = feature.createTooltip;
 
   const getAwardRarityName = (rarity: number) => {
     switch (rarity) {
@@ -85,7 +88,14 @@
 
     {#each awards as award}
 
-      <div class="typo-award-picker-award" on:click={() => onPick(award)} style="order: {award.award.id}">
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div
+        class="typo-award-picker-award"
+        use:tooltipAction={{title: award.award.description, lock: "Y"}}
+        on:click={() => onPick(award)}
+        style="order: {award.award.id}"
+      >
         <div class="typo-award-picker-award-thumb"
              style="background-image: url({award.award.url})"></div>
         <span><b>{award.award.name}</b></span>
