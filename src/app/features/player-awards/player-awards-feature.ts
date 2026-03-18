@@ -271,6 +271,7 @@ export class PlayerAwardsFeature extends TypoFeature {
       propsFactory: submit => ({
         awards: awardInventory,
         onPick: submit.bind(this),
+        feature: this
       }),
     };
 
