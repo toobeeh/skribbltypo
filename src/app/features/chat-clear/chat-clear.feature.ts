@@ -56,7 +56,7 @@ export class ChatClearFeature extends TypoFeature {
               /* else limit reached, delete last and add new */
               else {
                 acc[0].remove();
-                acc.splice(1);
+                acc.shift();
                 acc.push(message.element);
               }
 
