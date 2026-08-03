@@ -313,7 +313,11 @@ export class DrawingService {
    */
   public setColor(color: number, secondary = false) {
     this._logger.debug("Setting color", color);
-    document.dispatchEvent(new CustomEvent("setColor", {detail: {code: color, secondary}}));
+    let detail = { code: color, secondary };
+    if (typeof window.cloneInto !== "undefined") {
+      detail = window.cloneInto(detail, window);
+    }
+    document.dispatchEvent(new CustomEvent("setColor", { detail }));
   }
 
   /**
