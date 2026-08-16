@@ -4,17 +4,33 @@ import { ChatService } from "@/app/services/chat/chat.service";
 import type { componentData } from "@/app/services/modal/modal.service";
 import { ApiDataSetup } from "@/app/setups/api-data/api-data.setup";
 import { fromObservable } from "@/util/store/fromObservable";
+import { fromPromise } from "rxjs/internal/observable/innerFrom";
 import { TypoFeature } from "../../core/feature/feature";
 import { inject } from "inversify";
 import { ElementsSetup } from "../../setups/elements/elements.setup";
-import { BehaviorSubject, withLatestFrom, type Subscription } from "rxjs";
+import {
+  BehaviorSubject,
+  withLatestFrom,
+  type Subscription,
+  firstValueFrom,
+  switchMap,
+  map,
+} from "rxjs";
 import ChatEmojis from "./chat-emojis.svelte";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import EmojiPicker from "./emoji-picker.svelte";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
-import { ExtensionSetting } from "@/app/core/settings/setting";
+import { ExtensionSetting, TextExtensionSetting } from "@/app/core/settings/setting";
 
 type EmojiScoreMap = Record<string, number>;
+
+interface unicodeEmoji {
+  name: string;
+  emoji: string;
+  unified: string;
+  short_name: string;
+  short_names: string[];
+}
 
 export class ChatEmojisFeature extends TypoFeature {
 
@@ -35,13 +51,21 @@ export class ChatEmojisFeature extends TypoFeature {
 
   private _inputListener = this.handleInputEvent.bind(this);
 
+  private readonly _customPrefixSetting = this.useSetting(
+    new TextExtensionSetting("custom_prefix", ".", this)
+      .withName("Unicode Emoji Prefix")
+      .withDescription("Set a prefix to trigger unicode search in the emoji picker.")
+  );
+
   private _emojiScoresSetting = new ExtensionSetting<EmojiScoreMap>("emojiScores", {}, this);
   private _subscription?: Subscription;
   private _component?: ChatEmojis;
   private _flyoutComponent?: AreaFlyout;
   private _flyoutSubscription?: Subscription;
-  private _emojiCandidates$ = new BehaviorSubject<EmojiDto[]>([]);
+  private _emojiCandidates$ = new BehaviorSubject<{custom: EmojiDto[], unicode: unicodeEmoji[], mode: "unicode" | "custom"}>({custom: [], unicode: [], mode: "custom"});
   private _emojiScores: EmojiScoreMap = {};
+  private _unicodeEmojis?: Promise<unicodeEmoji[]>;
+  private readonly _unicodeShortcodeSource= "https://cdn.jsdelivr.net/npm/emoji-datasource@16.0.0/emoji.json";
 
   protected override async onActivate() {
 
@@ -63,6 +87,22 @@ export class ChatEmojisFeature extends TypoFeature {
 
     /* track most frequently used emojis */
     this._emojiScores = await this._emojiScoresSetting.getValue();
+    
+    /* load unicode emoji shortnames, only once */
+    this._unicodeEmojis = this._unicodeEmojis ?? firstValueFrom(
+      fromPromise(fetch(this._unicodeShortcodeSource)).pipe(
+        switchMap(emojis => emojis.json() as Promise<unicodeEmoji[]>),
+        map(emojis => emojis.map(e => ({
+          name: e.short_name,
+          emoji: String.fromCodePoint(
+            ...e.unified.split("-").map(code => parseInt(code, 16))
+          ),
+          unified: e.unified,
+          short_name: e.short_name,
+          short_names: e.short_names
+        })))
+      )
+    );
   }
 
   protected override async onDestroy() {
@@ -99,25 +139,38 @@ export class ChatEmojisFeature extends TypoFeature {
 
   async handleInputEvent(event: KeyboardEvent) {
     const emojis = (await this._apiDataSetup.complete()).emojis;
+    const unicodeEmojis = await this._unicodeEmojis;
     const elements = await this._elements.complete();
+    const prefix = await this._customPrefixSetting.getValue();
 
     /* get emoji candidates and emit event */
     this._logger.debug("Finding emoji candidates for: ", elements.chatInput.value);
-    const emojiHead = this.parseUnfinishedEmoji(elements.chatInput.value);
-    const emojiCandidates = emojiHead !== undefined 
-      ? emojis
-        .filter(e => e.name.toLowerCase().includes(emojiHead.toLowerCase()))
+    const emojiHead = this.parseUnfinishedEmoji(elements.chatInput.value, prefix);
+
+    const emojiCandidates: {custom: EmojiDto[], unicode: unicodeEmoji[], mode: "unicode" | "custom"} = {custom: [], unicode: [], mode: "custom"};
+    if(emojiHead !== undefined && emojiHead.startsWith(prefix)) {
+      const unicodeHead = emojiHead.slice(prefix.length);
+      emojiCandidates.mode = "unicode";
+      emojiCandidates.unicode = (unicodeEmojis ?? [])
+        .filter(e => e.short_name.toLowerCase().includes(unicodeHead.toLowerCase()))
         .sort((a, b) => {
-          const scoreA = this._emojiScores[this.getEmojiId(a)] ?? 0;
-          const scoreB = this._emojiScores[this.getEmojiId(b)] ?? 0;
+          const scoreA = this._emojiScores[a.emoji] ?? 0;
+          const scoreB = this._emojiScores[b.emoji] ?? 0;
           return scoreB - scoreA; // descending
-        })
-      : [];
+        });
+    }
+    else if(emojiHead !== undefined) {
+      emojiCandidates.custom = emojis
+        .filter(e => e.name.toLowerCase().includes(emojiHead.toLowerCase()));
+    }
     this._emojiCandidates$.next(emojiCandidates);
       
     /* autocomplete emoji */
-    if (emojiHead !== undefined && emojiCandidates.length > 0 && event.key === "Tab") {
-      this.insertEmoji(emojiCandidates[0], elements.chatInput);
+    if (emojiHead !== undefined &&
+      (emojiCandidates.mode === "custom" && emojiCandidates.custom.length > 0
+      || emojiCandidates.mode === "unicode" && emojiCandidates.unicode.length) &&
+      event.key === "Tab") {
+      this.insertEmoji(emojiCandidates.mode === "custom" ? emojiCandidates.custom[0] : emojiCandidates.unicode[0].emoji, elements.chatInput);
     }
 
     /* show popout if head exists, else close if open */
@@ -128,7 +181,7 @@ export class ChatEmojisFeature extends TypoFeature {
         componentType: EmojiPicker,
         props: {
           feature: this,
-          onSelected: (emoji: EmojiDto, keepOpen: boolean) => {
+          onSelected: (emoji: EmojiDto | string, keepOpen: boolean) => {
             this.insertEmoji(emoji, elements.chatInput, keepOpen);
           }
         },
@@ -160,9 +213,16 @@ export class ChatEmojisFeature extends TypoFeature {
     }
   }
 
-  private insertEmoji(emoji: EmojiDto, chatInput: HTMLInputElement, keepOpen = false) {
+  private insertEmoji(emoji: EmojiDto | string, chatInput: HTMLInputElement, keepOpen = false) {
     const text = chatInput.value;
-    chatInput.value = text.slice(0, text.lastIndexOf(":")) + `:${this.getEmojiId(emoji)}:`;
+
+    if(typeof emoji === "string"){
+      chatInput.value = text.slice(0, text.lastIndexOf(":")) + emoji;
+    }
+    else {
+      chatInput.value = text.slice(0, text.lastIndexOf(":")) + `:${this.getEmojiId(emoji)}:`;
+    }
+
     if (keepOpen) {
       chatInput.value = chatInput.value + text.slice(text.lastIndexOf(":")); /* keep current search query in picker */
     } else {
@@ -248,13 +308,14 @@ export class ChatEmojisFeature extends TypoFeature {
     return result;
   }
 
-  parseUnfinishedEmoji(text: string) {
+  parseUnfinishedEmoji(text: string, unicodePrefix: string) {
 
     /* remove all parsed emotes */
     const parsedEmojiPattern = /:([a-zA-Z0-9_-]+):/g;
     text = text.replace(parsedEmojiPattern, "");
 
-    const emojiPattern = /:([a-zA-Z0-9_-]*)$/;
+    const escapedPrefix = unicodePrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+    const emojiPattern = new RegExp(`:((?:${escapedPrefix})?[a-zA-Z0-9_-]*)$`);
     const match = emojiPattern.exec(text);
     return match?.[1];
   }

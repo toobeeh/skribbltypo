@@ -16,7 +16,7 @@
 
 <style lang="scss">
 
-  .typo-command-preview {
+  .typo-emoji-picker {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -83,7 +83,7 @@
 </style>
 
 
-<div class="typo-command-preview">
+<div class="typo-emoji-picker">
   {#each $currentCommands as result}
     {#if result.result !== null}
 
