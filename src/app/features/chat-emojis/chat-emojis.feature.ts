@@ -20,7 +20,7 @@ import ChatEmojis from "./chat-emojis.svelte";
 import AreaFlyout from "@/lib/area-flyout/area-flyout.svelte";
 import EmojiPicker from "./emoji-picker.svelte";
 import { LobbyService } from "@/app/services/lobby/lobby.service";
-import { ExtensionSetting, TextExtensionSetting } from "@/app/core/settings/setting";
+import { ExtensionSetting } from "@/app/core/settings/setting";
 
 type EmojiScoreMap = Record<string, number>;
 
@@ -50,12 +50,6 @@ export class ChatEmojisFeature extends TypoFeature {
   private readonly boostAmount = 1.0;
 
   private _inputListener = this.handleInputEvent.bind(this);
-
-  private readonly _customPrefixSetting = this.useSetting(
-    new TextExtensionSetting("custom_prefix", ".", this)
-      .withName("Unicode Emoji Prefix")
-      .withDescription("Set a prefix to trigger unicode search in the emoji picker.")
-  );
 
   private _emojiScoresSetting = new ExtensionSetting<EmojiScoreMap>("emojiScores", {}, this);
   private _subscription?: Subscription;
@@ -141,40 +135,39 @@ export class ChatEmojisFeature extends TypoFeature {
     const emojis = (await this._apiDataSetup.complete()).emojis;
     const unicodeEmojis = await this._unicodeEmojis;
     const elements = await this._elements.complete();
-    const prefix = await this._customPrefixSetting.getValue();
 
     /* get emoji candidates and emit event */
     this._logger.debug("Finding emoji candidates for: ", elements.chatInput.value);
-    const emojiHead = this.parseUnfinishedEmoji(elements.chatInput.value, prefix);
+    const emojiHead = this.parseUnfinishedEmoji(elements.chatInput.value);
 
     const emojiCandidates: {custom: EmojiDto[], unicode: unicodeEmoji[], mode: "unicode" | "custom"} = {custom: [], unicode: [], mode: "custom"};
-    if(emojiHead !== undefined && emojiHead.startsWith(prefix)) {
-      const unicodeHead = emojiHead.slice(prefix.length);
+    const name = emojiHead.name;
+    if(name !== undefined && emojiHead.unicode) {
       emojiCandidates.mode = "unicode";
       emojiCandidates.unicode = (unicodeEmojis ?? [])
-        .filter(e => e.short_name.toLowerCase().includes(unicodeHead.toLowerCase()))
+        .filter(e => e.short_name.toLowerCase().includes(name.toLowerCase()))
         .sort((a, b) => {
           const scoreA = this._emojiScores[a.emoji] ?? 0;
           const scoreB = this._emojiScores[b.emoji] ?? 0;
           return scoreB - scoreA; // descending
         });
     }
-    else if(emojiHead !== undefined) {
+    else if(name !== undefined) {
       emojiCandidates.custom = emojis
-        .filter(e => e.name.toLowerCase().includes(emojiHead.toLowerCase()));
+        .filter(e => e.name.toLowerCase().includes(name.toLowerCase()));
     }
     this._emojiCandidates$.next(emojiCandidates);
       
     /* autocomplete emoji */
-    if (emojiHead !== undefined &&
+    if (emojiHead.name !== undefined &&
       (emojiCandidates.mode === "custom" && emojiCandidates.custom.length > 0
       || emojiCandidates.mode === "unicode" && emojiCandidates.unicode.length) &&
       event.key === "Tab") {
-      this.insertEmoji(emojiCandidates.mode === "custom" ? emojiCandidates.custom[0] : emojiCandidates.unicode[0].emoji, elements.chatInput);
+      this.insertEmoji(emojiCandidates.mode === "custom" ? emojiCandidates.custom[0] : emojiCandidates.unicode[0].emoji, elements.chatInput, false, emojiHead.count);
     }
 
     /* show popout if head exists, else close if open */
-    if(emojiHead !== undefined && this._flyoutComponent === undefined){
+    if(emojiHead.name !== undefined && this._flyoutComponent === undefined){
 
       /* create fly out content */
       const flyoutContent: componentData<EmojiPicker> = {
@@ -182,7 +175,7 @@ export class ChatEmojisFeature extends TypoFeature {
         props: {
           feature: this,
           onSelected: (emoji: EmojiDto | string, keepOpen: boolean) => {
-            this.insertEmoji(emoji, elements.chatInput, keepOpen);
+            this.insertEmoji(emoji, elements.chatInput, keepOpen, emojiHead.count);
           }
         },
       };
@@ -208,23 +201,26 @@ export class ChatEmojisFeature extends TypoFeature {
         this._flyoutComponent = undefined;
       });
     }
-    else if (this._flyoutComponent !== undefined && emojiHead === undefined){
+    else if (this._flyoutComponent !== undefined && emojiHead.name === undefined){
       this._flyoutComponent.close();
     }
   }
 
-  private insertEmoji(emoji: EmojiDto | string, chatInput: HTMLInputElement, keepOpen = false) {
-    const text = chatInput.value;
+  private insertEmoji(emoji: EmojiDto | string, chatInput: HTMLInputElement, keepOpen = false, repeat = 1) {
+
+    /* remove repeat modifier and emoji head */
+    const tail = chatInput.value.replace(/(\d*::?[a-zA-Z0-9_-]*)$/, ""); // match text before search query
+    const head = chatInput.value.replace(/(.*?)(\d*::?[a-zA-Z0-9_-]*)$/, "$2"); // match current emoji search query
 
     if(typeof emoji === "string"){
-      chatInput.value = text.slice(0, text.lastIndexOf(":")) + emoji;
+      chatInput.value = tail + emoji.repeat(repeat);
     }
     else {
-      chatInput.value = text.slice(0, text.lastIndexOf(":")) + `:${this.getEmojiId(emoji)}:`;
+      chatInput.value = tail + `:${this.getEmojiId(emoji)}:`.repeat(repeat);
     }
 
     if (keepOpen) {
-      chatInput.value = chatInput.value + text.slice(text.lastIndexOf(":")); /* keep current search query in picker */
+      chatInput.value = chatInput.value + head; /* keep current search query in picker */
     } else {
       this._flyoutComponent?.close();
     }
@@ -308,16 +304,22 @@ export class ChatEmojisFeature extends TypoFeature {
     return result;
   }
 
-  parseUnfinishedEmoji(text: string, unicodePrefix: string) {
+  parseUnfinishedEmoji(text: string) {
 
     /* remove all parsed emotes */
     const parsedEmojiPattern = /:([a-zA-Z0-9_-]+):/g;
     text = text.replace(parsedEmojiPattern, "");
 
-    const escapedPrefix = unicodePrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-    const emojiPattern = new RegExp(`:((?:${escapedPrefix})?[a-zA-Z0-9_-]*)$`);
+    //const escapedPrefix = unicodePrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+    const emojiPattern = new RegExp("(\\d*):(:)?([a-zA-Z0-9_-]*)$");
     const match = emojiPattern.exec(text);
-    return match?.[1];
+
+    const count = parseInt(match?.[1] ?? "");
+    return {
+      count: Number.isInteger(count) ? count : 1,
+      unicode: match?.[2] !== undefined,
+      name: match?.[3]
+    };
   }
 
   getEmojiId(emoji: EmojiDto){

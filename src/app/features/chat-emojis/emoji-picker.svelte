@@ -68,7 +68,7 @@
   {:else}
     {#each $emojiCandidates.unicode as emoji}
       <span class="emoji-picker-candidate-unicode"
-            on:mouseenter={() => hoverEmoji = emoji.short_name}
+            on:mouseenter={() => hoverEmoji = ":" + emoji.short_name}
            on:click={(e) => onSelected?.(emoji.emoji, e.shiftKey)}
       >
         {emoji.emoji}
