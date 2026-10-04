@@ -1117,7 +1117,7 @@
 // TYPOMOD
 // desc: cursor with custom color
         var a = bt < 10000 ? kt[bt] : typo.typoCodeToRgb(bt);
-// TYPOEND 
+// TYPOEND
 
         a = [(a = 1 == l.dark ? [Math.floor(.75 * a[0]), Math.floor(.75 * a[1]), Math.floor(.75 * a[2])] : a)[0], a[1], a[2], .8];
         o.fillStyle = "rgba(" + a[0] + "," + a[1] + "," + a[2] + "," + a[3] + ")", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.fill(), o.strokeStyle = "#FFF", o.beginPath(), o.arc(t / 2, t / 2, n / 2 - 1, 0, 2 * Math.PI), o.stroke(), o.strokeStyle = "#000", o.beginPath(), o.arc(t / 2, t / 2, n / 2, 0, 2 * Math.PI), o.stroke();
@@ -2263,8 +2263,8 @@
   }
 
   function Ba(e, t) {
-    var n, a, o;
-    !e.muted && (o = ((a = W(x)).flags & k) == k, n = e.id == M || e.guessed, x == M || a.guessed || !n || o) && (a = (e.flags & k) == k, o = Me, n && (o = Ie), a && (o = Ee), Ua(e, $("text", t)), y(e.name, t, f(o), !1)
+    var n, a, o, r;
+    !e.muted && (r = ((o = W(x)).flags & k) == k, n = e.id == M || e.guessed, a = L.id == V && L.data.id == x && e.id == x, x == M || o.guessed || !n || r) && (o = (e.flags & k) == k, r = Me, (n || a) && (r = Ie), o && (r = Ee), Ua(e, $("text", t)), y(e.name, t, f(r), !1)
       .setAttribute("playerid", e.id))
   }
 
@@ -2409,7 +2409,7 @@
         data: t
       })
     }
-  }), D([c.querySelector("#button-invite"), c.querySelector("#modal-player-button-invite")], "click", function() {
+  }), D([c.querySelector("#copy-invite"), c.querySelector("#modal-player-button-invite")], "click", function() {
     y(E("Copied room link to clipboard!"), "", f(Le), !0);
     var e = "https://skribbl.io/?" + Tn;
     if (navigator.clipboard) navigator.clipboard.writeText(e).then(function() {
